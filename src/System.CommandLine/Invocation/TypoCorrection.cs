@@ -27,11 +27,14 @@ namespace System.CommandLine.Invocation
             for (var i = 0; i < result.UnmatchedTokens.Count; i++)
             {
                 var token = result.UnmatchedTokens[i];
-                string suggestions = string.Join(", or ", GetPossibleTokens(result.CommandResult.Command, token).Select(x => $"'{x}'"));
-
-                if (suggestions.Length > 0)
+                var suggestions = GetPossibleTokens(result.CommandResult.Command, token).ToList();
+                if (suggestions.Count > 0)
                 {
-                    console.Out.WriteLine($"'{token}' was not matched. Did you mean {suggestions}?");
+                    console.Out.WriteLine(Resources.Instance.SuggestionsTokenNotMatched(token));
+                    foreach(string suggestion in suggestions)
+                    {
+                        console.Out.WriteLine(suggestion);
+                    }
                 }
             }
         }

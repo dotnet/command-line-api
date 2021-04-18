@@ -23,23 +23,19 @@ namespace System.CommandLine.Binding
             if (argument is Argument a &&
                 a.Parents.Count == 1)
             {
-                // TODO: (FailedArgumentTypeConversionResult) localize
-
                 var firstParent = (IIdentifierSymbol) a.Parents[0];
-
-                var symbolType =
-                    firstParent switch {
-                        ICommand _ => "command",
-                        IOption _ => "option",
-                        _ => null
-                        };
-
                 var alias = firstParent.Aliases.First();
 
-                return $"Cannot parse argument '{value}' for {symbolType} '{alias}' as expected type {expectedType}.";
+                switch(firstParent)
+                {
+                    case ICommand _:
+                        return Resources.Instance.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
+                    case IOption _:
+                        return Resources.Instance.ArgumentConversionCannotParseForOption(value, alias, expectedType);
+                }
             }
 
-            return $"Cannot parse argument '{value}' as expected type {expectedType}.";
+            return Resources.Instance.ArgumentConversionCannotParse(value, expectedType);
         }
     }
 }

@@ -10,12 +10,12 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class ValidationMessageLocalizationTests
+    public class ResourceLocalizationTests
     {
         [Fact]
         public void Default_validation_messages_can_be_replaced_in_order_to_add_localization_support()
         {
-            var messages = new FakeValidationMessages("the-message");
+            var messages = new FakeResources("the-message");
 
             var command = new Command("the-command")
             {
@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ExactlyOne
                 }
             };
-            var parser = new Parser(new CommandLineConfiguration(new[] { command }, validationMessages: messages));
+            var parser = new Parser(new CommandLineConfiguration(new[] { command }, resources: messages));
             var result = parser.Parse("the-command");
 
             result.Errors
@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Default_validation_messages_can_be_replaced_using_CommandLineBuilder_in_order_to_add_localization_support()
         {
-            var messages = new FakeValidationMessages("the-message");
+            var messages = new FakeResources("the-message");
 
             var parser = new CommandLineBuilder(new Command("the-command")
                          {
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests
                                  Arity = ArgumentArity.ExactlyOne
                              }
                          })
-                         .UseValidationMessages(messages)
+                         .UseResources(messages)
                          .Build();
 
             var result = parser.Parse("the-command");
@@ -56,11 +56,11 @@ namespace System.CommandLine.Tests
                   .Contain("the-message");
         }
 
-        public class FakeValidationMessages : Resources
+        public class FakeResources : Resources
         {
             private readonly string message;
 
-            public FakeValidationMessages(string message)
+            public FakeResources(string message)
             {
                 this.message = message;
             }

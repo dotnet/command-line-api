@@ -105,6 +105,42 @@ namespace System.CommandLine
         public virtual string HelpAdditionalArgumentsDescription() =>
             GetResourceString(Properties.Resources.HelpAdditionalArgumentsDescription);
 
+        public virtual string SuggestionsTokenNotMatched(string token)
+            => GetResourceString(Properties.Resources.SuggestionsTokenNotMatched, token);
+
+        public virtual string VersionOptionDescription()
+            => GetResourceString(Properties.Resources.VersionOptionDescription);
+
+        public virtual string VersionOptionCannotBeCombinedWithOtherArguments(string optionAlias)
+            => GetResourceString(Properties.Resources.VersionOptionCannotBeCombinedWithOtherArguments, optionAlias);
+
+        public virtual string ExceptionHandlerHeader()
+            => GetResourceString(Properties.Resources.ExceptionHandlerHeader);
+
+        public virtual string DebugDirectiveExecutableNotSpecified(string environmentVariableName, string processName)
+            => GetResourceString(Properties.Resources.DebugDirectiveExecutableNotSpecified, environmentVariableName, processName);
+
+        public virtual string DebugDirectiveAttachToProcess(int processId, string processName)
+            => GetResourceString(Properties.Resources.DebugDirectiveAttachToProcess, processId, processName);
+
+        public virtual string DebugDirectiveProcessNotIncludedInEnvironmentVariable(string processName, string environmentVariableName, string processNames)
+            => GetResourceString(Properties.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable, processName, environmentVariableName, processNames);
+
+        public virtual string DotnetSuggestExceptionOccurred(Exception exception)
+            => GetResourceString(Properties.Resources.DotnetSuggestExceptionOccurred, exception);
+
+        public virtual string DotnetSuggestExitMessage(string dotnetSuggestName, int exitCode, string standardOut, string standardError)
+            => GetResourceString(Properties.Resources.DotnetSuggestExitMessage, dotnetSuggestName, exitCode, standardOut, standardError);
+
+        public virtual string ArgumentConversionCannotParse(string value, Type expectedType)
+            => GetResourceString(Properties.Resources.ArgumentConversionCannotParse, value, expectedType);
+
+        public virtual string ArgumentConversionCannotParseForCommand(string value, string commandAlias, Type expectedType)
+            => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForCommand, value, commandAlias, expectedType);
+
+        public virtual string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType)
+            => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption, value, optionAlias, expectedType);
+
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {
             if (resourceString is null)

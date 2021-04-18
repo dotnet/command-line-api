@@ -48,7 +48,7 @@ namespace System.CommandLine
                                       symbol.Tokens
                                             .Select(t => t.Value)
                                             .Where(filePath => !File.Exists(filePath))
-                                            .Select(symbol.ValidationMessages.FileDoesNotExist)
+                                            .Select(symbol.Resources.FileDoesNotExist)
                                             .FirstOrDefault());
             return argument;
         }
@@ -59,7 +59,7 @@ namespace System.CommandLine
                                       symbol.Tokens
                                             .Select(t => t.Value)
                                             .Where(filePath => !Directory.Exists(filePath))
-                                            .Select(symbol.ValidationMessages.DirectoryDoesNotExist)
+                                            .Select(symbol.Resources.DirectoryDoesNotExist)
                                             .FirstOrDefault());
             return argument;
         }
@@ -70,7 +70,7 @@ namespace System.CommandLine
                                       symbol.Tokens
                                             .Select(t => t.Value)
                                             .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                                            .Select(symbol.ValidationMessages.FileOrDirectoryDoesNotExist)
+                                            .Select(symbol.Resources.FileOrDirectoryDoesNotExist)
                                             .FirstOrDefault());
             return argument;
         }
@@ -84,7 +84,7 @@ namespace System.CommandLine
                     a => a.Tokens
                           .Select(t => t.Value)
                           .Where(filePath => !File.Exists(filePath))
-                          .Select(a.ValidationMessages.FileDoesNotExist)
+                          .Select(a.Resources.FileDoesNotExist)
                           .FirstOrDefault());
             }
             else if (typeof(IEnumerable<DirectoryInfo>).IsAssignableFrom(typeof(T)))
@@ -93,7 +93,7 @@ namespace System.CommandLine
                     a => a.Tokens
                           .Select(t => t.Value)
                           .Where(filePath => !Directory.Exists(filePath))
-                          .Select(a.ValidationMessages.DirectoryDoesNotExist)
+                          .Select(a.Resources.DirectoryDoesNotExist)
                           .FirstOrDefault());
             }
             else
@@ -102,7 +102,7 @@ namespace System.CommandLine
                     a => a.Tokens
                           .Select(t => t.Value)
                           .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                          .Select(a.ValidationMessages.FileOrDirectoryDoesNotExist)
+                          .Select(a.Resources.FileOrDirectoryDoesNotExist)
                           .FirstOrDefault());
             }
 
@@ -127,7 +127,7 @@ namespace System.CommandLine
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        return symbol.ValidationMessages.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
+                        return symbol.Resources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
                     }
                 }
 
@@ -152,7 +152,7 @@ namespace System.CommandLine
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        return symbol.ValidationMessages.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]);
+                        return symbol.Resources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]);
                     }
                 }
 

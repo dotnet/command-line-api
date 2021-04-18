@@ -207,4 +207,47 @@
   <data name="HelpCommandsTitle" xml:space="preserve">
     <value>Commands:</value>
   </data>
+  <data name="DebugDirectiveAttachToProcess" xml:space="preserve">
+    <value>Attach your debugger to process {0} ({1}).</value>
+  </data>
+  <data name="DebugDirectiveExecutableNotSpecified" xml:space="preserve">
+    <value>Debug directive specified, but no process names are listed as allowed for debug.
+Add your process name to the '{0}' environment variable.
+The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{0}={1}'</value>
+  </data>
+  <data name="DebugDirectiveProcessNotIncludedInEnvironmentVariable" xml:space="preserve">
+    <value>Process name '{0}' is not included in the list of debuggable process names in the {1} environment variable ('{2}')</value>
+  </data>
+  <data name="ExceptionHandlerHeader" xml:space="preserve">
+    <value>Unhandled exception: </value>
+  </data>
+  <data name="SuggestionsTokenNotMatched" xml:space="preserve">
+    <value>'{0}' was not matched. Did you mean one of the following?</value>
+  </data>
+  <data name="VersionOptionCannotBeCombinedWithOtherArguments" xml:space="preserve">
+    <value>{0} option cannot be combined with other arguments.</value>
+  </data>
+  <data name="VersionOptionDescription" xml:space="preserve">
+    <value>Show version information</value>
+  </data>
+  <data name="ArgumentConversionCannotParse" xml:space="preserve">
+    <value>Cannot parse argument '{0}' as expected type {1}.</value>
+  </data>
+  <data name="ArgumentConversionCannotParseForCommand" xml:space="preserve">
+    <value>Cannot parse argument '{0}' for command '{1}' as expected type {2}.</value>
+  </data>
+  <data name="ArgumentConversionCannotParseForOption" xml:space="preserve">
+    <value>Cannot parse argument '{0}' for option '{1}' as expected type {2}.</value>
+  </data>
+  <data name="DotnetSuggestExceptionOccurred" xml:space="preserve">
+    <value>Exception during registration:
+{0}</value>
+  </data>
+  <data name="DotnetSuggestExitMessage" xml:space="preserve">
+    <value>{0} exited with code {1}
+OUT:
+{2}
+ERR:
+{3}</value>
+  </data>
 </root>

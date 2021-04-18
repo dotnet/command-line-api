@@ -30,7 +30,7 @@ namespace System.CommandLine.Builder
 
         internal HelpOption? HelpOption { get; set; }
 
-        internal Resources? ValidationMessages { get; set; }
+        internal Resources? Resources { get; set; }
 
         public Parser Build()
         {
@@ -41,7 +41,7 @@ namespace System.CommandLine.Builder
                     new[] { rootCommand },
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
-                    validationMessages: ValidationMessages,
+                    resources: Resources,
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
