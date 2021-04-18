@@ -222,9 +222,7 @@ namespace System.CommandLine.Builder
                     string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
                     if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
-                        context.Console.Error.WriteLine("Debug directive specified, but no process names are listed as allowed for debug.");
-                        context.Console.Error.WriteLine($"Add your process name to the '{environmentVariableName}' environment variable.");
-                        context.Console.Error.WriteLine($"The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{environmentVariableName}={process.ProcessName}'");
+                        context.Console.Error.WriteLine(Resources.Instance.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
                         context.ExitCode = errorExitCode ?? 1;
                         return;
                     }
@@ -234,9 +232,7 @@ namespace System.CommandLine.Builder
                         if (processNames.Contains(process.ProcessName, StringComparer.Ordinal))
                         {
                             var processId = process.Id;
-
-                            context.Console.Out.WriteLine($"Attach your debugger to process {processId} ({process.ProcessName}).");
-                            var startTime = DateTime.Now;
+                            context.Console.Out.WriteLine(Resources.Instance.DebugDirectiveAttachToProcess(processId, process.ProcessName));
                             while (!Debugger.IsAttached)
                             {
                                 await Task.Delay(500);
@@ -244,7 +240,7 @@ namespace System.CommandLine.Builder
                         }
                         else
                         {
-                            context.Console.Error.WriteLine($"Process name '{process.ProcessName}' is not included in the list of debuggable process names in the {environmentVariableName} environment variable ('{debuggableProcessNames}')");
+                            context.Console.Error.WriteLine(Resources.Instance.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
                             context.ExitCode = errorExitCode ?? 1;
                             return;
                         }
@@ -325,7 +321,7 @@ namespace System.CommandLine.Builder
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();
 
-                    context.Console.Error.Write("Unhandled exception: ");
+                    context.Console.Error.Write(Resources.Instance.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
                     context.Console.ResetTerminalForegroundColor();
@@ -527,12 +523,12 @@ namespace System.CommandLine.Builder
 
             var versionOption = new Option<bool>(
                 "--version",
-                description: "Show version information",
+                description: Resources.Instance.VersionOptionDescription(),
                 parseArgument: result =>
                 {
                     if (result.FindResultFor(command)?.Children.Count > 1)
                     {
-                        result.ErrorMessage = "--version option cannot be combined with other arguments.";
+                        result.ErrorMessage = Resources.Instance.VersionOptionCannotBeCombinedWithOtherArguments("--version");
                         return false;
                     }
 

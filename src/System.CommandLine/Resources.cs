@@ -105,6 +105,33 @@ namespace System.CommandLine
         public virtual string HelpAdditionalArgumentsDescription() =>
             GetResourceString(Properties.Resources.HelpAdditionalArgumentsDescription);
 
+        public virtual string SuggestionsTokenNotMatched(string token)
+            => GetResourceString(Properties.Resources.SuggestionsTokenNotMatched, token);
+
+        public virtual string VersionOptionDescription()
+            => GetResourceString(Properties.Resources.VersionOptionDescription);
+
+        public virtual string VersionOptionCannotBeCombinedWithOtherArguments(string optionAlias)
+            => GetResourceString(Properties.Resources.VersionOptionCannotBeCombinedWithOtherArguments, optionAlias);
+
+        public virtual string ExceptionHandlerHeader()
+            => GetResourceString(Properties.Resources.ExceptionHandlerHeader);
+
+        public virtual string DebugDirectiveExecutableNotSpecified(string environmentVariableName, string processName)
+            => GetResourceString(Properties.Resources.DebugDirectiveExecutableNotSpecified, environmentVariableName, processName);
+
+        public virtual string DebugDirectiveAttachToProcess(int processId, string processName)
+            => GetResourceString(Properties.Resources.DebugDirectiveAttachToProcess, processId, processName);
+
+        public virtual string DebugDirectiveProcessNotIncludedInEnvironmentVariable(string processName, string environmentVariableName, string processNames)
+            => GetResourceString(Properties.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable, processName, environmentVariableName, processNames);
+
+        /*
+         * Cannot parse argument '{0}' for {1} '{2}' as expected type {3}.
+Cannot parse argument '{0}' as expected type {1}.
+{0} exited with code {1}{2}OUT:{3}{4}{5}ERR:{6}{7}
+Exception during registration:{0}{1}
+        */
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {
             if (resourceString is null)
