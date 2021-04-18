@@ -2,6 +2,21 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en" target-language="it" original="../Resources.resx">
     <body>
+      <trans-unit id="ArgumentConversionCannotParse">
+        <source>Cannot parse argument '{0}' as expected type {1}.</source>
+        <target state="new">Cannot parse argument '{0}' as expected type {1}.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForCommand">
+        <source>Cannot parse argument '{0}' for command '{1}' as expected type {2}.</source>
+        <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type {2}.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForOption">
+        <source>Cannot parse argument '{0}' for option '{1}' as expected type {2}.</source>
+        <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type {2}.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="CommandExpectsFewerArguments">
         <source>Command '{0}' expects no more than {1} arguments, but {2} were provided.</source>
         <target state="new">Command '{0}' expects no more than {1} arguments, but {2} were provided.</target>
@@ -22,14 +37,58 @@
         <target state="new">Required argument missing for command: {0}</target>
         <note />
       </trans-unit>
+      <trans-unit id="DebugDirectiveAttachToProcess">
+        <source>Attach your debugger to process {0} ({1}).</source>
+        <target state="new">Attach your debugger to process {0} ({1}).</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DebugDirectiveExecutableNotSpecified">
+        <source>Debug directive specified, but no process names are listed as allowed for debug.
+Add your process name to the '{0}' environment variable.
+The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{0}={1}'</source>
+        <target state="new">Debug directive specified, but no process names are listed as allowed for debug.
+Add your process name to the '{0}' environment variable.
+The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{0}={1}'</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DebugDirectiveProcessNotIncludedInEnvironmentVariable">
+        <source>Process name '{0}' is not included in the list of debuggable process names in the {1} environment variable ('{2}')</source>
+        <target state="new">Process name '{0}' is not included in the list of debuggable process names in the {1} environment variable ('{2}')</target>
+        <note />
+      </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">
         <source>Directory does not exist: {0}</source>
         <target state="new">Directory does not exist: {0}</target>
         <note />
       </trans-unit>
+      <trans-unit id="DotnetSuggestExceptionOccurred">
+        <source>Exception during registration:
+{0}</source>
+        <target state="new">Exception during registration:
+{0}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DotnetSuggestExitMessage">
+        <source>{0} exited with code {1}
+OUT:
+{2}
+ERR:
+{3}</source>
+        <target state="new">{0} exited with code {1}
+OUT:
+{2}
+ERR:
+{3}</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ErrorReadingResponseFile">
         <source>Error reading response file '{0}': {1}</source>
         <target state="new">Error reading response file '{0}': {1}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ExceptionHandlerHeader">
+        <source>Unhandled exception: </source>
+        <target state="new">Unhandled exception: </target>
         <note />
       </trans-unit>
       <trans-unit id="FileDoesNotExist">
@@ -155,6 +214,16 @@
       <trans-unit id="UnrecognizedCommandOrArgument">
         <source>Unrecognized command or argument '{0}'</source>
         <target state="new">Unrecognized command or argument '{0}'</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">
+        <source>{0} option cannot be combined with other arguments.</source>
+        <target state="new">{0} option cannot be combined with other arguments.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="VersionOptionDescription">
+        <source>Show version information</source>
+        <target state="new">Show version information</target>
         <note />
       </trans-unit>
     </body>

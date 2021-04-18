@@ -61,6 +61,33 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot parse argument &apos;{0}&apos; as expected type {1}..
+        /// </summary>
+        internal static string ArgumentConversionCannotParse {
+            get {
+                return ResourceManager.GetString("ArgumentConversionCannotParse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot parse argument &apos;{0}&apos; for command &apos;{1}&apos; as expected type {2}..
+        /// </summary>
+        internal static string ArgumentConversionCannotParseForCommand {
+            get {
+                return ResourceManager.GetString("ArgumentConversionCannotParseForCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot parse argument &apos;{0}&apos; for option &apos;{1}&apos; as expected type {2}..
+        /// </summary>
+        internal static string ArgumentConversionCannotParseForOption {
+            get {
+                return ResourceManager.GetString("ArgumentConversionCannotParseForOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Command &apos;{0}&apos; expects no more than {1} arguments, but {2} were provided..
         /// </summary>
         internal static string CommandExpectsFewerArguments {
@@ -131,6 +158,29 @@ namespace System.CommandLine.Properties {
         internal static string DirectoryDoesNotExist {
             get {
                 return ResourceManager.GetString("DirectoryDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exception during registration:
+        ///{0}.
+        /// </summary>
+        internal static string DotnetSuggestExceptionOccurred {
+            get {
+                return ResourceManager.GetString("DotnetSuggestExceptionOccurred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} exited with code {1}
+        ///OUT:
+        ///{2}
+        ///ERR:
+        ///{3}.
+        /// </summary>
+        internal static string DotnetSuggestExitMessage {
+            get {
+                return ResourceManager.GetString("DotnetSuggestExitMessage", resourceCulture);
             }
         }
         

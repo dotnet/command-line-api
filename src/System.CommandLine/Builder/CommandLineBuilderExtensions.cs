@@ -189,11 +189,11 @@ namespace System.CommandLine.Builder
 
                         await dotnetSuggestProcess.CompleteAsync();
 
-                        return $"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}{NewLine}OUT:{NewLine}{stdOut}{NewLine}ERR:{NewLine}{stdErr}";
+                        return Resources.Instance.DotnetSuggestExitMessage(dotnetSuggestProcess.StartInfo.FileName, dotnetSuggestProcess.ExitCode, stdOut.ToString(), stdErr.ToString());
                     }
                     catch (Exception exception)
                     {
-                        return $"Exception during registration:{NewLine}{exception}";
+                        return Resources.Instance.DotnetSuggestExceptionOccurred(exception);
                     }
                     finally
                     {

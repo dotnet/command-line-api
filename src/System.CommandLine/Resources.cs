@@ -126,12 +126,21 @@ namespace System.CommandLine
         public virtual string DebugDirectiveProcessNotIncludedInEnvironmentVariable(string processName, string environmentVariableName, string processNames)
             => GetResourceString(Properties.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable, processName, environmentVariableName, processNames);
 
-        /*
-         * Cannot parse argument '{0}' for {1} '{2}' as expected type {3}.
-Cannot parse argument '{0}' as expected type {1}.
-{0} exited with code {1}{2}OUT:{3}{4}{5}ERR:{6}{7}
-Exception during registration:{0}{1}
-        */
+        public virtual string DotnetSuggestExceptionOccurred(Exception exception)
+            => GetResourceString(Properties.Resources.DotnetSuggestExceptionOccurred, exception);
+
+        public virtual string DotnetSuggestExitMessage(string dotnetSuggestName, int exitCode, string standardOut, string standardError)
+            => GetResourceString(Properties.Resources.DotnetSuggestExitMessage, dotnetSuggestName, exitCode, standardOut, standardError);
+
+        public virtual string ArgumentConversionCannotParse(string value, Type expectedType)
+            => GetResourceString(Properties.Resources.ArgumentConversionCannotParse, value, expectedType);
+
+        public virtual string ArgumentConversionCannotParseForCommand(string value, string commandAlias, Type expectedType)
+            => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForCommand, value, commandAlias, expectedType);
+
+        public virtual string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType)
+            => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption, value, optionAlias, expectedType);
+
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {
             if (resourceString is null)

@@ -1,10 +1,10 @@
-﻿using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
+﻿using FluentAssertions;
+using System.CommandLine.Builder;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
+using static System.Environment;
 
 namespace System.CommandLine.Tests.Invocation
 {
@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain("'niof' was not matched. Did you mean 'info'?");
+            _console.Out.ToString().Should().Contain($"'niof' was not matched. Did you mean one of the following?{NewLine}info");
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain("'sertor' was not matched. Did you mean 'restore'?");
+            _console.Out.ToString().Should().Contain($"'sertor' was not matched. Did you mean one of the following?{NewLine}restore");
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'seen', or 'been'?");
+            _console.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}seen{NewLine}been");
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
+            _console.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
 
         [Fact]
@@ -134,7 +134,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain("'een' was not matched. Did you mean 'been'?");
+            _console.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await result.InvokeAsync(_console);
 
-            _console.Out.ToString().Should().Contain("'-all' was not matched. Did you mean '-call'?");
+            _console.Out.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
         }
     }
 }
