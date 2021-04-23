@@ -68,7 +68,7 @@ namespace System.CommandLine
         public bool IsHidden { get; set; }
 
         /// <inheritdoc />
-        public virtual IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
+        public virtual IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
             var suggestions = new HashSet<string>();
 

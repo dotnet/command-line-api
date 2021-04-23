@@ -17,6 +17,6 @@ namespace System.CommandLine.Suggestions
         /// <param name="parseResult">The result provided by the parser.</param>
         /// <param name="textToMatch">The input text to match on.</param>
         /// <returns>Strings that provide suggested values to the user.</returns>
-        IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null);
+        IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null);
     }
 }
