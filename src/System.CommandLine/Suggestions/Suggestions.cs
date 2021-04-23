@@ -8,8 +8,8 @@ namespace System.CommandLine.Suggestions
 {
     internal static class SuggestionExtensions
     {
-        public static IEnumerable<string?> Containing(
-            this IEnumerable<string?> candidates,
+        public static IEnumerable<string> Containing(
+            this IEnumerable<string> candidates,
             string textToMatch)
         {
             foreach (var candidate in candidates)

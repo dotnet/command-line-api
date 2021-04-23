@@ -93,21 +93,11 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the list of suggestion sources for the argument.
         /// </summary>
-        public SuggestionSourceList Suggestions
-        { 
-            get
+        public SuggestionSourceList Suggestions =>
+            _suggestions ??= new SuggestionSourceList
             {
-                if (_suggestions is null)
-                {
-                    _suggestions = new SuggestionSourceList
-                    {
-                        SuggestionSource.ForType(ArgumentType)
-                    };
-                }
-
-                return _suggestions;
-            }
-        }
+                SuggestionSource.ForType(ArgumentType)
+            };
 
         /// <summary>
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
@@ -217,12 +207,10 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string?> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
+        public override IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
-            var dynamicSuggestions = Suggestions
-                .SelectMany(source => source.GetSuggestions(parseResult, textToMatch));
-
-            return dynamicSuggestions
+            return Suggestions
+                   .SelectMany(source => source.GetSuggestions(parseResult, textToMatch))
                    .Distinct()
                    .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
                    .Containing(textToMatch ?? "");
