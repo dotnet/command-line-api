@@ -16,8 +16,9 @@ namespace System.CommandLine
 
         public Option(
             string[] aliases,
-            string? description = null) 
-            : base(aliases, description, new Argument<T>())
+            string? description = null,
+            IArgumentArity? arity = null)
+            : base(aliases, description, new Argument<T>() { Arity = arity })
         { }
 
         public Option(
