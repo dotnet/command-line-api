@@ -154,6 +154,21 @@ namespace System.CommandLine
             base.RemoveAlias(alias);
         }
 
+        /// <summary>
+        /// Sets the default value for the option.
+        /// </summary>
+        /// <param name="value">The default value for the option.</param>
+        public void SetDefaultValue(object? value) => 
+            Argument.SetDefaultValue(value);
+
+        /// <summary>
+        /// Sets a delegate to invoke when the default value for the option is required.
+        /// </summary>
+        /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
+        public void SetDefaultValueFactory(Func<object?> getDefaultValue) => 
+            Argument.SetDefaultValueFactory(getDefaultValue);
+
         IArgument IOption.Argument => Argument;
 
         public bool AllowMultipleArgumentsPerToken { get; set; } = true;

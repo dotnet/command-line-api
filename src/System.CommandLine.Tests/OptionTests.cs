@@ -250,19 +250,49 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_T_default_value_can_be_set()
+        public void Option_T_default_value_can_be_set_via_the_constructor()
         {
             var option = new Option<int>(
                 "-x",
                 parseArgument: parsed => 123,
                 isDefault: true);
 
-            var result = option
-                         .Parse("")
-                         .FindResultFor(option)
-                         .GetValueOrDefault()
-                         .Should()
-                         .Be(123);
+            option
+                .Parse("")
+                .FindResultFor(option)
+                .GetValueOrDefault()
+                .Should()
+                .Be(123);
+        }
+
+        [Fact]
+        public void Option_T_default_value_can_be_set_after_instantiation()
+        {
+            var option = new Option<int>("-x");
+
+            option.SetDefaultValue(123);
+
+            option
+                .Parse("")
+                .FindResultFor(option)
+                .GetValueOrDefault()
+                .Should()
+                .Be(123);
+        }
+        
+        [Fact]
+        public void Option_T_default_value_factory_can_be_set_after_instantiation()
+        {
+            var option = new Option<int>("-x");
+
+            option.SetDefaultValueFactory(() => 123);
+
+            option
+                .Parse("")
+                .FindResultFor(option)
+                .GetValueOrDefault()
+                .Should()
+                .Be(123);
         }
 
         [Fact]
