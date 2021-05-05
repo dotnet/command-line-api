@@ -505,6 +505,31 @@ namespace System.CommandLine.Tests
                   .BeFalse();
         }
 
+        [Fact]
+        public void HasOption_returns_expected_result_when_multiple_positional_argument_present()
+        {
+            var option = new Option<string>("-e");
+            var command = new Command("the-command") { option };
+
+            command.AddArgument(new Argument
+            {
+                Name = "arg1",
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+
+            command.AddArgument(new Argument
+            {
+                Name = "arg2",
+                Arity = ArgumentArity.ZeroOrMore
+            });
+
+            var result = command.Parse("-e foo");
+
+            var optionResult = result.ValueForOption(option);
+
+            optionResult.Should().Be("foo");
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }
