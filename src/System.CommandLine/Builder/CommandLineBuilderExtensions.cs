@@ -380,7 +380,7 @@ namespace System.CommandLine.Builder
             return builder.UseHelp(helpOption);
         }
 
-        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, 
+        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder,
             Func<BindingContext, IHelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
         {
@@ -526,7 +526,7 @@ namespace System.CommandLine.Builder
                 description: Resources.Instance.VersionOptionDescription(),
                 parseArgument: result =>
                 {
-                    if (result.FindResultFor(command)?.Children.Count > 1)
+                    if (result.FindResultFor(command)?.Children.Where(IsNotImplicit).Count() > 1)
                     {
                         result.ErrorMessage = Resources.Instance.VersionOptionCannotBeCombinedWithOtherArguments("--version");
                         return false;
@@ -559,6 +559,16 @@ namespace System.CommandLine.Builder
             }, MiddlewareOrderInternal.VersionOption);
 
             return builder;
+
+            static bool IsNotImplicit(SymbolResult symbolResult)
+            {
+                return symbolResult switch
+                {
+                    ArgumentResult argumentResult => !argumentResult.IsImplicit,
+                    OptionResult optionResult => !optionResult.IsImplicit,
+                    _ => true
+                };
+            }
         }
 
         private static bool ShowHelp(

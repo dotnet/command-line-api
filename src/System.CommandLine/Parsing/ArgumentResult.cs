@@ -20,9 +20,11 @@ namespace System.CommandLine.Parsing
 
         public IArgument Argument { get; }
 
+        public bool IsImplicit => PassedOnTokens == null;
+
         internal IReadOnlyList<Token>? PassedOnTokens { get; private set; }
 
-        internal ArgumentConversionResult GetArgumentConversionResult() => 
+        internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= Convert(Argument);
 
         public void OnlyTake(int numberOfTokens)
@@ -32,7 +34,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentOutOfRangeException(nameof(numberOfTokens), numberOfTokens, "Value must be at least 1.");
             }
 
-            if (PassedOnTokens is {})
+            if (PassedOnTokens is { })
             {
                 throw new InvalidOperationException($"{nameof(OnlyTake)} can only be called once.");
             }
@@ -124,7 +126,7 @@ namespace System.CommandLine.Parsing
                     if (success)
                     {
                         return ArgumentConversionResult.Success(
-                            arg, 
+                            arg,
                             value);
                     }
 
