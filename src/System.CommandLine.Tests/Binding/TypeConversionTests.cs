@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
@@ -562,7 +563,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
-
+        
         [Theory]
         [InlineData(0, 100_000, typeof(string[]))]
         [InlineData(0, 3, typeof(string[]))]

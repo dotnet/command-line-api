@@ -48,7 +48,7 @@ namespace System.CommandLine.Binding
         }
 
         private static MethodInfo EnumerableEmptyMethod { get; }
-            = typeof(Enumerable).GetMethod(nameof(Enumerable.Empty));
+            = typeof(Enumerable).GetMethod(nameof(Array.Empty));
 
         internal static object? GetDefaultValue(Type type)
         {
