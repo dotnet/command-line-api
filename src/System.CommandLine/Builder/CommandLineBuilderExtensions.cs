@@ -526,8 +526,14 @@ namespace System.CommandLine.Builder
                 description: Resources.Instance.VersionOptionDescription(),
                 parseArgument: result =>
                 {
+                    var commandChildren = result.FindResultFor(command)?.Children;
+                    if (commandChildren == null)
+                    {
+                        return true;
+                    }
+
                     var versionOptionResult = result.Parent;
-                    foreach (var symbolResult in result.FindResultFor(command)?.Children)
+                    foreach (var symbolResult in commandChildren)
                     {
                         if (symbolResult == versionOptionResult)
                         {
