@@ -48,12 +48,17 @@ namespace System.CommandLine.Parsing
             {
                 if (_argumentConversionResult is null)
                 {
-                    var results = Children
-                                  .OfType<ArgumentResult>()
-                                  .Select(r => r.GetArgumentConversionResult());
+                    for (var i = 0; i < Children.Count; i++)
+                    {
+                        var child = Children[i];
 
-                    _argumentConversionResult = results.SingleOrDefault() ??
-                                                ArgumentConversionResult.None(Option.Argument);
+                        if (child is ArgumentResult argumentResult)
+                        {
+                            return _argumentConversionResult = argumentResult.GetArgumentConversionResult();
+                        }
+                    }
+
+                    return _argumentConversionResult = ArgumentConversionResult.None(Option.Argument);
                 }
 
                 return _argumentConversionResult;

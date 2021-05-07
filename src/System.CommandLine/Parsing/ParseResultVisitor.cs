@@ -199,7 +199,10 @@ namespace System.CommandLine.Parsing
 
                         argumentResults.Add(nextArgumentResult);
 
-                        previousArgumentResult.Parent!.Children.Add(nextArgumentResult);
+                        if (previousArgumentResult.Parent is CommandResult commandResult)
+                        {
+                             commandResult.Children.Add(nextArgumentResult);
+                        }
 
                         _rootCommandResult.AddToSymbolMap(nextArgumentResult);
                     }
