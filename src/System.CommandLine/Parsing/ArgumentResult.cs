@@ -20,7 +20,7 @@ namespace System.CommandLine.Parsing
 
         public IArgument Argument { get; }
 
-        public bool IsImplicit => PassedOnTokens == null;
+        public bool IsImplicit => Argument.HasDefaultValue && Tokens.Count == 0;
 
         internal IReadOnlyList<Token>? PassedOnTokens { get; private set; }
 
