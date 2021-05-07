@@ -6,6 +6,30 @@ namespace System.CommandLine.Parsing
 {
     public static class CommandResultExtensions
     {
+        public static bool HasOption(
+            this CommandResult commandResult,
+            IOption option)
+        {
+            if (commandResult is null)
+            {
+                throw new ArgumentNullException(nameof(commandResult));
+            }
+
+            return commandResult.FindResultFor(option) is { };
+        }
+
+        public static bool HasArgument(
+            this CommandResult commandResult,
+            IArgument argument)
+        {
+            if (commandResult is null)
+            {
+                throw new ArgumentNullException(nameof(commandResult));
+            }
+
+            return commandResult.FindResultFor(argument) is { };
+        }
+
         internal static bool TryGetValueForArgument(
             this CommandResult commandResult,
             IValueDescriptor valueDescriptor,
