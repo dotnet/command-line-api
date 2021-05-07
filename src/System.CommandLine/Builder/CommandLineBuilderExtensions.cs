@@ -527,14 +527,15 @@ namespace System.CommandLine.Builder
                 parseArgument: result =>
                 {
                     var commandChildren = result.FindResultFor(command)?.Children;
-                    if (commandChildren == null)
+                    if (commandChildren is null)
                     {
                         return true;
                     }
 
                     var versionOptionResult = result.Parent;
-                    foreach (var symbolResult in commandChildren)
+                    for (int i = 0; i < commandChildren.Count; i++)
                     {
+                        var symbolResult = commandChildren[i];
                         if (symbolResult == versionOptionResult)
                         {
                             continue;
