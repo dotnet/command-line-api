@@ -380,7 +380,7 @@ namespace System.CommandLine.Builder
             return builder.UseHelp(helpOption);
         }
 
-        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, 
+        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder,
             Func<BindingContext, IHelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
         {
@@ -526,10 +526,26 @@ namespace System.CommandLine.Builder
                 description: Resources.Instance.VersionOptionDescription(),
                 parseArgument: result =>
                 {
-                    if (result.FindResultFor(command)?.Children.Count > 1)
+                    var commandChildren = result.FindResultFor(command)?.Children;
+                    if (commandChildren is null)
                     {
-                        result.ErrorMessage = Resources.Instance.VersionOptionCannotBeCombinedWithOtherArguments("--version");
-                        return false;
+                        return true;
+                    }
+
+                    var versionOptionResult = result.Parent;
+                    for (int i = 0; i < commandChildren.Count; i++)
+                    {
+                        var symbolResult = commandChildren[i];
+                        if (symbolResult == versionOptionResult)
+                        {
+                            continue;
+                        }
+
+                        if (IsNotImplicit(symbolResult))
+                        {
+                            result.ErrorMessage = Resources.Instance.VersionOptionCannotBeCombinedWithOtherArguments("--version");
+                            return false;
+                        }
                     }
 
                     return true;
@@ -559,6 +575,16 @@ namespace System.CommandLine.Builder
             }, MiddlewareOrderInternal.VersionOption);
 
             return builder;
+
+            static bool IsNotImplicit(SymbolResult symbolResult)
+            {
+                return symbolResult switch
+                {
+                    ArgumentResult argumentResult => !argumentResult.IsImplicit,
+                    OptionResult optionResult => !optionResult.IsImplicit,
+                    _ => true
+                };
+            }
         }
 
         private static bool ShowHelp(

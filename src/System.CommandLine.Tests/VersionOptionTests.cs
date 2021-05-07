@@ -5,7 +5,6 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -70,6 +69,46 @@ namespace System.CommandLine.Tests
                    .Match("*Options:*--version*Show version information*");
         }
 
+        [Fact]
+        public async Task When_the_version_option_is_specified_and_there_are_default_options_then_the_version_is_written_to_standard_out()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Option("-x", getDefaultValue: () => true)
+            };
+            rootCommand.Handler = CommandHandler.Create(() => { });
+
+            var parser = new CommandLineBuilder(rootCommand)
+                .UseVersionOption()
+                .Build();
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync("--version", console);
+
+            console.Out.ToString().Should().Be($"{version}{NewLine}");
+        }
+
+        [Fact]
+        public async Task When_the_version_option_is_specified_and_there_are_default_arguments_then_the_version_is_written_to_standard_out()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Argument<bool>("x", getDefaultValue: () => true)
+            };
+            rootCommand.Handler = CommandHandler.Create(() => { });
+
+            var parser = new CommandLineBuilder(rootCommand)
+                .UseVersionOption()
+                .Build();
+
+            var console = new TestConsole();
+
+            await parser.InvokeAsync("--version", console);
+
+            console.Out.ToString().Should().Be($"{version}{NewLine}");
+        }
+
         [Theory]
         [InlineData("--version -x")]
         [InlineData("--version subcommand")]
@@ -117,7 +156,7 @@ namespace System.CommandLine.Tests
                 },
                 new Option("-x")
             };
-            
+
             var parser = new CommandLineBuilder(rootCommand)
                 .UseVersionOption(errorExitCode: 42)
                 .Build();
@@ -156,10 +195,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_not_added_if_it_exists()
         {
-            // Adding an option multiple times can occur two ways in 
-            // real world scenarios - invocation can be invoked twice 
-            // or the author may have their own version switch but 
-            // still want other defaults. 
+            // Adding an option multiple times can occur two ways in
+            // real world scenarios - invocation can be invoked twice
+            // or the author may have their own version switch but
+            // still want other defaults.
             var parser = new CommandLineBuilder()
                          .UseVersionOption()
                          .UseVersionOption()
