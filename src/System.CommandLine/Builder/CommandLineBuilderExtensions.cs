@@ -526,10 +526,19 @@ namespace System.CommandLine.Builder
                 description: Resources.Instance.VersionOptionDescription(),
                 parseArgument: result =>
                 {
-                    if (result.FindResultFor(command)?.Children.Where(IsNotImplicit).Count() > 1)
+                    var versionOptionResult = result.Parent;
+                    foreach (var symbolResult in result.FindResultFor(command)?.Children)
                     {
-                        result.ErrorMessage = Resources.Instance.VersionOptionCannotBeCombinedWithOtherArguments("--version");
-                        return false;
+                        if (symbolResult == versionOptionResult)
+                        {
+                            continue;
+                        }
+
+                        if (IsNotImplicit(symbolResult))
+                        {
+                            result.ErrorMessage = Resources.Instance.VersionOptionCannotBeCombinedWithOtherArguments("--version");
+                            return false;
+                        }
                     }
 
                     return true;
