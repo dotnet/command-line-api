@@ -144,6 +144,31 @@ namespace System.CommandLine.Tests
                       .Be("dest.txt");
             }
 
+
+            [Fact]
+            public void When_multiple_arguments_are_defined_but_not_provided_then_option_parses_correctly()
+            {
+                var option = new Option<string>("-e");
+                var command = new Command("the-command") { option };
+
+                command.AddArgument(new Argument<string>
+                {
+                    Name = "arg1",
+                });
+
+                command.AddArgument(new Argument<string>
+                {
+                    Name = "arg2",
+                });
+
+                var result = command.Parse("-e foo");
+
+                var optionResult = result.ValueForOption(option);
+
+                optionResult.Should().Be("foo");
+            }
+
+
             [Fact]
             public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
             {
