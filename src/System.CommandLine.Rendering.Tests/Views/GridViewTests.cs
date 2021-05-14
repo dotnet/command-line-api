@@ -19,8 +19,8 @@ namespace System.CommandLine.Rendering.Tests.Views
             grid.SetColumns(ColumnDefinition.Star(1), ColumnDefinition.Star(1));
             grid.SetRows(RowDefinition.Star(1), RowDefinition.Star(1));
 
-            var console = new TestConsole();
-            var renderer = new ConsoleRenderer(console);
+            var terminal = new TestTerminal();
+            var renderer = new ConsoleRenderer(terminal);
             Size measuredSize = grid.Measure(renderer, new Size(10, 10));
 
             measuredSize.Width.Should().Be(10);
@@ -34,8 +34,8 @@ namespace System.CommandLine.Rendering.Tests.Views
             grid.SetColumns(ColumnDefinition.Fixed(7), ColumnDefinition.Star(3));
             grid.SetRows(RowDefinition.Fixed(3), RowDefinition.Star(7));
 
-            var console = new TestConsole();
-            var renderer = new ConsoleRenderer(console);
+            var terminal = new TestTerminal();
+            var renderer = new ConsoleRenderer(terminal);
             Size measuredSize = grid.Measure(renderer, new Size(10, 10));
 
             measuredSize.Width.Should().Be(10);
@@ -49,8 +49,8 @@ namespace System.CommandLine.Rendering.Tests.Views
             grid.SetColumns(ColumnDefinition.SizeToContent(), ColumnDefinition.SizeToContent());
             grid.SetRows(RowDefinition.SizeToContent(), RowDefinition.SizeToContent());
 
-            var console = new TestConsole();
-            var renderer = new ConsoleRenderer(console);
+            var terminal = new TestTerminal();
+            var renderer = new ConsoleRenderer(terminal);
             Size measuredSize = grid.Measure(renderer, new Size(10, 10));
 
             measuredSize.Width.Should().Be(0);

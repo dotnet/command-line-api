@@ -19,7 +19,9 @@ namespace System.CommandLine.Rendering
                        throw new ArgumentNullException(nameof(console));
             _mode = mode;
 
-            _terminal = console as ITerminal;
+            _terminal = console as ITerminal ??
+                        throw new NotSupportedException($"Provided {nameof(console)} is no Terminal.");
+
             _resetAfterRender = resetAfterRender;
         }
 
