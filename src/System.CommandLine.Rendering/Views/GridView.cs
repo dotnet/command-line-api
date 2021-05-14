@@ -126,7 +126,7 @@ namespace System.CommandLine.Rendering.Views
             int availableWidth = maxSize.Width;
             int? totalWidthForStarSizing = null;
 
-            foreach (var (column, columnIndex) in _columns.OrderBy(x => GetProcessOrder(x.SizeMode)).Select((x, i) => (x, i)))
+            foreach (var (column, columnIndex) in _columns.Select((definition, columnIndex) => (definition, columnIndex)).OrderBy(t => GetProcessOrder(t.definition.SizeMode)))
             {
                 int availableHeight = maxSize.Height;
 

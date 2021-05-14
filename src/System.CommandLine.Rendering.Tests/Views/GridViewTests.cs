@@ -60,6 +60,33 @@ namespace System.CommandLine.Rendering.Tests.Views
         [Theory]
         [InlineData(OutputMode.Ansi)]
         [InlineData(OutputMode.NonAnsi)]
+        public void Column_width_definition_is_preserved_even_defintion_is_mixed_for_subsequent_columns(OutputMode outputMode)
+        {
+            var grid = new GridView();
+            grid.SetColumns(ColumnDefinition.Fixed(10), ColumnDefinition.Star(1), ColumnDefinition.Fixed(10), ColumnDefinition.SizeToContent());
+            grid.SetChild(new ContentView("The quick"), 0, 0);
+            grid.SetChild(new ContentView("brown fox"), 1, 0);
+            grid.SetChild(new ContentView("jumped"), 2, 0);
+            grid.SetChild(new ContentView("over the sleepy"), 3, 0);
+
+            var terminal = new TestTerminal();
+            var renderer = new ConsoleRenderer(terminal, outputMode);
+            grid.Render(renderer, new Region(0, 0, 115, 1));
+
+            terminal.Events.Should().BeEquivalentSequenceTo(
+                new TestTerminal.CursorPositionChanged(new Point(0, 0)),
+                new TestTerminal.ContentWritten("The quick "),
+                new TestTerminal.CursorPositionChanged(new Point(10, 0)),
+                new TestTerminal.ContentWritten("brown fox" + new string(' ', 71)),
+                new TestTerminal.CursorPositionChanged(new Point(90, 0)),
+                new TestTerminal.ContentWritten("jumped    "),
+                new TestTerminal.CursorPositionChanged(new Point(100, 0)),
+                new TestTerminal.ContentWritten("over the sleepy"));
+        }
+
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
         public void Star_grid_lays_out_in_even_grid(OutputMode outputMode)
         {
             var grid = new GridView();
