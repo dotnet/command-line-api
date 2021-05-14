@@ -266,6 +266,23 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Modify_an_existing_instance_should_keep_all_default_values_if_no_argument_matches_option()
+        {
+            var parser = new Parser(new Command("the-command"));
+
+            var instance = new ClassWithComplexTypes();
+            var bindingContext = new BindingContext(parser.Parse("the-command"));
+            var binder = new ModelBinder(typeof(ClassWithComplexTypes));
+
+            binder.UpdateInstance(instance, bindingContext);
+
+            instance.BoolOption.Should().Be(default);
+            instance.IntOption.Should().Be(default);
+            instance.ListOptionDefaultNull.Should().BeNull();
+            instance.ListOptionDefaultEmpty.Should().BeEmpty();
+        }
+
+        [Fact]
         public void Values_from_options_on_parent_commands_are_bound_by_name_by_default()
         {
             var parentCommand = new Command("parent-command")
@@ -474,6 +491,7 @@ namespace System.CommandLine.Tests.Binding
 
             instance.IntOption.Should().Be(42);
         }
+
 
         [Fact]
         public void Option_argument_is_bound_to_longest_constructor()
