@@ -265,23 +265,23 @@ namespace System.CommandLine.Binding
                 return (boundValue, true);
             }
 
-            if (valueDescriptor.HasDefaultValue)
-            {
-                return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
-            }
-
-            if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
-            {
-                var binder = bindingContext.GetModelBinder(valueDescriptor);
-                var (success, newInstance, usedNonDefaults) = binder.CreateInstanceInternal(bindingContext);
-                if (success)
-                {
-                    return (new BoundValue(newInstance, valueDescriptor, valueSource), usedNonDefaults);
-                }
-            }
-
             if (includeMissingValues)
             {
+                if (valueDescriptor.HasDefaultValue)
+                {
+                    return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
+                }
+
+                if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
+                {
+                    var binder = bindingContext.GetModelBinder(valueDescriptor);
+                    var (success, newInstance, usedNonDefaults) = binder.CreateInstanceInternal(bindingContext);
+                    if (success)
+                    {
+                        return (new BoundValue(newInstance, valueDescriptor, valueSource), usedNonDefaults);
+                    }
+                }
+
                 if (valueDescriptor is ParameterDescriptor parameterDescriptor && parameterDescriptor.AllowsNull)
                 {
                     return (new BoundValue(parameterDescriptor.GetDefaultValue(), valueDescriptor, valueSource), false);
