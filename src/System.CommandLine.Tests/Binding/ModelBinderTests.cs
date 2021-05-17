@@ -276,10 +276,7 @@ namespace System.CommandLine.Tests.Binding
 
             binder.UpdateInstance(instance, bindingContext);
 
-            instance.BoolOption.Should().Be(default);
-            instance.IntOption.Should().Be(default);
-            instance.ListOptionDefaultNull.Should().BeNull();
-            instance.ListOptionDefaultEmpty.Should().BeEmpty();
+            instance.Should().BeEquivalentTo(new ClassWithComplexTypes());
         }
 
         [Fact]
