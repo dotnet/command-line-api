@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
         public void An_option_without_a_long_form_can_be_checked_for_using_a_prefix()
         {
             var option = new Option("--flag");
-            
+
             var result = option.Parse("--flag");
 
             result.FindResultFor(option).Should().NotBeNull();
@@ -213,7 +213,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_equals_delimiter()
         {
-            var option = 
+            var option =
                 new Option("--hello", arity: ArgumentArity.ExactlyOne);
 
             var result = option.Parse("--hello=there");
@@ -631,7 +631,7 @@ namespace System.CommandLine.Tests
             var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrOne);
 
             var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrOne);
-            
+
             var parser = new Parser(
                 new Command("the-command")
                 {
@@ -1032,6 +1032,103 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void HasArgument_returns_expected_result_when_argument_provided()
+        {
+            var stringArgument = new Argument<string>();
+
+            var command = new Command("the-command")
+            {
+                new Command("complete")
+                {
+                    stringArgument,
+                    new Option<int>("--position")
+                }
+            };
+
+            ParseResult result = command.Parse("the-command",
+                                               "complete",
+                                               "--position",
+                                               "7",
+                                               "the-argument");
+
+            CommandResult completeResult = result.CommandResult;
+
+            completeResult.HasArgument(stringArgument).Should().BeTrue();
+        }
+
+        [Fact]
+        public void HasArgument_returns_expected_result_when_argument_not_provided()
+        {
+            var stringArgument = new Argument<string>();
+
+            var command = new Command("the-command")
+            {
+                new Command("complete")
+                {
+                    stringArgument,
+                    new Option<int>("--position")
+                }
+            };
+
+            ParseResult result = command.Parse("the-command",
+                                               "complete",
+                                               "--position",
+                                               "7");
+
+            CommandResult completeResult = result.CommandResult;
+
+            completeResult.HasArgument(stringArgument).Should().BeFalse();
+        }
+
+        [Fact]
+        public void HasOption_returns_expected_result_when_option_provided()
+        {
+            var positionOption = new Option<int>("--position");
+
+            var command = new Command("the-command")
+            {
+                new Command("complete")
+                {
+                    new Argument<string>(),
+                    positionOption
+                }
+            };
+
+            ParseResult result = command.Parse("the-command",
+                                               "complete",
+                                               "--position",
+                                               "7",
+                                               "the-command");
+
+            CommandResult completeResult = result.CommandResult;
+
+            completeResult.HasOption(positionOption).Should().BeTrue();
+        }
+
+        [Fact]
+        public void HasOption_returns_expected_result_when_option_not_provided()
+        {
+            var positionOption = new Option<int>("--position");
+
+            var command = new Command("the-command")
+            {
+                new Command("complete")
+                {
+                    new Argument<string>(),
+                    positionOption
+                }
+            };
+
+            ParseResult result = command.Parse("the-command",
+                                               "complete",
+                                               "the-command");
+
+            CommandResult completeResult = result.CommandResult;
+
+            completeResult.HasOption(positionOption).Should().BeFalse();
+        }
+
+        [Fact]
         public void A_root_command_can_be_omitted_from_the_parsed_args()
         {
             var command = new Command("outer")
@@ -1183,7 +1280,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_with_a_default_value_is_not_matched_then_there_are_no_tokens()
         {
             var option = new Option<string>(
-                "-o", 
+                "-o",
                 () => "the-default");
 
             var command = new Command("command")
@@ -1203,7 +1300,7 @@ namespace System.CommandLine.Tests
         public void When_an_argument_with_a_default_value_is_not_matched_then_there_are_no_tokens()
         {
             var argument = new Argument<string>(
-                "o", 
+                "o",
                 () => "the-default");
 
             var command = new Command("command")
@@ -1761,7 +1858,7 @@ namespace System.CommandLine.Tests
                 : base(values)
             { }
         }
-      
+
         public class CustomCollectionTypeConverter : TypeConverter
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
