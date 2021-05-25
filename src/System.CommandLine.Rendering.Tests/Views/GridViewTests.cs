@@ -75,6 +75,8 @@ namespace System.CommandLine.Rendering.Tests.Views
             terminal.Events.Should().BeEquivalentSequenceTo(
                                                             new TestTerminal.CursorPositionChanged(new Point(0, 0)),
                                                             new TestTerminal.ContentWritten("brown fox"),
+                                                            new TestTerminal.CursorPositionChanged(new Point(9, 0)),
+                                                            new TestTerminal.ContentWritten("  "),
                                                             new TestTerminal.CursorPositionChanged(new Point(11, 0)),
                                                             new TestTerminal.ContentWritten("jumped    "));
         }
@@ -128,10 +130,16 @@ namespace System.CommandLine.Rendering.Tests.Views
             terminal.Events.Should().BeEquivalentSequenceTo(
                                                             new TestTerminal.CursorPositionChanged(new Point(0, 0)),
                                                             new TestTerminal.ContentWritten("The quick"),
+                                                            new TestTerminal.CursorPositionChanged(new Point(9, 0)),
+                                                            new TestTerminal.ContentWritten("  "),
                                                             new TestTerminal.CursorPositionChanged(new Point(11, 0)),
                                                             new TestTerminal.ContentWritten("brown fox"),
+                                                            new TestTerminal.CursorPositionChanged(new Point(20, 0)),
+                                                            new TestTerminal.ContentWritten("  "),
                                                             new TestTerminal.CursorPositionChanged(new Point(22, 0)),
                                                             new TestTerminal.ContentWritten("jumped"),
+                                                            new TestTerminal.CursorPositionChanged(new Point(28, 0)),
+                                                            new TestTerminal.ContentWritten("  "),
                                                             new TestTerminal.CursorPositionChanged(new Point(30, 0)),
                                                             new TestTerminal.ContentWritten("over the sleepy"));
         }
@@ -155,10 +163,16 @@ namespace System.CommandLine.Rendering.Tests.Views
             terminal.Events.Should().BeEquivalentSequenceTo(
                 new TestTerminal.CursorPositionChanged(new Point(0, 0)),
                 new TestTerminal.ContentWritten("The quick "),
+                new TestTerminal.CursorPositionChanged(new Point(10, 0)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(12, 0)),
                 new TestTerminal.ContentWritten("brown fox" + new string(' ', 71)),
+                new TestTerminal.CursorPositionChanged(new Point(92, 0)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(94, 0)),
                 new TestTerminal.ContentWritten("jumped    "),
+                new TestTerminal.CursorPositionChanged(new Point(104, 0)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(106, 0)),
                 new TestTerminal.ContentWritten("over the sleepy"));
         }
@@ -185,6 +199,10 @@ namespace System.CommandLine.Rendering.Tests.Views
                 new TestTerminal.ContentWritten("The  "),
                 new TestTerminal.CursorPositionChanged(new Point(0, 1)),
                 new TestTerminal.ContentWritten("quick"),
+                new TestTerminal.CursorPositionChanged(new Point(5, 0)),
+                new TestTerminal.ContentWritten("  "),
+                new TestTerminal.CursorPositionChanged(new Point(5, 1)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(7, 0)),
                 new TestTerminal.ContentWritten("brown"),
                 new TestTerminal.CursorPositionChanged(new Point(7, 1)),
@@ -193,6 +211,10 @@ namespace System.CommandLine.Rendering.Tests.Views
                 new TestTerminal.ContentWritten("jumpe"),
                 new TestTerminal.CursorPositionChanged(new Point(0, 3)),
                 new TestTerminal.ContentWritten("     "),
+                new TestTerminal.CursorPositionChanged(new Point(5, 2)),
+                new TestTerminal.ContentWritten("  "),
+                new TestTerminal.CursorPositionChanged(new Point(5, 3)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(7, 2)),
                 new TestTerminal.ContentWritten("over "),
                 new TestTerminal.CursorPositionChanged(new Point(7, 3)),
@@ -221,12 +243,18 @@ namespace System.CommandLine.Rendering.Tests.Views
                    .BeEquivalentSequenceTo(
                 new TestTerminal.CursorPositionChanged(new Point(0, 0)),
                 new TestTerminal.ContentWritten("The   "),
+                new TestTerminal.CursorPositionChanged(new Point(6, 0)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(8, 0)),
                 new TestTerminal.ContentWritten("brow"),
                 new TestTerminal.CursorPositionChanged(new Point(0, 1)),
                 new TestTerminal.ContentWritten("jumped"),
                 new TestTerminal.CursorPositionChanged(new Point(0, 2)),
                 new TestTerminal.ContentWritten("over  "),
+                new TestTerminal.CursorPositionChanged(new Point(6, 1)),
+                new TestTerminal.ContentWritten("  "),
+                new TestTerminal.CursorPositionChanged(new Point(6, 2)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(8, 1)),
                 new TestTerminal.ContentWritten("the "),
                 new TestTerminal.CursorPositionChanged(new Point(8, 2)),
@@ -253,10 +281,14 @@ namespace System.CommandLine.Rendering.Tests.Views
             terminal.Events.Should().BeEquivalentSequenceTo(
                 new TestTerminal.CursorPositionChanged(new Point(0, 0)),
                 new TestTerminal.ContentWritten("The quick  "),
+                new TestTerminal.CursorPositionChanged(new Point(11, 0)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(13, 0)),
                 new TestTerminal.ContentWritten("brown fox "),
                 new TestTerminal.CursorPositionChanged(new Point(0, 1)),
                 new TestTerminal.ContentWritten("jumped over"),
+                new TestTerminal.CursorPositionChanged(new Point(11, 1)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(13, 1)),
                 new TestTerminal.ContentWritten("the sleepy"));
         }
@@ -283,12 +315,18 @@ namespace System.CommandLine.Rendering.Tests.Views
                 new TestTerminal.ContentWritten("The quick  "),
                 new TestTerminal.CursorPositionChanged(new Point(0, 1)),
                 new TestTerminal.ContentWritten("           "),
+                new TestTerminal.CursorPositionChanged(new Point(11, 0)),
+                new TestTerminal.ContentWritten("  "),
+                new TestTerminal.CursorPositionChanged(new Point(11, 1)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(13, 0)),
                 new TestTerminal.ContentWritten("brown"),
                 new TestTerminal.CursorPositionChanged(new Point(13, 1)),
                 new TestTerminal.ContentWritten("fox  "),
                 new TestTerminal.CursorPositionChanged(new Point(0, 2)),
                 new TestTerminal.ContentWritten("jumped over"),
+                new TestTerminal.CursorPositionChanged(new Point(11, 2)),
+                new TestTerminal.ContentWritten("  "),
                 new TestTerminal.CursorPositionChanged(new Point(13, 2)),
                 new TestTerminal.ContentWritten("the s"));
         }

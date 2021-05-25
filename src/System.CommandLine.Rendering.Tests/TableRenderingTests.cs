@@ -48,9 +48,9 @@ namespace System.CommandLine.Rendering.Tests
             lines
                 .Should()
                 .BeEquivalentSequenceTo(
-                    Cell("Option     ", 0, 0), Cell("              ", 13, 0),
-                    Cell("-s         ", 0, 1), Cell("a short option", 13, 1),
-                    Cell("--very-long", 0, 2), Cell("a long option ", 13, 2));
+                    Cell("Option     ", 0, 0), Cell("  ", 11, 0), Cell("              ", 13, 0),
+                    Cell("-s         ", 0, 1), Cell("  ", 11, 1), Cell("a short option", 13, 1),
+                    Cell("--very-long", 0, 2), Cell("  ", 11, 2), Cell("a long option ", 13, 2));
         }
 
         [Fact]
@@ -70,9 +70,9 @@ namespace System.CommandLine.Rendering.Tests
                     .ToString()
                     .Should()
                     .Be(
-                        "Option                   " + NewLine +
-                        "-s         a short option" + NewLine +
-                        "--very-longa long option ");
+                        "Option                     " + NewLine +
+                        "-s           a short option" + NewLine +
+                        "--very-long  a long option ");
         }
 
         [Theory]

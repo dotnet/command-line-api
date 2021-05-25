@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.IO;
+using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -291,6 +292,7 @@ namespace System.CommandLine.Rendering
         {
         }
 
+        [DebuggerDisplay(nameof(CursorPositionChanged) + ": {" + nameof(Position) + ", nq}")]
         public class CursorPositionChanged : ConsoleEvent
         {
             public CursorPositionChanged(Point position)
@@ -301,6 +303,7 @@ namespace System.CommandLine.Rendering
             public Point Position { get; }
         }
 
+        [DebuggerDisplay(nameof(ContentWritten) + ": {" + nameof(Content) + "}")]
         public class ContentWritten : ConsoleEvent
         {
             public ContentWritten(string text)
@@ -311,6 +314,7 @@ namespace System.CommandLine.Rendering
             public string Content { get; }
         }
 
+        [DebuggerDisplay(nameof(ForegroundColorChanged) + ": {" + nameof(ForegroundColor) + ", nq}")]
         public class ForegroundColorChanged : ConsoleEvent
         {
             public ForegroundColorChanged(ConsoleColor foregroundColor)
