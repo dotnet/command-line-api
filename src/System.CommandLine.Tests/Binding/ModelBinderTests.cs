@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
@@ -768,6 +769,30 @@ namespace System.CommandLine.Tests.Binding
             await result.InvokeAsync();
 
             boundInstance.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task Decimals_are_bound_correctly_when_no_token_is_matched()
+        {
+            decimal? receivedValue = null;
+
+            var rootCommand = new RootCommand
+            {
+                new Option<decimal>("--opt-decimal")
+            };
+            rootCommand.Handler = CommandHandler.Create((ComplexType options) =>
+            {
+                receivedValue = options.OptDecimal;
+            });
+
+            await rootCommand.InvokeAsync("");
+
+            receivedValue.Should().Be(0);
+        }
+
+        public class ComplexType
+        {
+            public decimal OptDecimal { get; set; }
         }
     }
 }
