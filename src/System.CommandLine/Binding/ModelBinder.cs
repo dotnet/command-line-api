@@ -105,7 +105,8 @@ namespace System.CommandLine.Binding
             var modelType = ModelDescriptor.ModelType;
             return modelType.IsPrimitive ||
                    modelType.IsNullableValueType() ||
-                   modelType == typeof(string);
+                   modelType == typeof(string) ||
+                   modelType == typeof(decimal) ;
         }
 
         private (bool success, object? newInstance, bool anyNonDefaults) GetSimpleModelValue(
