@@ -166,7 +166,7 @@ namespace System.CommandLine.Parsing
 
             var argumentResults = _rootCommandResult!
                                   .AllArgumentResults
-                                  .Where(a => a.Parent is not OptionResult)
+                                  .Where(a => !(a.Parent is OptionResult))
                                   .ToList();
 
             if (argumentResults.Count > 0)
