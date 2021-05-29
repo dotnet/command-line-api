@@ -164,10 +164,14 @@ namespace System.CommandLine.Parsing
                 ValidateAndConvertOptionResult(optionResult);
             }
 
-            var argumentResults = _rootCommandResult!
-                                  .AllArgumentResults
-                                  .Where(a => !(a.Parent is OptionResult))
-                                  .ToList();
+            var argumentResults = new List<ArgumentResult>();
+            foreach (var result in _rootCommandResult.AllArgumentResults)
+            {
+                if (!(result.Parent is OptionResult))  
+                {
+                    argumentResults.Add(result);
+                }
+            }
 
             if (argumentResults.Count > 0)
             {
@@ -235,7 +239,6 @@ namespace System.CommandLine.Parsing
                     }
                 }
             }
-
         }
 
         private void ValidateCommandResult()
