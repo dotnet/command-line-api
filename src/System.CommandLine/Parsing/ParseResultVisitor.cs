@@ -166,15 +166,19 @@ namespace System.CommandLine.Parsing
 
             var argumentResults = _rootCommandResult!
                                   .AllArgumentResults
+                                  .Where(a => a.Parent is not OptionResult)
                                   .ToList();
 
             if (argumentResults.Count > 0)
             {
-                var arguments = _innermostCommandResult!.Command.Arguments;
+                var arguments = _innermostCommandResult.Command.Arguments;
+
+                var commandArgumentResultCount = argumentResults.Count;
 
                 for (var i = 0; i < arguments.Count; i++)
                 {
-                    if (argumentResults.Count == i)
+                    // If this is the current last result but there are more arguments, see if we can shift tokens to the next argument
+                    if (commandArgumentResultCount == i)
                     {
                         var nextArgument = arguments[i];
                         var nextArgumentResult = new ArgumentResult(
@@ -201,7 +205,7 @@ namespace System.CommandLine.Parsing
 
                         if (previousArgumentResult.Parent is CommandResult commandResult)
                         {
-                             commandResult.Children.Add(nextArgumentResult);
+                            commandResult.Children.Add(nextArgumentResult);
                         }
 
                         _rootCommandResult.AddToSymbolMap(nextArgumentResult);
@@ -211,13 +215,27 @@ namespace System.CommandLine.Parsing
 
                     ValidateAndConvertArgumentResult(argumentResult);
 
-                    if (argumentResult.PassedOnTokens is {} &&
+                    if (argumentResult.PassedOnTokens is { } &&
                         i == arguments.Count - 1)
                     {
                         _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
                     }
                 }
+
+                if (argumentResults.Count > arguments.Count)
+                {
+                    for (var i = arguments.Count; i < argumentResults.Count; i++)
+                    {
+                        var result = argumentResults[i];
+
+                        if (result.Parent is CommandResult cr)
+                        {
+                            ValidateAndConvertArgumentResult(result);
+                        }
+                    }
+                }
             }
+
         }
 
         private void ValidateCommandResult()
