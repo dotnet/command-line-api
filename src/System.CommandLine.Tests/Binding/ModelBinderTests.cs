@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
@@ -788,6 +787,47 @@ namespace System.CommandLine.Tests.Binding
             await rootCommand.InvokeAsync("");
 
             receivedValue.Should().Be(0);
+        }
+
+        [Fact]
+        public void issue_1137()
+        {
+            var root = new RootCommand
+            {
+                new Option<MyGuid>("--guid"),
+                new Option<int>("--value"),
+            };
+
+            root.Handler = CommandHandler.Create<MyGuid, int>((guid, value) =>
+            {
+                Console.WriteLine($"Guid: {guid}, Value: {value}");
+            });
+            root.Invoke("--guid 5c4f219f-59a6-4820-ba0a-61ec270a2000 --value 1234 ");
+            root.Invoke("--guid 5c4f219f-59a6-4820-ba0a-61ec270a2000");
+            // The following call trigger exception
+            root.Invoke("--value 1234");
+
+
+
+            // TODO-JOSEQU (issue_1137) write test
+            Assert.True(false, "Test issue_1137 is not written yet.");
+        }
+
+        public class MyGuid
+        {
+            private Guid value;
+
+            public MyGuid(string guid)
+            {
+                value = new Guid(guid);
+            }
+
+            public MyGuid(ReadOnlySpan<byte> guid)
+            {
+                value = new Guid(guid);
+            }
+
+            public override string ToString() => value.ToString();
         }
 
         public class ComplexType
