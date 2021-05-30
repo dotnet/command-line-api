@@ -228,6 +228,47 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
+        [InlineData("-o=optionValue argValue")]
+        [InlineData("argValue -o=optionValue")]
+        public void All_custom_validators_are_called(string commandLine)
+        {
+            var commandValidatorWasCalled = false;
+            var optionValidatorWasCalled = false;
+            var argumentValidatorWasCalled = false;
+
+            var option = new Option<string>("-o");
+            option.AddValidator(_ =>
+            {
+                optionValidatorWasCalled = true;
+                return null;
+            });
+
+            var argument = new Argument<string>("the-arg");
+            argument.AddValidator(_ =>
+            {
+                argumentValidatorWasCalled = true;
+                return null;
+            });
+
+            var rootCommand = new RootCommand
+            {
+                option,
+                argument
+            };
+            rootCommand.AddValidator(_ =>
+            {
+                commandValidatorWasCalled = true;
+                return null;
+            });
+
+            rootCommand.Invoke(commandLine);
+
+            commandValidatorWasCalled.Should().BeTrue();
+            optionValidatorWasCalled.Should().BeTrue();
+            argumentValidatorWasCalled.Should().BeTrue();
+        }
+
+        [Theory]
         [InlineData("--file \"Foo\" subcommand")]
         [InlineData("subcommand --file \"Foo\"")]
         public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)

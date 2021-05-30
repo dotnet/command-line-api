@@ -105,7 +105,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ArgumentType);
+            return (T)Binder.GetDefaultValue(argument.ArgumentType)!;
         }
 
         [return: MaybeNull]
@@ -117,7 +117,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ArgumentType);
+            return (T)Binder.GetDefaultValue(argument.ArgumentType)!;
         }
 
         [return: MaybeNull]
@@ -147,7 +147,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType);
+            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;
         }
 
         [return: MaybeNull]
@@ -159,7 +159,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType);
+            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;
         }
 
         [return: MaybeNull]

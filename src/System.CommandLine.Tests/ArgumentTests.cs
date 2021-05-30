@@ -9,6 +9,7 @@ using FluentAssertions;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
@@ -498,8 +499,11 @@ namespace System.CommandLine.Tests
                 i.Should().Be(2);
             }
 
-            [Fact]
-            public void Custom_parser_can_pass_on_remaining_tokens()
+            [Theory]
+            [InlineData("1 2 3 4 5 6 7 8")]
+            [InlineData("-o 999 1 2 3 4 5 6 7 8")]
+            [InlineData("1 2 3 -o 999 4 5 6 7 8")]
+            public void Custom_parser_can_pass_on_remaining_tokens(string commandLine)
             {
                 var argument1 = new Argument<int[]>(
                     "one",
@@ -520,10 +524,11 @@ namespace System.CommandLine.Tests
                 var command = new RootCommand
                 {
                     argument1,
-                    argument2
+                    argument2,
+                    new Option<int>("-o")
                 };
 
-                var parseResult = command.Parse("1 2 3 4 5 6 7 8");
+                var parseResult = command.Parse(commandLine);
 
                 parseResult.FindResultFor(argument1)
                            .GetValueOrDefault()
