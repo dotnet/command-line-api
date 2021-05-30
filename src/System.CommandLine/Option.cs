@@ -93,8 +93,8 @@ namespace System.CommandLine
                 switch (Children.Arguments.Count)
                 {
                     case 0:
-                        var none = Argument.None;
-                        Children.Add(none);
+                        var none = Argument.None();
+                        AddSymbol(none);
                         return none;
 
                     default:
@@ -111,7 +111,13 @@ namespace System.CommandLine
             set => Argument.Name = value;
         }
 
-        internal bool DisallowBinding { get; set; } 
+        public IArgumentArity Arity
+        {
+            get => Argument.Arity;
+            set => Argument.Arity = value;
+        }
+
+        internal bool DisallowBinding { get; set; }
 
         public override string Name
         {

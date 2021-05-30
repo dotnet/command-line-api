@@ -48,12 +48,12 @@ namespace System.CommandLine
         private protected virtual void AddSymbol(Symbol symbol)
         {
             Children.Add(symbol);
+            symbol.AddParent(this);
         }
 
         private protected void AddArgumentInner(Argument argument)
         {
             argument.AddParent(this);
-
             Children.Add(argument);
         }
 

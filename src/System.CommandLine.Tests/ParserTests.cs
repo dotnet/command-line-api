@@ -110,9 +110,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_contains_arguments_to_options()
         {
-            var optionOne = new Option(new[] { "-o", "--one" }, arity: ArgumentArity.ExactlyOne);
+            var optionOne = new Option(new[] { "-o", "--one" }) { Arity = ArgumentArity.ExactlyOne };
 
-            var optionTwo = new Option(new[] { "-t", "--two" }, arity: ArgumentArity.ExactlyOne);
+            var optionTwo = new Option(new[] { "-t", "--two" }) { Arity = ArgumentArity.ExactlyOne };
 
             var parser = new Parser(
                 optionOne,
@@ -201,7 +201,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne);
+            var option = new Option("-x") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("-x=some-value");
 
@@ -214,7 +214,7 @@ namespace System.CommandLine.Tests
         public void Long_form_options_can_be_specified_using_equals_delimiter()
         {
             var option = 
-                new Option("--hello", arity: ArgumentArity.ExactlyOne);
+                new Option("--hello") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("--hello=there");
 
@@ -226,7 +226,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Short_form_options_can_be_specified_using_colon_delimiter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne);
+            var option = new Option("-x") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("-x:some-value");
 
@@ -238,7 +238,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_colon_delimiter()
         {
-            var option = new Option("--hello", arity: ArgumentArity.ExactlyOne);
+            var option = new Option("--hello") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("--hello:there");
 
@@ -358,7 +358,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Optional_option_arguments_are_unbundled()
         {
-            var optionA = new Option<string>("-a", arity: ArgumentArity.ZeroOrOne);
+            var optionA = new Option<string>("-a") { Arity = ArgumentArity.ZeroOrOne };
             var optionB = new Option("-b");
             var optionC = new Option("-c");
 
@@ -381,8 +381,8 @@ namespace System.CommandLine.Tests
         public void Last_bundled_option_can_accept_argument_with_no_separator()
         {
             var optionA = new Option("-a");
-            var optionB = new Option<string>("-b", arity: ArgumentArity.ZeroOrOne);
-            var optionC = new Option<string>("-c", arity: ArgumentArity.ExactlyOne);
+            var optionB = new Option<string>("-b") { Arity = ArgumentArity.ZeroOrOne };
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
 
             var command = new RootCommand
             {
@@ -405,8 +405,8 @@ namespace System.CommandLine.Tests
         public void Last_bundled_option_can_accept_argument_with_equals_separator()
         {
             var optionA = new Option("-a");
-            var optionB = new Option<string>("-b", arity: ArgumentArity.ZeroOrOne);
-            var optionC = new Option<string>("-c", arity: ArgumentArity.ExactlyOne);
+            var optionB = new Option<string>("-b") { Arity = ArgumentArity.ZeroOrOne };
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
 
             var command = new RootCommand
             {
@@ -429,8 +429,8 @@ namespace System.CommandLine.Tests
         public void Last_bundled_option_can_accept_argument_with_colon_separator()
         {
             var optionA = new Option("-a");
-            var optionB = new Option<string>("-b", arity: ArgumentArity.ZeroOrOne);
-            var optionC = new Option<string>("-c", arity: ArgumentArity.ExactlyOne);
+            var optionB = new Option<string>("-b") { Arity = ArgumentArity.ZeroOrOne };
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
 
             var command = new RootCommand
             {
@@ -453,8 +453,8 @@ namespace System.CommandLine.Tests
         public void Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value()
         {
             var optionA = new Option("-a");
-            var optionB = new Option<string>("-b", arity: ArgumentArity.ZeroOrOne);
-            var optionC = new Option<string>("-c", arity: ArgumentArity.ExactlyOne);
+            var optionB = new Option<string>("-b") { Arity = ArgumentArity.ZeroOrOne };
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
 
             var command = new RootCommand
             {
@@ -479,8 +479,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrMore);
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore };
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
             var parser = new Parser(
                 animalsOption,
                 vegetablesOption);
@@ -503,9 +503,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrMore)
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore}
                 .FromAmong("dog", "cat", "sheep");
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
             var parser = new Parser(
                 new Command("the-command") {
                     animalsOption,
@@ -530,8 +530,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_Parser_root_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_used_as_value()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrMore);
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore };
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
 
             var parser = new Parser(
                 animalsOption,
@@ -562,8 +562,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_Parser_root_option_is_not_respecified_and_limit_is_reached_then_the_following_token_is_unmatched()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrOne);
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrOne };
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
 
             var parser = new Parser(
                 animalsOption,
@@ -592,8 +592,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_considered_as_value()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrMore);
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore };
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
             var parser = new Parser(
                 new Command("the-command")
                 {
@@ -628,9 +628,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrOne);
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrOne };
 
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrOne);
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrOne };
             
             var parser = new Parser(
                 new Command("the-command")
@@ -668,8 +668,8 @@ namespace System.CommandLine.Tests
         {
             var option = new Command("outer")
             {
-                new Option("--inner1", arity: ArgumentArity.ExactlyOne),
-                new Option("--inner2", arity: ArgumentArity.ExactlyOne)
+                new Option("--inner1") { Arity = ArgumentArity.ExactlyOne },
+                new Option("--inner2") { Arity = ArgumentArity.ExactlyOne }
             };
 
             var parser = new Parser(option);
@@ -1035,12 +1035,12 @@ namespace System.CommandLine.Tests
         public void A_root_command_can_be_omitted_from_the_parsed_args()
         {
             var command = new Command("outer")
-                          {
-                              new Command("inner")
-                              {
-                                  new Option("-x", arity: ArgumentArity.ExactlyOne)
-                              }
-                          };
+            {
+                new Command("inner")
+                {
+                    new Option("-x") { Arity = ArgumentArity.ExactlyOne }
+                }
+            };
 
             var result1 = command.Parse("inner -x hello");
             var result2 = command.Parse("outer inner -x hello");
@@ -1055,7 +1055,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("inner")
                 {
-                    new Option("-x", arity: ArgumentArity.ExactlyOne)
+                    new Option("-x") { Arity = ArgumentArity.ExactlyOne }
                 }
             };
 
@@ -1073,7 +1073,7 @@ namespace System.CommandLine.Tests
                               {
                                   new Command("inner")
                                   {
-                                      new Option("-x", arity: ArgumentArity.ExactlyOne)
+                                      new Option("-x") { Arity = ArgumentArity.ExactlyOne }
                                   }
                               };
             rootCommand.Name = "outer";
@@ -1362,7 +1362,7 @@ namespace System.CommandLine.Tests
         [InlineData("-x:\"\"", "")]
         public void When_an_argument_is_enclosed_in_double_quotes_its_value_has_the_quotes_removed(string input, string expected)
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
+            var option = new Option("-x") { Arity = ArgumentArity.ZeroOrMore };
 
             var parseResult = option.Parse(input);
 
@@ -1382,8 +1382,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Option("-x", arity: ArgumentArity.ZeroOrOne),
-                new Option("-z", arity: ArgumentArity.ZeroOrOne)
+                new Option("-x") { Arity = ArgumentArity.ZeroOrOne},
+                new Option("-z") { Arity = ArgumentArity.ZeroOrOne}
             };
 
             var result = command.Parse(input);
@@ -1400,8 +1400,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Option("-x", arity: ArgumentArity.ZeroOrOne),
-                new Option("-y", arity: ArgumentArity.ZeroOrOne)
+                new Option("-x") { Arity = ArgumentArity.ZeroOrOne},
+                new Option("-y") { Arity = ArgumentArity.ZeroOrOne}
             };
 
             var result = command.Parse(input);
@@ -1459,8 +1459,8 @@ namespace System.CommandLine.Tests
             {
                 TreatUnmatchedTokensAsErrors = false
             };
-            command.AddOption(new Option("-x", arity: ArgumentArity.ExactlyOne));
-            command.AddOption(new Option("-y", arity: ArgumentArity.ExactlyOne));
+            command.AddOption(new Option("-x") { Arity = ArgumentArity.ExactlyOne });
+            command.AddOption(new Option("-y") { Arity = ArgumentArity.ExactlyOne });
 
             var result = command.Parse("-x 23 unmatched-token -y 42");
 
@@ -1573,7 +1573,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_argument_arity_can_be_a_fixed_value_greater_than_1()
         {
-            var option = new Option("-x", arity: new ArgumentArity(3, 3));
+            var option = new Option("-x") { Arity = new ArgumentArity(3, 3)};
 
             var command = new Command("the-command")
             {
@@ -1593,7 +1593,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_argument_arity_can_be_a_range_with_a_lower_bound_greater_than_1()
         {
-            var option = new Option("-x", arity: new ArgumentArity(3, 5));
+            var option = new Option("-x") { Arity = new ArgumentArity(3, 5) };
 
             var command = new Command("the-command")
             {
@@ -1623,7 +1623,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
-            var option = new Option("-x", arity: new ArgumentArity(2, 3));
+            var option = new Option("-x") { Arity = new ArgumentArity(2, 3) };
 
             var command = new Command("the-command")
             {
@@ -1643,7 +1643,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("-x", arity: new ArgumentArity(2, 3))
+                new Option("-x") { Arity = new ArgumentArity(2, 3)}
             };
 
             command.Parse("-x 1 2 3 4")
@@ -1669,7 +1669,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_with_custom_collection_type_converter_can_be_bound()
         {
-            var option = new Option<CollectionWithCustomTypeConverter>("--value", arity: ArgumentArity.ExactlyOne);
+            var option = new Option<CollectionWithCustomTypeConverter>("--value") { Arity = ArgumentArity.ExactlyOne };
 
             var parseResult = option.Parse("--value a;b;c");
 
