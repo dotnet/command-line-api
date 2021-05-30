@@ -32,12 +32,14 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument.</param>
-        public Argument(string name) 
+        public Argument(string name)
         {
-            if (!string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                Name = name!;
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
+
+            Name = name!;
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }
@@ -194,7 +196,7 @@ namespace System.CommandLine
         /// </summary>
         public bool HasDefaultValue => _defaultValueFactory != null;
 
-        internal static Argument None => new Argument { Arity = ArgumentArity.Zero };
+        internal static Argument None() => new Argument { Arity = ArgumentArity.Zero };
 
         internal void AddAllowedValues(IEnumerable<string> values)
         {

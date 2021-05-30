@@ -505,6 +505,14 @@ namespace System.CommandLine.Tests
                   .BeFalse();
         }
 
+        [Fact]
+        public void Arity_of_non_generic_option_defaults_to_zero()
+        {
+            var option = new Option("-x");
+
+            option.Arity.Should().BeEquivalentTo(ArgumentArity.Zero);
+        }
+
         protected override Symbol CreateSymbol(string name) => new Option(name);
     }
 }

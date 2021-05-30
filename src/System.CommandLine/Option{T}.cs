@@ -9,9 +9,8 @@ namespace System.CommandLine
     {
         public Option(
             string alias,
-            string? description = null,
-            IArgumentArity? arity = null) 
-            : base(new[] { alias }, description, new Argument<T> { Arity = arity })
+            string? description = null) 
+            : base(new[] { alias }, description, new Argument<T>())
         { }
 
         public Option(

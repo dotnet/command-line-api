@@ -135,8 +135,6 @@ namespace System.CommandLine
                 _globalOptions.ThrowIfAnyAliasIsInUse(option);
             }
             
-            symbol.AddParent(this);
-
             base.AddSymbol(symbol);
         }
 
