@@ -14,7 +14,7 @@ index 7342c1c..e4a97a0 100644
 +++ b/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj
 @@ -5,6 +5,7 @@
      <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
-     <LangVersion>latest</LangVersion>
+     <LangVersion>9</LangVersion>
      <Description>This package provides support for using System.CommandLine with Microsoft.Extensions.Hosting.</Description>
 +    <ExcludeFromSourceBuild>true</ExcludeFromSourceBuild>
    </PropertyGroup>
@@ -24,7 +24,7 @@ index 7342c1c..e4a97a0 100644
 +++ b/samples/HostingPlayground/HostingPlayground.csproj
 @@ -6,6 +6,7 @@
      <GenerateDocumentationFile>true</GenerateDocumentationFile>
-     <LangVersion>8</LangVersion>
+     <LangVersion>9</LangVersion>
      <NoWarn>$(NoWarn);CS1591</NoWarn>
 +    <ExcludeFromSourceBuild>true</ExcludeFromSourceBuild>
    </PropertyGroup>

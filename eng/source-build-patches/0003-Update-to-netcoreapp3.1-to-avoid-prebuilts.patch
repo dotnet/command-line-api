@@ -38,7 +38,7 @@ index 1d00cff2..7342c1c5 100644
      <IsPackable>true</IsPackable>
 -    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
 +    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
-     <LangVersion>latest</LangVersion>
+     <LangVersion>9</LangVersion>
      <Description>This package provides support for using System.CommandLine with Microsoft.Extensions.Hosting.</Description>
    </PropertyGroup>
 diff --git a/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj b/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj
@@ -51,7 +51,7 @@ index d552286e..84026ebe 100644
      <IsPackable>true</IsPackable>
 -    <TargetFramework>netstandard2.0</TargetFramework>
 +    <TargetFramework>netcoreapp3.1</TargetFramework>
-     <LangVersion>8</LangVersion>
+     <LangVersion>9</LangVersion>
      <Description>This package provides support for structured command line output rendering. Write code once that renders correctly in multiple output modes, including System.Console, virtual terminal (using ANSI escape sequences), and plain text.
      </Description>
 diff --git a/src/System.CommandLine/Binding/BindingContext.cs b/src/System.CommandLine/Binding/BindingContext.cs
@@ -77,7 +77,7 @@ index aaa2c4a3..5e875a73 100644
      <PackageId>System.CommandLine</PackageId>
 -    <TargetFramework>netstandard2.0</TargetFramework>
 +    <TargetFramework>netcoreapp3.1</TargetFramework>
-     <LangVersion>8</LangVersion>
+     <LangVersion>9</LangVersion>
      <Nullable>enable</Nullable>
      <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
 @@ -18,9 +18,4 @@
