@@ -13,7 +13,7 @@
     <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">net5.0;</TargetFrameworks>
 
     <!-- Use the latest C# compiler features -->
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9</LangVersion>
 
     <!-- This repo does not produce any libraries, therefore generating docs is disabled -->
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
