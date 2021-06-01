@@ -1,9 +1,9 @@
 From b9a21ec1c0a77ef4e1e44840a0526545fea456de Mon Sep 17 00:00:00 2001
 From: Davis Goodin <dagood@microsoft.com>
 Date: Thu, 29 Oct 2020 01:48:54 -0500
-Subject: [PATCH] Update to netcoreapp3.1 to avoid prebuilts
+Subject: [PATCH] Update to net5.0 to avoid prebuilts
 
-netcoreapp3.1 avoids prebuilts (Microsoft.CSharp) but works with the
+net5.0 avoids prebuilts (Microsoft.CSharp) but works with the
 rest of source-build: runtime and roslyn.
 
 Includes a code fix for ref nullability with the new framework.
@@ -24,7 +24,7 @@ index b3a542fd..06167997 100644
    <PropertyGroup>
      <IsPackable>true</IsPackable>
 -    <TargetFramework>netstandard2.0</TargetFramework>
-+    <TargetFramework>netcoreapp3.1</TargetFramework>
++    <TargetFramework>net5.0</TargetFramework>
      <Description>This package includes the experimental DragonFruit app model for System.CommandLine, which allows you to create a command line application using only a Main method while getting support for complex type binding, error reporting, help, shell completions, and more.
      </Description>
    </PropertyGroup>
@@ -37,7 +37,7 @@ index 1d00cff2..7342c1c5 100644
    <PropertyGroup>
      <IsPackable>true</IsPackable>
 -    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
++    <TargetFrameworks>net5.0</TargetFrameworks>
      <LangVersion>9</LangVersion>
      <Description>This package provides support for using System.CommandLine with Microsoft.Extensions.Hosting.</Description>
    </PropertyGroup>
@@ -50,7 +50,7 @@ index d552286e..84026ebe 100644
    <PropertyGroup>
      <IsPackable>true</IsPackable>
 -    <TargetFramework>netstandard2.0</TargetFramework>
-+    <TargetFramework>netcoreapp3.1</TargetFramework>
++    <TargetFramework>net5.0</TargetFramework>
      <LangVersion>9</LangVersion>
      <Description>This package provides support for structured command line output rendering. Write code once that renders correctly in multiple output modes, including System.Console, virtual terminal (using ANSI escape sequences), and plain text.
      </Description>
@@ -76,7 +76,7 @@ index aaa2c4a3..5e875a73 100644
      <IsPackable>true</IsPackable>
      <PackageId>System.CommandLine</PackageId>
 -    <TargetFramework>netstandard2.0</TargetFramework>
-+    <TargetFramework>netcoreapp3.1</TargetFramework>
++    <TargetFramework>net5.0</TargetFramework>
      <LangVersion>9</LangVersion>
      <Nullable>enable</Nullable>
      <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
