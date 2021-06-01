@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9</LangVersion>
     <!--No warning for the scripts, it is part of the content, not to execuate-->
     <NoWarn>$(NoWarn);NU5110;NU5111;</NoWarn>
   </PropertyGroup>
