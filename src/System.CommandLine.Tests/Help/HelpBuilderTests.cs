@@ -1638,10 +1638,10 @@ namespace System.CommandLine.Tests.Help
         [InlineData(0)]
         [InlineData(-1)]
         [InlineData(int.MinValue)]
-        public void Constructor_max_width_must_be_positive(int maxWidth)
+        public void Constructor_ignores_non_positive_max_width(int maxWidth)
         {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new HelpBuilder(_console, maxWidth));
-            Assert.Equal("maxWidth", ex.ParamName);
+            var helpBuilder = new HelpBuilder(_console, maxWidth);
+            Assert.Equal(int.MaxValue, helpBuilder.MaxWidth);
         }
 
         private class CustomHelpBuilderThatAddsTextAfterDefaultText : HelpBuilder
