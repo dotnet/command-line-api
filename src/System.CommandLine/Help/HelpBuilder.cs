@@ -22,7 +22,7 @@ namespace System.CommandLine.Help
         public HelpBuilder(IConsole console, int maxWidth = int.MaxValue)
         {
             Console = console ?? throw new ArgumentNullException(nameof(console));
-            if (maxWidth <= 0) throw new ArgumentOutOfRangeException(nameof(maxWidth), "Max width must be positive");
+            if (maxWidth <= 0) maxWidth = int.MaxValue;
             MaxWidth = maxWidth;
         }
 
