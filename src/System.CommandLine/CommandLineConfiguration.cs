@@ -93,7 +93,7 @@ namespace System.CommandLine
                 {
                     maxWidth = systemConsole.GetWindowWidth();
                 }
-                return new HelpBuilder(context.Console, maxWidth);
+                return maxWidth >= 0 ? new HelpBuilder(context.Console, maxWidth) : new NullHelpBuilder();
             });
             if (configureHelp != null)
             {
