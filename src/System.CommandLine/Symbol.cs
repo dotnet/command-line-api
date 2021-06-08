@@ -79,7 +79,7 @@ namespace System.CommandLine
         {
             var suggestions = new HashSet<string>();
 
-            if (_enforceTextMatch)
+            if (EnforceTextMatch)
             {
                 textToMatch ??= "";
             }

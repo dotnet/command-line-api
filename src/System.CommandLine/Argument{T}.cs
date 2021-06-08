@@ -11,9 +11,10 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        public Argument()
+        public Argument(bool enforceTextMatch = true)
         {
             ArgumentType = typeof(T);
+            EnforceTextMatch = enforceTextMatch;
         }
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
-        public Argument(Func<T> getDefaultValue) : this()
+        public Argument(Func<T> getDefaultValue, bool enforceTextMatch = true) : this()
         {
             if (getDefaultValue is null)
             {
@@ -64,6 +65,7 @@ namespace System.CommandLine
             }
 
             SetDefaultValueFactory(() => getDefaultValue());
+            EnforceTextMatch = enforceTextMatch;
         }
 
         /// <summary>
@@ -78,7 +80,8 @@ namespace System.CommandLine
             string? name,
             ParseArgument<T> parse, 
             bool isDefault = false,
-            string? description = null) : this()
+            string? description = null,
+            bool enforceTextMatch = true) : this()
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -112,6 +115,7 @@ namespace System.CommandLine
             };
 
             Description = description;
+            EnforceTextMatch = enforceTextMatch;
         }
 
         /// <summary>
@@ -119,8 +123,9 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="parse">A custom argument parser.</param>
         /// <param name="isDefault"><c>true</c> to use the <paramref name="parse"/> result as default value.</param>
-        public Argument(ParseArgument<T> parse, bool isDefault = false) : this(null, parse, isDefault)
+        public Argument(ParseArgument<T> parse, bool isDefault = false, bool enforceTextMatch = true) : this(null, parse, isDefault)
         {
+            EnforceTextMatch = enforceTextMatch;
         }
     }
 }
