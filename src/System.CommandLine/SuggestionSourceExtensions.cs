@@ -9,7 +9,8 @@ namespace System.CommandLine
     {
         public static void Add(
             this SuggestionSourceList suggestionSources,
-            SuggestDelegate suggest)
+            SuggestDelegate suggest,
+            bool enforceTextMatch = true)
         {
             if (suggestionSources is null)
             {
@@ -21,7 +22,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(suggest));
             }
 
-            suggestionSources.Add(new AnonymousSuggestionSource(suggest));
+            suggestionSources.Add(new AnonymousSuggestionSource(suggest, enforceTextMatch));
         }
 
         public static void Add(

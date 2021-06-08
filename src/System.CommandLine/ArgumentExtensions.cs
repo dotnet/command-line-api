@@ -23,10 +23,11 @@ namespace System.CommandLine
 
         public static TArgument AddSuggestions<TArgument>(
             this TArgument argument,
-            SuggestDelegate suggest)
+            SuggestDelegate suggest,
+            bool enforceTextMatch = true)
             where TArgument : Argument
         {
-            argument.Suggestions.Add(suggest);
+            argument.Suggestions.Add(suggest, enforceTextMatch);
 
             return argument;
         }

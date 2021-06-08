@@ -20,7 +20,7 @@ namespace System.CommandLine
         private TryConvertArgument? _convertArguments;
         private Type _argumentType = typeof(string);
         private SuggestionSourceList? _suggestions = null;
-
+        
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
@@ -32,7 +32,7 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument.</param>
-        public Argument(string name)
+        public Argument(string name, bool enforceTextMatch = true)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -40,6 +40,7 @@ namespace System.CommandLine
             }
 
             Name = name!;
+            EnforceTextMatch = enforceTextMatch;
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }
@@ -211,11 +212,21 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
-            return Suggestions
+            if (EnforceTextMatch)
+            {
+                return Suggestions
                    .SelectMany(source => source.GetSuggestions(parseResult, textToMatch))
                    .Distinct()
                    .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
                    .Containing(textToMatch ?? "");
+            }
+            else
+            {
+                return Suggestions
+                   .SelectMany(source => source.GetSuggestions(parseResult, textToMatch))
+                   .Distinct()
+                   .OrderBy(c => c, StringComparer.OrdinalIgnoreCase);
+            }
         }
 
         /// <inheritdoc />

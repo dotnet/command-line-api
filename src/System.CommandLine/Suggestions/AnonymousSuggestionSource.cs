@@ -9,9 +9,13 @@ namespace System.CommandLine.Suggestions
     internal class AnonymousSuggestionSource : ISuggestionSource
     {
         private readonly SuggestDelegate _suggest;
+        private bool _enforceTextMatch;
 
-        public AnonymousSuggestionSource(SuggestDelegate suggest)
+        public bool EnforceTextMatch => _enforceTextMatch;
+
+        public AnonymousSuggestionSource(SuggestDelegate suggest, bool enforceTextMatch = true)
         {
+            _enforceTextMatch = enforceTextMatch;
             _suggest = suggest ?? throw new ArgumentNullException(nameof(suggest));
         }
 

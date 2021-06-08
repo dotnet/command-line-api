@@ -23,7 +23,8 @@ namespace System.CommandLine
         /// <param name="description">The description of the argument, shown in help.</param>
         public Argument(
             string name, 
-            string? description = null) : base(name)
+            string? description = null,
+            bool enforceTextMatch = true) : base(name, enforceTextMatch)
         {
             ArgumentType = typeof(T);
             Description = description;
@@ -39,7 +40,8 @@ namespace System.CommandLine
         public Argument(
             string name, 
             Func<T> getDefaultValue, 
-            string? description = null) : this(name)
+            string? description = null,
+            bool enforceTextMatch = true) : this(name, description, enforceTextMatch)
         {
             if (getDefaultValue is null)
             {
@@ -47,8 +49,6 @@ namespace System.CommandLine
             }
 
             SetDefaultValueFactory(() => getDefaultValue());
-
-            Description = description;
         }
 
         /// <summary>
