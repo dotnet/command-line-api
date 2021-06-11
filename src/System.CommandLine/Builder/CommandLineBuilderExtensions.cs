@@ -586,6 +586,25 @@ namespace System.CommandLine.Builder
                 };
             }
         }
+        
+        public static CommandLineBuilder UseChainedCommandLineParsing(this CommandLineBuilder builder)
+        {
+            builder.UseMiddleware(async (context, next) =>
+            {
+                await next(context); // execute until first "--" token
+
+                var parseResult = context.ParseResult;
+
+                // parse and execute unparsed tokens until no ones are left
+                while (parseResult.UnparsedTokens.Count > 0)
+                {
+                    parseResult = context.Parser.Parse(parseResult.UnparsedTokens);
+                    await next(new InvocationContext(parseResult, context.Console));
+                }
+            });
+
+            return builder;
+        }
 
         private static bool ShowHelp(
             InvocationContext context,
