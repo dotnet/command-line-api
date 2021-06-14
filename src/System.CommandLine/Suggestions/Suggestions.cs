@@ -21,5 +21,20 @@ namespace System.CommandLine.Suggestions
                 }
             }
         }
+
+        public static IEnumerable<TSuggestion> Containing<TSuggestion>(
+            this IEnumerable<TSuggestion> candidates,
+            string textToMatch)
+            where TSuggestion : ISuggestionType<TSuggestion>, new()
+        {
+            foreach (var candidate in candidates)
+            {
+                if (candidate is { } &&
+                    candidate.DoesTextMatch(textToMatch))
+                {
+                    yield return candidate;
+                }
+            }
+        }
     }
 }

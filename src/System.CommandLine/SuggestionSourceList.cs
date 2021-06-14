@@ -29,4 +29,21 @@ namespace System.CommandLine
 
         public ISuggestionSource this[int index] => _sources[index];
     }
+    public class SuggestionSourceList<TSuggestion> : IReadOnlyList<ISuggestionSource<TSuggestion>>
+    where TSuggestion : ISuggestionType<TSuggestion>, new()
+    {
+        private readonly List<ISuggestionSource<TSuggestion>> _sources = new List<ISuggestionSource<TSuggestion>>();
+
+        public void Add(ISuggestionSource<TSuggestion> source) => _sources.Add(source);
+
+        public IEnumerator<ISuggestionSource<TSuggestion>> GetEnumerator() => _sources.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public void Clear() => _sources.Clear();
+
+        public int Count => _sources.Count;
+
+        public ISuggestionSource<TSuggestion> this[int index] => _sources[index];
+    }
 }

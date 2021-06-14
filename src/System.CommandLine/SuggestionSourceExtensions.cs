@@ -7,6 +7,26 @@ namespace System.CommandLine
 {
     public static class SuggestionSourceExtensions
     {
+        public static void Add<TSuggestion>(
+            this SuggestionSourceList<TSuggestion> suggestionSources,
+            SuggestDelegate<TSuggestion> suggest,
+            bool enforceTextMatch = true
+            ) where TSuggestion : ISuggestionType<TSuggestion>, new()
+        {
+            if (suggestionSources is null)
+            {
+                throw new ArgumentNullException(nameof(suggestionSources));
+            }
+
+            if (suggest is null)
+            {
+                throw new ArgumentNullException(nameof(suggest));
+            }
+
+            suggestionSources.Add(
+                new AnonymousSuggestionSource<TSuggestion>(suggest, enforceTextMatch));
+        }
+
         public static void Add(
             this SuggestionSourceList suggestionSources,
             SuggestDelegate suggest,

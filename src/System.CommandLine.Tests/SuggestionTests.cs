@@ -370,7 +370,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_will_not_be_suggested()
+        public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_will_not_be_suggested_by_default()
         {
             var command = new Command("the-command")
             {
@@ -386,6 +386,26 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("--apple",
                                   "--banana");
+        }
+
+        [Fact]
+        public void When_one_option_has_been_partially_specified_then_nonmatching_siblings_can_still_be_suggested_by_disabling_textmatch()
+        {
+            var command = new Command("the-command", enforceTextMatch: false)
+            {
+                new Option("--apple"),
+                new Option("--banana"),
+                new Option("--cherry")
+            };
+
+            var input = "a";
+            var result = command.Parse(input);
+
+            result.GetSuggestions(input.Length)
+                  .Should()
+                  .BeEquivalentTo("--apple",
+                                  "--banana",
+                                  "--cherry");
         }
 
         [Fact]
@@ -473,7 +493,7 @@ namespace System.CommandLine.Tests
         [Theory(Skip = "Needs discussion, Issue #19")]
         [InlineData("outer ")]
         [InlineData("outer -")]
-        public void Option_Getsuggestionsions_are_not_provided_without_matching_prefix(string input)
+        public void Option_Getsuggestion_are_not_provided_without_matching_prefix(string input)
         {
             var command = new Command("outer")
             {
@@ -489,7 +509,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_Getsuggestionsions_can_be_based_on_the_proximate_option()
+        public void Option_Getsuggestion_can_be_based_on_the_proximate_option()
         {
             var parser = new Parser(
                 new Command("outer")
@@ -524,7 +544,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_Getsuggestionsions_can_be_based_on_the_proximate_option_and_partial_input()
+        public void Command_Getsuggestions_can_be_based_on_the_proximate_command_and_partial_input()
         {
             var parser = new Parser(
                 new Command("outer")
@@ -537,6 +557,22 @@ namespace System.CommandLine.Tests
             ParseResult result = parser.Parse("outer o");
 
             result.GetSuggestions().Should().BeEquivalentTo("one", "two");
+        }
+
+        [Fact]
+        public void Command_Getsuggestions_based_on_proximate_command_can_still_show_nonmatching_suggestions_by_disabling_textmatch()
+        {
+            var parser = new Parser(
+                new Command("outer", enforceTextMatch: false)
+                {
+                    new Command("one", "Command one"),
+                    new Command("two", "Command two"),
+                    new Command("three", "Command three")
+                });
+
+            ParseResult result = parser.Parse("outer o");
+
+            result.GetSuggestions().Should().BeEquivalentTo("one", "two", "three");
         }
 
         [Fact]
@@ -557,12 +593,16 @@ namespace System.CommandLine.Tests
             command.Parse("the-command -t something-else").Errors.Should().BeEmpty();
         }
 
-        [Fact]
-        public void Command_argument_suggestions_can_be_provided_using_a_delegate()
+        [Theory]
+        [InlineData(true, new[] { "animal", "mineral" })]
+        [InlineData(false, new[] { "animal", "mineral", "vegetable" })]
+        public void Command_argument_suggestions_can_be_provided_using_a_delegate(
+            bool enforceTextMatch,
+            string[] expectedSuggestions)
         {
             var command = new Command("the-command")
             {
-                new Command("one")
+                new Command("one", enforceTextMatch: enforceTextMatch)
                 {
                     new Argument
                         {
@@ -575,15 +615,19 @@ namespace System.CommandLine.Tests
             command.Parse("the-command one m")
                    .GetSuggestions()
                    .Should()
-                   .BeEquivalentTo("animal", "mineral");
+                   .BeEquivalentTo(expectedSuggestions);
         }
 
-        [Fact]
-        public void Option_argument_suggestions_can_be_provided_using_a_delegate()
+        [Theory]
+        [InlineData(true, new[] { "animal", "mineral" })]
+        [InlineData(false, new[] { "animal", "mineral", "vegetable" })]
+        public void Option_argument_suggestions_can_be_provided_using_a_delegate(
+            bool enforceTextMatch,
+            string[] expectedSuggestions)
         {
             var command = new Command("the-command")
             {
-                new Option<string>("-x")
+                new Option<string>("-x", enforceTextMatch: enforceTextMatch)
                     .AddSuggestions((_, __) => new [] { "vegetable", "mineral", "animal" })
             };
 
@@ -592,17 +636,21 @@ namespace System.CommandLine.Tests
             parseResult
                    .GetSuggestions()
                    .Should()
-                   .BeEquivalentTo("animal", "mineral");
+                   .BeEquivalentTo(expectedSuggestions);
         }
 
-        [Fact]
-        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
+        [Theory]
+        [InlineData(true, new[] { "two-b" })]
+        [InlineData(false, new[] { "two-a", "two-b", "two-c" })]
+        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option(
+            bool enforceTextMatchForTwo,
+            string[] expectedSuggestionsForTwo)
         {
             var command = new Command("outer")
             {
                 new Option("one", arity: ArgumentArity.ExactlyOne)
                     .FromAmong("one-a", "one-b", "one-c"),
-                new Option("two", arity: ArgumentArity.ExactlyOne)
+                new Option("two", arity: ArgumentArity.ExactlyOne, enforceTextMatch: enforceTextMatchForTwo)
                     .FromAmong("two-a", "two-b", "two-c"),
                 new Option("three", arity: ArgumentArity.ExactlyOne)
                     .FromAmong("three-a", "three-b", "three-c")
@@ -612,35 +660,43 @@ namespace System.CommandLine.Tests
                          .AddCommand(command)
                          .Build();
 
-            var result = parser.Parse("outer two b" );
+            var result = parser.Parse("outer two b");
+            result.GetSuggestions().Should().BeEquivalentTo(expectedSuggestionsForTwo);
 
-            result.GetSuggestions()
-                  .Should()
-                  .BeEquivalentTo("two-b");
+            var result2 = parser.Parse("outer three c");
+            result2.GetSuggestions().Should().BeEquivalentTo("three-c");
         }
 
-        [Fact]
-        public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
+        [Theory]
+        [InlineData(true, new[] { "two-b" })]
+        [InlineData(false, new[] { "two-a", "two-b", "two-c" })]
+        public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option(
+            bool enforceTextMatchForTwo,
+            string[] expectedSuggestionsForTwo)
         {
             var command = new Command("outer")
             {
                 new Option("one", arity: ArgumentArity.ExactlyOne)
                     .FromAmong("one-a", "one-b", "one-c"),
-                new Option("two", arity: ArgumentArity.ExactlyOne)
+                new Option("two", arity: ArgumentArity.ExactlyOne, enforceTextMatch: enforceTextMatchForTwo)
                     .FromAmong("two-a", "two-b", "two-c"),
                 new Option("three", arity: ArgumentArity.ExactlyOne)
                     .FromAmong("three-a", "three-b", "three-c")
             };
 
             var result = command.Parse("outer two b");
+            result.GetSuggestions().Should().BeEquivalentTo(expectedSuggestionsForTwo);
 
-            result.GetSuggestions()
-                  .Should()
-                  .BeEquivalentTo("two-b");
+            var result2 = command.Parse("outer three c");
+            result2.GetSuggestions().Should().BeEquivalentTo("three-c");
         }
 
-        [Fact]
-        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
+        [Theory]
+        [InlineData(true, new[] { "two-b" })]
+        [InlineData(false, new[] { "two-a", "two-b", "two-c" })]
+        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command(
+            bool enforceTextMatchForTwo,
+            string[] expectedSuggestionsForTwo)
         {
             var outer = new Command("outer")
             {
@@ -651,7 +707,54 @@ namespace System.CommandLine.Tests
                         Arity = ArgumentArity.ExactlyOne
                     }.FromAmong("one-a", "one-b", "one-c")
                 },
-                new Command("two")
+                new Command("two", enforceTextMatch: enforceTextMatchForTwo)
+                {
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }.FromAmong("two-a", "two-b", "two-c")
+                },
+                new Command("three")
+                {
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }.FromAmong("three-a", "three-b", "three-c")
+                }
+            };
+
+            var parser = new CommandLineBuilder()
+             .AddCommand(outer)
+             .Build();
+
+            var result = parser.Parse("outer two b");
+            result.GetSuggestions()
+                      .Should()
+                      .BeEquivalentTo(expectedSuggestionsForTwo);
+
+            var result2 = parser.Parse("outer three a");
+            result2.GetSuggestions()
+                      .Should()
+                      .BeEquivalentTo("three-a");
+        }
+
+        [Theory]
+        [InlineData(true, new[] { "two-b" })]
+        [InlineData(false, new[] { "two-a", "two-b", "two-c" })]
+        public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command(
+            bool enforceTextMatchForTwo,
+            string[] expectedSuggestionsForTwo)
+        {
+            var outer = new Command("outer")
+            {
+                new Command("one")
+                {
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }.FromAmong("one-a", "one-b", "one-c")
+                },
+                new Command("two", enforceTextMatch: enforceTextMatchForTwo)
                 {
                     new Argument
                     {
@@ -668,51 +771,24 @@ namespace System.CommandLine.Tests
             };
 
             var result = outer.Parse("outer two b");
-
             result.GetSuggestions()
                   .Should()
-                  .BeEquivalentTo("two-b");
-        }
+                  .BeEquivalentTo(expectedSuggestionsForTwo);
 
-        [Fact]
-        public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
-        {
-            var outer = new Command("outer")
-            {
-                new Command("one")
-                {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("one-a", "one-b", "one-c")
-                },
-                new Command("two")
-                {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("two-a", "two-b", "two-c")
-                },
-                new Command("three")
-                {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("three-a", "three-b", "three-c")
-                }
-            };
-
-            ParseResult result = outer.Parse("outer two b");
-
-            result.GetSuggestions()
+            var result2 = outer.Parse("outer three a");
+            result2.GetSuggestions()
                   .Should()
-                  .BeEquivalentTo("two-b");
+                  .BeEquivalentTo("three-a");
         }
 
-        [Fact]
-        public void Arguments_of_type_enum_provide_enum_values_as_suggestions()
+        [Theory]
+        [InlineData(true, new [] { "CreateNew", "Create", "OpenOrCreate" })]
+        [InlineData(false, new[] { "CreateNew", "Create", "Open", "OpenOrCreate", "Truncate", "Append" })]
+        public void Arguments_of_type_enum_provide_enum_values_as_suggestions(
+            bool enforceTextMatch,
+            string[] expectedSuggestions)
         {
-            var command = new Command("the-command")
+            var command = new Command("the-command", enforceTextMatch: enforceTextMatch)
             {
                 new Argument<FileMode>()
             };
@@ -720,7 +796,7 @@ namespace System.CommandLine.Tests
             var suggestions = command.Parse("the-command create")
                                      .GetSuggestions();
 
-            suggestions.Should().BeEquivalentTo("CreateNew", "Create", "OpenOrCreate");
+            suggestions.Should().BeEquivalentTo(expectedSuggestions);
         }
 
         [Fact]

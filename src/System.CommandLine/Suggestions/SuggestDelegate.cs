@@ -7,4 +7,5 @@ using System.CommandLine.Parsing;
 namespace System.CommandLine.Suggestions
 {
     public delegate IEnumerable<string> SuggestDelegate(ParseResult? parseResult, string? textToMatch);
+    public delegate IEnumerable<TSuggestion> SuggestDelegate<TSuggestion>(ParseResult? parseResult, string? textToMatch);
 }

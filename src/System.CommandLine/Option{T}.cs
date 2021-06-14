@@ -66,5 +66,13 @@ namespace System.CommandLine
                   new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))),
                   enforceTextMatch)
         { }
+
+        internal Option(
+            string[] aliases,
+            Argument argument,
+            string? description,
+            bool enforceTextMatch = true)
+            : base(aliases, description, argument, enforceTextMatch)
+        { }
     }
 }

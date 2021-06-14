@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Suggestions;
 
@@ -36,4 +37,8 @@ namespace System.CommandLine
         /// </summary>
         ISymbolSet Parents { get; }
     }
+
+    public interface ISymbol<TSuggestion> : ISymbol, ISuggestionSource<TSuggestion>
+        where TSuggestion : ISuggestionType<TSuggestion>, new()
+    { }
 }

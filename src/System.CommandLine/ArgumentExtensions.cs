@@ -32,6 +32,17 @@ namespace System.CommandLine
             return argument;
         }
 
+        public static Argument<T, TSuggestion> AddSuggestions<T, TSuggestion>(
+            this Argument<T, TSuggestion> argument,
+            SuggestDelegate<TSuggestion> suggest,
+            bool enforceTextMatch = true)
+            where TSuggestion : ISuggestionType<TSuggestion>, new()
+        {
+            argument.GenericSuggestions.Add(suggest, enforceTextMatch);
+
+            return argument;
+        }
+
         public static TArgument FromAmong<TArgument>(
             this TArgument argument,
             params string[] values)

@@ -212,21 +212,14 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
-            if (EnforceTextMatch)
-            {
-                return Suggestions
-                   .SelectMany(source => source.GetSuggestions(parseResult, textToMatch))
-                   .Distinct()
-                   .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
-                   .Containing(textToMatch ?? "");
-            }
-            else
-            {
-                return Suggestions
+            var suggestions = Suggestions
                    .SelectMany(source => source.GetSuggestions(parseResult, textToMatch))
                    .Distinct()
                    .OrderBy(c => c, StringComparer.OrdinalIgnoreCase);
-            }
+
+            return EnforceTextMatch
+                ? suggestions.Containing(textToMatch ?? "")
+                : suggestions;
         }
 
         /// <inheritdoc />

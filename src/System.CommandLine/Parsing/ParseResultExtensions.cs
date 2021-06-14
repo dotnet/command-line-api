@@ -248,33 +248,102 @@ namespace System.CommandLine.Parsing
             if (currentSymbolResult is CommandResult commandResult)
             {
                 currentSymbolSuggestions = currentSymbolSuggestions
-                    .Except(OptionsWithArgumentLimitReached(currentSymbolResult));
+                    .Except(OptionsWithArgumentLimitReached(commandResult, currentSymbolResult));
 
                 if (currentSymbolResult.Parent is CommandResult parent)
                 {
-                    siblingSuggestions = siblingSuggestions.Except(OptionsWithArgumentLimitReached(parent));
+                    siblingSuggestions = siblingSuggestions.Except(OptionsWithArgumentLimitReached(commandResult, parent));
                 }
             }
 
             return currentSymbolSuggestions.Concat(siblingSuggestions);
+        }
 
-            string[] OptionsWithArgumentLimitReached(SymbolResult symbolResult)
+        public static IEnumerable<TSuggestion?> GetGenericSuggestions<TSuggestion>(
+            this ParseResult parseResult,
+            int? position = null)
+            where TSuggestion : ISuggestionType<TSuggestion>, new()
+        {
+            var textToMatch = parseResult.TextToMatch(position);
+            var currentSymbolResult = parseResult.SymbolToComplete(position);
+            var currentSymbol = currentSymbolResult.Symbol;
+
+            IEnumerable<TSuggestion> currentSymbolSuggestions = currentSymbol switch
             {
-                var optionsWithArgLimitReached =
-                    symbolResult
-                        .Children
-                        .Where(c => c.IsArgumentLimitReached);
+                ISuggestionSource<TSuggestion> source => source.GetGenericSuggestions(parseResult, textToMatch),
+                ISuggestionSource source => source.GetSuggestions(parseResult, textToMatch)
+                    .Select(suggestion => new TSuggestion().Build(parseResult, suggestion)),
+                _ => Array.Empty<TSuggestion>()
+            };
 
-                var exclude = optionsWithArgLimitReached
-                              .OfType<OptionResult>()
-                              .Select(o => o.Symbol)
-                              .OfType<IIdentifierSymbol>()
-                              .SelectMany(c => c.Aliases)
-                              .Concat(commandResult.Command.Aliases)
-                              .ToArray();
+            IEnumerable<TSuggestion> siblingSuggestions;
+            var parentSymbol = currentSymbolResult.Parent?.Symbol;
 
-                return exclude;
+            if (parentSymbol is null ||
+                !currentSymbolResult.IsArgumentLimitReached)
+            {
+                siblingSuggestions = Array.Empty<TSuggestion>();
             }
+            else
+            {
+                siblingSuggestions = parentSymbol switch
+                {
+                    ISuggestionSource<TSuggestion> source => source
+                        .GetGenericSuggestions(parseResult, textToMatch)
+                        .Except(
+                            parentSymbol
+                                .Children
+                                .OfType<ICommand>()
+                                .SelectMany(c => c.Aliases)
+                                .Select(suggestion => new TSuggestion().Build(parseResult, suggestion)),
+                            new TSuggestion()),
+                    ISuggestionSource source => source
+                        .GetSuggestions(parseResult, textToMatch)
+                        .Except(parentSymbol
+                            .Children
+                            .OfType<ICommand>()
+                            .SelectMany(c => c.Aliases))
+                        .Select(suggestion => new TSuggestion().Build(parseResult, suggestion))
+                };
+            }
+
+            if (currentSymbolResult is CommandResult commandResult)
+            {
+                currentSymbolSuggestions = currentSymbolSuggestions
+                    .Except(
+                        OptionsWithArgumentLimitReached(commandResult, currentSymbolResult)
+                            .Select(suggestion => new TSuggestion().Build(parseResult, suggestion)),
+                        new TSuggestion());
+
+                if (currentSymbolResult.Parent is CommandResult parent)
+                {
+                    siblingSuggestions = siblingSuggestions
+                        .Except(
+                            OptionsWithArgumentLimitReached(commandResult, parent)
+                                .Select(suggestion => new TSuggestion().Build(parseResult, suggestion)),
+                            new TSuggestion());
+                }
+            }
+
+            return currentSymbolSuggestions.Concat(siblingSuggestions);
+        }
+
+        private static string[] OptionsWithArgumentLimitReached(CommandResult commandResult, SymbolResult symbolResult)
+        {
+            var optionsWithArgLimitReached =
+                symbolResult
+                    .Children
+                    .Where(c => c.IsArgumentLimitReached);
+
+            var exclude = optionsWithArgLimitReached
+                          .OfType<OptionResult>()
+                          .Select(o => o.Symbol)
+                          .OfType<IIdentifierSymbol>()
+                          .SelectMany(c => c.Aliases)
+                          .Concat(commandResult.Command.Aliases)
+                          .ToArray();
+
+            return exclude;
         }
 
         internal static SymbolResult SymbolToComplete(

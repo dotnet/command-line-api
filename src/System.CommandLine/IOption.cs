@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Suggestions;
 
 namespace System.CommandLine
 {
@@ -35,4 +36,8 @@ namespace System.CommandLine
         /// </example>
         bool AllowMultipleArgumentsPerToken { get; }
     }
+
+    public interface IOption<TSuggestion> : IOption, ISymbol<TSuggestion>
+        where TSuggestion : ISuggestionType<TSuggestion>, new()
+    { }
 }

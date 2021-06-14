@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
+using System.CommandLine.Suggestions;
 
 namespace System.CommandLine
 {
@@ -27,4 +28,8 @@ namespace System.CommandLine
         /// </summary>
         IReadOnlyList<IOption> Options { get; }
     }
+
+    public interface ICommand<TSuggestion> : ICommand, ISymbol<TSuggestion>
+        where TSuggestion : ISuggestionType<TSuggestion>, new()
+    { }
 }
