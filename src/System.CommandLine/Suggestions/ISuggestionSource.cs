@@ -20,7 +20,6 @@ namespace System.CommandLine.Suggestions
         IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null);
     }
 
-
     /// <summary>
     /// Provides suggestions for tab completion and example values for help.
     /// </summary>

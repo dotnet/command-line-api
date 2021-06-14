@@ -20,7 +20,7 @@ namespace System.CommandLine
         private TryConvertArgument? _convertArguments;
         private Type _argumentType = typeof(string);
         private SuggestionSourceList? _suggestions = null;
-        
+
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
@@ -56,8 +56,8 @@ namespace System.CommandLine
                 if (_arity is null)
                 {
                     return ArgumentArity.Default(
-                        ArgumentType, 
-                        this, 
+                        ArgumentType,
+                        this,
                         Parents);
                 }
 
@@ -88,7 +88,7 @@ namespace System.CommandLine
 
                 return _convertArguments;
 
-          
+
             }
             set => _convertArguments = value;
         }
@@ -181,7 +181,7 @@ namespace System.CommandLine
 
             SetDefaultValueFactory(_ => getDefaultValue());
         }
-        
+
         /// <summary>
         /// Sets a delegate to invoke when the default value for the argument is required.
         /// </summary>

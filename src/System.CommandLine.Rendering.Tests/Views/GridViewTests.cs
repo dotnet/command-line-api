@@ -60,6 +60,58 @@ namespace System.CommandLine.Rendering.Tests.Views
         [Theory]
         [InlineData(OutputMode.Ansi)]
         [InlineData(OutputMode.NonAnsi)]
+        public void Column_width_definition_size_calculation_according_priority_fixed_then_size_to_content_then_star(OutputMode outputMode)
+        {
+            var grid = new GridView();
+            grid.SetColumns(ColumnDefinition.Star(1), ColumnDefinition.SizeToContent(), ColumnDefinition.Fixed(10));
+            grid.SetChild(new ContentView("The quick"), 0, 0);
+            grid.SetChild(new ContentView("brown fox"), 1, 0);
+            grid.SetChild(new ContentView("jumped"), 2, 0);
+
+            var terminal = new TestTerminal();
+            var renderer = new ConsoleRenderer(terminal, outputMode);
+            grid.Render(renderer, new Region(0, 0, 20, 1));
+
+            terminal.Events.Should().BeEquivalentSequenceTo(
+                                                            new TestTerminal.CursorPositionChanged(new Point(0, 0)),
+                                                            new TestTerminal.ContentWritten("brown fox "),
+                                                            new TestTerminal.CursorPositionChanged(new Point(10, 0)),
+                                                            new TestTerminal.ContentWritten("jumped    "));
+        }
+
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
+        public void Row_height_definition_size_calculation_according_priority_fixed_then_size_to_content_then_star(OutputMode outputMode)
+        {
+            var grid = new GridView();
+            grid.SetRows(RowDefinition.Star(1), RowDefinition.SizeToContent(), RowDefinition.Fixed(4));
+            grid.SetChild(new ContentView("The"), 0, 0);
+            grid.SetChild(new ContentView("quick brown fox"), 0, 1);
+            grid.SetChild(new ContentView("jumped over the sleepy"), 0, 2);
+
+            var terminal = new TestTerminal();
+            var renderer = new ConsoleRenderer(terminal, outputMode);
+            grid.Render(renderer, new Region(0, 0, 8, 6));
+
+            terminal.Events.Should().BeEquivalentSequenceTo(
+                                                            new TestTerminal.CursorPositionChanged(new Point(0, 0)),
+                                                            new TestTerminal.ContentWritten("quick   "),
+                                                            new TestTerminal.CursorPositionChanged(new Point(0, 1)),
+                                                            new TestTerminal.ContentWritten("brown   "),
+                                                            new TestTerminal.CursorPositionChanged(new Point(0, 2)),
+                                                            new TestTerminal.ContentWritten("jumped  "),
+                                                            new TestTerminal.CursorPositionChanged(new Point(0, 3)),
+                                                            new TestTerminal.ContentWritten("over the"),
+                                                            new TestTerminal.CursorPositionChanged(new Point(0, 4)),
+                                                            new TestTerminal.ContentWritten("sleepy  "),
+                                                            new TestTerminal.CursorPositionChanged(new Point(0, 5)),
+                                                            new TestTerminal.ContentWritten("        "));
+        }
+
+        [Theory]
+        [InlineData(OutputMode.Ansi)]
+        [InlineData(OutputMode.NonAnsi)]
         public void Column_width_definition_is_preserved_even_defintion_is_mixed_for_subsequent_columns(OutputMode outputMode)
         {
             var grid = new GridView();

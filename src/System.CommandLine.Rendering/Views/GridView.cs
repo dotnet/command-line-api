@@ -129,23 +129,34 @@ namespace System.CommandLine.Rendering.Views
             foreach (var (column, columnIndex) in _columns.Select((definition, columnIndex) => (definition, columnIndex)).OrderBy(t => GetProcessOrder(t.definition.SizeMode)))
             {
                 int availableHeight = maxSize.Height;
+                int? totalHeightForStarSizing = null;
 
-                for (int rowIndex = 0; rowIndex < _rows.Count; rowIndex++)
+                foreach (var (row, rowIndex) in _rows.Select((definition, rowIndex) => (definition, rowIndex)).OrderBy(t => GetProcessOrder(t.definition.SizeMode)))
                 {
                     if (measuredRows[rowIndex] == null)
                     {
-                        switch (_rows[rowIndex].SizeMode)
+                        switch (row.SizeMode)
                         {
                             case SizeMode.Fixed:
-                                measuredRows[rowIndex] = Math.Min((int)_rows[rowIndex].Value, availableHeight);
+                            {
+                                measuredRows[rowIndex] = Math.Min((int)row.Value, availableHeight);
                                 break;
+                            }
                             case SizeMode.Star:
-                                measuredRows[rowIndex] = (int)Math.Round(_rows[rowIndex].Value / totalRowStarSize * maxSize.Height);
+                            {
+                                totalHeightForStarSizing ??= availableHeight;
+                                int starHeight = (int)Math.Round(row.Value / totalRowStarSize * totalHeightForStarSizing.Value);
+                                if (measuredRows[rowIndex] < starHeight)
+                                {
+                                    starHeight = measuredRows[rowIndex].Value;
+                                }
+                                measuredRows[rowIndex] = starHeight;
                                 break;
+                            }
                             case SizeMode.SizeToContent:
                                 break;
                             default:
-                                throw new InvalidOperationException($"Unknown row size mode {_rows[rowIndex].SizeMode}");
+                                throw new InvalidOperationException($"Unknown row size mode {row.SizeMode}");
                         }
                     }
                     Size childSize = null;
@@ -182,10 +193,7 @@ namespace System.CommandLine.Rendering.Views
                             break;
                         case SizeMode.Star:
                         {
-                            if (totalWidthForStarSizing == null)
-                            {
-                                totalWidthForStarSizing = availableWidth;
-                            }
+                            totalWidthForStarSizing ??= availableWidth;
                             int starWidth = (int)Math.Round(column.Value / totalColumnStarSize * totalWidthForStarSizing.Value);
                             if (measuredColumns[columnIndex] < starWidth)
                             {
@@ -198,7 +206,7 @@ namespace System.CommandLine.Rendering.Views
                             throw new InvalidOperationException($"Unknown column size mode {column.SizeMode}");
                     }
 
-                    if (_rows[rowIndex].SizeMode == SizeMode.SizeToContent)
+                    if (row.SizeMode == SizeMode.SizeToContent)
                     {
                         if (childSize == null && ChildLocations[columnIndex, rowIndex] is View child)
                         {
@@ -226,17 +234,13 @@ namespace System.CommandLine.Rendering.Views
 
         private static int GetProcessOrder(SizeMode sizeMode)
         {
-            switch (sizeMode)
+            return sizeMode switch
             {
-                case SizeMode.Fixed:
-                    return 0;
-                case SizeMode.SizeToContent:
-                    return 1;
-                case SizeMode.Star:
-                    return 2;
-                default:
-                    throw new InvalidOperationException($"Unknown size mode {sizeMode}");
-            }
+                SizeMode.Fixed => 0,
+                SizeMode.SizeToContent => 1,
+                SizeMode.Star => 2,
+                _ => throw new InvalidOperationException($"Unknown size mode {sizeMode}")
+            };
         }
     }
 }
