@@ -14,6 +14,7 @@ namespace System.CommandLine
     {
         private string? _name;
         private readonly SymbolSet _parents = new SymbolSet();
+        private bool _enforceTextMatch = true;
 
         private protected Symbol()
         {
@@ -39,6 +40,12 @@ namespace System.CommandLine
         /// Represents the parent symbols.
         /// </summary>
         public ISymbolSet Parents => _parents;
+
+        private protected bool EnforceTextMatch
+        {
+            get => _enforceTextMatch;
+            set => _enforceTextMatch = value;
+        }
 
         internal void AddParent(Symbol symbol)
         {
@@ -72,7 +79,14 @@ namespace System.CommandLine
         {
             var suggestions = new HashSet<string>();
 
-            textToMatch ??= "";
+            if (EnforceTextMatch)
+            {
+                textToMatch ??= "";
+            }
+            else
+            {
+                textToMatch = "";
+            }
 
             for (var i = 0; i < Children.Count; i++)
             {

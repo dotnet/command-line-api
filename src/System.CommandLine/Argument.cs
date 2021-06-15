@@ -32,7 +32,7 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument.</param>
-        public Argument(string name)
+        public Argument(string name, bool enforceTextMatch = true)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -40,6 +40,7 @@ namespace System.CommandLine
             }
 
             Name = name!;
+            EnforceTextMatch = enforceTextMatch;
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }
@@ -211,11 +212,13 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
         {
-            return Suggestions
+            var suggestions = Suggestions
                    .SelectMany(source => source.GetSuggestions(parseResult, textToMatch))
                    .Distinct()
-                   .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
-                   .Containing(textToMatch ?? "");
+                   .OrderBy(c => c, StringComparer.OrdinalIgnoreCase);
+            return EnforceTextMatch
+                ? suggestions.Containing(textToMatch ?? "")
+                : suggestions;
         }
 
         /// <inheritdoc />
