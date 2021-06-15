@@ -78,7 +78,7 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyList<Token> Tokens { get; }
 
-        internal string? RawInput { get; }
+        public string? RawInput { get; }
 
         public IReadOnlyList<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();
 

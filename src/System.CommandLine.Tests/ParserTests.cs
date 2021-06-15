@@ -716,12 +716,14 @@ namespace System.CommandLine.Tests
                    .BeEquivalentTo(
                        result2,
                        x => x.IgnoringCyclicReferences()
-                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal))
+                             .Excluding(y => y.SelectedMemberInfo.Name == "RawInput"));
             result1.Should()
                    .BeEquivalentTo(
                        result3,
                        x => x.IgnoringCyclicReferences()
-                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal))
+                             .Excluding(y => y.SelectedMemberInfo.Name == "RawInput"));
         }
 
         [Theory]
