@@ -9,6 +9,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -79,6 +80,24 @@ namespace System.CommandLine.Tests.Invocation
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Invoke_runs_synchronous_handlers_on_current_thread()
+        {
+            var currentThreadId = Thread.CurrentThread.ManagedThreadId;
+            int? handlerThreadId = null;
+
+            var parser = new CommandLineBuilder()
+                .AddCommand(new Command("command")
+                {
+                    Handler = CommandHandler.Create(() => handlerThreadId = Thread.CurrentThread.ManagedThreadId),
+                })
+                .Build();
+
+            parser.Invoke("command", _console);
+
+            handlerThreadId.Should().Be(currentThreadId);
         }
 
         [Fact]

@@ -30,13 +30,7 @@ namespace System.CommandLine.Invocation
 
         public int Invoke(IConsole? console = null)
         {
-            var context = new InvocationContext(parseResult, console);
-
-            InvocationMiddleware invocationChain = BuildInvocationChain(context);
-
-            Task.Run(() => invocationChain(context, invocationContext => Task.CompletedTask)).GetAwaiter().GetResult();
-
-            return GetExitCode(context);
+            return InvokeAsync(console).GetAwaiter().GetResult();
         }
 
         private static InvocationMiddleware BuildInvocationChain(InvocationContext context)
