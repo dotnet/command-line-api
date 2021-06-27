@@ -10,7 +10,7 @@ namespace System.CommandLine.Rendering.Views
     {
         private readonly List<ColumnDefinition> _columns = new List<ColumnDefinition>();
         private readonly List<RowDefinition> _rows = new List<RowDefinition>();
-        private readonly int _gutterWidth = 2;
+        private readonly int _columnPaddingRight = 2;
 
         private View[,] ChildLocations { get; set; }
 
@@ -102,12 +102,25 @@ namespace System.CommandLine.Rendering.Views
                 int maxRowHeight = 0;
                 for (int column = 0; column < _columns.Count; column++)
                 {
-                    if (ChildLocations[column, row] is View child && 
-                        sizes[column, row].Width > 0 &&
-                        sizes[column, row].Height > 0)
+                    var paddingWidth = GetColumnPaddingWidth(column);
+                    if (ChildLocations[column, row] is not { } child ||
+                        sizes[column, row].Width - paddingWidth <= 0 ||
+                        sizes[column, row].Height <= 0)
                     {
-                        child.Render(renderer, new Region(left, top, sizes[column, row]));
+                        //child no view or no space left to render
+                        continue;
                     }
+
+                    var contentSize = new Size(sizes[column, row].Width - paddingWidth, sizes[column, row].Height);
+                    child.Render(renderer, new Region(left, top, contentSize));
+
+                	if (paddingWidth > 0)
+                    { 
+                    	// Explicit render the space between the columns to improve rendering in plain text 
+                        var paddingSize = new Size(paddingWidth, sizes[column, row].Height);
+                        renderer.RenderToRegion(TextSpan.Empty(), new Region(left + contentSize.Width, top, paddingSize));
+                    }
+
                     left += sizes[column, row].Width;
                     maxRowHeight = Math.Max(maxRowHeight, sizes[column, row].Height);
                 }
@@ -117,6 +130,7 @@ namespace System.CommandLine.Rendering.Views
 
         private Size[,] GetGridSizes(ConsoleRenderer renderer, Size maxSize)
         {
+            int countStarSizedColumnsWithPadding = _columns.AsEnumerable().Reverse().Skip(1).Count(x => x.SizeMode == SizeMode.Star);
             double totalColumnStarSize = _columns.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
             double totalRowStarSize = _rows.Where(x => x.SizeMode == SizeMode.Star).Sum(x => x.Value);
 
@@ -159,6 +173,7 @@ namespace System.CommandLine.Rendering.Views
                                 throw new InvalidOperationException($"Unknown row size mode {row.SizeMode}");
                         }
                     }
+                    var paddingWidth = GetColumnPaddingWidth(columnIndex);
                     Size childSize = null;
                     switch (column.SizeMode)
                     {
@@ -166,7 +181,7 @@ namespace System.CommandLine.Rendering.Views
                         {
                             if (measuredColumns[columnIndex] == null)
                             {
-                                measuredColumns[columnIndex] = Math.Min((int)column.Value, availableWidth);
+                                measuredColumns[columnIndex] = Math.Min((int)column.Value + paddingWidth, availableWidth);
                             }
                             break;
                         }
@@ -176,30 +191,19 @@ namespace System.CommandLine.Rendering.Views
                             {
                                 childSize = child.Measure(renderer, new Size(availableWidth, availableHeight));
                             }
-
-                            int gutterWidth;
-                            if (columnIndex < _columns.Count - 1)
-                            {
-                                gutterWidth = _gutterWidth;
-                            }
-                            else
-                            {
-                                gutterWidth = 0;
-                            }
-
-                            var width = childSize?.Width + gutterWidth ?? 0;
+                            var width = childSize?.Width + paddingWidth ?? 0;
                             measuredColumns[columnIndex] = Math.Min(Math.Max(measuredColumns[columnIndex] ?? 0, width), availableWidth);
                         }
                             break;
                         case SizeMode.Star:
                         {
-                            totalWidthForStarSizing ??= availableWidth;
+                            totalWidthForStarSizing ??= availableWidth - countStarSizedColumnsWithPadding * _columnPaddingRight;
                             int starWidth = (int)Math.Round(column.Value / totalColumnStarSize * totalWidthForStarSizing.Value);
                             if (measuredColumns[columnIndex] < starWidth)
                             {
                                 starWidth = measuredColumns[columnIndex].Value;
                             }
-                            measuredColumns[columnIndex] = starWidth;
+                            measuredColumns[columnIndex] = starWidth + paddingWidth;
                             break;
                         }
                         default:
@@ -231,6 +235,10 @@ namespace System.CommandLine.Rendering.Views
             }
             return rv;
         }
+
+
+        private int GetColumnPaddingWidth(int columnIndex) => columnIndex < _columns.Count - 1 ? _columnPaddingRight : 0;
+
 
         private static int GetProcessOrder(SizeMode sizeMode)
         {
