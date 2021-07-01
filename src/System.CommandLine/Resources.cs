@@ -75,6 +75,9 @@ namespace System.CommandLine
         public virtual string HelpUsageTile() =>
             GetResourceString(Properties.Resources.HelpUsageTile);
 
+        public virtual string HelpDescriptionTile() =>
+            GetResourceString(Properties.Resources.HelpDescriptionTile);
+
         public virtual string HelpUsageOptionsTile() =>
             GetResourceString(Properties.Resources.HelpUsageOptionsTitle);
 

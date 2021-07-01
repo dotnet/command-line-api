@@ -126,6 +126,11 @@ ERR:
         <target state="new">Commands:</target>
         <note />
       </trans-unit>
+      <trans-unit id="HelpDescriptionTile">
+        <source>Description:</source>
+        <target state="new">Description:</target>
+        <note />
+      </trans-unit>
       <trans-unit id="HelpOptionDescription">
         <source>Show help and usage information</source>
         <target state="new">Show help and usage information</target>

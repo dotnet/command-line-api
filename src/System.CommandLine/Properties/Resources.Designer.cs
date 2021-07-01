@@ -327,7 +327,16 @@ namespace System.CommandLine.Properties {
                 return ResourceManager.GetString("HelpUsageTile", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Description:.
+        /// </summary>
+        internal static string HelpDescriptionTile {
+            get {
+                return ResourceManager.GetString("HelpDescriptionTile", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Character not allowed in a file name: {0}.
         /// </summary>

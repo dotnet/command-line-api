@@ -186,6 +186,9 @@
   <data name="HelpUsageTile" xml:space="preserve">
     <value>Usage:</value>
   </data>
+    <data name="HelpDescriptionTile" xml:space="preserve">
+    <value>Description:</value>
+  </data>
   <data name="HelpArgumentDefaultValueTitle" xml:space="preserve">
     <value>default</value>
   </data>
