@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests
 {
     public class ResponseFileTests : IDisposable
     {
-        private readonly List<FileInfo> _responseFiles = new List<FileInfo>();
+        private readonly List<FileInfo> _responseFiles = new();
 
         public void Dispose()
         {
@@ -172,12 +172,15 @@ namespace System.CommandLine.Tests
                 "",
                 "123");
 
-            var result = new CommandLineBuilder()
-                         .AddOption(new Option<int>("--flag"))
-                         .Build()
-                         .Parse($"@{responseFile}");
+            var option = new Option<int>("--flag");
 
-            result.ValueForOption("--flag").Should().Be(123);
+            var result = new RootCommand
+                {
+                    option
+                }
+                .Parse($"@{responseFile}");
+
+            result.ValueForOption(option).Should().Be(123);
             result.Errors.Should().BeEmpty();
         }
 
@@ -352,8 +355,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption("--option1").Should().Be("value1");
-            result.ValueForOption("--option2").Should().Be(2);
+            result.ValueForOption(option1).Should().Be("value1");
+            result.ValueForOption(option2).Should().Be(2);
         }
 
         [Fact]
@@ -365,8 +368,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption("--option1").Should().Be("value1");
-            result.ValueForOption("--option2").Should().Be(2);
+            result.ValueForOption(option1).Should().Be("value1");
+            result.ValueForOption(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();
         }
 
@@ -379,8 +382,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption("--option1").Should().Be("value1");
-            result.ValueForOption("--option2").Should().Be(2);
+            result.ValueForOption(option1).Should().Be("value1");
+            result.ValueForOption(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();
         }
     }
