@@ -789,6 +789,12 @@ namespace System.CommandLine.Tests.Binding
             receivedValue.Should().Be(0);
         }
 
+        public class ComplexType
+        {
+            public decimal OptDecimal { get; set; }
+        }
+
+#if NETCOREAPP2_1_OR_GREATER
         [Theory]
         [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4 --int-value 1234")]
         [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4")]
@@ -824,10 +830,6 @@ namespace System.CommandLine.Tests.Binding
 
             public override string ToString() => value.ToString();
         }
-
-        public class ComplexType
-        {
-            public decimal OptDecimal { get; set; }
-        }
+#endif
     }
 }
