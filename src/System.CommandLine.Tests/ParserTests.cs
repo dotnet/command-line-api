@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
-            var option = new Option("-x") { Arity = ArgumentArity.ExactlyOne };
+            var option = new Option<string>("-x") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("-x=some-value");
 

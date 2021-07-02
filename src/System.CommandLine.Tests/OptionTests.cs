@@ -503,11 +503,11 @@ namespace System.CommandLine.Tests
             var result = option.Parse("");
 
             result.HasOption(option)
-                  .Should()
-                  .BeFalse();
+                .Should()
+                .BeFalse();
             result.ValueForOption(option)
-                  .Should()
-                  .BeFalse();
+                .Should()
+                .BeFalse();
         }
 
         [Fact]
@@ -516,6 +516,14 @@ namespace System.CommandLine.Tests
             var option = new Option("-x");
 
             option.Arity.Should().BeEquivalentTo(ArgumentArity.Zero);
+        }
+
+        [Fact]
+        public void ArgumentType_of_non_generic_option_defaults_to_bool()
+        {
+            var option = new Option("-x");
+
+            option.ValueType.Should().Be(typeof(bool));
         }
 
         protected override Symbol CreateSymbol(string name) => new Option(name);

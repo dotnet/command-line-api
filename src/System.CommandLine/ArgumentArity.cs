@@ -118,6 +118,7 @@ namespace System.CommandLine
 
             if (type == typeof(void))
             {
+                // FIX: (Default) delete
                 return Zero;
             }
 

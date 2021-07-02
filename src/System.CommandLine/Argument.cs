@@ -104,7 +104,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
-        public Type ArgumentType
+        public virtual Type ArgumentType
         {
             get => _argumentType;
             set => _argumentType = value ?? throw new ArgumentNullException(nameof(value));
@@ -196,7 +196,11 @@ namespace System.CommandLine
         /// </summary>
         public bool HasDefaultValue => _defaultValueFactory != null;
 
-        internal static Argument None() => new Argument { Arity = ArgumentArity.Zero };
+        internal static Argument None() => new()
+        {
+            Arity = ArgumentArity.Zero,
+            ArgumentType = typeof(bool)
+        };
 
         internal void AddAllowedValues(IEnumerable<string> values)
         {

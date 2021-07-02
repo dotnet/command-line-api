@@ -14,7 +14,10 @@ namespace System.CommandLine.Parsing
             optionResult.ArgumentConversionResult
                         .ConvertIfNeeded(optionResult, type);
 
-        public static object? GetValueOrDefault(this OptionResult optionResult) => optionResult.GetValueOrDefault<object?>();
+        public static object? GetValueOrDefault(this OptionResult optionResult) =>
+            optionResult.Option.ValueType == typeof(bool)
+              ? optionResult.GetValueOrDefault<bool>()
+              : optionResult.GetValueOrDefault<object?>();
 
         [return: MaybeNull]
         public static T GetValueOrDefault<T>(this OptionResult optionResult) =>

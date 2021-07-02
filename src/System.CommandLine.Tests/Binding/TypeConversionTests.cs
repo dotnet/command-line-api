@@ -341,7 +341,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void The_default_value_of_an_option_with_no_arguments_is_null()
+        public void The_default_value_of_an_option_with_no_arguments_is_false()
         {
             var option = new Option("-x");
 
@@ -356,20 +356,22 @@ namespace System.CommandLine.Tests.Binding
             result.FindResultFor(option)
                   .GetValueOrDefault()
                   .Should()
-                  .BeNull();
+                  .Be(true);
         }
 
         [Fact]
         public void By_default_an_option_without_arguments_parses_as_false_when_it_is_not_applied()
         {
+            var option = new Option("-x");
+
             var command = new Command("something")
             {
-                new Option("-x")
+                option
             };
 
             var result = command.Parse("something");
 
-            result.ValueForOption<bool>("-x")
+            result.ValueForOption<bool>(option)
                   .Should()
                   .BeFalse();
         }
