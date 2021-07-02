@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
@@ -794,5 +793,43 @@ namespace System.CommandLine.Tests.Binding
         {
             public decimal OptDecimal { get; set; }
         }
+
+#if NETCOREAPP2_1_OR_GREATER
+        [Theory]
+        [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4 --int-value 1234")]
+        [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4")]
+        [InlineData("--int-value 1234")]
+        public void When_only_available_constructor_is_span_then_null_is_passed(string commandLine)
+        {
+            var root = new RootCommand
+            {
+                new Option<ClassWithSpanConstructor>("--class-with-span-ctor"),
+                new Option<int>("--int-value"),
+            };
+
+            var handlerWasCalled = false;
+
+            root.Handler = CommandHandler.Create<ClassWithSpanConstructor, int>((spanCtor, intValue) =>
+            {
+                handlerWasCalled = true;
+            });
+
+            root.Invoke(commandLine);
+
+            handlerWasCalled.Should().BeTrue();
+        }
+
+        public class ClassWithSpanConstructor
+        {
+            private Guid value;
+
+            public ClassWithSpanConstructor(ReadOnlySpan<byte> guid)
+            {
+                value = new Guid(guid);
+            }
+
+            public override string ToString() => value.ToString();
+        }
+#endif
     }
 }

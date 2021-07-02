@@ -67,7 +67,7 @@ namespace System.CommandLine.Binding
 
         private (bool success, object? newInstance, bool anyNonDefaults) CreateInstanceInternal(BindingContext bindingContext)
         {
-            if (DisallowedBindingType())
+            if (IsModelTypeUnbindable())
             {
                 throw new InvalidOperationException($"The type {ModelDescriptor.ModelType} cannot be bound");
             }
@@ -93,11 +93,11 @@ namespace System.CommandLine.Binding
             }
         }
 
-        private bool DisallowedBindingType()
+        private bool IsModelTypeUnbindable()
         {
             var modelType = ModelDescriptor.ModelType;
-            return modelType.IsConstructedGenericTypeOf(typeof(Span<>)) || 
-                modelType.IsConstructedGenericTypeOf(typeof(ReadOnlySpan<>));
+            return modelType.IsConstructedGenericTypeOf(typeof(Span<>)) ||
+                   modelType.IsConstructedGenericTypeOf(typeof(ReadOnlySpan<>));
         }
 
         private bool ShortCutTheBinding()
@@ -258,6 +258,8 @@ namespace System.CommandLine.Binding
                     bool includeMissingValues,
                     Type? parentType)
         {
+
+
             if (bindingContext.TryBindToScalarValue(
                     valueDescriptor,
                     valueSource,
@@ -276,7 +278,14 @@ namespace System.CommandLine.Binding
                 if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
                 {
                     var binder = bindingContext.GetModelBinder(valueDescriptor);
+
+                    if (binder.IsModelTypeUnbindable())
+                    {
+                        return (null, false);
+                    }
+
                     var (success, newInstance, usedNonDefaults) = binder.CreateInstanceInternal(bindingContext);
+
                     if (success)
                     {
                         return (new BoundValue(newInstance, valueDescriptor, valueSource), usedNonDefaults);
@@ -287,13 +296,12 @@ namespace System.CommandLine.Binding
                 {
                     return (new BoundValue(parameterDescriptor.GetDefaultValue(), valueDescriptor, valueSource), false);
                 }
-                // Logic dropped here - misnamed and purpose unclear: ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
+
                 return (BoundValue.DefaultForType(valueDescriptor), false);
             }
 
             return (null, false);
         }
-
 
         protected ConstructorDescriptor FindModelConstructorDescriptor(ConstructorInfo constructorInfo)
         {
