@@ -789,40 +789,35 @@ namespace System.CommandLine.Tests.Binding
             receivedValue.Should().Be(0);
         }
 
-        [Fact]
-        public void issue_1137()
+        [Theory]
+        [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4 --int-value 1234")]
+        [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4")]
+        [InlineData("--int-value 1234")]
+        public void When_only_available_constructor_is_span_then_null_is_passed(string commandLine)
         {
             var root = new RootCommand
             {
-                new Option<MyGuid>("--guid"),
-                new Option<int>("--value"),
+                new Option<ClassWithSpanConstructor>("--class-with-span-ctor"),
+                new Option<int>("--int-value"),
             };
 
-            root.Handler = CommandHandler.Create<MyGuid, int>((guid, value) =>
+            var handlerWasCalled = false;
+
+            root.Handler = CommandHandler.Create<ClassWithSpanConstructor, int>((spanCtor, intValue) =>
             {
-                Console.WriteLine($"Guid: {guid}, Value: {value}");
+                handlerWasCalled = true;
             });
-            root.Invoke("--guid 5c4f219f-59a6-4820-ba0a-61ec270a2000 --value 1234 ");
-            root.Invoke("--guid 5c4f219f-59a6-4820-ba0a-61ec270a2000");
-            // The following call trigger exception
-            root.Invoke("--value 1234");
 
+            root.Invoke(commandLine);
 
-
-            // TODO-JOSEQU (issue_1137) write test
-            Assert.True(false, "Test issue_1137 is not written yet.");
+            handlerWasCalled.Should().BeTrue();
         }
 
-        public class MyGuid
+        public class ClassWithSpanConstructor
         {
             private Guid value;
 
-            public MyGuid(string guid)
-            {
-                value = new Guid(guid);
-            }
-
-            public MyGuid(ReadOnlySpan<byte> guid)
+            public ClassWithSpanConstructor(ReadOnlySpan<byte> guid)
             {
                 value = new Guid(guid);
             }
