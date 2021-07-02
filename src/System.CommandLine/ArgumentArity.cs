@@ -116,12 +116,6 @@ namespace System.CommandLine
                 return ZeroOrOne;
             }
 
-            if (type == typeof(void))
-            {
-                // FIX: (Default) delete
-                return Zero;
-            }
-
             var parent = parents.Count > 0 ? parents[0] : default;
 
             if (typeof(IEnumerable).IsAssignableFrom(type) &&
