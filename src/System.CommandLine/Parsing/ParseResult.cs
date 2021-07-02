@@ -84,12 +84,14 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyList<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
 
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);
         
         public object? ValueForOption(Option option) =>
             ValueForOption<object?>(option);
 
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public object? ValueForArgument(string alias) =>
             ValueForArgument<object?>(alias);
 
@@ -121,6 +123,7 @@ namespace System.CommandLine.Parsing
         }
 
         [return: MaybeNull]
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public T ValueForArgument<T>(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -162,9 +165,11 @@ namespace System.CommandLine.Parsing
             return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;
         }
 
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         [return: MaybeNull]
         public T ValueForOption<T>(string alias)
         {
+            // FIX: (ValueForOption) remove internal refs
             if (string.IsNullOrWhiteSpace(alias))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
