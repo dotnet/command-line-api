@@ -202,6 +202,7 @@ namespace System.CommandLine.Parsing
             return parseResult.FindResultFor(option) is { };
         }
 
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResultExtensions.HasOption(ParseResult, IOption) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public static bool HasOption(
             this ParseResult parseResult,
             string alias)
