@@ -207,17 +207,22 @@ namespace System.CommandLine.Tests
         [InlineData("/")]
         public void When_options_use_different_prefixes_they_still_work(string prefix)
         {
+            var optionA = new Option<string>(prefix + "a");
+            var optionB = new Option(prefix + "b");
+            var optionC = new Option<string>(prefix + "c");
+
             var rootCommand = new RootCommand
                               {
-                                  new Option<string>(prefix + "a"),
-                                  new Option(prefix + "b"),
-                                  new Option<string>(prefix + "c")
+                                  optionA,
+                                  optionB,
+                                  optionC
                               };
+
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
-            result.ValueForOption(prefix + "a").Should().Be("value-for-a");
-            result.ValueForOption(prefix + "c").Should().Be("value-for-c");
-            result.HasOption(prefix + "b").Should().BeFalse();
+            result.ValueForOption(optionA).Should().Be("value-for-a");
+            result.HasOption(optionB).Should().BeFalse();
+            result.ValueForOption(optionC).Should().Be("value-for-c");
         }
 
         [Fact]

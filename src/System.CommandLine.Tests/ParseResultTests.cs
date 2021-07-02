@@ -7,7 +7,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class SymbolResultTests
+    public class ParseResultTests
     {
         [Fact]
         public void An_option_with_a_default_value_and_no_explicitly_provided_argument_has_an_empty_arguments_property()
@@ -26,27 +26,30 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
+            var option = new Option(new[] { "-h", "--help" });
+
             var command = new Command("the-command")
             {
-                new Option(new[] { "-h", "--help" })
+                option
             };
 
             var result = command.Parse("the-command -h");
 
-            result.HasOption("--help").Should().BeTrue();
+            result.HasOption(option).Should().BeTrue();
         }
 
         [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
+            var option = new Option<int>(new[] { "-c", "--count" }, () => 5);
             var command = new Command("the-command")
             {
-                new Option<int>(new[] { "-c", "--count" }, () => 5)
+                option
             };
 
             var result = command.Parse("the-command");
 
-            result.HasOption("--count").Should().BeTrue();
+            result.HasOption(option).Should().BeTrue();
         }
 
         [Fact]

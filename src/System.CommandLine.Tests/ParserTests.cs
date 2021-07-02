@@ -19,16 +19,6 @@ namespace System.CommandLine.Tests
     public partial class ParserTests
     {
         [Fact]
-        public void An_option_without_a_long_form_can_be_checked_for_using_a_prefix()
-        {
-            var option = new Option("--flag");
-            
-            var result = option.Parse("--flag");
-
-            result.FindResultFor(option).Should().NotBeNull();
-        }
-
-        [Fact]
         public void An_option_can_be_checked_by_object_instance()
         {
             var option = new Option("--flag");
@@ -41,87 +31,19 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_without_a_long_form_can_be_checked_for_without_using_a_prefix()
-        {
-            var result = new Parser(
-                    new Option("--flag"))
-                .Parse("--flag");
-
-            result.HasOption("--flag").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_invoked_by_its_short_form_an_option_with_an_alias_can_be_checked_for_by_its_short_form()
-        {
-            var result = new Parser(
-                    new Option(new[] { "-o", "--one" }))
-                .Parse("-o");
-
-            result.HasOption("-o").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_invoked_by_its_long_form_an_option_with_an_alias_can_be_checked_for_by_its_short_form()
-        {
-            var result = new Parser(
-                    new Option(new[] { "-o", "--one" }))
-                .Parse("--one");
-
-            result.HasOption("-o").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_invoked_by_its_short_form_an_option_with_an_alias_can_be_checked_for_by_its_long_form()
-        {
-            var result = new Parser(
-                    new Option(new[] { "-o", "--one" }))
-                .Parse("-o");
-
-            result.HasOption("--one").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_invoked_by_its_long_form_an_option_with_an_alias_can_be_checked_for_by_its_long_form()
-        {
-            var result = new Parser(
-                    new Option(new[] { "-o", "--one" }))
-                .Parse("--one");
-
-            result.HasOption("--one").Should().BeTrue();
-        }
-
-        [Fact]
         public void Two_options_are_parsed_correctly()
         {
-            ParseResult result = new Parser(
-                    new Option(
-                        new[] { "-o", "--one" }),
-                    new Option(
-                        new[] { "-t", "--two" })
-                )
+            var optionOne = new Option(new[] { "-o", "--one" });
+
+            var optionTwo = new Option(new[] { "-t", "--two" });
+
+            var result = new Parser(
+                    optionOne,
+                    optionTwo)
                 .Parse("-o -t");
 
-            result.HasOption("-o").Should().BeTrue();
-            result.HasOption("--one").Should().BeTrue();
-            result.HasOption("-t").Should().BeTrue();
-            result.HasOption("--two").Should().BeTrue();
-        }
-
-        [Fact]
-        public void Parse_result_contains_arguments_to_options()
-        {
-            var optionOne = new Option(new[] { "-o", "--one" }) { Arity = ArgumentArity.ExactlyOne };
-
-            var optionTwo = new Option(new[] { "-t", "--two" }) { Arity = ArgumentArity.ExactlyOne };
-
-            var parser = new Parser(
-                optionOne,
-                optionTwo);
-
-            var result = parser.Parse("-o args_for_one -t args_for_two");
-
-            result.FindResultFor(optionOne).Tokens.Single().Value.Should().Be("args_for_one");
-            result.FindResultFor(optionTwo).Tokens.Single().Value.Should().Be("args_for_two");
+            result.HasOption(optionOne).Should().BeTrue();
+            result.HasOption(optionTwo).Should().BeTrue();
         }
 
         [Fact]
@@ -172,10 +94,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_double_dash_delimiter_specifies_that_no_further_command_line_args_will_be_treated_as_options()
         {
-            var result = new Parser(new Option(new[] { "-o", "--one" }))
+            var option = new Option(new[] { "-o", "--one" });
+            var result = new Parser(option)
                 .Parse("-o \"some stuff\" -- -x -y -z -o:foo");
 
-            result.HasOption("-o")
+            result.HasOption(option)
                   .Should()
                   .BeTrue();
 
@@ -1150,13 +1073,12 @@ namespace System.CommandLine.Tests
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
         {
             var command = new Command("command");
-            command.AddOption(
-                new Option<string>(new[] { "-o", "--option" }, () => "the-default"));
+            var option = new Option<string>(new[] { "-o", "--option" }, () => "the-default");
+            command.AddOption(option);
 
             ParseResult result = command.Parse("command");
 
-            result.HasOption("-o").Should().BeTrue();
-            result.HasOption("--option").Should().BeTrue();
+            result.HasOption(option).Should().BeTrue();
             result.ValueForOption<string>("-o").Should().Be("the-default");
             result.ValueForOption("-o").Should().Be("the-default");
         }
