@@ -15,7 +15,7 @@ namespace System.CommandLine.Binding
 {
     internal static class ArgumentConverter
     {
-        private static readonly Dictionary<Type, Func<string, object>> _converters = new Dictionary<Type, Func<string, object>>
+        private static readonly Dictionary<Type, Func<string, object>> _converters = new()
         {
             [typeof(FileSystemInfo)] = value =>
             {
@@ -39,6 +39,11 @@ namespace System.CommandLine.Binding
             Type type,
             object? value)
         {
+            if (argument.Arity.MaximumNumberOfValues == 0)
+            {
+                return Success(argument, true);
+            }
+
             switch (value)
             {
                 case string singleValue:
@@ -109,13 +114,24 @@ namespace System.CommandLine.Binding
             IReadOnlyList<string> tokens,
             ArgumentResult? argumentResult = null)
         {
-            var itemType = type == typeof(string)
-                               ? typeof(string)
-                               : Binder.GetItemTypeIfEnumerable(type);
+            Type itemType;
+
+            if (type == typeof(string))
+            {
+                itemType = typeof(string);
+            }
+            else if (type == typeof(bool))
+            {
+                itemType = typeof(bool);
+            }
+            else
+            {
+                itemType = Binder.GetItemTypeIfEnumerable(type) ?? typeof(string);
+            }
 
             var (values, isArray) = type.IsArray
-                             ? (CreateArray(itemType!, tokens.Count), true)
-                             : (CreateList(itemType!, tokens.Count), false);
+                                        ? (CreateArray(itemType, tokens.Count), true)
+                                        : (CreateList(itemType, tokens.Count), false);
 
             for (var i = 0; i < tokens.Count; i++)
             {

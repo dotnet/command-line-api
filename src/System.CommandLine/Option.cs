@@ -13,7 +13,7 @@ namespace System.CommandLine
         IOption
     {
         private string? _implicitName;
-        private protected readonly HashSet<string> _unprefixedAliases = new HashSet<string>();
+        private protected readonly HashSet<string> _unprefixedAliases = new();
 
         public Option(
             string alias,
@@ -114,7 +114,15 @@ namespace System.CommandLine
         public IArgumentArity Arity
         {
             get => Argument.Arity;
-            set => Argument.Arity = value;
+            init
+            {
+                if (value.MaximumNumberOfValues > 0)
+                {
+                    Argument.ArgumentType = typeof(string);
+                }
+                
+                Argument.Arity = value;
+            }
         }
 
         internal bool DisallowBinding { get; set; }
@@ -134,7 +142,7 @@ namespace System.CommandLine
             }
         }
 
-        internal List<ValidateSymbol<OptionResult>> Validators { get; } = new List<ValidateSymbol<OptionResult>>();
+        internal List<ValidateSymbol<OptionResult>> Validators { get; } = new();
 
         public void AddAlias(string alias) => AddAliasInner(alias);
 

@@ -109,14 +109,25 @@ namespace System.CommandLine.Binding
                 return type.GetElementType();
             }
 
-            var enumerableInterface =
-                type.IsEnumerable()
-                    ? type
-                    : type
-                      .GetInterfaces()
-                      .FirstOrDefault(IsEnumerable);
+            Type enumerableInterface;
 
-            return enumerableInterface?.GenericTypeArguments switch
+            if (type.IsEnumerable())
+            {
+                enumerableInterface = type;
+            }
+            else
+            {
+                enumerableInterface = type
+                    .GetInterfaces()
+                    .FirstOrDefault(IsEnumerable);
+            }
+
+            if (enumerableInterface is null)
+            {
+                return null;
+            }
+
+            return enumerableInterface.GenericTypeArguments switch
             {
                 { Length: 1 } genericTypeArguments => genericTypeArguments[0],
                 _ => null
