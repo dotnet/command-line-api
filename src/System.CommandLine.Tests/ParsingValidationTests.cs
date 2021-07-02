@@ -936,15 +936,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_then_the_default_should_apply_if_not_specified()
         {
+            var optionX = new Option<int>("-x", () => 123);
+            var optionY = new Option<int>("-y", () => 456);
+
             var parser = new Parser(
-                new Option<int>("-x", () => 123),
-                new Option<int>("-y", () => 456));
+                optionX,
+                optionY);
 
             var result = parser.Parse("");
 
             result.Errors.Should().BeEmpty();
-            result.ValueForOption("-x").Should().Be(123);
-            result.ValueForOption("-y").Should().Be(456);
+            result.ValueForOption(optionX).Should().Be(123);
+            result.ValueForOption(optionY).Should().Be(456);
         }
     }
 }

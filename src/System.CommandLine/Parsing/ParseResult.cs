@@ -111,7 +111,7 @@ namespace System.CommandLine.Parsing
         }
 
         [return: MaybeNull]
-        public T ValueForArgument<T>(Argument argument)
+        internal T ValueForArgument<T>(Argument argument)
         {
             if (FindResultFor(argument) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -154,12 +154,14 @@ namespace System.CommandLine.Parsing
         }
 
         [return: MaybeNull]
-        public T ValueForOption<T>(Option option)
+        private T ValueForOption<T>(Option option)
         {
-            if (FindResultFor(option) is { } result &&
-                result.GetValueOrDefault<T>() is { } t)
+            if (FindResultFor(option) is { } result)
             {
-                return t;
+                if (result.GetValueOrDefault<T>() is { } t)
+                {
+                    return t;
+                }
             }
 
             return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;
@@ -169,7 +171,6 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T ValueForOption<T>(string alias)
         {
-            // FIX: (ValueForOption) remove internal refs
             if (string.IsNullOrWhiteSpace(alias))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));

@@ -260,15 +260,17 @@ namespace System.CommandLine.Tests.Invocation
         {
             ParseResult boundParseResult = default;
 
+            var option = new Option<int>("-x");
+
             var command = new Command("command")
             {
-                new Option<int>("-x")
+                option
             };
             command.Handler = CommandHandler.Create<ParseResult>(result => { boundParseResult = result; });
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundParseResult.ValueForOption("-x").Should().Be(123);
+            boundParseResult.ValueForOption(option).Should().Be(123);
         }
 
         [Fact]
@@ -307,15 +309,17 @@ namespace System.CommandLine.Tests.Invocation
         {
             InvocationContext boundContext = default;
 
+            var option = new Option<int>("-x");
+
             var command = new Command("command")
             {
-                new Option<int>("-x")
+                option
             };
             command.Handler = CommandHandler.Create<InvocationContext>(context => { boundContext = context; });
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundContext.ParseResult.ValueForOption("-x").Should().Be(123);
+            boundContext.ParseResult.ValueForOption(option).Should().Be(123);
         }
 
 

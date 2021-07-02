@@ -286,6 +286,11 @@ namespace System.CommandLine.Binding
 
             switch (argument.Arity.MaximumNumberOfValues)
             {
+                case 0:
+                    // bool 
+                    value = Success(argumentResult.Argument, true);
+                    break;
+
                 case 1:
                     value = ConvertObject(
                         argument,
