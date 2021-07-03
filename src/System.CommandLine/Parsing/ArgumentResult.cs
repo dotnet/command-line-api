@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -26,6 +27,15 @@ namespace System.CommandLine.Parsing
 
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= Convert(Argument);
+
+        public object? GetValueOrDefault() =>
+            GetValueOrDefault<object?>();
+
+        [return: MaybeNull]
+        public T GetValueOrDefault<T>() =>
+            GetArgumentConversionResult()
+                .ConvertIfNeeded(this, typeof(T))
+                .GetValueOrDefault<T>();
 
         public void OnlyTake(int numberOfTokens)
         {

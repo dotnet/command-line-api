@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Parsing
 {
@@ -26,6 +26,16 @@ namespace System.CommandLine.Parsing
         public bool IsImplicit => Token is ImplicitToken || Token is null;
 
         public Token? Token { get; }
+
+        public object? GetValueOrDefault() =>
+            Option.ValueType == typeof(bool)
+                ? GetValueOrDefault<bool>()
+                : GetValueOrDefault<object?>();
+
+        [return: MaybeNull]
+        public T GetValueOrDefault<T>() =>
+            this.ConvertIfNeeded(typeof(T))
+                .GetValueOrDefault<T>();
 
         private protected override int RemainingArgumentCapacity
         {
