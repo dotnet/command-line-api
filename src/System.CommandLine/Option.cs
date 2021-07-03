@@ -20,8 +20,9 @@ namespace System.CommandLine
             string? description = null,
             Type? argumentType = null,
             Func<object?>? getDefaultValue = null,
-            IArgumentArity? arity = null)
-            : this(new[] { alias }, description, argumentType, getDefaultValue, arity)
+            IArgumentArity? arity = null,
+            bool enforceTextMatch = true)
+            : this(new[] { alias }, description, argumentType, getDefaultValue, arity, enforceTextMatch)
         { }
 
         public Option(
@@ -29,14 +30,16 @@ namespace System.CommandLine
             string? description = null,
             Type? argumentType = null,
             Func<object?>? getDefaultValue = null,
-            IArgumentArity? arity = null)
-            : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity))
+            IArgumentArity? arity = null,
+            bool enforceTextMatch = true)
+            : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity), enforceTextMatch)
         { }
 
         internal Option(
             string[] aliases,
             string? description,
-            Argument? argument)
+            Argument? argument,
+            bool enforceTextMatch = true)
             : base(description)
         {
             if (aliases is null)
@@ -59,6 +62,8 @@ namespace System.CommandLine
             {
                 AddArgumentInner(argument);
             }
+
+            EnforceTextMatch = enforceTextMatch;
         }
 
         private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, IArgumentArity? arity)

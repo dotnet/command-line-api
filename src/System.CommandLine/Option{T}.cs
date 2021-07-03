@@ -9,46 +9,62 @@ namespace System.CommandLine
     {
         public Option(
             string alias,
-            string? description = null) 
-            : base(new[] { alias }, description, new Argument<T>())
+            string? description = null,
+            bool enforceTextMatch = true) 
+            : base(new[] { alias }, description, new Argument<T>(), enforceTextMatch)
         { }
 
         public Option(
             string[] aliases,
-            string? description = null) 
-            : base(aliases, description, new Argument<T>())
+            string? description = null,
+            bool enforceTextMatch = true) 
+            : base(aliases, description, new Argument<T>(), enforceTextMatch)
         { }
 
         public Option(
             string alias,
             ParseArgument<T> parseArgument,
             bool isDefault = false,
-            string? description = null) 
-            : base(new[] { alias }, description, 
-                  new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
+            string? description = null,
+            bool enforceTextMatch = true) 
+            : base(new[] { alias },
+                  description, 
+                  new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)),isDefault),
+                  enforceTextMatch)
         { }
 
         public Option(
             string[] aliases,
             ParseArgument<T> parseArgument,
             bool isDefault = false,
-            string? description = null) 
-            : base(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
+            string? description = null,
+            bool enforceTextMatch = true) 
+            : base(aliases,
+                  description,
+                  new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault),
+                  enforceTextMatch)
         { }
 
         public Option(
             string alias,
             Func<T> getDefaultValue,
-            string? description = null) 
-            : base(new[] { alias }, description, 
-                  new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
+            string? description = null,
+            bool enforceTextMatch = true) 
+            : base(new[] { alias },
+                  description, 
+                  new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))),
+                  enforceTextMatch)
         { }
 
         public Option(
             string[] aliases,
             Func<T> getDefaultValue,
-            string? description = null) 
-            : base(aliases, description, new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
+            string? description = null,
+            bool enforceTextMatch = true) 
+            : base(aliases,
+                  description,
+                  new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))),
+                  enforceTextMatch)
         { }
     }
 }
