@@ -160,6 +160,7 @@ namespace System.CommandLine
         public void AddValidator(ValidateSymbol<OptionResult> validate) => Validators.Add(validate);
 
         public bool HasAliasIgnorePrefix(string alias) => _unprefixedAliases.Contains(alias.RemovePrefix());
+        public bool HasAliasIgnoringPrefix(string alias) => _unprefixedAliases.Contains(alias.RemovePrefix());
 
         private protected override void RemoveAlias(string alias)
         {

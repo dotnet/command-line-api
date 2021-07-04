@@ -64,7 +64,7 @@ namespace System.CommandLine.Tests
 
             option.AddAlias("-a");
 
-            option.HasAliasIgnorePrefix("a").Should().BeTrue();
+            option.HasAliasIgnoringPrefix("a").Should().BeTrue();
             option.HasAlias("-a").Should().BeTrue();
         }
 
@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option(new[] { "-o", "--option" });
 
-            option.HasAliasIgnorePrefix("o").Should().BeTrue();
+            option.HasAliasIgnoringPrefix("o").Should().BeTrue();
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option(new[] { "-o", "--option" });
 
-            option.HasAliasIgnorePrefix("option").Should().BeTrue();
+            option.HasAliasIgnoringPrefix("option").Should().BeTrue();
         }
 
         [Fact]
