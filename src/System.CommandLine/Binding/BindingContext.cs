@@ -16,7 +16,7 @@ namespace System.CommandLine.Binding
     public sealed class BindingContext
     {
         private IConsole _console;
-        private readonly Dictionary<Type, ModelBinder> _modelBindersByValueDescriptor = new Dictionary<Type, ModelBinder>();
+        private readonly Dictionary<Type, ModelBinder> _modelBindersByValueDescriptor = new();
 
         public BindingContext(
             ParseResult parseResult,

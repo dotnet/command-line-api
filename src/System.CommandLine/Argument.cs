@@ -129,10 +129,10 @@ namespace System.CommandLine
             }
         }
 
-        internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
+        internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new();
 
         /// <summary>
-        /// Adds a custom <see cref="ValidateSymbol{T}(ArgumentResult)"/> to the argument. Validators can be used
+        /// Adds a custom <see cref="ValidateSymbol{ArgumentResult}"/> to the argument. Validators can be used
         /// to provide custom errors based on user input.
         /// </summary>
         /// <param name="validate">The delegate to validate the parsed argument.</param>

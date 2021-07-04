@@ -23,7 +23,7 @@ namespace System.CommandLine
         ICommand, 
         IEnumerable<Symbol>
     {
-        private readonly SymbolSet _globalOptions = new SymbolSet();
+        private readonly SymbolSet _globalOptions = new();
 
         /// <summary>
         /// Initializes a new instance of the Command class.

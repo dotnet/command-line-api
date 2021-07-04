@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests.Invocation
 {
     public class CommandHandlerTests
     {
-        private readonly TestConsole _console = new TestConsole();
+        private readonly TestConsole _console = new();
 
         [Fact]
         public async Task Specific_invocation_behavior_can_be_specified_in_the_command()

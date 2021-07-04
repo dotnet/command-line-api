@@ -198,8 +198,8 @@ namespace System.CommandLine.Binding
         }
 
         internal static bool HasStringTypeConverter(this Type type) =>
-            TypeDescriptor.GetConverter(type) is { } typeConverter
-            && typeConverter.CanConvertFrom(typeof(string));
+            TypeDescriptor.GetConverter(type) is { } typeConverter && 
+            typeConverter.CanConvertFrom(typeof(string));
 
         private static FailedArgumentConversionResult Failure(
             IArgument argument,
@@ -214,43 +214,29 @@ namespace System.CommandLine.Binding
             SymbolResult symbolResult,
             Type toType)
         {
-            if (conversionResult is null)
+            return conversionResult switch
             {
-                throw new ArgumentNullException(nameof(conversionResult));
-            }
-
-            switch (conversionResult)
-            {
-                case SuccessfulArgumentConversionResult successful when !toType.IsInstanceOfType(successful.Value):
-                    return ConvertObject(
-                        conversionResult.Argument,
-                        toType,
-                        successful.Value);
-
-                case SuccessfulArgumentConversionResult successful
-                    when toType == typeof(object) && conversionResult.Argument.Arity.MaximumNumberOfValues > 1 &&
-                         successful.Value is string:
-                    return ConvertObject(
-                        conversionResult.Argument,
-                        typeof(IEnumerable<string>),
-                        successful.Value);
-
-                case NoArgumentConversionResult _ when toType == typeof(bool):
-                    return Success(conversionResult.Argument, true);
-
-                case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0:
-                    return new MissingArgumentConversionResult(
-                        conversionResult.Argument,
-                        Resources.Instance.RequiredArgumentMissing(symbolResult));
-
-                case NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1:
-                    return Success(
-                        conversionResult.Argument,
-                        Array.Empty<string>());
-
-                default:
-                    return conversionResult;
-            }
+                SuccessfulArgumentConversionResult successful when !toType.IsInstanceOfType(successful.Value) =>
+                    ConvertObject(conversionResult.Argument,
+                                  toType,
+                                  successful.Value),
+                SuccessfulArgumentConversionResult successful when toType == typeof(object) &&
+                                                                   conversionResult.Argument.Arity.MaximumNumberOfValues > 1 &&
+                                                                   successful.Value is string =>
+                    ConvertObject(conversionResult.Argument,
+                                  typeof(IEnumerable<string>),
+                                  successful.Value),
+                NoArgumentConversionResult _ when toType == typeof(bool) =>
+                    Success(conversionResult.Argument,
+                            true),
+                NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
+                    new MissingArgumentConversionResult(conversionResult.Argument,
+                                                        Resources.Instance.RequiredArgumentMissing(symbolResult)),
+                NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1 =>
+                    Success(conversionResult.Argument,
+                            Array.Empty<string>()),
+                _ => conversionResult
+            };
         }
 
         [return: MaybeNull]
@@ -284,28 +270,13 @@ namespace System.CommandLine.Binding
         {
             var argument = argumentResult.Argument;
 
-            switch (argument.Arity.MaximumNumberOfValues)
+            value = argument.Arity.MaximumNumberOfValues switch
             {
-                case 0:
-                    // bool 
-                    value = Success(argumentResult.Argument, true);
-                    break;
-
-                case 1:
-                    value = ConvertObject(
-                        argument,
-                        argument.ValueType,
-                        argumentResult.Tokens[0].Value);
-                    break;
-
-                default:
-                    value = ConvertStrings(
-                        argument,
-                        argument.ValueType,
-                        argumentResult.Tokens.Select(t => t.Value).ToArray(),
-                        argumentResult);
-                    break;
-            }
+                // 0 is an implicit bool, i.e. a "flag"
+                0 => Success(argumentResult.Argument, true),
+                1 => ConvertObject(argument, argument.ValueType, argumentResult.Tokens[0].Value),
+                _ => ConvertStrings(argument, argument.ValueType, argumentResult.Tokens.Select(t => t.Value).ToArray(), argumentResult)
+            };
 
             return value is SuccessfulArgumentConversionResult;
         }

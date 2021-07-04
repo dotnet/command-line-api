@@ -146,18 +146,11 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            switch (argument.Arity.MaximumNumberOfValues)
+            return argument.Arity.MaximumNumberOfValues switch
             {
-                case 1:
-                    return ArgumentConversionResult.Success(
-                        argument,
-                        Tokens.Select(t => t.Value).SingleOrDefault());
-
-                default:
-                    return ArgumentConversionResult.Success(
-                        argument,
-                        Tokens.Select(t => t.Value).ToArray());
-            }
+                1 => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).SingleOrDefault()),
+                _ => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).ToArray())
+            };
 
             bool ShouldCheckArity() =>
                 !(Parent is OptionResult optionResult &&

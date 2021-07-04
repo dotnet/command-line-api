@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests.Utility
             return assertions.BeEquivalentTo(expectedValues, c => c.WithStrictOrderingFor(s => s));
         }
 
-        public static ConsoleAssertions Should(this IConsole console) => new ConsoleAssertions(console);
+        public static ConsoleAssertions Should(this IConsole console) => new(console);
 
         public static AndConstraint<ConsoleAssertions> ShowHelp(this ConsoleAssertions assertions)
         {
