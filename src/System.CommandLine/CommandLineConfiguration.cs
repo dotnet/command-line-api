@@ -29,6 +29,7 @@ namespace System.CommandLine
         /// <param name="responseFileHandling">One of the enumeration values that specifies how response files (.rsp) are handled.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
+        /// <param name="configureHelp">Configures the help builder.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="symbols"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="symbols"/> does not contain at least one option or command.</exception>
         public CommandLineConfiguration(
