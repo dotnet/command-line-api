@@ -140,14 +140,14 @@ namespace System.CommandLine
 
         private protected override string DefaultName => throw new NotImplementedException();
 
-        internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
+        internal List<ValidateSymbolResult<CommandResult>> Validators { get; } = new List<ValidateSymbolResult<CommandResult>>();
 
         /// <summary>
         /// Adds a custom validator to the command. Validators can be used
         /// to create custom validation logic.
         /// </summary>
         /// <param name="validate">The delegate to validate the symbols during parsing.</param>
-        public void AddValidator(ValidateSymbol<CommandResult> validate) => Validators.Add(validate);
+        public void AddValidator(ValidateSymbolResult<CommandResult> validate) => Validators.Add(validate);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
