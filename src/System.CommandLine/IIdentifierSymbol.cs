@@ -11,7 +11,7 @@ namespace System.CommandLine
     public interface IIdentifierSymbol : ISymbol
     {
         /// <summary>
-        /// Gets the set of alternative strings that can be used on the command line to specify the symbol.
+        /// Gets the set of strings that can be used on the command line to specify the symbol.
         /// </summary>
         IReadOnlyCollection<string> Aliases { get; }
 

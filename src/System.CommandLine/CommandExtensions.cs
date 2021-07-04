@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Provides extension methods for commands.
+    /// </summary>
     public static class CommandExtensions
     {
         public static int Invoke(

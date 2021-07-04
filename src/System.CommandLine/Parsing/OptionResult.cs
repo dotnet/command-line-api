@@ -6,6 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// A result produced when parsing an option.
+    /// </summary>
     public class OptionResult : SymbolResult
     {
         private ArgumentConversionResult? _argumentConversionResult;
@@ -21,10 +24,20 @@ namespace System.CommandLine.Parsing
             Token = token;
         }
 
+        /// <summary>
+        /// The option to which the result applies.
+        /// </summary>
         public IOption Option { get; }
 
+        /// <summary>
+        /// Indicates whether the result was created implicitly and not due to the option being specified on the command line.
+        /// </summary>
+        /// <remarks>Implicit results commonly result from options having a default value.</remarks>
         public bool IsImplicit => Token is ImplicitToken || Token is null;
 
+        /// <summary>
+        /// The token that was parsed to specify the option.
+        /// </summary>
         public Token? Token { get; }
 
         public object? GetValueOrDefault() =>

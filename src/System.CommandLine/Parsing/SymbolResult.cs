@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// A result produced during parsing for a specific symbol.
+    /// </summary>
     public abstract class SymbolResult
     {
         private protected readonly List<Token> _tokens = new List<Token>();
@@ -22,16 +25,32 @@ namespace System.CommandLine.Parsing
             Root = parent?.Root;
         }
 
+        /// <summary>
+        /// An error message for this symbol result.
+        /// </summary>
+        /// <remarks>Setting this value to a non-<c>null</c> during parsing will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
         public string? ErrorMessage { get; set; }
 
+        /// <summary>
+        /// Child symbol results in the parse tree.
+        /// </summary>
         public SymbolResultSet Children { get; } = new SymbolResultSet();
 
+        /// <summary>
+        /// The parent symbol result in the parse tree.
+        /// </summary>
         public SymbolResult? Parent { get; }
 
         internal virtual RootCommandResult? Root { get; }
 
+        /// <summary>
+        /// The symbol to which the result applies.
+        /// </summary>
         public ISymbol Symbol { get; }
 
+        /// <summary>
+        /// The list of tokens associated with this symbol result during parsing.
+        /// </summary>
         public IReadOnlyList<Token> Tokens => _tokens;
 
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity == 0;
@@ -44,7 +63,7 @@ namespace System.CommandLine.Parsing
             var value = 0;
 
             var arguments = Symbol.Arguments();
-            
+
             for (var i = 0; i < arguments.Count; i++)
             {
                 value += arguments[i].Arity.MaximumNumberOfValues;
@@ -53,6 +72,9 @@ namespace System.CommandLine.Parsing
             return value;
         }
 
+        /// <summary>
+        /// Localization resources used to produce messages for this symbol result.
+        /// </summary>
         protected internal Resources Resources
         {
             get => _resources ??= Parent?.Resources ?? Resources.Instance;
@@ -61,12 +83,27 @@ namespace System.CommandLine.Parsing
 
         internal void AddToken(Token token) => _tokens.Add(token);
 
+        /// <summary>
+        /// Finds a result for the specific argument anywhere in the parse tree, including parent and child symbol results.
+        /// </summary>
+        /// <param name="argument">The argument for which to find a result.</param>
+        /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public virtual ArgumentResult? FindResultFor(IArgument argument) =>
             Root?.FindResultFor(argument);
 
+        /// <summary>
+        /// Finds a result for the specific command anywhere in the parse tree, including parent and child symbol results.
+        /// </summary>
+        /// <param name="command">The command for which to find a result.</param>
+        /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
         public virtual CommandResult? FindResultFor(ICommand command) =>
             Root?.FindResultFor(command);
 
+        /// <summary>
+        /// Finds a result for the specific option anywhere in the parse tree, including parent and child symbol results.
+        /// </summary>
+        /// <param name="option">The option for which to find a result.</param>
+        /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public virtual OptionResult? FindResultFor(IOption option) =>
             Root?.FindResultFor(option);
 
@@ -79,6 +116,7 @@ namespace System.CommandLine.Parsing
 
         internal virtual bool UseDefaultValueFor(IArgument argument) => false;
 
+        /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {this.Token()}";
 
         internal ParseError? UnrecognizedArgumentError(Argument argument)

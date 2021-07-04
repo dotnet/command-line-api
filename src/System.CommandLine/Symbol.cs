@@ -110,6 +110,7 @@ namespace System.CommandLine
                    .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
+        /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";
 
         /// <inheritdoc />
