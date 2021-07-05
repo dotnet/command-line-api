@@ -41,6 +41,7 @@ namespace System.CommandLine.Tests.Help
         {
             return new HelpBuilder(
                 console: _console,
+                Resources.Instance,
                 maxWidth
             );
         }
@@ -136,7 +137,7 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new RootCommand();
             rootCommand.AddCommand(command);
 
-            new HelpBuilder(_console, LargeMaxWidth).Write(command);
+            new HelpBuilder(_console, Resources.Instance, LargeMaxWidth).Write(command);
 
             var expected =
                 $"Usage:{NewLine}" +
@@ -1632,7 +1633,7 @@ namespace System.CommandLine.Tests.Help
         [InlineData(int.MinValue)]
         public void Constructor_ignores_non_positive_max_width(int maxWidth)
         {
-            var helpBuilder = new HelpBuilder(_console, maxWidth);
+            var helpBuilder = new HelpBuilder(_console, Resources.Instance, maxWidth);
             Assert.Equal(int.MaxValue, helpBuilder.MaxWidth);
         }
 
