@@ -5,14 +5,14 @@ namespace System.CommandLine.Help
 {
     internal class HelpOption : Option
     {
-        public HelpOption() : base(new[]
+        public HelpOption(Resources resources) : base(new[]
         {
             "-h",
             "/h",
             "--help",
             "-?",
             "/?"
-        }, Resources.Instance.HelpOptionDescription())
+        }, resources.HelpOptionDescription())
         {
             DisallowBinding = true;
         }

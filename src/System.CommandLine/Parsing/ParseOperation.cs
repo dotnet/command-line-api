@@ -217,7 +217,8 @@ namespace System.CommandLine.Parsing
                     if (ArgumentConverter.ConvertObject(
                             argument,
                             argument.ValueType,
-                            CurrentToken.Value) is FailedArgumentTypeConversionResult)
+                            CurrentToken.Value,
+                            _configuration.Resources) is FailedArgumentTypeConversionResult)
                     {
                         return;
                     }
