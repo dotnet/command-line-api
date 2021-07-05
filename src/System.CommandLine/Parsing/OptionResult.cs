@@ -33,7 +33,7 @@ namespace System.CommandLine.Parsing
         /// Indicates whether the result was created implicitly and not due to the option being specified on the command line.
         /// </summary>
         /// <remarks>Implicit results commonly result from options having a default value.</remarks>
-        public bool IsImplicit => Token is ImplicitToken || Token is null;
+        public bool IsImplicit => Token is ImplicitToken or null;
 
         /// <summary>
         /// The token that was parsed to specify the option.
