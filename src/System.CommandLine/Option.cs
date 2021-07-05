@@ -202,7 +202,7 @@ namespace System.CommandLine
         /// Indicates whether a given alias exists on the option, regardless of its prefix.
         /// </summary>
         /// <param name="alias">The alias, which can include a prefix.</param>
-        /// <returns><c>true</c> if the alias exists; otherwise, <c>false</c>.</returns>
+        /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
         public bool HasAliasIgnoringPrefix(string alias) => _unprefixedAliases.Contains(alias.RemovePrefix());
 
         private protected override void RemoveAlias(string alias)

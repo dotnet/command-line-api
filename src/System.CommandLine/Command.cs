@@ -85,7 +85,7 @@ namespace System.CommandLine
         /// already in use.
         /// </summary>
         /// <param name="option">The global option to add to the command.</param>
-        /// <returns><c>true</c> if the option was added;<c>false</c> if it was already in use.</returns>
+        /// <returns><see langword="true"/> if the option was added;<see langword="false"/> if it was already in use.</returns>
         /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
         /// parent commands.</remarks>
         internal bool TryAddGlobalOption(Option option)
@@ -151,7 +151,7 @@ namespace System.CommandLine
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
-        /// if set to <c>true</c> and an extra command or argument is provided, validation will fail.
+        /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
         /// </summary>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
