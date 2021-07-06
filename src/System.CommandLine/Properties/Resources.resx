@@ -239,15 +239,4 @@ The value of the variable should be the name of the processes, separated by a se
   <data name="ArgumentConversionCannotParseForOption" xml:space="preserve">
     <value>Cannot parse argument '{0}' for option '{1}' as expected type {2}.</value>
   </data>
-  <data name="DotnetSuggestExceptionOccurred" xml:space="preserve">
-    <value>Exception during registration:
-{0}</value>
-  </data>
-  <data name="DotnetSuggestExitMessage" xml:space="preserve">
-    <value>{0} exited with code {1}
-OUT:
-{2}
-ERR:
-{3}</value>
-  </data>
 </root>

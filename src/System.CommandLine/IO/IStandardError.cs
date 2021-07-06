@@ -3,8 +3,14 @@
 
 namespace System.CommandLine.IO
 {
+    /// <summary>
+    /// Represents a console's standard error stream.
+    /// </summary>
     public interface IStandardError
     {
+        /// <summary>
+        /// The stream writer for standard error.
+        /// </summary>
         IStandardStreamWriter Error { get; }
 
         bool IsErrorRedirected { get; }

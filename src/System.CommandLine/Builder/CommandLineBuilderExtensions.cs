@@ -17,6 +17,9 @@ using Process = System.CommandLine.Invocation.Process;
 
 namespace System.CommandLine.Builder
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="CommandBuilder"/>.
+    /// </summary>
     public static class CommandLineBuilderExtensions
     {
         private static readonly Lazy<string> _assemblyVersion =
@@ -189,11 +192,16 @@ namespace System.CommandLine.Builder
 
                         await dotnetSuggestProcess.CompleteAsync();
 
-                        return Resources.Instance.DotnetSuggestExitMessage(dotnetSuggestProcess.StartInfo.FileName, dotnetSuggestProcess.ExitCode, stdOut.ToString(), stdErr.ToString());
+                        return string.Format(@"{0} exited with code {1}
+OUT:
+{2}
+ERR:
+{3}", dotnetSuggestProcess.StartInfo.FileName, dotnetSuggestProcess.ExitCode, stdOut.ToString(), stdErr.ToString());
                     }
                     catch (Exception exception)
                     {
-                        return Resources.Instance.DotnetSuggestExceptionOccurred(exception);
+                        return string.Format(@"Exception during registration:
+{0}", exception);
                     }
                     finally
                     {

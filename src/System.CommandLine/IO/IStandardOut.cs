@@ -3,8 +3,14 @@
 
 namespace System.CommandLine.IO
 {
+    /// <summary>
+    /// Represents a console's standard output stream.
+    /// </summary>
     public interface IStandardOut
     {
+        /// <summary>
+        /// The stream writer for standard output.
+        /// </summary>
         IStandardStreamWriter Out { get; }
 
         bool IsOutputRedirected { get; }

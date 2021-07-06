@@ -8,6 +8,7 @@ namespace System.CommandLine.Binding
 {
     internal class ArgumentConversionResultSet : AliasedSet<ArgumentConversionResult>
     {
+        /// <inheritdoc/>
         protected override IReadOnlyCollection<string> GetAliases(ArgumentConversionResult item)
         {
             return new[] { item.Argument.Name };

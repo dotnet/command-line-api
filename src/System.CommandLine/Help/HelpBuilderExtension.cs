@@ -3,6 +3,9 @@
 
 namespace System.CommandLine.Help
 {
+    /// <summary>
+    /// Provides extension methods for the help builder.
+    /// </summary>
     public static class HelpBuilderExtension
     {
         public static void Customize(this HelpBuilder helpBuilder, 
