@@ -48,7 +48,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="numberOfTokens">The number of tokens to take. The rest are passed on.</param>
         /// <exception cref="ArgumentOutOfRangeException">numberOfTokens - Value must be at least 1.</exception>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="InvalidOperationException">Thrown if this method is called more than once.</exception>
         public void OnlyTake(int numberOfTokens)
         {
             if (numberOfTokens < 0)
