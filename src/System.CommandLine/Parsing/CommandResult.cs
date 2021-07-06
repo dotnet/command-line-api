@@ -4,7 +4,7 @@
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing a command.
+    /// A result produced when parsing a <see cref="ICommand" />.
     /// </summary>
     public class CommandResult : SymbolResult
     {
