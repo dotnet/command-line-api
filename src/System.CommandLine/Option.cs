@@ -127,7 +127,7 @@ namespace System.CommandLine
 
         //TODO: Guard against Argument.None?
         /// <summary>
-        /// Gets or sets the name of the argument help.
+        /// Gets or sets the name of the argument when displayed in help.
         /// </summary>
         /// <value>
         /// The name of the argument help.
