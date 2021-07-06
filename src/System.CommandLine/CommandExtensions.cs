@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Provides extension methods for commands.
+    /// Provides extension methods for <see cref="Command" />.
     /// </summary>
     public static class CommandExtensions
     {
