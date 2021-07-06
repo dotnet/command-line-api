@@ -130,7 +130,7 @@ namespace System.CommandLine
         /// Gets or sets the name of the argument when displayed in help.
         /// </summary>
         /// <value>
-        /// The name of the argument help.
+        /// The name of the argument when displayed in help.
         /// </value>
         public string ArgumentHelpName
         {
