@@ -91,7 +91,7 @@ namespace System.CommandLine
                 : GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, symbolResult.Token().Value);
 
         /// <summary>
-        ///   Interpolates values into a localized string similar to Required command was not provided..
+        ///   Interpolates values into a localized string similar to Required command was not provided.
         /// </summary>
         public virtual string RequiredCommandWasNotProvided() =>
             GetResourceString(Properties.Resources.RequiredCommandWasNotProvided);
