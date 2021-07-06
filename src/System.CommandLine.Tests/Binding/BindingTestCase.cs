@@ -11,12 +11,12 @@ namespace System.CommandLine.Tests.Binding
             string commandLineToken,
             Type parameterType,
             Action<object> assertBoundValue,
-            string variationName)
+            string variationName) : this(
+            new[] { commandLineToken },
+            parameterType,
+            assertBoundValue,
+            variationName)
         {
-            _assertBoundValue = assertBoundValue;
-            VariationName = variationName;
-            CommandLineTokens = new[] { commandLineToken };
-            ParameterType = parameterType;
         }
 
         private BindingTestCase(
