@@ -10,7 +10,7 @@ using System.IO;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Provides extension methods for arguments.
+    /// Provides extension methods for <see cref="Argument" />.
     /// </summary>
     public static class ArgumentExtensions
     {
