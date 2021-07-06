@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing an option.
+    /// A result produced when parsing an <see cref="IOption" />.
     /// </summary>
     public class OptionResult : SymbolResult
     {
