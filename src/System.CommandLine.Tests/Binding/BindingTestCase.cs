@@ -6,20 +6,32 @@ namespace System.CommandLine.Tests.Binding
     public class BindingTestCase
     {
         private readonly Action<object> _assertBoundValue;
-        
+
         private BindingTestCase(
-            string commandLine,
+            string commandLineToken,
             Type parameterType,
             Action<object> assertBoundValue,
             string variationName)
         {
             _assertBoundValue = assertBoundValue;
             VariationName = variationName;
-            CommandLine = commandLine;
+            CommandLineTokens = new[] { commandLineToken };
             ParameterType = parameterType;
         }
 
-        public string CommandLine { get; }
+        private BindingTestCase(
+            string[] commandLineTokens,
+            Type parameterType,
+            Action<object> assertBoundValue,
+            string variationName)
+        {
+            _assertBoundValue = assertBoundValue;
+            VariationName = variationName;
+            CommandLineTokens = commandLineTokens;
+            ParameterType = parameterType;
+        }
+
+        public string[] CommandLineTokens { get; }
 
         public Type ParameterType { get; }
 
@@ -31,11 +43,19 @@ namespace System.CommandLine.Tests.Binding
         }
 
         public static BindingTestCase Create<T>(
-            string commandLine,
-            Action<T> assertBoundValue, 
+            string commandLineToken,
+            Action<T> assertBoundValue,
             string variationName = null) =>
-            new BindingTestCase(
-                commandLine,
+            new(commandLineToken,
+                typeof(T),
+                o => assertBoundValue((T) o),
+                variationName);
+
+        public static BindingTestCase Create<T>(
+            string[] commandLineTokens,
+            Action<T> assertBoundValue,
+            string variationName = null) =>
+            new(commandLineTokens,
                 typeof(T),
                 o => assertBoundValue((T) o),
                 variationName);

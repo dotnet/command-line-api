@@ -559,7 +559,7 @@ namespace System.CommandLine.Tests.Binding
                 option
             };
 
-            var result = command.Parse("--items one two three");
+            var result = command.Parse("--items one --items two --items three");
 
             result.Errors.Should().BeEmpty();
             result.FindResultFor(option).GetValueOrDefault().Should().BeAssignableTo(argumentType);
