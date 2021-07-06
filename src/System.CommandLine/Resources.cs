@@ -26,7 +26,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects a single argument but {1} were provided..
+        ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects a single argument but {1} were provided.
         /// </summary>
         public virtual string ExpectsOneArgument(SymbolResult symbolResult) => 
             symbolResult is CommandResult
