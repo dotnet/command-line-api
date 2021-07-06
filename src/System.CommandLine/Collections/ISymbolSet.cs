@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace System.CommandLine.Collections
 {
     /// <summary>
-    /// A set of symbols that can be looked up by name.
+    /// A set of symbols that can be looked up by alias.
     /// </summary>
     public interface ISymbolSet : IReadOnlyList<ISymbol>
     {
