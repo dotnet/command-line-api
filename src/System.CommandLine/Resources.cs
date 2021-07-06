@@ -42,7 +42,7 @@ namespace System.CommandLine
                 : GetResourceString(Properties.Resources.OptionNoArgumentProvided, symbolResult.Token().Value);
 
         /// <summary>
-        ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects no more than {1} arguments, but {2} were provided..
+        ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects no more than {1} arguments, but {2} were provided.
         /// </summary>
         public virtual string ExpectsFewerArguments(
             Token token,
