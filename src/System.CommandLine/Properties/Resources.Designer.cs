@@ -19,7 +19,7 @@ namespace System.CommandLine.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -158,29 +158,6 @@ namespace System.CommandLine.Properties {
         internal static string DirectoryDoesNotExist {
             get {
                 return ResourceManager.GetString("DirectoryDoesNotExist", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Exception during registration:
-        ///{0}.
-        /// </summary>
-        internal static string DotnetSuggestExceptionOccurred {
-            get {
-                return ResourceManager.GetString("DotnetSuggestExceptionOccurred", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} exited with code {1}
-        ///OUT:
-        ///{2}
-        ///ERR:
-        ///{3}.
-        /// </summary>
-        internal static string DotnetSuggestExitMessage {
-            get {
-                return ResourceManager.GetString("DotnetSuggestExitMessage", resourceCulture);
             }
         }
         

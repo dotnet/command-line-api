@@ -3,10 +3,14 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// A result produced when parsing an argument.
+    /// </summary>
     public class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;
@@ -18,6 +22,9 @@ namespace System.CommandLine.Parsing
             Argument = argument;
         }
 
+        /// <summary>
+        /// The argument to which the result applies.
+        /// </summary>
         public IArgument Argument { get; }
 
         internal bool IsImplicit => Argument.HasDefaultValue && Tokens.Count == 0;
@@ -27,6 +34,21 @@ namespace System.CommandLine.Parsing
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= Convert(Argument);
 
+        public object? GetValueOrDefault() =>
+            GetValueOrDefault<object?>();
+
+        [return: MaybeNull]
+        public T GetValueOrDefault<T>() =>
+            GetArgumentConversionResult()
+                .ConvertIfNeeded(this, typeof(T))
+                .GetValueOrDefault<T>();
+
+        /// <summary>
+        /// Specifies the maximum number of tokens to consume for the argument. Remaining tokens are passed on and can be consumed by later arguments, or will otherwise be added to <see cref="ParseResult.UnmatchedTokens"/>
+        /// </summary>
+        /// <param name="numberOfTokens">The number of tokens to take. The rest are passed on.</param>
+        /// <exception cref="ArgumentOutOfRangeException">numberOfTokens - Value must be at least 1.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if this method is called more than once.</exception>
         public void OnlyTake(int numberOfTokens)
         {
             if (numberOfTokens < 0)
@@ -51,6 +73,7 @@ namespace System.CommandLine.Parsing
             _tokens.RemoveRange(numberOfTokens, passedOnTokensCount);
         }
 
+        /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
         internal ParseError? CustomError(Argument argument)
@@ -136,18 +159,11 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            switch (argument.Arity.MaximumNumberOfValues)
+            return argument.Arity.MaximumNumberOfValues switch
             {
-                case 1:
-                    return ArgumentConversionResult.Success(
-                        argument,
-                        Tokens.Select(t => t.Value).SingleOrDefault());
-
-                default:
-                    return ArgumentConversionResult.Success(
-                        argument,
-                        Tokens.Select(t => t.Value).ToArray());
-            }
+                1 => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).SingleOrDefault()),
+                _ => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).ToArray())
+            };
 
             bool ShouldCheckArity() =>
                 !(Parent is OptionResult optionResult &&

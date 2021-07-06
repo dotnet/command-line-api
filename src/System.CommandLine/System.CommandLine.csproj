@@ -13,6 +13,8 @@
     * Constructor- and property-based model binding for complex types
     * Test and debug support
     </Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- <NoWarn>$(NoWarn);CS1591</NoWarn> -->
   </PropertyGroup>
    
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

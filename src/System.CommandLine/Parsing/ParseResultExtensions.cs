@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Provides extension methods for parse results.
+    /// </summary>
     public static class ParseResultExtensions
     {
         public static async Task<int> InvokeAsync(

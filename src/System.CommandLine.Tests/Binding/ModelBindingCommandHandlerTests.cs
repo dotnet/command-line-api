@@ -418,7 +418,7 @@ namespace System.CommandLine.Tests.Binding
             {
                 argument
             };
-            if (!(handler is ModelBindingCommandHandler bindingHandler))
+            if (handler is not ModelBindingCommandHandler bindingHandler)
             {
                 throw new InvalidOperationException("Cannot bind to this type of handler");
             }
@@ -470,7 +470,7 @@ namespace System.CommandLine.Tests.Binding
             {
                 option
             };
-            if (!(handler is ModelBindingCommandHandler bindingHandler))
+            if (handler is not ModelBindingCommandHandler bindingHandler)
             {
                 throw new InvalidOperationException("Cannot bind to this type of handler");
             }
@@ -515,7 +515,7 @@ namespace System.CommandLine.Tests.Binding
             }
         }
 
-        internal static readonly BindingTestSet BindingCases = new BindingTestSet
+        internal static readonly BindingTestSet BindingCases = new()
         {
               BindingTestCase.Create<int>(
                  "123",

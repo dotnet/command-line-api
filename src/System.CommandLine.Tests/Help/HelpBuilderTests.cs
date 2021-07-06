@@ -9,10 +9,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
-using System.Security;
-using System.Text;
 using Xunit;
-using Xunit.Abstractions;
 using static System.Environment;
 
 namespace System.CommandLine.Tests.Help

@@ -24,12 +24,12 @@ namespace System.CommandLine
         {
         }
 
-        private static readonly Lazy<string> _executablePath = new Lazy<string>(() =>
+        private static readonly Lazy<string> _executablePath = new(() =>
         {
             return GetAssembly().Location;
         });
 
-        private static readonly Lazy<string> _executableName = new Lazy<string>(() =>
+        private static readonly Lazy<string> _executableName = new(() =>
         {
             var location = _executablePath.Value;
             if (string.IsNullOrEmpty(location))

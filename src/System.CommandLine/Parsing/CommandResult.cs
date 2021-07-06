@@ -3,6 +3,9 @@
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// A result produced when parsing a <see cref="ICommand" />.
+    /// </summary>
     public class CommandResult : SymbolResult
     {
         internal CommandResult(
@@ -17,8 +20,14 @@ namespace System.CommandLine.Parsing
             Token = token ?? throw new ArgumentNullException(nameof(token));
         }
 
+        /// <summary>
+        /// The command to which the result applies.
+        /// </summary>
         public ICommand Command { get; }
 
+        /// <summary>
+        /// The token that was parsed to specify the command.
+        /// </summary>
         public Token Token { get; }
 
         internal override bool UseDefaultValueFor(IArgument argument) =>

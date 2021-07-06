@@ -4,9 +4,9 @@
 namespace System.CommandLine
 {
     /// <summary>
-    /// Defines the arity of an argument.
+    /// Defines the arity of an option or argument.
     /// </summary>
-    /// <remarks>The arity of an argument refers to the number of values that can be passed on the command line.
+    /// <remarks>The arity refers to the number of values that can be passed on the command line.
     /// </remarks>
     public interface IArgumentArity
     {

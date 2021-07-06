@@ -3,6 +3,9 @@
 
 namespace System.CommandLine.IO
 {
+    /// <summary>
+    /// Represents a console's standard input stream.
+    /// </summary>
     public interface IStandardIn
     {
         bool IsInputRedirected { get; }

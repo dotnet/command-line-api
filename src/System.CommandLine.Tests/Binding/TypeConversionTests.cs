@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
@@ -643,15 +642,6 @@ namespace System.CommandLine.Tests.Binding
                     .Message
                     .Should()
                     .Be("Option '-x' expects a single argument but 2 were provided.");
-        }
-
-        public class MyCustomType
-        {
-            private readonly List<string> values = new List<string>();
-
-            public void Add(string value) => values.Add(value);
-
-            public string[] Values => values.ToArray();
         }
     }
 }
