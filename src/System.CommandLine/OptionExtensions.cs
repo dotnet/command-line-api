@@ -10,7 +10,7 @@ using System.Linq;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Provides extension methods for options.
+    /// Provides extension methods for <see cref="Option" />.
     /// </summary>
     public static class OptionExtensions
     {
