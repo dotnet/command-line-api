@@ -418,7 +418,7 @@ namespace System.CommandLine.Tests
                 var validPathName = Directory.GetCurrentDirectory();
                 var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
 
-                var result = command.Parse($"the-command -x {validPathName} {validNonExistingFileName}");
+                var result = command.Parse($"the-command -x {validPathName} -x {validNonExistingFileName}");
 
                 result.Errors.Should().BeEmpty();
             }
@@ -489,7 +489,7 @@ namespace System.CommandLine.Tests
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
                 var validNonExistingFileName = Guid.NewGuid().ToString();
 
-                var result = command.Parse($"the-command -x {validFileName} {validNonExistingFileName}");
+                var result = command.Parse($"the-command -x {validFileName} -x {validNonExistingFileName}");
 
                 result.Errors.Should().BeEmpty();
             }

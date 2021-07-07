@@ -301,7 +301,8 @@ namespace System.CommandLine.Tests.Binding
                           };
             command.Handler = handler;
 
-            var parseResult = command.Parse($"--value {testCase.CommandLine}");
+            var commandLine = string.Join(" ", testCase.CommandLineTokens.Select(t => $"--value {t}"));
+            var parseResult = command.Parse(commandLine);
 
             var invocationContext = new InvocationContext(parseResult);
 
@@ -350,11 +351,11 @@ namespace System.CommandLine.Tests.Binding
         public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(
           Type type)
         {
-            var c = BindingCases[type];
+            var testCase = BindingCases[type];
 
             var captureMethod = GetType()
                                 .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
-                                .MakeGenericMethod(c.ParameterType);
+                                .MakeGenericMethod(testCase.ParameterType);
 
             var handler = CommandHandler.Create(captureMethod);
 
@@ -364,12 +365,13 @@ namespace System.CommandLine.Tests.Binding
                 new Argument
                 {
                     Name = "value",
-                    ArgumentType = c.ParameterType
+                    ArgumentType = testCase.ParameterType
                 }
             };
             command.Handler = handler;
 
-            var parseResult = command.Parse(c.CommandLine);
+            var commandLine = string.Join(" ", testCase.CommandLineTokens);
+            var parseResult = command.Parse(commandLine);
 
             var invocationContext = new InvocationContext(parseResult);
 
@@ -377,9 +379,9 @@ namespace System.CommandLine.Tests.Binding
 
             var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
 
-            boundValue.Should().BeOfType(c.ParameterType);
+            boundValue.Should().BeOfType(testCase.ParameterType);
 
-            c.AssertBoundValue(boundValue);
+            testCase.AssertBoundValue(boundValue);
         }
 
         [Theory]
@@ -398,11 +400,11 @@ namespace System.CommandLine.Tests.Binding
         public async Task Handler_method_receives_command_arguments_explicitly_bound_to_the_specified_type(
             Type type)
         {
-            var c = BindingCases[type];
+            var testCase = BindingCases[type];
 
             var captureMethod = GetType()
                                 .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
-                                .MakeGenericMethod(c.ParameterType);
+                                .MakeGenericMethod(testCase.ParameterType);
             var parameter = captureMethod.GetParameters()[0];
 
             var handler = CommandHandler.Create(captureMethod);
@@ -410,7 +412,7 @@ namespace System.CommandLine.Tests.Binding
             var argument = new Argument
             {
                 Name = "value",
-                ArgumentType = c.ParameterType
+                ArgumentType = testCase.ParameterType
             };
 
             var command = new Command(
@@ -425,7 +427,8 @@ namespace System.CommandLine.Tests.Binding
             bindingHandler.BindParameter(parameter, argument);
             command.Handler = handler;
 
-            var parseResult = command.Parse(c.CommandLine);
+            var commandLine = string.Join(" ", testCase.CommandLineTokens);
+            var parseResult = command.Parse(commandLine);
 
             var invocationContext = new InvocationContext(parseResult);
 
@@ -433,9 +436,9 @@ namespace System.CommandLine.Tests.Binding
 
             var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
 
-            boundValue.Should().BeOfType(c.ParameterType);
+            boundValue.Should().BeOfType(testCase.ParameterType);
 
-            c.AssertBoundValue(boundValue);
+            testCase.AssertBoundValue(boundValue);
         }
 
         [Theory]
@@ -455,16 +458,16 @@ namespace System.CommandLine.Tests.Binding
         public async Task Handler_method_receive_option_arguments_explicitly_bound_to_the_specified_type(
              Type type)
         {
-            var c = BindingCases[type];
+            var testCase = BindingCases[type];
 
             var captureMethod = GetType()
                                 .GetMethod(nameof(CaptureMethod), BindingFlags.NonPublic | BindingFlags.Static)
-                                .MakeGenericMethod(c.ParameterType);
+                                .MakeGenericMethod(testCase.ParameterType);
             var parameter = captureMethod.GetParameters()[0];
 
             var handler = CommandHandler.Create(captureMethod);
 
-            var option = new Option("--value", argumentType: c.ParameterType);
+            var option = new Option("--value", argumentType: testCase.ParameterType);
 
             var command = new Command("command")
             {
@@ -477,7 +480,7 @@ namespace System.CommandLine.Tests.Binding
             bindingHandler.BindParameter(parameter, option);
             command.Handler = handler;
 
-            var commandLine = $"--value {c.CommandLine}";
+            var commandLine = string.Join(" ", testCase.CommandLineTokens.Select(t => $"--value {t}"));
             var parseResult = command.Parse(commandLine);
 
             var invocationContext = new InvocationContext(parseResult);
@@ -486,9 +489,9 @@ namespace System.CommandLine.Tests.Binding
 
             var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
 
-            boundValue.Should().BeOfType(c.ParameterType);
+            boundValue.Should().BeOfType(testCase.ParameterType);
 
-            c.AssertBoundValue(boundValue);
+            testCase.AssertBoundValue(boundValue);
         }
 
         private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
@@ -550,7 +553,10 @@ namespace System.CommandLine.Tests.Binding
                       .Be(Path.Combine(ExistingDirectory(), "file1.txt"))),
 
             BindingTestCase.Create<FileInfo[]>(
-                $"{Path.Combine(ExistingDirectory(), "file1.txt")} {Path.Combine(ExistingDirectory(), "file2.txt")}",
+                new[] { 
+                    Path.Combine(ExistingDirectory(), "file1.txt"), 
+                    Path.Combine(ExistingDirectory(), "file2.txt")
+                } ,
                 o => o.Select(f => f.FullName)
                       .Should()
                       .BeEquivalentTo(new[]
@@ -569,17 +575,17 @@ namespace System.CommandLine.Tests.Binding
                           .Be(ExistingDirectory())),
 
             BindingTestCase.Create<DirectoryInfo[]>(
-                $"{ExistingDirectory()} {ExistingDirectory()}",
+                new[] { ExistingDirectory(), ExistingDirectory() },
                 fsi => fsi.Should()
-                          .BeAssignableTo<IEnumerable<DirectoryInfo>>()
-                          .Which
-                          .Select(d => d.FullName)
-                          .Should()
-                          .BeEquivalentTo(new[]
-                          {
-                              ExistingDirectory(),
-                              ExistingDirectory()
-                          })),
+                    .BeAssignableTo<IEnumerable<DirectoryInfo>>()
+                    .Which
+                    .Select(d => d.FullName)
+                    .Should()
+                    .BeEquivalentTo(new[]
+                    {
+                        ExistingDirectory(),
+                        ExistingDirectory()
+                    })),
 
             BindingTestCase.Create<FileSystemInfo>(
                 ExistingFile(),
@@ -633,19 +639,19 @@ namespace System.CommandLine.Tests.Binding
                 variationName: nameof(NonexistentPathWithoutTrailingSlash)),
 
             BindingTestCase.Create<string[]>(
-                "one two",
+                new[] { "one", "two" },
                 o => o.Should().BeEquivalentTo(new[] { "one", "two" })),
 
             BindingTestCase.Create<List<string>>(
-                "one two",
+                new[] { "one", "two" },
                 o => o.Should().BeEquivalentTo(new List<string> { "one", "two" })),
 
             BindingTestCase.Create<int[]>(
-                "1 2",
+                new[] { "1", "2" },
                 o => o.Should().BeEquivalentTo(new[] { 1, 2 })),
 
             BindingTestCase.Create<List<int>>(
-                "1 2",
+                new[] { "1", "2" },
                 o => o.Should().BeEquivalentTo(new List<int> { 1, 2 }))
         };
 

@@ -453,7 +453,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_Parser_root_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_used_as_value()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore };
+            var animalsOption = new Option(new[] { "-a", "--animals" })
+            {
+                AllowMultipleArgumentsPerToken = true,
+                Arity = ArgumentArity.ZeroOrMore
+            };
             var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
 
             var parser = new Parser(
@@ -485,7 +489,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_Parser_root_option_is_not_respecified_and_limit_is_reached_then_the_following_token_is_unmatched()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrOne };
+            var animalsOption = new Option(new[] { "-a", "--animals" })
+            {
+                AllowMultipleArgumentsPerToken = true,
+                Arity = ArgumentArity.ZeroOrOne
+            };
             var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
 
             var parser = new Parser(
@@ -515,7 +523,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_considered_as_value()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore };
+            var animalsOption = new Option(new[] { "-a", "--animals" })
+            {
+                AllowMultipleArgumentsPerToken = true,
+                Arity = ArgumentArity.ZeroOrMore
+            };
             var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
             var parser = new Parser(
                 new Command("the-command")
@@ -1513,7 +1525,7 @@ namespace System.CommandLine.Tests
                 option
             };
 
-            command.Parse("-x 1 2 3")
+            command.Parse("-x 1 -x 2 -x 3")
                    .FindResultFor(option)
                    .Tokens
                    .Should()
@@ -1533,7 +1545,7 @@ namespace System.CommandLine.Tests
                 option
             };
 
-            command.Parse("-x 1 2 3")
+            command.Parse("-x 1 -x 2 -x 3")
                    .FindResultFor(option)
                    .Tokens
                    .Should()
@@ -1541,7 +1553,7 @@ namespace System.CommandLine.Tests
                        new Token("1", TokenType.Argument),
                        new Token("2", TokenType.Argument),
                        new Token("3", TokenType.Argument));
-            command.Parse("-x 1 2 3 4 5")
+            command.Parse("-x 1 -x 2 -x 3 -x 4 -x 5")
                    .FindResultFor(option)
                    .Tokens
                    .Should()

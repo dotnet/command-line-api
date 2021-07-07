@@ -229,7 +229,7 @@ namespace System.CommandLine
         IArgument IOption.Argument => Argument;
 
         /// <inheritdoc/>
-        public bool AllowMultipleArgumentsPerToken { get; set; } = true;
+        public bool AllowMultipleArgumentsPerToken { get; set; }
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
