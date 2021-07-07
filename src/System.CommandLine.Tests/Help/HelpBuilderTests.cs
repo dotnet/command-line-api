@@ -1642,7 +1642,7 @@ namespace System.CommandLine.Tests.Help
             private readonly string _theTextToAdd;
 
             public CustomHelpBuilderThatAddsTextAfterDefaultText(IConsole console, string theTextToAdd) 
-                : base(console)
+                : base(console, Resources.Instance)
             {
                 _theTextToAdd = theTextToAdd;
             }
