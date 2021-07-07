@@ -20,10 +20,10 @@ namespace System.CommandLine.Help
         protected Resources Resources { get; }
         public int MaxWidth { get; }
 
-        public HelpBuilder(IConsole console, Resources? resources = null, int maxWidth = int.MaxValue)
+        public HelpBuilder(IConsole console, Resources resources, int maxWidth = int.MaxValue)
         {
             Console = console ?? throw new ArgumentNullException(nameof(console));
-            Resources = resources ?? Resources.Instance;
+            Resources = resources ?? throw new ArgumentNullException(nameof(resources));
             if (maxWidth <= 0) maxWidth = int.MaxValue;
             MaxWidth = maxWidth;
         }

@@ -230,7 +230,7 @@ ERR:
                     string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
                     if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
-                        context.Console.Error.WriteLine(context.Parser.Configuration.Resources.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
+                        context.Console.Error.WriteLine(context.Resources.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
                         context.ExitCode = errorExitCode ?? 1;
                         return;
                     }
@@ -240,7 +240,7 @@ ERR:
                         if (processNames.Contains(process.ProcessName, StringComparer.Ordinal))
                         {
                             var processId = process.Id;
-                            context.Console.Out.WriteLine(context.Parser.Configuration.Resources.DebugDirectiveAttachToProcess(processId, process.ProcessName));
+                            context.Console.Out.WriteLine(context.Resources.DebugDirectiveAttachToProcess(processId, process.ProcessName));
                             while (!Debugger.IsAttached)
                             {
                                 await Task.Delay(500);
@@ -248,7 +248,7 @@ ERR:
                         }
                         else
                         {
-                            context.Console.Error.WriteLine(context.Parser.Configuration.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
+                            context.Console.Error.WriteLine(context.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
                             context.ExitCode = errorExitCode ?? 1;
                             return;
                         }
@@ -329,7 +329,7 @@ ERR:
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();
 
-                    context.Console.Error.Write(context.Parser.Configuration.Resources.ExceptionHandlerHeader());
+                    context.Console.Error.Write(context.Resources.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
                     context.Console.ResetTerminalForegroundColor();
