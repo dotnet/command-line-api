@@ -10,9 +10,9 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public abstract class SymbolResult
     {
-        private protected readonly List<Token> _tokens = new List<Token>();
+        private protected readonly List<Token> _tokens = new();
         private Resources? _resources;
-        private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new Dictionary<IArgument, ArgumentResult>();
+        private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new();
 
         private protected SymbolResult(
             ISymbol symbol, 
@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Child symbol results in the parse tree.
         /// </summary>
-        public SymbolResultSet Children { get; } = new SymbolResultSet();
+        public SymbolResultSet Children { get; } = new();
 
         /// <summary>
         /// The parent symbol result in the parse tree.
