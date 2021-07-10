@@ -524,14 +524,13 @@ ERR:
         {
             var command = builder.Command;
 
-            if (command.Children.GetByAlias("--version") != null)
+            if (builder.VersionOption is not null)
             {
                 return builder;
             }
             
             var versionOption = new Option<bool>(
                 "--version",
-                description: (builder.Resources ?? Resources.Instance).VersionOptionDescription(),
                 parseArgument: result =>
                 {
                     var commandChildren = result.FindResultFor(command)?.Children;
@@ -548,10 +547,10 @@ ERR:
                         {
                             continue;
                         }
-
+                        
                         if (IsNotImplicit(symbolResult))
                         {
-                            result.ErrorMessage = (builder.Resources ?? Resources.Instance).VersionOptionCannotBeCombinedWithOtherArguments("--version");
+                            result.ErrorMessage = result.Resources.VersionOptionCannotBeCombinedWithOtherArguments("--version");
                             return false;
                         }
                     }
@@ -561,6 +560,7 @@ ERR:
 
             versionOption.DisallowBinding = true;
 
+            builder.VersionOption = versionOption;
             command.AddOption(versionOption);
 
             builder.AddMiddleware(async (context, next) =>
