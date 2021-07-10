@@ -3,7 +3,6 @@
 
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
 
 namespace System.CommandLine
 {
