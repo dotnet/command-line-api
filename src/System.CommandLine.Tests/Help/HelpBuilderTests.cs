@@ -5,6 +5,7 @@ using FluentAssertions;
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
@@ -668,7 +669,7 @@ namespace System.CommandLine.Tests.Help
             var name = "argument-name-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
             var description = "Argument description for a command with line breaks that is long enough to wrap to a new line.";
 
-            var command = new RootCommand()
+            var command = new RootCommand
             {
                 new Argument
                 {
@@ -686,33 +687,6 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}-is-long-enough-to-wrap-to-a-new-{_columnPadding}command with line breaks that is {NewLine}" +
                 $"{_indentation}line>                            {_columnPadding}long enough to wrap to a new {NewLine}" +
                 $"{_indentation}                                 {_columnPadding}line.{NewLine}{NewLine}";
-
-            _console.Out.ToString().Should().Contain(expected);
-        }
-
-        [Theory]
-        [InlineData(typeof(bool))]
-        [InlineData(typeof(bool?))]
-        public void Command_argument_descriptor_is_empty_for_boolean_values(Type type)
-        {
-            var description = "This is the argument description";
-
-            var command = new Command("outer", "Help text for the outer command")
-            {
-                new Argument
-                {
-                    Description = description,
-                    ArgumentType = type
-                }
-            };
-
-            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
-
-            helpBuilder.Write(command);
-
-            var expected =
-                $"Arguments:{NewLine}" +
-                $"{_indentation}{_columnPadding}{description}";
 
             _console.Out.ToString().Should().Contain(expected);
         }
@@ -762,6 +736,27 @@ namespace System.CommandLine.Tests.Help
             helpBuilder.Write(command);
 
             _console.Out.ToString().Should().Contain($"--opt{_columnPadding}{description}");
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1157
+        public void Command_arguments_show_argument_name_as_descriptor()
+        {
+            var command = new RootCommand
+            {
+                new Argument<bool>("boolArgument", "Some value"),
+                new Argument<int>("intArgument", "Another value"),
+            };
+            
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command);
+
+            var expected =
+                $"Arguments:{NewLine}" +
+                $"{_indentation}<boolArgument>{_columnPadding}Some value{NewLine}" +
+                $"{_indentation}<intArgument> {_columnPadding}Another value{NewLine}";
+
+            _console.Out.ToString().Should().Contain(expected);
         }
 
         [Theory]
@@ -878,7 +873,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Command_arguments_can_customize_dedescriptor()
+        public void Command_arguments_can_customize_descriptor()
         {
             var argument = new Argument<string>("some-arg", getDefaultValue: () => "not 42");
             var command = new Command("the-command", "command help")

@@ -135,10 +135,10 @@ namespace System.CommandLine.Help
                     .SelectMany(GetArguments)
                     .Distinct();
 
-
             IEnumerable<HelpItem> GetArguments(ICommand command)
             {
                 var arguments = command.Arguments.Where(x => !x.IsHidden).ToList();
+
                 foreach (IArgument argument in arguments)
                 {
                     string argumentDescriptor = GetArgumentDescriptor(argument);
@@ -287,7 +287,11 @@ namespace System.CommandLine.Help
 
         protected void RenderAsColumns(params HelpItem[] items)
         {
-            if (items.Length == 0) return;
+            if (items.Length == 0)
+            {
+                return;
+            }
+
             int windowWidth = MaxWidth;
 
             int firstColumnWidth = items.Select(x => x.Descriptor.Length).Max();
@@ -339,9 +343,13 @@ namespace System.CommandLine.Help
 
         private static IEnumerable<string> WrapItem(string item, int maxWidth)
         {
-            if (string.IsNullOrWhiteSpace(item)) yield break;
+            if (string.IsNullOrWhiteSpace(item))
+            {
+                yield break;
+            }
+
             //First handle existing new lines
-            var parts = item.Split(new string[] { "\r\n", "\n", }, StringSplitOptions.None);
+            var parts = item.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
 
             foreach (string part in parts)
             {
@@ -500,7 +508,14 @@ namespace System.CommandLine.Help
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
             {
-                return "";
+                if (argument.Parents.FirstOrDefault() is ICommand)
+                {
+                    return $"<{argument.Name}>";
+                }
+                else
+                {
+                    return "";
+                }
             }
 
             string descriptor;
