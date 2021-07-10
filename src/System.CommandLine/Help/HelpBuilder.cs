@@ -67,7 +67,7 @@ namespace System.CommandLine.Help
         protected virtual void AddUsage(ICommand command)
         {
             string description = GetUsage(command);
-            WriteHeading(Resources.Instance.HelpUsageTile(), description);
+            WriteHeading(Resources.Instance.HelpUsageTitle(), description);
             Console.Out.WriteLine();
         }
 
@@ -91,7 +91,7 @@ namespace System.CommandLine.Help
 
                     if (displayOptionTitle)
                     {
-                        yield return Resources.Instance.HelpUsageOptionsTile();
+                        yield return Resources.Instance.HelpUsageOptionsTitle();
                         displayOptionTitle = false;
                     }
 
@@ -105,7 +105,7 @@ namespace System.CommandLine.Help
 
                 if (hasCommandWithHelp)
                 {
-                    yield return Resources.Instance.HelpUsageCommandTile();
+                    yield return Resources.Instance.HelpUsageCommandTitle();
                 }
 
                 if (!command.TreatUnmatchedTokensAsErrors)

@@ -183,7 +183,7 @@
   <data name="HelpUsageOptionsTitle" xml:space="preserve">
     <value>[options]</value>
   </data>
-  <data name="HelpUsageTile" xml:space="preserve">
+  <data name="HelpUsageTitle" xml:space="preserve">
     <value>Usage:</value>
   </data>
   <data name="HelpArgumentDefaultValueTitle" xml:space="preserve">
