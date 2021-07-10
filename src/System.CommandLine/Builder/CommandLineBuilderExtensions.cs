@@ -340,7 +340,7 @@ ERR:
 
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            return builder.UseHelp(new HelpOption(builder.Resources ?? Resources.Instance));
+            return builder.UseHelp(new HelpOption());
         }
 
         internal static CommandLineBuilder UseHelp(
@@ -368,7 +368,7 @@ ERR:
             Action<THelpBuilder>? configureHelp)
             where THelpBuilder : IHelpBuilder
         {
-            return builder.UseHelp(new HelpOption(builder.Resources ?? Resources.Instance), configureHelp);
+            return builder.UseHelp(new HelpOption(), configureHelp);
         }
 
         internal static CommandLineBuilder UseHelp<THelpBuilder>(

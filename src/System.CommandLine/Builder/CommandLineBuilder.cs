@@ -34,6 +34,12 @@ namespace System.CommandLine.Builder
 
         public Parser Build()
         {
+            if (HelpOption is not null)
+            {
+                var resources = Resources ?? Resources.Instance;
+                HelpOption.Description = resources.HelpOptionDescription();
+            }
+
             var rootCommand = Command;
 
             var parser = new Parser(
