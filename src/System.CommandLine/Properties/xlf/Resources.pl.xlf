@@ -141,7 +141,7 @@ The value of the variable should be the name of the processes, separated by a se
         <target state="new">[options]</target>
         <note />
       </trans-unit>
-      <trans-unit id="HelpUsageTile">
+      <trans-unit id="HelpUsageTitle">
         <source>Usage:</source>
         <target state="new">Usage:</target>
         <note />

@@ -299,9 +299,9 @@ namespace System.CommandLine.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Usage:.
         /// </summary>
-        internal static string HelpUsageTile {
+        internal static string HelpUsageTitle {
             get {
-                return ResourceManager.GetString("HelpUsageTile", resourceCulture);
+                return ResourceManager.GetString("HelpUsageTitle", resourceCulture);
             }
         }
         

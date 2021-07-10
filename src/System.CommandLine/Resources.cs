@@ -129,19 +129,19 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to Usage:.
         /// </summary>
-        public virtual string HelpUsageTile() =>
-            GetResourceString(Properties.Resources.HelpUsageTile);
+        public virtual string HelpUsageTitle() =>
+            GetResourceString(Properties.Resources.HelpUsageTitle);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to [options].
         /// </summary>
-        public virtual string HelpUsageOptionsTile() =>
+        public virtual string HelpUsageOptionsTitle() =>
             GetResourceString(Properties.Resources.HelpUsageOptionsTitle);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to [command].
         /// </summary>
-        public virtual string HelpUsageCommandTile() =>
+        public virtual string HelpUsageCommandTitle() =>
             GetResourceString(Properties.Resources.HelpUsageCommandTitle);
 
         /// <summary>
