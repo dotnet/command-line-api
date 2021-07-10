@@ -48,8 +48,15 @@ namespace System.CommandLine
         public Option(
             string[] aliases,
             Func<T> getDefaultValue,
-            string? description = null) 
+            string? description = null)
             : base(aliases, description, new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
-        { }
+        {
+        }
+
+        public override IArgumentArity Arity
+        {
+            get => base.Arity;
+            init => Argument.Arity = value;
+        }
     }
 }
