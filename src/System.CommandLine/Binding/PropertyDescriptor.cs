@@ -34,6 +34,7 @@ namespace System.CommandLine.Binding
             _propertyInfo.SetValue(instance, value);
         }
 
+        /// <inheritdoc />
         public override string ToString() => $"{ValueType.Name} {Path}";
     }
 }

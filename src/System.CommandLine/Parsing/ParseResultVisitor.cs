@@ -167,7 +167,7 @@ namespace System.CommandLine.Parsing
             var argumentResults = new List<ArgumentResult>();
             foreach (var result in _rootCommandResult.AllArgumentResults)
             {
-                if (!(result.Parent is OptionResult))  
+                if (result.Parent is not OptionResult)  
                 {
                     argumentResults.Add(result);
                 }
@@ -300,8 +300,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandHandler()
         {
-            if (!(_innermostCommandResult!.Command is Command cmd) ||
-                cmd.Handler != null)
+            if (_innermostCommandResult!.Command is not Command { Handler: null } cmd)
             {
                 return;
             }

@@ -13,7 +13,7 @@ namespace System.CommandLine
     public abstract class Symbol : ISymbol
     {
         private string? _name;
-        private readonly SymbolSet _parents = new SymbolSet();
+        private readonly SymbolSet _parents = new();
 
         private protected Symbol()
         {
@@ -60,7 +60,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
-        public SymbolSet Children { get; } = new SymbolSet();
+        public SymbolSet Children { get; } = new();
 
         /// <summary>
         /// Gets or sets a value indicating whether the symbol is hidden.

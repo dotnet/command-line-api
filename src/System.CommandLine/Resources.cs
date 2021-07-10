@@ -16,7 +16,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets a global instance of the <see cref="Resources"/> class.
         /// </summary>
-        public static Resources Instance { get; } = new Resources();
+        public static Resources Instance { get; } = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Resources"/> class.

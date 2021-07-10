@@ -17,7 +17,8 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
-        private readonly SymbolSet _symbols = new SymbolSet();
+        private readonly SymbolSet _symbols = new();
+        private Func<BindingContext, IHelpBuilder>? _helpBuilderFactory;
 
         /// <summary>
         /// Initializes a new instance of the CommandLineConfiguration class.
@@ -60,17 +61,18 @@ namespace System.CommandLine
             else
             {
                 // Reuse existing auto-generated root command, if one is present, to prevent repeated mutations
-                RootCommand? parentRootCommand = 
+                RootCommand? parentRootCommand =
                     symbols.SelectMany(s => s.Parents)
-                           .OfType<RootCommand>()
-                           .FirstOrDefault();
+                        .OfType<RootCommand>()
+                        .FirstOrDefault();
 
                 if (parentRootCommand is null)
                 {
                     parentRootCommand = new RootCommand();
 
-                    foreach (var symbol in symbols)
+                    for (var i = 0; i < symbols.Count; i++)
                     {
+                        var symbol = symbols[i];
                         parentRootCommand.Add(symbol);
                     }
                 }
@@ -87,25 +89,30 @@ namespace System.CommandLine
             Resources = resources ?? Resources.Instance;
             ResponseFileHandling = responseFileHandling;
             Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
-            HelpBuilderFactory = helpBuilderFactory ?? (context => 
-            {
-                int maxWidth = int.MaxValue;
-                if (context.Console is SystemConsole systemConsole)
-                {
-                    maxWidth = systemConsole.GetWindowWidth();
-                }
-                return new HelpBuilder(context.Console, maxWidth);
-            });
+
+            _helpBuilderFactory = helpBuilderFactory;
+
             if (configureHelp != null)
             {
                 var factory = HelpBuilderFactory;
-                HelpBuilderFactory = context =>
+                _helpBuilderFactory = context =>
                 {
                     IHelpBuilder helpBuilder = factory(context);
                     configureHelp(helpBuilder);
                     return helpBuilder;
                 };
             }
+        }
+
+        private static IHelpBuilder DefaultHelpBuilderFactory(BindingContext context)
+        {
+            int maxWidth = int.MaxValue;
+            if (context.Console is SystemConsole systemConsole)
+            {
+                maxWidth = systemConsole.GetWindowWidth();
+            }
+
+            return new HelpBuilder(context.Console, maxWidth);
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
@@ -151,7 +158,7 @@ namespace System.CommandLine
         /// </summary>
         public Resources Resources { get; }
 
-        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory { get; }
+        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= DefaultHelpBuilderFactory;
 
         internal IReadOnlyCollection<InvocationMiddleware> Middleware { get; }
 

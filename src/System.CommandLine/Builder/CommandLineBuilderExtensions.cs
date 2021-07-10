@@ -324,7 +324,7 @@ ERR:
 
             void Default(Exception exception, InvocationContext context)
             {
-                if (!(exception is OperationCanceledException))
+                if (exception is not OperationCanceledException)
                 {
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();

@@ -14,11 +14,11 @@ namespace System.CommandLine.Collections
     public abstract class AliasedSet<T> : IReadOnlyList<T>
         where T : class
     {
-        private protected readonly Dictionary<string, T> ItemsByAlias = new Dictionary<string, T>();
+        private protected readonly Dictionary<string, T> ItemsByAlias = new();
 
-        private protected List<T> Items { get; } = new List<T>();
+        private protected List<T> Items { get; } = new();
 
-        private protected HashSet<T> DirtyItems { get; } = new HashSet<T>();
+        private protected HashSet<T> DirtyItems { get; } = new();
         
         /// <inheritdoc/>
         public int Count => Items.Count;
