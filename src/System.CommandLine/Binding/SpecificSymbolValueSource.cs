@@ -23,7 +23,7 @@ namespace System.CommandLine.Binding
             {
                 case IOption option:
                     var optionResult = bindingContext?.ParseResult.FindResultFor(option);
-                    if (!(optionResult is null))
+                    if (optionResult is not null)
                     {
                         boundValue = optionResult.GetValueOrDefault();
                         return true;
@@ -31,7 +31,7 @@ namespace System.CommandLine.Binding
                     break;
                 case IArgument argument:
                     var argumentResult = bindingContext?.ParseResult.FindResultFor(argument);
-                    if (!(argumentResult is null))
+                    if (argumentResult is not null)
                     {
                         boundValue = argumentResult.GetValueOrDefault();
                         return true;

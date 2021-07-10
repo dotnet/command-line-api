@@ -13,8 +13,7 @@ namespace System.CommandLine.Help
     {
         private const string Indent = "  ";
 
-        private Dictionary<ISymbol, Customization> Customizations { get; }
-            = new Dictionary<ISymbol, Customization>();
+        private Dictionary<ISymbol, Customization> Customizations { get; } = new();
 
         protected IConsole Console { get; }
         public int MaxWidth { get; }

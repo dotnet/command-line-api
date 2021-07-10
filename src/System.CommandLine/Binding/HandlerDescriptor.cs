@@ -21,6 +21,7 @@ namespace System.CommandLine.Binding
 
         protected abstract IEnumerable<ParameterDescriptor> InitializeParameterDescriptors();
 
+        /// <inheritdoc />
         public override string ToString() =>
             $"{Parent} ({string.Join(", ", ParameterDescriptors)})";
 

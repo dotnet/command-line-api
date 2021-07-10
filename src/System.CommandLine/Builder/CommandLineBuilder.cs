@@ -12,7 +12,7 @@ namespace System.CommandLine.Builder
 {
     public class CommandLineBuilder : CommandBuilder
     {
-        private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new List<(InvocationMiddleware middleware, int order)>();
+        private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
 
         public CommandLineBuilder(Command? rootCommand = null)
             : base(rootCommand ?? new RootCommand())

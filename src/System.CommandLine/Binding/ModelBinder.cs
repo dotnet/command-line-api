@@ -24,10 +24,10 @@ namespace System.CommandLine.Binding
         public bool EnforceExplicitBinding { get; set; }
 
         internal Dictionary<IValueDescriptor, IValueSource> ConstructorArgumentBindingSources { get; } =
-            new Dictionary<IValueDescriptor, IValueSource>();
+            new();
 
         internal Dictionary<IValueDescriptor, IValueSource> MemberBindingSources { get; } =
-            new Dictionary<IValueDescriptor, IValueSource>();
+            new();
 
         // Consider deprecating in favor or BindingConfiguration/BindingContext attach validatation. Then make internal.
         // Or at least rename to "ConfigureBinding" or similar
@@ -133,7 +133,7 @@ namespace System.CommandLine.Binding
             {
                 return (false, null, false);
             }
-            if (!(newInstance is null))
+            if (newInstance is not null)
             {
                 nonDefaultsUsed = UpdateInstanceInternalNotifyIfNonDefaultsUsed(newInstance, bindingContext);
             }
@@ -333,7 +333,7 @@ namespace System.CommandLine.Binding
 
         private ConstructorInfo FindConstructorOrThrow(ParameterInfo parameter, string message)
         {
-            if (!(parameter.Member is ConstructorInfo constructor))
+            if (parameter.Member is not ConstructorInfo constructor)
             {
                 throw new ArgumentException(paramName: nameof(parameter),
                       message: message);

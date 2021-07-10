@@ -68,10 +68,10 @@ namespace System.CommandLine.Binding
                 {
                     return type.GetGenericTypeDefinition() switch
                     {
-                        Type enumerable when enumerable == typeof(IEnumerable<>) => GetEmptyEnumerable(itemType),
-                        Type list when list == typeof(List<>) => GetEmptyList(itemType),
-                        Type array when array == typeof(IList<>) || 
-                                        array == typeof(ICollection<>) => CreateEmptyArray(itemType),
+                        { } enumerable when enumerable == typeof(IEnumerable<>) => GetEmptyEnumerable(itemType),
+                        { } list when list == typeof(List<>) => GetEmptyList(itemType),
+                        { } array when array == typeof(IList<>) || 
+                                       array == typeof(ICollection<>) => CreateEmptyArray(itemType),
                         _ => null
                     };
                 }
@@ -79,7 +79,7 @@ namespace System.CommandLine.Binding
 
             return type switch
             {
-                Type nonGeneric 
+                { } nonGeneric 
                 when nonGeneric == typeof(IList) ||
                      nonGeneric == typeof(ICollection) ||
                      nonGeneric == typeof(IEnumerable)

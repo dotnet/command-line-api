@@ -32,6 +32,7 @@ namespace System.CommandLine.Binding
             return _constructorInfo.Invoke(parameters.ToArray());
         }
 
+        /// <inheritdoc />
         public override string ToString() =>
             $"{Parent} ({string.Join(", ", ParameterDescriptors)})";
     }
