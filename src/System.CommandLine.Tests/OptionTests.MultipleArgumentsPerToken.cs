@@ -117,12 +117,18 @@ namespace System.CommandLine.Tests
                     optionResult.Should().BeEquivalentTo(new[] { "1", "2" });
                 }
 
+                [Fact]
+                public void When_max_arity_is_1_then_subsequent_option_args_overwrite_its_value()
+                {
+                    var option = new Option<string>("--option") { AllowMultipleArgumentsPerToken = false };
+                    var command = new Command("the-command") { option };
 
-                var result = command.Parse("--option 1 --option 2");
+                    var result = command.Parse("--option 1 --option 2");
 
-                var optionResult = result.ValueForOption(option);
+                    var optionResult = result.ValueForOption(option);
 
-                optionResult.Should().BeEquivalentTo(new[] { "1", "2" });
+                    optionResult.Should().Be("2");
+                }
             }
         }
     }
