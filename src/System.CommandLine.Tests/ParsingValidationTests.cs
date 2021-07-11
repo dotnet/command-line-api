@@ -892,34 +892,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
-        {
-            var parser = new Parser(
-                new Option("-x", arity: ArgumentArity.ExactlyOne));
-
-            var result = parser.Parse("-x 1 -x 2");
-
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .Contain("Option '-x' expects a single argument but 2 were provided.");
-        }
-
-        [Fact]
-        public void When_arity_is_ExactlyOne_it_validates_against_extra_arguments()
-        {
-            var parser = new Parser(
-                new Option<int>("-x"));
-
-            var result = parser.Parse("-x 1 -x 2");
-
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .Contain("Option '-x' expects a single argument but 2 were provided.");
-        }
-
-        [Fact]
         public void When_an_option_has_a_default_value_it_is_not_valid_to_specify_the_option_without_an_argument()
         {
             var parser = new Parser(

@@ -611,13 +611,13 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void When_getting_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
+        public void When_getting_a_single_value_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+            var option = new Option<int>("-x");
 
             var result = option.Parse("-x not-an-int");
 
-            Action getValue = () => result.ValueForOption<int>("-x");
+            Action getValue = () => result.ValueForOption(option);
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -630,18 +630,18 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void When_getting_an_array_of_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+            var option = new Option<int[]>("-x");
 
             var result = option.Parse("-x not-an-int -x 2");
 
-            Action getValue = () => result.ValueForOption<int[]>("-x");
+            Action getValue = () => result.ValueForOption(option);
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
                     .Which
                     .Message
                     .Should()
-                    .Be("Option '-x' expects a single argument but 2 were provided.");
+                    .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type System.Int32.");
         }
     }
 }
