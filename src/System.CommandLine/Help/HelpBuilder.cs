@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Help
@@ -16,11 +17,13 @@ namespace System.CommandLine.Help
         private Dictionary<ISymbol, Customization> Customizations { get; } = new();
 
         protected IConsole Console { get; }
+        protected Resources Resources { get; }
         public int MaxWidth { get; }
 
-        public HelpBuilder(IConsole console, int maxWidth = int.MaxValue)
+        public HelpBuilder(IConsole console, Resources resources, int maxWidth = int.MaxValue)
         {
             Console = console ?? throw new ArgumentNullException(nameof(console));
+            Resources = resources ?? throw new ArgumentNullException(nameof(resources));
             if (maxWidth <= 0) maxWidth = int.MaxValue;
             MaxWidth = maxWidth;
         }
@@ -66,7 +69,7 @@ namespace System.CommandLine.Help
         protected virtual void AddUsage(ICommand command)
         {
             string description = GetUsage(command);
-            WriteHeading(Resources.Instance.HelpUsageTitle(), description);
+            WriteHeading(Resources.HelpUsageTitle(), description);
             Console.Out.WriteLine();
         }
 
@@ -90,7 +93,7 @@ namespace System.CommandLine.Help
 
                     if (displayOptionTitle)
                     {
-                        yield return Resources.Instance.HelpUsageOptionsTitle();
+                        yield return Resources.HelpUsageOptionsTitle();
                         displayOptionTitle = false;
                     }
 
@@ -104,12 +107,12 @@ namespace System.CommandLine.Help
 
                 if (hasCommandWithHelp)
                 {
-                    yield return Resources.Instance.HelpUsageCommandTitle();
+                    yield return Resources.HelpUsageCommandTitle();
                 }
 
                 if (!command.TreatUnmatchedTokensAsErrors)
                 {
-                    yield return Resources.Instance.HelpUsageAdditionalArguments();
+                    yield return Resources.HelpUsageAdditionalArguments();
                 }
             }
         }
@@ -120,7 +123,7 @@ namespace System.CommandLine.Help
 
             if (commandArguments.Length > 0)
             {
-                WriteHeading(Resources.Instance.HelpArgumentsTitle(), null);
+                WriteHeading(Resources.HelpArgumentsTitle(), null);
                 RenderAsColumns(commandArguments);
                 Console.Out.WriteLine();
             }
@@ -167,7 +170,7 @@ namespace System.CommandLine.Help
 
             if (options.Length > 0)
             {
-                WriteHeading(Resources.Instance.HelpOptionsTitle(), null);
+                WriteHeading(Resources.HelpOptionsTitle(), null);
                 RenderAsColumns(options);
                 Console.Out.WriteLine();
             }
@@ -182,7 +185,7 @@ namespace System.CommandLine.Help
 
             if (subcommands.Length > 0)
             {
-                WriteHeading(Resources.Instance.HelpCommandsTitle(), null);
+                WriteHeading(Resources.HelpCommandsTitle(), null);
                 RenderAsColumns(subcommands);
                 Console.Out.WriteLine();
             }
@@ -198,8 +201,8 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            WriteHeading(Resources.Instance.HelpAdditionalArgumentsTitle(),
-                Resources.Instance.HelpAdditionalArgumentsDescription());
+            WriteHeading(Resources.HelpAdditionalArgumentsTitle(),
+                Resources.HelpAdditionalArgumentsDescription());
         }
 
         protected void WriteHeading(string descriptor, string? description)
@@ -424,7 +427,7 @@ namespace System.CommandLine.Help
                 if (symbol is IOption option &&
                     option.IsRequired)
                 {
-                    descriptor += $" {Resources.Instance.HelpOptionsRequired()}";
+                    descriptor += $" {Resources.HelpOptionsRequired()}";
                 }
             }
 
@@ -490,7 +493,7 @@ namespace System.CommandLine.Help
             }
 
             string name = displayArgumentName ?
-                Resources.Instance.HelpArgumentDefaultValueTitle() :
+                Resources.HelpArgumentDefaultValueTitle() :
                 argument.Name;
 
             return $"{name}: {defaultValue}";

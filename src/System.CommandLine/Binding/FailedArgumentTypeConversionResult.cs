@@ -10,32 +10,34 @@ namespace System.CommandLine.Binding
         internal FailedArgumentTypeConversionResult(
             IArgument argument,
             Type expectedType,
-            string value) :
-            base(argument, FormatErrorMessage(argument, expectedType, value))
+            string value,
+            Resources resources) :
+            base(argument, FormatErrorMessage(argument, expectedType, value, resources))
         {
         }
 
         private static string FormatErrorMessage(
             IArgument argument,
             Type expectedType,
-            string value)
+            string value,
+            Resources resources)
         {
             if (argument is Argument a &&
                 a.Parents.Count == 1)
             {
                 var firstParent = (IIdentifierSymbol) a.Parents[0];
                 var alias = firstParent.Aliases.First();
-
+                
                 switch(firstParent)
                 {
                     case ICommand _:
-                        return Resources.Instance.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
+                        return resources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
                     case IOption _:
-                        return Resources.Instance.ArgumentConversionCannotParseForOption(value, alias, expectedType);
+                        return resources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
                 }
             }
 
-            return Resources.Instance.ArgumentConversionCannotParse(value, expectedType);
+            return resources.ArgumentConversionCannotParse(value, expectedType);
         }
     }
 }

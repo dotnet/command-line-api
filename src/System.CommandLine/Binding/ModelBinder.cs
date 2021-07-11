@@ -115,6 +115,7 @@ namespace System.CommandLine.Binding
             var valueSource = GetValueSource(bindingSources, bindingContext, ValueDescriptor, EnforceExplicitBinding);
             return bindingContext.TryBindToScalarValue(ValueDescriptor,
                                                        valueSource,
+                                                       bindingContext.ParseResult.CommandResult.Resources,
                                                        out var boundValue)
                 ? (true, boundValue?.Value, true)
                 : (false,(object?) null, false);
@@ -263,6 +264,7 @@ namespace System.CommandLine.Binding
             if (bindingContext.TryBindToScalarValue(
                     valueDescriptor,
                     valueSource,
+                    bindingContext.ParseResult.CommandResult.Resources,
                     out var boundValue))
             {
                 return (boundValue, true);

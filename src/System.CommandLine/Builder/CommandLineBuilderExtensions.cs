@@ -230,7 +230,7 @@ ERR:
                     string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
                     if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
-                        context.Console.Error.WriteLine(Resources.Instance.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
+                        context.Console.Error.WriteLine(context.Resources.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
                         context.ExitCode = errorExitCode ?? 1;
                         return;
                     }
@@ -240,7 +240,7 @@ ERR:
                         if (processNames.Contains(process.ProcessName, StringComparer.Ordinal))
                         {
                             var processId = process.Id;
-                            context.Console.Out.WriteLine(Resources.Instance.DebugDirectiveAttachToProcess(processId, process.ProcessName));
+                            context.Console.Out.WriteLine(context.Resources.DebugDirectiveAttachToProcess(processId, process.ProcessName));
                             while (!Debugger.IsAttached)
                             {
                                 await Task.Delay(500);
@@ -248,7 +248,7 @@ ERR:
                         }
                         else
                         {
-                            context.Console.Error.WriteLine(Resources.Instance.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
+                            context.Console.Error.WriteLine(context.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
                             context.ExitCode = errorExitCode ?? 1;
                             return;
                         }
@@ -329,7 +329,7 @@ ERR:
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();
 
-                    context.Console.Error.Write(Resources.Instance.ExceptionHandlerHeader());
+                    context.Console.Error.Write(context.Resources.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
                     context.Console.ResetTerminalForegroundColor();
@@ -524,14 +524,13 @@ ERR:
         {
             var command = builder.Command;
 
-            if (command.Children.GetByAlias("--version") != null)
+            if (builder.VersionOption is not null)
             {
                 return builder;
             }
-
+            
             var versionOption = new Option<bool>(
                 "--version",
-                description: Resources.Instance.VersionOptionDescription(),
                 parseArgument: result =>
                 {
                     var commandChildren = result.FindResultFor(command)?.Children;
@@ -548,10 +547,10 @@ ERR:
                         {
                             continue;
                         }
-
+                        
                         if (IsNotImplicit(symbolResult))
                         {
-                            result.ErrorMessage = Resources.Instance.VersionOptionCannotBeCombinedWithOtherArguments("--version");
+                            result.ErrorMessage = result.Resources.VersionOptionCannotBeCombinedWithOtherArguments("--version");
                             return false;
                         }
                     }
@@ -561,6 +560,7 @@ ERR:
 
             versionOption.DisallowBinding = true;
 
+            builder.VersionOption = versionOption;
             command.AddOption(versionOption);
 
             builder.AddMiddleware(async (context, next) =>

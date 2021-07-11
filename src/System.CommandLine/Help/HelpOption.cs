@@ -12,7 +12,7 @@ namespace System.CommandLine.Help
             "--help",
             "-?",
             "/?"
-        }, Resources.Instance.HelpOptionDescription())
+        })
         {
             DisallowBinding = true;
         }

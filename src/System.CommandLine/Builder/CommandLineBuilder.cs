@@ -29,11 +29,24 @@ namespace System.CommandLine.Builder
         internal Action<IHelpBuilder>? ConfigureHelp { get; set; }
 
         internal HelpOption? HelpOption { get; set; }
+        internal Option<bool>? VersionOption { get; set; }
 
         internal Resources? Resources { get; set; }
 
         public Parser Build()
         {
+            var resources = Resources ?? Resources.Instance;
+
+            if (HelpOption is not null)
+            {
+                HelpOption.Description = resources.HelpOptionDescription();
+            }
+
+            if (VersionOption is not null)
+            {
+                VersionOption.Description = resources.VersionOptionDescription();
+            }
+
             var rootCommand = Command;
 
             var parser = new Parser(

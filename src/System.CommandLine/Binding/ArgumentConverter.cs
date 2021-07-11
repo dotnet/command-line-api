@@ -37,7 +37,8 @@ namespace System.CommandLine.Binding
         internal static ArgumentConversionResult ConvertObject(
             IArgument argument,
             Type type,
-            object? value)
+            object? value,
+            Resources resources)
         {
             if (argument.Arity.MaximumNumberOfValues == 0)
             {
@@ -49,15 +50,15 @@ namespace System.CommandLine.Binding
                 case string singleValue:
                     if (type.IsEnumerable() && !type.HasStringTypeConverter())
                     {
-                        return ConvertStrings(argument, type, new[] { singleValue });
+                        return ConvertStrings(argument, type, new[] { singleValue },resources);
                     }
                     else
                     {
-                        return ConvertString(argument, type, singleValue);
+                        return ConvertString(argument, type, singleValue, resources);
                     }
 
                 case IReadOnlyList<string> manyValues:
-                    return ConvertStrings(argument, type, manyValues);
+                    return ConvertStrings(argument, type, manyValues, resources);
             }
 
             return None(argument);
@@ -66,7 +67,8 @@ namespace System.CommandLine.Binding
         private static ArgumentConversionResult ConvertString(
             IArgument argument,
             Type? type,
-            string value)
+            string value,
+            Resources resources)
         {
             type ??= typeof(string);
 
@@ -82,7 +84,7 @@ namespace System.CommandLine.Binding
                     }
                     catch (Exception)
                     {
-                        return Failure(argument, type, value);
+                        return Failure(argument, type, value, resources);
                     }
                 }
             }
@@ -105,13 +107,14 @@ namespace System.CommandLine.Binding
                 return Success(argument, instance);
             }
 
-            return Failure(argument, type, value);
+            return Failure(argument, type, value, resources);
         }
 
         public static ArgumentConversionResult ConvertStrings(
             IArgument argument,
             Type type,
             IReadOnlyList<string> tokens,
+            Resources resources,
             ArgumentResult? argumentResult = null)
         {
             Type itemType;
@@ -137,7 +140,7 @@ namespace System.CommandLine.Binding
             {
                 var token = tokens[i];
 
-                var result = ConvertString(argument, itemType, token);
+                var result = ConvertString(argument, itemType, token, resources);
 
                 switch (result)
                 {
@@ -204,9 +207,10 @@ namespace System.CommandLine.Binding
         private static FailedArgumentConversionResult Failure(
             IArgument argument,
             Type expectedType,
-            string value)
+            string value,
+            Resources resources)
         {
-            return new FailedArgumentTypeConversionResult(argument, expectedType, value);
+            return new FailedArgumentTypeConversionResult(argument, expectedType, value, resources);
         }
 
         internal static ArgumentConversionResult ConvertIfNeeded(
@@ -219,19 +223,21 @@ namespace System.CommandLine.Binding
                 SuccessfulArgumentConversionResult successful when !toType.IsInstanceOfType(successful.Value) =>
                     ConvertObject(conversionResult.Argument,
                                   toType,
-                                  successful.Value),
+                                  successful.Value,
+                                  symbolResult.Resources),
                 SuccessfulArgumentConversionResult successful when toType == typeof(object) &&
                                                                    conversionResult.Argument.Arity.MaximumNumberOfValues > 1 &&
                                                                    successful.Value is string =>
                     ConvertObject(conversionResult.Argument,
                                   typeof(IEnumerable<string>),
-                                  successful.Value),
+                                  successful.Value,
+                                  symbolResult.Resources),
                 NoArgumentConversionResult _ when toType == typeof(bool) =>
                     Success(conversionResult.Argument,
                             true),
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
                     new MissingArgumentConversionResult(conversionResult.Argument,
-                                                        Resources.Instance.RequiredArgumentMissing(symbolResult)),
+                                                        symbolResult.Resources.RequiredArgumentMissing(symbolResult)),
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1 =>
                     Success(conversionResult.Argument,
                             Array.Empty<string>()),
@@ -274,8 +280,8 @@ namespace System.CommandLine.Binding
             {
                 // 0 is an implicit bool, i.e. a "flag"
                 0 => Success(argumentResult.Argument, true),
-                1 => ConvertObject(argument, argument.ValueType, argumentResult.Tokens[0].Value),
-                _ => ConvertStrings(argument, argument.ValueType, argumentResult.Tokens.Select(t => t.Value).ToArray(), argumentResult)
+                1 => ConvertObject(argument, argument.ValueType, argumentResult.Tokens[0].Value, argumentResult.Resources),
+                _ => ConvertStrings(argument, argument.ValueType, argumentResult.Tokens.Select(t => t.Value).ToArray(), argumentResult.Resources, argumentResult)
             };
 
             return value is SuccessfulArgumentConversionResult;
