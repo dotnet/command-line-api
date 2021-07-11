@@ -98,9 +98,9 @@ namespace System.CommandLine.Tests
 
                     var result = command.Parse("--option 1 2");
 
-                    var optionResult = result.ValueForOption(option);
+                    var value = result.ValueForOption(option);
 
-                    optionResult.Should().BeEquivalentTo(new[] { "1" });
+                    value.Should().BeEquivalentTo(new[] { "1" });
                     result.UnmatchedTokens.Should().BeEquivalentTo(new[] { "2" });
                 }
 
@@ -112,22 +112,28 @@ namespace System.CommandLine.Tests
 
                     var result = command.Parse("--option 1 --option 2");
 
-                    var optionResult = result.ValueForOption(option);
+                    var value = result.ValueForOption(option);
 
-                    optionResult.Should().BeEquivalentTo(new[] { "1", "2" });
+                    value.Should().BeEquivalentTo(new[] { "1", "2" });
                 }
 
-                [Fact]
-                public void When_max_arity_is_1_then_subsequent_option_args_overwrite_its_value()
+                [Theory]
+                [InlineData("--option 1 --option 2")]
+                [InlineData("xyz --option 1 --option 2")]
+                [InlineData("--option 1 xyz --option 2")]
+                public void When_max_arity_is_1_then_subsequent_option_args_overwrite_its_value(string commandLine)
                 {
                     var option = new Option<string>("--option") { AllowMultipleArgumentsPerToken = false };
-                    var command = new Command("the-command") { option };
+                    var command = new Command("the-command") { 
+                        option, 
+                        new Argument<string>() 
+                    };
 
-                    var result = command.Parse("--option 1 --option 2");
+                    var result = command.Parse(commandLine);
 
-                    var optionResult = result.ValueForOption(option);
+                    var value = result.ValueForOption(option);
 
-                    optionResult.Should().Be("2");
+                    value.Should().Be("2");
                 }
             }
         }
