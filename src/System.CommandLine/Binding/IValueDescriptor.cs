@@ -13,4 +13,9 @@ namespace System.CommandLine.Binding
 
         object? GetDefaultValue();
     }
+
+    public interface IValueDescriptor<T> : IValueDescriptor
+    {
+        // FIX: (IValueDescriptor) 
+    }
 }

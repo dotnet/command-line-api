@@ -2,285 +2,379 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    public static class CommandHandler
+    public static partial class CommandHandler
     {
-        public static ICommandHandler Create(Delegate @delegate) =>
-            HandlerDescriptor.FromDelegate(@delegate).GetCommandHandler();
-
-        public static ICommandHandler Create(MethodInfo method, object? target = null) =>
-            HandlerDescriptor.FromMethodInfo(method, target).GetCommandHandler();
-
         public static ICommandHandler Create(Action action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
-        public static ICommandHandler Create<T>(
-            Action<T> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+        public static ICommandHandler Create<T1>(
+            IValueDescriptor<T1> symbol1,
+            Func<T1, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!));
 
         public static ICommandHandler Create<T1, T2>(
-            Action<T1, T2> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            Func<T1, T2, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!));
 
         public static ICommandHandler Create<T1, T2, T3>(
-            Action<T1, T2, T3> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            Func<T1, T2, T3, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4>(
-            Action<T1, T2, T3, T4> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            Func<T1, T2, T3, T4, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5>(
-            Action<T1, T2, T3, T4, T5> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            Func<T1, T2, T3, T4, T5, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
-            Action<T1, T2, T3, T4, T5, T6> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            Func<T1, T2, T3, T4, T5, T6, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
-            Action<T1, T2, T3, T4, T5, T6, T7> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            Func<T1, T2, T3, T4, T5, T6, T7, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            IValueDescriptor<T9> symbol9,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!,
+                                     context.ParseResult.ValueFor(symbol9)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            IValueDescriptor<T9> symbol9,
+            IValueDescriptor<T10> symbol10,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!,
+                                     context.ParseResult.ValueFor(symbol9)!,
+                                     context.ParseResult.ValueFor(symbol10)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            IValueDescriptor<T9> symbol9,
+            IValueDescriptor<T10> symbol10,
+            IValueDescriptor<T11> symbol11,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!,
+                                     context.ParseResult.ValueFor(symbol9)!,
+                                     context.ParseResult.ValueFor(symbol10)!,
+                                     context.ParseResult.ValueFor(symbol11)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            IValueDescriptor<T9> symbol9,
+            IValueDescriptor<T10> symbol10,
+            IValueDescriptor<T11> symbol11,
+            IValueDescriptor<T12> symbol12,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!,
+                                     context.ParseResult.ValueFor(symbol9)!,
+                                     context.ParseResult.ValueFor(symbol10)!,
+                                     context.ParseResult.ValueFor(symbol11)!,
+                                     context.ParseResult.ValueFor(symbol12)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            IValueDescriptor<T9> symbol9,
+            IValueDescriptor<T10> symbol10,
+            IValueDescriptor<T11> symbol11,
+            IValueDescriptor<T12> symbol12,
+            IValueDescriptor<T13> symbol13,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!,
+                                     context.ParseResult.ValueFor(symbol9)!,
+                                     context.ParseResult.ValueFor(symbol10)!,
+                                     context.ParseResult.ValueFor(symbol11)!,
+                                     context.ParseResult.ValueFor(symbol12)!,
+                                     context.ParseResult.ValueFor(symbol13)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            IValueDescriptor<T9> symbol9,
+            IValueDescriptor<T10> symbol10,
+            IValueDescriptor<T11> symbol11,
+            IValueDescriptor<T12> symbol12,
+            IValueDescriptor<T13> symbol13,
+            IValueDescriptor<T14> symbol14,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!,
+                                     context.ParseResult.ValueFor(symbol9)!,
+                                     context.ParseResult.ValueFor(symbol10)!,
+                                     context.ParseResult.ValueFor(symbol11)!,
+                                     context.ParseResult.ValueFor(symbol12)!,
+                                     context.ParseResult.ValueFor(symbol13)!,
+                                     context.ParseResult.ValueFor(symbol14)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            IValueDescriptor<T9> symbol9,
+            IValueDescriptor<T10> symbol10,
+            IValueDescriptor<T11> symbol11,
+            IValueDescriptor<T12> symbol12,
+            IValueDescriptor<T13> symbol13,
+            IValueDescriptor<T14> symbol14,
+            IValueDescriptor<T15> symbol15,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!,
+                                     context.ParseResult.ValueFor(symbol9)!,
+                                     context.ParseResult.ValueFor(symbol10)!,
+                                     context.ParseResult.ValueFor(symbol11)!,
+                                     context.ParseResult.ValueFor(symbol12)!,
+                                     context.ParseResult.ValueFor(symbol13)!,
+                                     context.ParseResult.ValueFor(symbol14)!,
+                                     context.ParseResult.ValueFor(symbol15)!));
 
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-        
-        public static ICommandHandler Create(Func<int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            IValueDescriptor<T1> symbol1,
+            IValueDescriptor<T2> symbol2,
+            IValueDescriptor<T3> symbol3,
+            IValueDescriptor<T4> symbol4,
+            IValueDescriptor<T5> symbol5,
+            IValueDescriptor<T6> symbol6,
+            IValueDescriptor<T7> symbol7,
+            IValueDescriptor<T8> symbol8,
+            IValueDescriptor<T9> symbol9,
+            IValueDescriptor<T10> symbol10,
+            IValueDescriptor<T11> symbol11,
+            IValueDescriptor<T12> symbol12,
+            IValueDescriptor<T13> symbol13,
+            IValueDescriptor<T14> symbol14,
+            IValueDescriptor<T15> symbol15,
+            IValueDescriptor<T16> symbol16,
+            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task> handle) =>
+            new AnonymousCommandHandler(
+                async context => await handle(
+                                     context.ParseResult.ValueFor(symbol1)!,
+                                     context.ParseResult.ValueFor(symbol2)!,
+                                     context.ParseResult.ValueFor(symbol3)!,
+                                     context.ParseResult.ValueFor(symbol4)!,
+                                     context.ParseResult.ValueFor(symbol5)!,
+                                     context.ParseResult.ValueFor(symbol6)!,
+                                     context.ParseResult.ValueFor(symbol7)!,
+                                     context.ParseResult.ValueFor(symbol8)!,
+                                     context.ParseResult.ValueFor(symbol9)!,
+                                     context.ParseResult.ValueFor(symbol10)!,
+                                     context.ParseResult.ValueFor(symbol11)!,
+                                     context.ParseResult.ValueFor(symbol12)!,
+                                     context.ParseResult.ValueFor(symbol13)!,
+                                     context.ParseResult.ValueFor(symbol14)!,
+                                     context.ParseResult.ValueFor(symbol15)!,
+                                     context.ParseResult.ValueFor(symbol16)!));
 
-        public static ICommandHandler Create<T>(
-            Func<T, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+        private class AnonymousCommandHandler : ICommandHandler
+        {
+            private readonly Func<InvocationContext, Task> _getResult;
 
-        public static ICommandHandler Create<T1, T2>(
-            Func<T1, T2, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            public AnonymousCommandHandler(Func<InvocationContext, Task> getResult)
+            {
+                _getResult = getResult;
+            }
 
-        public static ICommandHandler Create<T1, T2, T3>(
-            Func<T1, T2, T3, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4>(
-            Func<T1, T2, T3, T4, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5>(
-            Func<T1, T2, T3, T4, T5, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
-            Func<T1, T2, T3, T4, T5, T6, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
-            Func<T1, T2, T3, T4, T5, T6, T7, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, int> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create(Func<Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T>(
-            Func<T, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2>(
-            Func<T1, T2, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3>(
-            Func<T1, T2, T3, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4>(
-            Func<T1, T2, T3, T4, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5>(
-            Func<T1, T2, T3, T4, T5, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
-            Func<T1, T2, T3, T4, T5, T6, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
-            Func<T1, T2, T3, T4, T5, T6, T7, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create(Func<Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T>(
-            Func<T, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2>(
-            Func<T1, T2, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3>(
-            Func<T1, T2, T3, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4>(
-            Func<T1, T2, T3, T4, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5>(
-            Func<T1, T2, T3, T4, T5, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
-            Func<T1, T2, T3, T4, T5, T6, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
-            Func<T1, T2, T3, T4, T5, T6, T7, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
-
-        public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
-            Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<int>> action) =>
-            HandlerDescriptor.FromDelegate(action).GetCommandHandler();
+            public Task<int> InvokeAsync(InvocationContext context) =>
+                GetExitCodeAsync(_getResult(context), context);
+        }
 
         internal static async Task<int> GetExitCodeAsync(object value, InvocationContext context)
         {

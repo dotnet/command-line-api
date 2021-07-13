@@ -28,8 +28,7 @@ namespace System.CommandLine.Tests.Help
                 },
                 new Argument<FileAccess>("the-root-arg-enum-default", () => FileAccess.Read)
                 {
-                    Description = "the-root-arg-enum-default-description",
-                    ArgumentType = typeof(FileAccess)
+                    Description = "the-root-arg-enum-default-description"
                 },
                 new Option(aliases: new string[] {"--the-root-option-no-arg", "-trna"}) {
                     Description = "the-root-option-no-arg-description",

@@ -84,6 +84,16 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyList<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
 
+        [return: MaybeNull]
+        internal T ValueFor<T>(IValueDescriptor<T> symbol) =>
+            symbol switch
+            {
+                Argument<T> argument => ValueForArgument(argument),
+                Option<T> option => ValueForOption(option),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+
         [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);

@@ -140,7 +140,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the arity of the option.
         /// </summary>
-        public IArgumentArity Arity
+        public virtual IArgumentArity Arity
         {
             get => Argument.Arity;
             init
