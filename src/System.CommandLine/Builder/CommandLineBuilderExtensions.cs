@@ -528,7 +528,7 @@ ERR:
             {
                 return builder;
             }
-            
+
             var versionOption = new Option<bool>(
                 "--version",
                 parseArgument: result =>
@@ -547,7 +547,7 @@ ERR:
                         {
                             continue;
                         }
-                        
+
                         if (IsNotImplicit(symbolResult))
                         {
                             result.ErrorMessage = result.Resources.VersionOptionCannotBeCombinedWithOtherArguments("--version");
@@ -556,9 +556,11 @@ ERR:
                     }
 
                     return true;
-                });
-
-            versionOption.DisallowBinding = true;
+                })
+            {
+                Arity = ArgumentArity.Zero, 
+                DisallowBinding = true
+            };
 
             builder.VersionOption = versionOption;
             command.AddOption(versionOption);

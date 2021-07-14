@@ -8,15 +8,15 @@ namespace System.CommandLine.Parsing
     internal class TokenizeResult
     {
         internal TokenizeResult(
-            IReadOnlyList<Token> tokens,
-            IReadOnlyList<TokenizeError> errors)
+            List<Token> tokens,
+            List<TokenizeError> errors)
         {
             Tokens = tokens;
             Errors = errors;
         }
 
-        public IReadOnlyList<Token> Tokens { get; }
+        public List<Token> Tokens { get; }
 
-        public IReadOnlyList<TokenizeError> Errors { get; }
+        public List<TokenizeError> Errors { get; }
     }
 }

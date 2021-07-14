@@ -146,7 +146,7 @@ namespace System.CommandLine
         public virtual IArgumentArity Arity
         {
             get => Argument.Arity;
-            init
+            set
             {
                 if (value.MaximumNumberOfValues > 0)
                 {
@@ -157,7 +157,7 @@ namespace System.CommandLine
             }
         }
 
-        internal bool DisallowBinding { get; set; }
+        internal bool DisallowBinding { get; init; }
 
         /// <inheritdoc />
         public override string Name

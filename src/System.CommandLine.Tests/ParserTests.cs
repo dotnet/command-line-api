@@ -13,11 +13,19 @@ using FluentAssertions.Common;
 using Xunit;
 using System.ComponentModel;
 using System.Globalization;
+using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
     public partial class ParserTests
     {
+        private readonly ITestOutputHelper _output;
+
+        public ParserTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public void An_option_can_be_checked_by_object_instance()
         {
@@ -394,7 +402,6 @@ namespace System.CommandLine.Tests
                 .Tokens
                 .Should()
                 .ContainSingle(t => t.Value == "vcalue");
-
 
             result.HasOption(optionC).Should().BeFalse();
         }
@@ -1223,9 +1230,10 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
+        [InlineData("-x -y")]
         [InlineData("-x=-y")]
         [InlineData("-x:-y")]
-        public void Arguments_can_match_the_aliases_of_sibling_options(string input)
+        public void Option_arguments_can_match_the_aliases_of_sibling_options(string input)
         {
             var optionX = new Option("-x") { Arity = ArgumentArity.ZeroOrOne};
 
@@ -1240,6 +1248,81 @@ namespace System.CommandLine.Tests
             var valueForOption = result.ValueForOption(optionX);
 
             valueForOption.Should().Be("-y");
+        }
+
+        [Fact]
+        public void Single_option_arguments_that_match_option_aliases_are_parsed_correctly()
+        {
+            var optionX = new Option<string>("-x");
+
+            var command = new RootCommand
+            {
+                optionX
+            };
+
+            var result = command.Parse("-x -x");
+
+            result.ValueForOption(optionX).Should().Be("-x");
+        }
+
+        [Fact]
+        public void Multiple_option_arguments_that_match_multiple_arity_option_aliases_are_parsed_correctly()
+        {
+            var optionX = new Option<string[]>("-x");
+            var optionY = new Option<string[]>("-y");
+
+            var command = new RootCommand
+            {
+                optionX,
+                optionY
+            };
+
+            var result = command.Parse("-x -x -x -y -y -x -y -y -y -x -x -y");
+
+            _output.WriteLine(result.Diagram());
+
+            result.ValueForOption(optionX).Should().BeEquivalentTo(new[] { "-x", "-y", "-y" });
+            result.ValueForOption(optionY).Should().BeEquivalentTo(new[] { "-x", "-y", "-x" });
+        }
+
+        [Fact]
+        public void Multiple_option_arguments_that_match_single_arity_option_aliases_are_parsed_correctly()
+        {
+            var optionX = new Option<string>("-x");
+            var optionY = new Option<string>("-y");
+
+            var command = new RootCommand
+            {
+                optionX,
+                optionY
+            };
+            
+            var result = command.Parse("-x -x -x -y -y -x -y -y -y -x -x -y");
+            
+            _output.WriteLine(result.Diagram());
+
+            var result2 = result.FindResultFor(optionX);
+
+            result.Errors.Should().BeEmpty();
+            result.ValueForOption(optionX).Should().Be("-y");
+            result.ValueForOption(optionY).Should().Be("-x");
+        }
+
+        [Fact]
+        public void Bundled_option_arguments_that_match_option_aliases_are_parsed_correctly()
+        {
+            var optionX = new Option<string>("-x");
+            var optionY = new Option<bool>("-y");
+
+            var command = new RootCommand
+            {
+                optionX,
+                optionY
+            };
+
+            var result = command.Parse("-yxx");
+
+            result.ValueForOption(optionX).Should().Be("x");
         }
 
         [Fact]

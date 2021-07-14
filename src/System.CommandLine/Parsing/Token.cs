@@ -23,11 +23,22 @@ namespace System.CommandLine.Parsing
             Position = position;
         }
 
+        internal Token(string value, int position, bool wasBundled = false)
+        {
+            Value = value;
+            UnprefixedValue = value.RemovePrefix();
+            Type = TokenType.Option;
+            Position = position;
+            WasBundled = wasBundled;
+        }
+
         internal int Position { get; }
 
         public string Value { get; }
 
         internal string UnprefixedValue { get; }
+
+        internal bool WasBundled { get; }
 
         public TokenType Type { get; }
 

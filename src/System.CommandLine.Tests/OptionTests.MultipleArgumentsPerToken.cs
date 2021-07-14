@@ -86,6 +86,29 @@ namespace System.CommandLine.Tests
                         .Should()
                         .BeEquivalentTo("some-arg");
                 }
+
+                [Theory]
+                [InlineData("--option 1 --option 2")]
+                [InlineData("xyz --option 1 --option 2")]
+                [InlineData("--option 1 xyz --option 2")]
+                public void When_max_arity_is_1_then_subsequent_option_args_overwrite_previous_ones(string commandLine)
+                {
+                    var option = new Option<string>("--option")
+                    {
+                        AllowMultipleArgumentsPerToken = true
+                    };
+                    var command = new Command("the-command")
+                    {
+                        option,
+                        new Argument<string>()
+                    };
+
+                    var result = command.Parse(commandLine);
+
+                    var value = result.ValueForOption(option);
+
+                    value.Should().Be("2");
+                }
             }
 
             public class Disallowed
@@ -101,7 +124,18 @@ namespace System.CommandLine.Tests
                     var value = result.ValueForOption(option);
 
                     value.Should().BeEquivalentTo(new[] { "1" });
+                }
+
+                [Fact]
+                public void Subsequent_matched_arguments_result_in_errors()
+                {
+                    var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
+                    var command = new Command("the-command") { option };
+
+                    var result = command.Parse("--option 1 2");
+
                     result.UnmatchedTokens.Should().BeEquivalentTo(new[] { "2" });
+                    result.Errors.Should().Contain(e => e.Message == Resources.Instance.UnrecognizedCommandOrArgument("2"));
                 }
 
                 [Fact]
@@ -115,25 +149,7 @@ namespace System.CommandLine.Tests
                     var value = result.ValueForOption(option);
 
                     value.Should().BeEquivalentTo(new[] { "1", "2" });
-                }
-
-                [Theory]
-                [InlineData("--option 1 --option 2")]
-                [InlineData("xyz --option 1 --option 2")]
-                [InlineData("--option 1 xyz --option 2")]
-                public void When_max_arity_is_1_then_subsequent_option_args_overwrite_its_value(string commandLine)
-                {
-                    var option = new Option<string>("--option") { AllowMultipleArgumentsPerToken = false };
-                    var command = new Command("the-command") { 
-                        option, 
-                        new Argument<string>() 
-                    };
-
-                    var result = command.Parse(commandLine);
-
-                    var value = result.ValueForOption(option);
-
-                    value.Should().Be("2");
+                    result.Errors.Should().BeEmpty();
                 }
             }
         }

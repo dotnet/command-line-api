@@ -54,6 +54,11 @@ namespace System.CommandLine.Parsing
         {
             get
             {
+                if (Option.AllowMultipleArgumentsPerToken)
+                {
+                    // FIX: (RemainingArgumentCapacity)        
+                }
+
                 var capacity = base.RemainingArgumentCapacity;
 
                 if (IsImplicit && capacity < int.MaxValue)

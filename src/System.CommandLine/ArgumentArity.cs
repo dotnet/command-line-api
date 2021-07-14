@@ -76,11 +76,18 @@ namespace System.CommandLine
 
             if (tokenCount > maximumNumberOfValues)
             {
-                if (symbolResult is not OptionResult { Option: { AllowMultipleArgumentsPerToken: false } })
+                if (symbolResult is OptionResult optionResult)
                 {
-                    return new TooManyArgumentsConversionResult(
-                        argument,
-                        symbolResult!.Resources.ExpectsOneArgument(symbolResult));
+                    if (optionResult.Option.AllowMultipleArgumentsPerToken)
+                    {
+                        // FIX: (Validate) 
+                    }
+                    else
+                    {
+                        return new TooManyArgumentsConversionResult(
+                            argument,
+                            symbolResult!.Resources.ExpectsOneArgument(symbolResult));
+                    }
                 }
             }
 
