@@ -146,7 +146,7 @@ namespace System.CommandLine.Binding
                 {
                     case FailedArgumentTypeConversionResult _:
                     case FailedArgumentConversionResult _:
-                        if (argumentResult is { })
+                        if (argumentResult is { Parent: CommandResult } )
                         { 
                             argumentResult.OnlyTake(i);
 
@@ -280,7 +280,7 @@ namespace System.CommandLine.Binding
             {
                 // 0 is an implicit bool, i.e. a "flag"
                 0 => Success(argumentResult.Argument, true),
-                1 => ConvertObject(argument, argument.ValueType, argumentResult.Tokens[0].Value, argumentResult.Resources),
+                1 => ConvertObject(argument, argument.ValueType, argumentResult.Tokens[argumentResult.Tokens.Count - 1].Value, argumentResult.Resources),
                 _ => ConvertStrings(argument, argument.ValueType, argumentResult.Tokens.Select(t => t.Value).ToArray(), argumentResult.Resources, argumentResult)
             };
 

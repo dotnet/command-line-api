@@ -14,7 +14,7 @@ namespace System.CommandLine.Parsing
         private readonly TokenizeResult _tokenizeResult;
         private readonly string? _rawInput;
 
-        private readonly DirectiveCollection _directives = new DirectiveCollection();
+        private readonly DirectiveCollection _directives = new();
         private readonly List<Token> _unparsedTokens;
         private readonly List<Token> _unmatchedTokens;
         private readonly List<ParseError> _errors;
