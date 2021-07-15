@@ -60,7 +60,7 @@ namespace System.CommandLine.Help
 
         protected virtual void AddSynopsis(ICommand command)
         {
-            WriteHeading(Resources.Instance.HelpDescriptionTile(), command.Description);
+            WriteHeading(Resources.Instance.HelpDescriptionTitle(), command.Description);
             Console.Out.WriteLine();
         }
 

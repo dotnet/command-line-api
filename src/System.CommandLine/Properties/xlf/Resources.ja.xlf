@@ -126,7 +126,7 @@ ERR:
         <target state="new">Commands:</target>
         <note />
       </trans-unit>
-      <trans-unit id="HelpDescriptionTile">
+      <trans-unit id="HelpDescriptionTitle">
         <source>Description:</source>
         <target state="new">Description:</target>
         <note />

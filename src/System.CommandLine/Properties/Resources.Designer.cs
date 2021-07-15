@@ -331,9 +331,9 @@ namespace System.CommandLine.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Description:.
         /// </summary>
-        internal static string HelpDescriptionTile {
+        internal static string HelpDescriptionTitle {
             get {
-                return ResourceManager.GetString("HelpDescriptionTile", resourceCulture);
+                return ResourceManager.GetString("HelpDescriptionTitle", resourceCulture);
             }
         }
 
