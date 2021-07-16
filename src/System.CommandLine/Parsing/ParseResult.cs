@@ -84,12 +84,14 @@ namespace System.CommandLine.Parsing
 
         public IReadOnlyList<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
 
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);
         
         public object? ValueForOption(Option option) =>
             ValueForOption<object?>(option);
 
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public object? ValueForArgument(string alias) =>
             ValueForArgument<object?>(alias);
 
@@ -105,11 +107,11 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ArgumentType);
+            return (T)Binder.GetDefaultValue(argument.ArgumentType)!;
         }
 
         [return: MaybeNull]
-        public T ValueForArgument<T>(Argument argument)
+        internal T ValueForArgument<T>(Argument argument)
         {
             if (FindResultFor(argument) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -117,10 +119,11 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ArgumentType);
+            return (T)Binder.GetDefaultValue(argument.ArgumentType)!;
         }
 
         [return: MaybeNull]
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public T ValueForArgument<T>(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -147,21 +150,24 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType);
+            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;
         }
 
         [return: MaybeNull]
-        public T ValueForOption<T>(Option option)
+        private T ValueForOption<T>(Option option)
         {
-            if (FindResultFor(option) is { } result &&
-                result.GetValueOrDefault<T>() is { } t)
+            if (FindResultFor(option) is { } result)
             {
-                return t;
+                if (result.GetValueOrDefault<T>() is { } t)
+                {
+                    return t;
+                }
             }
 
-            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType);
+            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;
         }
 
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.ValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         [return: MaybeNull]
         public T ValueForOption<T>(string alias)
         {

@@ -9,7 +9,7 @@ namespace System.CommandLine
 {
     public class SuggestionSourceList : IReadOnlyList<ISuggestionSource>
     {
-        private readonly List<ISuggestionSource> _sources = new List<ISuggestionSource>();
+        private readonly List<ISuggestionSource> _sources = new();
 
         public void Add(ISuggestionSource source)
         {

@@ -451,25 +451,27 @@ namespace System.CommandLine.Tests
             [Fact]
             public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
             {
+                var option = new Option<int>(new[] { "-o", "--one" }, argumentResult =>
+                {
+                    if (int.TryParse(argumentResult.Tokens.Select(t => t.Value).Single(), out var value))
+                    {
+                        return value;
+                    }
+
+                    argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
+
+                    return default;
+                });
+
                 var command = new Command("the-command")
                 {
-                    new Option<int>(new[] { "-o", "--one" }, argumentResult =>
-                        {
-                            if (int.TryParse(argumentResult.Tokens.Select(t => t.Value).Single(), out var value))
-                            {
-                                return value;
-                            }
-
-                            argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
-
-                            return default;
-                        })
+                    option
                 };
 
                 var result = command.Parse("the-command -o not-an-int");
 
-                Action getValue = () =>
-                    result.ValueForOption("-o");
+                Action getValue = () => 
+                    result.ValueForOption(option);
 
                 getValue.Should()
                         .Throw<InvalidOperationException>()
@@ -498,8 +500,11 @@ namespace System.CommandLine.Tests
                 i.Should().Be(2);
             }
 
-            [Fact]
-            public void Custom_parser_can_pass_on_remaining_tokens()
+            [Theory]
+            [InlineData("1 2 3 4 5 6 7 8")]
+            [InlineData("-o 999 1 2 3 4 5 6 7 8")]
+            [InlineData("1 2 3 -o 999 4 5 6 7 8")]
+            public void Custom_parser_can_pass_on_remaining_tokens(string commandLine)
             {
                 var argument1 = new Argument<int[]>(
                     "one",
@@ -520,10 +525,11 @@ namespace System.CommandLine.Tests
                 var command = new RootCommand
                 {
                     argument1,
-                    argument2
+                    argument2,
+                    new Option<int>("-o")
                 };
 
-                var parseResult = command.Parse("1 2 3 4 5 6 7 8");
+                var parseResult = command.Parse(commandLine);
 
                 parseResult.FindResultFor(argument1)
                            .GetValueOrDefault()

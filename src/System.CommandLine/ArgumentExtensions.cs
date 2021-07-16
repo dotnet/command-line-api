@@ -9,8 +9,18 @@ using System.IO;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="Argument" />.
+    /// </summary>
     public static class ArgumentExtensions
     {
+        /// <summary>
+        /// Adds suggestions for an argument.
+        /// </summary>
+        /// <typeparam name="TArgument">The type of the argument.</typeparam>
+        /// <param name="argument">The argument for which to add suggestions.</param>
+        /// <param name="values">The suggestions to add.</param>
+        /// <returns>The argument being extended.</returns>
         public static TArgument AddSuggestions<TArgument>(
             this TArgument argument,
             params string[] values)
@@ -21,6 +31,13 @@ namespace System.CommandLine
             return argument;
         }
 
+        /// <summary>
+        /// Adds suggestions for an argument.
+        /// </summary>
+        /// <typeparam name="TArgument">The type of the argument.</typeparam>
+        /// <param name="argument">The argument for which to add suggestions.</param>
+        /// <param name="suggest">A <see cref="SuggestDelegate"/> that will be called to provide suggestions.</param>
+        /// <returns>The argument being extended.</returns>
         public static TArgument AddSuggestions<TArgument>(
             this TArgument argument,
             SuggestDelegate suggest)

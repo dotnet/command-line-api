@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="Option" />.
+    /// </summary>
     public static class OptionExtensions
     {
         public static TOption FromAmong<TOption>(
@@ -22,6 +25,13 @@ namespace System.CommandLine
             return option;
         }
 
+        /// <summary>
+        /// Adds suggestions for an option.
+        /// </summary>
+        /// <typeparam name="TOption">The type of the <see cref="Option" />.</typeparam>
+        /// <param name="option">The option for which to add suggestions.</param>
+        /// <param name="values">The suggestions to add.</param>
+        /// <returns>The option being extended.</returns>
         public static TOption AddSuggestions<TOption>(
             this TOption option,
             params string[] values)
@@ -32,6 +42,13 @@ namespace System.CommandLine
             return option;
         }
 
+        /// <summary>
+        /// Adds suggestions for an option.
+        /// </summary>
+        /// <typeparam name="TOption">The type of the <see cref="Option" />.</typeparam>
+        /// <param name="option">The option for which to add suggestions.</param>
+        /// <param name="suggest">A <see cref="SuggestDelegate"/> that will be called to provide suggestions.</param>
+        /// <returns>The option being extended.</returns>
         public static TOption AddSuggestions<TOption>(
             this TOption option,
             SuggestDelegate suggest)

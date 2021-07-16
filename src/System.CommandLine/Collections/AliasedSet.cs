@@ -7,15 +7,20 @@ using System.Linq;
 
 namespace System.CommandLine.Collections
 {
+    /// <summary>
+    /// An ordered set containing instances that are unique based on one or more string aliases per instance.
+    /// </summary>
+    /// <typeparam name="T">The type of the instances contained by the set.</typeparam>
     public abstract class AliasedSet<T> : IReadOnlyList<T>
         where T : class
     {
-        private protected readonly Dictionary<string, T> ItemsByAlias = new Dictionary<string, T>();
+        private protected readonly Dictionary<string, T> ItemsByAlias = new();
 
-        private protected List<T> Items { get; } = new List<T>();
+        private protected List<T> Items { get; } = new();
 
-        private protected HashSet<T> DirtyItems { get; } = new HashSet<T>();
+        private protected HashSet<T> DirtyItems { get; } = new();
         
+        /// <inheritdoc/>
         public int Count => Items.Count;
 
         public bool Contains(string alias)
@@ -34,8 +39,10 @@ namespace System.CommandLine.Collections
             return value;
         }
 
+        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        /// <inheritdoc/>
         public IEnumerator<T> GetEnumerator() => Items.GetEnumerator();
 
         internal virtual void Add(T item)
@@ -60,6 +67,7 @@ namespace System.CommandLine.Collections
 
         protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
+        /// <inheritdoc/>
         public T this[int index] => Items[index];
 
         private protected void EnsureAliasIndexIsCurrent()

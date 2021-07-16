@@ -12,15 +12,12 @@ namespace System.CommandLine.Help
             "--help",
             "-?",
             "/?"
-        }, Resources.Instance.HelpOptionDescription())
+        })
         {
             DisallowBinding = true;
         }
 
-        internal override Argument Argument
-        {
-            get => Argument.None;
-        }
+        internal override Argument Argument => Argument.None();
 
         public override bool Equals(object obj)
         {

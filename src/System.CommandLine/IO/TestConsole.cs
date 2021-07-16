@@ -26,7 +26,7 @@ namespace System.CommandLine.IO
 
         internal class StandardStreamWriter : TextWriter, IStandardStreamWriter
         {
-            private readonly StringBuilder _stringBuilder = new StringBuilder();
+            private readonly StringBuilder _stringBuilder = new();
 
             public override void Write(char value)
             {

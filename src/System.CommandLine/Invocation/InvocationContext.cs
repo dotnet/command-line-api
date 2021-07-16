@@ -27,6 +27,8 @@ namespace System.CommandLine.Invocation
 
         public Parser Parser => BindingContext.ParseResult.Parser;
 
+        public Resources Resources => Parser.Configuration.Resources;
+
         public ParseResult ParseResult
         {
             get => BindingContext.ParseResult;

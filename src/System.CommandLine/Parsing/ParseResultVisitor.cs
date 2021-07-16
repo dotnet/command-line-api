@@ -14,7 +14,7 @@ namespace System.CommandLine.Parsing
         private readonly TokenizeResult _tokenizeResult;
         private readonly string? _rawInput;
 
-        private readonly DirectiveCollection _directives = new DirectiveCollection();
+        private readonly DirectiveCollection _directives = new();
         private readonly List<Token> _unparsedTokens;
         private readonly List<Token> _unmatchedTokens;
         private readonly List<ParseError> _errors;
@@ -164,17 +164,25 @@ namespace System.CommandLine.Parsing
                 ValidateAndConvertOptionResult(optionResult);
             }
 
-            var argumentResults = _rootCommandResult!
-                                  .AllArgumentResults
-                                  .ToList();
+            var argumentResults = new List<ArgumentResult>();
+            foreach (var result in _rootCommandResult.AllArgumentResults)
+            {
+                if (result.Parent is not OptionResult)  
+                {
+                    argumentResults.Add(result);
+                }
+            }
 
             if (argumentResults.Count > 0)
             {
-                var arguments = _innermostCommandResult!.Command.Arguments;
+                var arguments = _innermostCommandResult.Command.Arguments;
+
+                var commandArgumentResultCount = argumentResults.Count;
 
                 for (var i = 0; i < arguments.Count; i++)
                 {
-                    if (argumentResults.Count == i)
+                    // If this is the current last result but there are more arguments, see if we can shift tokens to the next argument
+                    if (commandArgumentResultCount == i)
                     {
                         var nextArgument = arguments[i];
                         var nextArgumentResult = new ArgumentResult(
@@ -201,7 +209,7 @@ namespace System.CommandLine.Parsing
 
                         if (previousArgumentResult.Parent is CommandResult commandResult)
                         {
-                             commandResult.Children.Add(nextArgumentResult);
+                            commandResult.Children.Add(nextArgumentResult);
                         }
 
                         _rootCommandResult.AddToSymbolMap(nextArgumentResult);
@@ -211,10 +219,23 @@ namespace System.CommandLine.Parsing
 
                     ValidateAndConvertArgumentResult(argumentResult);
 
-                    if (argumentResult.PassedOnTokens is {} &&
+                    if (argumentResult.PassedOnTokens is { } &&
                         i == arguments.Count - 1)
                     {
                         _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
+                    }
+                }
+
+                if (argumentResults.Count > arguments.Count)
+                {
+                    for (var i = arguments.Count; i < argumentResults.Count; i++)
+                    {
+                        var result = argumentResults[i];
+
+                        if (result.Parent is CommandResult cr)
+                        {
+                            ValidateAndConvertArgumentResult(result);
+                        }
                     }
                 }
             }
@@ -279,8 +300,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandHandler()
         {
-            if (!(_innermostCommandResult!.Command is Command cmd) ||
-                cmd.Handler != null)
+            if (_innermostCommandResult!.Command is not Command { Handler: null } cmd)
             {
                 return;
             }

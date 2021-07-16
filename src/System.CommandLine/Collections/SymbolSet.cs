@@ -105,6 +105,7 @@ namespace System.CommandLine.Collections
             }
         }
 
+        /// <inheritdoc/>
         protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
             item switch
             {

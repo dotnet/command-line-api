@@ -2,10 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// A result produced when parsing an <see cref="IOption" />.
+    /// </summary>
     public class OptionResult : SymbolResult
     {
         private ArgumentConversionResult? _argumentConversionResult;
@@ -21,11 +24,31 @@ namespace System.CommandLine.Parsing
             Token = token;
         }
 
+        /// <summary>
+        /// The option to which the result applies.
+        /// </summary>
         public IOption Option { get; }
 
-        public bool IsImplicit => Token is ImplicitToken || Token is null;
+        /// <summary>
+        /// Indicates whether the result was created implicitly and not due to the option being specified on the command line.
+        /// </summary>
+        /// <remarks>Implicit results commonly result from options having a default value.</remarks>
+        public bool IsImplicit => Token is ImplicitToken or null;
 
+        /// <summary>
+        /// The token that was parsed to specify the option.
+        /// </summary>
         public Token? Token { get; }
+
+        public object? GetValueOrDefault() =>
+            Option.ValueType == typeof(bool)
+                ? GetValueOrDefault<bool>()
+                : GetValueOrDefault<object?>();
+
+        [return: MaybeNull]
+        public T GetValueOrDefault<T>() =>
+            this.ConvertIfNeeded(typeof(T))
+                .GetValueOrDefault<T>();
 
         private protected override int RemainingArgumentCapacity
         {

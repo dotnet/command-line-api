@@ -3,7 +3,7 @@ From: Omair Majid <omajid@redhat.com.com>
 Date: Tue, 23 Feb 2021 16:09:49 -0500
 Subject: [PATCH] Remove local nullability attributes
 
-We are targeting to netcoreapp3.1, which already has attributes built in.
+We are targeting to net5.0, which already has attributes built in.
 
 ---
 diff --git a/src/System.Diagnostics.CodeAnalysis.cs b/src/System.Diagnostics.CodeAnalysis.cs

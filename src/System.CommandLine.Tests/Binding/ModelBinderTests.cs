@@ -266,6 +266,20 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Modify_an_existing_instance_should_keep_all_default_values_if_no_argument_matches_option()
+        {
+            var parser = new Parser(new Command("the-command"));
+
+            var instance = new ClassWithComplexTypes();
+            var bindingContext = new BindingContext(parser.Parse("the-command"));
+            var binder = new ModelBinder(typeof(ClassWithComplexTypes));
+
+            binder.UpdateInstance(instance, bindingContext);
+
+            instance.Should().BeEquivalentTo(new ClassWithComplexTypes());
+        }
+
+        [Fact]
         public void Values_from_options_on_parent_commands_are_bound_by_name_by_default()
         {
             var parentCommand = new Command("parent-command")
@@ -474,6 +488,7 @@ namespace System.CommandLine.Tests.Binding
 
             instance.IntOption.Should().Be(42);
         }
+
 
         [Fact]
         public void Option_argument_is_bound_to_longest_constructor()
@@ -754,5 +769,67 @@ namespace System.CommandLine.Tests.Binding
 
             boundInstance.Should().NotBeNull();
         }
+
+        [Fact]
+        public async Task Decimals_are_bound_correctly_when_no_token_is_matched()
+        {
+            decimal? receivedValue = null;
+
+            var rootCommand = new RootCommand
+            {
+                new Option<decimal>("--opt-decimal")
+            };
+            rootCommand.Handler = CommandHandler.Create((ComplexType options) =>
+            {
+                receivedValue = options.OptDecimal;
+            });
+
+            await rootCommand.InvokeAsync("");
+
+            receivedValue.Should().Be(0);
+        }
+
+        public class ComplexType
+        {
+            public decimal OptDecimal { get; set; }
+        }
+
+#if NETCOREAPP2_1_OR_GREATER
+        [Theory]
+        [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4 --int-value 1234")]
+        [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4")]
+        [InlineData("--int-value 1234")]
+        public void When_only_available_constructor_is_span_then_null_is_passed(string commandLine)
+        {
+            var root = new RootCommand
+            {
+                new Option<ClassWithSpanConstructor>("--class-with-span-ctor"),
+                new Option<int>("--int-value"),
+            };
+
+            var handlerWasCalled = false;
+
+            root.Handler = CommandHandler.Create<ClassWithSpanConstructor, int>((spanCtor, intValue) =>
+            {
+                handlerWasCalled = true;
+            });
+
+            root.Invoke(commandLine);
+
+            handlerWasCalled.Should().BeTrue();
+        }
+
+        public class ClassWithSpanConstructor
+        {
+            private Guid value;
+
+            public ClassWithSpanConstructor(ReadOnlySpan<byte> guid)
+            {
+                value = new Guid(guid);
+            }
+
+            public override string ToString() => value.ToString();
+        }
+#endif
     }
 }

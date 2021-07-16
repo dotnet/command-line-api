@@ -4,7 +4,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>System.CommandLine</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
     
@@ -13,6 +13,8 @@
     * Constructor- and property-based model binding for complex types
     * Test and debug support
     </Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- <NoWarn>$(NoWarn);CS1591</NoWarn> -->
   </PropertyGroup>
    
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

@@ -28,7 +28,7 @@ namespace System.CommandLine
         /// <code>
         /// > --opt 1 2 3
         /// </code>
-        /// The following is equivalent is always valid:
+        /// The following is equivalent and is always valid:
         /// <code>
         /// > --opt 1 --opt 2 --opt 3
         /// </code>

@@ -61,26 +61,6 @@ The value of the variable should be the name of the processes, separated by a se
         <target state="new">Directory does not exist: {0}</target>
         <note />
       </trans-unit>
-      <trans-unit id="DotnetSuggestExceptionOccurred">
-        <source>Exception during registration:
-{0}</source>
-        <target state="new">Exception during registration:
-{0}</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="DotnetSuggestExitMessage">
-        <source>{0} exited with code {1}
-OUT:
-{2}
-ERR:
-{3}</source>
-        <target state="new">{0} exited with code {1}
-OUT:
-{2}
-ERR:
-{3}</target>
-        <note />
-      </trans-unit>
       <trans-unit id="ErrorReadingResponseFile">
         <source>Error reading response file '{0}': {1}</source>
         <target state="new">Error reading response file '{0}': {1}</target>
@@ -166,7 +146,7 @@ ERR:
         <target state="new">[options]</target>
         <note />
       </trans-unit>
-      <trans-unit id="HelpUsageTile">
+      <trans-unit id="HelpUsageTitle">
         <source>Usage:</source>
         <target state="new">Usage:</target>
         <note />

@@ -32,12 +32,14 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument.</param>
-        public Argument(string name) 
+        public Argument(string name)
         {
-            if (!string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                Name = name!;
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
+
+            Name = name!;
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }
@@ -102,7 +104,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
-        public Type ArgumentType
+        public virtual Type ArgumentType
         {
             get => _argumentType;
             set => _argumentType = value ?? throw new ArgumentNullException(nameof(value));
@@ -127,14 +129,14 @@ namespace System.CommandLine
             }
         }
 
-        internal List<ValidateSymbol<ArgumentResult>> Validators { get; } = new List<ValidateSymbol<ArgumentResult>>();
+        internal List<ValidateSymbolResult<ArgumentResult>> Validators { get; } = new();
 
         /// <summary>
-        /// Adds a custom <see cref="ValidateSymbol{T}(ArgumentResult)"/> to the argument. Validators can be used
+        /// Adds a custom <see cref="ValidateSymbolResult{ArgumentResult}"/> to the argument. Validators can be used
         /// to provide custom errors based on user input.
         /// </summary>
         /// <param name="validate">The delegate to validate the parsed argument.</param>
-        public void AddValidator(ValidateSymbol<ArgumentResult> validate) => Validators.Add(validate);
+        public void AddValidator(ValidateSymbolResult<ArgumentResult> validate) => Validators.Add(validate);
 
         /// <summary>
         /// Gets the default value for the argument.
@@ -194,7 +196,11 @@ namespace System.CommandLine
         /// </summary>
         public bool HasDefaultValue => _defaultValueFactory != null;
 
-        internal static Argument None => new Argument { Arity = ArgumentArity.Zero };
+        internal static Argument None() => new()
+        {
+            Arity = ArgumentArity.Zero,
+            ArgumentType = typeof(bool)
+        };
 
         internal void AddAllowedValues(IEnumerable<string> values)
         {

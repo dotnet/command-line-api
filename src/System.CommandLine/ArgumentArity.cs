@@ -76,9 +76,12 @@ namespace System.CommandLine
 
             if (tokenCount > maximumNumberOfValues)
             {
-                return new TooManyArgumentsConversionResult(
-                    argument,
-                    symbolResult!.Resources.ExpectsOneArgument(symbolResult));
+                if (symbolResult is not OptionResult { Option: { AllowMultipleArgumentsPerToken: false } })
+                {
+                    return new TooManyArgumentsConversionResult(
+                        argument,
+                        symbolResult!.Resources.ExpectsOneArgument(symbolResult));
+                }
             }
 
             return null;
@@ -114,11 +117,6 @@ namespace System.CommandLine
             if (type == typeof(bool))
             {
                 return ZeroOrOne;
-            }
-
-            if (type == typeof(void))
-            {
-                return Zero;
             }
 
             var parent = parents.Count > 0 ? parents[0] : default;

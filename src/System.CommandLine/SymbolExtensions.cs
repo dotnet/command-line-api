@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Provides extension methods for symbols.
+    /// </summary>
     public static class SymbolExtensions
     {
         internal static IReadOnlyList<IArgument> Arguments(this ISymbol symbol)

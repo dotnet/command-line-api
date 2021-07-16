@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Provides extension methods for parsers.
+    /// </summary>
     public static class ParserExtensions
     {
         public static int Invoke(

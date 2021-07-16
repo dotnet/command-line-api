@@ -19,16 +19,6 @@ namespace System.CommandLine.Tests
     public partial class ParserTests
     {
         [Fact]
-        public void An_option_without_a_long_form_can_be_checked_for_using_a_prefix()
-        {
-            var option = new Option("--flag");
-            
-            var result = option.Parse("--flag");
-
-            result.FindResultFor(option).Should().NotBeNull();
-        }
-
-        [Fact]
         public void An_option_can_be_checked_by_object_instance()
         {
             var option = new Option("--flag");
@@ -41,87 +31,19 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_without_a_long_form_can_be_checked_for_without_using_a_prefix()
-        {
-            var result = new Parser(
-                    new Option("--flag"))
-                .Parse("--flag");
-
-            result.HasOption("--flag").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_invoked_by_its_short_form_an_option_with_an_alias_can_be_checked_for_by_its_short_form()
-        {
-            var result = new Parser(
-                    new Option(new[] { "-o", "--one" }))
-                .Parse("-o");
-
-            result.HasOption("-o").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_invoked_by_its_long_form_an_option_with_an_alias_can_be_checked_for_by_its_short_form()
-        {
-            var result = new Parser(
-                    new Option(new[] { "-o", "--one" }))
-                .Parse("--one");
-
-            result.HasOption("-o").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_invoked_by_its_short_form_an_option_with_an_alias_can_be_checked_for_by_its_long_form()
-        {
-            var result = new Parser(
-                    new Option(new[] { "-o", "--one" }))
-                .Parse("-o");
-
-            result.HasOption("--one").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_invoked_by_its_long_form_an_option_with_an_alias_can_be_checked_for_by_its_long_form()
-        {
-            var result = new Parser(
-                    new Option(new[] { "-o", "--one" }))
-                .Parse("--one");
-
-            result.HasOption("--one").Should().BeTrue();
-        }
-
-        [Fact]
         public void Two_options_are_parsed_correctly()
         {
-            ParseResult result = new Parser(
-                    new Option(
-                        new[] { "-o", "--one" }),
-                    new Option(
-                        new[] { "-t", "--two" })
-                )
+            var optionOne = new Option(new[] { "-o", "--one" });
+
+            var optionTwo = new Option(new[] { "-t", "--two" });
+
+            var result = new Parser(
+                    optionOne,
+                    optionTwo)
                 .Parse("-o -t");
 
-            result.HasOption("-o").Should().BeTrue();
-            result.HasOption("--one").Should().BeTrue();
-            result.HasOption("-t").Should().BeTrue();
-            result.HasOption("--two").Should().BeTrue();
-        }
-
-        [Fact]
-        public void Parse_result_contains_arguments_to_options()
-        {
-            var optionOne = new Option(new[] { "-o", "--one" }, arity: ArgumentArity.ExactlyOne);
-
-            var optionTwo = new Option(new[] { "-t", "--two" }, arity: ArgumentArity.ExactlyOne);
-
-            var parser = new Parser(
-                optionOne,
-                optionTwo);
-
-            var result = parser.Parse("-o args_for_one -t args_for_two");
-
-            result.FindResultFor(optionOne).Tokens.Single().Value.Should().Be("args_for_one");
-            result.FindResultFor(optionTwo).Tokens.Single().Value.Should().Be("args_for_two");
+            result.HasOption(optionOne).Should().BeTrue();
+            result.HasOption(optionTwo).Should().BeTrue();
         }
 
         [Fact]
@@ -172,10 +94,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_double_dash_delimiter_specifies_that_no_further_command_line_args_will_be_treated_as_options()
         {
-            var result = new Parser(new Option(new[] { "-o", "--one" }))
+            var option = new Option(new[] { "-o", "--one" });
+            var result = new Parser(option)
                 .Parse("-o \"some stuff\" -- -x -y -z -o:foo");
 
-            result.HasOption("-o")
+            result.HasOption(option)
                   .Should()
                   .BeTrue();
 
@@ -201,7 +124,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne);
+            var option = new Option<string>("-x") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("-x=some-value");
 
@@ -214,7 +137,7 @@ namespace System.CommandLine.Tests
         public void Long_form_options_can_be_specified_using_equals_delimiter()
         {
             var option = 
-                new Option("--hello", arity: ArgumentArity.ExactlyOne);
+                new Option("--hello") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("--hello=there");
 
@@ -226,7 +149,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Short_form_options_can_be_specified_using_colon_delimiter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne);
+            var option = new Option("-x") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("-x:some-value");
 
@@ -238,7 +161,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Long_form_options_can_be_specified_using_colon_delimiter()
         {
-            var option = new Option("--hello", arity: ArgumentArity.ExactlyOne);
+            var option = new Option("--hello") { Arity = ArgumentArity.ExactlyOne };
 
             var result = option.Parse("--hello:there");
 
@@ -358,7 +281,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Optional_option_arguments_are_unbundled()
         {
-            var optionA = new Option<string>("-a", arity: ArgumentArity.ZeroOrOne);
+            var optionA = new Option<string>("-a") { Arity = ArgumentArity.ZeroOrOne };
             var optionB = new Option("-b");
             var optionC = new Option("-c");
 
@@ -381,8 +304,8 @@ namespace System.CommandLine.Tests
         public void Last_bundled_option_can_accept_argument_with_no_separator()
         {
             var optionA = new Option("-a");
-            var optionB = new Option<string>("-b", arity: ArgumentArity.ZeroOrOne);
-            var optionC = new Option<string>("-c", arity: ArgumentArity.ExactlyOne);
+            var optionB = new Option<string>("-b") { Arity = ArgumentArity.ZeroOrOne };
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
 
             var command = new RootCommand
             {
@@ -405,8 +328,8 @@ namespace System.CommandLine.Tests
         public void Last_bundled_option_can_accept_argument_with_equals_separator()
         {
             var optionA = new Option("-a");
-            var optionB = new Option<string>("-b", arity: ArgumentArity.ZeroOrOne);
-            var optionC = new Option<string>("-c", arity: ArgumentArity.ExactlyOne);
+            var optionB = new Option<string>("-b") { Arity = ArgumentArity.ZeroOrOne };
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
 
             var command = new RootCommand
             {
@@ -429,8 +352,8 @@ namespace System.CommandLine.Tests
         public void Last_bundled_option_can_accept_argument_with_colon_separator()
         {
             var optionA = new Option("-a");
-            var optionB = new Option<string>("-b", arity: ArgumentArity.ZeroOrOne);
-            var optionC = new Option<string>("-c", arity: ArgumentArity.ExactlyOne);
+            var optionB = new Option<string>("-b") { Arity = ArgumentArity.ZeroOrOne };
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
 
             var command = new RootCommand
             {
@@ -453,8 +376,8 @@ namespace System.CommandLine.Tests
         public void Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value()
         {
             var optionA = new Option("-a");
-            var optionB = new Option<string>("-b", arity: ArgumentArity.ZeroOrOne);
-            var optionC = new Option<string>("-c", arity: ArgumentArity.ExactlyOne);
+            var optionB = new Option<string>("-b") { Arity = ArgumentArity.ZeroOrOne };
+            var optionC = new Option<string>("-c") { Arity = ArgumentArity.ExactlyOne };
 
             var command = new RootCommand
             {
@@ -479,8 +402,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrMore);
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore };
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
             var parser = new Parser(
                 animalsOption,
                 vegetablesOption);
@@ -503,9 +426,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrMore)
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore}
                 .FromAmong("dog", "cat", "sheep");
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
             var parser = new Parser(
                 new Command("the-command") {
                     animalsOption,
@@ -528,109 +451,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_Parser_root_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_used_as_value()
-        {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrMore);
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
-
-            var parser = new Parser(
-                animalsOption,
-                vegetablesOption);
-
-            var result = parser.Parse("-a cat dog -v carrot");
-
-            result
-                .FindResultFor(animalsOption)
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo(new[] { "cat", "dog" });
-
-            result
-                .FindResultFor(vegetablesOption)
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("carrot");
-
-            result
-                .UnmatchedTokens
-                .Should()
-                .BeNullOrEmpty();
-        }
-
-        [Fact]
-        public void When_a_Parser_root_option_is_not_respecified_and_limit_is_reached_then_the_following_token_is_unmatched()
-        {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrOne);
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
-
-            var parser = new Parser(
-                animalsOption,
-                vegetablesOption);
-
-            ParseResult result = parser.Parse("-a cat some-arg -v carrot");
-
-            result.FindResultFor(animalsOption)
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("cat");
-
-            result.FindResultFor(vegetablesOption)
-                .Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("carrot");
-
-            result
-                .UnmatchedTokens
-                .Should()
-                .BeEquivalentTo("some-arg");
-        }
-
-        [Fact]
-        public void When_an_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_considered_as_value()
-        {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrMore);
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrMore);
-            var parser = new Parser(
-                new Command("the-command")
-                {
-                    animalsOption,
-                    vegetablesOption
-                },
-                new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrMore
-                });
-
-            var result = parser.Parse("the-command -a cat dog -v carrot");
-
-            result.FindResultFor(animalsOption)
-                  .Tokens
-                  .Select(t => t.Value)
-                  .Should()
-                  .BeEquivalentTo("cat", "dog");
-
-            result.FindResultFor(vegetablesOption)
-                  .Tokens
-                  .Select(t => t.Value)
-                  .Should()
-                  .BeEquivalentTo("carrot");
-
-            result.CommandResult
-                  .Tokens
-                  .Should()
-                  .BeNullOrEmpty();
-        }
-
-        [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }, arity: ArgumentArity.ZeroOrOne);
+            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrOne };
 
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }, arity: ArgumentArity.ZeroOrOne);
+            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrOne };
             
             var parser = new Parser(
                 new Command("the-command")
@@ -668,8 +493,8 @@ namespace System.CommandLine.Tests
         {
             var option = new Command("outer")
             {
-                new Option("--inner1", arity: ArgumentArity.ExactlyOne),
-                new Option("--inner2", arity: ArgumentArity.ExactlyOne)
+                new Option("--inner1") { Arity = ArgumentArity.ExactlyOne },
+                new Option("--inner2") { Arity = ArgumentArity.ExactlyOne }
             };
 
             var parser = new Parser(option);
@@ -1035,12 +860,12 @@ namespace System.CommandLine.Tests
         public void A_root_command_can_be_omitted_from_the_parsed_args()
         {
             var command = new Command("outer")
-                          {
-                              new Command("inner")
-                              {
-                                  new Option("-x", arity: ArgumentArity.ExactlyOne)
-                              }
-                          };
+            {
+                new Command("inner")
+                {
+                    new Option("-x") { Arity = ArgumentArity.ExactlyOne }
+                }
+            };
 
             var result1 = command.Parse("inner -x hello");
             var result2 = command.Parse("outer inner -x hello");
@@ -1055,7 +880,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("inner")
                 {
-                    new Option("-x", arity: ArgumentArity.ExactlyOne)
+                    new Option("-x") { Arity = ArgumentArity.ExactlyOne }
                 }
             };
 
@@ -1073,7 +898,7 @@ namespace System.CommandLine.Tests
                               {
                                   new Command("inner")
                                   {
-                                      new Option("-x", arity: ArgumentArity.ExactlyOne)
+                                      new Option("-x") { Arity = ArgumentArity.ExactlyOne }
                                   }
                               };
             rootCommand.Name = "outer";
@@ -1134,14 +959,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_can_have_default_argument_values()
         {
+            var argument = new Argument<string>("the-arg", () => "default");
+
             var command = new Command("command")
             {
-                new Argument<string>("the-arg", () => "default")
+                argument
             };
 
             ParseResult result = command.Parse("command");
 
-            result.ValueForArgument("the-arg")
+            result.ValueForArgument(argument)
                   .Should()
                   .Be("default");
         }
@@ -1150,15 +977,13 @@ namespace System.CommandLine.Tests
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
         {
             var command = new Command("command");
-            command.AddOption(
-                new Option<string>(new[] { "-o", "--option" }, () => "the-default"));
+            var option = new Option<string>(new[] { "-o", "--option" }, () => "the-default");
+            command.AddOption(option);
 
             ParseResult result = command.Parse("command");
 
-            result.HasOption("-o").Should().BeTrue();
-            result.HasOption("--option").Should().BeTrue();
-            result.ValueForOption<string>("-o").Should().Be("the-default");
-            result.ValueForOption("-o").Should().Be("the-default");
+            result.HasOption(option).Should().BeTrue();
+            result.ValueForOption(option).Should().Be("the-default");
         }
 
         [Fact]
@@ -1221,18 +1046,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_default_argument_value_does_not_override_parsed_value()
         {
+            var argument = new Argument<DirectoryInfo>(() => new DirectoryInfo(Directory.GetCurrentDirectory()))
+            {
+                Name = "the-arg"
+            };
+
             var command = new Command("inner")
             {
-                new Argument<DirectoryInfo>(() => new DirectoryInfo(Directory.GetCurrentDirectory()))
-                {
-                    Name = "the-arg"
-                }
+                argument
             };
 
             var result = command.Parse("the-directory");
 
-            result.ValueForArgument<DirectoryInfo>("the-arg")
-                  .Name
+            result.ValueForArgument(argument)
+                  ?.Name
                   .Should()
                   .Be("the-directory");
         }
@@ -1362,7 +1189,7 @@ namespace System.CommandLine.Tests
         [InlineData("-x:\"\"", "")]
         public void When_an_argument_is_enclosed_in_double_quotes_its_value_has_the_quotes_removed(string input, string expected)
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
+            var option = new Option("-x") { Arity = ArgumentArity.ZeroOrMore };
 
             var parseResult = option.Parse(input);
 
@@ -1380,15 +1207,17 @@ namespace System.CommandLine.Tests
         [InlineData("-x:-y")]
         public void Arguments_can_start_with_prefixes_that_make_them_look_like_options(string input)
         {
+            var optionX = new Option("-x") { Arity = ArgumentArity.ZeroOrOne};
+
             var command = new Command("command")
             {
-                new Option("-x", arity: ArgumentArity.ZeroOrOne),
-                new Option("-z", arity: ArgumentArity.ZeroOrOne)
+                optionX,
+                new Option("-z") { Arity = ArgumentArity.ZeroOrOne}
             };
 
             var result = command.Parse(input);
 
-            var valueForOption = result.ValueForOption("-x");
+            var valueForOption = result.ValueForOption(optionX);
 
             valueForOption.Should().Be("-y");
         }
@@ -1398,15 +1227,17 @@ namespace System.CommandLine.Tests
         [InlineData("-x:-y")]
         public void Arguments_can_match_the_aliases_of_sibling_options(string input)
         {
+            var optionX = new Option("-x") { Arity = ArgumentArity.ZeroOrOne};
+
             var command = new Command("command")
             {
-                new Option("-x", arity: ArgumentArity.ZeroOrOne),
-                new Option("-y", arity: ArgumentArity.ZeroOrOne)
+                optionX,
+                new Option("-y") { Arity = ArgumentArity.ZeroOrOne}
             };
 
             var result = command.Parse(input);
 
-            var valueForOption = result.ValueForOption("-x");
+            var valueForOption = result.ValueForOption(optionX);
 
             valueForOption.Should().Be("-y");
         }
@@ -1442,14 +1273,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Boolean_options_with_no_argument_specified_do_not_match_subsequent_arguments()
         {
+            var option = new Option<bool>("-v");
+
             var command = new Command("command")
             {
-                new Option<bool>("-v")
+                option
             };
 
             var result = command.Parse("-v an-argument");
 
-            result.ValueForOption("-v").Should().Be(true);
+            result.ValueForOption(option).Should().BeTrue();
         }
 
         [Fact]
@@ -1459,13 +1292,15 @@ namespace System.CommandLine.Tests
             {
                 TreatUnmatchedTokensAsErrors = false
             };
-            command.AddOption(new Option("-x", arity: ArgumentArity.ExactlyOne));
-            command.AddOption(new Option("-y", arity: ArgumentArity.ExactlyOne));
+            var optionX = new Option("-x") { Arity = ArgumentArity.ExactlyOne };
+            command.AddOption(optionX);
+            var optionY = new Option("-y") { Arity = ArgumentArity.ExactlyOne };
+            command.AddOption(optionY);
 
             var result = command.Parse("-x 23 unmatched-token -y 42");
 
-            result.ValueForOption("-x").Should().Be("23");
-            result.ValueForOption("-y").Should().Be("42");
+            result.ValueForOption(optionX).Should().Be("23");
+            result.ValueForOption(optionY).Should().Be("42");
             result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
         }
 
@@ -1573,14 +1408,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_argument_arity_can_be_a_fixed_value_greater_than_1()
         {
-            var option = new Option("-x", arity: new ArgumentArity(3, 3));
+            var option = new Option("-x") { Arity = new ArgumentArity(3, 3)};
 
             var command = new Command("the-command")
             {
                 option
             };
 
-            command.Parse("-x 1 2 3")
+            command.Parse("-x 1 -x 2 -x 3")
                    .FindResultFor(option)
                    .Tokens
                    .Should()
@@ -1593,14 +1428,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_argument_arity_can_be_a_range_with_a_lower_bound_greater_than_1()
         {
-            var option = new Option("-x", arity: new ArgumentArity(3, 5));
+            var option = new Option("-x") { Arity = new ArgumentArity(3, 5) };
 
             var command = new Command("the-command")
             {
                 option
             };
 
-            command.Parse("-x 1 2 3")
+            command.Parse("-x 1 -x 2 -x 3")
                    .FindResultFor(option)
                    .Tokens
                    .Should()
@@ -1608,7 +1443,7 @@ namespace System.CommandLine.Tests
                        new Token("1", TokenType.Argument),
                        new Token("2", TokenType.Argument),
                        new Token("3", TokenType.Argument));
-            command.Parse("-x 1 2 3 4 5")
+            command.Parse("-x 1 -x 2 -x 3 -x 4 -x 5")
                    .FindResultFor(option)
                    .Tokens
                    .Should()
@@ -1623,7 +1458,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
-            var option = new Option("-x", arity: new ArgumentArity(2, 3));
+            var option = new Option("-x") { Arity = new ArgumentArity(2, 3) };
 
             var command = new Command("the-command")
             {
@@ -1643,7 +1478,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("-x", arity: new ArgumentArity(2, 3))
+                new Option("-x") { Arity = new ArgumentArity(2, 3)}
             };
 
             command.Parse("-x 1 2 3 4")
@@ -1669,7 +1504,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_with_custom_collection_type_converter_can_be_bound()
         {
-            var option = new Option<CollectionWithCustomTypeConverter>("--value", arity: ArgumentArity.ExactlyOne);
+            var option = new Option<CollectionWithCustomTypeConverter>("--value") { Arity = ArgumentArity.ExactlyOne };
 
             var parseResult = option.Parse("--value a;b;c");
 

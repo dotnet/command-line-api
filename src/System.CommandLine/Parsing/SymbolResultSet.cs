@@ -6,6 +6,9 @@ using System.CommandLine.Collections;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// An <see cref="AliasedSet{T}"/> containing symbol results.
+    /// </summary>
     public class SymbolResultSet : AliasedSet<SymbolResult>
     {
         internal SymbolResult? ResultFor(ISymbol symbol)
@@ -22,6 +25,7 @@ namespace System.CommandLine.Parsing
             return default;
         }
 
+        /// <inheritdoc/>
         protected override IReadOnlyCollection<string> GetAliases(SymbolResult result) =>
             result.Symbol switch
             {

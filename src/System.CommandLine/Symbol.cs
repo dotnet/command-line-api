@@ -13,7 +13,7 @@ namespace System.CommandLine
     public abstract class Symbol : ISymbol
     {
         private string? _name;
-        private readonly SymbolSet _parents = new SymbolSet();
+        private readonly SymbolSet _parents = new();
 
         private protected Symbol()
         {
@@ -48,19 +48,19 @@ namespace System.CommandLine
         private protected virtual void AddSymbol(Symbol symbol)
         {
             Children.Add(symbol);
+            symbol.AddParent(this);
         }
 
         private protected void AddArgumentInner(Argument argument)
         {
             argument.AddParent(this);
-
             Children.Add(argument);
         }
 
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
-        public SymbolSet Children { get; } = new SymbolSet();
+        public SymbolSet Children { get; } = new();
 
         /// <summary>
         /// Gets or sets a value indicating whether the symbol is hidden.
@@ -110,6 +110,7 @@ namespace System.CommandLine
                    .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
         }
 
+        /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";
 
         /// <inheritdoc />

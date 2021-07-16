@@ -23,7 +23,7 @@ namespace System.CommandLine
         ICommand, 
         IEnumerable<Symbol>
     {
-        private readonly SymbolSet _globalOptions = new SymbolSet();
+        private readonly SymbolSet _globalOptions = new();
 
         /// <summary>
         /// Initializes a new instance of the Command class.
@@ -85,7 +85,7 @@ namespace System.CommandLine
         /// already in use.
         /// </summary>
         /// <param name="option">The global option to add to the command.</param>
-        /// <returns><c>true</c> if the option was added;<c>false</c> if it was already in use.</returns>
+        /// <returns><see langword="true"/> if the option was added;<see langword="false"/> if it was already in use.</returns>
         /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
         /// parent commands.</remarks>
         internal bool TryAddGlobalOption(Option option)
@@ -135,25 +135,23 @@ namespace System.CommandLine
                 _globalOptions.ThrowIfAnyAliasIsInUse(option);
             }
             
-            symbol.AddParent(this);
-
             base.AddSymbol(symbol);
         }
 
         private protected override string DefaultName => throw new NotImplementedException();
 
-        internal List<ValidateSymbol<CommandResult>> Validators { get; } = new List<ValidateSymbol<CommandResult>>();
+        internal List<ValidateSymbolResult<CommandResult>> Validators { get; } = new List<ValidateSymbolResult<CommandResult>>();
 
         /// <summary>
         /// Adds a custom validator to the command. Validators can be used
         /// to create custom validation logic.
         /// </summary>
         /// <param name="validate">The delegate to validate the symbols during parsing.</param>
-        public void AddValidator(ValidateSymbol<CommandResult> validate) => Validators.Add(validate);
+        public void AddValidator(ValidateSymbolResult<CommandResult> validate) => Validators.Add(validate);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
-        /// if set to <c>true</c> and an extra command or argument is provided, validation will fail.
+        /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
         /// </summary>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 

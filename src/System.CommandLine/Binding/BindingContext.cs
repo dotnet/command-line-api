@@ -16,7 +16,7 @@ namespace System.CommandLine.Binding
     public sealed class BindingContext
     {
         private IConsole _console;
-        private readonly Dictionary<Type, ModelBinder> _modelBindersByValueDescriptor = new Dictionary<Type, ModelBinder>();
+        private readonly Dictionary<Type, ModelBinder> _modelBindersByValueDescriptor = new();
 
         public BindingContext(
             ParseResult parseResult,
@@ -95,6 +95,7 @@ namespace System.CommandLine.Binding
         internal bool TryBindToScalarValue(
             IValueDescriptor valueDescriptor,
             IValueSource valueSource,
+            Resources resources,
             out BoundValue? boundValue)
         {
             if (valueSource.TryGetValue(valueDescriptor, this, out var value))
@@ -109,7 +110,8 @@ namespace System.CommandLine.Binding
                     var parsed = ArgumentConverter.ConvertObject(
                         valueDescriptor as IArgument ?? new Argument(valueDescriptor.ValueName), 
                         valueDescriptor.ValueType, 
-                        value);
+                        value,
+                        resources);
 
                     if (parsed is SuccessfulArgumentConversionResult successful)
                     {

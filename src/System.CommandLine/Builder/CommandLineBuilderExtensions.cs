@@ -17,6 +17,9 @@ using Process = System.CommandLine.Invocation.Process;
 
 namespace System.CommandLine.Builder
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="CommandBuilder"/>.
+    /// </summary>
     public static class CommandLineBuilderExtensions
     {
         private static readonly Lazy<string> _assemblyVersion =
@@ -189,11 +192,16 @@ namespace System.CommandLine.Builder
 
                         await dotnetSuggestProcess.CompleteAsync();
 
-                        return Resources.Instance.DotnetSuggestExitMessage(dotnetSuggestProcess.StartInfo.FileName, dotnetSuggestProcess.ExitCode, stdOut.ToString(), stdErr.ToString());
+                        return string.Format(@"{0} exited with code {1}
+OUT:
+{2}
+ERR:
+{3}", dotnetSuggestProcess.StartInfo.FileName, dotnetSuggestProcess.ExitCode, stdOut.ToString(), stdErr.ToString());
                     }
                     catch (Exception exception)
                     {
-                        return Resources.Instance.DotnetSuggestExceptionOccurred(exception);
+                        return string.Format(@"Exception during registration:
+{0}", exception);
                     }
                     finally
                     {
@@ -222,7 +230,7 @@ namespace System.CommandLine.Builder
                     string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
                     if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
-                        context.Console.Error.WriteLine(Resources.Instance.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
+                        context.Console.Error.WriteLine(context.Resources.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
                         context.ExitCode = errorExitCode ?? 1;
                         return;
                     }
@@ -232,7 +240,7 @@ namespace System.CommandLine.Builder
                         if (processNames.Contains(process.ProcessName, StringComparer.Ordinal))
                         {
                             var processId = process.Id;
-                            context.Console.Out.WriteLine(Resources.Instance.DebugDirectiveAttachToProcess(processId, process.ProcessName));
+                            context.Console.Out.WriteLine(context.Resources.DebugDirectiveAttachToProcess(processId, process.ProcessName));
                             while (!Debugger.IsAttached)
                             {
                                 await Task.Delay(500);
@@ -240,7 +248,7 @@ namespace System.CommandLine.Builder
                         }
                         else
                         {
-                            context.Console.Error.WriteLine(Resources.Instance.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
+                            context.Console.Error.WriteLine(context.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
                             context.ExitCode = errorExitCode ?? 1;
                             return;
                         }
@@ -316,12 +324,12 @@ namespace System.CommandLine.Builder
 
             void Default(Exception exception, InvocationContext context)
             {
-                if (!(exception is OperationCanceledException))
+                if (exception is not OperationCanceledException)
                 {
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();
 
-                    context.Console.Error.Write(Resources.Instance.ExceptionHandlerHeader());
+                    context.Console.Error.Write(context.Resources.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
                     context.Console.ResetTerminalForegroundColor();
@@ -516,14 +524,13 @@ namespace System.CommandLine.Builder
         {
             var command = builder.Command;
 
-            if (command.Children.GetByAlias("--version") != null)
+            if (builder.VersionOption is not null)
             {
                 return builder;
             }
-
+            
             var versionOption = new Option<bool>(
                 "--version",
-                description: Resources.Instance.VersionOptionDescription(),
                 parseArgument: result =>
                 {
                     var commandChildren = result.FindResultFor(command)?.Children;
@@ -540,10 +547,10 @@ namespace System.CommandLine.Builder
                         {
                             continue;
                         }
-
+                        
                         if (IsNotImplicit(symbolResult))
                         {
-                            result.ErrorMessage = Resources.Instance.VersionOptionCannotBeCombinedWithOtherArguments("--version");
+                            result.ErrorMessage = result.Resources.VersionOptionCannotBeCombinedWithOtherArguments("--version");
                             return false;
                         }
                     }
@@ -553,6 +560,7 @@ namespace System.CommandLine.Builder
 
             versionOption.DisallowBinding = true;
 
+            builder.VersionOption = versionOption;
             command.AddOption(versionOption);
 
             builder.AddMiddleware(async (context, next) =>

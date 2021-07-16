@@ -228,6 +228,47 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
+        [InlineData("-o=optionValue argValue")]
+        [InlineData("argValue -o=optionValue")]
+        public void All_custom_validators_are_called(string commandLine)
+        {
+            var commandValidatorWasCalled = false;
+            var optionValidatorWasCalled = false;
+            var argumentValidatorWasCalled = false;
+
+            var option = new Option<string>("-o");
+            option.AddValidator(_ =>
+            {
+                optionValidatorWasCalled = true;
+                return null;
+            });
+
+            var argument = new Argument<string>("the-arg");
+            argument.AddValidator(_ =>
+            {
+                argumentValidatorWasCalled = true;
+                return null;
+            });
+
+            var rootCommand = new RootCommand
+            {
+                option,
+                argument
+            };
+            rootCommand.AddValidator(_ =>
+            {
+                commandValidatorWasCalled = true;
+                return null;
+            });
+
+            rootCommand.Invoke(commandLine);
+
+            commandValidatorWasCalled.Should().BeTrue();
+            optionValidatorWasCalled.Should().BeTrue();
+            argumentValidatorWasCalled.Should().BeTrue();
+        }
+
+        [Theory]
         [InlineData("--file \"Foo\" subcommand")]
         [InlineData("subcommand --file \"Foo\"")]
         public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)
@@ -377,7 +418,7 @@ namespace System.CommandLine.Tests
                 var validPathName = Directory.GetCurrentDirectory();
                 var validNonExistingFileName = Path.Combine(validPathName, Guid.NewGuid().ToString());
 
-                var result = command.Parse($"the-command -x {validPathName} {validNonExistingFileName}");
+                var result = command.Parse($"the-command -x {validPathName} -x {validNonExistingFileName}");
 
                 result.Errors.Should().BeEmpty();
             }
@@ -448,7 +489,7 @@ namespace System.CommandLine.Tests
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
                 var validNonExistingFileName = Guid.NewGuid().ToString();
 
-                var result = command.Parse($"the-command -x {validFileName} {validNonExistingFileName}");
+                var result = command.Parse($"the-command -x {validFileName} -x {validNonExistingFileName}");
 
                 result.Errors.Should().BeEmpty();
             }
@@ -851,34 +892,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_an_option_is_specified_more_than_once_but_only_allowed_once_then_an_informative_error_is_returned()
-        {
-            var parser = new Parser(
-                new Option("-x", arity: ArgumentArity.ExactlyOne));
-
-            var result = parser.Parse("-x 1 -x 2");
-
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .Contain("Option '-x' expects a single argument but 2 were provided.");
-        }
-
-        [Fact]
-        public void When_arity_is_ExactlyOne_it_validates_against_extra_arguments()
-        {
-            var parser = new Parser(
-                new Option<int>("-x"));
-
-            var result = parser.Parse("-x 1 -x 2");
-
-            result.Errors
-                  .Select(e => e.Message)
-                  .Should()
-                  .Contain("Option '-x' expects a single argument but 2 were provided.");
-        }
-
-        [Fact]
         public void When_an_option_has_a_default_value_it_is_not_valid_to_specify_the_option_without_an_argument()
         {
             var parser = new Parser(
@@ -895,15 +908,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_then_the_default_should_apply_if_not_specified()
         {
+            var optionX = new Option<int>("-x", () => 123);
+            var optionY = new Option<int>("-y", () => 456);
+
             var parser = new Parser(
-                new Option<int>("-x", () => 123),
-                new Option<int>("-y", () => 456));
+                optionX,
+                optionY);
 
             var result = parser.Parse("");
 
             result.Errors.Should().BeEmpty();
-            result.ValueForOption("-x").Should().Be(123);
-            result.ValueForOption("-y").Should().Be(456);
+            result.ValueForOption(optionX).Should().Be(123);
+            result.ValueForOption(optionY).Should().Be(456);
         }
     }
 }

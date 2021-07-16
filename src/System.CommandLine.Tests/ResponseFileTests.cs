@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests
 {
     public class ResponseFileTests : IDisposable
     {
-        private readonly List<FileInfo> _responseFiles = new List<FileInfo>();
+        private readonly List<FileInfo> _responseFiles = new();
 
         public void Dispose()
         {
@@ -44,10 +44,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_specified_it_loads_options_from_response_file()
         {
-            var result = new Option("--flag")
-                .Parse($"@{ResponseFile("--flag")}");
+            var option = new Option("--flag");
 
-            result.HasOption("--flag").Should().BeTrue();
+            var result = option.Parse($"@{ResponseFile("--flag")}");
+
+            result.HasOption(option).Should().BeTrue();
         }
 
         [Fact]
@@ -58,15 +59,18 @@ namespace System.CommandLine.Tests
                 "--flag2",
                 "123");
 
+            var optionOne = new Option("--flag");
+
+            var optionTwo = new Option<int>("--flag2");
             var result = new RootCommand
                          {
-                             new Option("--flag"),
-                             new Option<int>("--flag2")
+                             optionOne,
+                             optionTwo
                          }
                 .Parse($"@{responseFile}");
 
-            result.HasOption("--flag").Should().BeTrue();
-            result.ValueForOption("--flag2").Should().Be(123);
+            result.HasOption(optionOne).Should().BeTrue();
+            result.ValueForOption(optionTwo).Should().Be(123);
             result.Errors.Should().BeEmpty();
         }
 
@@ -168,18 +172,24 @@ namespace System.CommandLine.Tests
                 "",
                 "123");
 
-            var result = new CommandLineBuilder()
-                         .AddOption(new Option<int>("--flag"))
-                         .Build()
-                         .Parse($"@{responseFile}");
+            var option = new Option<int>("--flag");
 
-            result.ValueForOption("--flag").Should().Be(123);
+            var result = new RootCommand
+                {
+                    option
+                }
+                .Parse($"@{responseFile}");
+
+            result.ValueForOption(option).Should().Be(123);
             result.Errors.Should().BeEmpty();
         }
 
         [Fact]
         public void Response_file_can_contain_comments_which_are_ignored_when_loaded()
         {
+            var optionOne = new Option("--flag");
+            var optionTwo = new Option("--flag2");
+
             var responseFile = ResponseFile(
                 "# comment one",
                 "--flag",
@@ -189,27 +199,30 @@ namespace System.CommandLine.Tests
                 "--flag2");
 
             var result = new RootCommand
-                         {
-                             new Option("--flag"),
-                             new Option("--flag2")
-                         }.Parse($"@{responseFile}");
+            {
+                optionOne,
+                optionTwo
+            }.Parse($"@{responseFile}");
 
-            result.HasOption("--flag").Should().BeTrue();
-            result.HasOption("--flag2").Should().BeTrue();
+            result.HasOption(optionOne).Should().BeTrue();
+            result.HasOption(optionTwo).Should().BeTrue();
             result.Errors.Should().BeEmpty();
         }
 
         [Fact]
         public void When_response_file_does_not_exist_then_error_is_returned()
         {
+            var optionOne = new Option("--flag");
+            var optionTwo = new Option("--flag2");
+
             var result = new RootCommand
                          {
-                             new Option("--flag"),
-                             new Option("--flag2")
+                             optionOne,
+                             optionTwo
                          }.Parse("@nonexistent.rsp");
 
-            result.HasOption("--flag").Should().BeFalse();
-            result.HasOption("--flag2").Should().BeFalse();
+            result.HasOption(optionOne).Should().BeFalse();
+            result.HasOption(optionTwo).Should().BeFalse();
             result.Errors.Should().HaveCount(1);
             result.Errors.Single().Message.Should().Be("Response file not found 'nonexistent.rsp'");
         }
@@ -217,15 +230,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_filepath_is_not_specified_then_error_is_returned()
         {
+            var optionOne = new Option("--flag");
+            var optionTwo = new Option("--flag2");
+
             var result = new RootCommand
                          {
-                             new Option("--flag"),
-                             new Option("--flag2")
+                             optionOne,
+                             optionTwo
                          }
                 .Parse("@");
 
-            result.HasOption("--flag").Should().BeFalse();
-            result.HasOption("--flag2").Should().BeFalse();
+            result.HasOption(optionOne).Should().BeFalse();
+            result.HasOption(optionTwo).Should().BeFalse();
             result.Errors.Should().HaveCount(1);
             result.Errors
                   .Single()
@@ -238,17 +254,19 @@ namespace System.CommandLine.Tests
         public void When_response_file_cannot_be_read_then_specified_error_is_returned()
         {
             var nonexistent = Path.GetTempFileName();
+            var optionOne = new Option("--flag");
+            var optionTwo = new Option("--flag2");
 
             using (File.Open(nonexistent, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
             {
                 var result = new RootCommand
                              {
-                                 new Option("--flag"),
-                                 new Option("--flag2")
+                                 optionOne,
+                                 optionTwo
                              }.Parse($"@{nonexistent}");
 
-                result.HasOption("--flag").Should().BeFalse();
-                result.HasOption("--flag2").Should().BeFalse();
+                result.HasOption(optionOne).Should().BeFalse();
+                result.HasOption(optionTwo).Should().BeFalse();
                 result.Errors.Should().HaveCount(1);
                 result.Errors.Single().Message.Should().StartWith($"Error reading response file '{nonexistent}'");
             }
@@ -262,10 +280,13 @@ namespace System.CommandLine.Tests
         {
             var responseFile = ResponseFile(input);
 
+            var optionOne = new Option<string>("--flag");
+            var optionTwo = new Option<int>("--flag2");
+
             var rootCommand = new RootCommand
             {
-                new Option<string>("--flag"),
-                new Option<int>("--flag2")
+                optionOne,
+                optionTwo
             };
             var parser = new CommandLineBuilder(rootCommand)
                          .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
@@ -273,8 +294,8 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse($"@{responseFile}");
 
-            result.ValueForOption("--flag").Should().Be("first value");
-            result.ValueForOption("--flag2").Should().Be(123);
+            result.ValueForOption(optionOne).Should().Be("first value");
+            result.ValueForOption(optionTwo).Should().Be(123);
         }
 
         [Fact]
@@ -334,8 +355,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption("--option1").Should().Be("value1");
-            result.ValueForOption("--option2").Should().Be(2);
+            result.ValueForOption(option1).Should().Be("value1");
+            result.ValueForOption(option2).Should().Be(2);
         }
 
         [Fact]
@@ -347,8 +368,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption("--option1").Should().Be("value1");
-            result.ValueForOption("--option2").Should().Be(2);
+            result.ValueForOption(option1).Should().Be("value1");
+            result.ValueForOption(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();
         }
 
@@ -361,8 +382,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption("--option1").Should().Be("value1");
-            result.ValueForOption("--option2").Should().Be(2);
+            result.ValueForOption(option1).Should().Be("value1");
+            result.ValueForOption(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();
         }
     }

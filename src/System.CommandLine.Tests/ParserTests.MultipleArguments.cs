@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -17,55 +16,56 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Multiple_arguments_can_differ_by_arity()
             {
+                var multipleArityArg = new Argument<IEnumerable<string>>
+                {
+                    Arity = new ArgumentArity(3, 3),
+                    Name = "several"
+                };
+
+                var singleArityArg = new Argument<IEnumerable<string>>
+                {
+                    Arity = ArgumentArity.ZeroOrMore,
+                    Name = "one"
+                };
+
                 var command = new Command("the-command")
                 {
-                    new Argument<string>
-                    {
-                        Arity = new ArgumentArity(3, 3),
-                        Name = "several"
-                    },
-                    new Argument<string>
-                    {
-                        Arity = ArgumentArity.ZeroOrMore,
-                        Name = "one"
-                    }
+                    multipleArityArg,
+                    singleArityArg
                 };
 
                 var result = command.Parse("1 2 3 4");
 
-                var several = result.ValueForArgument<IEnumerable<string>>("several");
-
-                var one = result.ValueForArgument<IEnumerable<string>>("one");
-
-                several.Should()
-                       .BeEquivalentSequenceTo("1", "2", "3");
-                one.Should()
-                       .BeEquivalentSequenceTo("4");
+                result.ValueForArgument(multipleArityArg)
+                    .Should()
+                    .BeEquivalentSequenceTo("1", "2", "3");
+                result.ValueForArgument(singleArityArg)
+                    .Should()
+                    .BeEquivalentSequenceTo("4");
             }
 
             [Fact]
             public void Multiple_arguments_can_differ_by_type()
             {
+                var stringArg = new Argument<string>
+                {
+                    Name = "the-string"
+                };
+                var intArg = new Argument<int>
+                {
+                    Name = "the-int"
+                };
+
                 var command = new Command("the-command")
                 {
-                    new Argument<string>
-                    {
-                        Name = "the-string"
-                    },
-                    new Argument<int>
-                    {
-                        Name = "the-int"
-                    }
+                    stringArg,
+                    intArg
                 };
 
                 var result = command.Parse("1 2");
 
-                var theString = result.ValueForArgument<string>("the-string");
-
-                var theInt = result.ValueForArgument<int>("the-int");
-
-                theString.Should().Be("1");
-                theInt.Should().Be(2);
+                result.ValueForArgument(stringArg).Should().Be("1");
+                result.ValueForArgument(intArg).Should().Be(2);
             }
 
             [Theory]
@@ -83,33 +83,38 @@ namespace System.CommandLine.Tests
             [InlineData("one two three four five --verbose true")]
             public void When_multiple_arguments_are_present_then_their_order_relative_to_sibling_options_is_not_significant(string commandLine)
             {
+                var first = new Argument<string> { Name = "first" };
+                var second = new Argument<string> { Name = "second" };
+                var third = new Argument<string[]> { Name = "third" };
+                var verbose = new Option<bool>("--verbose");
+
                 var command = new Command("the-command")
                 {
-                    new Argument<string> { Name = "first" },
-                    new Argument<string> { Name = "second" },
-                    new Argument<string[]> { Name = "third" },
-                    new Option<bool>("--verbose")
+                    first,
+                    second,
+                    third,
+                    verbose
                 };
 
                 var parseResult = command.Parse(commandLine);
 
                 parseResult
-                    .ValueForArgument("first")
+                    .ValueForArgument(first)
                     .Should()
                     .Be("one");
 
                 parseResult
-                    .ValueForArgument<string>("second")
+                    .ValueForArgument(second)
                     .Should()
                     .Be("two");
 
                 parseResult
-                    .ValueForArgument<string[]>("third")
+                    .ValueForArgument(third)
                     .Should()
                     .BeEquivalentSequenceTo("three", "four", "five");
 
                 parseResult
-                    .ValueForOption<bool>("--verbose")
+                    .ValueForOption(verbose)
                     .Should()
                     .BeTrue();
             }

@@ -24,10 +24,10 @@ namespace System.CommandLine.Binding
         public bool EnforceExplicitBinding { get; set; }
 
         internal Dictionary<IValueDescriptor, IValueSource> ConstructorArgumentBindingSources { get; } =
-            new Dictionary<IValueDescriptor, IValueSource>();
+            new();
 
         internal Dictionary<IValueDescriptor, IValueSource> MemberBindingSources { get; } =
-            new Dictionary<IValueDescriptor, IValueSource>();
+            new();
 
         // Consider deprecating in favor or BindingConfiguration/BindingContext attach validatation. Then make internal.
         // Or at least rename to "ConfigureBinding" or similar
@@ -67,7 +67,7 @@ namespace System.CommandLine.Binding
 
         private (bool success, object? newInstance, bool anyNonDefaults) CreateInstanceInternal(BindingContext bindingContext)
         {
-            if (DisallowedBindingType())
+            if (IsModelTypeUnbindable())
             {
                 throw new InvalidOperationException($"The type {ModelDescriptor.ModelType} cannot be bound");
             }
@@ -93,11 +93,11 @@ namespace System.CommandLine.Binding
             }
         }
 
-        private bool DisallowedBindingType()
+        private bool IsModelTypeUnbindable()
         {
             var modelType = ModelDescriptor.ModelType;
-            return modelType.IsConstructedGenericTypeOf(typeof(Span<>)) || 
-                modelType.IsConstructedGenericTypeOf(typeof(ReadOnlySpan<>));
+            return modelType.IsConstructedGenericTypeOf(typeof(Span<>)) ||
+                   modelType.IsConstructedGenericTypeOf(typeof(ReadOnlySpan<>));
         }
 
         private bool ShortCutTheBinding()
@@ -105,7 +105,8 @@ namespace System.CommandLine.Binding
             var modelType = ModelDescriptor.ModelType;
             return modelType.IsPrimitive ||
                    modelType.IsNullableValueType() ||
-                   modelType == typeof(string);
+                   modelType == typeof(string) ||
+                   modelType == typeof(decimal) ;
         }
 
         private (bool success, object? newInstance, bool anyNonDefaults) GetSimpleModelValue(
@@ -114,6 +115,7 @@ namespace System.CommandLine.Binding
             var valueSource = GetValueSource(bindingSources, bindingContext, ValueDescriptor, EnforceExplicitBinding);
             return bindingContext.TryBindToScalarValue(ValueDescriptor,
                                                        valueSource,
+                                                       bindingContext.ParseResult.CommandResult.Resources,
                                                        out var boundValue)
                 ? (true, boundValue?.Value, true)
                 : (false,(object?) null, false);
@@ -132,7 +134,7 @@ namespace System.CommandLine.Binding
             {
                 return (false, null, false);
             }
-            if (!(newInstance is null))
+            if (newInstance is not null)
             {
                 nonDefaultsUsed = UpdateInstanceInternalNotifyIfNonDefaultsUsed(newInstance, bindingContext);
             }
@@ -257,42 +259,51 @@ namespace System.CommandLine.Binding
                     bool includeMissingValues,
                     Type? parentType)
         {
+
+
             if (bindingContext.TryBindToScalarValue(
                     valueDescriptor,
                     valueSource,
+                    bindingContext.ParseResult.CommandResult.Resources,
                     out var boundValue))
             {
                 return (boundValue, true);
             }
 
-            if (valueDescriptor.HasDefaultValue)
-            {
-                return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
-            }
-
-            if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
-            {
-                var binder = bindingContext.GetModelBinder(valueDescriptor);
-                var (success, newInstance, usedNonDefaults) = binder.CreateInstanceInternal(bindingContext);
-                if (success)
-                {
-                    return (new BoundValue(newInstance, valueDescriptor, valueSource), usedNonDefaults);
-                }
-            }
-
             if (includeMissingValues)
             {
+                if (valueDescriptor.HasDefaultValue)
+                {
+                    return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
+                }
+
+                if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
+                {
+                    var binder = bindingContext.GetModelBinder(valueDescriptor);
+
+                    if (binder.IsModelTypeUnbindable())
+                    {
+                        return (null, false);
+                    }
+
+                    var (success, newInstance, usedNonDefaults) = binder.CreateInstanceInternal(bindingContext);
+
+                    if (success)
+                    {
+                        return (new BoundValue(newInstance, valueDescriptor, valueSource), usedNonDefaults);
+                    }
+                }
+
                 if (valueDescriptor is ParameterDescriptor parameterDescriptor && parameterDescriptor.AllowsNull)
                 {
                     return (new BoundValue(parameterDescriptor.GetDefaultValue(), valueDescriptor, valueSource), false);
                 }
-                // Logic dropped here - misnamed and purpose unclear: ShouldPassNullToConstructor(constructorDescriptor.Parent, constructorDescriptor))
+
                 return (BoundValue.DefaultForType(valueDescriptor), false);
             }
 
             return (null, false);
         }
-
 
         protected ConstructorDescriptor FindModelConstructorDescriptor(ConstructorInfo constructorInfo)
         {
@@ -324,7 +335,7 @@ namespace System.CommandLine.Binding
 
         private ConstructorInfo FindConstructorOrThrow(ParameterInfo parameter, string message)
         {
-            if (!(parameter.Member is ConstructorInfo constructor))
+            if (parameter.Member is not ConstructorInfo constructor)
             {
                 throw new ArgumentException(paramName: nameof(parameter),
                       message: message);

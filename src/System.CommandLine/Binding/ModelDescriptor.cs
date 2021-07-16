@@ -15,7 +15,7 @@ namespace System.CommandLine.Binding
             | BindingFlags.Public
             | BindingFlags.Instance;
 
-        private static readonly ConcurrentDictionary<Type, ModelDescriptor> _modelDescriptors = new ConcurrentDictionary<Type, ModelDescriptor>();
+        private static readonly ConcurrentDictionary<Type, ModelDescriptor> _modelDescriptors = new();
 
         private List<PropertyDescriptor>? _propertyDescriptors;
         private List<ConstructorDescriptor>? _constructorDescriptors;
@@ -41,6 +41,7 @@ namespace System.CommandLine.Binding
 
         public Type ModelType { get; }
 
+        /// <inheritdoc />
         public override string ToString() => $"{ModelType.Name}";
 
         public static ModelDescriptor FromType<T>() =>

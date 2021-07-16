@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Provides extension methods for parse results.
+    /// </summary>
     public static class ParseResultExtensions
     {
         public static async Task<int> InvokeAsync(
@@ -121,6 +124,7 @@ namespace System.CommandLine.Parsing
 
             if (symbolResult is ArgumentResult argumentResult)
             {
+
                 var includeArgumentName =
                     argumentResult.Argument is Argument argument &&
                     argument.Parents[0] is ICommand command &&
@@ -133,40 +137,43 @@ namespace System.CommandLine.Parsing
                     builder.Append(" ");
                 }
 
-                switch (argumentResult.GetArgumentConversionResult())
+                if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
                 {
-                    case SuccessfulArgumentConversionResult successful:
+                    switch (argumentResult.GetArgumentConversionResult())
+                    {
+                        case SuccessfulArgumentConversionResult successful:
 
-                        switch (successful.Value)
-                        {
-                            case string s:
-                                builder.Append($"<{s}>");
-                                break;
+                            switch (successful.Value)
+                            {
+                                case string s:
+                                    builder.Append($"<{s}>");
+                                    break;
 
-                            case IEnumerable items:
-                                builder.Append("<");
-                                builder.Append(
-                                    string.Join("> <",
-                                                items.Cast<object>().ToArray()));
-                                builder.Append(">");
-                                break;
+                                case IEnumerable items:
+                                    builder.Append("<");
+                                    builder.Append(
+                                        string.Join("> <",
+                                                    items.Cast<object>().ToArray()));
+                                    builder.Append(">");
+                                    break;
 
-                            default:
-                                builder.Append("<");
-                                builder.Append(successful.Value);
-                                builder.Append(">");
-                                break;
-                        }
+                                default:
+                                    builder.Append("<");
+                                    builder.Append(successful.Value);
+                                    builder.Append(">");
+                                    break;
+                            }
 
-                        break;
+                            break;
 
-                    case FailedArgumentConversionResult _:
+                        case FailedArgumentConversionResult _:
 
-                        builder.Append("<");
-                        builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
-                        builder.Append(">");
+                            builder.Append("<");
+                            builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
+                            builder.Append(">");
 
-                        break;
+                            break;
+                    }
                 }
 
                 if (includeArgumentName)
@@ -182,6 +189,13 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < symbolResult.Children.Count; i++)
                 {
                     var child = symbolResult.Children[i];
+
+                    if (child is ArgumentResult arg && 
+                        arg.Argument.Arity.MaximumNumberOfValues == 0)
+                    {
+                        continue;
+                    }
+
                     builder.Append(" ");
                     builder.Diagram(child, parseResult);
                 }
@@ -202,6 +216,7 @@ namespace System.CommandLine.Parsing
             return parseResult.FindResultFor(option) is { };
         }
 
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResultExtensions.HasOption(ParseResult, IOption) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public static bool HasOption(
             this ParseResult parseResult,
             string alias)
