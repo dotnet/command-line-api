@@ -113,6 +113,27 @@ namespace System.CommandLine.Hosting.Tests
             service.StringValue.Should().Be("TEST");
         }
 
+        [Fact]
+        public static void Throws_When_Injected_HandlerType_is_not_ICommandHandler()
+        {
+            new object().Invoking(_ =>
+            {
+                var handlerWrapper = HostedCommandHandler.CreateFromHost(
+                    typeof(MyNonCommandHandler));
+            }).Should().ThrowExactly<ArgumentException>(
+                because: $"{typeof(MyNonCommandHandler)} does not implement {typeof(ICommandHandler)}"
+            );
+        }
+
+        [Fact]
+        public static void Throws_When_Injected_HandlerType_is_null()
+        {
+            new object().Invoking(_ =>
+            {
+                var handlerWrapper = HostedCommandHandler.CreateFromHost(null);
+            }).Should().ThrowExactly<ArgumentNullException>();
+        }
+
         public class MyCommand : Command
         {
             public MyCommand() : base(name: "mycommand")
@@ -178,6 +199,11 @@ namespace System.CommandLine.Hosting.Tests
             public int Value { get; set; }
 
             public string StringValue { get; set; }
+        }
+
+        public class MyNonCommandHandler
+        {
+            public static int DoSomething() => 0;
         }
     }
 }
