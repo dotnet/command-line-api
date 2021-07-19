@@ -82,41 +82,6 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static IHostBuilder UseCommandHandler<TCommand, THandler>(this IHostBuilder builder)
-            where TCommand : Command
-            where THandler : ICommandHandler
-        {
-            return builder.UseCommandHandler(typeof(TCommand), typeof(THandler));
-        }
-
-        public static IHostBuilder UseCommandHandler(this IHostBuilder builder, Type commandType, Type handlerType)
-        {
-            if (!typeof(Command).IsAssignableFrom(commandType))
-            {
-                throw new ArgumentException($"{nameof(commandType)} must be a type of {nameof(Command)}", nameof(handlerType));
-            }
-
-            if (!typeof(ICommandHandler).IsAssignableFrom(handlerType))
-            {
-                throw new ArgumentException($"{nameof(handlerType)} must implement {nameof(ICommandHandler)}", nameof(handlerType));
-            }
-
-            if (builder.Properties[typeof(InvocationContext)] is InvocationContext invocation 
-                && invocation.ParseResult.CommandResult.Command is Command command
-                && command.GetType() == commandType)
-            {
-                invocation.BindingContext.AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
-                builder.ConfigureServices(services =>
-                {
-                    services.AddTransient(handlerType);
-                });
-
-                command.Handler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
-            }
-
-            return builder;
-        }
-
         public static InvocationContext GetInvocationContext(this IHostBuilder hostBuilder)
         {
             _ = hostBuilder ?? throw new ArgumentNullException(nameof(hostBuilder));
