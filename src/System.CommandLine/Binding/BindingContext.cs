@@ -51,7 +51,7 @@ namespace System.CommandLine.Binding
 
         internal ServiceProvider ServiceProvider { get; }
 
-        public void AddModelBinder(ModelBinder binder) => 
+        public void AddModelBinder(ModelBinder binder) =>
             _modelBindersByValueDescriptor.Add(binder.ValueDescriptor.ValueType, binder);
 
         public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor)
@@ -67,7 +67,7 @@ namespace System.CommandLine.Binding
         {
             ServiceProvider.AddService(serviceType, factory);
         }
-        
+
         public void AddService<T>(Func<IServiceProvider, T> factory)
         {
             if (factory is null)
@@ -77,6 +77,22 @@ namespace System.CommandLine.Binding
 
             ServiceProvider.AddService(typeof(T), s => factory(s));
         }
+
+        public void AddService(Type serviceType)
+        {
+            object factory(IServiceProvider serviceProvider)
+            {
+                var bindingContext =
+                    serviceProvider.GetService(typeof(BindingContext)) as BindingContext
+                    ?? this;
+                var valueDescriptor = new ModelBinder.AnonymousValueDescriptor(serviceType);
+                var modelBinder = bindingContext.GetModelBinder(valueDescriptor);
+                return modelBinder.CreateInstance(bindingContext)!;
+            }
+            AddService(serviceType, factory);
+        }
+
+        public void AddService<T>() => AddService(typeof(T));
 
         internal bool TryGetValueSource(
             IValueDescriptor valueDescriptor,
@@ -108,8 +124,8 @@ namespace System.CommandLine.Binding
                 else
                 {
                     var parsed = ArgumentConverter.ConvertObject(
-                        valueDescriptor as IArgument ?? new Argument(valueDescriptor.ValueName), 
-                        valueDescriptor.ValueType, 
+                        valueDescriptor as IArgument ?? new Argument(valueDescriptor.ValueName),
+                        valueDescriptor.ValueType,
                         value,
                         resources);
 

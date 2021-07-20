@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
@@ -322,7 +323,6 @@ namespace System.CommandLine.Tests.Invocation
             boundContext.ParseResult.ValueForOption(option).Should().Be(123);
         }
 
-
         private class ExecuteTestClass
         {
             public string boundName = default;
@@ -506,6 +506,39 @@ namespace System.CommandLine.Tests.Invocation
         {
             public override Task<int> InvokeAsync(InvocationContext context)
                 => Task.FromResult(41);
+        }
+
+        [Fact]
+        public static void FromBindingContext_forwards_invocation_to_bound_handler_type()
+        {
+            var command = new RootCommand
+            {
+                Handler = CommandHandler.FromBindingContext<BindingContextResolvedCommandHandler>()
+            };
+            command.Handler.Should().NotBeOfType<BindingContextResolvedCommandHandler>();
+            var parser = new CommandLineBuilder(command)
+                .ConfigureBindingContext(context => context.AddService<BindingContextResolvedCommandHandler>())
+                .Build();
+
+            var console = new TestConsole();
+            parser.Invoke(Array.Empty<string>(), console);
+            console.Out.ToString().Should().Be(typeof(BindingContextResolvedCommandHandler).FullName);
+        }
+
+        public class BindingContextResolvedCommandHandler : ICommandHandler
+        {
+            public BindingContextResolvedCommandHandler(IConsole console)
+            {
+                Console = console;
+            }
+
+            public IConsole Console { get; }
+
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                Console.Out.Write(GetType().FullName);
+                return Task.FromResult(0);
+            }
         }
     }
 }
