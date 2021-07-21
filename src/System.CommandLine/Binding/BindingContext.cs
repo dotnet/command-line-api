@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -65,21 +65,21 @@ namespace System.CommandLine.Binding
 
         public void AddService(Type serviceType, Func<IServiceProvider, object> factory)
         {
+            _ = serviceType ?? throw new ArgumentNullException(nameof(serviceType));
+            _ = factory ?? throw new ArgumentNullException(nameof(factory));
             ServiceProvider.AddService(serviceType, factory);
         }
 
         public void AddService<T>(Func<IServiceProvider, T> factory)
         {
-            if (factory is null)
-            {
-                throw new ArgumentNullException(nameof(factory));
-            }
-
+            _ = factory ?? throw new ArgumentNullException(nameof(factory));
             ServiceProvider.AddService(typeof(T), s => factory(s));
         }
 
         public void AddService(Type serviceType, Type? implementationType = null)
         {
+            _ = serviceType ?? throw new ArgumentNullException(nameof(serviceType));
+            implementationType ??= serviceType;
             object factory(IServiceProvider serviceProvider)
             {
                 var bindingContext =
