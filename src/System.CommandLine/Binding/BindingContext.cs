@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -78,21 +78,24 @@ namespace System.CommandLine.Binding
             ServiceProvider.AddService(typeof(T), s => factory(s));
         }
 
-        public void AddService(Type serviceType)
+        public void AddService(Type serviceType, Type? implementationType = null)
         {
             object factory(IServiceProvider serviceProvider)
             {
                 var bindingContext =
                     serviceProvider.GetService(typeof(BindingContext)) as BindingContext
                     ?? this;
-                var valueDescriptor = new ModelBinder.AnonymousValueDescriptor(serviceType);
+                var valueDescriptor = new ModelBinder.AnonymousValueDescriptor(implementationType);
                 var modelBinder = bindingContext.GetModelBinder(valueDescriptor);
                 return modelBinder.CreateInstance(bindingContext)!;
             }
             AddService(serviceType, factory);
         }
 
-        public void AddService<T>() => AddService(typeof(T));
+        public void AddService<TService, TImplementation>() => 
+            AddService(typeof(TService), typeof(TImplementation));
+
+        public void AddService<T>() => AddService<T, T>();
 
         internal bool TryGetValueSource(
             IValueDescriptor valueDescriptor,
