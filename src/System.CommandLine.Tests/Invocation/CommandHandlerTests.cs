@@ -322,7 +322,6 @@ namespace System.CommandLine.Tests.Invocation
             boundContext.ParseResult.GetValueForOption(option).Should().Be(123);
         }
 
-
         private class ExecuteTestClass
         {
             public string boundName = default;
@@ -397,7 +396,6 @@ namespace System.CommandLine.Tests.Invocation
             boundName.Should().Be("Gandalf");
             boundAge.Should().Be(425);
         }
-
 
         [Fact]
         public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_hyphenated_argument_names()
@@ -480,6 +478,31 @@ namespace System.CommandLine.Tests.Invocation
             int result = await parser.InvokeAsync("command", _console);
 
             result.Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public async Task Can_generate_handler_for_void_returning_method()
+        {
+            string boundName = default;
+            int boundAge = default;
+
+            void Execute(string fullnameOrNickname, int age)
+            {
+                boundName = fullnameOrNickname;
+                boundAge = age;
+            }
+
+            var command = new Command("command");
+            var nameOption = new Option<string>("--name");
+            command.AddOption(nameOption);
+            var ageOption = new Option<int>("--age");
+            command.AddOption(ageOption);
+            command.Handler = GeneratedCommandHandler.Generate<string, int>(Execute, nameOption, ageOption);
+
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+
+            boundName.Should().Be("Gandalf");
+            boundAge.Should().Be(425);
         }
 
         public abstract class AbstractTestCommandHandler : ICommandHandler
