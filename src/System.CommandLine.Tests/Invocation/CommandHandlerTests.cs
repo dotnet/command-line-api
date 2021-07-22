@@ -525,6 +525,24 @@ namespace System.CommandLine.Tests.Invocation
             console.Out.ToString().Should().Be(typeof(BindingContextResolvedCommandHandler).FullName);
         }
 
+        [Fact]
+        public static void Subsequent_call_to_configure_overrides_service_registration()
+        {
+            BindingContextCommandHandlerAction action = (handler, Console) =>
+            {
+                handler.Should().BeOfType<BindingContextCommandHandler2>();
+            };
+            var parser = new CommandLineBuilder(new RootCommand
+            {
+                Handler = CommandHandler.FromBindingContext<IBindingContextCommandHandlerInterface>()
+            })
+                .ConfigureBindingContext(context => context.AddService(_ => action))
+                .ConfigureBindingContext(context => context.AddService<IBindingContextCommandHandlerInterface, BindingContextCommandHandler1>())
+                .ConfigureBindingContext(context => context.AddService<IBindingContextCommandHandlerInterface, BindingContextCommandHandler2>())
+                .Build();
+            parser.Invoke(Array.Empty<string>(), new TestConsole());
+        }
+
         public class BindingContextResolvedCommandHandler : ICommandHandler
         {
             public BindingContextResolvedCommandHandler(IConsole console)
@@ -540,5 +558,50 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromResult(0);
             }
         }
+
+        public interface IBindingContextCommandHandlerInterface : ICommandHandler
+        {
+        }
+
+        public class BindingContextCommandHandler1 : IBindingContextCommandHandlerInterface
+        {
+            private readonly BindingContextCommandHandlerAction invokeAction;
+
+            public BindingContextCommandHandler1(IConsole console,
+                BindingContextCommandHandlerAction invokeAction)
+            {
+                Console = console;
+                this.invokeAction = invokeAction;
+            }
+
+            public IConsole Console { get; }
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                invokeAction(this, Console);
+                return Task.FromResult(0);
+            }
+        }
+
+        public class BindingContextCommandHandler2 : IBindingContextCommandHandlerInterface
+        {
+            private readonly BindingContextCommandHandlerAction invokeAction;
+
+            public BindingContextCommandHandler2(IConsole console,
+                BindingContextCommandHandlerAction invokeAction)
+            {
+                Console = console;
+                this.invokeAction = invokeAction;
+            }
+
+            public IConsole Console { get; }
+
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                invokeAction(this, Console);
+                return Task.FromResult(0);
+            }
+        }
+
+        public delegate void BindingContextCommandHandlerAction(ICommandHandler handler, IConsole console);
     }
 }
