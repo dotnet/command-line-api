@@ -12,6 +12,8 @@ namespace System.CommandLine.CommandHandler
     {
         public void Execute(GeneratorExecutionContext context)
         {
+            AddGeneratorClass(context);
+
             SyntaxReceiver rx = (SyntaxReceiver)context.SyntaxContextReceiver!;
 
             StringBuilder builder = new();
@@ -30,11 +32,96 @@ namespace System.CommandLine.Invocation
                 builder.AppendLine(invocation);
             }
 
-            builder.AppendLine("    }");
-            builder.AppendLine("}");
-            builder.AppendLine("#nullable restore");
+            builder.AppendLine(@"
+    }
+}
+#nullable restore");
             
-            context.AddSource("GeneratedCommandHandler.g.cs", builder.ToString());
+            //context.AddSource("GeneratedCommandHandler.g.cs", builder.ToString());
+        }
+
+        private static void AddGeneratorClass(GeneratorExecutionContext context)
+        {
+            context.AddSource("GeneratedCommandHandler2.g.cs", @"
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Binding;
+using System.Reflection;
+using System.Threading.Tasks;
+
+namespace System.CommandLine.Invocation
+{
+    public static class CommandHandlerGeneratorExtensions_Generated
+    {
+        private class GeneratedHandler_1 : ICommandHandler
+        {
+            public GeneratedHandler_1(Action<string, IConsole, int> method,
+            Option<string> param1,
+            Option<int> param2)
+            {
+                Method = method;
+                Param1 = param1;
+                Param2 = param2;
+            }
+        
+            public Action<string, IConsole, int> Method { get; }
+            public Option<string> Param1 { get; }
+            public Option<int> Param2 { get; }
+        
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                string value1 = context.ParseResult.ValueForOption(Param1);
+                int value2 = context.ParseResult.ValueForOption(Param2);
+        
+                Method.Invoke(value1, context.Console, value2);
+        
+                return Task.FromResult(0);
+            }
+        }
+
+        private class GeneratedHandler_2 : ICommandHandler
+        {
+            public GeneratedHandler_2(Action<System.CommandLine.Tests.Invocation.CommandHandlerTests.Character, IConsole> method,
+            Option<string> param1,
+            Option<int> param2)
+            {
+                Method = method;
+                Param1 = param1;
+                Param2 = param2;
+            }
+        
+            public Action<System.CommandLine.Tests.Invocation.CommandHandlerTests.Character, IConsole> Method { get; }
+            public Option<string> Param1 { get; }
+            public Option<int> Param2 { get; }
+        
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                string value1 = context.ParseResult.ValueForOption(Param1);
+                int value2 = context.ParseResult.ValueForOption(Param2);
+                System.CommandLine.Tests.Invocation.CommandHandlerTests.Character model = new(value1, value2);
+                Method.Invoke(model, context.Console);
+        
+                return Task.FromResult(0);
+            }
+        }
+
+        public static ICommandHandler Generate<TUnused>(this CommandHandlerGenerator handler, 
+            Action<string, IConsole, int> method,
+            Option<string> param1, Option<int> param2)
+        {
+            return new GeneratedHandler_1(method, param1, param2);
+        }
+
+        public static ICommandHandler Generate<TUnused>(this CommandHandlerGenerator handler, 
+            Action<System.CommandLine.Tests.Invocation.CommandHandlerTests.Character, IConsole> method,
+            Option<string> param1, Option<int> param2)
+        {
+            return new GeneratedHandler_2(method, param1, param2);
+        }
+    }
+}
+");
         }
 
         public void Initialize(GeneratorInitializationContext context)
