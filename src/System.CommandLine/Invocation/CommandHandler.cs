@@ -6,12 +6,6 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    
-    public sealed class CommandHandlerGenerator
-    { 
-        private CommandHandlerGenerator() { }
-    }
-
     public static class CommandHandler
     {
         public static CommandHandlerGenerator Generator { get; } = null!;
