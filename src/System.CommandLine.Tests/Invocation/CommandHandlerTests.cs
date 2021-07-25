@@ -540,6 +540,40 @@ namespace System.CommandLine.Tests.Invocation
             boundConsole.Should().NotBeNull();
         }
 
+        [Fact]
+        public async Task Can_generate_handler_for_method_with_model_property_binding()
+        {
+            string boundName = default;
+            int boundAge = default;
+            IConsole boundConsole = null;
+
+            void Execute(Character character, IConsole console)
+            {
+                boundName = character.FullName;
+                boundConsole = console;
+                boundAge = character.Age;
+            }
+
+            var command = new Command("command");
+            var nameOption = new Option<string>("--name");
+            command.AddOption(nameOption);
+            var ageOption = new Option<int>("--age");
+            command.AddOption(ageOption);
+
+            command.Handler = CommandHandler.Generator.Generate<Action<Character, IConsole>, Character>
+                (Execute, context => new Character()
+                { 
+                    FullName = context.ParseResult.ValueForOption(nameOption),
+                    Age = context.ParseResult.ValueForOption(ageOption),
+                });
+
+            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+
+            boundName.Should().Be("Gandalf");
+            boundAge.Should().Be(425);
+            boundConsole.Should().NotBeNull();
+        }
+
         public class Character
         {
             public Character(string fullName, int age)
@@ -548,8 +582,11 @@ namespace System.CommandLine.Tests.Invocation
                 Age = age;
             }
 
-            public string FullName { get; }
-            public int Age { get; }
+            public Character()
+            { }
+
+            public string FullName { get; set; }
+            public int Age { get; set; }
         }
 
         public abstract class AbstractTestCommandHandler : ICommandHandler

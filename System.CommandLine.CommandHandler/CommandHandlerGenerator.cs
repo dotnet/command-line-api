@@ -106,6 +106,27 @@ namespace System.CommandLine.Invocation
             }
         }
 
+        private class GeneratedHandler_3 : ICommandHandler
+        {
+            public GeneratedHandler_3(Action<System.CommandLine.Tests.Invocation.CommandHandlerTests.Character, IConsole> method,
+            Func<InvocationContext, System.CommandLine.Tests.Invocation.CommandHandlerTests.Character> modelBuilder)
+            {
+                Method = method;
+                ModelBuilder = modelBuilder;
+            }
+        
+            public Action<System.CommandLine.Tests.Invocation.CommandHandlerTests.Character, IConsole> Method { get; }
+            public Func<InvocationContext, System.CommandLine.Tests.Invocation.CommandHandlerTests.Character> ModelBuilder { get; }
+        
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                System.CommandLine.Tests.Invocation.CommandHandlerTests.Character model = ModelBuilder(context);
+                Method.Invoke(model, context.Console);
+        
+                return Task.FromResult(0);
+            }
+        }
+
         public static ICommandHandler Generate<TUnused>(this CommandHandlerGenerator handler, 
             Action<string, IConsole, int> method,
             Option<string> param1, Option<int> param2)
@@ -118,6 +139,13 @@ namespace System.CommandLine.Invocation
             Option<string> param1, Option<int> param2)
         {
             return new GeneratedHandler_2(method, param1, param2);
+        }
+
+        public static ICommandHandler Generate<TUnused, TUnused2>(this CommandHandlerGenerator handler, 
+            Action<System.CommandLine.Tests.Invocation.CommandHandlerTests.Character, IConsole> method,
+            Func<InvocationContext, System.CommandLine.Tests.Invocation.CommandHandlerTests.Character> modelBuilder)
+        {
+            return new GeneratedHandler_3(method, modelBuilder);
         }
     }
 }
