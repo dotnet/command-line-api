@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace System.CommandLine.Invocation
 {
     
-    
     public sealed class CommandHandlerGenerator
     { 
         private CommandHandlerGenerator() { }
