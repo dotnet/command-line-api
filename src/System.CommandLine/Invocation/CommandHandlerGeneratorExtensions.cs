@@ -9,6 +9,7 @@ namespace System.CommandLine.Invocation
             TDelegate @delegate, params IdentifierSymbol[] symbols)
             where TDelegate : Delegate
         {
+            //TODO: Better exception/message
             throw new InvalidOperationException("Should never get here....");
         }
 
@@ -16,6 +17,7 @@ namespace System.CommandLine.Invocation
             TDelegate @delegate, Func<InvocationContext, TModel> modelBuilder)
             where TDelegate : Delegate
         {
+            //TODO: Better exception/message
             throw new InvalidOperationException("Should never get here....");
         }
     }
