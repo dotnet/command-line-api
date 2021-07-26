@@ -17,6 +17,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="..\System.CommandLine.CommandHandler\System.CommandLine.CommandHandler.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
   </ItemGroup>
   
   <ItemGroup>
