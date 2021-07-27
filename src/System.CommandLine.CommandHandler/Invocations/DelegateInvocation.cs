@@ -22,20 +22,12 @@ namespace System.CommandLine.CommandHandler.Invocations
         public virtual string InvokeContents()
         {
             StringBuilder builder = new();
-            //NB: Should invoke and return Task<int>
-            /*
-             * Method.Invoke(value1, context.Console, value2);
-        
-            return Task.FromResult(0);
-             */
             builder.Append("Method.Invoke(");
             builder.Append(string.Join(", ", Parameters.Select(x => x.GetValueFromContext())));
             builder.AppendLine(");");
-            builder.AppendLine("return Task.FromResult(0);");
+
+            builder.AppendLine("return Task.FromResult(context.ExitCode);");
             return builder.ToString();
-            //return $@"Method.Invoke(value1, context.Console, value2);";
-
-
         }
     }
 }

@@ -17,8 +17,6 @@ namespace System.CommandLine.CommandHandler.Invocations
         public override string InvokeContents()
         {
             StringBuilder builder = new();
-            //NB: Should invoke and return Task<int>
-
             builder.Append($"var model = new {Constructor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}(");
             builder.Append(string.Join(", ", Parameters.Take(Constructor.Parameters.Length)
                 .Select(x => x.GetValueFromContext())));
@@ -31,7 +29,7 @@ namespace System.CommandLine.CommandHandler.Invocations
                 builder.Append(string.Join(", ", remainigParameters.Select(x => x.GetValueFromContext())));
             }
             builder.AppendLine(");");
-            builder.AppendLine("return Task.FromResult(0);");
+            builder.AppendLine("return Task.FromResult(context.ExitCode);");
             return builder.ToString();
         }
     }
