@@ -54,11 +54,6 @@ namespace System.CommandLine.Parsing
         {
             get
             {
-                if (Option.AllowMultipleArgumentsPerToken)
-                {
-                    // FIX: (RemainingArgumentCapacity)        
-                }
-
                 var capacity = base.RemainingArgumentCapacity;
 
                 if (IsImplicit && capacity < int.MaxValue)
@@ -92,6 +87,8 @@ namespace System.CommandLine.Parsing
                 return _argumentConversionResult;
             }
         }
+
+        internal bool IsMinimumArgumentAritySatisfied => Tokens.Count >= Option.Argument.Arity.MinimumNumberOfValues;
 
         internal override bool UseDefaultValueFor(IArgument argument) => IsImplicit;
     }

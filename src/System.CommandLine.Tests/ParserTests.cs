@@ -285,7 +285,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(t => t.Value == "-bc");
         }
-
+        
         [Fact]
         public void Optional_option_arguments_are_unbundled()
         {
@@ -301,6 +301,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-a -bc");
+
+            var resultForA = result.FindResultFor(optionA);
+            var resultForB = result.FindResultFor(optionB);
+            var resultForC = result.FindResultFor(optionC);
 
             result.Tokens
                   .Select(t => t.Value)
@@ -1283,29 +1287,6 @@ namespace System.CommandLine.Tests
 
             result.ValueForOption(optionX).Should().BeEquivalentTo(new[] { "-x", "-y", "-y" });
             result.ValueForOption(optionY).Should().BeEquivalentTo(new[] { "-x", "-y", "-x" });
-        }
-
-        [Fact]
-        public void Multiple_option_arguments_that_match_single_arity_option_aliases_are_parsed_correctly()
-        {
-            var optionX = new Option<string>("-x");
-            var optionY = new Option<string>("-y");
-
-            var command = new RootCommand
-            {
-                optionX,
-                optionY
-            };
-            
-            var result = command.Parse("-x -x -x -y -y -x -y -y -y -x -x -y");
-            
-            _output.WriteLine(result.Diagram());
-
-            var result2 = result.FindResultFor(optionX);
-
-            result.Errors.Should().BeEmpty();
-            result.ValueForOption(optionX).Should().Be("-y");
-            result.ValueForOption(optionY).Should().Be("-x");
         }
 
         [Fact]

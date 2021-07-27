@@ -100,10 +100,13 @@ namespace System.CommandLine.Parsing
 
             if (previousToken.Type == TokenType.Option)
             {
-                if (_innermostCommandResult!.Children.GetByAlias(previousToken.Value) is OptionResult { IsArgumentLimitReached: false } previousOptionResult)
+                if (_innermostCommandResult!.Children.GetByAlias(previousToken.Value) is OptionResult
+                {
+                    IsArgumentLimitReached: false
+                    //    IsMinimumArgumentAritySatisfied: false,
+                } previousOptionResult)
                 {
                     ParseOptionTokenAsArgument(previousOptionResult);
-
                     return;
                 }
             }
@@ -127,17 +130,20 @@ namespace System.CommandLine.Parsing
             {
                 ArgumentResult argumentResult;
 
+                var token = new Token(optionNode.Token.Value, TokenType.Argument, optionNode.Token.Position);
+
                 if (parentOptionResult.Children.Count == 0)
                 {
                     argumentResult = new ArgumentResult(parentOptionResult.Option.Argument, parentOptionResult);
                     parentOptionResult.Children.Add(argumentResult);
+                    // argumentResult.AddToken(token);
+                    parentOptionResult.AddToken(token);
                 }
                 else
                 {
                     argumentResult = (ArgumentResult) parentOptionResult.Children[0];
                 }
 
-                var token = new Token(optionNode.Token.Value, TokenType.Argument, optionNode.Token.Position);
                 argumentResult.AddToken(token);
                 parentOptionResult.AddToken(token);
 
@@ -160,7 +166,7 @@ namespace System.CommandLine.Parsing
 
             var argument = argumentNode.Argument;
 
-            var argumentResult = optionResult?.Children.ResultFor(argument);
+            var argumentResult = optionResult.Children.ResultFor(argument);
 
             if (argumentResult is null)
             {

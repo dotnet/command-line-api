@@ -23,7 +23,7 @@ namespace System.CommandLine.Parsing
             Position = position;
         }
 
-        internal Token(string value, int position, bool wasBundled = false)
+        internal Token(string value, int position = -1, bool wasBundled = false)
         {
             Value = value;
             UnprefixedValue = value.RemovePrefix();
