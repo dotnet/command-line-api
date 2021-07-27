@@ -37,11 +37,22 @@ namespace System.CommandLine.Invocation
                     .ToList();
 
                 builder.AppendLine(@$"public static {ICommandHandlerType} Generate<{string.Join(", ", Enumerable.Range(1, invocation.NumberOfGenerericParameters).Select(x => $"Unused{x}"))}>(this CommandHandlerGenerator handler,");
-                builder.AppendLine($"{invocation.DelegateType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} method,");
-                builder.AppendLine(string.Join($", ", methodParamters.Select(x => $"{x.Type} {x.Name}")));
+                builder.AppendLine($"{invocation.DelegateType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} method");
+                if (methodParamters.Count > 0)
+                {
+                    builder.AppendLine(",");
+                    builder.AppendLine(string.Join($", ", methodParamters.Select(x => $"{x.Type} {x.Name}")));
+                }
                 builder.AppendLine(")");
                 builder.AppendLine("{");
-                builder.AppendLine($"return new GeneratedHandler_{count}(method, {string.Join(", ", methodParamters.Select(x => x.Name))});");
+                builder.Append($"return new GeneratedHandler_{count}(method");
+                if (methodParamters.Count > 0)
+                {
+                    builder.Append(", ");
+                    builder.Append(string.Join(", ", methodParamters.Select(x => x.Name)));
+                }
+                builder.AppendLine(");");
+                
                 builder.AppendLine("}");
 
 
@@ -49,9 +60,13 @@ namespace System.CommandLine.Invocation
                 builder.AppendLine($@"
         private class GeneratedHandler_{count} : {ICommandHandlerType}
         {{
-            public GeneratedHandler_{count}({invocation.DelegateType} method,");
+            public GeneratedHandler_{count}({invocation.DelegateType} method");
 
-                builder.AppendLine(string.Join($", ", methodParamters.Select(x => $"{x.Type} {x.Name}")));
+                if (methodParamters.Count > 0)
+                {
+                    builder.AppendLine(",");
+                    builder.AppendLine(string.Join($", ", methodParamters.Select(x => $"{x.Type} {x.Name}")));
+                }
 
                 builder.AppendLine($@")
             {{

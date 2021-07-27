@@ -1,5 +1,8 @@
 ﻿using FluentAssertions;
+using System.CommandLine.Binding;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -121,6 +124,43 @@ namespace System.CommandLine.Tests.Invocation
             int result = await command.InvokeAsync("add 1 2", _console);
 
             result.Should().Be(3);
+        }
+
+        [Fact]
+        public async Task Can_generate_handler_with_well_know_parameters_types()
+        {
+            InvocationContext? boundInvocationContext = null;
+            IConsole? boundConsole = null;
+            ParseResult? boundParseResult = null;
+            IHelpBuilder? boundHelpBuilder = null;
+            BindingContext? boundBindingContext = null;
+
+            void Execute(
+                InvocationContext invocationContext,
+                IConsole console, 
+                ParseResult parseResult,
+                IHelpBuilder helpBuilder,
+                BindingContext bindingContext)
+            {
+                boundInvocationContext = invocationContext;
+                boundConsole = console;
+                boundParseResult = parseResult;
+                boundHelpBuilder = helpBuilder;
+                boundBindingContext = bindingContext;
+            }
+
+            var command = new Command("command");
+
+            command.Handler = CommandHandler.Generator
+                .Generate<Action<InvocationContext, IConsole, ParseResult, IHelpBuilder, BindingContext>>(Execute);
+
+            await command.InvokeAsync("command", _console);
+
+            boundInvocationContext.Should().NotBeNull();
+            boundConsole.Should().Be(_console);
+            boundParseResult.Should().NotBeNull();
+            boundHelpBuilder.Should().NotBeNull();
+            boundBindingContext.Should().NotBeNull();
         }
 
 
