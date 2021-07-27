@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandHandler
+namespace System.CommandLine.CommandHandler.Invocations
 {
     public class ConstructorModelBindingInvocation : DelegateInvocation
     {

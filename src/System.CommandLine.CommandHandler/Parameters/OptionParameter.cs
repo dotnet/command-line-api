@@ -1,10 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler
+namespace System.CommandLine.CommandHandler.Parameters
 {
-    public class Option : Parameter
+    public class OptionParameter : Parameter
     {
-        public Option(string localName, INamedTypeSymbol type, ITypeSymbol valueType)
+        public OptionParameter(string localName, INamedTypeSymbol type, ITypeSymbol valueType)
             : base(valueType)
         {
             LocalName = localName;
