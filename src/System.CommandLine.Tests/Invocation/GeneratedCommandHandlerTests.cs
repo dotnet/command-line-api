@@ -57,8 +57,8 @@ namespace System.CommandLine.Tests.Invocation
             var ageOption = new Option<int>("--age");
             command.AddOption(ageOption);
 
-            command.Handler = CommandHandler.Generator.Generate<Action<Character, IConsole>>
-                (Execute, nameOption, ageOption);
+            //command.Handler = CommandHandler.Generator.Generate<Action<Character, IConsole>>
+            //    (Execute, nameOption, ageOption);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
 

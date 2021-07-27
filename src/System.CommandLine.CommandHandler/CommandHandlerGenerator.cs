@@ -360,15 +360,16 @@ private class GeneratedHandler_1 : ICommandHandler
                     .Select(x => context.SemanticModel.GetSymbolInfo(x.Expression).Symbol)
                     .ToList();
                 if (symbols.Any(x => x is null)) return;
-                var symbolTypes = symbols.Select(x => GetType(x!)).ToList();
+                IList<Parameter> givenParameters = GetParameters(symbols!);
 
                 SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
                 HashSet<ISymbol> knownTypes = new(symbolEqualityComparer);
+                knownTypes.Add(iConsole);
 
-                if (IsMatch(delegateParameters, symbolTypes, knownTypes))
+                if (IsMatch(delegateParameters, givenParameters, knownTypes))
                 {
                     var invocation = new DelegateInvocation(invokeMethodSymbol.TypeArguments[0]);
-                    foreach (var parameter in GetParameters(delegateParameters, iConsole))
+                    foreach (var parameter in PopulateParameters(symbols, givenParameters, iConsole))
                     {
                         invocation.Parameters.Add(parameter);
                     }
@@ -382,10 +383,10 @@ private class GeneratedHandler_1 : ICommandHandler
                             ctor.Parameters.Select(x => x.Type)
                             .Concat(delegateParameters.Skip(1))
                             .ToList();
-                        if (IsMatch(targetTypes, symbolTypes, knownTypes))
+                        if (IsMatch(targetTypes, givenParameters, knownTypes))
                         {
                             var invocation = new ConstructorModelBindingInvocation(modelType);
-                            foreach (var parameter in GetParameters(targetTypes, iConsole))
+                            foreach (var parameter in PopulateParameters(targetTypes, givenParameters, iConsole))
                             {
                                 invocation.Parameters.Add(parameter);
                             }
@@ -394,37 +395,22 @@ private class GeneratedHandler_1 : ICommandHandler
                     }
                 }
 
-                static List<Parameter> GetParameters(IEnumerable<ISymbol> symbols,
-                    ITypeSymbol iConsole)
-                {
-                    SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
-                    List<Parameter> parameters = new();
-                    int parameterIndex = 1;
-                    foreach (ISymbol symbol in symbols)
-                    {
-                        if (symbolEqualityComparer.Equals(iConsole, symbol))
-                        {
-                            parameters.Add(new Console(iConsole));
-                        }
-                        else
-                        {
-                            parameters.Add(GetParameter(symbol, $"Param{parameterIndex}"));
-                            parameterIndex++;
-                        }
-                    }
-                    return parameters;
-                }
-
                 static bool IsMatch(
                     IList<ISymbol> targetSymbols,
-                    IList<ITypeSymbol> providedSymbols,
+                    IList<Parameter> providedSymbols,
                     HashSet<ISymbol> knownTypes)
                 {
                     SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
-                    for (int i = 0; i < targetSymbols.Count; i++)
+
+                    for (int i = 0, j = 0; i < targetSymbols.Count; i++)
                     {
-                        if (symbolEqualityComparer.Equals(providedSymbols[i], targetSymbols[i]) == false
-                            && !knownTypes.Contains(targetSymbols[i]))
+                        if (j < providedSymbols.Count &&
+                            symbolEqualityComparer.Equals(providedSymbols[j].ValueType, targetSymbols[i]))
+                        {
+                            j++;
+                            //TODO: Handle the case where there are more provided symbols than needed
+                        }
+                        else if (!knownTypes.Contains(targetSymbols[i]))
                         {
                             return false;
                         }
@@ -434,13 +420,33 @@ private class GeneratedHandler_1 : ICommandHandler
             }
         }
 
-        private static ITypeSymbol GetType(ISymbol argumentSymbol)
+        private static List<Parameter> PopulateParameters(
+            IReadOnlyList<ISymbol> symbols,
+            IList<Parameter> givenParameters,
+            ITypeSymbol iConsole)
         {
-            return argumentSymbol switch
+            SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
+            List<Parameter> parameters = new(givenParameters);
+            for(int i = 0; i < symbols.Count; i++)
             {
-                ILocalSymbol local => local.Type,
-                _ => throw new NotImplementedException($"Cannot get type from '{argumentSymbol?.Kind}' {argumentSymbol?.ToDisplayString()}")
-            };
+                if (symbolEqualityComparer.Equals(iConsole, symbols[i]))
+                {
+                    parameters.Insert(i, new Console(iConsole));
+                }
+            }
+            return parameters;
+        }
+
+        private static IList<Parameter> GetParameters(IEnumerable<ISymbol> symbols)
+        {
+            List<Parameter> parameters = new();
+            int parameterIndex = 1;
+            foreach (ISymbol symbol in symbols)
+            {
+                parameters.Add(GetParameter(symbol, $"Param{parameterIndex}"));
+                parameterIndex++;
+            }
+            return parameters;
         }
 
         private static Parameter GetParameter(ISymbol argumentSymbol, string localName)
@@ -448,6 +454,7 @@ private class GeneratedHandler_1 : ICommandHandler
             return argumentSymbol switch
             {
                 ILocalSymbol local => FromTypeSymbol(local.Type),
+                INamedTypeSymbol namedType => FromNamedTypeSymbol(namedType),
                 _ => throw new NotImplementedException($"Cannot convert from '{argumentSymbol?.Kind}' {argumentSymbol?.ToDisplayString()}")
             };
 
