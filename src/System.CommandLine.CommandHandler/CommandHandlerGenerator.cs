@@ -215,7 +215,7 @@ private class GeneratedHandler_1 : ICommandHandler
 #if DEBUG
             if (!System.Diagnostics.Debugger.IsAttached)
             {
-                System.Diagnostics.Debugger.Launch();
+                //System.Diagnostics.Debugger.Launch();
             }
 #endif
 
@@ -225,9 +225,37 @@ private class GeneratedHandler_1 : ICommandHandler
 
     public class ConstructorModelBindingInvocation : DelegateInvocation
     {
-        public ConstructorModelBindingInvocation(ITypeSymbol delegateType)
+        public ConstructorModelBindingInvocation(IMethodSymbol constructor, ITypeSymbol delegateType)
             : base(delegateType)
         {
+            Constructor = constructor;
+        }
+
+        public IMethodSymbol Constructor { get; }
+
+        public override string InvokeContents()
+        {
+            StringBuilder builder = new();
+            //NB: Should invoke and return Task<int>
+            /*
+             * Method.Invoke(value1, context.Console, value2);
+        
+            return Task.FromResult(0);
+             */
+            builder.Append($"var model = new {Constructor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}(");
+            builder.Append(string.Join(", ", Parameters.Take(Constructor.Parameters.Length)
+                .Select(x => x.GetValueFromContext())));
+            builder.AppendLine(");");
+            builder.Append("Method.Invoke(model");
+            var remainigParameters = Parameters.Skip(Constructor.Parameters.Length).ToList();
+            if (remainigParameters.Count > 0)
+            {
+                builder.Append(", ");
+                builder.Append(string.Join(", ", remainigParameters.Select(x => x.GetValueFromContext())));
+            }
+            builder.AppendLine(");");
+            builder.AppendLine("return Task.FromResult(0);");
+            return builder.ToString();
         }
     }
 
@@ -242,7 +270,7 @@ private class GeneratedHandler_1 : ICommandHandler
 
         public List<Parameter> Parameters { get; } = new();
 
-        public string InvokeContents()
+        public virtual string InvokeContents()
         {
             StringBuilder builder = new();
             //NB: Should invoke and return Task<int>
@@ -347,7 +375,7 @@ private class GeneratedHandler_1 : ICommandHandler
                 INamedTypeSymbol? iConsole = context.SemanticModel.Compilation.GetTypeByMetadataName("System.CommandLine.IConsole");
                 if (iConsole is null) return;
 
-                IList<ISymbol> delegateParameters = Array.Empty<ISymbol>();
+                IReadOnlyList<ISymbol> delegateParameters = Array.Empty<ISymbol>();
                 //Check for model binding condition
                 if (invokeMethodSymbol.TypeArguments[0] is INamedTypeSymbol namedDelegateType &&
                     namedDelegateType.TypeArguments.Length > 0)
@@ -355,12 +383,12 @@ private class GeneratedHandler_1 : ICommandHandler
                     delegateParameters = namedDelegateType.TypeArguments.Cast<ISymbol>().ToList();
                 }
 
-                List<ISymbol?> symbols = invocationExpression.ArgumentList.Arguments
+                IReadOnlyList<ISymbol?> symbols = invocationExpression.ArgumentList.Arguments
                     .Skip(1)
                     .Select(x => context.SemanticModel.GetSymbolInfo(x.Expression).Symbol)
                     .ToList();
                 if (symbols.Any(x => x is null)) return;
-                IList<Parameter> givenParameters = GetParameters(symbols!);
+                IReadOnlyList<Parameter> givenParameters = GetParameters(symbols!);
 
                 SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
                 HashSet<ISymbol> knownTypes = new(symbolEqualityComparer);
@@ -369,7 +397,7 @@ private class GeneratedHandler_1 : ICommandHandler
                 if (IsMatch(delegateParameters, givenParameters, knownTypes))
                 {
                     var invocation = new DelegateInvocation(invokeMethodSymbol.TypeArguments[0]);
-                    foreach (var parameter in PopulateParameters(symbols, givenParameters, iConsole))
+                    foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, iConsole))
                     {
                         invocation.Parameters.Add(parameter);
                     }
@@ -377,7 +405,7 @@ private class GeneratedHandler_1 : ICommandHandler
                 }
                 else if (delegateParameters[0] is INamedTypeSymbol modelType)
                 {
-                    foreach (var ctor in modelType.Constructors)
+                    foreach (var ctor in modelType.Constructors.OrderByDescending(x => x.Parameters.Length))
                     {
                         var targetTypes =
                             ctor.Parameters.Select(x => x.Type)
@@ -385,19 +413,20 @@ private class GeneratedHandler_1 : ICommandHandler
                             .ToList();
                         if (IsMatch(targetTypes, givenParameters, knownTypes))
                         {
-                            var invocation = new ConstructorModelBindingInvocation(modelType);
+                            var invocation = new ConstructorModelBindingInvocation(ctor, invokeMethodSymbol.TypeArguments[0]);
                             foreach (var parameter in PopulateParameters(targetTypes, givenParameters, iConsole))
                             {
                                 invocation.Parameters.Add(parameter);
                             }
                             Invocations.Add(invocation);
+                            break;
                         }
                     }
                 }
 
                 static bool IsMatch(
-                    IList<ISymbol> targetSymbols,
-                    IList<Parameter> providedSymbols,
+                    IReadOnlyList<ISymbol> targetSymbols,
+                    IReadOnlyList<Parameter> providedSymbols,
                     HashSet<ISymbol> knownTypes)
                 {
                     SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
@@ -420,9 +449,9 @@ private class GeneratedHandler_1 : ICommandHandler
             }
         }
 
-        private static List<Parameter> PopulateParameters(
+        private static IReadOnlyList<Parameter> PopulateParameters(
             IReadOnlyList<ISymbol> symbols,
-            IList<Parameter> givenParameters,
+            IReadOnlyList<Parameter> givenParameters,
             ITypeSymbol iConsole)
         {
             SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
@@ -437,7 +466,7 @@ private class GeneratedHandler_1 : ICommandHandler
             return parameters;
         }
 
-        private static IList<Parameter> GetParameters(IEnumerable<ISymbol> symbols)
+        private static IReadOnlyList<Parameter> GetParameters(IEnumerable<ISymbol> symbols)
         {
             List<Parameter> parameters = new();
             int parameterIndex = 1;
