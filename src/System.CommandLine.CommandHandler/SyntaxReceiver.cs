@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace System.CommandLine.CommandHandler
 {
+
     public class SyntaxReceiver : ISyntaxContextReceiver
     {
         public List<DelegateInvocation> Invocations { get; } = new();
@@ -21,9 +22,9 @@ namespace System.CommandLine.CommandHandler
                 invokeMethodSymbol.ReceiverType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.CommandLine.Invocation.CommandHandlerGenerator" &&
                 (invokeMethodSymbol.TypeArguments.Length == 1 || invokeMethodSymbol.TypeArguments.Length == 2))
             {
-                INamedTypeSymbol? iConsole = context.SemanticModel.Compilation.GetTypeByMetadataName("System.CommandLine.IConsole");
-                if (iConsole is null) return;
-
+                SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
+                WellKnownTypes wellKnonwTypes = new(context.SemanticModel.Compilation, symbolEqualityComparer);
+                
                 IReadOnlyList<ISymbol> delegateParameters = Array.Empty<ISymbol>();
                 //Check for model binding condition
                 if (invokeMethodSymbol.TypeArguments[0] is INamedTypeSymbol namedDelegateType &&
@@ -55,16 +56,13 @@ namespace System.CommandLine.CommandHandler
                 ITypeSymbol delegateType = invokeMethodSymbol.TypeArguments[0];
                 ReturnPattern returnPattern = GetReturnPattern(delegateType, context.SemanticModel.Compilation);
 
-                SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
-                HashSet<ISymbol> knownTypes = new(symbolEqualityComparer);
-                knownTypes.Add(iConsole);
-
-                if (IsMatch(delegateParameters, givenParameters, knownTypes))
+                
+                if (IsMatch(delegateParameters, givenParameters, wellKnonwTypes))
                 {
                     if (invokeMethodSymbol.TypeArguments.Length == 2)
                     {
                         var invocation = new FactoryModelBindingInvocation(delegateType, returnPattern);
-                        foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, iConsole))
+                        foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, wellKnonwTypes))
                         {
                             invocation.Parameters.Add(parameter);
                         }
@@ -73,7 +71,7 @@ namespace System.CommandLine.CommandHandler
                     else
                     {
                         var invocation = new DelegateInvocation(delegateType, returnPattern, 1);
-                        foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, iConsole))
+                        foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, wellKnonwTypes))
                         {
                             invocation.Parameters.Add(parameter);
                         }
@@ -88,10 +86,10 @@ namespace System.CommandLine.CommandHandler
                             ctor.Parameters.Select(x => x.Type)
                             .Concat(delegateParameters.Skip(1))
                             .ToList();
-                        if (IsMatch(targetTypes, givenParameters, knownTypes))
+                        if (IsMatch(targetTypes, givenParameters, wellKnonwTypes))
                         {
                             var invocation = new ConstructorModelBindingInvocation(ctor, returnPattern, delegateType);
-                            foreach (var parameter in PopulateParameters(targetTypes, givenParameters, iConsole))
+                            foreach (var parameter in PopulateParameters(targetTypes, givenParameters, wellKnonwTypes))
                             {
                                 invocation.Parameters.Add(parameter);
                             }
@@ -104,7 +102,7 @@ namespace System.CommandLine.CommandHandler
                 static bool IsMatch(
                     IReadOnlyList<ISymbol> targetSymbols,
                     IReadOnlyList<Parameter> providedSymbols,
-                    HashSet<ISymbol> knownTypes)
+                    WellKnownTypes knownTypes)
                 {
                     SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
                     int j = 0;
@@ -129,15 +127,14 @@ namespace System.CommandLine.CommandHandler
         private static IReadOnlyList<Parameter> PopulateParameters(
             IReadOnlyList<ISymbol> symbols,
             IReadOnlyList<Parameter> givenParameters,
-            ITypeSymbol iConsole)
+            WellKnownTypes knownTypes)
         {
-            SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
             List<Parameter> parameters = new(givenParameters);
             for (int i = 0; i < symbols.Count; i++)
             {
-                if (symbolEqualityComparer.Equals(iConsole, symbols[i]))
+                if (knownTypes.TryGet(symbols[i], out Parameter? parameter))
                 {
-                    parameters.Insert(i, new ConsoleParameter(iConsole));
+                    parameters.Insert(i, parameter!);
                 }
             }
             return parameters;
