@@ -7,10 +7,11 @@ namespace System.CommandLine.CommandHandler.Invocations
 {
     public class FactoryModelBindingInvocation : DelegateInvocation
     {
-        public FactoryModelBindingInvocation(ITypeSymbol delegateType) 
-            : base(delegateType, 2)
-        {
-        }
+        public FactoryModelBindingInvocation(
+            ITypeSymbol delegateType,
+            ReturnPattern returnPattern)
+            : base(delegateType, returnPattern, 2)
+        { }
 
         public override string InvokeContents()
         {

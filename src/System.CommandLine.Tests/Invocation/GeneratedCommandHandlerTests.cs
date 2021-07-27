@@ -110,9 +110,9 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("add");
-            var firstArgument = new Argument<int>();
+            var firstArgument = new Argument<int>("first");
             command.AddArgument(firstArgument);
-            var secondArgument = new Argument<int>();
+            var secondArgument = new Argument<int>("second");
             command.AddArgument(secondArgument);
 
             command.Handler = CommandHandler.Generator.Generate<Func<int, int, int>>

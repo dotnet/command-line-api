@@ -47,11 +47,13 @@ namespace System.CommandLine.CommandHandler
                 IReadOnlyList<Parameter> givenParameters = GetParameters(symbols!);
                 if (invokeMethodSymbol.TypeArguments.Length == 2)
                 {
-                    //System.Diagnostics.Debugger.Launch();
                     var rawParameter = (RawParameter)givenParameters[0];
                     var factoryParameter = new FactoryParameter(rawParameter, invokeMethodSymbol.Parameters[1].Type);
                     givenParameters = new Parameter[] { factoryParameter }.Concat(givenParameters.Skip(1)).ToList();
                 }
+
+                ITypeSymbol delegateType = invokeMethodSymbol.TypeArguments[0];
+                ReturnPattern returnPattern = GetReturnPattern(delegateType, context.SemanticModel.Compilation);
 
                 SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
                 HashSet<ISymbol> knownTypes = new(symbolEqualityComparer);
@@ -61,7 +63,7 @@ namespace System.CommandLine.CommandHandler
                 {
                     if (invokeMethodSymbol.TypeArguments.Length == 2)
                     {
-                        var invocation = new FactoryModelBindingInvocation(invokeMethodSymbol.TypeArguments[0]);
+                        var invocation = new FactoryModelBindingInvocation(delegateType, returnPattern);
                         foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, iConsole))
                         {
                             invocation.Parameters.Add(parameter);
@@ -70,7 +72,7 @@ namespace System.CommandLine.CommandHandler
                     }
                     else
                     {
-                        var invocation = new DelegateInvocation(invokeMethodSymbol.TypeArguments[0], 1);
+                        var invocation = new DelegateInvocation(delegateType, returnPattern, 1);
                         foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, iConsole))
                         {
                             invocation.Parameters.Add(parameter);
@@ -88,8 +90,7 @@ namespace System.CommandLine.CommandHandler
                             .ToList();
                         if (IsMatch(targetTypes, givenParameters, knownTypes))
                         {
-                            //System.Diagnostics.Debugger.Launch();
-                            var invocation = new ConstructorModelBindingInvocation(ctor, invokeMethodSymbol.TypeArguments[0]);
+                            var invocation = new ConstructorModelBindingInvocation(ctor, returnPattern, delegateType);
                             foreach (var parameter in PopulateParameters(targetTypes, givenParameters, iConsole))
                             {
                                 invocation.Parameters.Add(parameter);
@@ -188,6 +189,32 @@ namespace System.CommandLine.CommandHandler
                     _ => throw new NotImplementedException($"Cannot convert from type symbol '{typeSymbol?.Kind}' {typeSymbol?.ToDisplayString()}")
                 };
             }
+        }
+
+        private static ReturnPattern GetReturnPattern(ITypeSymbol delegateType, Compilation compilation)
+        {
+            ITypeSymbol? returnType = null;
+            if (delegateType is INamedTypeSymbol namedSymbol &&
+                namedSymbol.DelegateInvokeMethod is { } delegateInvokeMethod &&
+                !delegateInvokeMethod.ReturnsVoid)
+            {
+                returnType = delegateInvokeMethod.ReturnType;
+            }
+
+            if (returnType is null)
+            {
+                return ReturnPattern.InvocationContextExitCode;
+            }
+
+            INamedTypeSymbol intType = compilation.GetSpecialType(SpecialType.System_Int32);
+            SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
+            if (symbolEqualityComparer.Equals(returnType, intType))
+            {
+                return ReturnPattern.FunctionReturnValue;
+            }
+
+            //TODO: Should this be an error?
+            return ReturnPattern.InvocationContextExitCode;
         }
     }
 }
