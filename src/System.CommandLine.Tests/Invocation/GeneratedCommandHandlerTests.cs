@@ -101,6 +101,29 @@ namespace System.CommandLine.Tests.Invocation
             boundConsole.Should().NotBeNull();
         }
 
+        [Fact]
+        public async Task Can_generate_handler_for_int_returning_method()
+        {
+            int Execute(int first, int second)
+            {
+                return first + second;
+            }
+
+            var command = new Command("add");
+            var firstArgument = new Argument<int>();
+            command.AddArgument(firstArgument);
+            var secondArgument = new Argument<int>();
+            command.AddArgument(secondArgument);
+
+            command.Handler = CommandHandler.Generator.Generate<Func<int, int, int>>
+                (Execute, firstArgument, secondArgument);
+
+            int result = await command.InvokeAsync("add 1 2", _console);
+
+            result.Should().Be(3);
+        }
+
+
         public class Character
         {
             public Character(string fullName, int age)

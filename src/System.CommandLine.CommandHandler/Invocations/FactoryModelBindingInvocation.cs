@@ -26,7 +26,7 @@ namespace System.CommandLine.CommandHandler.Invocations
                 builder.Append(string.Join(", ", remainigParameters.Select(x => x.GetValueFromContext())));
             }
             builder.AppendLine(");");
-            builder.AppendLine("return Task.FromResult(0);");
+            builder.AppendLine("return Task.FromResult(context.ExitCode);");
             return builder.ToString();
         }
     }

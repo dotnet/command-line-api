@@ -29,7 +29,14 @@ namespace System.CommandLine.CommandHandler
                 if (invokeMethodSymbol.TypeArguments[0] is INamedTypeSymbol namedDelegateType &&
                     namedDelegateType.TypeArguments.Length > 0)
                 {
-                    delegateParameters = namedDelegateType.TypeArguments.Cast<ISymbol>().ToList();
+                    if (namedDelegateType.DelegateInvokeMethod?.ReturnsVoid == false)
+                    {
+                        delegateParameters = namedDelegateType.TypeArguments.Skip(1).Cast<ISymbol>().ToList();
+                    }
+                    else
+                    {
+                        delegateParameters = namedDelegateType.TypeArguments.Cast<ISymbol>().ToList();
+                    }
                 }
 
                 IReadOnlyList<ISymbol?> symbols = invocationExpression.ArgumentList.Arguments
@@ -81,6 +88,7 @@ namespace System.CommandLine.CommandHandler
                             .ToList();
                         if (IsMatch(targetTypes, givenParameters, knownTypes))
                         {
+                            //System.Diagnostics.Debugger.Launch();
                             var invocation = new ConstructorModelBindingInvocation(ctor, invokeMethodSymbol.TypeArguments[0]);
                             foreach (var parameter in PopulateParameters(targetTypes, givenParameters, iConsole))
                             {
@@ -98,8 +106,8 @@ namespace System.CommandLine.CommandHandler
                     HashSet<ISymbol> knownTypes)
                 {
                     SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
-
-                    for (int i = 0, j = 0; i < targetSymbols.Count; i++)
+                    int j = 0;
+                    for (int i = 0; i < targetSymbols.Count; i++)
                     {
                         if (j < providedSymbols.Count &&
                             symbolEqualityComparer.Equals(providedSymbols[j].ValueType, targetSymbols[i]))
@@ -112,7 +120,7 @@ namespace System.CommandLine.CommandHandler
                             return false;
                         }
                     }
-                    return true;
+                    return j == providedSymbols.Count;
                 }
             }
         }
