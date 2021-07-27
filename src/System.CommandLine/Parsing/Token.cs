@@ -47,8 +47,10 @@ namespace System.CommandLine.Parsing
             Value == token.Value &&
             Type == token.Type;
 
+        /// <inheritdoc />
         public override int GetHashCode() => (Value, Type).GetHashCode();
 
+        /// <inheritdoc />
         public override string ToString() => $"{Type}: {Value}";
 
         public static bool operator ==(Token left, Token right)
