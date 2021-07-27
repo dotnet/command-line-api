@@ -40,7 +40,7 @@ namespace System.CommandLine.Invocation
                     .Where(x => !string.IsNullOrWhiteSpace(x.Name))
                     .ToList();
 
-                builder.AppendLine(@$"public static {ICommandHandlerType} Generate<TUnused>(this CommandHandlerGenerator handler,");
+                builder.AppendLine(@$"public static {ICommandHandlerType} Generate<{string.Join(", ", Enumerable.Range(1, invocation.NumberOfGenerericParameters).Select(x => $"Unused{x}"))}>(this CommandHandlerGenerator handler,");
                 builder.AppendLine($"{invocation.DelegateType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} method,");
                 builder.AppendLine(string.Join($", ", methodParamters.Select(x => $"{x.Type} {x.Name}")));
                 builder.AppendLine(")");
@@ -95,8 +95,6 @@ namespace System.CommandLine.Invocation
 
             context.AddSource("CommandHandlerGeneratorExtensions_Generated.g.cs", builder.ToString());
         }
-
-
 
         private static void AddGeneratorClass(GeneratorExecutionContext context)
         {
@@ -223,141 +221,6 @@ private class GeneratedHandler_1 : ICommandHandler
         }
     }
 
-    public class ConstructorModelBindingInvocation : DelegateInvocation
-    {
-        public ConstructorModelBindingInvocation(IMethodSymbol constructor, ITypeSymbol delegateType)
-            : base(delegateType)
-        {
-            Constructor = constructor;
-        }
-
-        public IMethodSymbol Constructor { get; }
-
-        public override string InvokeContents()
-        {
-            StringBuilder builder = new();
-            //NB: Should invoke and return Task<int>
-            /*
-             * Method.Invoke(value1, context.Console, value2);
-        
-            return Task.FromResult(0);
-             */
-            builder.Append($"var model = new {Constructor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}(");
-            builder.Append(string.Join(", ", Parameters.Take(Constructor.Parameters.Length)
-                .Select(x => x.GetValueFromContext())));
-            builder.AppendLine(");");
-            builder.Append("Method.Invoke(model");
-            var remainigParameters = Parameters.Skip(Constructor.Parameters.Length).ToList();
-            if (remainigParameters.Count > 0)
-            {
-                builder.Append(", ");
-                builder.Append(string.Join(", ", remainigParameters.Select(x => x.GetValueFromContext())));
-            }
-            builder.AppendLine(");");
-            builder.AppendLine("return Task.FromResult(0);");
-            return builder.ToString();
-        }
-    }
-
-    public class DelegateInvocation
-    {
-        public ITypeSymbol DelegateType { get; }
-
-        public DelegateInvocation(ITypeSymbol delegateType)
-        {
-            DelegateType = delegateType;
-        }
-
-        public List<Parameter> Parameters { get; } = new();
-
-        public virtual string InvokeContents()
-        {
-            StringBuilder builder = new();
-            //NB: Should invoke and return Task<int>
-            /*
-             * Method.Invoke(value1, context.Console, value2);
-        
-            return Task.FromResult(0);
-             */
-            builder.Append("Method.Invoke(");
-            builder.Append(string.Join(", ", Parameters.Select(x => x.GetValueFromContext())));
-            builder.AppendLine(");");
-            builder.AppendLine("return Task.FromResult(0);");
-            return builder.ToString();
-            //return $@"Method.Invoke(value1, context.Console, value2);";
-
-
-        }
-    }
-
-    public abstract class Parameter
-    {
-        public ITypeSymbol ValueType { get; }
-
-        protected Parameter(ITypeSymbol valueType)
-        {
-            ValueType = valueType;
-        }
-
-        public abstract string GetValueFromContext();
-
-        public virtual string GetPropertyDeclaration() => "";
-        public virtual string GetPropertyAssignment() => "";
-        public virtual (string Type, string Name) GetMethodParameter() => ("", "");
-    }
-
-    //public class Argument : Parameter
-    //{
-    //    public Argument(string type, string valueType) 
-    //        : base(type, valueType)
-    //    {
-    //    }
-    //
-    //    public override string GetValueFromContext()
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
-
-    public class Option : Parameter
-    {
-        public Option(string localName, INamedTypeSymbol type, ITypeSymbol valueType)
-            : base(valueType)
-        {
-            LocalName = localName;
-            Type = type;
-        }
-
-        public INamedTypeSymbol Type { get; }
-
-        public string LocalName { get; }
-
-        private string ParameterName => LocalName.ToLowerInvariant();
-
-        public override string GetValueFromContext()
-            => $"context.ParseResult.ValueForOption({LocalName})";
-
-        public override string GetPropertyDeclaration()
-            => $"private {Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {LocalName} {{ get; }}";
-
-        public override string GetPropertyAssignment()
-            => $"{LocalName} = {ParameterName};";
-
-        public override (string Type, string Name) GetMethodParameter()
-            => (Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), ParameterName);
-    }
-
-    public class Console : Parameter
-    {
-        public Console(ITypeSymbol consoleType)
-            : base(consoleType)
-        {
-        }
-
-        public override string GetValueFromContext()
-            => "context.Console";
-    }
-
     public class SyntaxReceiver : ISyntaxContextReceiver
     {
         public List<DelegateInvocation> Invocations { get; } = new();
@@ -370,7 +233,7 @@ private class GeneratedHandler_1 : ICommandHandler
                 context.SemanticModel.GetSymbolInfo(invocationExpression) is { } invocationSymbol &&
                 invocationSymbol.Symbol is IMethodSymbol invokeMethodSymbol &&
                 invokeMethodSymbol.ReceiverType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) == "global::System.CommandLine.Invocation.CommandHandlerGenerator" &&
-                invokeMethodSymbol.TypeArguments.Length == 1)
+                (invokeMethodSymbol.TypeArguments.Length == 1 || invokeMethodSymbol.TypeArguments.Length == 2))
             {
                 INamedTypeSymbol? iConsole = context.SemanticModel.Compilation.GetTypeByMetadataName("System.CommandLine.IConsole");
                 if (iConsole is null) return;
@@ -389,6 +252,13 @@ private class GeneratedHandler_1 : ICommandHandler
                     .ToList();
                 if (symbols.Any(x => x is null)) return;
                 IReadOnlyList<Parameter> givenParameters = GetParameters(symbols!);
+                if (invokeMethodSymbol.TypeArguments.Length == 2)
+                {
+                    //System.Diagnostics.Debugger.Launch();
+                    var rawParameter = (RawParameter)givenParameters[0];
+                    var factoryParameter = new FactoryParameter(rawParameter, invokeMethodSymbol.Parameters[1].Type);
+                    givenParameters = new Parameter[] { factoryParameter }.Concat(givenParameters.Skip(1)).ToList();
+                }
 
                 SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
                 HashSet<ISymbol> knownTypes = new(symbolEqualityComparer);
@@ -396,12 +266,24 @@ private class GeneratedHandler_1 : ICommandHandler
 
                 if (IsMatch(delegateParameters, givenParameters, knownTypes))
                 {
-                    var invocation = new DelegateInvocation(invokeMethodSymbol.TypeArguments[0]);
-                    foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, iConsole))
+                    if (invokeMethodSymbol.TypeArguments.Length == 2)
                     {
-                        invocation.Parameters.Add(parameter);
+                        var invocation = new FactoryModelBindingInvocation(invokeMethodSymbol.TypeArguments[0]);
+                        foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, iConsole))
+                        {
+                            invocation.Parameters.Add(parameter);
+                        }
+                        Invocations.Add(invocation);
                     }
-                    Invocations.Add(invocation);
+                    else
+                    {
+                        var invocation = new DelegateInvocation(invokeMethodSymbol.TypeArguments[0], 1);
+                        foreach (var parameter in PopulateParameters(delegateParameters, givenParameters, iConsole))
+                        {
+                            invocation.Parameters.Add(parameter);
+                        }
+                        Invocations.Add(invocation);
+                    }
                 }
                 else if (delegateParameters[0] is INamedTypeSymbol modelType)
                 {
@@ -456,11 +338,11 @@ private class GeneratedHandler_1 : ICommandHandler
         {
             SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
             List<Parameter> parameters = new(givenParameters);
-            for(int i = 0; i < symbols.Count; i++)
+            for (int i = 0; i < symbols.Count; i++)
             {
                 if (symbolEqualityComparer.Equals(iConsole, symbols[i]))
                 {
-                    parameters.Insert(i, new Console(iConsole));
+                    parameters.Insert(i, new ConsoleParameter(iConsole));
                 }
             }
             return parameters;
@@ -484,12 +366,17 @@ private class GeneratedHandler_1 : ICommandHandler
             {
                 ILocalSymbol local => FromTypeSymbol(local.Type),
                 INamedTypeSymbol namedType => FromNamedTypeSymbol(namedType),
+                IMethodSymbol methodSymbol => FromTypeSymbol(methodSymbol.ReturnType),
                 _ => throw new NotImplementedException($"Cannot convert from '{argumentSymbol?.Kind}' {argumentSymbol?.ToDisplayString()}")
             };
 
             Parameter FromNamedTypeSymbol(INamedTypeSymbol namedTypeSymbol)
             {
-                return new Option(localName, namedTypeSymbol, namedTypeSymbol.TypeArguments[0]);
+                if (namedTypeSymbol.TypeArguments.Length > 0)
+                {
+                    return new Option(localName, namedTypeSymbol, namedTypeSymbol.TypeArguments[0]);
+                }
+                return new RawParameter(localName, namedTypeSymbol);
             }
 
             Parameter FromTypeSymbol(ITypeSymbol typeSymbol)
