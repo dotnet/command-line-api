@@ -79,11 +79,7 @@ namespace System.CommandLine
             {
                 if (symbolResult is OptionResult optionResult)
                 {
-                    if (optionResult.Option.AllowMultipleArgumentsPerToken)
-                    {
-                        // FIX: (Validate) 
-                    }
-                    else
+                    if (!optionResult.Option.AllowMultipleArgumentsPerToken)
                     {
                         return new TooManyArgumentsConversionResult(
                             argument,
