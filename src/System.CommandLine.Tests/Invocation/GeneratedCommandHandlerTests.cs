@@ -22,15 +22,15 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("command");
-            var nameOption = new Option<string>("--name");
-            command.AddOption(nameOption);
+            var nameArgument = new Argument<string>("--name");
+            command.AddArgument(nameArgument);
             var ageOption = new Option<int>("--age");
             command.AddOption(ageOption);
 
             command.Handler = CommandHandler.Generator.Generate<Action<string, IConsole, int>>
-                (Execute, nameOption, ageOption);
+                (Execute, nameArgument, ageOption);
 
-            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+            await command.InvokeAsync("command Gandalf --age 425", _console);
 
             boundName.Should().Be("Gandalf");
             boundAge.Should().Be(425);

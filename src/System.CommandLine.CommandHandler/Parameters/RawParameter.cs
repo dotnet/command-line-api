@@ -2,27 +2,14 @@
 
 namespace System.CommandLine.CommandHandler.Parameters
 {
-    public class RawParameter : Parameter
+    public class RawParameter : PropertyParameter
     {
         public RawParameter(string localName, ITypeSymbol valueType) 
-            : base(valueType)
+            : base(localName, valueType, valueType)
         {
-            LocalName = localName;
         }
-
-        public string LocalName { get; }
-        private string ParameterName => LocalName.ToLowerInvariant();
 
         public override string GetValueFromContext()
             => LocalName;
-
-        public override string GetPropertyDeclaration()
-            => $"private {ValueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {LocalName} {{ get; }}";
-
-        public override string GetPropertyAssignment()
-            => $"{LocalName} = {ParameterName};";
-
-        public override (string Type, string Name) GetMethodParameter()
-            => (ValueType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), ParameterName);
     }
 }
