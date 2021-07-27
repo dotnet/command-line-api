@@ -6,8 +6,11 @@ namespace System.CommandLine.CommandHandler.Invocations
 {
     public class ConstructorModelBindingInvocation : DelegateInvocation
     {
-        public ConstructorModelBindingInvocation(IMethodSymbol constructor, ITypeSymbol delegateType)
-            : base(delegateType, 1)
+        public ConstructorModelBindingInvocation(
+            IMethodSymbol constructor, 
+            ReturnPattern returnPattern,
+            ITypeSymbol delegateType)
+            : base(delegateType, returnPattern, 1)
         {
             Constructor = constructor;
         }
