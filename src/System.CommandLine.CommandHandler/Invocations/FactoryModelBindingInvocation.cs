@@ -1,8 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
+using System.CommandLine.CommandHandler.Parameters;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandHandler
+namespace System.CommandLine.CommandHandler.Invocations
 {
     public class FactoryModelBindingInvocation : DelegateInvocation
     {

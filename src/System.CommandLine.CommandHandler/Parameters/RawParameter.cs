@@ -1,8 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler
+namespace System.CommandLine.CommandHandler.Parameters
 {
-
     public class RawParameter : Parameter
     {
         public RawParameter(string localName, ITypeSymbol valueType) 

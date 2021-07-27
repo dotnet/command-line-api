@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler
+namespace System.CommandLine.CommandHandler.Parameters
 {
     public abstract class Parameter
     {
