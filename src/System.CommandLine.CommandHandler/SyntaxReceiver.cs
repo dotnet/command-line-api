@@ -160,7 +160,14 @@ namespace System.CommandLine.CommandHandler
             {
                 if (namedTypeSymbol.TypeArguments.Length > 0)
                 {
-                    return new OptionParameter(localName, namedTypeSymbol, namedTypeSymbol.TypeArguments[0]);
+                    if (namedTypeSymbol.Name == "Option")
+                    {
+                        return new OptionParameter(localName, namedTypeSymbol, namedTypeSymbol.TypeArguments[0]);
+                    }
+                    else if (namedTypeSymbol.Name == "Argument")
+                    {
+                        return new ArgumentParameter(localName, namedTypeSymbol, namedTypeSymbol.TypeArguments[0]);
+                    }
                 }
                 return new RawParameter(localName, namedTypeSymbol);
             }

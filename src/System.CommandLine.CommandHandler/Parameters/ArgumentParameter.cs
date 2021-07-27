@@ -2,15 +2,14 @@
 
 namespace System.CommandLine.CommandHandler.Parameters
 {
-
-    public class OptionParameter : PropertyParameter
+    public class ArgumentParameter : PropertyParameter
     {
-        public OptionParameter(string localName, INamedTypeSymbol type, ITypeSymbol valueType)
+        public ArgumentParameter(string localName, INamedTypeSymbol type, ITypeSymbol valueType)
             : base(localName, type, valueType)
         {
         }
 
         public override string GetValueFromContext()
-            => $"context.ParseResult.ValueForOption({LocalName})";
+            => $"context.ParseResult.ValueForArgument({LocalName})";
     }
 }

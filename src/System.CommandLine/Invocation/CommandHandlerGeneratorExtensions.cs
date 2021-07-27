@@ -6,7 +6,7 @@ namespace System.CommandLine.Invocation
     public static class CommandHandlerGeneratorExtensions
     {
         public static ICommandHandler Generate<TDelegate>(this CommandHandlerGenerator handler, 
-            TDelegate @delegate, params IdentifierSymbol[] symbols)
+            TDelegate @delegate, params ISymbol[] symbols)
             where TDelegate : Delegate
         {
             //TODO: Better exception/message
