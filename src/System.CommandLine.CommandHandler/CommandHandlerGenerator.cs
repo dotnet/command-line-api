@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using System.CommandLine.CommandHandler.Invocations;
 using System.Linq;
 using System.Text;
 
@@ -90,7 +91,7 @@ namespace System.CommandLine.Invocation
                 }
 
                 builder.AppendLine($@"
-            public Task<int> InvokeAsync(InvocationContext context)
+            public async Task<int> InvokeAsync(InvocationContext context)
             {{");
                 builder.AppendLine(invocation.InvokeContents());
                 builder.AppendLine($@"

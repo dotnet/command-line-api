@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("command");
-            var nameArgument = new Argument<string>("--name");
+            var nameArgument = new Argument<string>();
             command.AddArgument(nameArgument);
             var ageOption = new Option<int>("--age");
             command.AddOption(ageOption);
@@ -163,6 +163,60 @@ namespace System.CommandLine.Tests.Invocation
             boundBindingContext.Should().NotBeNull();
         }
 
+        [Fact]
+        public async Task Can_generate_handler_for_async_method()
+        {
+            string boundName = default;
+            int boundAge = default;
+            IConsole boundConsole = null;
+
+            async Task ExecuteAsync(string fullnameOrNickname, IConsole console, int age)
+            {
+                //Just long enough to make sure the taks is be awaited
+                await Task.Delay(100);
+                boundName = fullnameOrNickname;
+                boundConsole = console;
+                boundAge = age;
+            }
+
+            var command = new Command("command");
+            var nameArgument = new Argument<string>();
+            command.AddArgument(nameArgument);
+            var ageOption = new Option<int>("--age");
+            command.AddOption(ageOption);
+
+            command.Handler = CommandHandler.Generator.Generate<Func<string, IConsole, int, Task>>
+                (ExecuteAsync, nameArgument, ageOption);
+
+            await command.InvokeAsync("command Gandalf --age 425", _console);
+
+            boundName.Should().Be("Gandalf");
+            boundAge.Should().Be(425);
+            boundConsole.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task Can_generate_handler_for_async_task_of_int_returning_method()
+        {
+            async Task<int> Execute(int first, int second)
+            {
+                await Task.Delay(100);
+                return first + second;
+            }
+
+            var command = new Command("add");
+            var firstArgument = new Argument<int>("first");
+            command.AddArgument(firstArgument);
+            var secondArgument = new Argument<int>("second");
+            command.AddArgument(secondArgument);
+
+            command.Handler = CommandHandler.Generator.Generate<Func<int, int, Task<int>>>
+                (Execute, firstArgument, secondArgument);
+
+            int result = await command.InvokeAsync("add 1 2", _console);
+
+            result.Should().Be(3);
+        }
 
         public class Character
         {
