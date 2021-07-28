@@ -4,6 +4,8 @@
     {
         None,
         InvocationContextExitCode,
-        FunctionReturnValue
+        FunctionReturnValue,
+        AwaitFunction,
+        AwaitFunctionReturnValue
     }
 }

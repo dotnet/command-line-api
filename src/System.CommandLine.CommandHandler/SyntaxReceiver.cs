@@ -32,7 +32,8 @@ namespace System.CommandLine.CommandHandler
                 {
                     if (namedDelegateType.DelegateInvokeMethod?.ReturnsVoid == false)
                     {
-                        delegateParameters = namedDelegateType.TypeArguments.Skip(1).Cast<ISymbol>().ToList();
+                        delegateParameters = namedDelegateType.TypeArguments
+                            .Take(namedDelegateType.TypeArguments.Length - 1).Cast<ISymbol>().ToList();
                     }
                     else
                     {
@@ -203,13 +204,32 @@ namespace System.CommandLine.CommandHandler
                 return ReturnPattern.InvocationContextExitCode;
             }
 
-            INamedTypeSymbol intType = compilation.GetSpecialType(SpecialType.System_Int32);
             SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
+            
+            INamedTypeSymbol intType = compilation.GetSpecialType(SpecialType.System_Int32);
             if (symbolEqualityComparer.Equals(returnType, intType))
             {
                 return ReturnPattern.FunctionReturnValue;
             }
 
+            //TODO: what about toher awaiatables?
+            INamedTypeSymbol taskType = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task")
+                ?? throw new InvalidOperationException("Failed to find Task");
+            if (symbolEqualityComparer.Equals(returnType, taskType))
+            {
+                return ReturnPattern.AwaitFunction;
+            }
+
+            INamedTypeSymbol taskOfTType = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1")
+                ?? throw new InvalidOperationException("Failed to find Task<T>");
+
+            if (returnType is INamedTypeSymbol namedReturnType &&
+                namedReturnType.TypeArguments.Length == 1 &&
+                symbolEqualityComparer.Equals(namedReturnType.TypeArguments[0], intType) &&
+                symbolEqualityComparer.Equals(namedReturnType.ConstructUnboundGenericType(), taskOfTType.ConstructUnboundGenericType()))
+            {
+                 return ReturnPattern.AwaitFunctionReturnValue;
+            }
             //TODO: Should this be an error?
             return ReturnPattern.InvocationContextExitCode;
         }

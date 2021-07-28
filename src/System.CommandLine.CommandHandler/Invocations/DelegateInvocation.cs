@@ -31,6 +31,8 @@ namespace System.CommandLine.CommandHandler.Invocations
             switch (ReturnPattern)
             {
                 case ReturnPattern.FunctionReturnValue:
+                case ReturnPattern.AwaitFunction:
+                case ReturnPattern.AwaitFunctionReturnValue:
                     builder.Append("var rv = ");
                     break;
             }
@@ -42,10 +44,17 @@ namespace System.CommandLine.CommandHandler.Invocations
             switch (ReturnPattern)
             {
                 case ReturnPattern.InvocationContextExitCode:
-                    builder.AppendLine("return Task.FromResult(context.ExitCode);");
+                    builder.AppendLine("return await Task.FromResult(context.ExitCode);");
                     break;
                 case ReturnPattern.FunctionReturnValue:
-                    builder.AppendLine("return Task.FromResult(rv);");
+                    builder.AppendLine("return await Task.FromResult(rv);");
+                    break;
+                case ReturnPattern.AwaitFunction:
+                    builder.AppendLine("await rv;");
+                    builder.AppendLine("return context.ExitCode;");
+                    break;
+                case ReturnPattern.AwaitFunctionReturnValue:
+                    builder.AppendLine("return await rv;");
                     break;
             }
             return builder.ToString();

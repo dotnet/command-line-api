@@ -24,6 +24,15 @@ namespace System.CommandLine.CommandHandler.Invocations
             builder.Append(string.Join(", ", Parameters.Take(Constructor.Parameters.Length)
                 .Select(x => x.GetValueFromContext())));
             builder.AppendLine(");");
+
+            switch (ReturnPattern)
+            {
+                case ReturnPattern.FunctionReturnValue:
+                case ReturnPattern.AwaitFunction:
+                case ReturnPattern.AwaitFunctionReturnValue:
+                    builder.Append("var rv = ");
+                    break;
+            }
             builder.Append("Method.Invoke(model");
             var remainigParameters = Parameters.Skip(Constructor.Parameters.Length).ToList();
             if (remainigParameters.Count > 0)
@@ -32,7 +41,22 @@ namespace System.CommandLine.CommandHandler.Invocations
                 builder.Append(string.Join(", ", remainigParameters.Select(x => x.GetValueFromContext())));
             }
             builder.AppendLine(");");
-            builder.AppendLine("return Task.FromResult(context.ExitCode);");
+            switch (ReturnPattern)
+            {
+                case ReturnPattern.InvocationContextExitCode:
+                    builder.AppendLine("return await Task.FromResult(context.ExitCode);");
+                    break;
+                case ReturnPattern.FunctionReturnValue:
+                    builder.AppendLine("return await Task.FromResult(rv);");
+                    break;
+                case ReturnPattern.AwaitFunction:
+                    builder.AppendLine("await rv;");
+                    builder.AppendLine("return context.ExitCode;");
+                    break;
+                case ReturnPattern.AwaitFunctionReturnValue:
+                    builder.AppendLine("return await rv;");
+                    break;
+            }
             return builder.ToString();
         }
     }
