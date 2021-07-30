@@ -16,7 +16,8 @@ namespace System.CommandLine.Hosting
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
-            Action<IHostBuilder> configureHost = null) =>
+            Action<IHostBuilder> configureHost = null,
+            bool runAsDaemon = false) =>
             builder.UseMiddleware(async (invocation, next) =>
             {
                 var argsRemaining = invocation.ParseResult.UnparsedTokens.ToArray();
@@ -43,16 +44,23 @@ namespace System.CommandLine.Hosting
 
                 invocation.BindingContext.AddService(typeof(IHost), _ => host);
 
-                await host.StartAsync();
-
-                await next(invocation);
-
-                await host.StopAsync();
+                if (runAsDaemon)
+                {
+                    await next(invocation);
+                    await host.RunAsync();
+                }
+                else
+                {
+                    await host.StartAsync();
+                    await next(invocation);
+                    await host.StopAsync();
+                }
             });
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
-            Action<IHostBuilder> configureHost = null
-            ) => UseHost(builder, null, configureHost);
+            Action<IHostBuilder> configureHost = null,
+            bool runAsDaemon = false
+            ) => UseHost(builder, null, configureHost, runAsDaemon);
 
         public static IHostBuilder UseInvocationLifetime(this IHostBuilder host,
             InvocationContext invocation, Action<InvocationLifetimeOptions> configureOptions = null)
@@ -101,7 +109,7 @@ namespace System.CommandLine.Hosting
                 throw new ArgumentException($"{nameof(handlerType)} must implement {nameof(ICommandHandler)}", nameof(handlerType));
             }
 
-            if (builder.Properties[typeof(InvocationContext)] is InvocationContext invocation 
+            if (builder.Properties[typeof(InvocationContext)] is InvocationContext invocation
                 && invocation.ParseResult.CommandResult.Command is Command command
                 && command.GetType() == commandType)
             {
