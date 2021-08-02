@@ -57,7 +57,6 @@ namespace System.CommandLine.Tests.Help
             _helpBuilder.Write(command);
 
             var expected =
-                $"{_executableName}{NewLine}" +
                 $"{_indentation}test{NewLine}" +
                 $"{_indentation}{NewLine}" +
                 $"{_indentation}description with{NewLine}" +
@@ -80,7 +79,6 @@ namespace System.CommandLine.Tests.Help
             helpBuilder.Write(command);
 
             var expected =
-                $@"{_executableName}{NewLine}" +
                 $"{_indentation}test\tdescription with some tabs that is long enough to wrap to a\t{NewLine}" +
                 $"{_indentation}new line{NewLine}{NewLine}";
 
