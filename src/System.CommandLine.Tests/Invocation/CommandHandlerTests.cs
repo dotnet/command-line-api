@@ -67,8 +67,8 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("command");
-            command.AddOption(new Option<string>("--name"));
-            command.AddOption(new Option<string>("--age"));
+            command.AddOption(new Option<string>(new[] { "-n", "--name" }));
+            command.AddOption(new Option<string>(new[] { "-a", "--age" }));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
