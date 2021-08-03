@@ -302,14 +302,59 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("-a -bc");
 
+            _output.WriteLine(result.Diagram());
+
             var resultForA = result.FindResultFor(optionA);
             var resultForB = result.FindResultFor(optionB);
             var resultForC = result.FindResultFor(optionC);
 
             result.Tokens
-                  .Select(t => t.Value)
-                  .Should()
-                  .BeEquivalentTo("-a", "-b", "-c");
+                .Select(t => t.Value)
+                .Should()
+                .BeEquivalentTo("-a", "-b", "-c");
+        }
+
+        [Fact]
+        public void Optional_option_arguments_are_unbundled_2()
+        {
+            var optionA = new Option<string>("-a") { Arity = ArgumentArity.ZeroOrOne };
+            var optionB = new Option<bool>("-b");
+            var optionC = new Option<bool>("-c");
+
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse("-a -bc");
+
+            _output.WriteLine(result.Diagram());
+
+            result.ValueForOption(optionA).Should().BeNullOrEmpty();
+            result.ValueForOption(optionB).Should().BeFalse();
+            result.ValueForOption(optionC).Should().BeFalse();
+
+            throw new NotImplementedException();
+        }
+
+        [Fact]
+        public void WHAT_ABOUT_COMMANDS()
+        {
+            var optionA = new Option<string>("-a");
+            var root = new RootCommand
+            {
+                new Command("subcommand"),
+                optionA
+            };
+
+            var result = root.Parse("-a subcommand");
+
+            _output.WriteLine(result.ToString());
+
+            // TODO-JOSEQU (HMMMMM_what_about_COMMANDS) write test
+            Assert.True(false, "Test HMMMMM_what_about_COMMANDS is not written yet.");
         }
 
         [Fact]

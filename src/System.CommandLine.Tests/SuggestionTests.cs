@@ -177,7 +177,7 @@ namespace System.CommandLine.Tests
                 .AddSuggestions((parseResult, match) =>
                 {
                     var opt1Value = parseResult?.ValueForOption<string>("--origin");
-                    return opt1Value != null ? new[] { opt1Value } : Array.Empty<string>();
+                    return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
                 }));
 
             var result = parser.Parse("--origin test --clone ");
@@ -198,7 +198,7 @@ namespace System.CommandLine.Tests
                 .AddSuggestions((parseResult, match) =>
                 {
                     var opt1Value = parseResult?.ValueForOption<string>("--origin");
-                    return opt1Value != null ? new[] { opt1Value } : Array.Empty<string>();
+                    return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
                 }));
 
             var result = parser.Parse("--clone  --origin test");
