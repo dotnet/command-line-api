@@ -17,6 +17,7 @@ namespace System.CommandLine
     {
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private IArgumentArity? _arity;
+        private bool _isHelpNameSpecified;
         private TryConvertArgument? _convertArguments;
         private Type _argumentType = typeof(string);
         private SuggestionSourceList? _suggestions = null;
@@ -63,6 +64,16 @@ namespace System.CommandLine
                 return _arity;
             }
             set => _arity = value;
+        }
+
+
+        /// <summary>
+        /// Gets or sets if the ArgumentHelpName is specified by the user.
+        /// </summary>
+        public bool IsHelpNameSpecified
+        {
+            get => _isHelpNameSpecified;
+            set => _isHelpNameSpecified = value;
         }
 
         internal TryConvertArgument? ConvertArguments

@@ -53,12 +53,10 @@ namespace System.CommandLine.Tests.Help
                 new Option<FileAccess>(aliases: new string[] {"--the-root-option-enum-arg", "-troea"}, () => FileAccess.Read) 
                 {
                     Description = "the-root-option-description",
-                    ArgumentHelpName = "the-root-option-arg",
                 },
                 new Option<FileAccess>(aliases: new string[] {"--the-root-option-required-enum-arg", "-trorea"}, () => FileAccess.Read) 
                 {
                     Description = "the-root-option-description",
-                    ArgumentHelpName = "the-root-option-arg",
                     IsRequired = true
                 },
                 new Option(aliases: new string[] {"--the-root-option-multi-line-description", "-tromld"}) {

@@ -134,7 +134,11 @@ namespace System.CommandLine
         public string ArgumentHelpName
         {
             get => Argument.Name;
-            set => Argument.Name = value;
+            set
+            {
+                Argument.Name = value;
+                Argument.IsHelpNameSpecified = true;
+            }
         }
 
         /// <summary>
