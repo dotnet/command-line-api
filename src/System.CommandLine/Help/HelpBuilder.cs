@@ -522,7 +522,12 @@ namespace System.CommandLine.Help
 
             string descriptor;
             var suggestions = argument.GetSuggestions().ToArray();
-            if (suggestions.Length > 0 && UseSuggestionsInHelp(argument))
+            var helpName = GetArgumentHelpName(argument);
+            if (helpName != null)
+            {
+                descriptor = helpName;
+            }
+            else if (suggestions.Length > 0)
             {
                 descriptor = string.Join("|", suggestions);
             }
@@ -538,10 +543,10 @@ namespace System.CommandLine.Help
             return descriptor;
         }
 
-        private bool UseSuggestionsInHelp(IArgument argument)
+        private string? GetArgumentHelpName(IArgument argument)
         {
             var arg = argument as Argument;
-            return arg == null || !arg.IsHelpNameSpecified;
+            return arg == null ? null : arg.HelpName;
         }
 
         private class Customization

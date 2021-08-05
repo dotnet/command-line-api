@@ -133,11 +133,10 @@ namespace System.CommandLine
         /// </value>
         public string ArgumentHelpName
         {
-            get => Argument.Name;
+            get => Argument.HelpName ?? Argument.Name;
             set
             {
-                Argument.Name = value;
-                Argument.IsHelpNameSpecified = true;
+                Argument.HelpName = value;
             }
         }
 
