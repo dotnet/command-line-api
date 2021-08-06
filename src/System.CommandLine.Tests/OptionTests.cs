@@ -241,7 +241,6 @@ namespace System.CommandLine.Tests
             var command = new Option("--alias", arity: ArgumentArity.ZeroOrOne);
 
             command.Name.Should().Be("alias");
-            command.ArgumentHelpName.Should().Be(null);
         }
 
         [Fact]
