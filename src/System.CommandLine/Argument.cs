@@ -65,6 +65,11 @@ namespace System.CommandLine
             set => _arity = value;
         }
 
+        /// <summary>
+        /// Argument help name
+        /// </summary>
+        internal string? HelpName { get; set; }
+
         internal TryConvertArgument? ConvertArguments
         {
             get

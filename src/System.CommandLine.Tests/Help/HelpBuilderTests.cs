@@ -467,6 +467,32 @@ namespace System.CommandLine.Tests.Help
             help.Should().Contain("Sets the verbosity.");
         }
 
+
+        private enum VerbosityOptions
+        {
+            q,
+            m,
+            n,
+            d,
+        }
+
+        [Fact]
+        public void Arguments_section_uses_name_over_suggestions_if_specified()
+        {
+            var command = new Command("the-command")
+            {
+                new Option<VerbosityOptions>(new[] { "-v", "--verbosity" })
+                {
+                    ArgumentHelpName = "LEVEL"
+                }
+            };
+
+            _helpBuilder.Write(command);
+
+            var help = _console.Out.ToString();
+            help.Should().Contain("-v, --verbosity <LEVEL>");
+        }
+
         [Fact]
         public void Arguments_section_uses_description_if_provided()
         {
@@ -1238,7 +1264,7 @@ namespace System.CommandLine.Tests.Help
 
             help.Should().Contain($"[default: the-arg-value]");
         }
-
+        
         [Fact]
         public void Option_arguments_with_default_values_that_are_enumerable_display_pipe_delimited_list()
         {
