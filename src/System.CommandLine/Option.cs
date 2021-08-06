@@ -146,7 +146,7 @@ namespace System.CommandLine
         public virtual IArgumentArity Arity
         {
             get => Argument.Arity;
-            set
+            init
             {
                 if (value.MaximumNumberOfValues > 0)
                 {
