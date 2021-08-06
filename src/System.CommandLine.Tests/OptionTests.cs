@@ -240,7 +240,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Option("--alias", arity: ArgumentArity.ZeroOrOne);
 
-            command.ArgumentHelpName.Should().Be("alias");
+            command.Name.Should().Be("alias");
+            command.ArgumentHelpName.Should().Be(null);
         }
 
         [Fact]

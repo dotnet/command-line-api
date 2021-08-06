@@ -131,9 +131,9 @@ namespace System.CommandLine
         /// <value>
         /// The name of the argument when displayed in help.
         /// </value>
-        public string ArgumentHelpName
+        public string? ArgumentHelpName
         {
-            get => Argument.HelpName ?? Argument.Name;
+            get => Argument.HelpName;
             set
             {
                 Argument.HelpName = value;

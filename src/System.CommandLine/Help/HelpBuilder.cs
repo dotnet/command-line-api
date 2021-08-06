@@ -523,9 +523,9 @@ namespace System.CommandLine.Help
             string descriptor;
             var suggestions = argument.GetSuggestions().ToArray();
             var helpName = GetArgumentHelpName(argument);
-            if (helpName != null)
+            if (!string.IsNullOrEmpty(helpName))
             {
-                descriptor = helpName;
+                descriptor = helpName!;
             }
             else if (suggestions.Length > 0)
             {
@@ -546,7 +546,7 @@ namespace System.CommandLine.Help
         private string? GetArgumentHelpName(IArgument argument)
         {
             var arg = argument as Argument;
-            return arg == null ? null : arg.HelpName;
+            return arg?.HelpName;
         }
 
         private class Customization
