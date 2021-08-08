@@ -534,9 +534,10 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public static void Subsequent_call_to_configure_overrides_service_registration()
         {
+            ICommandHandler invokedHandler = null;
             BindingContextCommandHandlerAction action = (handler, Console) =>
             {
-                handler.Should().BeOfType<BindingContextCommandHandler2>();
+                invokedHandler = handler;
             };
             var parser = new CommandLineBuilder(new RootCommand
             {
@@ -547,6 +548,9 @@ namespace System.CommandLine.Tests.Invocation
                 .ConfigureBindingContext(context => context.AddService<IBindingContextCommandHandlerInterface, BindingContextCommandHandler2>())
                 .Build();
             parser.Invoke(Array.Empty<string>(), new TestConsole());
+
+            invokedHandler.Should().NotBeNull();
+            invokedHandler.Should().BeOfType<BindingContextCommandHandler2>();
         }
 
         public class BindingContextResolvedCommandHandler : ICommandHandler
