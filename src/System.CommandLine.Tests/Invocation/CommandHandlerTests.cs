@@ -515,7 +515,6 @@ namespace System.CommandLine.Tests.Invocation
             {
                 Handler = CommandHandler.FromBindingContext<BindingContextResolvedCommandHandler>()
             };
-            command.Handler.Should().NotBeOfType<BindingContextResolvedCommandHandler>();
             var parser = new CommandLineBuilder(command)
                 .ConfigureBindingContext(context => context.AddService<BindingContextResolvedCommandHandler>())
                 .Build();
@@ -523,6 +522,13 @@ namespace System.CommandLine.Tests.Invocation
             var console = new TestConsole();
             parser.Invoke(Array.Empty<string>(), console);
             console.Out.ToString().Should().Be(typeof(BindingContextResolvedCommandHandler).FullName);
+        }
+
+        [Fact]
+        public static void FromBindingContext_returns_a_wrapper_type_instance()
+        {
+            ICommandHandler handler = CommandHandler.FromBindingContext<BindingContextResolvedCommandHandler>();
+            handler.Should().NotBeOfType<BindingContextResolvedCommandHandler>();
         }
 
         [Fact]
