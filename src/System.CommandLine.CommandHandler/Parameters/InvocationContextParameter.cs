@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.CommandHandler.Parameters
 {
-    public class InvocationContextParameter : Parameter
+    public class InvocationContextParameter : Parameter, IEquatable<InvocationContextParameter>
     {
         public InvocationContextParameter(ITypeSymbol invocationContextType)
             : base(invocationContextType)
@@ -11,5 +11,17 @@ namespace System.CommandLine.CommandHandler.Parameters
 
         public override string GetValueFromContext()
             => "context";
+
+        public override int GetHashCode()
+            => base.GetHashCode();
+
+        public override bool Equals(object obj)
+            => Equals(obj as InvocationContextParameter);
+
+        public bool Equals(InvocationContextParameter? other)
+        {
+            if (other is null) return false;
+            return base.Equals(other);
+        }
     }
 }

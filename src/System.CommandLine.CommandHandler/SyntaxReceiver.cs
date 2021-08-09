@@ -10,7 +10,7 @@ namespace System.CommandLine.CommandHandler
 
     public class SyntaxReceiver : ISyntaxContextReceiver
     {
-        public List<DelegateInvocation> Invocations { get; } = new();
+        public HashSet<DelegateInvocation> Invocations { get; } = new();
 
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {

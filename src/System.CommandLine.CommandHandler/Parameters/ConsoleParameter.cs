@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.CommandHandler.Parameters
 {
-    public class ConsoleParameter : Parameter
+    public class ConsoleParameter : Parameter, IEquatable<ConsoleParameter>
     {
         public ConsoleParameter(ITypeSymbol consoleType)
             : base(consoleType)
@@ -11,5 +11,17 @@ namespace System.CommandLine.CommandHandler.Parameters
 
         public override string GetValueFromContext()
             => "context.Console";
+
+        public override int GetHashCode()
+            => base.GetHashCode();
+
+        public override bool Equals(object obj)
+            => Equals(obj as ConsoleParameter);
+
+        public bool Equals(ConsoleParameter? other)
+        {
+            if (other is null) return false;
+            return base.Equals(other);
+        }
     }
 }

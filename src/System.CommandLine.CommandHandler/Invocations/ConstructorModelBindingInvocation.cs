@@ -1,10 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
+using System.CommandLine.CommandHandler.Parameters;
 using System.Linq;
 using System.Text;
 
 namespace System.CommandLine.CommandHandler.Invocations
 {
-    public class ConstructorModelBindingInvocation : DelegateInvocation
+    public class ConstructorModelBindingInvocation : DelegateInvocation, IEquatable<ConstructorModelBindingInvocation>
     {
         public ConstructorModelBindingInvocation(
             IMethodSymbol constructor, 
@@ -58,6 +59,22 @@ namespace System.CommandLine.CommandHandler.Invocations
                     break;
             }
             return builder.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() * -1521134295 +
+                SymbolComparer.GetHashCode(Constructor);
+        }
+
+        public override bool Equals(object obj)
+            => Equals(obj as ConstructorModelBindingInvocation);
+
+        public bool Equals(ConstructorModelBindingInvocation? other)
+        {
+            if (other is null) return false;
+            return base.Equals(other) &&
+                SymbolComparer.Equals(Constructor, other.Constructor);
         }
     }
 }

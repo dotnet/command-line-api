@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.CommandHandler.Parameters
 {
-    public abstract class PropertyParameter : Parameter
+    public abstract class PropertyParameter : Parameter, IEquatable<PropertyParameter>
     {
         protected PropertyParameter(string localName, ITypeSymbol type, ITypeSymbol valueType)
             : base(valueType)
@@ -25,5 +25,22 @@ namespace System.CommandLine.CommandHandler.Parameters
 
         public override (string Type, string Name) GetMethodParameter()
             => (Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), ParameterName);
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() * -1521134295 +
+                SymbolComparer.GetHashCode(Type) * -1521134295 +
+                HashCode(LocalName);
+        }
+
+        public override bool Equals(object obj)
+            => Equals(obj as PropertyParameter);
+
+        public bool Equals(PropertyParameter? other)
+        {
+            return base.Equals(other) &&
+                SymbolComparer.Equals(Type, other.Type) &&
+                Equals(LocalName, other.LocalName);
+        }
     }
 }
