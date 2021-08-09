@@ -10,6 +10,7 @@ trigger:
   branches:
     include:
     - main
+    - release/*
 
 pr:
   autoCancel: false
@@ -94,6 +95,7 @@ stages:
         - script: eng\common\cibuild.cmd
             -configuration $(_BuildConfig)
             -prepareMachine
+            -msbuildEngine dotnet
             $(_BuildArgs)
           displayName: Build and Publish
         - task: PublishBuildArtifacts@1
