@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.CommandHandler.Parameters
 {
-    public class BindingContextParameter : Parameter
+    public class BindingContextParameter : Parameter, IEquatable<BindingContextParameter>
     {
         public BindingContextParameter(ITypeSymbol bindingContextType)
             : base(bindingContextType)
@@ -11,5 +11,17 @@ namespace System.CommandLine.CommandHandler.Parameters
 
         public override string GetValueFromContext()
             => "context.BindingContext";
+
+        public override int GetHashCode()
+            => base.GetHashCode();
+
+        public override bool Equals(object obj)
+            => Equals(obj as BindingContextParameter);
+
+        public bool Equals(BindingContextParameter? other)
+        {
+            if (other is null) return false;
+            return base.Equals(other);
+        }
     }
 }

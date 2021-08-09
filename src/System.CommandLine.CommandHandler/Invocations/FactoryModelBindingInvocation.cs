@@ -5,7 +5,7 @@ using System.Text;
 
 namespace System.CommandLine.CommandHandler.Invocations
 {
-    public class FactoryModelBindingInvocation : DelegateInvocation
+    public class FactoryModelBindingInvocation : DelegateInvocation, IEquatable<FactoryModelBindingInvocation>
     {
         public FactoryModelBindingInvocation(
             ITypeSymbol delegateType,
@@ -53,6 +53,18 @@ namespace System.CommandLine.CommandHandler.Invocations
                     break;
             }
             return builder.ToString();
+        }
+
+        public override int GetHashCode()
+            => base.GetHashCode();
+
+        public override bool Equals(object obj)
+            => Equals(obj as FactoryModelBindingInvocation);
+
+        public bool Equals(FactoryModelBindingInvocation? other)
+        {
+            if (other is null) return false;
+            return base.Equals(other);
         }
     }
 }

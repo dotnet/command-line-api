@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.CommandHandler.Parameters
 {
-    public class ParseResultParameter : Parameter
+    public class ParseResultParameter : Parameter, IEquatable<ParseResultParameter>
     {
         public ParseResultParameter(ITypeSymbol parseResultType)
             : base(parseResultType)
@@ -11,5 +11,17 @@ namespace System.CommandLine.CommandHandler.Parameters
 
         public override string GetValueFromContext()
             => "context.ParseResult";
+
+        public override int GetHashCode()
+            => base.GetHashCode();
+
+        public override bool Equals(object obj)
+            => Equals(obj as ParseResultParameter);
+
+        public bool Equals(ParseResultParameter? other)
+        {
+            if (other is null) return false;
+            return base.Equals(other);
+        }
     }
 }

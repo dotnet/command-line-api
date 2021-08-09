@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.CommandHandler.Parameters
 {
-    public class FactoryParameter : Parameter
+    public class FactoryParameter : Parameter, IEquatable<FactoryParameter>
     {
         public ITypeSymbol FactoryType { get; }
         public string LocalName { get; }
@@ -25,5 +25,22 @@ namespace System.CommandLine.CommandHandler.Parameters
 
         public override (string Type, string Name) GetMethodParameter()
             => (FactoryType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), ParameterName);
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() * -1521134295 +
+                SymbolComparer.GetHashCode(FactoryType) * -1521134295 + 
+                HashCode(LocalName);
+        }
+
+        public override bool Equals(object obj)
+            => Equals(obj as FactoryParameter);
+
+        public bool Equals(FactoryParameter? other)
+        {
+            return base.Equals(other) &&
+                SymbolComparer.Equals(FactoryType, other.FactoryType) &&
+                Equals(LocalName, other.LocalName);
+        }
     }
 }

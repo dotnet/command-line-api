@@ -216,6 +216,40 @@ namespace System.CommandLine.Tests.Invocation
             int result = await command.InvokeAsync("add 1 2", _console);
 
             result.Should().Be(3);
+        } 
+
+        [Fact]
+        public async Task Can_generate_handler_for_multiple_commands_with_the_same_signature()
+        {
+            string firstValue = "";
+            void Execute1(string value)
+            {
+                firstValue = value;
+            }
+            string secondValue = "";
+            void Execute2(string value)
+            {
+                secondValue = value;
+            }
+
+
+            var command1 = new Command("first");
+            var argument1 = new Argument<string>("first-value");
+            command1.AddArgument(argument1);
+            command1.Handler = CommandHandler.Generator.Generate<Action<string>>
+                (Execute1, argument1);
+
+            var command2 = new Command("second");
+            var argument2 = new Argument<string>("second-value");
+            command2.AddArgument(argument2);
+            command2.Handler = CommandHandler.Generator.Generate<Action<string>>
+                (Execute2, argument2);
+
+            await command1.InvokeAsync("first v1", _console);
+            await command2.InvokeAsync("second v2", _console);
+
+            firstValue.Should().Be("v1");
+            secondValue.Should().Be("v2");
         }
 
         public class Character

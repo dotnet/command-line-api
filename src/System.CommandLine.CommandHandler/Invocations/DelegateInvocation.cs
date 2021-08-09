@@ -6,8 +6,10 @@ using System.Text;
 
 namespace System.CommandLine.CommandHandler.Invocations
 {
-    public class DelegateInvocation
+    public class DelegateInvocation : IEquatable<DelegateInvocation>
     {
+        protected static SymbolEqualityComparer SymbolComparer { get; } = SymbolEqualityComparer.Default;
+
         public ITypeSymbol DelegateType { get; }
         public ReturnPattern ReturnPattern { get; }
         public int NumberOfGenerericParameters { get; }
@@ -59,5 +61,51 @@ namespace System.CommandLine.CommandHandler.Invocations
             }
             return builder.ToString();
         }
+
+        public override int GetHashCode()
+        {
+            int hashCode = SymbolComparer.GetHashCode(DelegateType) * -1521134295 +
+                HashCode(ReturnPattern) * -1521134295 + 
+                HashCode(NumberOfGenerericParameters) * -1521134295;
+
+            foreach(Parameter parameter in Parameters)
+            {
+                hashCode += HashCode(parameter) * -1521134295;
+            }
+
+            return hashCode;
+        }
+
+        protected static int HashCode<T>(T value)
+                => EqualityComparer<T>.Default.GetHashCode(value);
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as DelegateInvocation);
+        }
+
+        public bool Equals(DelegateInvocation? other)
+        {
+            if (other is null) return false;
+
+            bool areEqual = SymbolComparer.Equals(DelegateType, other.DelegateType) &&
+                Equals(ReturnPattern, other.ReturnPattern) &&
+                Equals(NumberOfGenerericParameters, other.NumberOfGenerericParameters) &&
+                Equals(Parameters.Count, other.Parameters.Count);
+            for(int i = 0; areEqual && i < Parameters.Count; i++)
+            {
+                areEqual &= Equals(Parameters[i], other.Parameters[i]);
+            }
+            return areEqual;
+        }
+
+        protected static bool Equals<T>(T first, T second)
+            => EqualityComparer<T>.Default.Equals(first, second);
+    }
+
+    public record Foo
+    {
+        public string Bar { get; set; }
+        public int Baz { get; set; }
     }
 }
