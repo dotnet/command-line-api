@@ -166,12 +166,10 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         private T ValueForOption<T>(Option option)
         {
-            if (FindResultFor(option) is { } result)
+            if (FindResultFor(option) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
             {
-                if (result.GetValueOrDefault<T>() is { } t)
-                {
-                    return t;
-                }
+                return t;
             }
 
             return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;

@@ -22,23 +22,22 @@ namespace System.CommandLine.Invocation
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
-            IMethodDescriptor methodDescriptor)
+            IMethodDescriptor methodDescriptor,
+            object? invocationTarget)
         {
             _handlerMethodInfo = handlerMethodInfo ?? throw new ArgumentNullException(nameof(handlerMethodInfo));
             _invocationTargetBinder = _handlerMethodInfo.IsStatic
                                           ? null
                                           : new ModelBinder(_handlerMethodInfo.ReflectedType);
             _methodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
+            _invocationTarget = invocationTarget;
         }
 
         public ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
-            IMethodDescriptor methodDescriptor,
-            object? invocationTarget)
-            :this(handlerMethodInfo, methodDescriptor )
-        {
-            _invocationTarget = invocationTarget;
-        }
+            IMethodDescriptor methodDescriptor)
+            : this(handlerMethodInfo, methodDescriptor, null)
+        { }
 
         public ModelBindingCommandHandler(
              Delegate handlerDelegate,
