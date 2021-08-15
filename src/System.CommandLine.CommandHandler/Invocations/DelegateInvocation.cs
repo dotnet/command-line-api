@@ -102,10 +102,4 @@ namespace System.CommandLine.CommandHandler.Invocations
         protected static bool Equals<T>(T first, T second)
             => EqualityComparer<T>.Default.Equals(first, second);
     }
-
-    public record Foo
-    {
-        public string Bar { get; set; }
-        public int Baz { get; set; }
-    }
 }
