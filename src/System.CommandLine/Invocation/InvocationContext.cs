@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Help;
 using System.CommandLine.Parsing;
 using System.Threading;
 
@@ -26,6 +27,8 @@ namespace System.CommandLine.Invocation
         public IConsole Console => BindingContext.Console;
 
         public Parser Parser => BindingContext.ParseResult.Parser;
+
+        public IHelpBuilder HelpBuilder => Parser.Configuration.HelpBuilderFactory(BindingContext);
 
         public Resources Resources => Parser.Configuration.Resources;
 
