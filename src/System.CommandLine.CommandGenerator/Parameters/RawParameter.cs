@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public class RawParameter : PropertyParameter, IEquatable<RawParameter>
+    internal class RawParameter : PropertyParameter, IEquatable<RawParameter>
     {
         public RawParameter(string localName, ITypeSymbol valueType) 
             : base(localName, valueType, valueType)

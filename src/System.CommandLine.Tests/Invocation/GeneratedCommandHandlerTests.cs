@@ -5,7 +5,9 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using Xunit;
+using CommandHandler = System.CommandLine.Invocation.Generated.CommandHandler;
 
+#nullable enable
 namespace System.CommandLine.Tests.Invocation
 {
     public partial class CommandHandlerTests
@@ -13,9 +15,9 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Can_generate_handler_for_void_returning_method()
         {
-            string boundName = default;
+            string? boundName = default;
             int boundAge = default;
-            IConsole boundConsole = null;
+            IConsole? boundConsole = null;
 
             void Execute(string fullnameOrNickname, IConsole console, int age)
             {
@@ -43,9 +45,9 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Can_generate_handler_for_method_with_model()
         {
-            string boundName = default;
+            string? boundName = default;
             int boundAge = default;
-            IConsole boundConsole = null;
+            IConsole? boundConsole = null;
 
             void Execute(Character character, IConsole console)
             {
@@ -73,9 +75,9 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Can_generate_handler_for_method_with_model_property_binding()
         {
-            string boundName = default;
+            string? boundName = default;
             int boundAge = default;
-            IConsole boundConsole = null;
+            IConsole? boundConsole = null;
 
             void Execute(Character character, IConsole console)
             {
@@ -166,9 +168,9 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Can_generate_handler_for_async_method()
         {
-            string boundName = default;
+            string? boundName = default;
             int boundAge = default;
-            IConsole boundConsole = null;
+            IConsole? boundConsole = null;
 
             async Task ExecuteAsync(string fullnameOrNickname, IConsole console, int age)
             {
@@ -254,7 +256,7 @@ namespace System.CommandLine.Tests.Invocation
 
         public class Character
         {
-            public Character(string fullName, int age)
+            public Character(string? fullName, int age)
             {
                 FullName = fullName;
                 Age = age;
@@ -263,9 +265,10 @@ namespace System.CommandLine.Tests.Invocation
             public Character()
             { }
 
-            public string FullName { get; set; }
+            public string? FullName { get; set; }
             public int Age { get; set; }
         }
 
     }
 }
+#nullable restore

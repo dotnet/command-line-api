@@ -362,7 +362,6 @@ namespace System.CommandLine.Tests
             {
                 var callCount = 0;
                 var handlerWasCalled = false;
-
                 var command = new RootCommand
                 {
                     Handler = CommandHandler.Create<int>(Run)

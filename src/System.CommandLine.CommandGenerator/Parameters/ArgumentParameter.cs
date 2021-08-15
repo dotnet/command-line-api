@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public class ArgumentParameter : PropertyParameter, IEquatable<ArgumentParameter>
+    internal class ArgumentParameter : PropertyParameter, IEquatable<ArgumentParameter>
     {
         public ArgumentParameter(string localName, INamedTypeSymbol type, ITypeSymbol valueType)
             : base(localName, type, valueType)

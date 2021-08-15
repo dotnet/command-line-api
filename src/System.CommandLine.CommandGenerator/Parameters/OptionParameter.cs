@@ -1,9 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
 
-    public class OptionParameter : PropertyParameter, IEquatable<OptionParameter>
+    internal class OptionParameter : PropertyParameter, IEquatable<OptionParameter>
     {
         public OptionParameter(string localName, INamedTypeSymbol type, ITypeSymbol valueType)
             : base(localName, type, valueType)

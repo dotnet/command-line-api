@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public abstract class PropertyParameter : Parameter, IEquatable<PropertyParameter>
+    internal abstract class PropertyParameter : Parameter, IEquatable<PropertyParameter>
     {
         protected PropertyParameter(string localName, ITypeSymbol type, ITypeSymbol valueType)
             : base(valueType)

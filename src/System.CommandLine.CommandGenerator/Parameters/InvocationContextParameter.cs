@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public class InvocationContextParameter : Parameter, IEquatable<InvocationContextParameter>
+    internal class InvocationContextParameter : Parameter, IEquatable<InvocationContextParameter>
     {
         public InvocationContextParameter(ITypeSymbol invocationContextType)
             : base(invocationContextType)

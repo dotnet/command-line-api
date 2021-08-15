@@ -1,19 +1,19 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
-using System.CommandLine.CommandHandler.Parameters;
+using System.CommandLine.CommandGenerator.Parameters;
 
-namespace System.CommandLine.CommandHandler
+namespace System.CommandLine.CommandGenerator
 {
-    public class WellKnownTypes
+    internal class WellKnownTypes
     {
-        INamedTypeSymbol Console { get; }
-        INamedTypeSymbol ParseResult { get; }
-        INamedTypeSymbol InvocationContext { get; }
-        INamedTypeSymbol HelpBuilder { get; }
-        INamedTypeSymbol BindingContext { get; }
-        public IEqualityComparer<ISymbol?> Comparer { get; }
+        public INamedTypeSymbol Console { get; }
+        public INamedTypeSymbol ParseResult { get; }
+        public INamedTypeSymbol InvocationContext { get; }
+        public INamedTypeSymbol HelpBuilder { get; }
+        public INamedTypeSymbol BindingContext { get; }
+        public IEqualityComparer<Microsoft.CodeAnalysis.ISymbol?> Comparer { get; }
 
-        public WellKnownTypes(Compilation compilation, IEqualityComparer<ISymbol?> comparer)
+        public WellKnownTypes(Compilation compilation, IEqualityComparer<Microsoft.CodeAnalysis.ISymbol?> comparer)
         {
             Console = GetType("System.CommandLine.IConsole");
             ParseResult = GetType("System.CommandLine.Parsing.ParseResult");
@@ -27,9 +27,9 @@ namespace System.CommandLine.CommandHandler
             Comparer = comparer;
         }
 
-        internal bool Contains(ISymbol symbol) => TryGet(symbol, out _);
+        internal bool Contains(Microsoft.CodeAnalysis.ISymbol symbol) => TryGet(symbol, out _);
 
-        internal bool TryGet(ISymbol symbol, out Parameter? parameter)
+        internal bool TryGet(Microsoft.CodeAnalysis.ISymbol symbol, out Parameter? parameter)
         {
             if (Comparer.Equals(Console, symbol))
             {

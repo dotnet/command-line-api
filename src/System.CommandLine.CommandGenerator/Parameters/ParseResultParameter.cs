@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public class ParseResultParameter : Parameter, IEquatable<ParseResultParameter>
+    internal class ParseResultParameter : Parameter, IEquatable<ParseResultParameter>
     {
         public ParseResultParameter(ITypeSymbol parseResultType)
             : base(parseResultType)

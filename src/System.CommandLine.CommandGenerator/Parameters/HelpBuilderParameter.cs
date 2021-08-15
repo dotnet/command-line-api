@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public class HelpBuilderParameter : Parameter, IEquatable<HelpBuilderParameter>
+    internal class HelpBuilderParameter : Parameter, IEquatable<HelpBuilderParameter>
     {
         public HelpBuilderParameter(ITypeSymbol helpBuilderType)
             : base(helpBuilderType)
