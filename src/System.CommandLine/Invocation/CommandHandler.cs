@@ -8,8 +8,6 @@ namespace System.CommandLine.Invocation
 {
     public static partial class CommandHandler
     {
-        public static CommandHandlerGenerator Generator { get; } = null!;
-
         public static ICommandHandler Create(Action action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 

@@ -1,14 +1,14 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
-using System.CommandLine.CommandHandler.Invocations;
-using System.CommandLine.CommandHandler.Parameters;
+using System.CommandLine.CommandGenerator.Invocations;
+using System.CommandLine.CommandGenerator.Parameters;
 using System.Linq;
 
-namespace System.CommandLine.CommandHandler
+namespace System.CommandLine.CommandGenerator
 {
 
-    public class SyntaxReceiver : ISyntaxContextReceiver
+    internal class SyntaxReceiver : ISyntaxContextReceiver
     {
         public HashSet<DelegateInvocation> Invocations { get; } = new();
 
@@ -25,7 +25,7 @@ namespace System.CommandLine.CommandHandler
                 SymbolEqualityComparer symbolEqualityComparer = SymbolEqualityComparer.Default;
                 WellKnownTypes wellKnonwTypes = new(context.SemanticModel.Compilation, symbolEqualityComparer);
                 
-                IReadOnlyList<ISymbol> delegateParameters = Array.Empty<ISymbol>();
+                IReadOnlyList<Microsoft.CodeAnalysis.ISymbol> delegateParameters = Array.Empty<Microsoft.CodeAnalysis.ISymbol>();
                 //Check for model binding condition
                 if (invokeMethodSymbol.TypeArguments[0] is INamedTypeSymbol namedDelegateType &&
                     namedDelegateType.TypeArguments.Length > 0)
@@ -33,15 +33,15 @@ namespace System.CommandLine.CommandHandler
                     if (namedDelegateType.DelegateInvokeMethod?.ReturnsVoid == false)
                     {
                         delegateParameters = namedDelegateType.TypeArguments
-                            .Take(namedDelegateType.TypeArguments.Length - 1).Cast<ISymbol>().ToList();
+                            .Take(namedDelegateType.TypeArguments.Length - 1).Cast<Microsoft.CodeAnalysis.ISymbol>().ToList();
                     }
                     else
                     {
-                        delegateParameters = namedDelegateType.TypeArguments.Cast<ISymbol>().ToList();
+                        delegateParameters = namedDelegateType.TypeArguments.Cast<Microsoft.CodeAnalysis.ISymbol>().ToList();
                     }
                 }
 
-                IReadOnlyList<ISymbol?> symbols = invocationExpression.ArgumentList.Arguments
+                IReadOnlyList<Microsoft.CodeAnalysis.ISymbol?> symbols = invocationExpression.ArgumentList.Arguments
                     .Skip(1)
                     .Select(x => context.SemanticModel.GetSymbolInfo(x.Expression).Symbol)
                     .ToList();
@@ -101,7 +101,7 @@ namespace System.CommandLine.CommandHandler
                 }
 
                 static bool IsMatch(
-                    IReadOnlyList<ISymbol> targetSymbols,
+                    IReadOnlyList<Microsoft.CodeAnalysis.ISymbol> targetSymbols,
                     IReadOnlyList<Parameter> providedSymbols,
                     WellKnownTypes knownTypes)
                 {
@@ -126,7 +126,7 @@ namespace System.CommandLine.CommandHandler
         }
 
         private static IReadOnlyList<Parameter> PopulateParameters(
-            IReadOnlyList<ISymbol> symbols,
+            IReadOnlyList<Microsoft.CodeAnalysis.ISymbol> symbols,
             IReadOnlyList<Parameter> givenParameters,
             WellKnownTypes knownTypes)
         {
@@ -141,11 +141,11 @@ namespace System.CommandLine.CommandHandler
             return parameters;
         }
 
-        private static IReadOnlyList<Parameter> GetParameters(IEnumerable<ISymbol> symbols)
+        private static IReadOnlyList<Parameter> GetParameters(IEnumerable<Microsoft.CodeAnalysis.ISymbol> symbols)
         {
             List<Parameter> parameters = new();
             int parameterIndex = 1;
-            foreach (ISymbol symbol in symbols)
+            foreach (Microsoft.CodeAnalysis.ISymbol symbol in symbols)
             {
                 parameters.Add(GetParameter(symbol, $"Param{parameterIndex}"));
                 parameterIndex++;
@@ -153,7 +153,7 @@ namespace System.CommandLine.CommandHandler
             return parameters;
         }
 
-        private static Parameter GetParameter(ISymbol argumentSymbol, string localName)
+        private static Parameter GetParameter(Microsoft.CodeAnalysis.ISymbol argumentSymbol, string localName)
         {
             return argumentSymbol switch
             {

@@ -1,12 +1,12 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
-using System.CommandLine.CommandHandler.Parameters;
+using System.CommandLine.CommandGenerator.Parameters;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandHandler.Invocations
+namespace System.CommandLine.CommandGenerator.Invocations
 {
-    public class DelegateInvocation : IEquatable<DelegateInvocation>
+    internal class DelegateInvocation : IEquatable<DelegateInvocation>
     {
         protected static SymbolEqualityComparer SymbolComparer { get; } = SymbolEqualityComparer.Default;
 

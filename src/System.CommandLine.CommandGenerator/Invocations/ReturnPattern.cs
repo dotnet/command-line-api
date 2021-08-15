@@ -1,6 +1,6 @@
-﻿namespace System.CommandLine.CommandHandler.Invocations
+﻿namespace System.CommandLine.CommandGenerator.Invocations
 {
-    public enum ReturnPattern
+    internal enum ReturnPattern
     {
         None,
         InvocationContextExitCode,

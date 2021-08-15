@@ -58,7 +58,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Hosting.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HostingPlayground", "samples\HostingPlayground\HostingPlayground.csproj", "{0BF6958D-9EE3-4623-B3D6-4DA77EAC1906}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.CommandHandler", "src\System.CommandLine.CommandHandler\System.CommandLine.CommandHandler.csproj", "{B0D00128-E41B-4648-9D22-9B91F8F6BF0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.CommandGenerator", "src\System.CommandLine.CommandHandler\System.CommandLine.CommandGenerator.csproj", "{B0D00128-E41B-4648-9D22-9B91F8F6BF0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,9 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
-using System.CommandLine.CommandHandler.Invocations;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandHandler
+namespace System.CommandLine.CommandGenerator
 {
     [Generator]
     public class CommandHandlerGenerator : ISourceGenerator

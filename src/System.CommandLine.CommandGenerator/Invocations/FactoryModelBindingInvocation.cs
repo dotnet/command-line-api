@@ -1,31 +1,25 @@
 ﻿using Microsoft.CodeAnalysis;
-using System.CommandLine.CommandHandler.Parameters;
+using System.CommandLine.CommandGenerator.Parameters;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandHandler.Invocations
+namespace System.CommandLine.CommandGenerator.Invocations
 {
-    public class ConstructorModelBindingInvocation : DelegateInvocation, IEquatable<ConstructorModelBindingInvocation>
+    internal class FactoryModelBindingInvocation : DelegateInvocation, IEquatable<FactoryModelBindingInvocation>
     {
-        public ConstructorModelBindingInvocation(
-            IMethodSymbol constructor, 
-            ReturnPattern returnPattern,
-            ITypeSymbol delegateType)
-            : base(delegateType, returnPattern, 1)
-        {
-            Constructor = constructor;
-        }
-
-        public IMethodSymbol Constructor { get; }
+        public FactoryModelBindingInvocation(
+            ITypeSymbol delegateType,
+            ReturnPattern returnPattern)
+            : base(delegateType, returnPattern, 2)
+        { }
 
         public override string InvokeContents()
         {
             StringBuilder builder = new();
-            builder.Append($"var model = new {Constructor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}(");
-            builder.Append(string.Join(", ", Parameters.Take(Constructor.Parameters.Length)
-                .Select(x => x.GetValueFromContext())));
-            builder.AppendLine(");");
 
+            var factoryParam = (FactoryParameter)Parameters[0];
+            builder.AppendLine($"var model = {factoryParam.LocalName}.Invoke(context);");
+            
             switch (ReturnPattern)
             {
                 case ReturnPattern.FunctionReturnValue:
@@ -35,7 +29,7 @@ namespace System.CommandLine.CommandHandler.Invocations
                     break;
             }
             builder.Append("Method.Invoke(model");
-            var remainigParameters = Parameters.Skip(Constructor.Parameters.Length).ToList();
+            var remainigParameters = Parameters.Skip(1).ToList();
             if (remainigParameters.Count > 0)
             {
                 builder.Append(", ");
@@ -62,19 +56,15 @@ namespace System.CommandLine.CommandHandler.Invocations
         }
 
         public override int GetHashCode()
-        {
-            return base.GetHashCode() * -1521134295 +
-                SymbolComparer.GetHashCode(Constructor);
-        }
+            => base.GetHashCode();
 
         public override bool Equals(object obj)
-            => Equals(obj as ConstructorModelBindingInvocation);
+            => Equals(obj as FactoryModelBindingInvocation);
 
-        public bool Equals(ConstructorModelBindingInvocation? other)
+        public bool Equals(FactoryModelBindingInvocation? other)
         {
             if (other is null) return false;
-            return base.Equals(other) &&
-                SymbolComparer.Equals(Constructor, other.Constructor);
+            return base.Equals(other);
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public abstract class Parameter : IEquatable<Parameter>
+    internal abstract class Parameter : IEquatable<Parameter>
     {
         protected static SymbolEqualityComparer SymbolComparer { get; } = SymbolEqualityComparer.Default;
 

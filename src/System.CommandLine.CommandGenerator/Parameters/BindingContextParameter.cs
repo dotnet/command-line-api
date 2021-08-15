@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public class BindingContextParameter : Parameter, IEquatable<BindingContextParameter>
+    internal class BindingContextParameter : Parameter, IEquatable<BindingContextParameter>
     {
         public BindingContextParameter(ITypeSymbol bindingContextType)
             : base(bindingContextType)

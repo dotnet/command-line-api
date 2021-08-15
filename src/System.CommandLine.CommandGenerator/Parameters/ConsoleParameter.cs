@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public class ConsoleParameter : Parameter, IEquatable<ConsoleParameter>
+    internal class ConsoleParameter : Parameter, IEquatable<ConsoleParameter>
     {
         public ConsoleParameter(ITypeSymbol consoleType)
             : base(consoleType)

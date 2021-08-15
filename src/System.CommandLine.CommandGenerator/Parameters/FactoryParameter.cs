@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandHandler.Parameters
+namespace System.CommandLine.CommandGenerator.Parameters
 {
-    public class FactoryParameter : Parameter, IEquatable<FactoryParameter>
+    internal class FactoryParameter : Parameter, IEquatable<FactoryParameter>
     {
         public ITypeSymbol FactoryType { get; }
         public string LocalName { get; }
