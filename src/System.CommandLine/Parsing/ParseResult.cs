@@ -190,10 +190,12 @@ namespace System.CommandLine.Parsing
         [return: MaybeNull]
         public T GetValueForOption<T>(Option option)
         {
-            if (FindResultFor(option) is { } result &&
-                result.GetValueOrDefault<T>() is { } t)
+            if (FindResultFor(option) is { } result)
             {
-                return t;
+                if (result.GetValueOrDefault<T>() is { } t)
+                {
+                    return t;
+                }
             }
 
             return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;

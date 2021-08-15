@@ -24,10 +24,19 @@ namespace System.CommandLine.Binding
 
         public override ICommandHandler GetCommandHandler()
         {
-            return new ModelBindingCommandHandler(
-                _handlerMethodInfo,
-                this,
-                _invocationTarget);
+            if (_invocationTarget is null)
+            {
+                return new ModelBindingCommandHandler(
+                    _handlerMethodInfo,
+                    this);
+            }
+            else
+            {
+                return new ModelBindingCommandHandler(
+                    _handlerMethodInfo,
+                    this,
+                    _invocationTarget);
+            }
         }
 
         public override ModelDescriptor Parent => ModelDescriptor.FromType(_handlerMethodInfo.DeclaringType);
