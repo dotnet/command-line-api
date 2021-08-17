@@ -8,7 +8,8 @@
     "dotnet": "6.0.100-preview.6.21355.2",
     "vs": {
       "version": "16.10"
-    }
+    },
+    "xcopy-msbuild": "16.10.0-preview2"
   },
   "msbuild-sdks": {
     "Microsoft.DotNet.Arcade.Sdk": "6.0.0-beta.20630.2"
