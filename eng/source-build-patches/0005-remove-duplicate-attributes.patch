@@ -87,7 +87,7 @@ diff --git a/src/System.CommandLine/System.CommandLine.csproj b/src/System.Comma
 index bc666e8..4e52e94 100644
 --- a/src/System.CommandLine/System.CommandLine.csproj
 +++ b/src/System.CommandLine/System.CommandLine.csproj
-@@ -20,7 +20,9 @@
+@@ -20,7 +22,9 @@
    </PropertyGroup>
     
    <ItemGroup>

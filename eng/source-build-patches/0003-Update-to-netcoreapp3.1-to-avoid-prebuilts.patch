@@ -77,10 +77,10 @@ index aaa2c4a3..5e875a73 100644
      <PackageId>System.CommandLine</PackageId>
 -    <TargetFramework>netstandard2.0</TargetFramework>
 +    <TargetFramework>net6.0</TargetFramework>
-     <LangVersion>9</LangVersion>
+     <LangVersion>10.0</LangVersion>
      <Nullable>enable</Nullable>
      <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
-@@ -18,9 +18,4 @@
+@@ -25,9 +25,4 @@
      <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
    </ItemGroup>
  
@@ -90,6 +90,5 @@ index aaa2c4a3..5e875a73 100644
 -  </ItemGroup>
 -
    <ItemGroup>
--- 
 2.25.2
 
