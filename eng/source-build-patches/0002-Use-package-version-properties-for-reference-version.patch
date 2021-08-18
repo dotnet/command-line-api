@@ -33,14 +33,14 @@ index 1ae8dd3..aaa2c4a 100644
 +++ b/src/System.CommandLine/System.CommandLine.csproj
 @@ -19,8 +19,8 @@
    </ItemGroup>
-
+ 
    <ItemGroup>
 -    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
 -    <PackageReference Include="system.memory" Version="4.5.4" />
 +    <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpPackageVersion)" />
 +    <PackageReference Include="system.memory" Version="$(SystemMemoryPackageVersion)" />
    </ItemGroup>
-
+ 
    <ItemGroup>
 --
 2.18.0
