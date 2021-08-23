@@ -188,7 +188,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("test");
         }
-
+        
         [Fact]
         public void When_one_option_has_been_specified_then_it_and_its_siblings_will_still_be_suggested()
         {

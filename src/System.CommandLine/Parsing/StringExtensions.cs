@@ -114,7 +114,7 @@ namespace System.CommandLine.Parsing
                 if (configuration.EnablePosixBundling &&
                     CanBeUnbundled(arg, out var replacements))
                 {
-                    for (var ri = 0; ri < replacements.Count - 1; ri++)
+                    for (var ri = 0; ri < replacements!.Count - 1; ri++)
                     {
                         tokenList.Add(UnbundledOption(replacements[ri]));
                     }
@@ -358,12 +358,10 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            bool PreviousTokenIsAnOptionExpectingAnArgument()
-            {
-                return tokenList.Count > 1 &&
-                       tokenList[tokenList.Count - 1] is { Type: TokenType.Option } optToken &&
-                       currentCommand.Children.GetByAlias(optToken.Value) is Option { Arity: { MaximumNumberOfValues: > 0 } };
-            }
+            bool PreviousTokenIsAnOptionExpectingAnArgument() =>
+                tokenList.Count > 1 &&
+                tokenList[tokenList.Count - 1] is { Type: TokenType.Option } optToken &&
+                currentCommand!.Children.GetByAlias(optToken.Value) is Option { Arity: { MaximumNumberOfValues: > 0 } };
 
             void ReadResponseFile(string filePath, int i)
             {
