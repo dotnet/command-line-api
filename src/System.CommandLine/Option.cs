@@ -134,10 +134,7 @@ namespace System.CommandLine
         public string? ArgumentHelpName
         {
             get => Argument.HelpName;
-            set
-            {
-                Argument.HelpName = value;
-            }
+            set => Argument.HelpName = value;
         }
 
         /// <summary>

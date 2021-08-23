@@ -142,18 +142,42 @@ namespace System.CommandLine.Parsing
                         tokenList.Add(Argument(arg));
                     }
                 }
-                else if (!knownTokens.ContainsKey(arg) ||
-                         // if token matches the current command name, consider it an argument
-                         currentCommand?.HasAlias(arg) == true)
+                else if (!knownTokens.ContainsKey(arg))
                 {
                     tokenList.Add(Argument(arg));
                 }
                 else
                 {
-                    if (knownTokens.TryGetValue(arg, out var token) &&
-                        token.Type == TokenType.Option)
+                    if (knownTokens.TryGetValue(arg, out var token))
                     {
-                        tokenList.Add(Option(arg));
+                        if (token.Type == TokenType.Option)
+                        {
+                            tokenList.Add(Option(arg));
+                        }
+                        else if (PreviousTokenIsAnOptionExpectingAnArgument())
+                        {
+                            tokenList.Add(Argument(arg));
+                        }
+                        else
+                        {
+                            // when a subcommand is encountered, re-scope which tokens are valid
+                            ISymbolSet symbolSet;
+
+                            if (currentCommand is { } subcommand)
+                            {
+                                symbolSet = subcommand.Children;
+                            }
+                            else
+                            {
+                                symbolSet = configuration.Symbols;
+                            }
+
+                            currentCommand = (ICommand) symbolSet.GetByAlias(arg)!;
+
+                            knownTokens = currentCommand.ValidTokens();
+
+                            tokenList.Add(Command(arg));
+                        }
                     }
                     else
                     {
@@ -214,12 +238,9 @@ namespace System.CommandLine.Parsing
                     return false;
                 }
 
-                // don't unbundle if the last token is an option expecting an argument
-                if (tokenList[tokenList.Count - 1] is { Type: TokenType.Option } lastToken && 
-                    currentCommand?.Children.GetByAlias(lastToken.Value) is IOption option && 
-                    option.Argument.Arity.MinimumNumberOfValues > 0)
+                if (PreviousTokenIsAnOptionExpectingAnArgument())
                 {
-                     return false;
+                    return false;
                 }
 
                 // don't unbundle if arg contains an argument token, e.g. "value" in "-abc:value"
@@ -335,6 +356,13 @@ namespace System.CommandLine.Parsing
                     replacement = builder;
                     return true;
                 }
+            }
+
+            bool PreviousTokenIsAnOptionExpectingAnArgument()
+            {
+                return tokenList.Count > 1 &&
+                       tokenList[tokenList.Count - 1] is { Type: TokenType.Option } optToken &&
+                       currentCommand.Children.GetByAlias(optToken.Value) is Option { Arity: { MaximumNumberOfValues: > 0 } };
             }
 
             void ReadResponseFile(string filePath, int i)

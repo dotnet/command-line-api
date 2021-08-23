@@ -270,7 +270,6 @@ namespace System.CommandLine.Tests
             var optionB = new Option("-b");
             var optionC = new Option("-c");
 
-
             var command = new RootCommand
             {
                 optionA,
@@ -285,78 +284,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(t => t.Value == "-bc");
         }
-        
-        [Fact]
-        public void Optional_option_arguments_are_unbundled()
-        {
-            var optionA = new Option<string>("-a") { Arity = ArgumentArity.ZeroOrOne };
-            var optionB = new Option("-b");
-            var optionC = new Option("-c");
-
-            var command = new RootCommand
-            {
-                optionA,
-                optionB,
-                optionC
-            };
-
-            var result = command.Parse("-a -bc");
-
-            _output.WriteLine(result.Diagram());
-
-            var resultForA = result.FindResultFor(optionA);
-            var resultForB = result.FindResultFor(optionB);
-            var resultForC = result.FindResultFor(optionC);
-
-            result.Tokens
-                .Select(t => t.Value)
-                .Should()
-                .BeEquivalentTo("-a", "-b", "-c");
-        }
-
-        [Fact]
-        public void Optional_option_arguments_are_unbundled_2()
-        {
-            var optionA = new Option<string>("-a") { Arity = ArgumentArity.ZeroOrOne };
-            var optionB = new Option<bool>("-b");
-            var optionC = new Option<bool>("-c");
-
-            var command = new RootCommand
-            {
-                optionA,
-                optionB,
-                optionC
-            };
-
-            var result = command.Parse("-a -bc");
-
-            _output.WriteLine(result.Diagram());
-
-            result.ValueForOption(optionA).Should().BeNullOrEmpty();
-            result.ValueForOption(optionB).Should().BeFalse();
-            result.ValueForOption(optionC).Should().BeFalse();
-
-            throw new NotImplementedException();
-        }
-
-        [Fact]
-        public void WHAT_ABOUT_COMMANDS()
-        {
-            var optionA = new Option<string>("-a");
-            var root = new RootCommand
-            {
-                new Command("subcommand"),
-                optionA
-            };
-
-            var result = root.Parse("-a subcommand");
-
-            _output.WriteLine(result.ToString());
-
-            // TODO-JOSEQU (HMMMMM_what_about_COMMANDS) write test
-            Assert.True(false, "Test HMMMMM_what_about_COMMANDS is not written yet.");
-        }
-
+    
         [Fact]
         public void Last_bundled_option_can_accept_argument_with_no_separator()
         {
@@ -1243,7 +1171,7 @@ namespace System.CommandLine.Tests
         [InlineData("-x \"\"", "")]
         [InlineData("-x=\"\"", "")]
         [InlineData("-x:\"\"", "")]
-        public void When_an_argument_is_enclosed_in_double_quotes_its_value_has_the_quotes_removed(string input, string expected)
+        public void When_an_option_argument_is_enclosed_in_double_quotes_its_value_has_the_quotes_removed(string input, string expected)
         {
             var option = new Option("-x") { Arity = ArgumentArity.ZeroOrMore };
 
@@ -1261,7 +1189,7 @@ namespace System.CommandLine.Tests
         [InlineData("-x -y")]
         [InlineData("-x=-y")]
         [InlineData("-x:-y")]
-        public void Arguments_can_start_with_prefixes_that_make_them_look_like_options(string input)
+        public void Option_arguments_can_start_with_prefixes_that_make_them_look_like_options(string input)
         {
             var optionX = new Option("-x") { Arity = ArgumentArity.ZeroOrOne};
 
@@ -1276,6 +1204,46 @@ namespace System.CommandLine.Tests
             var valueForOption = result.ValueForOption(optionX);
 
             valueForOption.Should().Be("-y");
+        }
+
+
+        [Fact]
+        public void Option_arguments_can_start_with_prefixes_that_make_them_look_like_bundled_options()
+        {
+            var optionA = new Option<string>("-a");
+            var optionB = new Option<bool>("-b");
+            var optionC = new Option<bool>("-c");
+
+            var command = new RootCommand
+            {
+                optionA,
+                optionB,
+                optionC
+            };
+
+            var result = command.Parse("-a -bc");
+
+            result.ValueForOption(optionA).Should().Be("-bc");
+            result.ValueForOption(optionB).Should().BeFalse();
+            result.ValueForOption(optionC).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Option_arguments_can_match_subcommands()
+        {
+            var optionA = new Option<string>("-a");
+            var root = new RootCommand
+            {
+                new Command("subcommand"),
+                optionA
+            };
+
+            var result = root.Parse("-a subcommand");
+
+            _output.WriteLine(result.ToString());
+
+            result.ValueForOption(optionA).Should().Be("subcommand");
+            result.CommandResult.Command.Should().Be(root);
         }
 
         [Theory]
