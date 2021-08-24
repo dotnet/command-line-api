@@ -134,10 +134,7 @@ namespace System.CommandLine
         public string? ArgumentHelpName
         {
             get => Argument.HelpName;
-            set
-            {
-                Argument.HelpName = value;
-            }
+            set => Argument.HelpName = value;
         }
 
         /// <summary>
@@ -157,7 +154,7 @@ namespace System.CommandLine
             }
         }
 
-        internal bool DisallowBinding { get; set; }
+        internal bool DisallowBinding { get; init; }
 
         /// <inheritdoc />
         public override string Name

@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Help

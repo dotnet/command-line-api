@@ -71,8 +71,7 @@ namespace System.CommandLine.Parsing
             _innermostCommandResult = commandResult;
         }
 
-        protected override void VisitCommandArgumentNode(
-            CommandArgumentNode argumentNode)
+        protected override void VisitCommandArgumentNode(CommandArgumentNode argumentNode)
         {
             var commandResult = _innermostCommandResult;
 
@@ -95,7 +94,26 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitOptionNode(OptionNode optionNode)
         {
-            if (_innermostCommandResult!.Children.ResultFor(optionNode.Option) is null)
+            var previousTokenPosition = optionNode.Token.Position - 1;
+
+            var previousToken = _tokenizeResult.Tokens[previousTokenPosition];
+
+            if (previousToken.Type == TokenType.Option)
+            {
+                if (_innermostCommandResult!.Children.GetByAlias(previousToken.Value) is OptionResult
+                {
+                    IsArgumentLimitReached: false
+                    //    IsMinimumArgumentAritySatisfied: false,
+                } previousOptionResult)
+                {
+                    ParseOptionTokenAsArgument(previousOptionResult);
+                    return;
+                }
+            }
+
+            var symbolResult = _innermostCommandResult!.Children.ResultFor(optionNode.Option);
+            
+            if (symbolResult is null)
             {
                 var optionResult = new OptionResult(
                     optionNode.Option,
@@ -106,6 +124,32 @@ namespace System.CommandLine.Parsing
                     .Children
                     .Add(optionResult);
             }
+
+            void ParseOptionTokenAsArgument(
+                OptionResult parentOptionResult)
+            {
+                ArgumentResult argumentResult;
+
+                var token = new Token(optionNode.Token.Value, TokenType.Argument, optionNode.Token.Position);
+
+                if (parentOptionResult.Children.Count == 0)
+                {
+                    argumentResult = new ArgumentResult(parentOptionResult.Option.Argument, parentOptionResult);
+                    parentOptionResult.Children.Add(argumentResult);
+                    // argumentResult.AddToken(token);
+                    parentOptionResult.AddToken(token);
+                }
+                else
+                {
+                    argumentResult = (ArgumentResult) parentOptionResult.Children[0];
+                }
+
+                argumentResult.AddToken(token);
+                parentOptionResult.AddToken(token);
+
+                _tokenizeResult.Tokens.RemoveAt(previousTokenPosition + 1);
+                _tokenizeResult.Tokens.Insert(previousTokenPosition + 1, token);
+            }
         }
 
         protected override void VisitOptionArgumentNode(
@@ -113,12 +157,16 @@ namespace System.CommandLine.Parsing
         {
             var option = argumentNode.ParentOptionNode.Option;
 
-            var optionResult = _innermostCommandResult!.Children.ResultFor(option);
+            var optionResult = _innermostCommandResult?.Children.ResultFor(option);
+
+            if (optionResult is null)
+            {
+                return;
+            }
 
             var argument = argumentNode.Argument;
 
-            var argumentResult =
-                (ArgumentResult?)optionResult!.Children.ResultFor(argument);
+            var argumentResult = optionResult.Children.ResultFor(argument);
 
             if (argumentResult is null)
             {

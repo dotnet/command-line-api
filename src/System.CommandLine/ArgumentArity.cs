@@ -5,11 +5,12 @@ using System.Collections;
 using System.CommandLine.Binding;
 using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
-using System.Linq;
+using System.Diagnostics;
 
 namespace System.CommandLine
 {
     /// <inheritdoc />
+    [DebuggerDisplay("\\{{" + nameof(MinimumNumberOfValues) + "},{" + nameof(MaximumNumberOfValues) + "}\\}")]
     public class ArgumentArity : IArgumentArity
     {
         private const int MaximumArity = 100_000;
@@ -76,11 +77,14 @@ namespace System.CommandLine
 
             if (tokenCount > maximumNumberOfValues)
             {
-                if (symbolResult is not OptionResult { Option: { AllowMultipleArgumentsPerToken: false } })
+                if (symbolResult is OptionResult optionResult)
                 {
-                    return new TooManyArgumentsConversionResult(
-                        argument,
-                        symbolResult!.Resources.ExpectsOneArgument(symbolResult));
+                    if (!optionResult.Option.AllowMultipleArgumentsPerToken)
+                    {
+                        return new TooManyArgumentsConversionResult(
+                            argument,
+                            symbolResult!.Resources.ExpectsOneArgument(symbolResult));
+                    }
                 }
             }
 

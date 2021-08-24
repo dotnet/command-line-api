@@ -23,11 +23,22 @@ namespace System.CommandLine.Parsing
             Position = position;
         }
 
+        internal Token(string value, int position = -1, bool wasBundled = false)
+        {
+            Value = value;
+            UnprefixedValue = value.RemovePrefix();
+            Type = TokenType.Option;
+            Position = position;
+            WasBundled = wasBundled;
+        }
+
         internal int Position { get; }
 
         public string Value { get; }
 
         internal string UnprefixedValue { get; }
+
+        internal bool WasBundled { get; }
 
         public TokenType Type { get; }
 
@@ -36,8 +47,10 @@ namespace System.CommandLine.Parsing
             Value == token.Value &&
             Type == token.Type;
 
+        /// <inheritdoc />
         public override int GetHashCode() => (Value, Type).GetHashCode();
 
+        /// <inheritdoc />
         public override string ToString() => $"{Type}: {Value}";
 
         public static bool operator ==(Token left, Token right)

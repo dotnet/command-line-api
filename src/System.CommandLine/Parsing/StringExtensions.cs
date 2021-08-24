@@ -112,9 +112,15 @@ namespace System.CommandLine.Parsing
                 }
 
                 if (configuration.EnablePosixBundling &&
-                    CanBeUnbundled(arg, out var replacement))
+                    CanBeUnbundled(arg, out var replacements))
                 {
-                    argList.InsertRange(i + 1, replacement);
+                    for (var ri = 0; ri < replacements!.Count - 1; ri++)
+                    {
+                        tokenList.Add(UnbundledOption(replacements[ri]));
+                    }
+
+                    var lastBundledOptionArg = replacements[replacements.Count - 1];
+                    argList.Insert(i + 1, lastBundledOptionArg);
                     argList.RemoveAt(i);
                     arg = argList[i];
                 }
@@ -136,18 +142,42 @@ namespace System.CommandLine.Parsing
                         tokenList.Add(Argument(arg));
                     }
                 }
-                else if (!knownTokens.ContainsKey(arg) ||
-                         // if token matches the current command name, consider it an argument
-                         currentCommand?.HasAlias(arg) == true)
+                else if (!knownTokens.ContainsKey(arg))
                 {
                     tokenList.Add(Argument(arg));
                 }
                 else
                 {
-                    if (knownTokens.TryGetValue(arg, out var token) &&
-                        token.Type == TokenType.Option)
+                    if (knownTokens.TryGetValue(arg, out var token))
                     {
-                        tokenList.Add(Option(arg));
+                        if (token.Type == TokenType.Option)
+                        {
+                            tokenList.Add(Option(arg));
+                        }
+                        else if (PreviousTokenIsAnOptionExpectingAnArgument())
+                        {
+                            tokenList.Add(Argument(arg));
+                        }
+                        else
+                        {
+                            // when a subcommand is encountered, re-scope which tokens are valid
+                            ISymbolSet symbolSet;
+
+                            if (currentCommand is { } subcommand)
+                            {
+                                symbolSet = subcommand.Children;
+                            }
+                            else
+                            {
+                                symbolSet = configuration.Symbols;
+                            }
+
+                            currentCommand = (ICommand) symbolSet.GetByAlias(arg)!;
+
+                            knownTokens = currentCommand.ValidTokens();
+
+                            tokenList.Add(Command(arg));
+                        }
                     }
                     else
                     {
@@ -171,17 +201,19 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                Token Argument(string value) => new Token(value, TokenType.Argument, i);
+                Token Argument(string value) => new(value, TokenType.Argument, i);
 
-                Token Command(string value) => new Token(value, TokenType.Command, i);
+                Token Command(string value) => new(value, TokenType.Command, i);
 
-                Token Option(string value) => new Token(value, TokenType.Option, i);
+                Token Option(string value) => new(value, TokenType.Option, i);
+                
+                Token UnbundledOption(string value) => new(value, i, wasBundled: true);
 
-                Token EndOfArguments() => new Token("--", TokenType.EndOfArguments, i);
+                Token EndOfArguments() => new("--", TokenType.EndOfArguments, i);
 
-                Token Operand(string value) => new Token(value, TokenType.Operand, i);
+                Token Operand(string value) => new(value, TokenType.Operand, i);
 
-                Token Directive(string value) => new Token(value, TokenType.Directive, i);
+                Token Directive(string value) => new(value, TokenType.Directive, i);
             }
 
             return new TokenizeResult(tokenList, errorList);
@@ -206,13 +238,9 @@ namespace System.CommandLine.Parsing
                     return false;
                 }
 
-                // don't unbundle if the last token is an option expecting an argument
-                if (tokenList[tokenList.Count - 1] is { } lastToken &&
-                    lastToken.Type == TokenType.Option &&
-                    currentCommand?.Children.GetByAlias(lastToken.Value) is IOption option &&
-                    option.Argument.Arity.MinimumNumberOfValues > 0)
+                if (PreviousTokenIsAnOptionExpectingAnArgument())
                 {
-                     return false;
+                    return false;
                 }
 
                 // don't unbundle if arg contains an argument token, e.g. "value" in "-abc:value"
@@ -329,6 +357,11 @@ namespace System.CommandLine.Parsing
                     return true;
                 }
             }
+
+            bool PreviousTokenIsAnOptionExpectingAnArgument() =>
+                tokenList.Count > 1 &&
+                tokenList[tokenList.Count - 1] is { Type: TokenType.Option } optToken &&
+                currentCommand?.Children.GetByAlias(optToken.Value) is Option { Arity: { MaximumNumberOfValues: > 0 } };
 
             void ReadResponseFile(string filePath, int i)
             {

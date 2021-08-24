@@ -794,6 +794,40 @@ namespace System.CommandLine.Tests.Binding
             public decimal OptDecimal { get; set; }
         }
 
+        [Fact] // issue: https://github.com/dotnet/command-line-api/issues/1365
+        public void Binder_does_not_match_by_substring()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Option<string>(
+                    new[] { "-b", "--bundle" },
+                    "the path to the app bundle to be installed"),
+                new Option<string>(
+                    new[] { "-1", "--bundle_id", "--bundle-id" },
+                    "specify bundle id for list and upload")
+            };
+
+            DeployOptions boundOptions = null;
+
+            rootCommand.Handler = CommandHandler.Create<DeployOptions>(options =>
+            {
+                boundOptions = options;
+                return 0;
+            });
+            
+            rootCommand.Invoke("-1 value");
+
+            boundOptions.Bundle.Should().Be(null);
+            boundOptions.BundleId.Should().Be("value");
+        }
+
+        class DeployOptions
+        {
+            public string Bundle { get; set; }
+            public string BundleId { get; set; }
+        }
+
+
 #if NETCOREAPP2_1_OR_GREATER
         [Theory]
         [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4 --int-value 1234")]

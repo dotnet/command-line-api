@@ -177,7 +177,7 @@ namespace System.CommandLine.Tests
                 .AddSuggestions((parseResult, match) =>
                 {
                     var opt1Value = parseResult?.ValueForOption<string>("--origin");
-                    return opt1Value != null ? new[] { opt1Value } : Array.Empty<string>();
+                    return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
                 }));
 
             var result = parser.Parse("--origin test --clone ");
@@ -188,28 +188,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("test");
         }
-
-        [Fact]
-        public void Command_Getsuggestions_can_access_ParseResult_reverse_order()
-        {
-            var parser = new Parser(
-                new Option<string>("--origin"),
-                new Option<string>("--clone")
-                .AddSuggestions((parseResult, match) =>
-                {
-                    var opt1Value = parseResult?.ValueForOption<string>("--origin");
-                    return opt1Value != null ? new[] { opt1Value } : Array.Empty<string>();
-                }));
-
-            var result = parser.Parse("--clone  --origin test");
-
-            _output.WriteLine(result.ToString());
-
-            result.GetSuggestions(8)
-                  .Should()
-                  .BeEquivalentTo("test");
-        }
-
+        
         [Fact]
         public void When_one_option_has_been_specified_then_it_and_its_siblings_will_still_be_suggested()
         {
@@ -957,12 +936,6 @@ namespace System.CommandLine.Tests
                                          .TextToMatch(position);
 
                 textToMatch.Should().Be(expected);
-            }
-
-            [Fact(Skip = "#310")]
-            public void When_there_are_multiple_arguments_then_suggestions_are_only_offered_for_the_current_argument()
-            {
-                Assert.True(false, "Test testname is not written yet.");
             }
 
             [Fact]

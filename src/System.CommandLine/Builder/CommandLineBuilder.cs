@@ -29,6 +29,7 @@ namespace System.CommandLine.Builder
         internal Action<IHelpBuilder>? ConfigureHelp { get; set; }
 
         internal HelpOption? HelpOption { get; set; }
+
         internal Option<bool>? VersionOption { get; set; }
 
         internal Resources? Resources { get; set; }

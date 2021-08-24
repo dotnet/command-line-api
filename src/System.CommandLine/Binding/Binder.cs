@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -151,7 +152,10 @@ namespace System.CommandLine.Binding
         {
             var parameterNameIndex = 0;
 
-            for (var aliasIndex = IndexAfterPrefix(alias); 
+            var indexAfterPrefix = IndexAfterPrefix(alias);
+            var parameterCandidateLength = alias.Length - indexAfterPrefix;
+
+            for (var aliasIndex = indexAfterPrefix; 
                 aliasIndex < alias.Length && parameterNameIndex < parameterName.Length;
                 aliasIndex++)
             {
@@ -159,6 +163,7 @@ namespace System.CommandLine.Binding
 
                 if (aliasChar == '-')
                 {
+                    parameterCandidateLength--;
                     continue;
                 }
 
@@ -166,10 +171,12 @@ namespace System.CommandLine.Binding
 
                 if (aliasChar == '|')
                 {
+                    // replacing "|" with "or"
                     parameterNameIndex += 2;
+                    parameterCandidateLength++; 
                     continue;
                 }
-
+                
                 if (char.ToUpperInvariant(parameterNameChar) != char.ToUpperInvariant(aliasChar))
                 {
                     return false;
@@ -178,7 +185,12 @@ namespace System.CommandLine.Binding
                 parameterNameIndex++;
             }
 
-            return parameterName.Length <= parameterNameIndex;
+            if (parameterCandidateLength == parameterName.Length)
+            {
+                return true;
+            }
+
+            return false;
 
             static int IndexAfterPrefix(string alias)
             {
@@ -197,10 +209,6 @@ namespace System.CommandLine.Binding
                 return 0;
             }
         }
-
-        internal static bool IsMatch(this string parameterName, IOption symbol) =>
-            parameterName.IsMatch(symbol.Name) ||
-            symbol.HasAlias(parameterName);
 
         internal static bool IsNullable(this Type t)
         {

@@ -16,7 +16,7 @@ namespace System.CommandLine.Binding
             {
                 CommandResult? commandResult = bindingContext?.ParseResult.CommandResult;
 
-                while (commandResult != null)
+                while (commandResult is { })
                 {
                     if (commandResult.TryGetValueForOption(valueDescriptor,
                         out var optionValue))

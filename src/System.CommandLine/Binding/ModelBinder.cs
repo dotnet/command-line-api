@@ -134,10 +134,9 @@ namespace System.CommandLine.Binding
             {
                 return (false, null, false);
             }
-            if (newInstance is not null)
-            {
-                nonDefaultsUsed = UpdateInstanceInternalNotifyIfNonDefaultsUsed(newInstance, bindingContext);
-            }
+
+            nonDefaultsUsed = UpdateInstanceInternalNotifyIfNonDefaultsUsed(newInstance, bindingContext);
+
             return (true, newInstance, nonDefaultsUsed);
         }
 

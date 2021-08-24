@@ -5,18 +5,18 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    public class TokenizeResult
+    internal class TokenizeResult
     {
         internal TokenizeResult(
-            IReadOnlyList<Token> tokens,
-            IReadOnlyList<TokenizeError> errors)
+            List<Token> tokens,
+            List<TokenizeError> errors)
         {
-            Tokens = tokens ?? Array.Empty<Token>();
-            Errors = errors ?? Array.Empty<TokenizeError>();
+            Tokens = tokens;
+            Errors = errors;
         }
 
-        public IReadOnlyList<Token> Tokens { get; }
+        public List<Token> Tokens { get; }
 
-        public IReadOnlyList<TokenizeError> Errors { get; }
+        public List<TokenizeError> Errors { get; }
     }
 }
