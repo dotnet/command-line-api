@@ -63,11 +63,6 @@ namespace System.CommandLine.Parsing
                             startTokenIndex = pos + 1;
                             seeking = Boundary.QuoteEnd;
                             break;
-
-                        case Boundary.WordEnd:
-                            seeking = Boundary.QuoteEnd;
-                            skipQuoteAtIndex = pos;
-                            break;
                     }
                 }
                 else if (seeking == Boundary.TokenStart)
