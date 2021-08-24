@@ -101,6 +101,7 @@ namespace System.CommandLine.Tests
                 [InlineData("--option 1 --option 2")]
                 [InlineData("xyz --option 1 --option 2")]
                 [InlineData("--option 1 xyz --option 2")]
+                [InlineData("--option 1 --option 2 xyz")]
                 public void When_max_arity_is_1_then_subsequent_option_args_overwrite_previous_ones(string commandLine)
                 {
                     var option = new Option<string>("--option")

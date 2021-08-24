@@ -361,7 +361,7 @@ namespace System.CommandLine.Parsing
             bool PreviousTokenIsAnOptionExpectingAnArgument() =>
                 tokenList.Count > 1 &&
                 tokenList[tokenList.Count - 1] is { Type: TokenType.Option } optToken &&
-                currentCommand!.Children.GetByAlias(optToken.Value) is Option { Arity: { MaximumNumberOfValues: > 0 } };
+                currentCommand?.Children.GetByAlias(optToken.Value) is Option { Arity: { MaximumNumberOfValues: > 0 } };
 
             void ReadResponseFile(string filePath, int i)
             {
