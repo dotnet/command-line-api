@@ -20,5 +20,5 @@ else
     "See the following for tool installation: https://www.nuget.org/packages/dotnet-suggest"
 }
 
-$env:DOTNET_SUGGEST_SCRIPT_VERSION = "1.0.1"
+$env:DOTNET_SUGGEST_SCRIPT_VERSION = "1.0.2"
 # dotnet suggest script end
