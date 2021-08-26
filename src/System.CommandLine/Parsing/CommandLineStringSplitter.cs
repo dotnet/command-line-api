@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Text;
 
 namespace System.CommandLine.Parsing
 {
@@ -13,6 +14,7 @@ namespace System.CommandLine.Parsing
         {
             TokenStart,
             WordEnd,
+            QuoteStart,
             QuoteEnd
         }
 
@@ -25,7 +27,8 @@ namespace System.CommandLine.Parsing
             var pos = 0;
 
             var seeking = Boundary.TokenStart;
-            int? skipQuoteAtIndex = null;
+            var seekingQuote = Boundary.QuoteStart;
+            List<int> skipQuoteAtIndex = new List<int>();
 
             while (pos < memory.Length)
             {
@@ -33,44 +36,57 @@ namespace System.CommandLine.Parsing
 
                 if (char.IsWhiteSpace(c))
                 {
-                    switch (seeking)
+                    if (seekingQuote == Boundary.QuoteStart)
                     {
-                        case Boundary.WordEnd:
-                            yield return CurrentToken();
-                            startTokenIndex = pos;
-                            seeking = Boundary.TokenStart;
-                            break;
+                        switch (seeking)
+                        {
+                            case Boundary.WordEnd:
+                                yield return CurrentToken();
+                                startTokenIndex = pos;
+                                seeking = Boundary.TokenStart;
+                                break;
 
-                        case Boundary.TokenStart:
-                            startTokenIndex = pos;
-                            break;
-
-                        case Boundary.QuoteEnd:
-                            break;
+                            case Boundary.TokenStart:
+                                startTokenIndex = pos;
+                                break;
+                        }
                     }
                 }
                 else if (c == '\"')
                 {
-                    switch (seeking)
+                    if (seeking == Boundary.TokenStart)
                     {
-                        case Boundary.QuoteEnd:
-                            yield return CurrentToken();
-                            startTokenIndex = pos;
-                            seeking = Boundary.TokenStart;
-                            break;
+                        switch (seekingQuote)
+                        {
+                            case Boundary.QuoteEnd:
+                                yield return CurrentToken();
+                                startTokenIndex = pos;
+                                seekingQuote = Boundary.QuoteStart;
+                                break;
 
-                        case Boundary.TokenStart:
-                            startTokenIndex = pos + 1;
-                            seeking = Boundary.QuoteEnd;
-                            break;
+                            case Boundary.QuoteStart:
+                                startTokenIndex = pos + 1;
+                                seekingQuote = Boundary.QuoteEnd;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (seekingQuote)
+                        {
+                            case Boundary.QuoteEnd:
+                                seekingQuote = Boundary.QuoteStart;
+                                skipQuoteAtIndex.Add(pos);
+                                break;
 
-                        case Boundary.WordEnd:
-                            seeking = Boundary.QuoteEnd;
-                            skipQuoteAtIndex = pos;
-                            break;
+                            case Boundary.QuoteStart:
+                                seekingQuote = Boundary.QuoteEnd;
+                                skipQuoteAtIndex.Add(pos);
+                                break;
+                        }
                     }
                 }
-                else if (seeking == Boundary.TokenStart)
+                else if (seeking == Boundary.TokenStart && seekingQuote == Boundary.QuoteStart)
                 {
                     seeking = Boundary.WordEnd;
                     startTokenIndex = pos;
@@ -95,7 +111,7 @@ namespace System.CommandLine.Parsing
 
             string CurrentToken()
             {
-                if (skipQuoteAtIndex is null)
+                if (skipQuoteAtIndex.Count == 0)
                 {
                     return memory.Slice(
                                      startTokenIndex,
@@ -104,19 +120,26 @@ namespace System.CommandLine.Parsing
                 }
                 else
                 {
-                    var beforeQuote = memory.Slice(
+                    StringBuilder result = new StringBuilder();
+                    foreach (var position in skipQuoteAtIndex)
+                    {
+                        var beforeQuote = memory.Slice(
                         startTokenIndex,
-                        skipQuoteAtIndex.Value - startTokenIndex);
+                        position - startTokenIndex);
+                        result.Append(beforeQuote);
 
-                    var indexOfCharAfterQuote = skipQuoteAtIndex.Value + 1;
+                        startTokenIndex = position + 1;
+                    }
 
                     var afterQuote = memory.Slice(
-                        indexOfCharAfterQuote,
-                        pos - skipQuoteAtIndex.Value - 1);
+                        startTokenIndex,
+                        pos - startTokenIndex);
 
-                    skipQuoteAtIndex = null;
+                    result.Append(afterQuote);
 
-                    return $"{beforeQuote}{afterQuote}";
+                    skipQuoteAtIndex.Clear();
+
+                    return result.ToString();
                 }
             }
 
