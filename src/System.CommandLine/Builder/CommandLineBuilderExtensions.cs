@@ -12,7 +12,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+
 using static System.Environment;
+
 using Process = System.CommandLine.Invocation.Process;
 
 namespace System.CommandLine.Builder
@@ -126,6 +128,51 @@ namespace System.CommandLine.Builder
                     }
                 }
             }, MiddlewareOrderInternal.Startup);
+
+            return builder;
+        }
+
+        public static CommandLineBuilder AbandonOnRepeatCancellation(
+            this CommandLineBuilder builder,
+            int repeatThreshold = 1)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                var initialCancelToken = context.GetCancellationToken();
+                var repeatCancelTaskCompletionSource = new TaskCompletionSource<object>(
+                    TaskCreationOptions.RunContinuationsAsynchronously);
+                ConsoleCancelEventHandler repeatCancelEventHandler = (sender, e) =>
+                {
+                    var newCountValue = Interlocked.Decrement(ref repeatThreshold);
+                    if (newCountValue < 1)
+                    {
+                        // Won't block because TCS specifies RunContinuationsAsynchronously
+                        _ = repeatCancelTaskCompletionSource.TrySetCanceled();
+                    }
+                };
+
+                using var initialCancelRegistration = initialCancelToken.Register(state =>
+                {
+                    Console.CancelKeyPress += (ConsoleCancelEventHandler)state;
+                }, repeatCancelEventHandler);
+
+                try
+                {
+                    // Next invocation might be a synchronous implementation
+                    // Use Task.Run to be able to call Task.WhenAny.
+                    var nextTask = Task.Run(() => next(context));
+                    var repeatCancelTask = repeatCancelTaskCompletionSource.Task;
+                    var returnedTask = await Task.WhenAny(nextTask, repeatCancelTask)
+                        .ConfigureAwait(continueOnCapturedContext: false);
+                    // Will always execute synchronously, since task is guaranteed to be in final state
+                    returnedTask.GetAwaiter().GetResult();
+                }
+                finally
+                {
+                    Console.CancelKeyPress -= repeatCancelEventHandler;
+                }
+
+            }, MiddlewareOrderInternal.ExceptionHandler);
 
             return builder;
         }
