@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Text;
 
 namespace System.CommandLine.Parsing
 {
@@ -28,7 +27,6 @@ namespace System.CommandLine.Parsing
 
             var seeking = Boundary.TokenStart;
             var seekingQuote = Boundary.QuoteStart;
-            StringBuilder sb = new StringBuilder();
 
             while (pos < memory.Length)
             {
@@ -76,12 +74,10 @@ namespace System.CommandLine.Parsing
                         {
                             case Boundary.QuoteEnd:
                                 seekingQuote = Boundary.QuoteStart;
-                                AppendToken();
                                 break;
 
                             case Boundary.QuoteStart:
                                 seekingQuote = Boundary.QuoteEnd;
-                                AppendToken();
                                 break;
                         }
                     }
@@ -109,21 +105,10 @@ namespace System.CommandLine.Parsing
 
             void Advance() => pos++;
 
-            void AppendToken()
-            {
-                sb.Append(GetToken());
-                startTokenIndex = pos + 1;
-            }
-
             string CurrentToken()
             {
-                sb.Append(GetToken());
-                var result = sb.ToString();
-                sb.Clear();
-                return result;
+                return memory.Slice(startTokenIndex, IndexOfEndOfToken()).ToString().Replace("\"", "");
             }
-
-            string GetToken() => memory.Slice(startTokenIndex, IndexOfEndOfToken()).ToString();
 
             int IndexOfEndOfToken() => pos - startTokenIndex;
 
