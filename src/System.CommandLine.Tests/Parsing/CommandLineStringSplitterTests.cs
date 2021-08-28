@@ -75,5 +75,25 @@ namespace System.CommandLine.Tests.Parsing
                          destination,
                          "--verbose");
         }
+
+        [Fact]
+        public void Internal_quotes_do_not_cause_string_to_be_split()
+        {
+            var commandLine = @"POST --raw='{""Id"":1,""Name"":""Alice""}'";
+
+            _splitter.Split(commandLine)
+                     .Should()
+                     .BeEquivalentTo("POST", "--raw='{Id:1,Name:Alice}'");
+        }
+
+        [Fact]
+        public void Internal_whitespaces_are_preserved_and_do_not_cause_string_to_be_split()
+        {
+            var commandLine = @"command --raw='{""Id"":1,""Movie Name"":""The Three Musketeers""}'";
+
+            _splitter.Split(commandLine)
+                     .Should()
+                     .BeEquivalentTo("command", "--raw='{Id:1,Movie Name:The Three Musketeers}'");
+        }
     }
 }
