@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.CommandLine.Tests.Utility;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -231,6 +232,33 @@ namespace System.CommandLine.Tests
                       .Which
                       .Should()
                       .Be("five");
+            }
+
+            [Fact]
+            public void Unsatisfied_optional_subsequent_argument_parses_as_default_value()
+            {
+                var arg1 = new Argument("arg1")
+                {
+                    ArgumentType = typeof(string),
+                    Arity = ArgumentArity.ExactlyOne
+                };
+                var arg2 = new Argument("arg2")
+                {
+                    ArgumentType = typeof(string),
+                    Arity = ArgumentArity.ZeroOrOne,
+                    
+                };
+                arg2.SetDefaultValue("the-default");
+                var rootCommand = new RootCommand
+                {
+                    arg1,
+                    arg2,
+                };
+
+                var result = rootCommand.Parse("value-1");
+
+                result.ValueForArgument(arg1).Should().Be("value-1");
+                result.ValueForArgument(arg2).Should().Be("the-default");
             }
         }
     }

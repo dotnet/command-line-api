@@ -40,11 +40,6 @@ namespace System.CommandLine.Binding
             object? value,
             Resources resources)
         {
-            if (argument.Arity.MaximumNumberOfValues == 0)
-            {
-                return Success(argument, true);
-            }
-
             switch (value)
             {
                 case string singleValue:
@@ -280,7 +275,10 @@ namespace System.CommandLine.Binding
             {
                 // 0 is an implicit bool, i.e. a "flag"
                 0 => Success(argumentResult.Argument, true),
-                1 => ConvertObject(argument, argument.ValueType, argumentResult.Tokens[argumentResult.Tokens.Count - 1].Value, argumentResult.Resources),
+                1 => ConvertObject(argument, argument.ValueType,
+                                   argumentResult.Tokens.Count > 0
+                                       ? argumentResult.Tokens[argumentResult.Tokens.Count - 1].Value
+                                       : null, argumentResult.Resources),
                 _ => ConvertStrings(argument, argument.ValueType, argumentResult.Tokens.Select(t => t.Value).ToArray(), argumentResult.Resources, argumentResult)
             };
 
