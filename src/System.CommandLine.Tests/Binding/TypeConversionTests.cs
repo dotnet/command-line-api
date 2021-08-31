@@ -192,7 +192,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command -x the-argument");
 
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                   .Should()
                   .Be("the-argument");
         }
@@ -209,7 +209,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command -x the-argument");
 
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                   .Should()
                   .Be("the-argument");
         }
@@ -226,7 +226,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command -x");
 
-            Action getValue = () => result.ValueForOption(option);
+            Action getValue = () => result.GetValueForOption(option);
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -248,7 +248,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command -x");
 
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                   .Should()
                   .BeAssignableTo<IReadOnlyCollection<string>>()
                   .Which
@@ -269,7 +269,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command");
 
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                   .Should()
                   .BeAssignableTo<IReadOnlyCollection<string>>()
                   .Which
@@ -289,7 +289,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("the-command -x");
 
-            Action getValue = () => result.ValueForOption(option);
+            Action getValue = () => result.GetValueForOption(option);
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -310,7 +310,7 @@ namespace System.CommandLine.Tests.Binding
             };
 
             command.Parse("the-command -x arg1 -x arg2")
-                   .ValueForOption(option)
+                   .GetValueForOption(option)
                    .Should()
                    .BeEquivalentTo(new[] { "arg1", "arg2" });
         }
@@ -326,7 +326,7 @@ namespace System.CommandLine.Tests.Binding
             };
 
             command.Parse("the-command -x arg1")
-                   .ValueForOption(option)
+                   .GetValueForOption(option)
                    .Should()
                    .BeEquivalentTo(new[] { "arg1" });
         }
@@ -368,7 +368,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("-x");
 
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                   .Should()
                   .Be(true);
         }
@@ -385,7 +385,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("something");
 
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                   .Should()
                   .Be(false);
         }
@@ -493,7 +493,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
 
-            var value = option.Parse("-x 123.456").ValueForOption<float>("-x");
+            var value = option.Parse("-x 123.456").GetValueForOption<float>(option);
 
             value.Should().Be(123.456f);
         }
@@ -503,7 +503,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
 
-            option.Parse("-x").ValueForOption<bool>("-x").Should().BeTrue();
+            option.Parse("-x").GetValueForOption<bool>(option).Should().BeTrue();
         }
 
         [Fact]
@@ -511,8 +511,8 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
 
-            option.Parse("-x false").ValueForOption<bool>("-x").Should().BeFalse();
-            option.Parse("-x true").ValueForOption<bool>("-x").Should().BeTrue();
+            option.Parse("-x false").GetValueForOption<bool>(option).Should().BeFalse();
+            option.Parse("-x true").GetValueForOption<bool>(option).Should().BeTrue();
         }
 
         [Fact]
@@ -520,7 +520,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
 
-            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<int[]>("-x");
+            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption<int[]>(option);
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
@@ -570,7 +570,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
 
-            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<List<int>>("-x");
+            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption<List<int>>(option);
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
@@ -580,7 +580,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
 
-            var value = option.Parse("-x 1 -x 2 -x 3").ValueForOption<IEnumerable<int>>("-x");
+            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption<IEnumerable<int>>(option);
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
@@ -592,7 +592,7 @@ namespace System.CommandLine.Tests.Binding
 
             var parseResult = option.Parse("-x Monday");
 
-            var value = parseResult.ValueForOption<DayOfWeek>("-x");
+            var value = parseResult.GetValueForOption(option);
 
             value.Should().Be(DayOfWeek.Monday);
         }

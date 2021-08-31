@@ -101,6 +101,9 @@ namespace System.CommandLine.Parsing
         public object? ValueForOption(Option option) =>
             GetValueForOption<object?>(option);
 
+        public object? GetValueForOption(Option option) =>
+            GetValueForOption<object?>(option);
+
         [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(Argument<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public object? ValueForArgument(string alias) =>
             ValueForArgument<object?>(alias);

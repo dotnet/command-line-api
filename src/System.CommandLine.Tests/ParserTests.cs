@@ -1201,7 +1201,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse(input);
 
-            var valueForOption = result.ValueForOption(optionX);
+            var valueForOption = result.GetValueForOption(optionX);
 
             valueForOption.Should().Be("-y");
         }
@@ -1262,7 +1262,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse(input);
 
-            var valueForOption = result.ValueForOption(optionX);
+            var valueForOption = result.GetValueForOption(optionX);
 
             valueForOption.Should().Be("-y");
         }
@@ -1376,8 +1376,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("-x 23 unmatched-token -y 42");
 
-            result.ValueForOption(optionX).Should().Be("23");
-            result.ValueForOption(optionY).Should().Be("42");
+            result.GetValueForOption(optionX).Should().Be("23");
+            result.GetValueForOption(optionY).Should().Be("42");
             result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
         }
 
