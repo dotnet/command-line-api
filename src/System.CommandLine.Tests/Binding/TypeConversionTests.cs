@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests.Binding
             var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
             var result = command.Parse($"{file.FullName}");
 
-            result.ValueForArgument(argument)
+            result.GetValueForArgument(argument)
                   .Name
                   .Should()
                   .Be("the-file.txt");
@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse("");
 
-            result.ValueForArgument(argument)
+            result.GetValueForArgument(argument)
                   .Should()
                   .BeNull();
         }
@@ -350,7 +350,7 @@ namespace System.CommandLine.Tests.Binding
 
             var result = command.Parse(commandLine);
 
-            result.ValueForArgument(argument)
+            result.GetValueForArgument(argument)
                   .Should()
                   .BeEquivalentTo(new[] { "c", "c", "c" });
         }
@@ -456,7 +456,7 @@ namespace System.CommandLine.Tests.Binding
 
             result.Errors.Should().BeEmpty();
 
-            var value = result.ValueForArgument(argument);
+            var value = result.GetValueForArgument(argument);
 
             value.Should().Be(directoryInfo);
         }

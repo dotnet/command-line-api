@@ -952,7 +952,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("command");
 
-            result.ValueForArgument(argument)
+            result.GetValueForArgument(argument)
                   .Should()
                   .Be("default");
         }
@@ -1042,7 +1042,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-directory");
 
-            result.ValueForArgument(argument)
+            result.GetValueForArgument(argument)
                   ?.Name
                   .Should()
                   .Be("the-directory");
@@ -1333,8 +1333,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("name one two three");
 
-            result.ValueForArgument(nameArg).Should().Be("name");
-            result.ValueForArgument(columnsArg).Should().BeEquivalentTo("one", "two", "three");
+            result.GetValueForArgument(nameArg).Should().Be("name");
+            result.GetValueForArgument(columnsArg).Should().BeEquivalentTo("one", "two", "three");
         }
 
         [Fact]
