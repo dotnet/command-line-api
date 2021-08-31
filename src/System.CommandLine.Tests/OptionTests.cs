@@ -221,9 +221,9 @@ namespace System.CommandLine.Tests
 
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
-            result.ValueForOption(optionA).Should().Be("value-for-a");
+            result.GetValueForOption(optionA).Should().Be("value-for-a");
             result.HasOption(optionB).Should().BeFalse();
-            result.ValueForOption(optionC).Should().Be("value-for-c");
+            result.GetValueForOption(optionC).Should().Be("value-for-c");
         }
 
         [Fact]
@@ -330,7 +330,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -344,7 +344,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse(); 
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -358,7 +358,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -372,7 +372,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -386,7 +386,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -399,7 +399,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -412,7 +412,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -425,7 +425,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -439,7 +439,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeEmpty();
         }
@@ -466,7 +466,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = option.Parse(parseInput);
 
-            parseResult.ValueForOption(option).Should().Be("value");
+            parseResult.GetValueForOption(option).Should().Be("value");
         }
 
         [Fact]
@@ -479,7 +479,7 @@ namespace System.CommandLine.Tests
             result.HasOption(option)
                 .Should()
                 .BeFalse();
-            result.ValueForOption(option)
+            result.GetValueForOption(option)
                 .Should()
                 .BeFalse();
         }

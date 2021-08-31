@@ -70,7 +70,7 @@ namespace System.CommandLine.Tests
                 .Parse($"@{responseFile}");
 
             result.HasOption(optionOne).Should().BeTrue();
-            result.ValueForOption(optionTwo).Should().Be(123);
+            result.GetValueForOption(optionTwo).Should().Be(123);
             result.Errors.Should().BeEmpty();
         }
 
@@ -180,7 +180,7 @@ namespace System.CommandLine.Tests
                 }
                 .Parse($"@{responseFile}");
 
-            result.ValueForOption(option).Should().Be(123);
+            result.GetValueForOption(option).Should().Be(123);
             result.Errors.Should().BeEmpty();
         }
 
@@ -294,8 +294,8 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse($"@{responseFile}");
 
-            result.ValueForOption(optionOne).Should().Be("first value");
-            result.ValueForOption(optionTwo).Should().Be(123);
+            result.GetValueForOption(optionOne).Should().Be("first value");
+            result.GetValueForOption(optionTwo).Should().Be(123);
         }
 
         [Fact]
@@ -355,8 +355,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption(option1).Should().Be("value1");
-            result.ValueForOption(option2).Should().Be(2);
+            result.GetValueForOption(option1).Should().Be("value1");
+            result.GetValueForOption(option2).Should().Be(2);
         }
 
         [Fact]
@@ -368,8 +368,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption(option1).Should().Be("value1");
-            result.ValueForOption(option2).Should().Be(2);
+            result.GetValueForOption(option1).Should().Be("value1");
+            result.GetValueForOption(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();
         }
 
@@ -382,8 +382,8 @@ namespace System.CommandLine.Tests
             var option2 = new Option<int>("--option2");
 
             var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
-            result.ValueForOption(option1).Should().Be("value1");
-            result.ValueForOption(option2).Should().Be(2);
+            result.GetValueForOption(option1).Should().Be("value1");
+            result.GetValueForOption(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();
         }
     }

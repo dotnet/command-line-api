@@ -114,7 +114,7 @@ namespace System.CommandLine.Tests
                     .BeEquivalentSequenceTo("three", "four", "five");
 
                 parseResult
-                    .ValueForOption(verbose)
+                    .GetValueForOption(verbose)
                     .Should()
                     .BeTrue();
             }
@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("-e foo");
 
-                var optionResult = result.ValueForOption(option);
+                var optionResult = result.GetValueForOption(option);
 
                 optionResult.Should().Be("foo");
             }

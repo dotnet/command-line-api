@@ -471,7 +471,7 @@ namespace System.CommandLine.Tests
                 var result = command.Parse("the-command -o not-an-int");
 
                 Action getValue = () => 
-                    result.ValueForOption(option);
+                    result.GetValueForOption(option);
 
                 getValue.Should()
                         .Throw<InvalidOperationException>()

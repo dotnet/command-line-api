@@ -23,7 +23,7 @@ namespace System.CommandLine.Builder
     public static class CommandLineBuilderExtensions
     {
         private static readonly Lazy<string> _assemblyVersion =
-            new Lazy<string>(() =>
+            new(() =>
             {
                 var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
