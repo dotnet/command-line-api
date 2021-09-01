@@ -16,7 +16,7 @@ if (Get-Command "dotnet-suggest" -errorAction SilentlyContinue)
 }
 else
 {
-    "Shell could not load the System.CommandLine suggest support - Missing [dotnet-suggest] tool."
+    "Unable to provide System.CommandLine tab completion support unless the [dotnet-suggest] tool is first installed."
     "See the following for tool installation: https://www.nuget.org/packages/dotnet-suggest"
 }
 
