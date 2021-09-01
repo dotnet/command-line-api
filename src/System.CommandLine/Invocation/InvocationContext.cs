@@ -30,8 +30,6 @@ namespace System.CommandLine.Invocation
 
         public Parser Parser => BindingContext.ParseResult.Parser;
 
-        public IHelpBuilder HelpBuilder => Parser.Configuration.HelpBuilderFactory(BindingContext);
-
         public Resources Resources => Parser.Configuration.Resources;
 
         public ParseResult ParseResult
