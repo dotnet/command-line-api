@@ -203,7 +203,7 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<int>(result => int.Parse(result.Tokens.Single().Value));
 
                 argument.Parse("123")
-                        .ValueForArgument(argument)
+                        .GetValueForArgument(argument)
                         .Should()
                         .Be(123);
             }
@@ -214,7 +214,7 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<IEnumerable<int>>(result => result.Tokens.Single().Value.Split(',').Select(int.Parse));
 
                 argument.Parse("1,2,3")
-                        .ValueForArgument(argument)
+                        .GetValueForArgument(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
             }
@@ -228,7 +228,7 @@ namespace System.CommandLine.Tests
                 });
 
                 argument.Parse("1 2 3")
-                        .ValueForArgument(argument)
+                        .GetValueForArgument(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
             }
@@ -242,7 +242,7 @@ namespace System.CommandLine.Tests
                 };
 
                 argument.Parse("1 2 3")
-                        .ValueForArgument(argument)
+                        .GetValueForArgument(argument)
                         .Should()
                         .Be(6);
             }
@@ -389,7 +389,7 @@ namespace System.CommandLine.Tests
 
                 var result = argument.Parse("");
 
-                result.ValueForArgument(argument)
+                result.GetValueForArgument(argument)
                       .Should()
                       .Be(123);
             }
@@ -471,7 +471,7 @@ namespace System.CommandLine.Tests
                 var result = command.Parse("the-command -o not-an-int");
 
                 Action getValue = () => 
-                    result.ValueForOption(option);
+                    result.GetValueForOption(option);
 
                 getValue.Should()
                         .Throw<InvalidOperationException>()

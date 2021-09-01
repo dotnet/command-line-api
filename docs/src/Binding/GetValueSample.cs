@@ -16,7 +16,7 @@ namespace Binding
 
             var option = new Option<int>("--an-int");
             ParseResult parseResult = option.Parse("--an-int 123");
-            int value = parseResult.ValueForOption(option);
+            int value = parseResult.GetValueForOption(option);
             Console.WriteLine(Format(value));
 
             #endregion

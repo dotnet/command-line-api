@@ -37,12 +37,12 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2 3 4");
 
-                result.ValueForArgument(multipleArityArg)
-                    .Should()
-                    .BeEquivalentSequenceTo("1", "2", "3");
-                result.ValueForArgument(singleArityArg)
-                    .Should()
-                    .BeEquivalentSequenceTo("4");
+                result.GetValueForArgument(multipleArityArg)
+                      .Should()
+                      .BeEquivalentSequenceTo("1", "2", "3");
+                result.GetValueForArgument(singleArityArg)
+                      .Should()
+                      .BeEquivalentSequenceTo("4");
             }
 
             [Fact]
@@ -65,8 +65,8 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2");
 
-                result.ValueForArgument(stringArg).Should().Be("1");
-                result.ValueForArgument(intArg).Should().Be(2);
+                result.GetValueForArgument(stringArg).Should().Be("1");
+                result.GetValueForArgument(intArg).Should().Be(2);
             }
 
             [Theory]
@@ -100,22 +100,22 @@ namespace System.CommandLine.Tests
                 var parseResult = command.Parse(commandLine);
 
                 parseResult
-                    .ValueForArgument(first)
+                    .GetValueForArgument(first)
                     .Should()
                     .Be("one");
 
                 parseResult
-                    .ValueForArgument(second)
+                    .GetValueForArgument(second)
                     .Should()
                     .Be("two");
 
                 parseResult
-                    .ValueForArgument(third)
+                    .GetValueForArgument(third)
                     .Should()
                     .BeEquivalentSequenceTo("three", "four", "five");
 
                 parseResult
-                    .ValueForOption(verbose)
+                    .GetValueForOption(verbose)
                     .Should()
                     .BeTrue();
             }
@@ -169,7 +169,7 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("-e foo");
 
-                var optionResult = result.ValueForOption(option);
+                var optionResult = result.GetValueForOption(option);
 
                 optionResult.Should().Be("foo");
             }
@@ -191,12 +191,12 @@ namespace System.CommandLine.Tests
 
                 var _ = new AssertionScope();
 
-                result.ValueForArgument(ints)
+                result.GetValueForArgument(ints)
                       .Should()
                       .BeEquivalentTo(new[] { 1, 2, 3 },
                                       options => options.WithStrictOrdering());
 
-                result.ValueForArgument(strings)
+                result.GetValueForArgument(strings)
                       .Should()
                       .BeEquivalentTo(new[] { "one", "two" },
                                       options => options.WithStrictOrdering());
@@ -218,16 +218,17 @@ namespace System.CommandLine.Tests
 
                 var _ = new AssertionScope();
 
-                result.ValueForArgument(ints)
+                result.GetValueForArgument(ints)
                       .Should()
                       .BeEquivalentTo(new[] { 1, 2, 3 },
                                       options => options.WithStrictOrdering());
 
-                result.ValueForArgument(strings)
+                result.GetValueForArgument(strings)
                       .Should()
                       .Be("four");
 
-                result.UnparsedTokens.Should()
+                result.UnparsedTokens
+                      .Should()
                       .ContainSingle()
                       .Which
                       .Should()

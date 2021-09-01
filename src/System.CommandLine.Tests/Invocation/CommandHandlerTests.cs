@@ -270,7 +270,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundParseResult.ValueForOption(option).Should().Be(123);
+            boundParseResult.GetValueForOption(option).Should().Be(123);
         }
 
         [Fact]
@@ -287,7 +287,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundContext.ParseResult.ValueForOption(option).Should().Be(123);
+            boundContext.ParseResult.GetValueForOption(option).Should().Be(123);
         }
 
         [Fact]
@@ -319,7 +319,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundContext.ParseResult.ValueForOption(option).Should().Be(123);
+            boundContext.ParseResult.GetValueForOption(option).Should().Be(123);
         }
 
 

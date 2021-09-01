@@ -952,7 +952,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("command");
 
-            result.ValueForArgument(argument)
+            result.GetValueForArgument(argument)
                   .Should()
                   .Be("default");
         }
@@ -967,7 +967,7 @@ namespace System.CommandLine.Tests
             ParseResult result = command.Parse("command");
 
             result.HasOption(option).Should().BeTrue();
-            result.ValueForOption(option).Should().Be("the-default");
+            result.GetValueForOption(option).Should().Be("the-default");
         }
 
         [Fact]
@@ -1042,7 +1042,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-directory");
 
-            result.ValueForArgument(argument)
+            result.GetValueForArgument(argument)
                   ?.Name
                   .Should()
                   .Be("the-directory");
@@ -1201,7 +1201,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse(input);
 
-            var valueForOption = result.ValueForOption(optionX);
+            var valueForOption = result.GetValueForOption(optionX);
 
             valueForOption.Should().Be("-y");
         }
@@ -1223,9 +1223,9 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("-a -bc");
 
-            result.ValueForOption(optionA).Should().Be("-bc");
-            result.ValueForOption(optionB).Should().BeFalse();
-            result.ValueForOption(optionC).Should().BeFalse();
+            result.GetValueForOption(optionA).Should().Be("-bc");
+            result.GetValueForOption(optionB).Should().BeFalse();
+            result.GetValueForOption(optionC).Should().BeFalse();
         }
 
         [Fact]
@@ -1242,7 +1242,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.ValueForOption(optionA).Should().Be("subcommand");
+            result.GetValueForOption(optionA).Should().Be("subcommand");
             result.CommandResult.Command.Should().Be(root);
         }
 
@@ -1262,7 +1262,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse(input);
 
-            var valueForOption = result.ValueForOption(optionX);
+            var valueForOption = result.GetValueForOption(optionX);
 
             valueForOption.Should().Be("-y");
         }
@@ -1279,7 +1279,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("-x -x");
 
-            result.ValueForOption(optionX).Should().Be("-x");
+            result.GetValueForOption(optionX).Should().Be("-x");
         }
 
         [Fact]
@@ -1298,8 +1298,8 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.Diagram());
 
-            result.ValueForOption(optionX).Should().BeEquivalentTo(new[] { "-x", "-y", "-y" });
-            result.ValueForOption(optionY).Should().BeEquivalentTo(new[] { "-x", "-y", "-x" });
+            result.GetValueForOption(optionX).Should().BeEquivalentTo(new[] { "-x", "-y", "-y" });
+            result.GetValueForOption(optionY).Should().BeEquivalentTo(new[] { "-x", "-y", "-x" });
         }
 
         [Fact]
@@ -1316,7 +1316,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("-yxx");
 
-            result.ValueForOption(optionX).Should().Be("x");
+            result.GetValueForOption(optionX).Should().Be("x");
         }
 
         [Fact]
@@ -1333,8 +1333,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("name one two three");
 
-            result.ValueForArgument(nameArg).Should().Be("name");
-            result.ValueForArgument(columnsArg).Should().BeEquivalentTo("one", "two", "three");
+            result.GetValueForArgument(nameArg).Should().Be("name");
+            result.GetValueForArgument(columnsArg).Should().BeEquivalentTo("one", "two", "three");
         }
 
         [Fact]
@@ -1359,7 +1359,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("-v an-argument");
 
-            result.ValueForOption(option).Should().BeTrue();
+            result.GetValueForOption(option).Should().BeTrue();
         }
 
         [Fact]
@@ -1376,8 +1376,8 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("-x 23 unmatched-token -y 42");
 
-            result.ValueForOption(optionX).Should().Be("23");
-            result.ValueForOption(optionY).Should().Be("42");
+            result.GetValueForOption(optionX).Should().Be("23");
+            result.GetValueForOption(optionY).Should().Be("42");
             result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
         }
 
@@ -1573,7 +1573,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = option.Parse("--value a;b;c");
 
-            var instance = parseResult.ValueForOption(option);
+            var instance = parseResult.GetValueForOption(option);
 
             instance.Values.Should().BeEquivalentTo("a", "b", "c");
         }
@@ -1585,7 +1585,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = option.Parse("--value a;b;c");
 
-            CollectionWithCustomTypeConverter instance = parseResult.ValueForOption(option);
+            CollectionWithCustomTypeConverter instance = parseResult.GetValueForOption(option);
 
             instance.Should().BeEquivalentTo("a", "b", "c");
         }

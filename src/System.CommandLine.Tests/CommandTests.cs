@@ -328,9 +328,9 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -343,9 +343,9 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -358,9 +358,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -373,9 +374,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -388,9 +390,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -403,9 +406,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -418,9 +422,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -433,9 +438,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
         [Fact]
@@ -448,9 +454,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("mycommand");
-            result.ValueForArgument(argument)
-                .Should()
-                .BeEmpty();
+
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
 
 
