@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Help
@@ -15,19 +16,17 @@ namespace System.CommandLine.Help
 
         private Dictionary<ISymbol, Customization> Customizations { get; } = new();
 
-        protected IConsole Console { get; }
         protected Resources Resources { get; }
         public int MaxWidth { get; }
 
-        public HelpBuilder(IConsole console, Resources resources, int maxWidth = int.MaxValue)
+        public HelpBuilder(Resources resources, int maxWidth = int.MaxValue)
         {
-            Console = console ?? throw new ArgumentNullException(nameof(console));
             Resources = resources ?? throw new ArgumentNullException(nameof(resources));
             if (maxWidth <= 0) maxWidth = int.MaxValue;
             MaxWidth = maxWidth;
         }
 
-        public virtual void Write(ICommand command)
+        public virtual void Write(ICommand command, TextWriter writer)
         {
             if (command is null)
             {
@@ -39,12 +38,13 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            AddSynopsis(command);
-            AddUsage(command);
-            AddCommandArguments(command);
-            AddOptions(command);
-            AddSubcommands(command);
-            AddAdditionalArguments(command);
+
+            AddSynopsis(command, writer);
+            AddUsage(command, writer);
+            AddCommandArguments(command, writer);
+            AddOptions(command, writer);
+            AddSubcommands(command, writer);
+            AddAdditionalArguments(command, writer);
         }
 
         protected internal void Customize(ISymbol symbol,
@@ -59,17 +59,17 @@ namespace System.CommandLine.Help
             Customizations[symbol] = new Customization(descriptor, defaultValue);
         }
 
-        protected virtual void AddSynopsis(ICommand command)
+        protected virtual void AddSynopsis(ICommand command, TextWriter writer)
         {
-            WriteHeading(Resources.Instance.HelpDescriptionTitle(), command.Description);
-            Console.Out.WriteLine();
+            WriteHeading(Resources.Instance.HelpDescriptionTitle(), command.Description, writer);
+            writer.WriteLine();
         }
 
-        protected virtual void AddUsage(ICommand command)
+        protected virtual void AddUsage(ICommand command, TextWriter writer)
         {
             string description = GetUsage(command);
-            WriteHeading(Resources.HelpUsageTitle(), description);
-            Console.Out.WriteLine();
+            WriteHeading(Resources.HelpUsageTitle(), description, writer);
+            writer.WriteLine();
         }
 
         protected string GetUsage(ICommand command)
@@ -116,15 +116,15 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected virtual void AddCommandArguments(ICommand command)
+        protected virtual void AddCommandArguments(ICommand command, TextWriter writer)
         {
             HelpItem[] commandArguments = GetCommandArguments(command).ToArray();
 
             if (commandArguments.Length > 0)
             {
-                WriteHeading(Resources.HelpArgumentsTitle(), null);
-                RenderAsColumns(commandArguments);
-                Console.Out.WriteLine();
+                WriteHeading(Resources.HelpArgumentsTitle(), null, writer);
+                RenderAsColumns(writer, commandArguments);
+                writer.WriteLine();
             }
         }
 
@@ -163,37 +163,37 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected virtual void AddOptions(ICommand command)
+        protected virtual void AddOptions(ICommand command, TextWriter writer)
         {
             var options = GetOptions(command).ToArray();
 
             if (options.Length > 0)
             {
-                WriteHeading(Resources.HelpOptionsTitle(), null);
-                RenderAsColumns(options);
-                Console.Out.WriteLine();
+                WriteHeading(Resources.HelpOptionsTitle(), null, writer);
+                RenderAsColumns(writer, options);
+                writer.WriteLine();
             }
         }
 
         protected IEnumerable<HelpItem> GetOptions(ICommand command)
             => command.Options.Where(x => !x.IsHidden).Select(GetHelpItem);
 
-        protected virtual void AddSubcommands(ICommand command)
+        protected virtual void AddSubcommands(ICommand command, TextWriter writer)
         {
             var subcommands = GetSubcommands(command).ToArray();
 
             if (subcommands.Length > 0)
             {
-                WriteHeading(Resources.HelpCommandsTitle(), null);
-                RenderAsColumns(subcommands);
-                Console.Out.WriteLine();
+                WriteHeading(Resources.HelpCommandsTitle(), null, writer);
+                RenderAsColumns(writer, subcommands);
+                writer.WriteLine();
             }
         }
 
         protected IEnumerable<HelpItem> GetSubcommands(ICommand command)
             => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(GetHelpItem);
 
-        protected virtual void AddAdditionalArguments(ICommand command)
+        protected virtual void AddAdditionalArguments(ICommand command, TextWriter writer)
         {
             if (command.TreatUnmatchedTokensAsErrors)
             {
@@ -201,22 +201,22 @@ namespace System.CommandLine.Help
             }
 
             WriteHeading(Resources.HelpAdditionalArgumentsTitle(),
-                Resources.HelpAdditionalArgumentsDescription());
+                Resources.HelpAdditionalArgumentsDescription(), writer);
         }
 
-        protected void WriteHeading(string descriptor, string? description)
+        protected void WriteHeading(string descriptor, string? description, TextWriter writer)
         {
             if (!string.IsNullOrWhiteSpace(descriptor))
             {
-                Console.Out.WriteLine(descriptor);
+                writer.WriteLine(descriptor);
             }
             if (!string.IsNullOrWhiteSpace(description))
             {
                 int maxWidth = MaxWidth - Indent.Length;
                 foreach (var part in WrapItem(description!, maxWidth))
                 {
-                    Console.Out.Write(Indent);
-                    Console.Out.WriteLine(part);
+                    writer.Write(Indent);
+                    writer.WriteLine(part);
                 }
             }
         }
@@ -286,7 +286,7 @@ namespace System.CommandLine.Help
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
-        protected void RenderAsColumns(params HelpItem[] items)
+        protected void RenderAsColumns(TextWriter writer, params HelpItem[] items)
         {
             if (items.Length == 0)
             {
@@ -315,7 +315,7 @@ namespace System.CommandLine.Help
 
                 foreach (var (first, second) in ZipWithEmpty(descriptorParts, descriptionParts))
                 {
-                    Console.Out.Write($"{Indent}{first}");
+                    writer.Write($"{Indent}{first}");
                     if (!string.IsNullOrWhiteSpace(second))
                     {
                         int padSize = firstColumnWidth - first.Length;
@@ -324,9 +324,9 @@ namespace System.CommandLine.Help
                         {
                             padding = new string(' ', padSize);
                         }
-                        Console.Out.Write($"{padding}{Indent}{second}");
+                        writer.Write($"{padding}{Indent}{second}");
                     }
-                    Console.Out.WriteLine();
+                    writer.WriteLine();
                 }
             }
 

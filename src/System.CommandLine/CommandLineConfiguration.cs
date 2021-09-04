@@ -112,7 +112,7 @@ namespace System.CommandLine
                 maxWidth = systemConsole.GetWindowWidth();
             }
 
-            return new HelpBuilder(context.Console, context.ParseResult.CommandResult.Resources, maxWidth);
+            return new HelpBuilder(context.ParseResult.CommandResult.Resources, maxWidth);
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)

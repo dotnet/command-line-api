@@ -2,11 +2,22 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
+using System.Text;
 
 namespace System.CommandLine.IO
 {
     public static class StandardStreamWriter
     {
+        public static TextWriter Create(IStandardStreamWriter writer)
+        {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            return new AnonymousTextWriter(writer);
+        }
+
         public static IStandardStreamWriter Create(TextWriter writer)
         {
             if (writer is null)
@@ -36,6 +47,23 @@ namespace System.CommandLine.IO
 
             writer.Write(value);
             writer.Write(Environment.NewLine);
+        }
+
+        private class AnonymousTextWriter : TextWriter
+        {
+            public AnonymousTextWriter(IStandardStreamWriter writer)
+            {
+                Writer = writer;
+            }
+
+            public override Encoding Encoding => Encoding.UTF8;
+
+            public IStandardStreamWriter Writer { get; }
+
+            public override void Write(char value)
+            {
+                Writer.Write(value.ToString());
+            }
         }
 
         private class AnonymousStandardStreamWriter : IStandardStreamWriter

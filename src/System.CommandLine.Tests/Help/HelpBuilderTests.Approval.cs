@@ -4,6 +4,7 @@
 using Xunit;
 using System.IO;
 using ApprovalTests;
+using System.CommandLine.IO;
 
 namespace System.CommandLine.Tests.Help
 {
@@ -64,8 +65,9 @@ namespace System.CommandLine.Tests.Help
             };
             command.Name = "the-root-command";
 
-            GetHelpBuilder(LargeMaxWidth).Write(command);
-            Approvals.Verify(_console.Out.ToString());
+            StringWriter writer = new();
+            GetHelpBuilder(LargeMaxWidth).Write(command, writer);
+            Approvals.Verify(writer.ToString());
         }
     }
 }

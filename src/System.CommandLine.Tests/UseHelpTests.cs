@@ -7,6 +7,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
+using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -285,7 +286,7 @@ namespace System.CommandLine.Tests
 
         private class CustomHelpBuilder : IHelpBuilder
         {
-            public void Write(ICommand command)
+            public void Write(ICommand command, TextWriter writer)
             {
                 throw new NotImplementedException();
             }
