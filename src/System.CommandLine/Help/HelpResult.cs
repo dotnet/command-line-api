@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 
 namespace System.CommandLine.Help
 {
@@ -11,7 +12,7 @@ namespace System.CommandLine.Help
         {
             context.BindingContext
                    .HelpBuilder
-                   .Write(context.ParseResult.CommandResult.Command);
+                   .Write(context.ParseResult.CommandResult.Command, StandardStreamWriter.Create(context.Console.Out));
         }
     }
 }

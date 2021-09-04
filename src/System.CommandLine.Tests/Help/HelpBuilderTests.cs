@@ -23,14 +23,14 @@ namespace System.CommandLine.Tests.Help
         private const int IndentationWidth = 2;
 
         private readonly HelpBuilder _helpBuilder;
-        private readonly TestConsole _console;
+        private readonly StringWriter _console;
         private readonly string _executableName;
         private readonly string _columnPadding;
         private readonly string _indentation;
 
         public HelpBuilderTests()
         {
-            _console = new TestConsole();
+            _console = new();
             _helpBuilder = GetHelpBuilder(LargeMaxWidth);
             _columnPadding = new string(' ', ColumnGutterWidth);
             _indentation = new string(' ', IndentationWidth);
@@ -40,7 +40,6 @@ namespace System.CommandLine.Tests.Help
         private HelpBuilder GetHelpBuilder(int maxWidth)
         {
             return new HelpBuilder(
-                console: _console,
                 Resources.Instance,
                 maxWidth
             );
@@ -54,7 +53,7 @@ namespace System.CommandLine.Tests.Help
             var command = new RootCommand(
                 $"test{NewLine}\r\ndescription with\nline breaks");
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
             var expected =
                 $"{_indentation}test{NewLine}" +
@@ -62,7 +61,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}description with{NewLine}" +
                 $"{_indentation}line breaks{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -76,13 +75,13 @@ namespace System.CommandLine.Tests.Help
             var command = new RootCommand(description: longSynopsisText);
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"{_indentation}test\tdescription with some tabs that is long enough to wrap to a\t{NewLine}" +
                 $"{_indentation}new line{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -94,12 +93,12 @@ namespace System.CommandLine.Tests.Help
             };
 
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected = $"custom-name{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
-            _console.Out.ToString().Should().NotContain(_executableName);
+            _console.ToString().Should().Contain(expected);
+            _console.ToString().Should().NotContain(_executableName);
         }
 
         #endregion Synopsis
@@ -135,13 +134,13 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new RootCommand();
             rootCommand.AddCommand(command);
 
-            new HelpBuilder(_console, Resources.Instance, LargeMaxWidth).Write(command);
+            new HelpBuilder(Resources.Instance, LargeMaxWidth).Write(command, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
                 $"{_indentation}{_executableName} [options] the-command {expectedDescriptor}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Theory]
@@ -179,13 +178,13 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new RootCommand();
             rootCommand.AddCommand(command);
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
                 $"{_indentation}{_executableName} [options] the-command {expectedDescriptor}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -200,13 +199,13 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new RootCommand();
             rootCommand.Add(outer);
 
-            _helpBuilder.Write(innerEr);
+            _helpBuilder.Write(innerEr, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
                 $"{_indentation}{_executableName} [options] outer inner inner-er";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -229,13 +228,13 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(inner);
+            _helpBuilder.Write(inner, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
                 $"{_indentation}outer [options] [<outer-args>...] inner [<inner-args>...]";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -247,9 +246,9 @@ namespace System.CommandLine.Tests.Help
             command.AddOption(
                 new Option("-x", "Indicates whether x"));
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().NotContain("additional arguments");
+            _console.ToString().Should().NotContain("additional arguments");
         }
 
         [Fact]
@@ -261,9 +260,9 @@ namespace System.CommandLine.Tests.Help
             subcommand.AddOption(new Option("-x", "Indicates whether x"));
             subcommand.TreatUnmatchedTokensAsErrors = true;
 
-            _helpBuilder.Write(subcommand);
+            _helpBuilder.Write(subcommand, _console);
 
-            _console.Out.ToString().Should().NotContain("<additional arguments>");
+            _console.ToString().Should().NotContain("<additional arguments>");
         }
 
         [Fact]
@@ -275,9 +274,9 @@ namespace System.CommandLine.Tests.Help
             subcommand.AddOption(new Option("-x", "Indicates whether x"));
             subcommand.TreatUnmatchedTokensAsErrors = false;
 
-            _helpBuilder.Write(subcommand);
+            _helpBuilder.Write(subcommand, _console);
 
-            _console.Out.ToString().Should().Contain("<additional arguments>");
+            _console.ToString().Should().Contain("<additional arguments>");
         }
 
         [Fact]
@@ -298,7 +297,7 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(outer);
+            _helpBuilder.Write(outer, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
@@ -307,7 +306,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}with new{NewLine}" +
                 $"{_indentation}lines>...] [command]{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -337,14 +336,14 @@ namespace System.CommandLine.Tests.Help
                 outerCommand
             };
 
-            helpBuilder.Write(outerCommand);
+            helpBuilder.Write(outerCommand, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
                 $"{_indentation}System.CommandLine outer-command [<outer args long enough to wrap {NewLine}" +
                 $"{_indentation}to a new line>...] [command]{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -366,13 +365,13 @@ namespace System.CommandLine.Tests.Help
             command.AddArgument(hiddenArg);
             command.AddArgument(visibleArg);
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
                 $"{_indentation}{commandName} <{visibleArgName}>{NewLine}{NewLine}";
 
-            string help = _console.Out.ToString();
+            string help = _console.ToString();
             help.Should().Contain(expected);
             help.Should().NotContain("hidden");
         }
@@ -384,9 +383,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_no_commands_configured()
         {
-            _helpBuilder.Write(new RootCommand());
+            _helpBuilder.Write(new RootCommand(), _console);
 
-            _console.Out.ToString().Should().NotContain("Arguments:");
+            _console.ToString().Should().NotContain("Arguments:");
         }
 
         [Fact]
@@ -394,11 +393,11 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "command help");
 
-            _helpBuilder.Write(command);
-            _console.Out.ToString().Should().NotContain("Arguments:");
+            _helpBuilder.Write(command, _console);
+            _console.ToString().Should().NotContain("Arguments:");
 
-            _helpBuilder.Write(command);
-            _console.Out.ToString().Should().NotContain("Arguments:");
+            _helpBuilder.Write(command, _console);
+            _console.ToString().Should().NotContain("Arguments:");
         }
 
         [Fact]
@@ -413,9 +412,9 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().Contain("Arguments:");
+            _console.ToString().Should().Contain("Arguments:");
         }
 
         [Fact]
@@ -427,9 +426,9 @@ namespace System.CommandLine.Tests.Help
                            "Sets the verbosity.")
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().NotContain("Arguments:");
+            _console.ToString().Should().NotContain("Arguments:");
         }
 
         [Fact]
@@ -443,9 +442,9 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().NotContain("Arguments:");
+            _console.ToString().Should().NotContain("Arguments:");
         }
 
         [Fact]
@@ -460,9 +459,9 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
             help.Should().Contain("-v, --verbosity <LEVEL>");
             help.Should().Contain("Sets the verbosity.");
         }
@@ -487,9 +486,9 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
             help.Should().Contain("-v, --verbosity <LEVEL>");
         }
 
@@ -510,9 +509,9 @@ namespace System.CommandLine.Tests.Help
                 $"Arguments:{NewLine}" +
                 $"{_indentation}<the-arg>{_columnPadding}Help text from HelpDetail";
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -542,8 +541,8 @@ namespace System.CommandLine.Tests.Help
                 $"Arguments:{NewLine}" +
                 $"{_indentation}<{visibleArgName}>{_columnPadding}{visibleDesc}{NewLine}{NewLine}";
 
-            _helpBuilder.Write(command);
-            var help = _console.Out.ToString();
+            _helpBuilder.Write(command, _console);
+            var help = _console.ToString();
 
             help.Should().Contain(expected);
             help.Should().NotContain(hiddenArgName);
@@ -568,9 +567,9 @@ namespace System.CommandLine.Tests.Help
                 inner
             };
 
-            _helpBuilder.Write(inner);
+            _helpBuilder.Write(inner, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should().Contain($"Arguments:{NewLine}" +
                     $"  <reused>{_columnPadding}This argument is valid on both outer and inner commands{NewLine}{NewLine}");
@@ -601,9 +600,9 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}<outer-command-arg>    {_columnPadding}The argument for the outer command{NewLine}" +
                 $"{_indentation}<the-inner-command-arg>{_columnPadding}The argument for the inner command";
 
-            _helpBuilder.Write(inner);
+            _helpBuilder.Write(inner, _console);
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -619,7 +618,7 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -627,7 +626,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}                   {_columnPadding}for the{NewLine}" +
                 $"{_indentation}                   {_columnPadding}inner command{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -645,7 +644,7 @@ namespace System.CommandLine.Tests.Help
 
             var helpBuilder = GetHelpBuilder(25);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -655,7 +654,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}          {_columnPadding}inner {NewLine}" +
                 $"{_indentation}          {_columnPadding}command{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -678,14 +677,14 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Arguments:{NewLine}" +
                 $"{_indentation}<outer-command-arg>{_columnPadding}Argument\tfor inner command with some tabs that {NewLine}" +
                 $"{_indentation}                   {_columnPadding}is long enough to wrap to a\tnew line{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -704,7 +703,7 @@ namespace System.CommandLine.Tests.Help
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -713,7 +712,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}line>                            {_columnPadding}long enough to wrap to a new {NewLine}" +
                 $"{_indentation}                                 {_columnPadding}line.{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Theory]
@@ -734,13 +733,13 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Arguments:{NewLine}" +
                 $"{_indentation}<Read|ReadWrite|Write>{_columnPadding}{description}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Theory]
@@ -758,9 +757,9 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().Contain($"--opt{_columnPadding}{description}");
+            _console.ToString().Should().Contain($"--opt{_columnPadding}{description}");
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1157
@@ -774,14 +773,14 @@ namespace System.CommandLine.Tests.Help
             
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Arguments:{NewLine}" +
                 $"{_indentation}<boolArgument>{_columnPadding}Some value{NewLine}" +
                 $"{_indentation}<intArgument> {_columnPadding}Another value{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Theory]
@@ -799,9 +798,9 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().Contain($"--opt <Read|ReadWrite|Write>{_columnPadding}{description}");
+            _console.ToString().Should().Contain($"--opt <Read|ReadWrite|Write>{_columnPadding}{description}");
         }
 
         [Fact]
@@ -819,9 +818,9 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should().Contain($"[default: the-arg-value]");
         }
@@ -849,9 +848,9 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -870,12 +869,12 @@ namespace System.CommandLine.Tests.Help
                     getDefaultValue: () => new List<int>() { 0, 2, 4 })
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var expected =
                 $"Arguments:{NewLine}" +
                 $"{_indentation}<filter-size>{_columnPadding}[default: 0|2|4]{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -889,12 +888,12 @@ namespace System.CommandLine.Tests.Help
 
             _helpBuilder.Customize(argument, defaultValue: "42");
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var expected =
                 $"Arguments:{NewLine}" +
                 $"{_indentation}<some-arg>{_columnPadding}[default: 42]{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -908,12 +907,12 @@ namespace System.CommandLine.Tests.Help
 
             _helpBuilder.Customize(argument, descriptor: "some-other-arg");
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var expected =
                 $"Arguments:{NewLine}" +
                 $"{_indentation}some-other-arg{_columnPadding}[default: not 42]{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -934,9 +933,9 @@ namespace System.CommandLine.Tests.Help
                                      .AddCommand(new Command("outer", "description for outer"))
                                      .Command;
 
-            _helpBuilder.Write(commandLineBuilder);
+            _helpBuilder.Write(commandLineBuilder, _console);
 
-            _console.Out.ToString().Should().NotContain("Options:");
+            _console.ToString().Should().NotContain("Options:");
         }
 
         [Fact]
@@ -945,9 +944,9 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("outer", "description for outer");
             command.AddCommand(new Command("inner"));
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().NotContain("Options:");
+            _console.ToString().Should().NotContain("Options:");
         }
 
         [Fact]
@@ -959,9 +958,9 @@ namespace System.CommandLine.Tests.Help
                               new Option("-n")
                           };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
             help.Should().Contain("-x");
             help.Should().Contain("-n");
         }
@@ -980,9 +979,9 @@ namespace System.CommandLine.Tests.Help
             });
 
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
             help.Should().Contain("-n");
             help.Should().Contain("Not Hidden");
             help.Should().NotContain("-x");
@@ -1002,9 +1001,9 @@ namespace System.CommandLine.Tests.Help
                                          "An option with 15 characters")
                           };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
             var lines = help.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("-a"));
@@ -1025,9 +1024,9 @@ namespace System.CommandLine.Tests.Help
                                   "HelpDetail for option")
                           };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
             help.Should().Contain("-multi");
             help.Should().NotContain("--multi");
         }
@@ -1042,9 +1041,9 @@ namespace System.CommandLine.Tests.Help
                                   "HelpDetail for option")
                           };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            _console.Out.ToString().Should().Contain("--m");
+            _console.ToString().Should().Contain("--m");
         }
 
         [Fact]
@@ -1060,7 +1059,7 @@ namespace System.CommandLine.Tests.Help
                         $"Help{NewLine}for \r\n the\noption")
                 };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
             var expected =
                 $"Options:{NewLine}" +
@@ -1069,7 +1068,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}         {_columnPadding} the{NewLine}" +
                 $"{_indentation}         {_columnPadding}option{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1088,14 +1087,14 @@ namespace System.CommandLine.Tests.Help
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Options:{NewLine}" +
                 $"{_indentation}-a, --aaa{_columnPadding}The option\twith some tabs that is long enough to wrap to {NewLine}" +
                 $"{_indentation}         {_columnPadding}a\tnew line{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1110,7 +1109,7 @@ namespace System.CommandLine.Tests.Help
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Options:{NewLine}" +
@@ -1118,7 +1117,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}-is-long-enough-to-wrap-to-a-new-{_columnPadding}enough to wrap.{NewLine}" +
                 $"{_indentation}line{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1132,9 +1131,9 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should()
                 .Contain("--required (REQUIRED)");
@@ -1152,9 +1151,9 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should()
                 .Contain("-r, --required <ARG> (REQUIRED)");
@@ -1167,9 +1166,9 @@ namespace System.CommandLine.Tests.Help
                          .UseHelp()
                          .Build();
 
-            _helpBuilder.Write(parser.Configuration.RootCommand);
+            _helpBuilder.Write(parser.Configuration.RootCommand, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should()
                 .Contain($"-?, -h, --help{_columnPadding}Show help and usage information");
@@ -1183,9 +1182,9 @@ namespace System.CommandLine.Tests.Help
                 new Option(new[] { "-x", "/x" })
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should().NotContain("/x");
         }
@@ -1198,9 +1197,9 @@ namespace System.CommandLine.Tests.Help
                 new Option(new[] { "--long", "/long" })
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should().NotContain("/long");
         }
@@ -1216,9 +1215,8 @@ namespace System.CommandLine.Tests.Help
                 new Option(new[] { "--last", "-l" })
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var help = _console
-                       .Out
                        .ToString()
                        .Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
                        .Select(l => l.Trim());
@@ -1238,11 +1236,9 @@ namespace System.CommandLine.Tests.Help
                 new Option(new[] { "-z", "-a", "--zzz", "--aaa" })
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
-            _console
-                .Out
-                .ToString().Should().Contain("-a, -z, --aaa, --zzz");
+            _console.ToString().Should().Contain("-a, -z, --aaa, --zzz");
         }
 
         [Fact]
@@ -1258,9 +1254,9 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should().Contain($"[default: the-arg-value]");
         }
@@ -1276,12 +1272,12 @@ namespace System.CommandLine.Tests.Help
                 { }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
                 $"{_indentation}--filter-size <filter-size>{_columnPadding}[default: 0|2|4]{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1295,12 +1291,12 @@ namespace System.CommandLine.Tests.Help
                 { }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
                 $"{_indentation}--prefixes <prefixes>{_columnPadding}[default: ^(TODO|BUG)|^HACK]{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1314,12 +1310,12 @@ namespace System.CommandLine.Tests.Help
 
             _helpBuilder.Customize(option, defaultValue: "42");
             
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
                 $"{_indentation}--the-option <the-option>{_columnPadding}[default: 42]{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1333,12 +1329,12 @@ namespace System.CommandLine.Tests.Help
 
             _helpBuilder.Customize(option, descriptor: "other-name");
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
                 $"{_indentation}other-name{_columnPadding}option description{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1373,9 +1369,9 @@ namespace System.CommandLine.Tests.Help
                             inner
                         };
 
-            _helpBuilder.Write(inner);
+            _helpBuilder.Write(inner, _console);
 
-            _console.Out.ToString().Should().NotContain("sibling");
+            _console.ToString().Should().NotContain("sibling");
         }
 
         [Fact]
@@ -1396,7 +1392,7 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
 
             var expected =
                 $"Commands:{NewLine}" +
@@ -1405,7 +1401,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}                  {_columnPadding} with {NewLine}" +
                 $"{_indentation}                  {_columnPadding}newlines{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1438,14 +1434,14 @@ namespace System.CommandLine.Tests.Help
                 }
             };
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Commands:{NewLine}" +
                 $"{_indentation}inner-command <inner-args>{_columnPadding}The\tsubcommand with some tabs that is {NewLine}" +
                 $"{_indentation}                          {_columnPadding}long enough to wrap to a\tnew line{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1460,7 +1456,7 @@ namespace System.CommandLine.Tests.Help
             };
 
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
             var expected =
                 $"Commands:{NewLine}" +
@@ -1468,7 +1464,7 @@ namespace System.CommandLine.Tests.Help
                 $"{_indentation}gh-to-wrap-to-a-new-line         {_columnPadding}really long. So long that it {NewLine}" +
                 $"{_indentation}                                 {_columnPadding}caused the line to wrap.{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1478,8 +1474,8 @@ namespace System.CommandLine.Tests.Help
             var subCommand = new Command("the-subcommand", description: null);
             command.AddCommand(subCommand);
 
-            _helpBuilder.Write(command);
-            var help = _console.Out.ToString();
+            _helpBuilder.Write(command, _console);
+            var help = _console.ToString();
 
             help.Should().Contain("the-subcommand");
         }
@@ -1499,8 +1495,8 @@ namespace System.CommandLine.Tests.Help
             command.AddCommand(hiddenSubCommand);
             command.AddCommand(visibleSubCommand);
 
-            _helpBuilder.Write(command);
-            var help = _console.Out.ToString();
+            _helpBuilder.Write(command, _console);
+            var help = _console.ToString();
 
             help.Should().NotContain("the-hidden");
             help.Should().Contain("the-visible");
@@ -1525,8 +1521,8 @@ namespace System.CommandLine.Tests.Help
             subCommand.AddArgument(visible);
             command.AddCommand(subCommand);
 
-            _helpBuilder.Write(command);
-            var help = _console.Out.ToString();
+            _helpBuilder.Write(command, _console);
+            var help = _console.ToString();
 
             help.Should().NotContain("the-hidden");
             help.Should().Contain("the-visible");
@@ -1543,12 +1539,12 @@ namespace System.CommandLine.Tests.Help
 
             _helpBuilder.Customize(subcommand, descriptor: "other-name");
 
-            _helpBuilder.Write(command);
+            _helpBuilder.Write(command, _console);
             var expected =
                 $"Commands:{NewLine}" +
                 $"{_indentation}other-name{_columnPadding}subcommand description{NewLine}{NewLine}";
 
-            _console.Out.ToString().Should().Contain(expected);
+            _console.ToString().Should().Contain(expected);
         }
 
         [Fact]
@@ -1565,7 +1561,7 @@ namespace System.CommandLine.Tests.Help
         {
             var parser = new CommandLineBuilder()
                          .UseDefaults()
-                         .UseHelpBuilder(context => new CustomHelpBuilderThatAddsTextAfterDefaultText(context.Console, "The text to add"))
+                         .UseHelpBuilder(context => new CustomHelpBuilderThatAddsTextAfterDefaultText("The text to add"))
                          .Build();
 
             var console = new TestConsole();
@@ -1609,9 +1605,9 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should().Contain($"[default: the-arg-value]");
         }
@@ -1644,9 +1640,9 @@ namespace System.CommandLine.Tests.Help
 
             HelpBuilder helpBuilder = GetHelpBuilder(LargeMaxWidth);
 
-            helpBuilder.Write(command);
+            helpBuilder.Write(command, _console);
 
-            var help = _console.Out.ToString();
+            var help = _console.ToString();
 
             help.Should().Contain($"[the-arg: the-arg-value, the-other-arg: the-other-arg-value]");
         }
@@ -1657,7 +1653,7 @@ namespace System.CommandLine.Tests.Help
         [InlineData(int.MinValue)]
         public void Constructor_ignores_non_positive_max_width(int maxWidth)
         {
-            var helpBuilder = new HelpBuilder(_console, Resources.Instance, maxWidth);
+            var helpBuilder = new HelpBuilder(Resources.Instance, maxWidth);
             Assert.Equal(int.MaxValue, helpBuilder.MaxWidth);
         }
 
@@ -1665,16 +1661,16 @@ namespace System.CommandLine.Tests.Help
         {
             private readonly string _theTextToAdd;
 
-            public CustomHelpBuilderThatAddsTextAfterDefaultText(IConsole console, string theTextToAdd) 
-                : base(console, Resources.Instance)
+            public CustomHelpBuilderThatAddsTextAfterDefaultText(string theTextToAdd) 
+                : base(Resources.Instance)
             {
                 _theTextToAdd = theTextToAdd;
             }
 
-            public override void Write(ICommand command)
+            public override void Write(ICommand command, TextWriter writer)
             {
-                base.Write(command);
-                Console.Out.Write(_theTextToAdd);
+                base.Write(command, writer);
+                writer.Write(_theTextToAdd);
             }
         }
     }
