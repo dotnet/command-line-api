@@ -97,7 +97,7 @@ namespace System.CommandLine.Parsing
         public object? ValueForOption(string alias) =>
             ValueForOption<object?>(alias);
         
-        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(Option) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(IOption) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public object? ValueForOption(Option option) =>
             GetValueForOption<object?>(option);
 
@@ -112,7 +112,7 @@ namespace System.CommandLine.Parsing
          public object? ValueForArgument(Argument argument) =>
             GetValueForArgument<object?>(argument);
 
-         public object? GetValueForArgument(Argument argument) =>
+         public object? GetValueForArgument(IArgument argument) =>
             GetValueForArgument<object?>(argument);
 
          [Obsolete(
@@ -140,7 +140,7 @@ namespace System.CommandLine.Parsing
             GetValueForArgument<T>(argument);
         
         [return: MaybeNull]
-        public T GetValueForArgument<T>(Argument argument)
+        public T GetValueForArgument<T>(IArgument argument)
         {
             if (FindResultFor(argument) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -148,7 +148,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ValueType);
+            return (T)Binder.GetDefaultValue(argument.ValueType)!;
         }
 
         [return: MaybeNull]
