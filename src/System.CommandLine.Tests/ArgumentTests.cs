@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument();
 
-            argument.Invoking(a => a.ArgumentType = null)
+            argument.Invoking(a => a.ValueType = null)
                     .Should()
                     .Throw<ArgumentNullException>();
         }
@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument();
 
-            argument.ArgumentType
+            argument.ValueType
                     .Should()
                     .Be(typeof(string));
         }

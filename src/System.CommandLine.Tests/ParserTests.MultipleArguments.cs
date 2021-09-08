@@ -240,12 +240,12 @@ namespace System.CommandLine.Tests
             {
                 var arg1 = new Argument("arg1")
                 {
-                    ArgumentType = typeof(string),
+                    ValueType = typeof(string),
                     Arity = ArgumentArity.ExactlyOne
                 };
                 var arg2 = new Argument("arg2")
                 {
-                    ArgumentType = typeof(string),
+                    ValueType = typeof(string),
                     Arity = ArgumentArity.ZeroOrOne,
                     
                 };

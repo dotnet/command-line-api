@@ -216,7 +216,7 @@ namespace System.CommandLine.Tests.Binding
                 new Argument
                 {
                     Name = "value",
-                    ArgumentType = testCase.ParameterType
+                    ValueType = testCase.ParameterType
                 }
             };
             command.Handler = handler;
@@ -263,7 +263,7 @@ namespace System.CommandLine.Tests.Binding
             var argument = new Argument
             {
                 Name = "value",
-                ArgumentType = testCase.ParameterType
+                ValueType = testCase.ParameterType
             };
 
             var command = new Command(

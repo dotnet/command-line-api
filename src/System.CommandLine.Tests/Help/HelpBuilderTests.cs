@@ -727,7 +727,7 @@ namespace System.CommandLine.Tests.Help
                 new Argument
                 {
                     Description = description,
-                    ArgumentType = type
+                    ValueType = type
                 }
             };
 

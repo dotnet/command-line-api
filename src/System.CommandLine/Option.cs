@@ -94,7 +94,7 @@ namespace System.CommandLine
             var rv = new Argument();
             if (argumentType != null)
             {
-                rv.ArgumentType = argumentType;
+                rv.ValueType = argumentType;
             }
             if (getDefaultValue != null)
             {
@@ -147,7 +147,7 @@ namespace System.CommandLine
             {
                 if (value.MaximumNumberOfValues > 0)
                 {
-                    Argument.ArgumentType = typeof(string);
+                    Argument.ValueType = typeof(string);
                 }
                 
                 Argument.Arity = value;
@@ -242,7 +242,7 @@ namespace System.CommandLine
         /// <summary>
         /// The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.
         /// </summary>
-        public Type ValueType => Argument.ArgumentType;
+        public Type ValueType => Argument.ValueType;
 
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 

@@ -18,7 +18,7 @@ namespace System.CommandLine
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private IArgumentArity? _arity;
         private TryConvertArgument? _convertArguments;
-        private Type _argumentType = typeof(string);
+        private Type _valueType = typeof(string);
         private SuggestionSourceList? _suggestions = null;
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace System.CommandLine
                 if (_arity is null)
                 {
                     return ArgumentArity.Default(
-                        ArgumentType, 
+                        ValueType, 
                         this, 
                         Parents);
                 }
@@ -76,10 +76,10 @@ namespace System.CommandLine
             {
                 if (_convertArguments is null)
                 {
-                    if (ArgumentType.CanBeBoundFromScalarValue())
+                    if (ValueType.CanBeBoundFromScalarValue())
                     {
                         if (Arity.MaximumNumberOfValues == 1 &&
-                            ArgumentType == typeof(bool))
+                            ValueType == typeof(bool))
                         {
                             _convertArguments = ArgumentConverter.TryConvertBoolArgument;
                         }
@@ -103,16 +103,16 @@ namespace System.CommandLine
         public SuggestionSourceList Suggestions =>
             _suggestions ??= new SuggestionSourceList
             {
-                SuggestionSource.ForType(ArgumentType)
+                SuggestionSource.ForType(ValueType)
             };
 
         /// <summary>
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
-        public virtual Type ArgumentType
+        public virtual Type ValueType
         {
-            get => _argumentType;
-            set => _argumentType = value ?? throw new ArgumentNullException(nameof(value));
+            get => _valueType;
+            set => _valueType = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         private protected override string DefaultName
@@ -126,7 +126,7 @@ namespace System.CommandLine
                         case Option option:
                             return option.Name;
                         case Command _:
-                            return ArgumentType.Name.ToLowerInvariant();
+                            return ValueType.Name.ToLowerInvariant();
                     }
                 }
 
@@ -204,7 +204,7 @@ namespace System.CommandLine
         internal static Argument None() => new()
         {
             Arity = ArgumentArity.Zero,
-            ArgumentType = typeof(bool)
+            ValueType = typeof(bool)
         };
 
         internal void AddAllowedValues(IEnumerable<string> values)
@@ -235,8 +235,5 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         string IValueDescriptor.ValueName => Name;
-
-        /// <inheritdoc />
-        Type IValueDescriptor.ValueType => ArgumentType;
     }
 }

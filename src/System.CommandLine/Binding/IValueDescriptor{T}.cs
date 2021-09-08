@@ -3,14 +3,7 @@
 
 namespace System.CommandLine.Binding
 {
-    public interface IValueDescriptor
+    public interface IValueDescriptor<T> : IValueDescriptor
     {
-        string ValueName { get; }
-
-        Type ValueType { get; }
-
-        bool HasDefaultValue { get; }
-
-        object? GetDefaultValue();
     }
 }
