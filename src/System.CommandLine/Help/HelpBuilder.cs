@@ -38,7 +38,6 @@ namespace System.CommandLine.Help
                 return;
             }
 
-
             AddSynopsis(command, writer);
             AddUsage(command, writer);
             AddCommandArguments(command, writer);

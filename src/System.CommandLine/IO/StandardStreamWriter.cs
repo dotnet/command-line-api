@@ -15,7 +15,7 @@ namespace System.CommandLine.IO
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            return new AnonymousTextWriter(writer);
+            return new TextWriterThatWritesToStandardStreamWriter(writer);
         }
 
         public static IStandardStreamWriter Create(TextWriter writer)
@@ -49,20 +49,25 @@ namespace System.CommandLine.IO
             writer.Write(Environment.NewLine);
         }
 
-        private class AnonymousTextWriter : TextWriter
+        private class TextWriterThatWritesToStandardStreamWriter : TextWriter
         {
-            public AnonymousTextWriter(IStandardStreamWriter writer)
+            private readonly IStandardStreamWriter _writer;
+
+            public TextWriterThatWritesToStandardStreamWriter(IStandardStreamWriter writer)
             {
-                Writer = writer;
+                _writer = writer;
             }
 
             public override Encoding Encoding => Encoding.UTF8;
 
-            public IStandardStreamWriter Writer { get; }
-
             public override void Write(char value)
             {
-                Writer.Write(value.ToString());
+                _writer.Write(value.ToString());
+            }
+            
+            public override void Write(string value)
+            {
+                _writer.Write(value);
             }
         }
 
