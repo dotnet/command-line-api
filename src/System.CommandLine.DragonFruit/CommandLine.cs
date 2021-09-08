@@ -166,7 +166,7 @@ namespace System.CommandLine.DragonFruit
             {
                 var argument = new Argument
                 {
-                    ArgumentType = argsParam.ParameterType,
+                    ValueType = argsParam.ParameterType,
                     Name = argsParam.Name
                 };
 

@@ -130,11 +130,11 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ArgumentType)!;
+            return (T)Binder.GetDefaultValue(argument.ValueType)!;
         }
 
         [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(Argument) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
+            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(IArgument) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         [return: MaybeNull]
         internal T ValueForArgument<T>(Argument argument) => 
             GetValueForArgument<T>(argument);
@@ -148,7 +148,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ArgumentType)!;
+            return (T)Binder.GetDefaultValue(argument.ValueType);
         }
 
         [return: MaybeNull]
@@ -184,11 +184,11 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;
+            return (T)Binder.GetDefaultValue(option.Argument.ValueType)!;
         }
 
         [return: MaybeNull]
-        public T GetValueForOption<T>(Option option)
+        public T GetValueForOption<T>(IOption option)
         {
             if (FindResultFor(option) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -196,7 +196,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(option.Argument.ArgumentType)!;
+            return (T)Binder.GetDefaultValue(option.Argument.ValueType)!;
         }
 
         [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
