@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.CommandLine.CommandGenerator.Parameters;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
@@ -76,10 +77,10 @@ namespace System.CommandLine.CommandGenerator.Invocations
             return hashCode;
         }
 
-        protected static int HashCode<T>(T value)
+        protected static int HashCode<T>([DisallowNull] T value)
                 => EqualityComparer<T>.Default.GetHashCode(value);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return Equals(obj as DelegateInvocation);
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.CommandGenerator.Parameters
 {
@@ -25,10 +26,10 @@ namespace System.CommandLine.CommandGenerator.Parameters
             return SymbolComparer.GetHashCode(ValueType);
         }
 
-        protected static int HashCode<T>(T value)
+        protected static int HashCode<T>([DisallowNull] T value)
                 => EqualityComparer<T>.Default.GetHashCode(value);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return base.Equals(obj as Parameter);
         }
