@@ -33,7 +33,7 @@ namespace System.CommandLine.CommandGenerator.Parameters
                 HashCode(LocalName);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => Equals(obj as PropertyParameter);
 
         public bool Equals(PropertyParameter? other)

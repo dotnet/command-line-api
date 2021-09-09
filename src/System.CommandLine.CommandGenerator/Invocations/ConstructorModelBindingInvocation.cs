@@ -66,7 +66,7 @@ namespace System.CommandLine.CommandGenerator.Invocations
                 SymbolComparer.GetHashCode(Constructor);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => Equals(obj as ConstructorModelBindingInvocation);
 
         public bool Equals(ConstructorModelBindingInvocation? other)

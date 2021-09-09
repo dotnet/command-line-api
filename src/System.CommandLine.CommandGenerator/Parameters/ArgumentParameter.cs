@@ -15,7 +15,7 @@ namespace System.CommandLine.CommandGenerator.Parameters
         public override int GetHashCode() 
             => base.GetHashCode();
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => Equals(obj as ArgumentParameter);
 
         public bool Equals(ArgumentParameter? other)

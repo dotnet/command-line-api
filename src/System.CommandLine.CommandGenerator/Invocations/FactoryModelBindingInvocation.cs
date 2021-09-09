@@ -58,7 +58,7 @@ namespace System.CommandLine.CommandGenerator.Invocations
         public override int GetHashCode()
             => base.GetHashCode();
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => Equals(obj as FactoryModelBindingInvocation);
 
         public bool Equals(FactoryModelBindingInvocation? other)
