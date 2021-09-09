@@ -85,8 +85,8 @@ index 125e9c78..3a10c14d 100644
    </ItemGroup>
  
 -  <ItemGroup>
--    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
--    <PackageReference Include="system.memory" Version="4.5.4" />
+-    <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpPackageVersion)" />
+-    <PackageReference Include="system.memory" Version="$(SystemMemoryPackageVersion)" />
 -  </ItemGroup>
 -
    <ItemGroup>
