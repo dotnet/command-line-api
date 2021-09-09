@@ -8,20 +8,21 @@ rest of source-build: runtime and roslyn.
 
 Includes a code fix for ref nullability with the new framework.
 ---
- .../System.CommandLine.CommandGenerator.csproj                     | 2 +-
+ .../System.CommandLine.CommandGenerator.csproj                     | 4 ++--
  .../System.CommandLine.DragonFruit.csproj                          | 2 +-
  src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj   | 2 +-
  .../System.CommandLine.Rendering.csproj                            | 2 +-
  src/System.CommandLine/Binding/BindingContext.cs                   | 2 +-
  src/System.CommandLine/System.CommandLine.csproj                   | 7 +------
- 6 files changed, 6 insertions(+), 11 deletions(-)
+ 6 files changed, 7 insertions(+), 12 deletions(-)
 
 diff --git a/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj b/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
-index 0ec31a74..3fb7f142 100644
+index d419906e..8644194a 100644
 --- a/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
 +++ b/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
 @@ -1,7 +1,7 @@
- ﻿<Project Sdk="Microsoft.NET.Sdk">
+-<Project Sdk="Microsoft.NET.Sdk">
++﻿<Project Sdk="Microsoft.NET.Sdk">
  
    <PropertyGroup>
 -    <TargetFramework>netstandard2.0</TargetFramework>
