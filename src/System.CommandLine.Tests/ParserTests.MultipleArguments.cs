@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -236,7 +236,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void Unsatisfied_optional_subsequent_argument_parses_as_default_value()
+            public void Unsatisfied_subsequent_argument_with_min_arity_0_parses_as_default_value()
             {
                 var arg1 = new Argument("arg1")
                 {
@@ -247,7 +247,6 @@ namespace System.CommandLine.Tests
                 {
                     ValueType = typeof(string),
                     Arity = ArgumentArity.ZeroOrOne,
-                    
                 };
                 arg2.SetDefaultValue("the-default");
                 var rootCommand = new RootCommand
@@ -260,6 +259,24 @@ namespace System.CommandLine.Tests
 
                 result.ValueForArgument(arg1).Should().Be("value-1");
                 result.ValueForArgument(arg2).Should().Be("the-default");
+            }
+
+            [Fact] // https://github.com/dotnet/command-line-api/issues/1403
+            public void Unsatisfied_subsequent_argument_with_min_arity_1_parses_as_default_value()
+            {
+                Argument<string> arg1 = new(name: "arg1");
+                Argument<string> arg2 = new(name: "arg2", getDefaultValue: () => "the-default");
+
+                var rootCommand = new RootCommand
+                {
+                    arg1,
+                    arg2,
+                };
+
+                var result = rootCommand.Parse("");
+
+                result.FindResultFor(arg1).Should().BeNull();
+                result.GetValueForArgument(arg2).Should().Be("the-default");
             }
         }
     }
