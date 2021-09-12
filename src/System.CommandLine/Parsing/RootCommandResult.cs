@@ -84,7 +84,7 @@ namespace System.CommandLine.Parsing
             switch (result)
             {
                 case ArgumentResult argumentResult:
-                    _allArgumentResults!.Add(argumentResult.Argument, argumentResult);
+                    _allArgumentResults!.TryAdd(argumentResult.Argument, argumentResult);
                     break;
                 case CommandResult commandResult:
                     _allCommandResults!.Add(commandResult.Command, commandResult);
