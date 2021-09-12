@@ -89,10 +89,11 @@ namespace System.CommandLine.Parsing
 
                 if (!foundEndOfDirectives)
                 {
-                    if (arg.StartsWith("[", StringComparison.Ordinal) &&
-                        arg.EndsWith("]", StringComparison.Ordinal) &&
+                    if (arg.Length > 2 &&
+                        arg[0] == '[' &&
                         arg[1] != ']' &&
-                        arg[1] != ':')
+                        arg[1] != ':' &&
+                        arg.EndsWith("]", StringComparison.Ordinal))
                     {
                         tokenList.Add(Directive(arg));
                         continue;

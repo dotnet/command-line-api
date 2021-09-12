@@ -270,7 +270,6 @@ namespace System.CommandLine.Tests
                 option
             };
 
-
             var console = new TestConsole();
             var parser = new CommandLineBuilder(command)
                          .UseHelp<HelpBuilder>(builder =>

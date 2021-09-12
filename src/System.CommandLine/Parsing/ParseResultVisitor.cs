@@ -100,11 +100,7 @@ namespace System.CommandLine.Parsing
 
             if (previousToken.Type == TokenType.Option)
             {
-                if (_innermostCommandResult!.Children.GetByAlias(previousToken.Value) is OptionResult
-                {
-                    IsArgumentLimitReached: false
-                    //    IsMinimumArgumentAritySatisfied: false,
-                } previousOptionResult)
+                if (_innermostCommandResult!.Children.GetByAlias(previousToken.Value) is OptionResult { IsArgumentLimitReached: false } previousOptionResult)
                 {
                     ParseOptionTokenAsArgument(previousOptionResult);
                     return;
@@ -136,7 +132,6 @@ namespace System.CommandLine.Parsing
                 {
                     argumentResult = new ArgumentResult(parentOptionResult.Option.Argument, parentOptionResult);
                     parentOptionResult.Children.Add(argumentResult);
-                    // argumentResult.AddToken(token);
                     parentOptionResult.AddToken(token);
                 }
                 else

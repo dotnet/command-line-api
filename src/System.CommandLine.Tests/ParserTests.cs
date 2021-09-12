@@ -1205,8 +1205,7 @@ namespace System.CommandLine.Tests
 
             valueForOption.Should().Be("-y");
         }
-
-
+        
         [Fact]
         public void Option_arguments_can_start_with_prefixes_that_make_them_look_like_bundled_options()
         {
@@ -1280,6 +1279,32 @@ namespace System.CommandLine.Tests
             var result = command.Parse("-x -x");
 
             result.GetValueForOption(optionX).Should().Be("-x");
+        }
+
+        [Theory]
+        [InlineData("-x -y")]
+        [InlineData("-x true -y")]
+        [InlineData("-x:true -y")]
+        [InlineData("-x -y true")]
+        [InlineData("-x true -y true")]
+        [InlineData("-x:true -y:true")]
+        public void Boolean_options_are_not_TOO_greedy(string commandLine)
+        {
+            var optX = new Option<bool>("-x");
+            var optY = new Option<bool>("-y");
+
+            var root = new RootCommand("parent")
+            {
+                optX,
+                optY,
+            };
+
+            var result = root.Parse(commandLine);
+
+            result.Errors.Should().BeEmpty();
+
+            result.GetValueForOption(optX).Should().BeTrue();
+            result.GetValueForOption(optY).Should().BeTrue();
         }
 
         [Fact]
@@ -1673,7 +1698,7 @@ namespace System.CommandLine.Tests
                 : base(values)
             { }
         }
-      
+
         public class CustomCollectionTypeConverter : TypeConverter
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
