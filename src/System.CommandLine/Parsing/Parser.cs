@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Parses command line input.
+    /// </summary>
     public class Parser
     {
         public Parser(CommandLineConfiguration configuration)

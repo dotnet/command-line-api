@@ -105,8 +105,8 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (arg.GetResponseFileReference() is { } filePath &&
-                    configuration.ResponseFileHandling != ResponseFileHandling.Disabled)
+                if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
+                    arg.GetResponseFileReference() is { } filePath)
                 {
                     ReadResponseFile(filePath, i);
                     continue;

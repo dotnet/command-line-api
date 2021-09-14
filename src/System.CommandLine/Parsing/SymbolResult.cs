@@ -64,9 +64,6 @@ namespace System.CommandLine.Parsing
             {
                 switch (Symbol)
                 {
-                    // case IOption opt when opt.Argument.ValueType == typeof(bool):
-                    //     return 0;
-
                     case IOption option:
                         return option.Argument.Arity.MaximumNumberOfValues;
 

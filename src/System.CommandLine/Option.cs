@@ -231,6 +231,8 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
+        public bool IsGreedy { get; set; }
+
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
         /// </summary>

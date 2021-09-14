@@ -1285,10 +1285,12 @@ namespace System.CommandLine.Tests
         [InlineData("-x -y")]
         [InlineData("-x true -y")]
         [InlineData("-x:true -y")]
+        [InlineData("-x=true -y")]
         [InlineData("-x -y true")]
         [InlineData("-x true -y true")]
         [InlineData("-x:true -y:true")]
-        public void Boolean_options_are_not_TOO_greedy(string commandLine)
+        [InlineData("-x=true -y:true")]
+        public void Boolean_options_are_not_greedy(string commandLine)
         {
             var optX = new Option<bool>("-x");
             var optY = new Option<bool>("-y");
