@@ -26,9 +26,9 @@ namespace System.CommandLine.Invocation
 
         public IConsole Console => BindingContext.Console;
 
-        public Parser Parser => BindingContext.ParseResult.Parser;
-
         public IHelpBuilder HelpBuilder => Parser.Configuration.HelpBuilderFactory(BindingContext);
+
+        public Parser Parser => BindingContext.ParseResult.Parser;
 
         public Resources Resources => Parser.Configuration.Resources;
 

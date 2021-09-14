@@ -12,7 +12,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests.Invocation
 {
-    public class CommandHandlerTests
+    public partial class CommandHandlerTests
     {
         private readonly TestConsole _console = new();
 
@@ -322,7 +322,6 @@ namespace System.CommandLine.Tests.Invocation
             boundContext.ParseResult.GetValueForOption(option).Should().Be(123);
         }
 
-
         private class ExecuteTestClass
         {
             public string boundName = default;
@@ -397,7 +396,6 @@ namespace System.CommandLine.Tests.Invocation
             boundName.Should().Be("Gandalf");
             boundAge.Should().Be(425);
         }
-
 
         [Fact]
         public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_hyphenated_argument_names()

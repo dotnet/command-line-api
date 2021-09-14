@@ -8,15 +8,30 @@ rest of source-build: runtime and roslyn.
 
 Includes a code fix for ref nullability with the new framework.
 ---
- .../System.CommandLine.DragonFruit.csproj                  | 2 +-
- .../System.CommandLine.Hosting.csproj                      | 2 +-
- .../System.CommandLine.Rendering.csproj                    | 2 +-
- src/System.CommandLine/Binding/BindingContext.cs           | 2 +-
- src/System.CommandLine/System.CommandLine.csproj           | 7 +------
- 5 files changed, 5 insertions(+), 10 deletions(-)
+ .../System.CommandLine.CommandGenerator.csproj                     | 4 ++--
+ .../System.CommandLine.DragonFruit.csproj                          | 2 +-
+ src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj   | 2 +-
+ .../System.CommandLine.Rendering.csproj                            | 2 +-
+ src/System.CommandLine/Binding/BindingContext.cs                   | 2 +-
+ src/System.CommandLine/System.CommandLine.csproj                   | 7 +------
+ 6 files changed, 7 insertions(+), 12 deletions(-)
 
+diff --git a/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj b/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
+index d419906e..8644194a 100644
+--- a/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
++++ b/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
+@@ -1,7 +1,7 @@
+-<Project Sdk="Microsoft.NET.Sdk">
++﻿<Project Sdk="Microsoft.NET.Sdk">
+ 
+   <PropertyGroup>
+-    <TargetFramework>netstandard2.0</TargetFramework>
++    <TargetFramework>net5.0</TargetFramework>
+     <Nullable>enable</Nullable>
+     <LangVersion>9.0</LangVersion>
+     <IsPackable>true</IsPackable>
 diff --git a/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj b/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj
-index b3a542fd..06167997 100644
+index b3a542fd..0e49d818 100644
 --- a/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj
 +++ b/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj
 @@ -1,7 +1,7 @@
@@ -29,7 +44,7 @@ index b3a542fd..06167997 100644
      </Description>
    </PropertyGroup>
 diff --git a/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj b/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj
-index 1d00cff2..7342c1c5 100644
+index bed1b893..913edb72 100644
 --- a/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj
 +++ b/src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj
 @@ -2,7 +2,7 @@
@@ -42,7 +57,7 @@ index 1d00cff2..7342c1c5 100644
      <Description>This package provides support for using System.CommandLine with Microsoft.Extensions.Hosting.</Description>
    </PropertyGroup>
 diff --git a/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj b/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj
-index d552286e..84026ebe 100644
+index bd5ce1d7..762481d9 100644
 --- a/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj
 +++ b/src/System.CommandLine.Rendering/System.CommandLine.Rendering.csproj
 @@ -2,7 +2,7 @@
@@ -55,10 +70,10 @@ index d552286e..84026ebe 100644
      <Description>This package provides support for structured command line output rendering. Write code once that renders correctly in multiple output modes, including System.Console, virtual terminal (using ANSI escape sequences), and plain text.
      </Description>
 diff --git a/src/System.CommandLine/Binding/BindingContext.cs b/src/System.CommandLine/Binding/BindingContext.cs
-index b942ba6a..bbb83891 100644
+index a80a4172..305a95ab 100644
 --- a/src/System.CommandLine/Binding/BindingContext.cs
 +++ b/src/System.CommandLine/Binding/BindingContext.cs
-@@ -55,7 +55,7 @@ namespace System.CommandLine.Binding
+@@ -56,7 +56,7 @@ namespace System.CommandLine.Binding
  
          public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor)
          {
@@ -68,7 +83,7 @@ index b942ba6a..bbb83891 100644
                  return binder;
              }
 diff --git a/src/System.CommandLine/System.CommandLine.csproj b/src/System.CommandLine/System.CommandLine.csproj
-index aaa2c4a3..5e875a73 100644
+index 125e9c78..3a10c14d 100644
 --- a/src/System.CommandLine/System.CommandLine.csproj
 +++ b/src/System.CommandLine/System.CommandLine.csproj
 @@ -3,7 +3,7 @@
@@ -79,8 +94,8 @@ index aaa2c4a3..5e875a73 100644
 +    <TargetFramework>net5.0</TargetFramework>
      <LangVersion>9</LangVersion>
      <Nullable>enable</Nullable>
-     <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
-@@ -18,9 +18,4 @@
+ 
+@@ -26,11 +26,6 @@
      <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
    </ItemGroup>
  
@@ -90,6 +105,5 @@ index aaa2c4a3..5e875a73 100644
 -  </ItemGroup>
 -
    <ItemGroup>
--- 
-2.25.2
-
+     <Compile Update="Properties\Resources.Designer.cs">
+       <DesignTime>True</DesignTime>
