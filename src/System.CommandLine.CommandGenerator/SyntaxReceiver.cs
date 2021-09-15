@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 using System.CommandLine.CommandGenerator.Invocations;
 using System.CommandLine.CommandGenerator.Parameters;
-using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine.CommandGenerator
@@ -30,8 +29,7 @@ namespace System.CommandLine.CommandGenerator
                 var delegateParameters = Array.Empty<Microsoft.CodeAnalysis.ISymbol>();
 
                 //Check for model binding condition
-                if (invokeMethodSymbol.TypeArguments[0] is INamedTypeSymbol namedDelegateType &&
-                    namedDelegateType.TypeArguments.Length > 0)
+                if (invokeMethodSymbol.TypeArguments[0] is INamedTypeSymbol { TypeArguments: { Length: > 0 } } namedDelegateType)
                 {
                     if (namedDelegateType.DelegateInvokeMethod?.ReturnsVoid == false)
                     {
@@ -236,13 +234,12 @@ namespace System.CommandLine.CommandGenerator
             INamedTypeSymbol taskOfTType = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1")
                 ?? throw new InvalidOperationException("Failed to find Task<T>");
 
-            if (returnType is INamedTypeSymbol namedReturnType &&
-                namedReturnType.TypeArguments.Length == 1 &&
-                symbolEqualityComparer.Equals(namedReturnType.TypeArguments[0], intType) &&
+            if (returnType is INamedTypeSymbol { TypeArguments: { Length: 1 } } namedReturnType && symbolEqualityComparer.Equals(namedReturnType.TypeArguments[0], intType) &&
                 symbolEqualityComparer.Equals(namedReturnType.ConstructUnboundGenericType(), taskOfTType.ConstructUnboundGenericType()))
             {
-                 return ReturnPattern.AwaitFunctionReturnValue;
+                return ReturnPattern.AwaitFunctionReturnValue;
             }
+
             //TODO: Should this be an error?
             return ReturnPattern.InvocationContextExitCode;
         }

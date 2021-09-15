@@ -1,11 +1,12 @@
 ﻿using FluentAssertions;
 using System.CommandLine.Binding;
+using System.CommandLine.CommandGenerator;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using Xunit;
-using CommandHandler = System.CommandLine.Invocation.Generated.CommandHandler;
+using CommandHandler = System.CommandLine.CommandGenerator.CommandHandler;
 
 #nullable enable
 namespace System.CommandLine.Tests.Invocation
