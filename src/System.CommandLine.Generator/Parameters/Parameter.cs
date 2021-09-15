@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace System.CommandLine.CommandGenerator.Parameters
+namespace System.CommandLine.Generator.Parameters
 {
     internal abstract class Parameter : IEquatable<Parameter>
     {

@@ -9,10 +9,10 @@ using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using static System.CommandLine.CommandGenerator.CommandHandler;
+using static System.CommandLine.Invocation.CommandHandlerGenerator;
 
 #nullable enable
-namespace System.CommandLine.CommandGenerator.Tests
+namespace System.CommandLine.Generator.Tests
 {
     public class CommandHandlerTests
     {
@@ -38,7 +38,7 @@ namespace System.CommandLine.CommandGenerator.Tests
             var ageOption = new Option<int>("--age");
             command.AddOption(ageOption);
 
-            command.Handler = Generator.Generate<Action<string, IConsole, int>>
+            command.Handler = GeneratedHandler.Create<Action<string, IConsole, int>>
                 (Execute, nameArgument, ageOption);
 
             await command.InvokeAsync("command Gandalf --age 425", _console);
@@ -68,7 +68,7 @@ namespace System.CommandLine.CommandGenerator.Tests
             var ageOption = new Option<int>("--age");
             command.AddOption(ageOption);
 
-            command.Handler = Generator.Generate<Action<Character, IConsole>>
+            command.Handler = GeneratedHandler.Create<Action<Character, IConsole>>
                 (Execute, nameOption, ageOption);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
@@ -98,7 +98,7 @@ namespace System.CommandLine.CommandGenerator.Tests
             var ageOption = new Option<int>("--age");
             command.AddOption(ageOption);
 
-            command.Handler = Generator.Generate<Action<Character, IConsole>, Character>
+            command.Handler = GeneratedHandler.Create<Action<Character, IConsole>, Character>
                 (Execute, context => new Character
                 {
                     FullName = context.ParseResult.ValueForOption(nameOption),
@@ -126,7 +126,7 @@ namespace System.CommandLine.CommandGenerator.Tests
             var secondArgument = new Argument<int>("second");
             command.AddArgument(secondArgument);
 
-            command.Handler = Generator.Generate<Func<int, int, int>>
+            command.Handler = GeneratedHandler.Create<Func<int, int, int>>
                 (Execute, firstArgument, secondArgument);
 
             int result = await command.InvokeAsync("add 1 2", _console);
@@ -159,8 +159,7 @@ namespace System.CommandLine.CommandGenerator.Tests
 
             var command = new Command("command");
 
-            command.Handler = Generator
-                .Generate<Action<InvocationContext, IConsole, ParseResult, IHelpBuilder, BindingContext>>(Execute);
+            command.Handler = GeneratedHandler.Create<Action<InvocationContext, IConsole, ParseResult, IHelpBuilder, BindingContext>>(Execute);
 
             await command.InvokeAsync("command", _console);
 
@@ -193,7 +192,7 @@ namespace System.CommandLine.CommandGenerator.Tests
             var ageOption = new Option<int>("--age");
             command.AddOption(ageOption);
 
-            command.Handler = Generator.Generate<Func<string, IConsole, int, Task>>
+            command.Handler = GeneratedHandler.Create<Func<string, IConsole, int, Task>>
                 (ExecuteAsync, nameArgument, ageOption);
 
             await command.InvokeAsync("command Gandalf --age 425", _console);
@@ -218,7 +217,7 @@ namespace System.CommandLine.CommandGenerator.Tests
             var secondArgument = new Argument<int>("second");
             command.AddArgument(secondArgument);
 
-            command.Handler = Generator.Generate<Func<int, int, Task<int>>>
+            command.Handler = GeneratedHandler.Create<Func<int, int, Task<int>>>
                 (Execute, firstArgument, secondArgument);
 
             int result = await command.InvokeAsync("add 1 2", _console);
@@ -244,13 +243,13 @@ namespace System.CommandLine.CommandGenerator.Tests
             var command1 = new Command("first");
             var argument1 = new Argument<string>("first-value");
             command1.AddArgument(argument1);
-            command1.Handler = Generator.Generate<Action<string>>
+            command1.Handler = GeneratedHandler.Create<Action<string>>
                 (Execute1, argument1);
 
             var command2 = new Command("second");
             var argument2 = new Argument<string>("second-value");
             command2.AddArgument(argument2);
-            command2.Handler = Generator.Generate<Action<string>>
+            command2.Handler = GeneratedHandler.Create<Action<string>>
                 (Execute2, argument2);
 
             await command1.InvokeAsync("first v1", _console);

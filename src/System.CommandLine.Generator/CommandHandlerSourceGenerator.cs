@@ -2,10 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis;
+using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandGenerator
+namespace System.CommandLine.Generator
 {
     [Generator]
     public class CommandHandlerSourceGenerator : ISourceGenerator
@@ -21,7 +22,6 @@ namespace System.CommandLine.CommandGenerator
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#nullable disable
 using System.CommandLine.Binding;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -41,25 +41,32 @@ namespace {typeof(CommandHandlerGeneratorExtensions).Namespace}
                     .ToList();
 
                 builder.AppendLine(
-                    @$"public static {ICommandHandlerType} {nameof(CommandHandlerGeneratorExtensions.Generate)}<{string.Join(", ", Enumerable.Range(1, invocation.NumberOfGenerericParameters)
-                        .Select(x => $"Unused{x}"))}>(this {nameof(CommandHandlerGenerator)} handler,");
-                builder.AppendLine($"{invocation.DelegateType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} method");
+                    @$"
+        public static {ICommandHandlerType} {nameof(CommandHandlerGeneratorExtensions.Create)}<{string.Join(", ", Enumerable.Range(1, invocation.NumberOfGenerericParameters)
+                        .Select(x => $@"T{x}"))}>(
+            this {nameof(CommandHandlerGenerator)} handler,");
+                builder.Append($"{invocation.DelegateType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} method");
                 if (methodParameters.Count > 0)
                 {
-                    builder.AppendLine(",");
-                    builder.AppendLine(string.Join(", ", methodParameters.Select(x => $"{x.Type} {x.Name}")));
+                    builder.Append(",");
+                    builder.AppendLine(string.Join(", ", methodParameters.Select(x => $@"
+            {x.Type} {x.Name}")));
                 }
-                builder.AppendLine(")");
-                builder.AppendLine("{");
-                builder.Append($"return new GeneratedHandler_{count}(method");
+                builder.Append(")");
+                builder.Append(@"
+        {");
+                builder.Append($@"
+            return new GeneratedHandler_{count}(method");
+
                 if (methodParameters.Count > 0)
                 {
                     builder.Append(", ");
                     builder.Append(string.Join(", ", methodParameters.Select(x => x.Name)));
                 }
-                builder.AppendLine(");");
+                builder.Append(");");
                 
-                builder.AppendLine("}");
+                builder.AppendLine(@"
+        }");
 
 
                 //TODO: fully qualify type names
@@ -81,7 +88,8 @@ namespace {typeof(CommandHandlerGeneratorExtensions).Namespace}
                     .Select(x => x.GetPropertyAssignment())
                     .Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
-                    builder.AppendLine(propertyAssignment);
+                    builder.AppendLine($@"
+                {propertyAssignment}");
                 }
                 builder.AppendLine($@"
             }}
@@ -92,13 +100,15 @@ namespace {typeof(CommandHandlerGeneratorExtensions).Namespace}
                     .Select(x => x.GetPropertyDeclaration())
                     .Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
-                    builder.AppendLine(propertyDeclaration);
+                    builder.AppendLine($@"
+            {propertyDeclaration}");
                 }
 
                 builder.AppendLine($@"
             public async Task<int> InvokeAsync(InvocationContext context)
             {{");
-                builder.AppendLine(invocation.InvokeContents());
+                builder.AppendLine($@"
+                {invocation.InvokeContents()}");
                 builder.AppendLine($@"
             }}
         }}");
@@ -108,7 +118,7 @@ namespace {typeof(CommandHandlerGeneratorExtensions).Namespace}
             builder.AppendLine(@"
     }
 }
-#nullable restore");
+");
 
             context.AddSource("CommandHandlerGeneratorExtensions_Generated.g.cs", builder.ToString());
         }

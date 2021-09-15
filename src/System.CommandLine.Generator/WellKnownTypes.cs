@@ -3,9 +3,9 @@
 
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
-using System.CommandLine.CommandGenerator.Parameters;
+using System.CommandLine.Generator.Parameters;
 
-namespace System.CommandLine.CommandGenerator
+namespace System.CommandLine.Generator
 {
     internal class WellKnownTypes
     {

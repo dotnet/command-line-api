@@ -1,4 +1,4 @@
-﻿namespace System.CommandLine.CommandGenerator.Invocations
+﻿namespace System.CommandLine.Generator.Invocations
 {
     internal enum ReturnPattern
     {

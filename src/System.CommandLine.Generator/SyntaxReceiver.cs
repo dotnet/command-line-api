@@ -4,11 +4,12 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
-using System.CommandLine.CommandGenerator.Invocations;
-using System.CommandLine.CommandGenerator.Parameters;
+using System.CommandLine.Generator.Invocations;
+using System.CommandLine.Generator.Parameters;
+using System.CommandLine.Invocation;
 using System.Linq;
 
-namespace System.CommandLine.CommandGenerator
+namespace System.CommandLine.Generator
 {
     internal class SyntaxReceiver : ISyntaxContextReceiver
     {
@@ -17,7 +18,7 @@ namespace System.CommandLine.CommandGenerator
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
             if (context.Node is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax memberAccess } invocationExpression &&
-                memberAccess.Name.Identifier.Text == nameof(CommandHandlerGeneratorExtensions.Generate) &&
+                memberAccess.Name.Identifier.Text == nameof(CommandHandlerGeneratorExtensions.Create) &&
                 context.SemanticModel.GetSymbolInfo(invocationExpression) is { Symbol: IMethodSymbol invokeMethodSymbol } &&
                 invokeMethodSymbol.ReceiverType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
                 $"global::{typeof(CommandHandlerGenerator).Namespace}.{nameof(CommandHandlerGenerator)}" &&

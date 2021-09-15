@@ -1,11 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
-using System.CommandLine.CommandGenerator.Parameters;
+using System.CommandLine.Generator.Parameters;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandGenerator.Invocations
+namespace System.CommandLine.Generator.Invocations
 {
     internal class DelegateInvocation : IEquatable<DelegateInvocation>
     {
@@ -36,28 +36,35 @@ namespace System.CommandLine.CommandGenerator.Invocations
                 case ReturnPattern.FunctionReturnValue:
                 case ReturnPattern.AwaitFunction:
                 case ReturnPattern.AwaitFunctionReturnValue:
-                    builder.Append("var rv = ");
+                    builder.Append(@"
+                var rv = ");
                     break;
             }
 
-            builder.Append("Method.Invoke(");
+            builder.Append(@"
+                Method.Invoke(");
             builder.Append(string.Join(", ", Parameters.Select(x => x.GetValueFromContext())));
             builder.AppendLine(");");
 
             switch (ReturnPattern)
             {
                 case ReturnPattern.InvocationContextExitCode:
-                    builder.AppendLine("return await Task.FromResult(context.ExitCode);");
+                    builder.AppendLine(@"
+                return await Task.FromResult(context.ExitCode);");
                     break;
                 case ReturnPattern.FunctionReturnValue:
-                    builder.AppendLine("return await Task.FromResult(rv);");
+                    builder.AppendLine(@"
+                return await Task.FromResult(rv);");
                     break;
                 case ReturnPattern.AwaitFunction:
-                    builder.AppendLine("await rv;");
-                    builder.AppendLine("return context.ExitCode;");
+                    builder.AppendLine(@"
+                await rv;");
+                    builder.AppendLine(@"
+                return context.ExitCode;");
                     break;
                 case ReturnPattern.AwaitFunctionReturnValue:
-                    builder.AppendLine("return await rv;");
+                    builder.AppendLine(@"
+                return await rv;");
                     break;
             }
             return builder.ToString();
