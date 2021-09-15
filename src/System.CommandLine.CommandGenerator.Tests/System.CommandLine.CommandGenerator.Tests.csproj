@@ -3,7 +3,7 @@
     <TargetFrameworks>net5.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
     <LangVersion>9</LangVersion>
-    <GenerateProgramFile>false</GenerateProgramFile>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -16,13 +16,12 @@
   
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="..\System.CommandLine.CommandGenerator\System.CommandLine.CommandGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="ApprovalTests" Version="5.2.2" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="2.1.0" />
   </ItemGroup>
   

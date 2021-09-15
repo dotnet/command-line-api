@@ -1,0 +1,10 @@
+<Project>
+
+  <PropertyGroup>
+    <UseBetaVersion>true</UseBetaVersion>
+    <NoWarn>IDE1006</NoWarn>
+  </PropertyGroup>
+
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+</Project>
