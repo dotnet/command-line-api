@@ -65,5 +65,16 @@ namespace System.CommandLine
             string commandLine,
             IReadOnlyCollection<char>? delimiters = null) =>
             new Parser(command).Parse(commandLine);
+
+        private const string _messageForWhenGeneratorIsNotInUse =
+            "This overload should not be called. You should reference the System.CommandLine.Generator package which will generate a more specific overload for your delegate.";
+
+        public static void SetHandler<TDelegate>(
+            this Command command,
+            TDelegate @delegate,
+            params ISymbol[] symbols)
+        {
+            throw new InvalidOperationException(_messageForWhenGeneratorIsNotInUse);
+        }
     }
 }

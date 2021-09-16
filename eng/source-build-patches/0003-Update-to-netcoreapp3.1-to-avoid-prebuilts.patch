@@ -16,20 +16,6 @@ Includes a code fix for ref nullability with the new framework.
  src/System.CommandLine/System.CommandLine.csproj                   | 7 +------
  6 files changed, 7 insertions(+), 12 deletions(-)
 
-diff --git a/src/System.CommandLine.Generator/System.CommandLine.Generator.csproj b/src/System.CommandLine.Generator/System.CommandLine.Generator.csproj
-index d419906e..8644194a 100644
---- a/src/System.CommandLine.Generator/System.CommandLine.Generator.csproj
-+++ b/src/System.CommandLine.Generator/System.CommandLine.Generator.csproj
-@@ -1,7 +1,7 @@
--<Project Sdk="Microsoft.NET.Sdk">
-+﻿<Project Sdk="Microsoft.NET.Sdk">
- 
-   <PropertyGroup>
--    <TargetFramework>netstandard2.0</TargetFramework>
-+    <TargetFramework>net5.0</TargetFramework>
-     <Nullable>enable</Nullable>
-     <LangVersion>9.0</LangVersion>
-     <IsPackable>true</IsPackable>
 diff --git a/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj b/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj
 index b3a542fd..0e49d818 100644
 --- a/src/System.CommandLine.DragonFruit/System.CommandLine.DragonFruit.csproj
@@ -100,8 +86,8 @@ index 125e9c78..3a10c14d 100644
    </ItemGroup>
  
 -  <ItemGroup>
--    <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpPackageVersion)" />
--    <PackageReference Include="system.memory" Version="$(SystemMemoryPackageVersion)" />
+-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+-    <PackageReference Include="system.memory" Version="4.5.4" />
 -  </ItemGroup>
 -
    <ItemGroup>
