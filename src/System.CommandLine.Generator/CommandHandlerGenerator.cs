@@ -4,7 +4,11 @@
 namespace System.CommandLine.Invocation
 {
     public sealed class CommandHandlerGenerator
-    { 
-        private CommandHandlerGenerator() { }
+    {
+        private CommandHandlerGenerator()
+        {
+        }
+
+        public static CommandHandlerGenerator GeneratedHandler { get; } = null!;
     }
 }

@@ -1,8 +1,11 @@
-﻿using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
-using System.CommandLine.CommandGenerator.Parameters;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace System.CommandLine.CommandGenerator
+using Microsoft.CodeAnalysis;
+using System.Collections.Generic;
+using System.CommandLine.Generator.Parameters;
+
+namespace System.CommandLine.Generator
 {
     internal class WellKnownTypes
     {

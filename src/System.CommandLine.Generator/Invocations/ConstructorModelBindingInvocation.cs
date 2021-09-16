@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandGenerator.Invocations
+namespace System.CommandLine.Generator.Invocations
 {
     internal class ConstructorModelBindingInvocation : DelegateInvocation, IEquatable<ConstructorModelBindingInvocation>
     {
@@ -20,7 +20,8 @@ namespace System.CommandLine.CommandGenerator.Invocations
         public override string InvokeContents()
         {
             StringBuilder builder = new();
-            builder.Append($"var model = new {Constructor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}(");
+            builder.Append($@"
+                var model = new {Constructor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}(");
             builder.Append(string.Join(", ", Parameters.Take(Constructor.Parameters.Length)
                 .Select(x => x.GetValueFromContext())));
             builder.AppendLine(");");
@@ -33,30 +34,38 @@ namespace System.CommandLine.CommandGenerator.Invocations
                     builder.Append("var rv = ");
                     break;
             }
-            builder.Append("Method.Invoke(model");
-            var remainigParameters = Parameters.Skip(Constructor.Parameters.Length).ToList();
-            if (remainigParameters.Count > 0)
+            builder.Append(@"
+                Method.Invoke(model");
+            var remainigParameters = Parameters.Skip(Constructor.Parameters.Length).ToArray();
+            if (remainigParameters.Length > 0)
             {
                 builder.Append(", ");
                 builder.Append(string.Join(", ", remainigParameters.Select(x => x.GetValueFromContext())));
             }
-            builder.AppendLine(");");
+            builder.Append(");");
+
             switch (ReturnPattern)
             {
                 case ReturnPattern.InvocationContextExitCode:
-                    builder.AppendLine("return await Task.FromResult(context.ExitCode);");
+                    builder.Append(@"
+                return await Task.FromResult(context.ExitCode);");
                     break;
                 case ReturnPattern.FunctionReturnValue:
-                    builder.AppendLine("return await Task.FromResult(rv);");
+                    builder.Append(@"
+                return await Task.FromResult(rv);");
                     break;
                 case ReturnPattern.AwaitFunction:
-                    builder.AppendLine("await rv;");
-                    builder.AppendLine("return context.ExitCode;");
+                    builder.Append(@"
+                await rv;");
+                    builder.Append(@"
+                return context.ExitCode;");
                     break;
                 case ReturnPattern.AwaitFunctionReturnValue:
-                    builder.AppendLine("return await rv;");
+                    builder.Append(@"
+                return await rv;");
                     break;
             }
+
             return builder.ToString();
         }
 

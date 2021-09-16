@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandGenerator.Parameters
+namespace System.CommandLine.Generator.Parameters
 {
 
     internal class OptionParameter : PropertyParameter, IEquatable<OptionParameter>
@@ -11,7 +11,7 @@ namespace System.CommandLine.CommandGenerator.Parameters
         }
 
         public override string GetValueFromContext()
-            => $"context.ParseResult.ValueForOption({LocalName})";
+            => $"context.ParseResult.GetValueForOption({LocalName})";
 
         public override int GetHashCode()
             => base.GetHashCode();

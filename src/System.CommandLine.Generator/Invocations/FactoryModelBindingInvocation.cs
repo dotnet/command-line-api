@@ -1,9 +1,9 @@
 ﻿using Microsoft.CodeAnalysis;
-using System.CommandLine.CommandGenerator.Parameters;
+using System.CommandLine.Generator.Parameters;
 using System.Linq;
 using System.Text;
 
-namespace System.CommandLine.CommandGenerator.Invocations
+namespace System.CommandLine.Generator.Invocations
 {
     internal class FactoryModelBindingInvocation : DelegateInvocation, IEquatable<FactoryModelBindingInvocation>
     {
@@ -18,17 +18,20 @@ namespace System.CommandLine.CommandGenerator.Invocations
             StringBuilder builder = new();
 
             var factoryParam = (FactoryParameter)Parameters[0];
-            builder.AppendLine($"var model = {factoryParam.LocalName}.Invoke(context);");
+            builder.AppendLine($@"
+                var model = {factoryParam.LocalName}.Invoke(context);");
             
             switch (ReturnPattern)
             {
                 case ReturnPattern.FunctionReturnValue:
                 case ReturnPattern.AwaitFunction:
                 case ReturnPattern.AwaitFunctionReturnValue:
-                    builder.Append("var rv = ");
+                    builder.Append(@"
+                var rv = ");
                     break;
             }
-            builder.Append("Method.Invoke(model");
+            builder.Append(@"
+                Method.Invoke(model");
             var remainigParameters = Parameters.Skip(1).ToList();
             if (remainigParameters.Count > 0)
             {
@@ -39,17 +42,22 @@ namespace System.CommandLine.CommandGenerator.Invocations
             switch (ReturnPattern)
             {
                 case ReturnPattern.InvocationContextExitCode:
-                    builder.AppendLine("return await Task.FromResult(context.ExitCode);");
+                    builder.Append(@"
+                return await Task.FromResult(context.ExitCode);");
                     break;
                 case ReturnPattern.FunctionReturnValue:
-                    builder.AppendLine("return await Task.FromResult(rv);");
+                    builder.Append(@"
+                return await Task.FromResult(rv);");
                     break;
                 case ReturnPattern.AwaitFunction:
-                    builder.AppendLine("await rv;");
-                    builder.AppendLine("return context.ExitCode;");
+                    builder.Append(@"
+                await rv;");
+                    builder.Append(@"
+                return context.ExitCode;");
                     break;
                 case ReturnPattern.AwaitFunctionReturnValue:
-                    builder.AppendLine("return await rv;");
+                    builder.Append(@"
+                return await rv;");
                     break;
             }
             return builder.ToString();

@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandGenerator.Parameters
+namespace System.CommandLine.Generator.Parameters
 {
     internal class ArgumentParameter : PropertyParameter, IEquatable<ArgumentParameter>
     {
@@ -10,7 +10,7 @@ namespace System.CommandLine.CommandGenerator.Parameters
         }
 
         public override string GetValueFromContext()
-            => $"context.ParseResult.ValueForArgument({LocalName})";
+            => $"context.ParseResult.GetValueForArgument({LocalName})";
 
         public override int GetHashCode() 
             => base.GetHashCode();

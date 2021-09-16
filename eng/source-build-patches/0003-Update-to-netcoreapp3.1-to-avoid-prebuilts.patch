@@ -8,7 +8,7 @@ rest of source-build: runtime and roslyn.
 
 Includes a code fix for ref nullability with the new framework.
 ---
- .../System.CommandLine.CommandGenerator.csproj                     | 4 ++--
+ .../System.CommandLine.Generator.csproj                     | 4 ++--
  .../System.CommandLine.DragonFruit.csproj                          | 2 +-
  src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj   | 2 +-
  .../System.CommandLine.Rendering.csproj                            | 2 +-
@@ -16,10 +16,10 @@ Includes a code fix for ref nullability with the new framework.
  src/System.CommandLine/System.CommandLine.csproj                   | 7 +------
  6 files changed, 7 insertions(+), 12 deletions(-)
 
-diff --git a/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj b/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
+diff --git a/src/System.CommandLine.Generator/System.CommandLine.Generator.csproj b/src/System.CommandLine.Generator/System.CommandLine.Generator.csproj
 index d419906e..8644194a 100644
---- a/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
-+++ b/src/System.CommandLine.CommandGenerator/System.CommandLine.CommandGenerator.csproj
+--- a/src/System.CommandLine.Generator/System.CommandLine.Generator.csproj
++++ b/src/System.CommandLine.Generator/System.CommandLine.Generator.csproj
 @@ -1,7 +1,7 @@
 -<Project Sdk="Microsoft.NET.Sdk">
 +﻿<Project Sdk="Microsoft.NET.Sdk">

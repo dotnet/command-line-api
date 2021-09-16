@@ -5,7 +5,7 @@ namespace System.CommandLine.Invocation
 {
     public static class CommandHandlerGeneratorExtensions
     {
-        public static ICommandHandler Generate<TDelegate>(this CommandHandlerGenerator handler, 
+        public static ICommandHandler Create<TDelegate>(this CommandHandlerGenerator handler, 
             TDelegate @delegate, params ISymbol[] symbols)
             where TDelegate : Delegate
         {
@@ -13,7 +13,7 @@ namespace System.CommandLine.Invocation
             throw new InvalidOperationException("Should never get here....");
         }
 
-        public static ICommandHandler Generate<TDelegate, TModel>(this CommandHandlerGenerator handler,
+        public static ICommandHandler Create<TDelegate, TModel>(this CommandHandlerGenerator handler,
             TDelegate @delegate, Func<InvocationContext, TModel> modelBuilder)
             where TDelegate : Delegate
         {

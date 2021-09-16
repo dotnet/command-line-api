@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace System.CommandLine.CommandGenerator.Parameters
+namespace System.CommandLine.Generator.Parameters
 {
     internal class FactoryParameter : Parameter, IEquatable<FactoryParameter>
     {
