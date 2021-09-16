@@ -10,7 +10,7 @@ namespace System.CommandLine.Generator.Parameters
         }
 
         public override string GetValueFromContext()
-            => $"context.ParseResult.ValueForArgument({LocalName})";
+            => $"context.ParseResult.GetValueForArgument({LocalName})";
 
         public override int GetHashCode() 
             => base.GetHashCode();

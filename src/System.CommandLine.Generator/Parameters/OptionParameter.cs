@@ -11,7 +11,7 @@ namespace System.CommandLine.Generator.Parameters
         }
 
         public override string GetValueFromContext()
-            => $"context.ParseResult.ValueForOption({LocalName})";
+            => $"context.ParseResult.GetValueForOption({LocalName})";
 
         public override int GetHashCode()
             => base.GetHashCode();

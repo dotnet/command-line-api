@@ -36,8 +36,8 @@ namespace System.CommandLine.Generator.Invocations
             }
             builder.Append(@"
                 Method.Invoke(model");
-            var remainigParameters = Parameters.Skip(Constructor.Parameters.Length).ToList();
-            if (remainigParameters.Count > 0)
+            var remainigParameters = Parameters.Skip(Constructor.Parameters.Length).ToArray();
+            if (remainigParameters.Length > 0)
             {
                 builder.Append(", ");
                 builder.Append(string.Join(", ", remainigParameters.Select(x => x.GetValueFromContext())));
@@ -47,21 +47,21 @@ namespace System.CommandLine.Generator.Invocations
             switch (ReturnPattern)
             {
                 case ReturnPattern.InvocationContextExitCode:
-                    builder.AppendLine(@"
+                    builder.Append(@"
                 return await Task.FromResult(context.ExitCode);");
                     break;
                 case ReturnPattern.FunctionReturnValue:
-                    builder.AppendLine(@"
+                    builder.Append(@"
                 return await Task.FromResult(rv);");
                     break;
                 case ReturnPattern.AwaitFunction:
-                    builder.AppendLine(@"
+                    builder.Append(@"
                 await rv;");
-                    builder.AppendLine(@"
+                    builder.Append(@"
                 return context.ExitCode;");
                     break;
                 case ReturnPattern.AwaitFunctionReturnValue:
-                    builder.AppendLine(@"
+                    builder.Append(@"
                 return await rv;");
                     break;
             }
