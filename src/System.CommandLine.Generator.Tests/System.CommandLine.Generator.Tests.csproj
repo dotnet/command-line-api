@@ -5,6 +5,7 @@
     <LangVersion>9</LangVersion>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <ExcludeFromSourceBuild>true</ExcludeFromSourceBuild>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

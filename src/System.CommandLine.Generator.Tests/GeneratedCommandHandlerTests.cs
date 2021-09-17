@@ -9,9 +9,7 @@ using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using static System.CommandLine.Invocation.CommandHandlerGenerator;
 
-#nullable enable
 namespace System.CommandLine.Generator.Tests
 {
     public class CommandHandlerTests
@@ -32,14 +30,48 @@ namespace System.CommandLine.Generator.Tests
                 boundAge = age;
             }
 
-            var command = new Command("command");
             var nameArgument = new Argument<string>();
-            command.AddArgument(nameArgument);
             var ageOption = new Option<int>("--age");
-            command.AddOption(ageOption);
 
-            command.Handler = GeneratedHandler.Create<Action<string, IConsole, int>>
+            var command = new Command("command")
+            {
+                nameArgument,
+                ageOption
+            };
+
+            command.SetHandler<Action<string, IConsole, int>>
                 (Execute, nameArgument, ageOption);
+
+            await command.InvokeAsync("command Gandalf --age 425", _console);
+
+            boundName.Should().Be("Gandalf");
+            boundAge.Should().Be(425);
+            boundConsole.Should().NotBeNull();
+        }   
+        
+        [Fact]
+        public async Task Can_generate_handler_for_void_returning_delegate()
+        {
+            string? boundName = default;
+            int boundAge = default;
+            IConsole? boundConsole = null;
+
+            var nameArgument = new Argument<string>();
+            var ageOption = new Option<int>("--age");
+
+            var command = new Command("command")
+            {
+                nameArgument,
+                ageOption
+            };
+
+            command.SetHandler<Action<string, IConsole, int>>
+                ((fullnameOrNickname, console, age) =>
+                {
+                    boundName = fullnameOrNickname;
+                    boundConsole = console;
+                    boundAge = age;
+                }, nameArgument, ageOption);
 
             await command.InvokeAsync("command Gandalf --age 425", _console);
 
@@ -68,42 +100,7 @@ namespace System.CommandLine.Generator.Tests
             var ageOption = new Option<int>("--age");
             command.AddOption(ageOption);
 
-            command.Handler = GeneratedHandler.Create<Action<Character, IConsole>>
-                (Execute, nameOption, ageOption);
-
-            await command.InvokeAsync("command --age 425 --name Gandalf", _console);
-
-            boundName.Should().Be("Gandalf");
-            boundAge.Should().Be(425);
-            boundConsole.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async Task Can_generate_handler_for_method_with_model_property_binding()
-        {
-            string? boundName = default;
-            int boundAge = default;
-            IConsole? boundConsole = null;
-
-            void Execute(Character character, IConsole console)
-            {
-                boundName = character.FullName;
-                boundConsole = console;
-                boundAge = character.Age;
-            }
-
-            var command = new Command("command");
-            var nameOption = new Option<string>("--name");
-            command.AddOption(nameOption);
-            var ageOption = new Option<int>("--age");
-            command.AddOption(ageOption);
-
-            command.Handler = GeneratedHandler.Create<Action<Character, IConsole>, Character>
-                (Execute, context => new Character
-                {
-                    FullName = context.ParseResult.ValueForOption(nameOption),
-                    Age = context.ParseResult.ValueForOption(ageOption),
-                });
+            command.SetHandler<Action<Character, IConsole>>(Execute, nameOption, ageOption);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
 
@@ -126,8 +123,7 @@ namespace System.CommandLine.Generator.Tests
             var secondArgument = new Argument<int>("second");
             command.AddArgument(secondArgument);
 
-            command.Handler = GeneratedHandler.Create<Func<int, int, int>>
-                (Execute, firstArgument, secondArgument);
+            command.SetHandler<Func<int, int, int>>(Execute, firstArgument, secondArgument);
 
             int result = await command.InvokeAsync("add 1 2", _console);
 
@@ -145,7 +141,7 @@ namespace System.CommandLine.Generator.Tests
 
             void Execute(
                 InvocationContext invocationContext,
-                IConsole console, 
+                IConsole console,
                 ParseResult parseResult,
                 IHelpBuilder helpBuilder,
                 BindingContext bindingContext)
@@ -159,7 +155,7 @@ namespace System.CommandLine.Generator.Tests
 
             var command = new Command("command");
 
-            command.Handler = GeneratedHandler.Create<Action<InvocationContext, IConsole, ParseResult, IHelpBuilder, BindingContext>>(Execute);
+            command.SetHandler<Action<InvocationContext, IConsole, ParseResult, IHelpBuilder, BindingContext>>(Execute);
 
             await command.InvokeAsync("command", _console);
 
@@ -179,20 +175,22 @@ namespace System.CommandLine.Generator.Tests
 
             async Task ExecuteAsync(string fullnameOrNickname, IConsole console, int age)
             {
-                //Just long enough to make sure the taks is be awaited
-                await Task.Delay(100);
+                await Task.Yield();
                 boundName = fullnameOrNickname;
                 boundConsole = console;
                 boundAge = age;
             }
 
-            var command = new Command("command");
             var nameArgument = new Argument<string>();
-            command.AddArgument(nameArgument);
             var ageOption = new Option<int>("--age");
-            command.AddOption(ageOption);
 
-            command.Handler = GeneratedHandler.Create<Func<string, IConsole, int, Task>>
+            var command = new Command("command")
+            {
+                nameArgument,
+                ageOption
+            };
+
+            command.SetHandler<Func<string, IConsole, int, Task>>
                 (ExecuteAsync, nameArgument, ageOption);
 
             await command.InvokeAsync("command Gandalf --age 425", _console);
@@ -207,50 +205,52 @@ namespace System.CommandLine.Generator.Tests
         {
             async Task<int> Execute(int first, int second)
             {
-                await Task.Delay(100);
+                await Task.Yield();
                 return first + second;
             }
 
-            var command = new Command("add");
             var firstArgument = new Argument<int>("first");
-            command.AddArgument(firstArgument);
             var secondArgument = new Argument<int>("second");
-            command.AddArgument(secondArgument);
+            var command = new Command("add")
+            {
+                firstArgument,
+                secondArgument
+            };
 
-            command.Handler = GeneratedHandler.Create<Func<int, int, Task<int>>>
+            command.SetHandler<Func<int, int, Task<int>>>
                 (Execute, firstArgument, secondArgument);
 
             int result = await command.InvokeAsync("add 1 2", _console);
 
             result.Should().Be(3);
-        } 
+        }
 
         [Fact]
         public async Task Can_generate_handler_for_multiple_commands_with_the_same_signature()
         {
             string firstValue = "";
+
             void Execute1(string value)
             {
                 firstValue = value;
             }
+
             string secondValue = "";
+
             void Execute2(string value)
             {
                 secondValue = value;
             }
 
-
             var command1 = new Command("first");
             var argument1 = new Argument<string>("first-value");
             command1.AddArgument(argument1);
-            command1.Handler = GeneratedHandler.Create<Action<string>>
-                (Execute1, argument1);
+            command1.SetHandler<Action<string>>(Execute1, argument1);
 
             var command2 = new Command("second");
             var argument2 = new Argument<string>("second-value");
             command2.AddArgument(argument2);
-            command2.Handler = GeneratedHandler.Create<Action<string>>
-                (Execute2, argument2);
+            command2.SetHandler<Action<string>>(Execute2, argument2);
 
             await command1.InvokeAsync("first v1", _console);
             await command2.InvokeAsync("second v2", _console);
@@ -268,12 +268,11 @@ namespace System.CommandLine.Generator.Tests
             }
 
             public Character()
-            { }
+            {
+            }
 
             public string? FullName { get; set; }
             public int Age { get; set; }
         }
-
     }
 }
-#nullable restore

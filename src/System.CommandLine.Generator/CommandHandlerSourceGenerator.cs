@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -17,19 +16,29 @@ namespace System.CommandLine.Generator
         {
             SyntaxReceiver rx = (SyntaxReceiver)context.SyntaxContextReceiver!;
 
+            if (rx.Invocations.Count == 0)
+            {
+                return;
+            }
+
             StringBuilder builder = new();
             builder.Append(
 $@"// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.ComponentModel;
 using System.CommandLine.Binding;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.CommandLine.Invocation;
 
-namespace {typeof(CommandHandlerGeneratorExtensions).Namespace}
+#pragma warning disable
+
+namespace System.CommandLine
 {{
-    public static partial class CommandHandlerGeneratorExtensions_Generated
+    [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    internal static class GeneratedCommandHandlers
     {{
 ");
             int handlerCount = 1;
@@ -43,8 +52,8 @@ namespace {typeof(CommandHandlerGeneratorExtensions).Namespace}
 
                 builder.Append(
                     @$"
-        public static {ICommandHandlerType} {nameof(CommandHandlerGeneratorExtensions.Create)}<{string.Join(", ", Enumerable.Range(1, invocation.NumberOfGenerericParameters).Select(x => $@"T{x}"))}>(
-            this {nameof(CommandHandlerGenerator)} handler,");
+        public static void SetHandler<{string.Join(", ", Enumerable.Range(1, invocation.NumberOfGenerericParameters).Select(x => $@"T{x}"))}>(
+            this Command command,");
                 builder.Append($@"
             {invocation.DelegateType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} method");
 
@@ -62,7 +71,7 @@ namespace {typeof(CommandHandlerGeneratorExtensions).Namespace}
                 builder.Append(@"
         {");
                 builder.Append($@"
-            return new GeneratedHandler_{handlerCount}(method");
+            command.Handler = new GeneratedHandler_{handlerCount}(method");
 
                 if (methodParameters.Length > 0)
                 {
@@ -138,6 +147,8 @@ namespace {typeof(CommandHandlerGeneratorExtensions).Namespace}
 
         public void Initialize(GeneratorInitializationContext context)
         {
+            // Debugger.Launch();
+
             context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
         }
     }
