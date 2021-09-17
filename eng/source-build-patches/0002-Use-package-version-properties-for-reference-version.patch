@@ -27,21 +27,3 @@ index 3048701..16a0eb7 100644
 +    <SystemMemoryPackageVersion Condition="'$(SystemMemoryPackageVersion)' == ''">4.5.4</SystemMemoryPackageVersion>
 +  </PropertyGroup>
  </Project>
-diff --git a/src/System.CommandLine/System.CommandLine.csproj b/src/System.CommandLine/System.CommandLine.csproj
-index 1ae8dd3..aaa2c4a 100644
---- a/src/System.CommandLine/System.CommandLine.csproj
-+++ b/src/System.CommandLine/System.CommandLine.csproj
-@@ -19,8 +19,8 @@
-   </ItemGroup>
-
-   <ItemGroup>
--    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
--    <PackageReference Include="system.memory" Version="4.5.4" />
-+    <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpPackageVersion)" />
-+    <PackageReference Include="system.memory" Version="$(SystemMemoryPackageVersion)" />
-   </ItemGroup>
-
-   <ItemGroup>
---
-2.18.0
-
