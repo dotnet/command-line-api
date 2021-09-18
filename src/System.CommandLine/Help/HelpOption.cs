@@ -5,7 +5,13 @@ namespace System.CommandLine.Help
 {
     internal class HelpOption : Option
     {
-        public HelpOption() : base(new[]
+        public HelpOption(string[] aliases)
+            : base(aliases)
+        {
+            DisallowBinding = true;
+        }
+
+        public HelpOption() : this(new[]
         {
             "-h",
             "/h",
@@ -13,9 +19,7 @@ namespace System.CommandLine.Help
             "-?",
             "/?"
         })
-        {
-            DisallowBinding = true;
-        }
+        { }
 
         internal override Argument Argument => Argument.None();
 

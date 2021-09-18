@@ -210,5 +210,54 @@ namespace System.CommandLine.Tests
 
             console.Out.ToString().Should().Be($"{version}{NewLine}");
         }
+
+        [Fact]
+        public async Task Version_can_specify_additional_alias()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseVersionOption("-v", "-version")
+                         .Build();
+
+            var console = new TestConsole();
+            await parser.InvokeAsync("-v", console);
+            console.Out.ToString().Should().Be($"{version}{NewLine}");
+
+            console = new TestConsole();
+            await parser.InvokeAsync("-version", console);
+            console.Out.ToString().Should().Be($"{version}{NewLine}");
+        }
+
+        [Fact]
+        public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Command("subcommand")
+                {
+                    Handler = CommandHandler.Create(() => { })
+                }
+            };
+            rootCommand.Handler = CommandHandler.Create(() => { });
+
+            var parser = new CommandLineBuilder(rootCommand)
+                .UseVersionOption("-v")
+                .Build();
+
+            var console = new TestConsole();
+
+            var result = parser.Invoke("-v subcommand", console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .NotContain(version);
+
+            console.Error
+                   .ToString()
+                   .Should()
+                   .Contain("-v option cannot be combined with other arguments.");
+
+            result.Should().NotBe(0);
+        }
     }
 }
