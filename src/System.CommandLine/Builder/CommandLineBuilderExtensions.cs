@@ -363,6 +363,13 @@ ERR:
             return builder;
         }
 
+        public static CommandLineBuilder UseHelp(
+            this CommandLineBuilder builder,
+            params string[] helpAliases)
+        {
+            return builder.UseHelp(new HelpOption(helpAliases));
+        }
+
         public static CommandLineBuilder UseHelp<THelpBuilder>(
             this CommandLineBuilder builder,
             Action<THelpBuilder>? configureHelp)
@@ -520,7 +527,13 @@ ERR:
 
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder,
-            int? errorExitCode = null)
+            params string[]? aliases)
+            => builder.UseVersionOption(null, aliases:aliases);
+
+        public static CommandLineBuilder UseVersionOption(
+            this CommandLineBuilder builder,
+            int? errorExitCode = null,
+            string[]? aliases = null)
         {
             var command = builder.Command;
 
@@ -529,8 +542,9 @@ ERR:
                 return builder;
             }
 
+            const string defaultVersionAlias = "--version";
             var versionOption = new Option<bool>(
-                "--version",
+                aliases ?? new[] { defaultVersionAlias },
                 parseArgument: result =>
                 {
                     var commandChildren = result.FindResultFor(command)?.Children;
@@ -550,7 +564,8 @@ ERR:
 
                         if (IsNotImplicit(symbolResult))
                         {
-                            result.ErrorMessage = result.Resources.VersionOptionCannotBeCombinedWithOtherArguments("--version");
+                            string optionAlias = versionOptionResult?.Token().Value ?? defaultVersionAlias;
+                            result.ErrorMessage = result.Resources.VersionOptionCannotBeCombinedWithOtherArguments(optionAlias);
                             return false;
                         }
                     }
@@ -558,7 +573,7 @@ ERR:
                     return true;
                 })
             {
-                Arity = ArgumentArity.Zero, 
+                Arity = ArgumentArity.Zero,
                 DisallowBinding = true
             };
 

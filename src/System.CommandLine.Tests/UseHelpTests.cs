@@ -284,6 +284,39 @@ namespace System.CommandLine.Tests
             action.Should().Throw<InvalidCastException>();
         }
 
+        [Theory]
+        [InlineData("/lost")]
+        [InlineData("--confused")]
+        public async Task UseHelp_with_custom_aliases_uses_aliases(string helpAlias)
+        {
+            var parser =
+                new CommandLineBuilder()
+                    .UseHelp("/lost", "--confused")
+                    .Build();
+
+            await parser.InvokeAsync(helpAlias, _console);
+
+            _console.Should().ShowHelp();
+        }
+
+        [Theory]
+        [InlineData("-h")]
+        [InlineData("/h")]
+        [InlineData("--help")]
+        [InlineData("-?")]
+        [InlineData("/?")]
+        public async Task UseHelp_with_custom_aliases_default_aliases_replaced(string helpAlias)
+        {
+            var parser =
+                new CommandLineBuilder()
+                    .UseHelp("--confused")
+                    .Build();
+
+            await parser.InvokeAsync(helpAlias, _console);
+
+            _console.Out.ToString().Should().Be("");
+        }
+
         private class CustomHelpBuilder : IHelpBuilder
         {
             public void Write(ICommand command, TextWriter writer)
