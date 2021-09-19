@@ -543,48 +543,17 @@ ERR:
             }
 
             const string defaultVersionAlias = "--version";
-            var versionOption = new Option<bool>(
-                aliases ?? new[] { defaultVersionAlias },
-                parseArgument: result =>
-                {
-                    var commandChildren = result.FindResultFor(command)?.Children;
-                    if (commandChildren is null)
-                    {
-                        return true;
-                    }
-
-                    var versionOptionResult = result.Parent;
-                    for (int i = 0; i < commandChildren.Count; i++)
-                    {
-                        var symbolResult = commandChildren[i];
-                        if (symbolResult == versionOptionResult)
-                        {
-                            continue;
-                        }
-
-                        if (IsNotImplicit(symbolResult))
-                        {
-                            string optionAlias = versionOptionResult?.Token().Value ?? defaultVersionAlias;
-                            result.ErrorMessage = result.Resources.VersionOptionCannotBeCombinedWithOtherArguments(optionAlias);
-                            return false;
-                        }
-                    }
-
-                    return true;
-                })
-            {
-                Arity = ArgumentArity.Zero,
-                DisallowBinding = true
-            };
+            var versionOption = new VersionOption(
+                aliases ?? new[] { defaultVersionAlias });
 
             builder.VersionOption = versionOption;
             command.AddOption(versionOption);
 
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.FindResultFor(versionOption) is { } result)
+                if (context.ParseResult.FindResultFor(versionOption) is { })
                 {
-                    if (result.ArgumentConversionResult.ErrorMessage is { })
+                    if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
                     {
                         context.InvocationResult = new ParseErrorResult(errorExitCode);
                     }
@@ -600,23 +569,13 @@ ERR:
             }, MiddlewareOrderInternal.VersionOption);
 
             return builder;
-
-            static bool IsNotImplicit(SymbolResult symbolResult)
-            {
-                return symbolResult switch
-                {
-                    ArgumentResult argumentResult => !argumentResult.IsImplicit,
-                    OptionResult optionResult => !optionResult.IsImplicit,
-                    _ => true
-                };
-            }
         }
 
         private static bool ShowHelp(
             InvocationContext context,
             IOption helpOption)
         {
-            if (context.ParseResult.FindResultFor(helpOption) != null)
+            if (context.ParseResult.FindResultFor(helpOption) is { })
             {
                 context.InvocationResult = new HelpResult();
                 return true;

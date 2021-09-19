@@ -52,19 +52,19 @@ namespace System.CommandLine.Parsing
 
         private void AddToResult(CommandResult result)
         {
-            _innermostCommandResult.Children.Add(result);
+            _innermostCommandResult?.Children.Add(result);
             _allCommandResults.Add(result.Command, result);
         }
 
         private void AddToResult(OptionResult result)
         {
-            _innermostCommandResult.Children.Add(result);
+            _innermostCommandResult?.Children.Add(result);
             _allOptionResults.Add(result.Option, result);
         }
 
         private void AddToResult(ArgumentResult result)
         {
-            _innermostCommandResult.Children.Add(result);
+            _innermostCommandResult?.Children.Add(result);
             _allArgumentResults.TryAdd(result.Argument, result);
         }
 
@@ -109,8 +109,7 @@ namespace System.CommandLine.Parsing
             }
 
             argumentResult.AddToken(argumentNode.Token);
-            _innermostCommandResult.AddToken(argumentNode.Token);
-
+            _innermostCommandResult?.AddToken(argumentNode.Token);
         }
 
         protected override void VisitOptionNode(OptionNode optionNode)
@@ -142,7 +141,7 @@ namespace System.CommandLine.Parsing
 
             var argument = argumentNode.Argument;
 
-            if (optionResult.Children.ResultFor(argument) is not ArgumentResult argumentResult)
+            if (optionResult.FindResultFor(argument) is not { } argumentResult)
             {
                 argumentResult =
                     new ArgumentResult(
@@ -198,7 +197,7 @@ namespace System.CommandLine.Parsing
 
             if (argumentResults.Count > 0)
             {
-                var arguments = _innermostCommandResult.Command.Arguments;
+                var arguments = _innermostCommandResult?.Command.Arguments;
 
                 var commandArgumentResultCount = argumentResults.Count;
 
@@ -214,16 +213,16 @@ namespace System.CommandLine.Parsing
 
                         var previousArgumentResult = argumentResults[i - 1];
 
-                        var passedOnTokensCount = _innermostCommandResult.Tokens.Count;
+                        var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
 
                         for (var j = previousArgumentResult.Tokens.Count; j < passedOnTokensCount; j++)
                         {
-                            var token = _innermostCommandResult.Tokens[j];
-
                             if (nextArgumentResult.IsArgumentLimitReached)
                             {
                                 break;
                             }
+
+                            var token = _innermostCommandResult?.Tokens[j];
 
                             nextArgumentResult.AddToken(token);
                         }
@@ -350,7 +349,7 @@ namespace System.CommandLine.Parsing
                 argument.Arity.MinimumNumberOfValues,
                 argument.Arity.MaximumNumberOfValues);
 
-            if (arityFailure != null)
+            if (arityFailure is { })
             {
                 _errors.Add(
                     new ParseError(arityFailure.ErrorMessage!, optionResult));
@@ -388,7 +387,7 @@ namespace System.CommandLine.Parsing
                     argumentResult.Parent?.UnrecognizedArgumentError(argument) ??
                     argumentResult.CustomError(argument);
 
-                if (parseError != null)
+                if (parseError is { })
                 {
                     _errors.Add(parseError);
                     return;
@@ -408,7 +407,7 @@ namespace System.CommandLine.Parsing
         {
             CommandResult? commandResult = _innermostCommandResult;
 
-            while (commandResult != null)
+            while (commandResult is { })
             {
                 for (var symbolIndex = 0; symbolIndex < commandResult.Command.Children.Count; symbolIndex++)
                 {

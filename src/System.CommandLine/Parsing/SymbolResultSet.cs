@@ -11,33 +11,6 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public class SymbolResultSet : AliasedSet<SymbolResult>
     {
-        internal SymbolResult? ResultFor(ISymbol symbol)
-        {
-            // switch (symbol)
-            // {
-            //     case IArgument argument:
-            //         break;
-            //     case ICommand command:
-            //         break;
-            //     case IOption option:
-            //         break;
-            //     default:
-            //         throw new ArgumentOutOfRangeException(nameof(symbol));
-            // }
-
-            // FIX: (ResultFor) optimize
-            for (var i = 0; i < Items.Count; i++)
-            {
-                var item = Items[i];
-                if (ReferenceEquals(item.Symbol, symbol))
-                {
-                    return item;
-                }
-            }
-
-            return default;
-        }
-
         /// <inheritdoc/>
         protected override IReadOnlyCollection<string> GetAliases(SymbolResult result) =>
             result.Symbol switch

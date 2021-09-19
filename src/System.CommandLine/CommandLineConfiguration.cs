@@ -92,7 +92,7 @@ namespace System.CommandLine
 
             _helpBuilderFactory = helpBuilderFactory;
 
-            if (configureHelp != null)
+            if (configureHelp is { })
             {
                 var factory = HelpBuilderFactory;
                 _helpBuilderFactory = context =>
@@ -125,9 +125,9 @@ namespace System.CommandLine
                 {
                     var globalOptions = parentCommand.GlobalOptions;
 
-                    for (var globalOptionIndex = 0; globalOptionIndex < globalOptions.Count; globalOptionIndex++)
+                    for (var i = 0; i < globalOptions.Count; i++)
                     {
-                        childCommand.TryAddGlobalOption(globalOptions[globalOptionIndex]);
+                        childCommand.TryAddGlobalOption(globalOptions[i]);
                     }
 
                     AddGlobalOptionsToChildren(childCommand);
