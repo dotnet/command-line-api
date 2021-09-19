@@ -26,18 +26,6 @@ namespace System.CommandLine.Collections
             }
         }
 
-        internal override void Remove(ISymbol item)
-        {
-            base.Remove(item);
-
-            ResetIndex(item);
-
-            if (item is Symbol symbol)
-            {
-                symbol.OnNameOrAliasChanged -= Resync;
-            }
-        }
-
         private void ResetIndex(ISymbol item)
         {
             switch (item)

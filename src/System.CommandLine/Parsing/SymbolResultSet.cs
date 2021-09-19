@@ -13,10 +13,23 @@ namespace System.CommandLine.Parsing
     {
         internal SymbolResult? ResultFor(ISymbol symbol)
         {
+            // switch (symbol)
+            // {
+            //     case IArgument argument:
+            //         break;
+            //     case ICommand command:
+            //         break;
+            //     case IOption option:
+            //         break;
+            //     default:
+            //         throw new ArgumentOutOfRangeException(nameof(symbol));
+            // }
+
+            // FIX: (ResultFor) optimize
             for (var i = 0; i < Items.Count; i++)
             {
                 var item = Items[i];
-                if (Equals(item.Symbol, symbol))
+                if (ReferenceEquals(item.Symbol, symbol))
                 {
                     return item;
                 }

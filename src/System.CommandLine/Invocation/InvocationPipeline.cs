@@ -53,7 +53,7 @@ namespace System.CommandLine.Invocation
                 {
                     var handler = command.Handler;
 
-                    if (handler != null)
+                    if (handler is not null)
                     {
                         context.ExitCode = await handler.InvokeAsync(invocationContext);
                     }
