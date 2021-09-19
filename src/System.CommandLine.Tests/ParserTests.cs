@@ -1246,23 +1246,23 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("-x -y")]
         [InlineData("-x=-y")]
         [InlineData("-x:-y")]
-        public void Option_arguments_can_match_the_aliases_of_sibling_options(string input)
+        public void Option_arguments_can_match_the_aliases_of_sibling_options_when_non_space_argument_delimiter_is_used(string input)
         {
-            var optionX = new Option("-x") { Arity = ArgumentArity.ZeroOrOne};
+            var optionX = new Option("-x") { Arity = ArgumentArity.ZeroOrOne };
 
             var command = new Command("command")
             {
                 optionX,
-                new Option("-y") { Arity = ArgumentArity.ZeroOrOne}
+                new Option("-y") { Arity = ArgumentArity.ZeroOrOne }
             };
 
             var result = command.Parse(input);
 
             var valueForOption = result.GetValueForOption(optionX);
 
+            result.Errors.Should().BeEmpty();
             valueForOption.Should().Be("-y");
         }
 

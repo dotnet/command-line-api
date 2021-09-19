@@ -215,7 +215,7 @@ namespace System.CommandLine
         /// Sets the default value for the option.
         /// </summary>
         /// <param name="value">The default value for the option.</param>
-        public void SetDefaultValue(object? value) => 
+        public void SetDefaultValue(object? value) =>
             Argument.SetDefaultValue(value);
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<object?> getDefaultValue) => 
+        public void SetDefaultValueFactory(Func<object?> getDefaultValue) =>
             Argument.SetDefaultValueFactory(getDefaultValue);
 
         IArgument IOption.Argument => Argument;
@@ -231,7 +231,8 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
-        public bool IsGreedy { get; set; }
+        internal bool IsGreedy => Arity.MinimumNumberOfValues > 0 &&
+                                  ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
