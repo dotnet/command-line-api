@@ -197,7 +197,7 @@ namespace System.CommandLine.Parsing
 
             if (argumentResults.Count > 0)
             {
-                var arguments = _innermostCommandResult?.Command.Arguments;
+                var arguments = _innermostCommandResult.Command.Arguments;
 
                 var commandArgumentResultCount = argumentResults.Count;
 
@@ -224,7 +224,7 @@ namespace System.CommandLine.Parsing
 
                             var token = _innermostCommandResult?.Tokens[j];
 
-                            nextArgumentResult.AddToken(token);
+                            nextArgumentResult.AddToken(token!);
                         }
 
                         argumentResults.Add(nextArgumentResult);
