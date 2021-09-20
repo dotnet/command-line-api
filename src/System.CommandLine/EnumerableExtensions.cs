@@ -44,7 +44,7 @@ namespace System.CommandLine
 
             yield return source;
 
-            while ((source = next(source)) != null)
+            while ((source = next(source)) is not null)
             {
                 yield return source;
             }

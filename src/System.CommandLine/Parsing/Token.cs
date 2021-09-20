@@ -36,6 +36,8 @@ namespace System.CommandLine.Parsing
 
         public string Value { get; }
 
+        internal bool IsImplicit => Position == -1;
+
         internal string UnprefixedValue { get; }
 
         internal bool WasBundled { get; }

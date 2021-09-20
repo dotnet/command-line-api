@@ -132,9 +132,9 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (arg.ConvertArguments != null)
+                if (arg.ConvertArguments is not null)
                 {
-                    if (_conversionResult != null)
+                    if (_conversionResult is not null)
                     {
                         return _conversionResult;
                     }

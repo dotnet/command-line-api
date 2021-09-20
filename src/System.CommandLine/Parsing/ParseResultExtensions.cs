@@ -36,9 +36,9 @@ namespace System.CommandLine.Parsing
             string? textToMatch = null;
             string? rawInput = source.RawInput;
 
-            if (rawInput != null)
+            if (rawInput is not null)
             {
-                if (position != null)
+                if (position is not null)
                 {
                     if (position > rawInput.Length)
                     {

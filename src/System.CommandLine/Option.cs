@@ -76,7 +76,7 @@ namespace System.CommandLine
                 AddAlias(alias);
             }
 
-            if (argument != null)
+            if (argument is not null)
             {
                 AddArgumentInner(argument);
             }
@@ -92,15 +92,15 @@ namespace System.CommandLine
             }
 
             var rv = new Argument();
-            if (argumentType != null)
+            if (argumentType is not null)
             {
                 rv.ValueType = argumentType;
             }
-            if (getDefaultValue != null)
+            if (getDefaultValue is not null)
             {
                 rv.SetDefaultValueFactory(getDefaultValue);
             }
-            if (arity != null)
+            if (arity is not null)
             {
                 rv.Arity = arity;
             }

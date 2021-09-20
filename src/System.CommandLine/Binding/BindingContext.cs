@@ -38,7 +38,7 @@ namespace System.CommandLine.Binding
         {
             get
             {
-                if (ConsoleFactory != null)
+                if (ConsoleFactory is not null)
                 {
                     var consoleFactory = ConsoleFactory;
                     ConsoleFactory = null;

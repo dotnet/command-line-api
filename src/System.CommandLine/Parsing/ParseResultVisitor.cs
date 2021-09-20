@@ -254,7 +254,7 @@ namespace System.CommandLine.Parsing
                     {
                         var result = argumentResults[i];
 
-                        if (result.Parent is CommandResult cr)
+                        if (result.Parent is CommandResult)
                         {
                             ValidateAndConvertArgumentResult(result);
                         }
@@ -312,7 +312,7 @@ namespace System.CommandLine.Parsing
                     symbol.Arity.MinimumNumberOfValues,
                     symbol.Arity.MaximumNumberOfValues);
 
-                if (arityFailure != null)
+                if (arityFailure is not null)
                 {
                     _errors.Add(
                         new ParseError(arityFailure.ErrorMessage!, _innermostCommandResult));
@@ -467,7 +467,7 @@ namespace System.CommandLine.Parsing
                 _directives,
                 _tokenizeResult,
                 _unparsedTokens,
-                _unmatchedTokens.ToArray(),
+                _unmatchedTokens,
                 _errors,
                 _rawInput);
     }

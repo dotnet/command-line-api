@@ -199,7 +199,7 @@ namespace System.CommandLine
         /// <summary>
         /// Specifies if a default value is defined for the argument.
         /// </summary>
-        public bool HasDefaultValue => _defaultValueFactory != null;
+        public bool HasDefaultValue => _defaultValueFactory is not null;
 
         internal static Argument None() => new()
         {

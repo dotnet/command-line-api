@@ -46,7 +46,7 @@ namespace System.CommandLine.Invocation
         {
             add
             {
-                if (_cts != null)
+                if (_cts is not null)
                 {
                     throw new InvalidOperationException("Handlers must be added before adding cancellation handling.");
                 }

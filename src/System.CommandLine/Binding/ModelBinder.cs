@@ -217,7 +217,7 @@ namespace System.CommandLine.Binding
                 {
                     anyNonDefaults = true;
                 }
-                if (boundValue != null)
+                if (boundValue is not null)
                 {
                     values.Add(boundValue);
                 }

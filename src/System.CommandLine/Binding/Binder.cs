@@ -227,7 +227,7 @@ namespace System.CommandLine.Binding
                                                        tuple.parameters.Length == 1 &&
                                                        tuple.parameters[0].ParameterType == parameterType);
 
-            if (x != null)
+            if (x is not null)
             {
                 ctor = x;
                 return true;

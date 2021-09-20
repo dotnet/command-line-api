@@ -240,7 +240,5 @@ namespace System.CommandLine.Parsing
                 IOption option => FindResultFor(option),
                 _ => throw new ArgumentOutOfRangeException(nameof(symbol))
             };
-
-        internal void ClearErrors() => _errors.Clear();
     }
 }
