@@ -89,10 +89,11 @@ namespace System.CommandLine.Parsing
 
                 if (!foundEndOfDirectives)
                 {
-                    if (arg.StartsWith("[", StringComparison.Ordinal) &&
-                        arg.EndsWith("]", StringComparison.Ordinal) &&
+                    if (arg.Length > 2 &&
+                        arg[0] == '[' &&
                         arg[1] != ']' &&
-                        arg[1] != ':')
+                        arg[1] != ':' &&
+                        arg.EndsWith("]", StringComparison.Ordinal))
                     {
                         tokenList.Add(Directive(arg));
                         continue;
@@ -104,8 +105,8 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (arg.GetResponseFileReference() is { } filePath &&
-                    configuration.ResponseFileHandling != ResponseFileHandling.Disabled)
+                if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
+                    arg.GetResponseFileReference() is { } filePath)
                 {
                     ReadResponseFile(filePath, i);
                     continue;
@@ -129,7 +130,7 @@ namespace System.CommandLine.Parsing
                                               out var rest))
                 {
                     if (knownTokens.TryGetValue(first!, out var token) &&
-                        token.Type == TokenType.Option)
+                        token.token is { Type: TokenType.Option })
                     {
                         tokenList.Add(Option(first!));
 
@@ -150,9 +151,16 @@ namespace System.CommandLine.Parsing
                 {
                     if (knownTokens.TryGetValue(arg, out var token))
                     {
-                        if (token.Type == TokenType.Option)
+                        if (token.token is { Type : TokenType.Option })
                         {
-                            tokenList.Add(Option(arg));
+                            if (PreviousTokenIsAnOptionExpectingAnArgument())
+                            {
+                                tokenList.Add(Argument(arg));
+                            }
+                            else
+                            {
+                                tokenList.Add(Option(arg));
+                            }
                         }
                         else if (PreviousTokenIsAnOptionExpectingAnArgument())
                         {
@@ -172,7 +180,7 @@ namespace System.CommandLine.Parsing
                                 symbolSet = configuration.Symbols;
                             }
 
-                            currentCommand = (ICommand) symbolSet.GetByAlias(arg)!;
+                            currentCommand = (ICommand)symbolSet.GetByAlias(arg)!;
 
                             knownTokens = currentCommand.ValidTokens();
 
@@ -274,10 +282,10 @@ namespace System.CommandLine.Parsing
 
                     foreach (var token in knownTokens.Values)
                     {
-                        if (token.Type == TokenType.Option &&
-                            token.UnprefixedValue == c.ToString())
+                        if (token.token is { Type : TokenType.Option } &&
+                            token.token.UnprefixedValue[0] == c)
                         {
-                            return token;
+                            return token.token;
                         }
                     }
 
@@ -329,7 +337,6 @@ namespace System.CommandLine.Parsing
                             }
                         }
 
-                        var option = currentCommand?.Children.GetByAlias(token.Value) as IOption;
                         builder.Add(token.Value);
 
                         // Here we're at an impass, because if we don't have the `IOption`
@@ -338,18 +345,24 @@ namespace System.CommandLine.Parsing
                         // `CanBeUnbundled` check to take the decision.
                         // A better option is probably introducing a new token-type, and resolve
                         // this after we have the correct model available.
-                        var requiresArgument = option?.Argument.Arity.MinimumNumberOfValues > 0;
-                        lastTokenHasArgument = option?.Argument.Arity.MaximumNumberOfValues > 0;
-
-                        // If i == arg.Length - 1, we're already at the end of the string
-                        // so no need for the custom handling of argument.
-                        if (requiresArgument && i < alias.Length - 1)
+                        if (token is { Type: TokenType.Option } &&
+                            knownTokens.TryGetValue(token.Value, out var t))
                         {
-                            // The current option requires an argument, and we're still in
-                            // the middle of unbundling a string. Example: `-lsomelib.so`
-                            // should be interpreted as `-l somelib.so`.
-                            AddRestValue(builder, alias.Substring(i + 1));
-                            break;
+                            lastTokenHasArgument = true;
+
+                            // If i == arg.Length - 1, we're already at the end of the string
+                            // so no need for the custom handling of argument.
+                            if (t.isGreedy)
+                            {
+                                if (i < alias.Length - 1)
+                                {
+                                    // The current option requires an argument, and we're still in
+                                    // the middle of unbundling a string. Example: `-lsomelib.so`
+                                    // should be interpreted as `-l somelib.so`.
+                                    AddRestValue(builder, alias.Substring(i + 1));
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -358,10 +371,27 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            bool PreviousTokenIsAnOptionExpectingAnArgument() =>
-                tokenList.Count > 1 &&
-                tokenList[tokenList.Count - 1] is { Type: TokenType.Option } optToken &&
-                currentCommand?.Children.GetByAlias(optToken.Value) is Option { Arity: { MaximumNumberOfValues: > 0 } };
+            bool PreviousTokenIsAnOptionExpectingAnArgument()
+            {
+                if (tokenList.Count <= 1)
+                {
+                    return false;
+                }
+
+                var token = tokenList[tokenList.Count - 1];
+
+                if (token is not { Type: TokenType.Option })
+                {
+                    return false;
+                }
+
+                if (knownTokens[token.Value].isGreedy)
+                {
+                    return true;
+                }
+
+                return false;
+            }
 
             void ReadResponseFile(string filePath, int i)
             {
@@ -477,13 +507,15 @@ namespace System.CommandLine.Parsing
             out string? first,
             out string? rest)
         {
-            var i = arg.IndexOfAny(_argumentDelimiters);
-
-            if (i >= 0)
             {
-                first = arg.Substring(0, i);
-                rest = arg.Substring(i + 1, arg.Length - 1 - i);
-                return true;
+                var i = arg.IndexOfAny(_argumentDelimiters);
+
+                if (i >= 0)
+                {
+                    first = arg.Substring(0, i);
+                    rest = arg.Substring(i + 1, arg.Length - 1 - i);
+                    return true;
+                }
             }
 
             first = null;
@@ -600,9 +632,9 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, Token> ValidTokens(this ICommand command)
+        private static Dictionary<string, (Token token, bool isGreedy)> ValidTokens(this ICommand command)
         {
-            var tokens = new Dictionary<string, Token>();
+            var tokens = new Dictionary<string, (Token, bool isGreedy)>();
 
             for (var commandAliasIndex = 0; commandAliasIndex < command.Aliases.Count; commandAliasIndex++)
             {
@@ -610,10 +642,10 @@ namespace System.CommandLine.Parsing
 
                 tokens.Add(
                     commandAlias,
-                    new Token(
-                        commandAlias,
-                        TokenType.Command, 
-                        -1));
+                    (new Token(
+                            commandAlias,
+                            TokenType.Command,
+                            -1), isGreedy: false));
 
                 for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
                 {
@@ -623,12 +655,18 @@ namespace System.CommandLine.Parsing
                         {
                             switch (identifier)
                             {
-                                case ICommand _:
-                                    tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command, -1));
+                                case Command _:
+                                    tokens.TryAdd(
+                                        childAlias,
+                                        (new Token(childAlias, TokenType.Command, -1),
+                                            isGreedy: false));
                                     break;
 
-                                case IOption _:
-                                    tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Option, -1));
+                                case Option option:
+                                    tokens.TryAdd(
+                                        childAlias,
+                                        (new Token(childAlias, TokenType.Option, -1),
+                                            isGreedy: option.IsGreedy));
                                     break;
                             }
                         }

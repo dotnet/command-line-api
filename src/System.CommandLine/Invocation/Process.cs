@@ -55,22 +55,22 @@ namespace System.CommandLine.Invocation
                 }
             }
 
-            if (stdOut != null)
+            if (stdOut is not null)
             {
                 process.OutputDataReceived += (sender, eventArgs) =>
                 {
-                    if (eventArgs.Data != null)
+                    if (eventArgs.Data is not null)
                     {
                         stdOut(eventArgs.Data);
                     }
                 };
             }
 
-            if (stdErr != null)
+            if (stdErr is not null)
             {
                 process.ErrorDataReceived += (sender, eventArgs) =>
                 {
-                    if (eventArgs.Data != null)
+                    if (eventArgs.Data is not null)
                     {
                         stdErr(eventArgs.Data);
                     }

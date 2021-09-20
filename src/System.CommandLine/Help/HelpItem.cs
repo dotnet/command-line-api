@@ -29,7 +29,7 @@ namespace System.CommandLine.Help
 
         public bool Equals(HelpItem? other)
         {
-            return other != null &&
+            return other is not null &&
                    Descriptor == other.Descriptor &&
                    Description == other.Description;
         }

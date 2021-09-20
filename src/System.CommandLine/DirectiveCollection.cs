@@ -21,7 +21,7 @@ namespace System.CommandLine
                 _directives.Add(name, values);
             }
 
-            if (value != null)
+            if (value is not null)
             {
                 values.Add(value);
             }

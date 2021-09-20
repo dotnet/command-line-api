@@ -30,7 +30,7 @@ namespace System.CommandLine.Builder
 
         internal HelpOption? HelpOption { get; set; }
 
-        internal Option<bool>? VersionOption { get; set; }
+        internal VersionOption? VersionOption { get; set; }
 
         internal Resources? Resources { get; set; }
 

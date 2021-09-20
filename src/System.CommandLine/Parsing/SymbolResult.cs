@@ -56,20 +56,36 @@ namespace System.CommandLine.Parsing
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity == 0;
 
         private protected virtual int RemainingArgumentCapacity =>
-            MaximumArgumentCapacity() - Tokens.Count;
+            MaximumArgumentCapacity - Tokens.Count;
 
-        internal int MaximumArgumentCapacity()
+        internal int MaximumArgumentCapacity
         {
-            var value = 0;
-
-            var arguments = Symbol.Arguments();
-
-            for (var i = 0; i < arguments.Count; i++)
+            get
             {
-                value += arguments[i].Arity.MaximumNumberOfValues;
-            }
+                switch (Symbol)
+                {
+                    case IOption option:
+                        return option.Argument.Arity.MaximumNumberOfValues;
 
-            return value;
+                    case IArgument argument:
+                        return argument.Arity.MaximumNumberOfValues;
+
+                    case ICommand command:
+                        var value = 0;
+
+                        var arguments = command.Arguments;
+
+                        for (var i = 0; i < arguments.Count; i++)
+                        {
+                            value += arguments[i].Arity.MaximumNumberOfValues;
+                        }
+
+                        return value;
+
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
         }
 
         /// <summary>

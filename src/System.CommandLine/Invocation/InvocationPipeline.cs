@@ -23,7 +23,7 @@ namespace System.CommandLine.Invocation
 
             InvocationMiddleware invocationChain = BuildInvocationChain(context);
 
-            await invocationChain(context, invocationContext => Task.CompletedTask);
+            await invocationChain(context, _ => Task.CompletedTask);
 
             return GetExitCode(context);
         }
@@ -34,7 +34,7 @@ namespace System.CommandLine.Invocation
 
             InvocationMiddleware invocationChain = BuildInvocationChain(context);
 
-            Task.Run(() => invocationChain(context, invocationContext => Task.CompletedTask)).GetAwaiter().GetResult();
+            Task.Run(() => invocationChain(context, _ => Task.CompletedTask)).GetAwaiter().GetResult();
 
             return GetExitCode(context);
         }
@@ -44,7 +44,7 @@ namespace System.CommandLine.Invocation
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware.Count + 1);
             invocations.AddRange(context.Parser.Configuration.Middleware);
 
-            invocations.Add(async (invocationContext, next) =>
+            invocations.Add(async (invocationContext, _) =>
             {
                 if (invocationContext
                     .ParseResult
@@ -53,7 +53,7 @@ namespace System.CommandLine.Invocation
                 {
                     var handler = command.Handler;
 
-                    if (handler != null)
+                    if (handler is not null)
                     {
                         context.ExitCode = await handler.InvokeAsync(invocationContext);
                     }

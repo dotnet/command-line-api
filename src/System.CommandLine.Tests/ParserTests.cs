@@ -1205,8 +1205,7 @@ namespace System.CommandLine.Tests
 
             valueForOption.Should().Be("-y");
         }
-
-
+        
         [Fact]
         public void Option_arguments_can_start_with_prefixes_that_make_them_look_like_bundled_options()
         {
@@ -1247,23 +1246,23 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("-x -y")]
         [InlineData("-x=-y")]
         [InlineData("-x:-y")]
-        public void Option_arguments_can_match_the_aliases_of_sibling_options(string input)
+        public void Option_arguments_can_match_the_aliases_of_sibling_options_when_non_space_argument_delimiter_is_used(string input)
         {
-            var optionX = new Option("-x") { Arity = ArgumentArity.ZeroOrOne};
+            var optionX = new Option("-x") { Arity = ArgumentArity.ZeroOrOne };
 
             var command = new Command("command")
             {
                 optionX,
-                new Option("-y") { Arity = ArgumentArity.ZeroOrOne}
+                new Option("-y") { Arity = ArgumentArity.ZeroOrOne }
             };
 
             var result = command.Parse(input);
 
             var valueForOption = result.GetValueForOption(optionX);
 
+            result.Errors.Should().BeEmpty();
             valueForOption.Should().Be("-y");
         }
 
@@ -1280,6 +1279,34 @@ namespace System.CommandLine.Tests
             var result = command.Parse("-x -x");
 
             result.GetValueForOption(optionX).Should().Be("-x");
+        }
+
+        [Theory]
+        [InlineData("-x -y")]
+        [InlineData("-x true -y")]
+        [InlineData("-x:true -y")]
+        [InlineData("-x=true -y")]
+        [InlineData("-x -y true")]
+        [InlineData("-x true -y true")]
+        [InlineData("-x:true -y:true")]
+        [InlineData("-x=true -y:true")]
+        public void Boolean_options_are_not_greedy(string commandLine)
+        {
+            var optX = new Option<bool>("-x");
+            var optY = new Option<bool>("-y");
+
+            var root = new RootCommand("parent")
+            {
+                optX,
+                optY,
+            };
+
+            var result = root.Parse(commandLine);
+
+            result.Errors.Should().BeEmpty();
+
+            result.GetValueForOption(optX).Should().BeTrue();
+            result.GetValueForOption(optY).Should().BeTrue();
         }
 
         [Fact]
@@ -1673,7 +1700,7 @@ namespace System.CommandLine.Tests
                 : base(values)
             { }
         }
-      
+
         public class CustomCollectionTypeConverter : TypeConverter
         {
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)

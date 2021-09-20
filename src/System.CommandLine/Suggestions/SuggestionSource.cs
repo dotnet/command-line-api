@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
@@ -10,7 +11,7 @@ namespace System.CommandLine.Suggestions
 {
     public static class SuggestionSource
     {
-        private static readonly Dictionary<Type, ISuggestionSource> _suggestionSourcesByType = new Dictionary<Type, ISuggestionSource>();
+        private static readonly ConcurrentDictionary<Type, ISuggestionSource> _suggestionSourcesByType = new();
 
         private static readonly string[] _trueAndFalse =
         {
@@ -23,7 +24,7 @@ namespace System.CommandLine.Suggestions
             return _suggestionSourcesByType.GetOrAdd(type, t => new SuggestionSourceForType(t));
         }
 
-        public static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource((_, __) => Array.Empty<string>());
+        public static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource((_, _) => Array.Empty<string>());
 
         private class SuggestionSourceForType : ISuggestionSource
         {

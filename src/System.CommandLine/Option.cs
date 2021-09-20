@@ -76,7 +76,7 @@ namespace System.CommandLine
                 AddAlias(alias);
             }
 
-            if (argument != null)
+            if (argument is not null)
             {
                 AddArgumentInner(argument);
             }
@@ -92,15 +92,15 @@ namespace System.CommandLine
             }
 
             var rv = new Argument();
-            if (argumentType != null)
+            if (argumentType is not null)
             {
                 rv.ValueType = argumentType;
             }
-            if (getDefaultValue != null)
+            if (getDefaultValue is not null)
             {
                 rv.SetDefaultValueFactory(getDefaultValue);
             }
-            if (arity != null)
+            if (arity is not null)
             {
                 rv.Arity = arity;
             }
@@ -215,7 +215,7 @@ namespace System.CommandLine
         /// Sets the default value for the option.
         /// </summary>
         /// <param name="value">The default value for the option.</param>
-        public void SetDefaultValue(object? value) => 
+        public void SetDefaultValue(object? value) =>
             Argument.SetDefaultValue(value);
 
         /// <summary>
@@ -223,13 +223,16 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<object?> getDefaultValue) => 
+        public void SetDefaultValueFactory(Func<object?> getDefaultValue) =>
             Argument.SetDefaultValueFactory(getDefaultValue);
 
         IArgument IOption.Argument => Argument;
 
         /// <inheritdoc/>
         public bool AllowMultipleArgumentsPerToken { get; set; }
+
+        internal bool IsGreedy => Arity.MinimumNumberOfValues > 0 &&
+                                  ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.

@@ -55,16 +55,6 @@ namespace System.CommandLine.Collections
             }
         }
 
-        internal virtual void Remove(T item)
-        {
-            Items.Remove(item);
-
-            foreach (var alias in GetAliases(item))
-            {
-                ItemsByAlias.Remove(alias);
-            }
-        }
-
         protected abstract IReadOnlyCollection<string> GetAliases(T item);
 
         /// <inheritdoc/>

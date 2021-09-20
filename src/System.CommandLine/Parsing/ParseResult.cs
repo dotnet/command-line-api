@@ -61,7 +61,7 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < unmatchedTokens.Count; i++)
                 {
                     var token = unmatchedTokens[i];
-                    _errors.Add(new ParseError(parser.Configuration.Resources.UnrecognizedCommandOrArgument(token.Value)));
+                    _errors.Add(new ParseError(parser.Configuration.Resources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
                 }
             }
         }

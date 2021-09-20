@@ -260,7 +260,6 @@ namespace System.CommandLine
         public virtual string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType)
             => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption, value, optionAlias, expectedType);
 
-        /// <inheritdoc/>
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {
             if (resourceString is null)

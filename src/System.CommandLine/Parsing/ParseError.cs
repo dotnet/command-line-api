@@ -22,6 +22,7 @@ namespace System.CommandLine.Parsing
 
         public SymbolResult? SymbolResult { get; }
 
+        /// <inheritdoc />
         public override string ToString() => Message;
     }
 }
