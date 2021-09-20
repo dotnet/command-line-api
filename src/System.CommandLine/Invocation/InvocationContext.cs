@@ -71,9 +71,22 @@ namespace System.CommandLine.Invocation
             return _cts.Token;
         }
 
+        private ExecutionContext? _executionContext;
+        internal ExecutionContext? ExecutionContext 
+        {
+            get => _executionContext;
+            set
+            {
+                var prevExecCtx = Interlocked.Exchange(ref _executionContext, value);
+                if (prevExecCtx != value)
+                    prevExecCtx?.Dispose();
+            }
+        }
+
         public void Dispose()
         {
             (Console as IDisposable)?.Dispose();
+            ExecutionContext = null;
         }
     }
 }
