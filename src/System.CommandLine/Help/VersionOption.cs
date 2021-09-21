@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -8,15 +9,22 @@ namespace System.CommandLine.Help
 {
     internal class VersionOption : Option
     {
-        public VersionOption() : base("--version")
+        private readonly CommandLineBuilder _builder;
+        private string? _description;
+
+        public VersionOption(CommandLineBuilder builder) : base("--version")
         {
+            _builder = builder;
+
             DisallowBinding = true;
 
             AddValidators();
         }
 
-        public VersionOption(string[] aliases) : base(aliases)
+        public VersionOption(string[] aliases, CommandLineBuilder builder) : base(aliases)
         {
+            _builder = builder;
+
             DisallowBinding = true;
 
             AddValidators();
@@ -47,8 +55,14 @@ namespace System.CommandLine.Help
             };
         }
 
-        internal override Argument Argument => Argument.None();
+        public override string? Description
+        {
+            get => _description ??= _builder.Resources.VersionOptionDescription();
+            set => _description = value;
+        }
 
+        internal override Argument Argument => Argument.None();
+        
         public override bool Equals(object obj)
         {
             return obj is VersionOption;

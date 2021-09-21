@@ -399,7 +399,7 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            return builder.UseHelp(new HelpOption());
+            return builder.UseHelp(new HelpOption(builder));
         }
 
         /// <summary>

@@ -54,18 +54,6 @@ namespace System.CommandLine.Builder
         /// </summary>
         public Parser Build()
         {
-            var resources = LocalizationResources ?? LocalizationResources.Instance;
-
-            if (HelpOption is not null)
-            {
-                HelpOption.Description = resources.HelpOptionDescription();
-            }
-
-            if (VersionOption is not null)
-            {
-                VersionOption.Description = resources.VersionOptionDescription();
-            }
-
             var rootCommand = Command;
 
             var parser = new Parser(
