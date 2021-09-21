@@ -180,11 +180,12 @@ namespace System.CommandLine.Parsing
                                 symbolSet = configuration.Symbols;
                             }
 
-                            currentCommand = (ICommand)symbolSet.GetByAlias(arg)!;
-
-                            knownTokens = currentCommand.ValidTokens();
-
-                            tokenList.Add(Command(arg));
+                            if (symbolSet.GetByAlias(arg) is Command cmd)
+                            {
+                                currentCommand = cmd;
+                                knownTokens = currentCommand.ValidTokens();
+                                tokenList.Add(Command(arg));
+                            }
                         }
                     }
                     else
