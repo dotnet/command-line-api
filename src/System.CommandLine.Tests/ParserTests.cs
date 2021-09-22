@@ -1248,17 +1248,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Arguments_can_match_subcommands()
         {
-            var subcommand = new Command("subcommand");
             var argument = new Argument<string[]>();
+            var subcommand = new Command("subcommand")
+            {
+                argument
+            };
             var root = new RootCommand
             {
-                subcommand,
-                argument
+                subcommand
             };
 
             var result = root.Parse("subcommand one two three subcommand four");
 
             result.CommandResult.Command.Should().Be(subcommand);
+
             result.GetValueForArgument(argument)
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three", "subcommand", "four");
