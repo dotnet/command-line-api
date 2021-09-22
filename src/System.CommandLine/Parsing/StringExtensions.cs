@@ -153,11 +153,16 @@ namespace System.CommandLine.Parsing
                                     symbolSet = configuration.Symbols;
                                 }
 
-                                if (symbolSet.GetByAlias(arg) is Command cmd)
+                                if (symbolSet.GetByAlias(arg) is Command cmd && 
+                                    cmd != currentCommand)
                                 {
                                     currentCommand = cmd;
                                     knownTokens = currentCommand.ValidTokens();
                                     tokenList.Add(Command(arg));
+                                }
+                                else
+                                {
+                                    tokenList.Add(Argument(arg));
                                 }
 
                                 break;
@@ -166,8 +171,8 @@ namespace System.CommandLine.Parsing
                 }
                 else if (arg.TrySplitIntoSubtokens(out var first, out var rest))
                 {
-                    if (knownTokens.TryGetValue(first!, out var token1) &&
-                        token1.token is { Type: TokenType.Option })
+                    if (knownTokens.TryGetValue(first!, out var subtoken) &&
+                        subtoken.token is { Type: TokenType.Option })
                     {
                         tokenList.Add(Option(first!));
 
@@ -629,7 +634,7 @@ namespace System.CommandLine.Parsing
                         {
                             switch (identifier)
                             {
-                                case Command _:
+                                case Command cmd:
                                     tokens.TryAdd(
                                         childAlias,
                                         (new Token(childAlias, TokenType.Command, -1),
