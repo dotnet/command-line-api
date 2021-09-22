@@ -12,7 +12,7 @@ namespace System.CommandLine.Parsing
     public static class StringExtensions
     {
         private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
-        private static readonly char[] _argumentDelimiters = {  ':', '=' };
+        private static readonly char[] _argumentDelimiters = { ':', '=' };
 
         internal static bool ContainsCaseInsensitive(
             this string source,
@@ -126,11 +126,48 @@ namespace System.CommandLine.Parsing
                     arg = argList[i];
                 }
 
-                if (arg.TrySplitIntoSubtokens(out var first,
-                                              out var rest))
+                if (knownTokens.TryGetValue(arg, out var token))
                 {
-                    if (knownTokens.TryGetValue(first!, out var token) &&
-                        token.token is { Type: TokenType.Option })
+                    if (PreviousTokenIsAnOptionExpectingAnArgument())
+                    {
+                        tokenList.Add(Argument(arg));
+                    }
+                    else
+                    {
+                        switch (token.token)
+                        {
+                            case { Type: TokenType.Option }:
+                                tokenList.Add(Option(arg));
+                                break;
+
+                            case { Type: TokenType.Command }:
+                                // when a subcommand is encountered, re-scope which tokens are valid
+                                ISymbolSet symbolSet;
+
+                                if (currentCommand is { } command)
+                                {
+                                    symbolSet = command.Children;
+                                }
+                                else
+                                {
+                                    symbolSet = configuration.Symbols;
+                                }
+
+                                if (symbolSet.GetByAlias(arg) is Command cmd)
+                                {
+                                    currentCommand = cmd;
+                                    knownTokens = currentCommand.ValidTokens();
+                                    tokenList.Add(Command(arg));
+                                }
+
+                                break;
+                        }
+                    }
+                }
+                else if (arg.TrySplitIntoSubtokens(out var first, out var rest))
+                {
+                    if (knownTokens.TryGetValue(first!, out var token1) &&
+                        token1.token is { Type: TokenType.Option })
                     {
                         tokenList.Add(Option(first!));
 
@@ -143,71 +180,9 @@ namespace System.CommandLine.Parsing
                         tokenList.Add(Argument(arg));
                     }
                 }
-                else if (!knownTokens.ContainsKey(arg))
-                {
-                    tokenList.Add(Argument(arg));
-                }
                 else
                 {
-                    if (knownTokens.TryGetValue(arg, out var token))
-                    {
-                        if (token.token is { Type : TokenType.Option })
-                        {
-                            if (PreviousTokenIsAnOptionExpectingAnArgument())
-                            {
-                                tokenList.Add(Argument(arg));
-                            }
-                            else
-                            {
-                                tokenList.Add(Option(arg));
-                            }
-                        }
-                        else if (PreviousTokenIsAnOptionExpectingAnArgument())
-                        {
-                            tokenList.Add(Argument(arg));
-                        }
-                        else
-                        {
-                            // when a subcommand is encountered, re-scope which tokens are valid
-                            ISymbolSet symbolSet;
-
-                            if (currentCommand is { } subcommand)
-                            {
-                                symbolSet = subcommand.Children;
-                            }
-                            else
-                            {
-                                symbolSet = configuration.Symbols;
-                            }
-
-                            if (symbolSet.GetByAlias(arg) is Command cmd)
-                            {
-                                currentCommand = cmd;
-                                knownTokens = currentCommand.ValidTokens();
-                                tokenList.Add(Command(arg));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // when a subcommand is encountered, re-scope which tokens are valid
-                        ISymbolSet symbolSet;
-
-                        if (currentCommand is { } subcommand)
-                        {
-                            symbolSet = subcommand.Children;
-                        }
-                        else
-                        {
-                            symbolSet = configuration.Symbols;
-                        }
-
-                        currentCommand = (ICommand)symbolSet.GetByAlias(arg)!;
-
-                        knownTokens = currentCommand.ValidTokens();
-
-                        tokenList.Add(Command(arg));
-                    }
+                    tokenList.Add(Argument(arg));
                 }
 
                 Token Argument(string value) => new(value, TokenType.Argument, i);
@@ -215,7 +190,7 @@ namespace System.CommandLine.Parsing
                 Token Command(string value) => new(value, TokenType.Command, i);
 
                 Token Option(string value) => new(value, TokenType.Option, i);
-                
+
                 Token UnbundledOption(string value) => new(value, i, wasBundled: true);
 
                 Token EndOfArguments() => new("--", TokenType.EndOfArguments, i);
@@ -267,7 +242,7 @@ namespace System.CommandLine.Parsing
                             }
                         }
                     }
-                }   
+                }
 
                 // remove the leading "-"
                 var alias = arg.Substring(1);
@@ -353,16 +328,14 @@ namespace System.CommandLine.Parsing
 
                             // If i == arg.Length - 1, we're already at the end of the string
                             // so no need for the custom handling of argument.
-                            if (t.isGreedy)
+                            if (t.isGreedy &&
+                                i < alias.Length - 1)
                             {
-                                if (i < alias.Length - 1)
-                                {
-                                    // The current option requires an argument, and we're still in
-                                    // the middle of unbundling a string. Example: `-lsomelib.so`
-                                    // should be interpreted as `-l somelib.so`.
-                                    AddRestValue(builder, alias.Substring(i + 1));
-                                    break;
-                                }
+                                // The current option requires an argument, and we're still in
+                                // the middle of unbundling a string. Example: `-lsomelib.so`
+                                // should be interpreted as `-l somelib.so`.
+                                AddRestValue(builder, alias.Substring(i + 1));
+                                break;
                             }
                         }
                     }
@@ -567,7 +540,7 @@ namespace System.CommandLine.Parsing
                     addDash = true;
                     sb.Append(ch);
                 }
-                else  //this coverts all non letter/digits to dash - specifically periods and underscores. Is this needed?
+                else //this coverts all non letter/digits to dash - specifically periods and underscores. Is this needed?
                 {
                     addDash = false;
                     sb.Append('-');

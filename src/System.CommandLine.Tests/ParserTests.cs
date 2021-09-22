@@ -1245,6 +1245,25 @@ namespace System.CommandLine.Tests
             result.CommandResult.Command.Should().Be(root);
         }
 
+        [Fact]
+        public void Arguments_can_match_subcommands()
+        {
+            var subcommand = new Command("subcommand");
+            var argument = new Argument<string[]>();
+            var root = new RootCommand
+            {
+                subcommand,
+                argument
+            };
+
+            var result = root.Parse("subcommand one two three subcommand four");
+
+            result.CommandResult.Command.Should().Be(subcommand);
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEquivalentSequenceTo("one", "two", "three", "subcommand", "four");
+        }
+
         [Theory]
         [InlineData("-x=-y")]
         [InlineData("-x:-y")]
