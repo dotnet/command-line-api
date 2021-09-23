@@ -143,6 +143,18 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        public static CommandLineBuilder ConfigureBindingContext(
+            this CommandLineBuilder builder,
+            Action<BindingContext> configureBindingContext)
+        {
+            builder.AddMiddleware((context, next) =>
+            {
+                configureBindingContext?.Invoke(context.BindingContext);
+                return next(context);
+            }, default(MiddlewareOrder));
+            return builder;
+        }
+
         public static CommandLineBuilder EnableDirectives(
             this CommandLineBuilder builder,
             bool value = true)

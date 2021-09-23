@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
@@ -505,5 +506,111 @@ namespace System.CommandLine.Tests.Invocation
             public override Task<int> InvokeAsync(InvocationContext context)
                 => Task.FromResult(41);
         }
+
+        [Fact]
+        public static void FromBindingContext_forwards_invocation_to_bound_handler_type()
+        {
+            var command = new RootCommand
+            {
+                Handler = CommandHandler.FromBindingContext<BindingContextResolvedCommandHandler>()
+            };
+            var parser = new CommandLineBuilder(command)
+                .ConfigureBindingContext(context => context.AddService<BindingContextResolvedCommandHandler>())
+                .Build();
+
+            var console = new TestConsole();
+            parser.Invoke(Array.Empty<string>(), console);
+            console.Out.ToString().Should().Be(typeof(BindingContextResolvedCommandHandler).FullName);
+        }
+
+        [Fact]
+        public static void FromBindingContext_returns_a_wrapper_type_instance()
+        {
+            ICommandHandler handler = CommandHandler.FromBindingContext<BindingContextResolvedCommandHandler>();
+            handler.Should().NotBeOfType<BindingContextResolvedCommandHandler>();
+        }
+
+        [Fact]
+        public static void Subsequent_call_to_configure_overrides_service_registration()
+        {
+            ICommandHandler invokedHandler = null;
+            BindingContextCommandHandlerAction action = (handler, Console) =>
+            {
+                invokedHandler = handler;
+            };
+            var parser = new CommandLineBuilder(new RootCommand
+            {
+                Handler = CommandHandler.FromBindingContext<IBindingContextCommandHandlerInterface>()
+            })
+                .ConfigureBindingContext(context => context.AddService(_ => action))
+                .ConfigureBindingContext(context => context.AddService<IBindingContextCommandHandlerInterface, BindingContextCommandHandler1>())
+                .ConfigureBindingContext(context => context.AddService<IBindingContextCommandHandlerInterface, BindingContextCommandHandler2>())
+                .Build();
+            parser.Invoke(Array.Empty<string>(), new TestConsole());
+
+            invokedHandler.Should().NotBeNull();
+            invokedHandler.Should().BeOfType<BindingContextCommandHandler2>();
+        }
+
+        public class BindingContextResolvedCommandHandler : ICommandHandler
+        {
+            public BindingContextResolvedCommandHandler(IConsole console)
+            {
+                Console = console;
+            }
+
+            public IConsole Console { get; }
+
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                Console.Out.Write(GetType().FullName);
+                return Task.FromResult(0);
+            }
+        }
+
+        public interface IBindingContextCommandHandlerInterface : ICommandHandler
+        {
+        }
+
+        public class BindingContextCommandHandler1 : IBindingContextCommandHandlerInterface
+        {
+            private readonly BindingContextCommandHandlerAction invokeAction;
+
+            public BindingContextCommandHandler1(IConsole console,
+                BindingContextCommandHandlerAction invokeAction)
+            {
+                Console = console;
+                this.invokeAction = invokeAction;
+            }
+
+            public IConsole Console { get; }
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                invokeAction(this, Console);
+                return Task.FromResult(0);
+            }
+        }
+
+        public class BindingContextCommandHandler2 : IBindingContextCommandHandlerInterface
+        {
+            private readonly BindingContextCommandHandlerAction invokeAction;
+
+            public BindingContextCommandHandler2(IConsole console,
+                BindingContextCommandHandlerAction invokeAction)
+            {
+                Console = console;
+                this.invokeAction = invokeAction;
+            }
+
+            public IConsole Console { get; }
+
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                invokeAction(this, Console);
+                return Task.FromResult(0);
+            }
+        }
+
+        public delegate void BindingContextCommandHandlerAction(ICommandHandler handler, IConsole console);
     }
 }

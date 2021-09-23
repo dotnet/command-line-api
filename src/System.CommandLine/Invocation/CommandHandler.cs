@@ -376,6 +376,10 @@ namespace System.CommandLine.Invocation
                 GetExitCodeAsync(_getResult(context), context);
         }
 
+        public static ICommandHandler FromBindingContext<THandler>()
+            where THandler : ICommandHandler =>
+            Create((InvocationContext context, THandler handler) => handler.InvokeAsync(context));
+
         internal static async Task<int> GetExitCodeAsync(object value, InvocationContext context)
         {
             switch (value)
