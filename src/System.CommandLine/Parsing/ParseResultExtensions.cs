@@ -226,7 +226,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.CommandResult.Children.Contains(alias);
+            return parseResult.CommandResult.Children.ContainsAlias(alias);
         }
 
         public static IEnumerable<string?> GetSuggestions(

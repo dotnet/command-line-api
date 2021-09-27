@@ -23,7 +23,7 @@ namespace System.CommandLine.Collections
         /// <inheritdoc/>
         public int Count => Items.Count;
 
-        public bool Contains(string alias)
+        public bool ContainsAlias(string alias)
         {
             EnsureAliasIndexIsCurrent();
 
