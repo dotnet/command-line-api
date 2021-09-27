@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
+    /// <summary>
+    /// Provides methods for creating and working with command handlers.
+    /// </summary>
     public static partial class CommandHandler
     {
         public static ICommandHandler Create(Action action) =>
