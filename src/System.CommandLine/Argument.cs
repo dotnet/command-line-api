@@ -46,7 +46,7 @@ namespace System.CommandLine
         /// Gets or sets the arity of the argument.
         /// </summary>
         [NotNull]
-        public IArgumentArity? Arity
+        public IArgumentArity Arity
         {
             get
             {

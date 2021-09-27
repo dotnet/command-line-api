@@ -281,20 +281,7 @@ namespace System.CommandLine.Binding
                 {
                     return true;
                 }
-
-                // FIX: (CanBeBoundFromScalarValue) perf
-
-                if (TypeDescriptor.GetConverter(type) is { } typeConverter &&
-                    typeConverter.CanConvertFrom(typeof(string)))
-                {
-                    return true;
-                }
-
-                if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _))
-                {
-                    return true;
-                }
-
+                
                 if (Binder.GetItemTypeIfEnumerable(type) is { } itemType)
                 {
                     type = itemType;
@@ -409,11 +396,16 @@ namespace System.CommandLine.Binding
             {
                 // 0 is an implicit bool, i.e. a "flag"
                 0 => Success(argumentResult.Argument, true),
-                1 => ConvertObject(argument, argument.ValueType,
+                1 => ConvertObject(argument, 
+                                   argument.ValueType,
                                    argumentResult.Tokens.Count > 0
                                        ? argumentResult.Tokens[argumentResult.Tokens.Count - 1].Value
                                        : null, argumentResult.LocalizationResources),
-                _ => ConvertStrings(argument, argument.ValueType, argumentResult.Tokens.Select(t => t.Value).ToArray(), argumentResult.LocalizationResources, argumentResult)
+                _ => ConvertStrings(argument, 
+                                    argument.ValueType, 
+                                    argumentResult.Tokens.Select(t => t.Value).ToArray(), 
+                                    argumentResult.LocalizationResources, 
+                                    argumentResult)
             };
 
             return value is SuccessfulArgumentConversionResult;
