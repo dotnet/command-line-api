@@ -16,9 +16,6 @@ namespace System.CommandLine
     /// </remarks>
     public class RootCommand : Command
     {
-        /// <summary>
-        /// Initializes a new instance of the RootCommand class.
-        /// </summary>
         /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
         {
