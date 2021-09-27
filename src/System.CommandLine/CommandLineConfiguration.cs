@@ -91,7 +91,7 @@ namespace System.CommandLine
             EnableDirectives = enableDirectives;
             LocalizationResources = resources ?? LocalizationResources.Instance;
             ResponseFileHandling = responseFileHandling;
-            Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
+            Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;
 

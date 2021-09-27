@@ -65,7 +65,7 @@ namespace System.CommandLine
 
             if (tokenCount < minimumNumberOfValues)
             {
-                if (symbolResult!.UseDefaultValueFor(argument))
+                if (symbolResult.UseDefaultValueFor(argument))
                 {
                     return null;
                 }

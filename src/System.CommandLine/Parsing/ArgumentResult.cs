@@ -102,8 +102,7 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-        private ArgumentConversionResult Convert(
-            IArgument argument)
+        private ArgumentConversionResult Convert(IArgument argument)
         {
             if (ShouldCheckArity() &&
                 Parent is { } &&
@@ -137,31 +136,59 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (arg.ConvertArguments is not null)
+                if (arg.ConvertArguments is null)
                 {
-                    if (_conversionResult is not null)
+                    return argument.Arity.MaximumNumberOfValues switch
                     {
-                        return _conversionResult;
-                    }
-
-                    var success = arg.ConvertArguments(this, out var value);
-
-                    if (value is ArgumentConversionResult conversionResult)
-                    {
-                        return conversionResult;
-                    }
-
-                    if (success)
-                    {
-                        return ArgumentConversionResult.Success(
-                            arg,
-                            value);
-                    }
-
-                    return ArgumentConversionResult.Failure(
-                        argument,
-                        ErrorMessage ?? $"Invalid: {Parent.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}");
+                        1 => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).SingleOrDefault()),
+                        _ => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).ToArray())
+                    };
                 }
+
+                if (_conversionResult is not null)
+                {
+                    return _conversionResult;
+                }
+
+                var success = arg.ConvertArguments(this, out var value);
+
+                if (value is ArgumentConversionResult conversionResult)
+                {
+                    return conversionResult;
+                }
+
+                if (success)
+                {
+                    return ArgumentConversionResult.Success(
+                        arg,
+                        value);
+                }
+
+                if (ErrorMessage is not null)
+                {
+                    return new FailedArgumentConversionResult(arg, ErrorMessage);
+                }
+
+                if (Binder.GetItemTypeIfEnumerable(argument.ValueType) is { } itemType)
+                {
+                    return new FailedArgumentTypeConversionResult(
+                        argument,
+                        itemType,
+                        Tokens[0].Value,
+                        Resources);
+                }
+                else
+                {
+                    return new FailedArgumentTypeConversionResult(
+                        argument,
+                        argument.ValueType,
+                        Tokens[0].Value,
+                        Resources);
+                }
+
+                return ArgumentConversionResult.Failure(
+                    argument,
+                    ErrorMessage ?? $"Invalid: {Parent.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}");
             }
 
             return argument.Arity.MaximumNumberOfValues switch
@@ -170,9 +197,8 @@ namespace System.CommandLine.Parsing
                 _ => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).ToArray())
             };
 
-            bool ShouldCheckArity() =>
-                !(Parent is OptionResult optionResult &&
-                  optionResult.IsImplicit);
+            bool ShouldCheckArity() => 
+                Parent is not OptionResult { IsImplicit: true };
         }
     }
 }

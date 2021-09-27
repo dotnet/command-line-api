@@ -15,6 +15,51 @@ namespace System.CommandLine.Binding
 {
     internal static class ArgumentConverter
     {
+        private static readonly Dictionary<(Type type, bool multipleArity), TryConvertArgument> _argumentConverters = new()
+        {
+            // FIX: (_argumentConverters) 
+
+            [(typeof(string), false)] = (ArgumentResult result, out object? value) =>
+            {
+                value = result.Tokens[result.Tokens.Count - 1].Value;
+                return true;
+            },
+
+            [(typeof(int), false)] = (ArgumentResult result, out object? value) =>
+            {
+                var token = result.Tokens[result.Tokens.Count - 1].Value;
+            
+                if (int.TryParse(token, out var intValue))
+                {
+                    value = intValue;
+                    return true;
+                }
+            
+                value = default;
+                return false;
+            },
+
+            // [(typeof(FileSystemInfo), false)] = (ArgumentResult result, out object? value) =>
+            // {
+            //     var path = result.Tokens[result.Tokens.Count - 1].Value;
+            //
+            //     if (Directory.Exists(path))
+            //     {
+            //         value = new DirectoryInfo(path);
+            //     }
+            //
+            //     if (path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
+            //         path.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+            //     {
+            //         value = new DirectoryInfo(path);
+            //     }
+            //
+            //     value = new FileInfo(path);
+            //     return true;
+            // },
+        };
+
+        // FIX: (_converters) delete this
         private static readonly Dictionary<Type, Func<string, object>> _converters = new()
         {
             [typeof(FileSystemInfo)] = value =>
@@ -65,7 +110,19 @@ namespace System.CommandLine.Binding
             string value,
             LocalizationResources localizationResources)
         {
-            type ??= typeof(string);
+            if (type is null || type == typeof(string))
+            {
+                return Success(argument, value);
+            }
+
+            if (_converters.TryGetValue(type, out var convert))
+            {
+                return Success(
+                    argument,
+                    convert(value));
+            }
+
+            // FIX: (ConvertString) perf
 
             if (TypeDescriptor.GetConverter(type) is { } typeConverter)
             {
@@ -84,12 +141,6 @@ namespace System.CommandLine.Binding
                 }
             }
 
-            if (_converters.TryGetValue(type, out var convert))
-            {
-                return Success(
-                    argument,
-                    convert(value));
-            }
 
             if (type.TryFindConstructorWithSingleParameterOfType(
                 typeof(string), out ConstructorInfo? ctor))
@@ -195,7 +246,90 @@ namespace System.CommandLine.Binding
             }
         }
 
-        internal static bool HasStringTypeConverter(this Type type) =>
+        internal static TryConvertArgument? GetConverter(Argument argument)
+        {
+            if (_argumentConverters.TryGetValue((argument.ValueType, argument.Arity.MaximumNumberOfValues > 1), out var converter))
+            {
+                return converter;
+            }
+
+            if (argument.ValueType.CanBeBoundFromScalarValue())
+            {
+                if (argument.Arity.MaximumNumberOfValues == 1 && argument.ValueType == typeof(bool))
+                {
+                    return TryConvertBoolArgument;
+                }
+                else
+                {
+                    return TryConvertArgument;
+                }
+            }
+
+            return default;
+        }
+
+        private static bool CanBeBoundFromScalarValue(this Type type)
+        {
+            while (true)
+            {
+                if (type.IsPrimitive || type.IsEnum)
+                {
+                    return true;
+                }
+
+                if (type == typeof(string))
+                {
+                    return true;
+                }
+
+                // FIX: (CanBeBoundFromScalarValue) perf
+
+                if (TypeDescriptor.GetConverter(type) is { } typeConverter &&
+                    typeConverter.CanConvertFrom(typeof(string)))
+                {
+                    return true;
+                }
+
+                if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _))
+                {
+                    return true;
+                }
+
+                if (Binder.GetItemTypeIfEnumerable(type) is { } itemType)
+                {
+                    type = itemType;
+                    continue;
+                }
+
+                return false;
+            }
+        }
+
+        private static bool TryFindConstructorWithSingleParameterOfType(
+            this Type type,
+            Type parameterType,
+            [NotNullWhen(true)] out ConstructorInfo? ctor)
+        {
+            var (x, _) = type.GetConstructors()
+                             .Select(c => (ctor: c, parameters: c.GetParameters()))
+                             .SingleOrDefault(tuple => tuple.ctor.IsPublic &&
+                                                       tuple.parameters.Length == 1 &&
+                                                       tuple.parameters[0].ParameterType == parameterType);
+
+            if (x is not null)
+            {
+                ctor = x;
+                return true;
+            }
+            else
+            {
+                ctor = null;
+                return false;
+            }
+        }
+
+        private static bool HasStringTypeConverter(this Type type) =>
+            // FIX: (HasStringTypeConverter) perf
             TypeDescriptor.GetConverter(type) is { } typeConverter && 
             typeConverter.CanConvertFrom(typeof(string));
 

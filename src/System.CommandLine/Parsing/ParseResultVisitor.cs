@@ -24,6 +24,7 @@ namespace System.CommandLine.Parsing
         private readonly Dictionary<IOption, OptionResult> _allOptionResults = new();
         private RootCommandResult? _rootCommandResult;
         private CommandResult? _innermostCommandResult;
+        private bool _isHelpRequested;
 
         public ParseResultVisitor(
             Parser parser,
@@ -118,6 +119,11 @@ namespace System.CommandLine.Parsing
 
             if (symbolResult is null)
             {
+                if (optionNode.Option is HelpOption)
+                {
+                    _isHelpRequested = true;
+                }
+
                 var optionResult = new OptionResult(
                     optionNode.Option,
                     optionNode.Token,
@@ -167,12 +173,9 @@ namespace System.CommandLine.Parsing
 
         protected override void Stop(SyntaxNode node)
         {
-            for (var i = 0; i < _innermostCommandResult!.Children.Count; i++)
+            if (_isHelpRequested)
             {
-                if (_innermostCommandResult!.Children[i].Symbol is HelpOption)
-                {
-                    return;
-                }
+                return;
             }
 
             ValidateCommandHandler();
@@ -414,45 +417,45 @@ namespace System.CommandLine.Parsing
                     var symbol = commandResult.Command.Children[symbolIndex];
                     var symbolResult = _rootCommandResult!.FindResultForSymbol(symbol);
 
-                    if (symbolResult is null)
+                    switch (symbolResult)
                     {
-                        switch (symbol)
-                        {
-                            case Option option when option.Argument.HasDefaultValue:
+                        case OptionResult o when o.Option.Argument.ValueType == typeof(bool) && o.Children.Count == 0:
+                            o.Children.Add(
+                                new ArgumentResult(
+                                    o.Option.Argument,
+                                    o));
+                            break;
 
-                                var optionResult = new OptionResult(
-                                    option,
-                                    null,
-                                    commandResult);
+                        case null:
+                            switch (symbol)
+                            {
+                                case Option option when option.Argument.HasDefaultValue:
 
-                                var childArgumentResult = optionResult.GetOrCreateDefaultArgumentResult(
-                                    option.Argument);
+                                    var optionResult = new OptionResult(
+                                        option,
+                                        null,
+                                        commandResult);
 
-                                optionResult.Children.Add(childArgumentResult);
-                                commandResult.Children.Add(optionResult);
-                                _rootCommandResult.AddToSymbolMap(optionResult);
+                                    var childArgumentResult = optionResult.GetOrCreateDefaultArgumentResult(
+                                        option.Argument);
 
-                                break;
+                                    optionResult.Children.Add(childArgumentResult);
+                                    commandResult.Children.Add(optionResult);
+                                    _rootCommandResult.AddToSymbolMap(optionResult);
 
-                            case Argument { HasDefaultValue: true } argument:
+                                    break;
 
-                                var argumentResult = commandResult.GetOrCreateDefaultArgumentResult(argument);
+                                case Argument { HasDefaultValue: true } argument:
 
-                                commandResult.Children.Add(argumentResult);
-                                _rootCommandResult.AddToSymbolMap(argumentResult);
+                                    var argumentResult = commandResult.GetOrCreateDefaultArgumentResult(argument);
 
-                                break;
-                        }
-                    }
+                                    commandResult.Children.Add(argumentResult);
+                                    _rootCommandResult.AddToSymbolMap(argumentResult);
 
-                    if (symbolResult is OptionResult o &&
-                        o.Option.Argument.ValueType == typeof(bool) &&
-                        o.Children.Count == 0)
-                    {
-                        o.Children.Add(
-                            new ArgumentResult(
-                                o.Option.Argument,
-                                o));
+                                    break;
+                            }
+
+                            break;
                     }
                 }
 

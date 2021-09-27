@@ -70,29 +70,8 @@ namespace System.CommandLine
 
         internal TryConvertArgument? ConvertArguments
         {
-            get
-            {
-                if (_convertArguments is null)
-                {
-                    if (ValueType.CanBeBoundFromScalarValue())
-                    {
-                        if (Arity.MaximumNumberOfValues == 1 &&
-                            ValueType == typeof(bool))
-                        {
-                            _convertArguments = ArgumentConverter.TryConvertBoolArgument;
-                        }
-                        else
-                        {
-                            _convertArguments = ArgumentConverter.TryConvertArgument;
-                        }
-                    }
-                }
-
-                return _convertArguments;
-
-          
-            }
-            set => _convertArguments = value;
+            get => _convertArguments ??= ArgumentConverter.GetConverter(this);
+            init => _convertArguments = value;
         }
 
         /// <summary>
