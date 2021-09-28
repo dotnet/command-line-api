@@ -26,6 +26,7 @@ namespace System.CommandLine
         /// <param name="symbols">The symbols to parse.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
+        /// <param name="enableLegacyDoubleDashBehavior">Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.</param>
         /// <param name="resources">Provide custom validation messages.</param>
         /// <param name="responseFileHandling">One of the enumeration values that specifies how response files (.rsp) are handled.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
@@ -37,6 +38,7 @@ namespace System.CommandLine
             IReadOnlyList<Symbol> symbols,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
+            bool enableLegacyDoubleDashBehavior = false,
             Resources? resources = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
@@ -84,6 +86,7 @@ namespace System.CommandLine
 
             AddGlobalOptionsToChildren(rootCommand);
 
+            EnableLegacyDoubleDashBehavior = enableLegacyDoubleDashBehavior;
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
             Resources = resources ?? Resources.Instance;
@@ -144,6 +147,11 @@ namespace System.CommandLine
         /// Gets whether directives are enabled.
         /// </summary>
         public bool EnableDirectives { get; }
+
+        /// <summary>
+        /// Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.
+        /// </summary>
+        public bool EnableLegacyDoubleDashBehavior { get; }
 
         /// <summary>
         /// Gets whether POSIX bundling is enabled.

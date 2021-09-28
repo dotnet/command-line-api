@@ -3,6 +3,9 @@
 
 namespace System.CommandLine.Binding
 {
+    /// <summary>
+    /// A value created by binding command line input.
+    /// </summary>
     public class BoundValue
     {
         internal BoundValue(
@@ -15,26 +18,29 @@ namespace System.CommandLine.Binding
             ValueSource = valueSource;
         }
 
+        /// <summary>
+        /// The descriptor for the bound value.
+        /// </summary>
         public IValueDescriptor ValueDescriptor { get; }
 
+        /// <summary>
+        /// The source from which the value was bound.
+        /// </summary>
         public IValueSource ValueSource { get; }
 
+        /// <summary>
+        /// The value bound from the specified source.
+        /// </summary>
         public virtual object? Value { get; }
 
+        /// <inheritdoc />
         public override string ToString() => $"{ValueDescriptor}: {Value}";
 
-        public static BoundValue DefaultForType(IValueDescriptor valueDescriptor)
-        {
-            var valueSource = TypeDefaultValueSource.Instance;
-
-            valueSource.TryGetValue(valueDescriptor, null, out var value);
-
-            return new BoundValue(
-                value,
-                valueDescriptor,
-                valueSource);
-        }
-
+        /// <summary>
+        /// Gets a <see cref="BoundValue"/> representing the default value for a specified <see cref="IValueDescriptor"/>.
+        /// </summary>
+        /// <param name="valueDescriptor">A value descriptor for which to get the default value.</param>
+        /// <returns>A <see cref="BoundValue"/> representing the default value for a specified <see cref="IValueDescriptor"/>.</returns>
         public static BoundValue DefaultForValueDescriptor(IValueDescriptor valueDescriptor)
         {
             var valueSource = ValueDescriptorDefaultValueSource.Instance;

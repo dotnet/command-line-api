@@ -10,9 +10,7 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    /// <summary>
-    /// A symbol defining a value that can be passed on the command line to a <see cref="ICommand">command</see> or <see cref="IOption">option</see>.
-    /// </summary>
+    /// <inheritdoc cref="IArgument"/>
     public class Argument : Symbol, IArgument
     {
         private Func<ArgumentResult, object?>? _defaultValueFactory;

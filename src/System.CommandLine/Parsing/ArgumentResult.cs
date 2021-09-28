@@ -34,9 +34,17 @@ namespace System.CommandLine.Parsing
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= Convert(Argument);
 
+        /// <summary>
+        /// Gets the parsed value or the default value for <see cref="Argument"/>.
+        /// </summary>
+        /// <returns>The parsed value or the default value for <see cref="Argument"/></returns>
         public object? GetValueOrDefault() =>
             GetValueOrDefault<object?>();
 
+        /// <summary>
+        /// Gets the parsed value or the default value for <see cref="Argument"/>.
+        /// </summary>
+        /// <returns>The parsed value or the default value for <see cref="Argument"/></returns>
         [return: MaybeNull]
         public T GetValueOrDefault<T>() =>
             GetArgumentConversionResult()

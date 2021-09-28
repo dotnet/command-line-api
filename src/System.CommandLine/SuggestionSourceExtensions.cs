@@ -5,8 +5,16 @@ using System.CommandLine.Suggestions;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// Provides extension methods for working with suggestion sources.
+    /// </summary>
     public static class SuggestionSourceExtensions
     {
+        /// <summary>
+        /// Adds a suggestion source using a delegate.
+        /// </summary>
+        /// <param name="suggestionSources">The list of suggestion sources to add to.</param>
+        /// <param name="suggest">The delegate to be called when calculating suggestions.</param>
         public static void Add(
             this SuggestionSourceList suggestionSources,
             SuggestDelegate suggest)
@@ -24,6 +32,11 @@ namespace System.CommandLine
             suggestionSources.Add(new AnonymousSuggestionSource(suggest));
         }
 
+        /// <summary>
+        /// Adds a suggestion source using a delegate.
+        /// </summary>
+        /// <param name="suggestionSources">The list of suggestion sources to add to.</param>
+        /// <param name="suggestions">A list of strings to be suggested.</param>
         public static void Add(
             this SuggestionSourceList suggestionSources,
             params string[] suggestions)
@@ -38,7 +51,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(suggestions));
             }
 
-            suggestionSources.Add(new AnonymousSuggestionSource((_, __) => suggestions));
+            suggestionSources.Add(new AnonymousSuggestionSource((_, _) => suggestions));
         }
     }
 }

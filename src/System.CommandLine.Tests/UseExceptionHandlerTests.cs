@@ -109,7 +109,7 @@ namespace System.CommandLine.Tests
                       new Command("the-command")
                   })
                   .UseExceptionHandler()
-                  .UseMiddleware(_ => throw new Exception("oops!"))
+                  .AddMiddleware(_ => throw new Exception("oops!"))
                   .Build()
                   .InvokeAsync("the-command", _console);
 

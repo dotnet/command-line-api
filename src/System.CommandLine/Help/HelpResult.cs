@@ -8,6 +8,7 @@ namespace System.CommandLine.Help
 {
     public class HelpResult : IInvocationResult
     {
+        /// <inheritdoc />
         public void Apply(InvocationContext context)
         {
             context.BindingContext

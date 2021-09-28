@@ -7,14 +7,17 @@ using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
+    /// <inheritdoc />
     public abstract class HandlerDescriptor : IMethodDescriptor
     {
         private List<ParameterDescriptor>? _parameterDescriptors;
 
         public abstract ICommandHandler GetCommandHandler();
 
+        /// <inheritdoc />
         public abstract ModelDescriptor? Parent { get; }
 
+        /// <inheritdoc />
         public IReadOnlyList<ParameterDescriptor> ParameterDescriptors =>
             _parameterDescriptors ??= new List<ParameterDescriptor>(InitializeParameterDescriptors());
 

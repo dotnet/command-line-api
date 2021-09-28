@@ -7,8 +7,13 @@ using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
+    /// <summary>
+    /// Creates instances of a specified type by binding properties and constructor parameters from command line input.
+    /// </summary>
     public class ModelBinder
     {
+        /// <param name="modelType">The type that the model binder can bind.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public ModelBinder(Type modelType)
             : this(new AnonymousValueDescriptor(modelType))
             => _ = modelType ?? throw new ArgumentNullException(nameof(modelType));
@@ -19,8 +24,19 @@ namespace System.CommandLine.Binding
             ModelDescriptor = ModelDescriptor.FromType(valueDescriptor.ValueType);
         }
 
+        /// <summary>
+        /// A descriptor for the source value
+        /// </summary>
         public IValueDescriptor ValueDescriptor { get; }
+        
+        /// <summary>
+        /// The descriptor for the model type that the model binder targets.
+        /// </summary>
         public ModelDescriptor ModelDescriptor { get; }
+
+        /// <summary>
+        /// When set to <see langword="true"/>, the model binder will only bind constructor parameters or properties that it has been explicitly configured to bind.
+        /// </summary>
         public bool EnforceExplicitBinding { get; set; }
 
         internal Dictionary<IValueDescriptor, IValueSource> ConstructorArgumentBindingSources { get; } =
@@ -29,23 +45,12 @@ namespace System.CommandLine.Binding
         internal Dictionary<IValueDescriptor, IValueSource> MemberBindingSources { get; } =
             new();
 
-        // Consider deprecating in favor or BindingConfiguration/BindingContext attach validatation. Then make internal.
-        // Or at least rename to "ConfigureBinding" or similar
-        public void BindConstructorArgumentFromValue(ParameterInfo parameter, IValueDescriptor valueDescriptor)
-        {
-            var constructor = FindConstructorOrThrow(parameter, "Parameter must be declared on a constructor.");
-            var ctorDesc = FindModelConstructorDescriptor(constructor);
-
-            if (ctorDesc is null)
-            {
-                throw new ArgumentException(paramName: nameof(parameter),
-                    message: "Parameter is not described by any of the model constructor descriptors.");
-            }
-
-            var paramDesc = ctorDesc.ParameterDescriptors[parameter.Position];
-            ConstructorArgumentBindingSources[paramDesc] = new SpecificSymbolValueSource(valueDescriptor);
-        }
-
+        /// <summary>
+        /// Sets a property using a value descriptor.
+        /// </summary>
+        /// <param name="property">The property to bind.</param>
+        /// <param name="valueDescriptor">A descriptor of the value to be used to set the property.</param>
+        /// <exception cref="ArgumentException"></exception>
         public void BindMemberFromValue(PropertyInfo property, IValueDescriptor valueDescriptor)
         {
             var propertyDescriptor = FindModelPropertyDescriptor(property.PropertyType, property.Name);
@@ -59,11 +64,22 @@ namespace System.CommandLine.Binding
             MemberBindingSources[propertyDescriptor] = new SpecificSymbolValueSource(valueDescriptor);
         }
 
+        /// <summary>
+        /// Creates an instance of the target model type.
+        /// </summary>
+        /// <param name="bindingContext">The binding context from which values are resolved.</param>
+        /// <returns>An instance created from the values in the binding context.</returns>
         public object? CreateInstance(BindingContext bindingContext)
         {
             var (_, newInstance, _) = CreateInstanceInternal(bindingContext);
             return newInstance;
         }
+
+        /// <summary>
+        /// Updates an instance of the target model type.
+        /// </summary>
+        public void UpdateInstance<T>(T instance, BindingContext bindingContext)
+            => UpdateInstanceInternalNotifyIfNonDefaultsUsed(instance, bindingContext);
 
         private (bool success, object? newInstance, bool anyNonDefaults) CreateInstanceInternal(BindingContext bindingContext)
         {
@@ -139,9 +155,6 @@ namespace System.CommandLine.Binding
 
             return (true, newInstance, nonDefaultsUsed);
         }
-
-        public void UpdateInstance<T>(T instance, BindingContext bindingContext)
-            => UpdateInstanceInternalNotifyIfNonDefaultsUsed(instance, bindingContext);
 
         private bool UpdateInstanceInternalNotifyIfNonDefaultsUsed<T>(T instance, BindingContext bindingContext)
         {
@@ -298,7 +311,7 @@ namespace System.CommandLine.Binding
                     return (new BoundValue(parameterDescriptor.GetDefaultValue(), valueDescriptor, valueSource), false);
                 }
 
-                return (BoundValue.DefaultForType(valueDescriptor), false);
+                return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
             }
 
             return (null, false);

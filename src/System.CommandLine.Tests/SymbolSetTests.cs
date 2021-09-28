@@ -86,7 +86,7 @@ namespace System.CommandLine.Tests
 
             rootCommand
                 .Children
-                .Contains("after")
+                .ContainsAlias("after")
                 .Should()
                 .BeTrue();
         }
@@ -105,7 +105,7 @@ namespace System.CommandLine.Tests
 
             rootCommand
                 .Children
-                .Contains("before")
+                .ContainsAlias("before")
                 .Should()
                 .BeFalse();
         }

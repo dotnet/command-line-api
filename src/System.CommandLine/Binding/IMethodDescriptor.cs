@@ -5,10 +5,19 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Binding
 {
+    /// <summary>
+    /// Provides information for binding command line input to a method.
+    /// </summary>
     public interface IMethodDescriptor
     {
+        /// <summary>
+        /// The model descriptor that this constructor belongs to.
+        /// </summary>
         ModelDescriptor? Parent { get; }
 
+        /// <summary>
+        /// Descriptors for the parameters of the constructor.
+        /// </summary>
         IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
     }
 }

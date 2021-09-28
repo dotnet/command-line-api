@@ -3,14 +3,30 @@
 
 namespace System.CommandLine.Binding
 {
+    /// <summary>
+    /// Describes and provides access to a bindable named value.
+    /// </summary>
     public interface IValueDescriptor
     {
+        /// <summary>
+        /// The name of the value.
+        /// </summary>
         string ValueName { get; }
 
+        /// <summary>
+        /// The type of the value.
+        /// </summary>
         Type ValueType { get; }
 
+        /// <summary>
+        /// Gets a value determining whether there is a default value.
+        /// </summary>
         bool HasDefaultValue { get; }
 
+        /// <summary>
+        /// Gets the default value, if any.
+        /// </summary>
+        /// <returns></returns>
         object? GetDefaultValue();
     }
 }

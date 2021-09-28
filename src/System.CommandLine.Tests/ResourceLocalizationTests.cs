@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests
                                  Arity = ArgumentArity.ExactlyOne
                              }
                          })
-                         .UseResources(messages)
+                         .UseLocalizationResources(messages)
                          .Build();
 
             var result = parser.Parse("the-command");

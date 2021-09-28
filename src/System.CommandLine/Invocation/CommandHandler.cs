@@ -6,18 +6,30 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
+    /// <summary>
+    /// Provides methods for creating and working with command handlers.
+    /// </summary>
     public static partial class CommandHandler
     {
+        /// <summary>
+        /// Creates a command handler based on an <see cref="Action"/>.
+        /// </summary>
         public static ICommandHandler Create(Action action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
-        public static ICommandHandler Create<T1>(
-            IValueDescriptor<T1> symbol1,
-            Func<T1, Task> handle) =>
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T,Task}"/>.
+        /// </summary>
+        public static ICommandHandler Create<T>(
+            IValueDescriptor<T> symbol1,
+            Func<T, Task> handle) =>
             new AnonymousCommandHandler(
                 async context => await handle(
                                      context.ParseResult.GetValueFor(symbol1)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -27,6 +39,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol1)!,
                                      context.ParseResult.GetValueFor(symbol2)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -38,6 +53,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol2)!,
                                      context.ParseResult.GetValueFor(symbol3)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -51,6 +69,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol3)!,
                                      context.ParseResult.GetValueFor(symbol4)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -66,6 +87,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol4)!,
                                      context.ParseResult.GetValueFor(symbol5)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -83,6 +107,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol5)!,
                                      context.ParseResult.GetValueFor(symbol6)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -102,6 +129,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol6)!,
                                      context.ParseResult.GetValueFor(symbol7)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -123,6 +153,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol7)!,
                                      context.ParseResult.GetValueFor(symbol8)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -146,6 +179,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol8)!,
                                      context.ParseResult.GetValueFor(symbol9)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -171,6 +207,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol9)!,
                                      context.ParseResult.GetValueFor(symbol10)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -198,6 +237,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol10)!,
                                      context.ParseResult.GetValueFor(symbol11)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -227,6 +269,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol11)!,
                                      context.ParseResult.GetValueFor(symbol12)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -258,6 +303,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol12)!,
                                      context.ParseResult.GetValueFor(symbol13)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -291,6 +339,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol13)!,
                                      context.ParseResult.GetValueFor(symbol14)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,
@@ -326,6 +377,9 @@ namespace System.CommandLine.Invocation
                                      context.ParseResult.GetValueFor(symbol14)!,
                                      context.ParseResult.GetValueFor(symbol15)!));
 
+        /// <summary>
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,Task}"/>.
+        /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
             IValueDescriptor<T1> symbol1,
             IValueDescriptor<T2> symbol2,

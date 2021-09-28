@@ -159,8 +159,8 @@ namespace System.CommandLine.Tests
 
             command.AddValidator(commandResult =>
             {
-                if (commandResult.Children.Contains("--one") &&
-                    commandResult.Children.Contains("--two"))
+                if (commandResult.Children.ContainsAlias("--one") &&
+                    commandResult.Children.ContainsAlias("--two"))
                 {
                     return "Options '--one' and '--two' cannot be used together.";
                 }

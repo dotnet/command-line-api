@@ -260,6 +260,12 @@ namespace System.CommandLine
         public virtual string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType)
             => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption, value, optionAlias, expectedType);
 
+        /// <summary>
+        /// Interpolates values into a localized string.
+        /// </summary>
+        /// <param name="resourceString">The string template into which values will be interpolated.</param>
+        /// <param name="formatArguments">The values to interpolate.</param>
+        /// <returns>The final string after interpolation.</returns>
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {
             if (resourceString is null)

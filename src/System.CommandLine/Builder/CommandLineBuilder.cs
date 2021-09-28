@@ -10,19 +10,33 @@ using System.Linq;
 
 namespace System.CommandLine.Builder
 {
+    /// <summary>
+    /// Enables composition of command line configurations.
+    /// </summary>
     public class CommandLineBuilder : CommandBuilder
     {
         private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
 
+        /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command? rootCommand = null)
             : base(rootCommand ?? new RootCommand())
         {
         }
 
+        /// <summary>
+        /// Determines whether the parser recognizes command line directives.
+        /// </summary>
+        /// <seealso cref="IDirectiveCollection"/>
         public bool EnableDirectives { get; set; } = true;
 
+        /// <summary>
+        /// Determines whether the parser recognize and expands POSIX-style bundled options.
+        /// </summary>
         public bool EnablePosixBundling { get; set; } = true;
 
+        /// <summary>
+        /// Configures the parser's handling of response files. When enabled, a command line token beginning with <c>@</c> that is a valid file path will be expanded as though inserted into the command line. 
+        /// </summary>
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
         internal Func<BindingContext, IHelpBuilder>? HelpBuilderFactory { get; set; }
@@ -35,6 +49,10 @@ namespace System.CommandLine.Builder
 
         internal Resources? Resources { get; set; }
 
+        /// <summary>
+        /// Creates a parser based on the configuration of the command line builder.
+        /// </summary>
+        /// <returns></returns>
         public Parser Build()
         {
             var resources = Resources ?? Resources.Instance;

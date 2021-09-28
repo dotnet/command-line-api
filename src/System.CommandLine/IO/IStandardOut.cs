@@ -13,6 +13,9 @@ namespace System.CommandLine.IO
         /// </summary>
         IStandardStreamWriter Out { get; }
 
+        /// <summary>
+        /// Gets a value that determines whether the stream has been redirected.
+        /// </summary>
         bool IsOutputRedirected { get; }
     }
 }
