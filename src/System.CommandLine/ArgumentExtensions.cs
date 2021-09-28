@@ -118,7 +118,7 @@ namespace System.CommandLine
         /// Configures an argument to accept only values corresponding to a existing files or directories.
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
-        /// <returns>The argument being extended.</returns>
+        /// <returns>The configured argument.</returns>
         public static Argument<T> ExistingOnly<T>(this Argument<T> argument)
             where T : IEnumerable<FileSystemInfo>
         {
