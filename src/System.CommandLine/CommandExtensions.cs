@@ -35,7 +35,7 @@ namespace System.CommandLine
         /// </summary>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <param name="command">The command to invoke.</param>
-        /// <param name="commandLine">The command line to pass.</param>
+        /// <param name="commandLine">The command line to parse.</param>
         /// <param name="console">The console to which output is written during invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
         public static int Invoke(
