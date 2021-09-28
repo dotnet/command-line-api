@@ -5,13 +5,14 @@ namespace System.CommandLine.Parsing
 {
     public class TokenizeError
     {
-        public TokenizeError(string message)
+        internal TokenizeError(string message)
         {
             Message = message ?? throw new ArgumentNullException(nameof(message));
         }
 
         public string Message { get; }
 
+        /// <inheritdoc />
         public override string ToString() => Message;
     }
 }
