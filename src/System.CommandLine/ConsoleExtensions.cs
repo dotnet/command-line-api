@@ -19,7 +19,7 @@ namespace System.CommandLine
             console.Out.Write(value);
 
         /// <summary>
-        /// Writes the current string value, followed by the current line terminator, to the standard output stream.
+        /// Writes the current string value, followed by the current environment's line terminator, to the standard output stream.
         /// </summary>
         /// <param name="console">The console to write to.</param>
         /// <param name="value">The value to write.</param>
