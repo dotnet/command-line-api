@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
                 .AddSuggestions("apple", "banana", "cherry");
 
             _vegetableOption = new Option<string>("--vegetable")
-                .AddSuggestions((_, __) => new[] { "asparagus", "broccoli", "carrot" });
+                .AddSuggestions((_, _) => new[] { "asparagus", "broccoli", "carrot" });
 
             _eatCommand = new Command("eat")
             {
@@ -37,13 +37,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_option_arguments_when_under_subcommand()
         {
-            var rootCommand = new RootCommand
-                              {
-                                  _eatCommand
-                              };
-
-            var parser = new CommandLineBuilder(rootCommand)
-                         .UseDefaults()
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             _eatCommand
+                         })
+                         .UseSuggestDirective()
                          .Build();
 
             var result = parser.Parse($"[suggest:13] \"eat --fruit\"");
@@ -61,13 +59,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_option_arguments_when_under_root_command()
         {
-            var rootCommand = new RootCommand
-                              {
-                                  _fruitOption,
-                                  _vegetableOption
-                              };
-
-            var parser = new CommandLineBuilder(rootCommand)
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             _fruitOption,
+                             _vegetableOption
+                         })
                          .UseSuggestDirective()
                          .Build();
 
@@ -88,12 +84,10 @@ namespace System.CommandLine.Tests
         [InlineData("[suggest:6] \"eat --\"")]
         public async Task It_writes_suggestions_for_option_aliases_under_subcommand(string commandLine)
         {
-            var rootCommand = new RootCommand
-                              {
-                                  _eatCommand
-                              };
-
-            var parser = new CommandLineBuilder(rootCommand)
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             _eatCommand
+                         })
                          .UseSuggestDirective()
                          .Build();
 
@@ -116,13 +110,11 @@ namespace System.CommandLine.Tests
         [InlineData("[suggest:0] ")]
         public async Task It_writes_suggestions_for_option_aliases_under_root_command(string input)
         {
-            var rootCommand = new RootCommand
-                              {
-                                  _vegetableOption,
-                                  _fruitOption
-                              };
-
-            var parser = new CommandLineBuilder(rootCommand)
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             _vegetableOption,
+                             _fruitOption
+                         })
                          .UseSuggestDirective()
                          .Build();
 
@@ -141,12 +133,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_subcommand_aliases_under_root_command()
         {
-            var rootCommand = new RootCommand
-                              {
-                                  _eatCommand
-                              };
-
-            var parser = new CommandLineBuilder(rootCommand)
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             _eatCommand
+                         })
                          .UseSuggestDirective()
                          .Build();
 
@@ -165,13 +155,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_option_aliases_under_root_command()
         {
-            var rootCommand = new RootCommand
-                              {
-                                  _fruitOption,
-                                  _vegetableOption
-                              };
-
-            var parser = new CommandLineBuilder(rootCommand)
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             _fruitOption,
+                             _vegetableOption
+                         })
                          .UseSuggestDirective()
                          .Build();
 
@@ -190,13 +178,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_subcommand_aliases_under_root_command()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(_eatCommand)
-                         .AddCommand(new Command("wash-dishes"))
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             _eatCommand,
+                             new Command("wash-dishes")
+                         })
                          .UseSuggestDirective()
                          .Build();
 
-            var result = parser.Parse($"[suggest:1] \"d\"");
+            var result = parser.Parse("[suggest:1] \"d\"");
 
             var console = new TestConsole();
 
@@ -211,11 +201,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_option_and_subcommand_aliases_under_root_command()
         {
-            var parser = new CommandLineBuilder()
-                         .AddCommand(_eatCommand)
-                         .AddCommand(new Command("wash-dishes"))
-                         .UseDefaults()
-                         .Build();
+            var parser = new CommandLineBuilder(new RootCommand
+                          {
+                              _eatCommand,
+                              new Command("wash-dishes")
+                          })
+                          .UseSuggestDirective()
+                          .UseVersionOption()
+                          .Build();
 
             var result = parser.Parse("[suggest:5] \"--ver\"");
 
@@ -232,17 +225,19 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_option_and_subcommand_aliases_under_root_command_with_an_argument()
         {
-            var command = new Command("parent")
+            var parser = new CommandLineBuilder(new Command("parent")
                           {
                               new Command("child"),
                               new Option("--option1"),
                               new Option("--option2"),
                               new Argument<string>()
-                          };
+                          })
+                          .UseSuggestDirective()
+                          .Build();
 
             var console = new TestConsole();
 
-            await command.InvokeAsync("[suggest:3] \"opt\"", console);
+            await parser.InvokeAsync("[suggest:3] \"opt\"", console);
 
             console.Out
                    .ToString()

@@ -589,8 +589,10 @@ namespace System.CommandLine.Tests
                     .FromAmong("three-a", "three-b", "three-c")
             };
 
-            var parser = new CommandLineBuilder()
-                         .AddCommand(command)
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             command
+                         })
                          .Build();
 
             var result = parser.Parse("outer two b" );
@@ -722,9 +724,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_suggestions_are_omitted()
         {
-            var parser = new CommandLineBuilder()
-                         .AddOption(new Option<string>("--allows-one"))
-                         .AddOption(new Option<string[]>("--allows-many"))
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             new Option<string>("--allows-one"),
+                             new Option<string[]>("--allows-many")
+                         })
                          .UseSuggestDirective()
                          .Build();
 

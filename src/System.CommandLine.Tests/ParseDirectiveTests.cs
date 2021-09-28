@@ -81,11 +81,13 @@ namespace System.CommandLine.Tests
                 new Option<int>("-x")
             };
 
-            int exitCode = await new CommandLineBuilder()
-                .AddCommand(command)
-                .UseParseDirective(errorExitCode: 42)
-                .Build()
-                .InvokeAsync("[parse] -x not-an-int");
+            int exitCode = await new CommandLineBuilder(new RootCommand
+                                 {
+                                     command
+                                 })
+                                 .UseParseDirective(errorExitCode: 42)
+                                 .Build()
+                                 .InvokeAsync("[parse] -x not-an-int");
 
             exitCode.Should().Be(42);
         }

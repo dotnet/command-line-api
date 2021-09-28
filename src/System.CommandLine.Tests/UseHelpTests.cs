@@ -26,8 +26,10 @@ namespace System.CommandLine.Tests
             command.AddCommand(subcommand);
 
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(command)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        command
+                    })
                     .UseHelp()
                     .Build();
 
@@ -48,8 +50,10 @@ namespace System.CommandLine.Tests
             command.AddCommand(subcommand);
 
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(command)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        command
+                    })
                     .UseHelp()
                     .Build();
 
@@ -66,8 +70,10 @@ namespace System.CommandLine.Tests
         public async Task UseHelp_accepts_default_values(string value)
         {
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(new Command("command"))
+                new CommandLineBuilder(new RootCommand
+                    {
+                        new Command("command")
+                    })
                     .UseHelp()
                     .Build();
 
@@ -83,8 +89,10 @@ namespace System.CommandLine.Tests
             command.AddOption(new Option("-h"));
             
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(command)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        command
+                    })
                     .UseHelp()
                     .Build();
 

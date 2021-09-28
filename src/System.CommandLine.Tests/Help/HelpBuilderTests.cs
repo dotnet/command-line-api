@@ -929,8 +929,10 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_is_not_included_if_no_options_configured()
         {
-            var commandLineBuilder = new CommandLineBuilder()
-                                     .AddCommand(new Command("outer", "description for outer"))
+            var commandLineBuilder = new CommandLineBuilder(new RootCommand
+                                     {
+                                         new Command("outer", "description for outer")
+                                     })
                                      .Command;
 
             _helpBuilder.Write(commandLineBuilder, _console);

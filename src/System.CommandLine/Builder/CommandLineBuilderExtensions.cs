@@ -37,46 +37,6 @@ namespace System.CommandLine.Builder
                 }
             });
 
-        public static TBuilder AddArgument<TBuilder>(
-            this TBuilder builder,
-            Argument argument)
-            where TBuilder : CommandBuilder
-        {
-            builder.AddArgument(argument);
-
-            return builder;
-        }
-
-        public static TBuilder AddCommand<TBuilder>(
-            this TBuilder builder,
-            Command command)
-            where TBuilder : CommandBuilder
-        {
-            builder.AddCommand(command);
-
-            return builder;
-        }
-
-        public static TBuilder AddOption<TBuilder>(
-            this TBuilder builder,
-            Option option)
-            where TBuilder : CommandBuilder
-        {
-            builder.AddOption(option);
-
-            return builder;
-        }
-
-        public static TBuilder AddGlobalOption<TBuilder>(
-            this TBuilder builder,
-            Option option)
-            where TBuilder : CommandBuilder
-        {
-            builder.AddGlobalOption(option);
-
-            return builder;
-        }
-
         public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) =>

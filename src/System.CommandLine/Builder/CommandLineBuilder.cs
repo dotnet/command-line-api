@@ -26,6 +26,7 @@ namespace System.CommandLine.Builder
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
         internal Func<BindingContext, IHelpBuilder>? HelpBuilderFactory { get; set; }
+
         internal Action<IHelpBuilder>? ConfigureHelp { get; set; }
 
         internal HelpOption? HelpOption { get; set; }

@@ -198,14 +198,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
         {
-            var parser = new CommandLineBuilder()
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             new Command("the-command")
+                             {
+                                 new Option("-x"),
+                                 new Option("-y"),
+                                 new Option("-z")
+                             }
+                         })
                          .EnablePosixBundling(false)
-                         .AddCommand(new Command("the-command")
-                                     {
-                                         new Option("-x"),
-                                         new Option("-y"),
-                                         new Option("-z")
-                                     })
                          .Build();
 
             var result = parser.Parse("the-command -xyz");
