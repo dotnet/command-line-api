@@ -484,152 +484,152 @@ namespace System.CommandLine.Invocation
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create(Func<Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T>(
             Func<T, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2>(
             Func<T1, T2, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3>(
             Func<T1, T2, T3, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4>(
             Func<T1, T2, T3, T4, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5>(
             Func<T1, T2, T3, T4, T5, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
             Func<T1, T2, T3, T4, T5, T6, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
             Func<T1, T2, T3, T4, T5, T6, T7, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, Task<int>> action) =>
             HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,Task{Int32}}"/>.
+        /// Creates a command handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,Task}"/>.
         /// </summary>
-        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,Task{Int32}}"/> to be called when the command handler is invoked.</param>
+        /// <param name="action">The <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,Task}"/> to be called when the command handler is invoked.</param>
         /// <returns>An instance of <see cref="ICommandHandler"/>.</returns>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<int>> action) =>

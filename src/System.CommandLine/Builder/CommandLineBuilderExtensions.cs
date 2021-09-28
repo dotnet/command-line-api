@@ -644,7 +644,6 @@ ERR:
         /// Enables the use of a option (defaulting to the alias <c>--version</c>) which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
-        /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder)
@@ -680,9 +679,12 @@ ERR:
 
             return builder;
         }
+
+        /// <inheritdoc cref="UseVersionOption(System.CommandLine.Builder.CommandLineBuilder)"/>
+        /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder,
-            params string[]? aliases)
+            params string[] aliases)
         {
             var command = builder.Command;
 
