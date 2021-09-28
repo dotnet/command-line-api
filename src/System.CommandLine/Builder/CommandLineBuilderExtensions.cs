@@ -458,6 +458,7 @@ ERR:
         /// </summary>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use AddMiddleware instead.")]
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             InvocationMiddleware middleware,
@@ -475,6 +476,7 @@ ERR:
         /// </summary>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        [Obsolete("This method is obsolete and will be removed in a future version. Please use AddMiddleware instead.")]
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             Action<InvocationContext> onInvoke,

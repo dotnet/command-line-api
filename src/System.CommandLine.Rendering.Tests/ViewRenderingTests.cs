@@ -34,7 +34,7 @@ namespace System.CommandLine.Rendering.Tests
             };
 
             var parser = new CommandLineBuilder(command)
-                         .UseMiddleware(c =>
+                         .AddMiddleware(c =>
                          {
                              c.BindingContext
                               .AddService(

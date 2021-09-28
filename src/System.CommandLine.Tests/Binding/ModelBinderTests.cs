@@ -655,7 +655,7 @@ namespace System.CommandLine.Tests.Binding
             rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
 
             var parser = new CommandLineBuilder(rootCommand)
-                         .UseMiddleware(context =>
+                         .AddMiddleware(context =>
                          {
                              var binder = new ModelBinder<ClassWithSetter<int>>();
 
@@ -683,7 +683,7 @@ namespace System.CommandLine.Tests.Binding
             rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
 
             var parser = new CommandLineBuilder(rootCommand)
-                         .UseMiddleware(context =>
+                         .AddMiddleware(context =>
                          {
                              var binder = new ModelBinder<ClassWithSetter<int>>();
 

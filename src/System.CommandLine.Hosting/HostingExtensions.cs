@@ -17,7 +17,7 @@ namespace System.CommandLine.Hosting
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null) =>
-            builder.UseMiddleware(async (invocation, next) =>
+            builder.AddMiddleware(async (invocation, next) =>
             {
                 var argsRemaining = invocation.ParseResult.UnparsedTokens.ToArray();
                 var hostBuilder = hostBuilderFactory?.Invoke(argsRemaining)

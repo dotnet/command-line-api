@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests
             var command = new RootCommand();
 
             new CommandLineBuilder(command)
-                .UseMiddleware(context =>
+                .AddMiddleware(context =>
                 {
                     context.Console.Out.Write("hello!");
                 })
