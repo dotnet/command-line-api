@@ -54,7 +54,7 @@ namespace System.CommandLine
         /// <param name="argument">The argument to configure.</param>
         /// <param name="values">The values that are allowed for the argument.</param>
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
-        /// <returns>The argument being extended.</returns>
+        /// <returns>The configured argument.</returns>
         public static TArgument FromAmong<TArgument>(
             this TArgument argument,
             params string[] values)
