@@ -41,6 +41,7 @@ namespace System.CommandLine
             return Path.GetFileNameWithoutExtension(location).Replace(" ", "");
         });
 
+        // FIX: (RootCommand) worthwhile to consolidate calls to Get*Assembly?
         private static Assembly GetAssembly() =>
             Assembly.GetEntryAssembly() ??
             Assembly.GetExecutingAssembly();
