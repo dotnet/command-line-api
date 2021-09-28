@@ -396,6 +396,20 @@ ERR:
             return builder.UseHelp(new HelpOption());
         }
 
+        /// <summary>
+        /// Configures the application to show help when one of the specified option aliases are used on the command line.
+        /// </summary>
+        /// <remarks>The specified aliases will override the default values.</remarks>
+        /// <param name="builder">A command line builder.</param>
+        /// <param name="helpAliases">The set of aliases that can be specified on the command line to request help.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        public static CommandLineBuilder UseHelp(
+            this CommandLineBuilder builder,
+            params string[] helpAliases)
+        {
+            return builder.UseHelp(new HelpOption(helpAliases));
+        }
+
         internal static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
             HelpOption helpOption)
@@ -414,19 +428,6 @@ ERR:
                 }, MiddlewareOrderInternal.HelpOption);
             }
             return builder;
-        }
-
-        /// <summary>
-        /// Configures the application to show help when one of the specified option aliases are used on the command line.
-        /// </summary>
-        /// <remarks>The specified aliases will override the default values.</remarks>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseHelp(
-            this CommandLineBuilder builder,
-            params string[] helpAliases)
-        {
-            return builder.UseHelp(new HelpOption(helpAliases));
         }
 
         /// <summary>
@@ -682,6 +683,7 @@ ERR:
 
         /// <inheritdoc cref="UseVersionOption(System.CommandLine.Builder.CommandLineBuilder)"/>
         /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
+        /// <param name="builder">A command line builder.</param>
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder,
             params string[] aliases)
