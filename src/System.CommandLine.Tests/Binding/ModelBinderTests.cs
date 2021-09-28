@@ -540,29 +540,6 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Explicit_model_binder_binds_only_to_configured_ctor_parameters()
-        {
-            var intOption = new Option<int>("-a");
-            var stringOption = new Option<string>("-b");
-            var parser = new Parser(intOption, stringOption);
-            var ctor = typeof(ClassWithMultiLetterCtorParameters)
-                .GetConstructors(BindingFlags.Public | BindingFlags.Instance)[0];
-            var paramInfo = ctor.GetParameters()[0];
-
-            var bindingContext = new BindingContext(parser.Parse("-a 42 -b Hello"));
-            var binder = new ModelBinder<ClassWithMultiLetterCtorParameters>
-            {
-                EnforceExplicitBinding = true
-            };
-            binder.BindConstructorArgumentFromValue(paramInfo, intOption);
-            var instance = binder.CreateInstance(bindingContext) as ClassWithMultiLetterCtorParameters;
-
-            instance.Should().NotBeNull();
-            instance.IntOption.Should().Be(42);
-            instance.StringOption.Should().Be("the default");
-        }
-
-        [Fact]
         public async Task Bound_array_command_arguments_default_to_an_empty_array_when_not_specified()
         {
             var rootCommand = new RootCommand("Command")
