@@ -287,14 +287,16 @@ ERR:
             {
                 if (context.ParseResult.Directives.TryGetValues("env", out var directives))
                 {
-                    foreach (var envDirective in directives)
+                    for (var i = 0; i < directives.Count; i++)
                     {
+                        var envDirective = directives[i];
                         var components = envDirective.Split(new[] { '=' }, count: 2);
                         var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
                         if (string.IsNullOrEmpty(variable) || components.Length < 2)
                         {
                             continue;
                         }
+
                         var value = components[1].Trim();
                         SetEnvironmentVariable(variable, value);
                     }
