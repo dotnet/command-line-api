@@ -298,7 +298,7 @@ namespace System.CommandLine.Binding
                     return (new BoundValue(parameterDescriptor.GetDefaultValue(), valueDescriptor, valueSource), false);
                 }
 
-                return (BoundValue.DefaultForType(valueDescriptor), false);
+                return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
             }
 
             return (null, false);
