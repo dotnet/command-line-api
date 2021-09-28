@@ -7,6 +7,9 @@ using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
+    /// <summary>
+    /// Provides information for binding command line input to a constructor.
+    /// </summary>
     public class ConstructorDescriptor : IMethodDescriptor
     {
         private List<ParameterDescriptor>? _parameterDescriptors;
@@ -21,8 +24,10 @@ namespace System.CommandLine.Binding
             _constructorInfo = constructorInfo;
         }
 
+        /// <inheritdoc />
         public ModelDescriptor Parent { get; }
 
+        /// <inheritdoc />
         public IReadOnlyList<ParameterDescriptor> ParameterDescriptors =>
             _parameterDescriptors ??=
                 _constructorInfo.GetParameters().Select(p => new ParameterDescriptor(p, this)).ToList();

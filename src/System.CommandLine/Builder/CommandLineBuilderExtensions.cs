@@ -153,9 +153,7 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
-        /// <summary>
-        /// Configures the parser's handling of response files. When enabled, a command line token beginning with <c>@</c> that is a valid file path will be expanded as though inserted into the command line. 
-        /// </summary>
+        /// <inheritdoc cref="CommandLineBuilder.ResponseFileHandling"/>
         /// <param name="responseFileHandling">Specifies whether or how response files are parsed.</param>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>

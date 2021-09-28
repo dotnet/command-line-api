@@ -3,6 +3,9 @@
 
 namespace System.CommandLine.Binding
 {
+    /// <summary>
+    /// A value created by binding command line input.
+    /// </summary>
     public class BoundValue
     {
         internal BoundValue(
@@ -15,12 +18,22 @@ namespace System.CommandLine.Binding
             ValueSource = valueSource;
         }
 
+        /// <summary>
+        /// The descriptor for the bound value.
+        /// </summary>
         public IValueDescriptor ValueDescriptor { get; }
 
+        /// <summary>
+        /// The source from which the value was bound.
+        /// </summary>
         public IValueSource ValueSource { get; }
 
+        /// <summary>
+        /// The value bound from the specified source.
+        /// </summary>
         public virtual object? Value { get; }
 
+        /// <inheritdoc />
         public override string ToString() => $"{ValueDescriptor}: {Value}";
 
         /// <summary>

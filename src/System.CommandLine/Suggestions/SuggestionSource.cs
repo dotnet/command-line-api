@@ -24,6 +24,7 @@ namespace System.CommandLine.Suggestions
 
         /// <summary>
         /// Gets a suggestion source that provides completions for a type (e.g. enum) with well-known values.
+        /// </summary>
         internal static ISuggestionSource ForType(Type type)
         {
             return _suggestionSourcesByType.GetOrAdd(type, t => new SuggestionSourceForType(t));

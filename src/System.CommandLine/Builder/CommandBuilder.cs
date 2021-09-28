@@ -3,9 +3,13 @@
 
 namespace System.CommandLine.Builder
 {
+    /// <summary>
+    /// Enables composition of command line configurations.
+    /// </summary>
     public class CommandBuilder
     {
-        public CommandBuilder(Command command)
+        /// <param name="command"></param>
+        internal CommandBuilder(Command command) 
         {
             Command = command;
         }
