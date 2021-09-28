@@ -304,8 +304,24 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Uses the default configuration.
         /// </summary>
+        /// <remarks>Calling this method is the equivalent to calling:
+        /// <code>
+        ///   builder
+        ///     .UseVersionOption()
+        ///     .UseHelp()
+        ///     .UseEnvironmentVariableDirective()
+        ///     .UseParseDirective()
+        ///     .UseDebugDirective()
+        ///     .UseSuggestDirective()
+        ///     .RegisterWithDotnetSuggest()
+        ///     .UseTypoCorrections()
+        ///     .UseParseErrorReporting()
+        ///     .UseExceptionHandler()
+        ///     .CancelOnProcessTermination();
+        /// </code>
+        /// </remarks>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
@@ -325,9 +341,11 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Enables an exception handler to catch any unhandled exceptions thrown by a command handler during invocation.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
+        /// <param name="onException">A delegate that will be called when an exception is thrown by a command handler.</param>
+        /// <param name="errorExitCode">The exit code to be used when an exception is thrown.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder,
@@ -365,7 +383,14 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Configures the application to show help when one of the following options are specified on the command line:
+        /// <code>
+        ///    -h
+        ///    /h
+        ///    --help
+        ///    -?
+        ///    /?
+        /// </code>
         /// </summary>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
@@ -395,8 +420,9 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Configures the application to show help when one of the specified option aliases are used on the command line.
         /// </summary>
+        /// <remarks>The specified aliases will override the default values.</remarks>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(
@@ -405,12 +431,7 @@ ERR:
         {
             return builder.UseHelp(new HelpOption(helpAliases));
         }
-
-        /// <summary>
-        /// FIX: summary
-        /// </summary>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        
         public static CommandLineBuilder UseHelp<THelpBuilder>(
             this CommandLineBuilder builder,
             Action<THelpBuilder>? configureHelp)
@@ -437,9 +458,10 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Specifies an <see cref="IHelpBuilder"/> to be used to format help output when help is requested.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
+        /// <param name="getHelpBuilder">A delegate that returns an instance of <see cref="IHelpBuilder"/></param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder,
             Func<BindingContext, IHelpBuilder> getHelpBuilder)
@@ -454,10 +476,25 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Adds a middleware delegate to the invocation pipeline called before a command handler is invoked.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
+        /// <param name="middleware">A delegate that will be invoked before a call to a command handler.</param>
+        /// <param name="order">A value indicating the order in which the added delegate will be invoked relative to others in the pipeline.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        public static CommandLineBuilder AddMiddleware(
+            this CommandLineBuilder builder,
+            InvocationMiddleware middleware,
+            MiddlewareOrder order = MiddlewareOrder.Default)
+        {
+            builder.AddMiddleware(
+                middleware,
+                order);
+
+            return builder;
+        }
+
+        /// <inheritdoc cref="AddMiddleware(System.CommandLine.Builder.CommandLineBuilder,System.CommandLine.Invocation.InvocationMiddleware,System.CommandLine.Invocation.MiddlewareOrder)"/>
         [Obsolete("This method is obsolete and will be removed in a future version. Please use AddMiddleware instead.")]
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
@@ -472,10 +509,27 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Adds a middleware delegate to the invocation pipeline called before a command handler is invoked.
         /// </summary>
+        /// <param name="onInvoke">A delegate that will be invoked before a call to a command handler.</param>
+        /// <param name="order">A value indicating the order in which the added delegate will be invoked relative to others in the pipeline.</param>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        public static CommandLineBuilder AddMiddleware(
+            this CommandLineBuilder builder,
+            Action<InvocationContext> onInvoke,
+            MiddlewareOrder order = MiddlewareOrder.Default)
+        {
+            builder.AddMiddleware(async (context, next) =>
+            {
+                onInvoke(context);
+                await next(context);
+            }, order);
+
+            return builder;
+        }
+
+        /// <inheritdoc cref="AddMiddleware(System.CommandLine.Builder.CommandLineBuilder,System.CommandLine.Invocation.InvocationMiddleware,System.CommandLine.Invocation.MiddlewareOrder)"/>
         [Obsolete("This method is obsolete and will be removed in a future version. Please use AddMiddleware instead.")]
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
@@ -492,9 +546,10 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Enables the use of the <c>[parse]</c> directive, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
+        /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseParseDirective(
             this CommandLineBuilder builder,
@@ -540,8 +595,9 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
         /// </summary>
+        /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseSuggestDirective(
@@ -610,24 +666,14 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Enables the use of a option (defaulting to the alias <c>--version</c>) which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
+        /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder,
             params string[]? aliases)
-            => builder.UseVersionOption(null, aliases:aliases);
-
-        /// <summary>
-        /// FIX: summary
-        /// </summary>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseVersionOption(
-            this CommandLineBuilder builder,
-            int? errorExitCode = null,
-            string[]? aliases = null)
         {
             var command = builder.Command;
 
@@ -649,7 +695,7 @@ ERR:
                 {
                     if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
                     {
-                        context.InvocationResult = new ParseErrorResult(errorExitCode);
+                        context.InvocationResult = new ParseErrorResult(null);
                     }
                     else
                     {

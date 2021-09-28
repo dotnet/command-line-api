@@ -14,6 +14,7 @@ namespace System.CommandLine.Invocation
             _errorExitCode = errorExitCode;
         }
 
+        /// <inheritdoc />
         public void Apply(InvocationContext context)
         {
             context.Console.ResetTerminalForegroundColor();

@@ -3,8 +3,15 @@
 
 namespace System.CommandLine.Invocation
 {
+    /// <summary>
+    /// The result of a command handler invocation.
+    /// </summary>
     public interface IInvocationResult
     {
+        /// <summary>
+        /// Applies the result to the current invocation context.
+        /// </summary>
+        /// <param name="context">The context for the current invocation.</param>
         void Apply(InvocationContext context);
     }
 }
