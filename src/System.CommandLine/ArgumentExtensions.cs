@@ -86,7 +86,7 @@ namespace System.CommandLine
         /// Configures an argument to accept only values corresponding to an existing directory.
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
-        /// <returns>The argument being extended.</returns>
+        /// <returns>The configured argument.</returns>
         public static Argument<DirectoryInfo> ExistingOnly(this Argument<DirectoryInfo> argument)
         {
             argument.AddValidator(symbol =>
