@@ -20,7 +20,7 @@ namespace System.CommandLine
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
         /// <param name="argument">The argument for which to add suggestions.</param>
         /// <param name="values">The suggestions to add.</param>
-        /// <returns>The argument being extended.</returns>
+        /// <returns>The configured argument.</returns>
         public static TArgument AddSuggestions<TArgument>(
             this TArgument argument,
             params string[] values)
@@ -37,7 +37,7 @@ namespace System.CommandLine
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
         /// <param name="argument">The argument for which to add suggestions.</param>
         /// <param name="suggest">A <see cref="SuggestDelegate"/> that will be called to provide suggestions.</param>
-        /// <returns>The argument being extended.</returns>
+        /// <returns>The configured argument.</returns>
         public static TArgument AddSuggestions<TArgument>(
             this TArgument argument,
             SuggestDelegate suggest)
@@ -191,7 +191,7 @@ namespace System.CommandLine
         /// </summary>
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
         /// <param name="argument">The argument to configure.</param>
-        /// <returns>The argument being extended.</returns>
+        /// <returns>The configured argument.</returns>
         public static TArgument LegalFileNamesOnly<TArgument>(
             this TArgument argument)
             where TArgument : Argument
@@ -222,7 +222,7 @@ namespace System.CommandLine
         /// </summary>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <param name="argument">The argument to use to parse the command line input.</param>
-        /// <param name="commandLine">A command line string input.</param>
+        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public static ParseResult Parse(
             this Argument argument,

@@ -101,7 +101,7 @@ namespace System.CommandLine
         /// </summary>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <param name="command">The command to use to parse the command line input.</param>
-        /// <param name="commandLine">A command line string input.</param>
+        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public static ParseResult Parse(
             this Command command,

@@ -20,7 +20,7 @@ namespace System.CommandLine
         /// <param name="option">The option to configure.</param>
         /// <param name="values">The values that are allowed for the option.</param>
         /// <typeparam name="TOption">The type of the option's parsed value.</typeparam>
-        /// <returns>The argument being extended.</returns>
+        /// <returns>The configured argument.</returns>
         public static TOption FromAmong<TOption>(
             this TOption option,
             params string[] values)
@@ -170,7 +170,7 @@ namespace System.CommandLine
         /// </summary>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <param name="option">The option to use to parse the command line input.</param>
-        /// <param name="commandLine">A command line string input.</param>
+        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public static ParseResult Parse(
             this Option option,
