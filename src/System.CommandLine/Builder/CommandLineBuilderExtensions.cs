@@ -630,17 +630,19 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Configures the application to provide alternative suggestions when a parse error is detected.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
+        /// <param name="maxLevenshteinDistance">The maximum Levenshtein distance for suggestions based on detected typos in command line input.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseTypoCorrections(
-            this CommandLineBuilder builder, int maxLevenshteinDistance = 3)
+            this CommandLineBuilder builder, 
+            int maxLevenshteinDistance = 3)
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.UnmatchedTokens.Count > 0 &&
-                    context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors)
+                if (context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors &&
+                    context.ParseResult.UnmatchedTokens.Count > 0)
                 {
                     var typoCorrection = new TypoCorrection(maxLevenshteinDistance);
 
@@ -653,9 +655,10 @@ ERR:
         }
 
         /// <summary>
-        /// FIX: summary
+        /// Specifies localization resources to be used when displaying help, error messages, and other user-facing strings.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
+        /// <param name="validationMessages">The localizations resources to use.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseLocalizationResources(
             this CommandLineBuilder builder,
