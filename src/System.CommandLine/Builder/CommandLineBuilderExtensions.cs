@@ -226,8 +226,7 @@ ERR:
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseDebugDirective(
-            this CommandLineBuilder builder,
-            int? errorExitCode = null)
+            this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) =>
             {
@@ -240,7 +239,7 @@ ERR:
                     if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
                         context.Console.Error.WriteLine(context.Resources.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
-                        context.ExitCode = errorExitCode ?? 1;
+                        context.ExitCode = 1;
                         return;
                     }
                     else
@@ -258,7 +257,7 @@ ERR:
                         else
                         {
                             context.Console.Error.WriteLine(context.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
-                            context.ExitCode = errorExitCode ?? 1;
+                            context.ExitCode = 1;
                             return;
                         }
                     }
@@ -428,31 +427,6 @@ ERR:
             params string[] helpAliases)
         {
             return builder.UseHelp(new HelpOption(helpAliases));
-        }
-        
-        public static CommandLineBuilder UseHelp<THelpBuilder>(
-            this CommandLineBuilder builder,
-            Action<THelpBuilder>? configureHelp)
-            where THelpBuilder : IHelpBuilder
-        {
-            return builder.UseHelp(new HelpOption(), configureHelp);
-        }
-
-        internal static CommandLineBuilder UseHelp<THelpBuilder>(
-            this CommandLineBuilder builder,
-            HelpOption helpOption,
-            Action<THelpBuilder>? configureHelp)
-            where THelpBuilder : IHelpBuilder
-        {
-            if (configureHelp is { })
-            {
-                builder.ConfigureHelp = helpBuilder => configureHelp((THelpBuilder)helpBuilder);
-            }
-            else
-            {
-                builder.ConfigureHelp = null;
-            }
-            return builder.UseHelp(helpOption);
         }
 
         /// <summary>
@@ -673,6 +647,40 @@ ERR:
         /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseVersionOption(
+            this CommandLineBuilder builder)
+        {
+            if (builder.VersionOption is not null)
+            {
+                return builder;
+            }
+
+            var versionOption = new VersionOption();
+
+            builder.VersionOption = versionOption;
+            builder.Command.AddOption(versionOption);
+
+            builder.AddMiddleware(async (context, next) =>
+            {
+                if (context.ParseResult.FindResultFor(versionOption) is { })
+                {
+                    if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
+                    {
+                        context.InvocationResult = new ParseErrorResult(null);
+                    }
+                    else
+                    {
+                        context.Console.Out.WriteLine(_assemblyVersion.Value);
+                    }
+                }
+                else
+                {
+                    await next(context);
+                }
+            }, MiddlewareOrderInternal.VersionOption);
+
+            return builder;
+        }
+        public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder,
             params string[]? aliases)
         {
@@ -683,9 +691,7 @@ ERR:
                 return builder;
             }
 
-            const string defaultVersionAlias = "--version";
-            var versionOption = new VersionOption(
-                aliases ?? new[] { defaultVersionAlias });
+            var versionOption = new VersionOption(aliases);
 
             builder.VersionOption = versionOption;
             command.AddOption(versionOption);

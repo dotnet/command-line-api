@@ -105,8 +105,7 @@ namespace System.CommandLine
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public static ParseResult Parse(
             this Command command,
-            string commandLine,
-            IReadOnlyCollection<char>? delimiters = null) =>
+            string commandLine) =>
             new Parser(command).Parse(commandLine);
 
         private const string _messageForWhenGeneratorIsNotInUse =

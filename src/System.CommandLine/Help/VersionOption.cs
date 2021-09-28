@@ -8,12 +8,22 @@ namespace System.CommandLine.Help
 {
     internal class VersionOption : Option
     {
-        public VersionOption(
-            string[] aliases)
-            : base(aliases)
+        public VersionOption() : base("--version")
         {
             DisallowBinding = true;
 
+            AddValidators();
+        }
+
+        public VersionOption(string[] aliases) : base(aliases)
+        {
+            DisallowBinding = true;
+
+            AddValidators();
+        }
+
+        private void AddValidators()
+        {
             AddValidator(result =>
             {
                 if (result.Parent is { } parent &&
@@ -25,16 +35,16 @@ namespace System.CommandLine.Help
 
                 return null;
             });
+        }
 
-            static bool IsNotImplicit(SymbolResult symbolResult)
+        private static bool IsNotImplicit(SymbolResult symbolResult)
+        {
+            return symbolResult switch
             {
-                return symbolResult switch
-                {
-                    ArgumentResult argumentResult => !argumentResult.IsImplicit,
-                    OptionResult optionResult => !optionResult.IsImplicit,
-                    _ => true
-                };
-            }
+                ArgumentResult argumentResult => !argumentResult.IsImplicit,
+                OptionResult optionResult => !optionResult.IsImplicit,
+                _ => true
+            };
         }
 
         internal override Argument Argument => Argument.None();

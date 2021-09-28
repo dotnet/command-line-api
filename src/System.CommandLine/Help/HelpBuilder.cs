@@ -99,7 +99,6 @@ namespace System.CommandLine.Help
                     yield return FormatArgumentUsage(parentCommand.Arguments);
                 }
 
-
                 var hasCommandWithHelp = command.Children
                     .OfType<ICommand>()
                     .Any(x => !x.IsHidden);
