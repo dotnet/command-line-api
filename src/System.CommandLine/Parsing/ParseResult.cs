@@ -8,6 +8,9 @@ using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Describes the results of parsing a command line input based on a specific parser configuration.
+    /// </summary>
     public class ParseResult
     {
         private readonly List<ParseError> _errors;
@@ -68,16 +71,33 @@ namespace System.CommandLine.Parsing
 
         public CommandResult CommandResult { get; }
 
+        /// <summary>
+        /// The parser used to produce the parse result.
+        /// </summary>
         public Parser Parser { get; }
 
         public CommandResult RootCommandResult => _rootCommandResult;
 
+        /// <summary>
+        /// Gets the parse errors found while parsing command line input.
+        /// </summary>
         public IReadOnlyCollection<ParseError> Errors => _errors;
 
+        /// <summary>
+        /// Gets the directives found while parsing command line input.
+        /// </summary>
+        /// <remarks>If <see cref="CommandLineConfiguration.EnableDirectives"/> is set to <see langword="false"/>, then this collection will be empty.</remarks>
         public IDirectiveCollection Directives { get; }
 
+        /// <summary>
+        /// Gets the tokens identified while parsing command line input.
+        /// </summary>
         public IReadOnlyList<Token> Tokens { get; }
 
+        /// <summary>
+        /// Holds the value of a complete command line input prior to splitting and tokenization, when provided.
+        /// </summary>
+        /// <remarks>This will not be set when the parser is called from <c>Program.Main</c>. It is primarily used when calculating suggestions via the <c>dotnet-suggest</c> tool.</remarks>
         internal string? RawInput { get; }
 
         public IReadOnlyList<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();

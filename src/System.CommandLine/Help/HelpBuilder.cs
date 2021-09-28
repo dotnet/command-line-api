@@ -3,21 +3,18 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Help
 {
+    /// <inheritdoc />
     public class HelpBuilder : IHelpBuilder
     {
         private const string Indent = "  ";
 
         private Dictionary<ISymbol, Customization> Customizations { get; } = new();
-
-        protected Resources Resources { get; }
-        public int MaxWidth { get; }
 
         public HelpBuilder(Resources resources, int maxWidth = int.MaxValue)
         {
@@ -25,6 +22,10 @@ namespace System.CommandLine.Help
             if (maxWidth <= 0) maxWidth = int.MaxValue;
             MaxWidth = maxWidth;
         }
+
+        protected Resources Resources { get; }
+
+        public int MaxWidth { get; }
 
         public virtual void Write(ICommand command, TextWriter writer)
         {

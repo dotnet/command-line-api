@@ -144,7 +144,7 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var suggestions = command.GetSuggestions("my");
+            var suggestions = command.Parse("my").GetSuggestions();
 
             suggestions.Should().BeEquivalentSequenceTo("mysubcommand", "andmyothersubcommand", "andmythirdsubcommand");
         }

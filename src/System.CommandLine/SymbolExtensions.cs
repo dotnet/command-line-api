@@ -8,7 +8,7 @@ namespace System.CommandLine
     /// <summary>
     /// Provides extension methods for symbols.
     /// </summary>
-    public static class SymbolExtensions
+    internal static class SymbolExtensions
     {
         internal static IReadOnlyList<IArgument> Arguments(this ISymbol symbol)
         {
@@ -29,11 +29,6 @@ namespace System.CommandLine
                 default:
                     throw new NotSupportedException();
             }
-        }
-
-        public static IEnumerable<string?> GetSuggestions(this ISymbol symbol, string? textToMatch = null)
-        {
-            return symbol.GetSuggestions(null, textToMatch);
         }
     }
 }

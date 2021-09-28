@@ -10,10 +10,20 @@ namespace System.CommandLine
     /// </summary>
     public static class ConsoleExtensions
     {
-        public static void Write(this IConsole console, string value) => 
+        /// <summary>
+        /// Writes the current string value to the standard output stream.
+        /// </summary>
+        /// <param name="console">The console to write to.</param>
+        /// <param name="value">The value to write.</param>
+        public static void Write(this IConsole console, string value) =>
             console.Out.Write(value);
 
-        public static void WriteLine(this IConsole console, string value) => 
+        /// <summary>
+        /// Writes the current string value, followed by the current line terminator, to the standard output stream.
+        /// </summary>
+        /// <param name="console">The console to write to.</param>
+        /// <param name="value">The value to write.</param>
+        public static void WriteLine(this IConsole console, string value) =>
             console.Out.WriteLine(value);
     }
 }
