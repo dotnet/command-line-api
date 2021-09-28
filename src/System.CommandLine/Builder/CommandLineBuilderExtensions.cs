@@ -37,6 +37,11 @@ namespace System.CommandLine.Builder
                 }
             });
 
+        /// <summary>
+        /// Enables signaling and handling of process termination via a <see cref="CancellationToken"/> that can be passed to a <see cref="ICommandHandler"/> during invocation.
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder)
         {
             builder.AddMiddleware(async (context, next) =>
@@ -58,7 +63,7 @@ namespace System.CommandLine.Builder
                         // finish and Main will return.
                         args.Cancel = true;
                     };
-                    processExitHandler = (_1, _2) =>
+                    processExitHandler = (_, _) =>
                     {
                         cts.Cancel();
                         // The process exits as soon as the event handler returns.
@@ -103,6 +108,13 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        /// <summary>
+        /// Enables the parser to recognize command line directives.
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <param name="value">If set to <see langword="true"/>, then directives are enabled. Otherwise, they are parsed like any other token.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        /// <seealso cref="IDirectiveCollection"/>
         public static CommandLineBuilder EnableDirectives(
             this CommandLineBuilder builder,
             bool value = true)
@@ -111,6 +123,28 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        /// <summary>
+        /// Enables the parser to recognize and expand POSIX-style bundled options.
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <param name="value">If set to <see langword="true"/>, then POSIX bundles are parsed. ; otherwise, <see langword="false"/>.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        /// <remarks>
+        /// POSIX conventions recommend that single-character options be allowed to be specified together after a single <c>-</c> prefix. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, the following command lines are equivalent:
+        /// 
+        /// <code>
+        ///     &gt; myapp -a -b -c
+        ///     &gt; myapp -abc
+        /// </code>
+        /// 
+        /// If an argument is provided after an option bundle, it applies to the last option in the bundle. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, all of the following command lines are equivalent:
+        /// <code>
+        ///     &gt; myapp -a -b -c arg
+        ///     &gt; myapp -abc arg
+        ///     &gt; myapp -abcarg
+        /// </code>
+        ///
+        /// </remarks>
         public static CommandLineBuilder EnablePosixBundling(
             this CommandLineBuilder builder,
             bool value = true)
@@ -119,6 +153,12 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        /// <summary>
+        /// Configures the parser's handling of response files. When enabled, a command line token beginning with <c>@</c> that is a valid file path will be expanded as though inserted into the command line. 
+        /// </summary>
+        /// <param name="responseFileHandling">Specifies whether or how response files are parsed.</param>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder ParseResponseFileAs(
             this CommandLineBuilder builder,
             ResponseFileHandling responseFileHandling)
@@ -127,6 +167,12 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        /// <summary>
+        /// Ensures that the application is registered with the <c>dotnet-suggest</c> tool to enable command line completions.
+        /// </summary>
+        /// <remarks>For command line completions to work, users must install the <c>dotnet-suggest</c> tool as well as the appropriate shim script for their shell.</remarks>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder RegisterWithDotnetSuggest(
             this CommandLineBuilder builder)
         {
@@ -156,12 +202,12 @@ namespace System.CommandLine.Builder
 OUT:
 {2}
 ERR:
-{3}", dotnetSuggestProcess.StartInfo.FileName, dotnetSuggestProcess.ExitCode, stdOut.ToString(), stdErr.ToString());
+{3}", dotnetSuggestProcess.StartInfo.FileName, dotnetSuggestProcess.ExitCode, stdOut, stdErr);
                     }
                     catch (Exception exception)
                     {
-                        return string.Format(@"Exception during registration:
-{0}", exception);
+                        return $@"Exception during registration:
+{exception}";
                     }
                     finally
                     {
@@ -176,6 +222,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// Enables the use of the <c>[debug]</c> directive, which will pause invocation prior to invoking any command handler so that developers can attach a debugger.
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseDebugDirective(
             this CommandLineBuilder builder,
             int? errorExitCode = null)
@@ -221,6 +272,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseEnvironmentVariableDirective(
             this CommandLineBuilder builder)
         {
@@ -247,6 +303,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
         {
             return builder
@@ -263,6 +324,11 @@ ERR:
                    .CancelOnProcessTermination();
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseExceptionHandler(
             this CommandLineBuilder builder,
             Action<Exception, InvocationContext>? onException = null,
@@ -298,6 +364,11 @@ ERR:
             }
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
             return builder.UseHelp(new HelpOption());
@@ -323,6 +394,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
             params string[] helpAliases)
@@ -330,6 +406,11 @@ ERR:
             return builder.UseHelp(new HelpOption(helpAliases));
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp<THelpBuilder>(
             this CommandLineBuilder builder,
             Action<THelpBuilder>? configureHelp)
@@ -355,6 +436,11 @@ ERR:
             return builder.UseHelp(helpOption);
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder,
             Func<BindingContext, IHelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
@@ -367,6 +453,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             InvocationMiddleware middleware,
@@ -379,6 +470,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             Action<InvocationContext> onInvoke,
@@ -393,6 +489,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseParseDirective(
             this CommandLineBuilder builder,
             int? errorExitCode = null)
@@ -412,6 +513,12 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// Configures the command line to write error information to standard error when there are errors parsing command line input.
+        /// </summary>
+        /// <param name="errorExitCode">The exit code to use when parser errors occur.</param>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseParseErrorReporting(
             this CommandLineBuilder builder,
             int? errorExitCode = null)
@@ -430,6 +537,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseSuggestDirective(
             this CommandLineBuilder builder)
         {
@@ -459,6 +571,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseTypoCorrections(
             this CommandLineBuilder builder, int maxLevenshteinDistance = 3)
         {
@@ -477,6 +594,11 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseResources(
             this CommandLineBuilder builder,
             Resources validationMessages)
@@ -485,11 +607,21 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder,
             params string[]? aliases)
             => builder.UseVersionOption(null, aliases:aliases);
 
+        /// <summary>
+        /// FIX: summary
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseVersionOption(
             this CommandLineBuilder builder,
             int? errorExitCode = null,

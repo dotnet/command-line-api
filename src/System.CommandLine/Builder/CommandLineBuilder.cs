@@ -19,8 +19,15 @@ namespace System.CommandLine.Builder
         {
         }
 
+        /// <summary>
+        /// Determines whether the parser recognizes command line directives.
+        /// </summary>
+        /// <seealso cref="IDirectiveCollection"/>
         public bool EnableDirectives { get; set; } = true;
 
+        /// <summary>
+        /// Determines whether the parser recognize and expands POSIX-style bundled options.
+        /// </summary>
         public bool EnablePosixBundling { get; set; } = true;
 
         public ResponseFileHandling ResponseFileHandling { get; set; }
