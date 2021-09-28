@@ -1,8 +1,8 @@
-﻿using FluentAssertions;
-using System.CommandLine.Builder;
+﻿using System.CommandLine.Builder;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 using static System.Environment;
 
@@ -18,8 +18,10 @@ namespace System.CommandLine.Tests.Invocation
             var option = new Option("info");
 
             var parser =
-                new CommandLineBuilder()
-                    .AddOption(option)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        option
+                    })
                     .UseTypoCorrections()
                     .Build();
 
@@ -36,8 +38,10 @@ namespace System.CommandLine.Tests.Invocation
             var option = new Option("info");
 
             var parser =
-                new CommandLineBuilder()
-                    .AddOption(option)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        option
+                    })
                     .UseTypoCorrections()
                     .Build();
 
@@ -54,8 +58,10 @@ namespace System.CommandLine.Tests.Invocation
             var command = new Command("restore");
 
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(command)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        command
+                    })
                     .UseTypoCorrections()
                     .Build();
 
@@ -69,12 +75,18 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_there_are_multiple_matches_it_picks_the_best_matches()
         {
+            var fromCommand = new Command("from");
+            var seenCommand = new Command("seen");
+            var aOption = new Option("a");
+            var beenOption = new Option("been");
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(new Command("from"))
-                    .AddCommand(new Command("seen"))
-                    .AddOption(new Option("a"))
-                    .AddOption(new Option("been"))
+                new CommandLineBuilder(new RootCommand
+                    {
+                        fromCommand,
+                        seenCommand,
+                        aOption,
+                        beenOption
+                    })
                     .UseTypoCorrections()
                     .Build();
 
@@ -88,11 +100,17 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Hidden_commands_are_not_suggested()
         {
+            var fromCommand = new Command("from");
+            var seenCommand = new Command("seen") { IsHidden = true };
+            var beenCommand = new Command("been");
+
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(new Command("from"))
-                    .AddCommand(new Command("seen") { IsHidden = true })
-                    .AddCommand(new Command("been"))
+                new CommandLineBuilder(new RootCommand
+                    {
+                        fromCommand,
+                        seenCommand,
+                        beenCommand
+                    })
                     .UseTypoCorrections()
                     .Build();
 
@@ -106,10 +124,15 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Arguments_are_not_suggested()
         {
+            var argument = new Argument("the-argument");
+            var command = new Command("been");
+
             var parser =
-                new CommandLineBuilder()
-                    .AddArgument(new Argument("the-argument"))
-                    .AddCommand(new Command("been"))
+                new CommandLineBuilder(new RootCommand
+                    {
+                        argument,
+                        command
+                    })
                     .UseTypoCorrections()
                     .Build();
 
@@ -123,11 +146,17 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Hidden_options_are_not_suggested()
         {
+            var fromOption = new Option("from");
+            var seenOption = new Option("seen") { IsHidden = true };
+            var beenOption = new Option("been");
+
             var parser =
-                new CommandLineBuilder()
-                    .AddOption(new Option("from"))
-                    .AddOption(new Option("seen") { IsHidden = true })
-                    .AddOption(new Option("been"))
+                new CommandLineBuilder(new RootCommand
+                    {
+                        fromOption,
+                        seenOption,
+                        beenOption
+                    })
                     .UseTypoCorrections()
                     .Build();
             var result = parser.Parse("een");
@@ -141,9 +170,11 @@ namespace System.CommandLine.Tests.Invocation
         public async Task Suggestions_favor_matches_with_prefix()
         {
             var parser =
-                new CommandLineBuilder()
-                    .AddOption(new Option(new [] {"/call", "-call", "--call"}))
-                    .AddOption(new Option(new [] {"/email", "-email", "--email"}))
+                new CommandLineBuilder(new RootCommand
+                    {
+                        new Option(new[] { "/call", "-call", "--call" }),
+                        new Option(new[] { "/email", "-email", "--email" })
+                    })
                     .UseTypoCorrections()
                     .Build();
             var result = parser.Parse("-all");

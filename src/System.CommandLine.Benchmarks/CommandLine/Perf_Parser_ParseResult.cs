@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
@@ -24,8 +23,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             var option = new Option("-opt");
 
             _testParser =
-                new CommandLineBuilder()
-                    .AddOption(option)
+                new CommandLineBuilder(new RootCommand { option })
                     .UseParseDirective()
                     .Build();
         }
