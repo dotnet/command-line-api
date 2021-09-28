@@ -601,7 +601,7 @@ ERR:
         /// </summary>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseResources(
+        public static CommandLineBuilder UseLocalizationResources(
             this CommandLineBuilder builder,
             Resources validationMessages)
         {
