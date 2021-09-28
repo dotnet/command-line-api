@@ -48,7 +48,7 @@ namespace System.CommandLine
         /// Parses and invokes a command.
         /// </summary>
         /// <param name="command">The command to invoke.</param>
-        /// <param name="args">The arguments to pass.</param>
+        /// <param name="args">The arguments to parse.</param>
         /// <param name="console">The console to which output is written during invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
         public static async Task<int> InvokeAsync(
