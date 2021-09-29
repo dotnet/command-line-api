@@ -17,8 +17,7 @@ namespace System.CommandLine.Parsing
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        /// <param name="symbols">The symbols to be added to the parser's root command.</param>
-        public Parser(params Symbol[] symbols) : this(new CommandLineConfiguration(symbols))
+        public Parser(Symbol symbol) : this(new CommandLineConfiguration(symbol))
         {
         }
         

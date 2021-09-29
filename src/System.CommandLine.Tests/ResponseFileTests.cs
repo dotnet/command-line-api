@@ -306,7 +306,7 @@ namespace System.CommandLine.Tests
                 new Argument<List<string>>()
             };
             var configuration = new CommandLineConfiguration(
-                new[] { command },
+                command,
                 responseFileHandling: ResponseFileHandling.Disabled);
             var parser = new Parser(configuration);
 

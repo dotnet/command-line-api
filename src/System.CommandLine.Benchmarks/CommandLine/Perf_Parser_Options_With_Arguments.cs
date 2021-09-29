@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Parsing;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
@@ -52,7 +53,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public void SetupParserFromOptionsWithArguments_Parse()
         {
             var testSymbolsArr = GenerateTestOptions(TestOptionsCount, ArgumentArity.OneOrMore).ToArray();
-            _testParser = new Parser(testSymbolsArr);
+            _testParser = testSymbolsArr.CreateParser();
             _testSymbolsAsString = GenerateTestOptionsWithArgumentsAsStringExpr(testSymbolsArr.Length, TestArgumentsCount);
         }
 

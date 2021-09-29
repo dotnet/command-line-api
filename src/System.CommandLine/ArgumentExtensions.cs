@@ -229,12 +229,9 @@ namespace System.CommandLine
             string commandLine) =>
             new Parser(
                 new CommandLineConfiguration(
-                    new[]
+                    new RootCommand
                     {
-                        new RootCommand
-                        {
-                            argument
-                        },
+                        argument
                     })).Parse(commandLine);
 
         /// <summary>
@@ -248,12 +245,9 @@ namespace System.CommandLine
             string[] args) =>
             new Parser(
                 new CommandLineConfiguration(
-                    new[]
+                    new RootCommand
                     {
-                        new RootCommand
-                        {
-                            argument
-                        },
+                        argument
                     })).Parse(args);
     }
 }

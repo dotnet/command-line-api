@@ -143,12 +143,9 @@ namespace System.CommandLine.Tests
         {
             var parser = new Parser(
                 new CommandLineConfiguration(
-                    new[]
+                    new RootCommand
                     {
-                        new RootCommand
-                        {
-                            new Argument<List<string>>()
-                        }
+                        new Argument<List<string>>()
                     },
                     enableDirectives: false));
 
