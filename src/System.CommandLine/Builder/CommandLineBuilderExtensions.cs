@@ -25,7 +25,7 @@ namespace System.CommandLine.Builder
         private static readonly Lazy<string> _assemblyVersion =
             new(() =>
             {
-                var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+                var assembly = RootCommand.GetAssembly();
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
                 if (assemblyVersionAttribute is null)
                 {
@@ -415,7 +415,7 @@ ERR:
             this CommandLineBuilder builder,
             params string[] helpAliases)
         {
-            return builder.UseHelp(new HelpOption(helpAliases));
+            return builder.UseHelp(new HelpOption(helpAliases, builder));
         }
 
         internal static CommandLineBuilder UseHelp(
@@ -662,7 +662,7 @@ ERR:
                 return builder;
             }
 
-            var versionOption = new VersionOption();
+            var versionOption = new VersionOption(builder);
 
             builder.VersionOption = versionOption;
             builder.Command.AddOption(versionOption);
@@ -703,7 +703,7 @@ ERR:
                 return builder;
             }
 
-            var versionOption = new VersionOption(aliases);
+            var versionOption = new VersionOption(aliases, builder);
 
             builder.VersionOption = versionOption;
             command.AddOption(versionOption);

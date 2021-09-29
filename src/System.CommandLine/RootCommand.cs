@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace System.CommandLine
 {
@@ -16,35 +17,40 @@ namespace System.CommandLine
     /// </remarks>
     public class RootCommand : Command
     {
+        private static readonly Lazy<Assembly> _assembly =
+            new(() => Assembly.GetEntryAssembly() ??
+                      Assembly.GetExecutingAssembly(),
+                LazyThreadSafetyMode.PublicationOnly);
+
+        private static readonly Lazy<string> _executablePath =
+            new(() => GetAssembly().Location,
+                LazyThreadSafetyMode.PublicationOnly);
+
+        private static readonly Lazy<string> _executableName =
+            new(() =>
+                {
+                    var location = _executablePath.Value;
+                    if (string.IsNullOrEmpty(location))
+                    {
+                        var commandLineArgs = Environment.GetCommandLineArgs();
+
+                        if (commandLineArgs.Length > 0)
+                        {
+                            location = commandLineArgs[0];
+                        }
+                    }
+
+                    return Path.GetFileNameWithoutExtension(location).Replace(" ", "");
+                },
+                LazyThreadSafetyMode.PublicationOnly);
+
         /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
         {
         }
 
-        private static readonly Lazy<string> _executablePath = new(() =>
-        {
-            return GetAssembly().Location;
-        });
-
-        private static readonly Lazy<string> _executableName = new(() =>
-        {
-            var location = _executablePath.Value;
-            if (string.IsNullOrEmpty(location))
-            {
-                var commandLineArgs = Environment.GetCommandLineArgs();
-
-                if (commandLineArgs.Length > 0)
-                {
-                    location = commandLineArgs[0];
-                }
-            }
-            return Path.GetFileNameWithoutExtension(location).Replace(" ", "");
-        });
-
         // FIX: (RootCommand) worthwhile to consolidate calls to Get*Assembly?
-        private static Assembly GetAssembly() =>
-            Assembly.GetEntryAssembly() ??
-            Assembly.GetExecutingAssembly();
+        internal static Assembly GetAssembly() => _assembly.Value;
 
         /// <summary>
         /// The name of the currently running executable.
