@@ -78,7 +78,7 @@ namespace System.CommandLine
                     a.Tokens
                      .Select(t => t.Value)
                      .Where(filePath => !File.Exists(filePath))
-                     .Select(a.Resources.FileDoesNotExist)
+                     .Select(a.LocalizationResources.FileDoesNotExist)
                      .FirstOrDefault());
 
             return option;
@@ -96,7 +96,7 @@ namespace System.CommandLine
                     a.Tokens
                      .Select(t => t.Value)
                      .Where(filePath => !Directory.Exists(filePath))
-                     .Select(a.Resources.DirectoryDoesNotExist)
+                     .Select(a.LocalizationResources.DirectoryDoesNotExist)
                      .FirstOrDefault());
 
             return option;
@@ -114,7 +114,7 @@ namespace System.CommandLine
                     a.Tokens
                      .Select(t => t.Value)
                      .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                     .Select(a.Resources.FileOrDirectoryDoesNotExist)
+                     .Select(a.LocalizationResources.FileOrDirectoryDoesNotExist)
                      .FirstOrDefault());
 
             return option;

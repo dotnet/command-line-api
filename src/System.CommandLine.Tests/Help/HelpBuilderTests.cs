@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests.Help
         private HelpBuilder GetHelpBuilder(int maxWidth)
         {
             return new HelpBuilder(
-                Resources.Instance,
+                LocalizationResources.Instance,
                 maxWidth
             );
         }
@@ -133,7 +133,7 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new RootCommand();
             rootCommand.AddCommand(command);
 
-            new HelpBuilder(Resources.Instance, LargeMaxWidth).Write(command, _console);
+            new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth).Write(command, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
@@ -1654,7 +1654,7 @@ namespace System.CommandLine.Tests.Help
         [InlineData(int.MinValue)]
         public void Constructor_ignores_non_positive_max_width(int maxWidth)
         {
-            var helpBuilder = new HelpBuilder(Resources.Instance, maxWidth);
+            var helpBuilder = new HelpBuilder(LocalizationResources.Instance, maxWidth);
             Assert.Equal(int.MaxValue, helpBuilder.MaxWidth);
         }
 
@@ -1663,7 +1663,7 @@ namespace System.CommandLine.Tests.Help
             private readonly string _theTextToAdd;
 
             public CustomHelpBuilderThatAddsTextAfterDefaultText(string theTextToAdd) 
-                : base(Resources.Instance)
+                : base(CommandLine.LocalizationResources.Instance)
             {
                 _theTextToAdd = theTextToAdd;
             }

@@ -11,17 +11,17 @@ namespace System.CommandLine
     /// <summary>
     /// Provides localizable strings for help and error messages.
     /// </summary>
-    public class Resources
+    public class LocalizationResources
     {
         /// <summary>
-        /// Gets a global instance of the <see cref="Resources"/> class.
+        /// Gets a global instance of the <see cref="LocalizationResources"/> class.
         /// </summary>
-        public static Resources Instance { get; } = new();
+        public static LocalizationResources Instance { get; } = new();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Resources"/> class.
+        /// Initializes a new instance of the <see cref="LocalizationResources"/> class.
         /// </summary>
-        protected Resources()
+        protected LocalizationResources()
         {
         }
 

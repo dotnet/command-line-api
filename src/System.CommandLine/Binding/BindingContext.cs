@@ -123,7 +123,7 @@ namespace System.CommandLine.Binding
         internal bool TryBindToScalarValue(
             IValueDescriptor valueDescriptor,
             IValueSource valueSource,
-            Resources resources,
+            LocalizationResources localizationResources,
             out BoundValue? boundValue)
         {
             if (valueSource.TryGetValue(valueDescriptor, this, out var value))
@@ -139,7 +139,7 @@ namespace System.CommandLine.Binding
                         valueDescriptor as IArgument ?? new Argument(valueDescriptor.ValueName), 
                         valueDescriptor.ValueType, 
                         value,
-                        resources);
+                        localizationResources);
 
                     if (parsed is SuccessfulArgumentConversionResult successful)
                     {

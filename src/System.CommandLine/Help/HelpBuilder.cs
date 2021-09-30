@@ -16,12 +16,12 @@ namespace System.CommandLine.Help
 
         private Dictionary<ISymbol, Customization> Customizations { get; } = new();
 
-        /// <param name="resources"></param>
+        /// <param name="localizationResources"></param>
         /// <param name="maxWidth"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public HelpBuilder(Resources resources, int maxWidth = int.MaxValue)
+        public HelpBuilder(LocalizationResources localizationResources, int maxWidth = int.MaxValue)
         {
-            LocalizationResources = resources ?? throw new ArgumentNullException(nameof(resources));
+            LocalizationResources = localizationResources ?? throw new ArgumentNullException(nameof(localizationResources));
             if (maxWidth <= 0) maxWidth = int.MaxValue;
             MaxWidth = maxWidth;
         }
@@ -29,7 +29,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Provides localizable strings for help and error messages.
         /// </summary>
-        protected Resources LocalizationResources { get; }
+        protected LocalizationResources LocalizationResources { get; }
 
         /// <summary>
         /// The maximum width for which to format help output.
@@ -70,7 +70,7 @@ namespace System.CommandLine.Help
 
         protected virtual void AddSynopsis(ICommand command, TextWriter writer)
         {
-            WriteHeading(Resources.Instance.HelpDescriptionTitle(), command.Description, writer);
+            WriteHeading(LocalizationResources.Instance.HelpDescriptionTitle(), command.Description, writer);
             writer.WriteLine();
         }
 

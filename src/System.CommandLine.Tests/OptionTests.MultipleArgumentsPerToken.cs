@@ -193,7 +193,7 @@ namespace System.CommandLine.Tests
                     var result = command.Parse("--option 1 2");
 
                     result.UnmatchedTokens.Should().BeEquivalentTo(new[] { "2" });
-                    result.Errors.Should().Contain(e => e.Message == Resources.Instance.UnrecognizedCommandOrArgument("2"));
+                    result.Errors.Should().Contain(e => e.Message == LocalizationResources.Instance.UnrecognizedCommandOrArgument("2"));
                 }
 
                 [Fact]

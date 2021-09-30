@@ -635,9 +635,9 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseLocalizationResources(
             this CommandLineBuilder builder,
-            Resources validationMessages)
+            LocalizationResources validationMessages)
         {
-            builder.Resources = validationMessages;
+            builder.LocalizationResources = validationMessages;
             return builder;
         }
 

@@ -39,7 +39,7 @@ namespace System.CommandLine
             bool enablePosixBundling = true,
             bool enableDirectives = true,
             bool enableLegacyDoubleDashBehavior = false,
-            Resources? resources = null,
+            LocalizationResources? resources = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
@@ -89,7 +89,7 @@ namespace System.CommandLine
             EnableLegacyDoubleDashBehavior = enableLegacyDoubleDashBehavior;
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
-            Resources = resources ?? Resources.Instance;
+            LocalizationResources = resources ?? LocalizationResources.Instance;
             ResponseFileHandling = responseFileHandling;
             Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
 
@@ -115,7 +115,7 @@ namespace System.CommandLine
                 maxWidth = systemConsole.GetWindowWidth();
             }
 
-            return new HelpBuilder(context.ParseResult.CommandResult.Resources, maxWidth);
+            return new HelpBuilder(context.ParseResult.CommandResult.LocalizationResources, maxWidth);
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
@@ -164,7 +164,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the localizable resources.
         /// </summary>
-        public Resources Resources { get; }
+        public LocalizationResources LocalizationResources { get; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= DefaultHelpBuilderFactory;
 

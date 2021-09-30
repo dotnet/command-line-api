@@ -38,22 +38,22 @@ namespace System.CommandLine.Binding
             IArgument argument,
             Type type,
             object? value,
-            Resources resources)
+            LocalizationResources localizationResources)
         {
             switch (value)
             {
                 case string singleValue:
                     if (type.IsEnumerable() && !type.HasStringTypeConverter())
                     {
-                        return ConvertStrings(argument, type, new[] { singleValue },resources);
+                        return ConvertStrings(argument, type, new[] { singleValue },localizationResources);
                     }
                     else
                     {
-                        return ConvertString(argument, type, singleValue, resources);
+                        return ConvertString(argument, type, singleValue, localizationResources);
                     }
 
                 case IReadOnlyList<string> manyValues:
-                    return ConvertStrings(argument, type, manyValues, resources);
+                    return ConvertStrings(argument, type, manyValues, localizationResources);
             }
 
             return None(argument);
@@ -63,7 +63,7 @@ namespace System.CommandLine.Binding
             IArgument argument,
             Type? type,
             string value,
-            Resources resources)
+            LocalizationResources localizationResources)
         {
             type ??= typeof(string);
 
@@ -79,7 +79,7 @@ namespace System.CommandLine.Binding
                     }
                     catch (Exception)
                     {
-                        return Failure(argument, type, value, resources);
+                        return Failure(argument, type, value, localizationResources);
                     }
                 }
             }
@@ -102,14 +102,14 @@ namespace System.CommandLine.Binding
                 return Success(argument, instance);
             }
 
-            return Failure(argument, type, value, resources);
+            return Failure(argument, type, value, localizationResources);
         }
 
         public static ArgumentConversionResult ConvertStrings(
             IArgument argument,
             Type type,
             IReadOnlyList<string> tokens,
-            Resources resources,
+            LocalizationResources localizationResources,
             ArgumentResult? argumentResult = null)
         {
             Type itemType;
@@ -135,7 +135,7 @@ namespace System.CommandLine.Binding
             {
                 var token = tokens[i];
 
-                var result = ConvertString(argument, itemType, token, resources);
+                var result = ConvertString(argument, itemType, token, localizationResources);
 
                 switch (result)
                 {
@@ -203,9 +203,9 @@ namespace System.CommandLine.Binding
             IArgument argument,
             Type expectedType,
             string value,
-            Resources resources)
+            LocalizationResources localizationResources)
         {
-            return new FailedArgumentTypeConversionResult(argument, expectedType, value, resources);
+            return new FailedArgumentTypeConversionResult(argument, expectedType, value, localizationResources);
         }
 
         internal static ArgumentConversionResult ConvertIfNeeded(
@@ -219,20 +219,20 @@ namespace System.CommandLine.Binding
                     ConvertObject(conversionResult.Argument,
                                   toType,
                                   successful.Value,
-                                  symbolResult.Resources),
+                                  symbolResult.LocalizationResources),
                 SuccessfulArgumentConversionResult successful when toType == typeof(object) &&
                                                                    conversionResult.Argument.Arity.MaximumNumberOfValues > 1 &&
                                                                    successful.Value is string =>
                     ConvertObject(conversionResult.Argument,
                                   typeof(IEnumerable<string>),
                                   successful.Value,
-                                  symbolResult.Resources),
+                                  symbolResult.LocalizationResources),
                 NoArgumentConversionResult _ when toType == typeof(bool) =>
                     Success(conversionResult.Argument,
                             true),
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
                     new MissingArgumentConversionResult(conversionResult.Argument,
-                                                        symbolResult.Resources.RequiredArgumentMissing(symbolResult)),
+                                                        symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult)),
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1 =>
                     Success(conversionResult.Argument,
                             Array.Empty<string>()),
@@ -278,8 +278,8 @@ namespace System.CommandLine.Binding
                 1 => ConvertObject(argument, argument.ValueType,
                                    argumentResult.Tokens.Count > 0
                                        ? argumentResult.Tokens[argumentResult.Tokens.Count - 1].Value
-                                       : null, argumentResult.Resources),
-                _ => ConvertStrings(argument, argument.ValueType, argumentResult.Tokens.Select(t => t.Value).ToArray(), argumentResult.Resources, argumentResult)
+                                       : null, argumentResult.LocalizationResources),
+                _ => ConvertStrings(argument, argument.ValueType, argumentResult.Tokens.Select(t => t.Value).ToArray(), argumentResult.LocalizationResources, argumentResult)
             };
 
             return value is SuccessfulArgumentConversionResult;

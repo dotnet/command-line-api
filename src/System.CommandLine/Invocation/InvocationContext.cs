@@ -50,7 +50,7 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// Provides localizable strings for help and error messages.
         /// </summary>
-        public Resources LocalizationResources => Parser.Configuration.Resources;
+        public LocalizationResources LocalizationResources => Parser.Configuration.LocalizationResources;
 
         /// <summary>
         /// The parse result for the current invocation.
