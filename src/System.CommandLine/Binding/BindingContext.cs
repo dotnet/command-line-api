@@ -13,6 +13,9 @@ using System.Linq;
 
 namespace System.CommandLine.Binding
 {
+    /// <summary>
+    /// Creates object instances based on command line parser results, injected services, and other value sources.
+    /// </summary>
     public sealed class BindingContext
     {
         private IConsole _console;
@@ -28,12 +31,18 @@ namespace System.CommandLine.Binding
             ServiceProvider = new ServiceProvider(this);
         }
 
+        /// <summary>
+        /// The parse result for the current invocation.
+        /// </summary>
         public ParseResult ParseResult { get; set; }
 
         internal IConsoleFactory? ConsoleFactory { get; set; }
 
         internal IHelpBuilder HelpBuilder => (IHelpBuilder)ServiceProvider.GetService(typeof(IHelpBuilder))!;
 
+        /// <summary>
+        /// The console to which output should be written during the current invocation.
+        /// </summary>
         public IConsole Console
         {
             get
@@ -51,9 +60,18 @@ namespace System.CommandLine.Binding
 
         internal ServiceProvider ServiceProvider { get; }
 
+        /// <summary>
+        /// Adds a model binder which can be used to bind a specific type.
+        /// </summary>
+        /// <param name="binder">The model binder to add.</param>
         public void AddModelBinder(ModelBinder binder) => 
             _modelBindersByValueDescriptor.Add(binder.ValueDescriptor.ValueType, binder);
 
+        /// <summary>
+        /// Gets a model binder for the specified value descriptor.
+        /// </summary>
+        /// <param name="valueDescriptor">The value descriptor for which to get a model binder.</param>
+        /// <returns>A model binder for the specified value descriptor.</returns>
         public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor)
         {
             if (_modelBindersByValueDescriptor.TryGetValue(valueDescriptor.ValueType, out ModelBinder binder))
@@ -63,11 +81,21 @@ namespace System.CommandLine.Binding
             return new ModelBinder(valueDescriptor);
         }
 
+        /// <summary>
+        /// Adds the specified service factory to the binding context.
+        /// </summary>
+        /// <param name="serviceType">The type for which this service factory will provide an instance.</param>
+        /// <param name="factory">A delegate that provides an instance of the specified service type.</param>
         public void AddService(Type serviceType, Func<IServiceProvider, object> factory)
         {
             ServiceProvider.AddService(serviceType, factory);
         }
-        
+
+        /// <summary>
+        /// Adds the specified service factory to the binding context.
+        /// </summary>
+        /// <typeparam name="T">The type for which this service factory will provide an instance.</typeparam>
+        /// <param name="factory">A delegate that provides an instance of the specified service type.</param>
         public void AddService<T>(Func<IServiceProvider, T> factory)
         {
             if (factory is null)

@@ -5,7 +5,7 @@ using System.CommandLine.IO;
 
 namespace System.CommandLine.Invocation
 {
-    public class ParseErrorResult : IInvocationResult
+    internal class ParseErrorResult : IInvocationResult
     {
         private readonly int? _errorExitCode;
 

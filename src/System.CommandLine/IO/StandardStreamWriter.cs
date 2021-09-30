@@ -6,8 +6,14 @@ using System.Text;
 
 namespace System.CommandLine.IO
 {
+    /// <summary>
+    /// Provides methods for working with standard streams.
+    /// </summary>
     public static class StandardStreamWriter
     {
+        /// <summary>
+        /// Creates a <see cref="TextWriter"/> that writes to the specified <see cref="IStandardStreamWriter"/>.
+        /// </summary>
         public static TextWriter Create(IStandardStreamWriter writer)
         {
             if (writer is null)
@@ -18,6 +24,9 @@ namespace System.CommandLine.IO
             return new TextWriterThatWritesToStandardStreamWriter(writer);
         }
 
+        /// <summary>
+        /// Creates a <see cref="IStandardStreamWriter"/> that writes to the specified <see cref="TextWriter"/>.
+        /// </summary>
         public static IStandardStreamWriter Create(TextWriter writer)
         {
             if (writer is null)

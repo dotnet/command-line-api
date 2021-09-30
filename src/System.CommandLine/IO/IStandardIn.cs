@@ -8,6 +8,9 @@ namespace System.CommandLine.IO
     /// </summary>
     public interface IStandardIn
     {
+        /// <summary>
+        /// Gets a value indicating whether input is redirected.
+        /// </summary>
         bool IsInputRedirected { get; }
     }
 }

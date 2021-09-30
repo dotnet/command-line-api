@@ -5,9 +5,19 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Splits a string based on whitespace and quotation marks
+    /// </summary>
     public class CommandLineStringSplitter
     {
-        public static readonly CommandLineStringSplitter Instance = new CommandLineStringSplitter();
+        /// <summary>
+        /// A single instance of <see cref="CommandLineStringSplitter"/>
+        /// </summary>
+        public static readonly CommandLineStringSplitter Instance = new();
+
+        private CommandLineStringSplitter()
+        {
+        }
 
         private enum Boundary
         {
@@ -17,6 +27,11 @@ namespace System.CommandLine.Parsing
             QuoteEnd
         }
 
+        /// <summary>
+        /// Splits a string into a sequence of strings based on whitespace and quotation marks.
+        /// </summary>
+        /// <param name="commandLine">A command line input string.</param>
+        /// <returns>A sequence of strings.</returns>
         public IEnumerable<string> Split(string commandLine)
         {
             var memory = commandLine.AsMemory();

@@ -16,15 +16,24 @@ namespace System.CommandLine.Help
 
         private Dictionary<ISymbol, Customization> Customizations { get; } = new();
 
+        /// <param name="resources"></param>
+        /// <param name="maxWidth"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public HelpBuilder(Resources resources, int maxWidth = int.MaxValue)
         {
-            Resources = resources ?? throw new ArgumentNullException(nameof(resources));
+            LocalizationResources = resources ?? throw new ArgumentNullException(nameof(resources));
             if (maxWidth <= 0) maxWidth = int.MaxValue;
             MaxWidth = maxWidth;
         }
 
-        protected Resources Resources { get; }
+        /// <summary>
+        /// Provides localizable strings for help and error messages.
+        /// </summary>
+        protected Resources LocalizationResources { get; }
 
+        /// <summary>
+        /// The maximum width for which to format help output.
+        /// </summary>
         public int MaxWidth { get; }
 
         public virtual void Write(ICommand command, TextWriter writer)
@@ -68,7 +77,7 @@ namespace System.CommandLine.Help
         protected virtual void AddUsage(ICommand command, TextWriter writer)
         {
             string description = GetUsage(command);
-            WriteHeading(Resources.HelpUsageTitle(), description, writer);
+            WriteHeading(LocalizationResources.HelpUsageTitle(), description, writer);
             writer.WriteLine();
         }
 
@@ -92,7 +101,7 @@ namespace System.CommandLine.Help
 
                     if (displayOptionTitle)
                     {
-                        yield return Resources.HelpUsageOptionsTitle();
+                        yield return LocalizationResources.HelpUsageOptionsTitle();
                         displayOptionTitle = false;
                     }
 
@@ -105,12 +114,12 @@ namespace System.CommandLine.Help
 
                 if (hasCommandWithHelp)
                 {
-                    yield return Resources.HelpUsageCommandTitle();
+                    yield return LocalizationResources.HelpUsageCommandTitle();
                 }
 
                 if (!command.TreatUnmatchedTokensAsErrors)
                 {
-                    yield return Resources.HelpUsageAdditionalArguments();
+                    yield return LocalizationResources.HelpUsageAdditionalArguments();
                 }
             }
         }
@@ -121,7 +130,7 @@ namespace System.CommandLine.Help
 
             if (commandArguments.Length > 0)
             {
-                WriteHeading(Resources.HelpArgumentsTitle(), null, writer);
+                WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, writer);
                 RenderAsColumns(writer, commandArguments);
                 writer.WriteLine();
             }
@@ -168,7 +177,7 @@ namespace System.CommandLine.Help
 
             if (options.Length > 0)
             {
-                WriteHeading(Resources.HelpOptionsTitle(), null, writer);
+                WriteHeading(LocalizationResources.HelpOptionsTitle(), null, writer);
                 RenderAsColumns(writer, options);
                 writer.WriteLine();
             }
@@ -183,7 +192,7 @@ namespace System.CommandLine.Help
 
             if (subcommands.Length > 0)
             {
-                WriteHeading(Resources.HelpCommandsTitle(), null, writer);
+                WriteHeading(LocalizationResources.HelpCommandsTitle(), null, writer);
                 RenderAsColumns(writer, subcommands);
                 writer.WriteLine();
             }
@@ -199,8 +208,8 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            WriteHeading(Resources.HelpAdditionalArgumentsTitle(),
-                Resources.HelpAdditionalArgumentsDescription(), writer);
+            WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
+                LocalizationResources.HelpAdditionalArgumentsDescription(), writer);
         }
 
         protected void WriteHeading(string descriptor, string? description, TextWriter writer)
@@ -425,7 +434,7 @@ namespace System.CommandLine.Help
                 if (symbol is IOption option &&
                     option.IsRequired)
                 {
-                    descriptor += $" {Resources.HelpOptionsRequired()}";
+                    descriptor += $" {LocalizationResources.HelpOptionsRequired()}";
                 }
             }
 
@@ -491,7 +500,7 @@ namespace System.CommandLine.Help
             }
 
             string name = displayArgumentName ?
-                Resources.HelpArgumentDefaultValueTitle() :
+                LocalizationResources.HelpArgumentDefaultValueTitle() :
                 argument.Name;
 
             return $"{name}: {defaultValue}";

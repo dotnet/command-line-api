@@ -17,24 +17,42 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public static class ParseResultExtensions
     {
+        /// <summary>
+        /// Invokes the appropriate command handler for a parsed command line input.
+        /// </summary>
+        /// <param name="parseResult">A parse result on which the invocation is based.</param>
+        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
+        /// <returns>A task whose result can be used as a process exit code.</returns>
         public static async Task<int> InvokeAsync(
             this ParseResult parseResult,
             IConsole? console = null) =>
             await new InvocationPipeline(parseResult).InvokeAsync(console);
 
+        /// <summary>
+        /// Invokes the appropriate command handler for a parsed command line input.
+        /// </summary>
+        /// <param name="parseResult">A parse result on which the invocation is based.</param>
+        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
+        /// <returns>A value that can be used as a process exit code.</returns>
         public static int Invoke(
             this ParseResult parseResult,
             IConsole? console = null) =>
             new InvocationPipeline(parseResult).Invoke(console);
 
+        /// <summary>
+        /// Gets the text to be matched for completion, which can be used to filter a list of suggestions.
+        /// </summary>
+        /// <param name="parseResult">A parse result.</param>
+        /// <param name="position">The position within the raw input, if available, at which to provide suggestions.</param>
+        /// <returns>A string containing the user-entered text to be matched for suggestions.</returns>
         public static string TextToMatch(
-            this ParseResult source,
+            this ParseResult parseResult,
             int? position = null)
         {
-            Token? lastToken = source.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
+            Token? lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
 
             string? textToMatch = null;
-            string? rawInput = source.RawInput;
+            string? rawInput = parseResult.RawInput;
 
             if (rawInput is not null)
             {
@@ -59,7 +77,7 @@ namespace System.CommandLine.Parsing
 
             if (string.IsNullOrWhiteSpace(rawInput))
             {
-                if (source.UnmatchedTokens.Count > 0 ||
+                if (parseResult.UnmatchedTokens.Count > 0 ||
                     lastToken?.Type == TokenType.Argument)
                 {
                     return textToMatch ?? "";
@@ -78,21 +96,26 @@ namespace System.CommandLine.Parsing
             return "";
         }
 
-        public static string Diagram(this ParseResult result)
+        /// <summary>
+        /// Formats a string explaining a parse result.
+        /// </summary>
+        /// <param name="parseResult">The parse result to be diagrammed.</param>
+        /// <returns>A string containing a diagram of the parse result.</returns>
+        public static string Diagram(this ParseResult parseResult)
         {
             var builder = StringBuilderPool.Default.Rent();
 
             try
             {
-                builder.Diagram(result.RootCommandResult, result);
+                builder.Diagram(parseResult.RootCommandResult, parseResult);
 
-                if (result.UnmatchedTokens.Count > 0)
+                if (parseResult.UnmatchedTokens.Count > 0)
                 {
                     builder.Append("   ???-->");
 
-                    for (var i = 0; i < result.UnmatchedTokens.Count; i++)
+                    for (var i = 0; i < parseResult.UnmatchedTokens.Count; i++)
                     {
-                        var error = result.UnmatchedTokens[i];
+                        var error = parseResult.UnmatchedTokens[i];
                         builder.Append(" ");
                         builder.Append(error);
                     }
@@ -204,6 +227,13 @@ namespace System.CommandLine.Parsing
             }
         }
 
+        /// <summary>
+        /// Indicates whether a given option is present in the parse result.
+        /// </summary>
+        /// <remarks>If the option has a default value defined, then <see langword="true"/> will be returned.</remarks>
+        /// <param name="parseResult">The parse result to check for the presence of the option.</param>
+        /// <param name="option">The option to check for the presence of.</param>
+        /// <returns><see langword="true"/> if the option is present; otherwise,  <see langword="false"/>.</returns>
         public static bool HasOption(
             this ParseResult parseResult,
             IOption option)
@@ -216,6 +246,7 @@ namespace System.CommandLine.Parsing
             return parseResult.FindResultFor(option) is { };
         }
 
+        /// <inheritdoc cref="HasOption(System.CommandLine.Parsing.ParseResult,System.CommandLine.IOption)"/>
         [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResultExtensions.HasOption(ParseResult, IOption) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public static bool HasOption(
             this ParseResult parseResult,
@@ -229,6 +260,12 @@ namespace System.CommandLine.Parsing
             return parseResult.CommandResult.Children.ContainsAlias(alias);
         }
 
+        /// <summary>
+        /// Gets suggestions for command line completion based on a given parse result.
+        /// </summary>
+        /// <param name="parseResult">The parse result that provides context for the suggestions.</param>
+        /// <param name="position">The position at which suggestions are requested.</param>
+        /// <returns>A set of suggestions for completion.</returns>
         public static IEnumerable<string?> GetSuggestions(
             this ParseResult parseResult,
             int? position = null)
