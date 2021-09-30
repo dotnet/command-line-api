@@ -12,7 +12,6 @@ Includes a code fix for ref nullability with the new framework.
  .../System.CommandLine.DragonFruit.csproj                          | 2 +-
  src/System.CommandLine.Hosting/System.CommandLine.Hosting.csproj   | 2 +-
  .../System.CommandLine.Rendering.csproj                            | 2 +-
- src/System.CommandLine/Binding/BindingContext.cs                   | 2 +-
  src/System.CommandLine/System.CommandLine.csproj                   | 7 +------
  6 files changed, 7 insertions(+), 12 deletions(-)
 
@@ -57,19 +56,6 @@ index bd5ce1d7..762481d9 100644
      </Description>
 diff --git a/src/System.CommandLine/Binding/BindingContext.cs b/src/System.CommandLine/Binding/BindingContext.cs
 index a80a4172..305a95ab 100644
---- a/src/System.CommandLine/Binding/BindingContext.cs
-+++ b/src/System.CommandLine/Binding/BindingContext.cs
-@@ -56,7 +56,7 @@ namespace System.CommandLine.Binding
- 
-         public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor)
-         {
--            if (_modelBindersByValueDescriptor.TryGetValue(valueDescriptor.ValueType, out ModelBinder binder))
-+            if (_modelBindersByValueDescriptor.TryGetValue(valueDescriptor.ValueType, out ModelBinder? binder))
-             {
-                 return binder;
-             }
-diff --git a/src/System.CommandLine/System.CommandLine.csproj b/src/System.CommandLine/System.CommandLine.csproj
-index 125e9c78..3a10c14d 100644
 --- a/src/System.CommandLine/System.CommandLine.csproj
 +++ b/src/System.CommandLine/System.CommandLine.csproj
 @@ -3,7 +3,7 @@
