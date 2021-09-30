@@ -6,7 +6,7 @@ using System.CommandLine.IO;
 
 namespace System.CommandLine.Help
 {
-    public class HelpResult : IInvocationResult
+    internal class HelpResult : IInvocationResult
     {
         /// <inheritdoc />
         public void Apply(InvocationContext context)

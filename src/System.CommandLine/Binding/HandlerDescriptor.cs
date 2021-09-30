@@ -12,6 +12,10 @@ namespace System.CommandLine.Binding
     {
         private List<ParameterDescriptor>? _parameterDescriptors;
 
+        /// <summary>
+        /// Gets a command handler that can bind to the specifications of the descriptor.
+        /// </summary>
+        /// <returns></returns>
         public abstract ICommandHandler GetCommandHandler();
 
         /// <inheritdoc />
@@ -21,15 +25,26 @@ namespace System.CommandLine.Binding
         public IReadOnlyList<ParameterDescriptor> ParameterDescriptors =>
             _parameterDescriptors ??= new List<ParameterDescriptor>(InitializeParameterDescriptors());
 
-        protected abstract IEnumerable<ParameterDescriptor> InitializeParameterDescriptors();
+        private protected abstract IEnumerable<ParameterDescriptor> InitializeParameterDescriptors();
 
         /// <inheritdoc />
         public override string ToString() =>
             $"{Parent} ({string.Join(", ", ParameterDescriptors)})";
 
+        /// <summary>
+        /// Creates a descriptor based on the specified method.
+        /// </summary>
+        /// <param name="methodInfo">The method for which to create a handler descriptor.</param>
+        /// <param name="target">An instance for the descriptor to target. In the case of <see langword="static"/> methods, <see langword="null"/> should be passed.</param>
+        /// <returns>A handler descriptor for the method and instance.</returns>
         public static HandlerDescriptor FromMethodInfo(MethodInfo methodInfo, object? target = null) =>
             new MethodInfoHandlerDescriptor(methodInfo, target);
 
+        /// <summary>
+        /// Creates a descriptor based on the specified method.
+        /// </summary>
+        /// <param name="delegate">The delegate for which to create a handler descriptor.</param>
+        /// <returns>A handler descriptor for the delegate.</returns>
         public static HandlerDescriptor FromDelegate(Delegate @delegate) =>
             new DelegateHandlerDescriptor(@delegate);
     }

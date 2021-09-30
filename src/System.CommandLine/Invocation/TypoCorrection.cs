@@ -30,7 +30,7 @@ namespace System.CommandLine.Invocation
                 var suggestions = GetPossibleTokens(result.CommandResult.Command, token).ToList();
                 if (suggestions.Count > 0)
                 {
-                    console.Out.WriteLine(result.CommandResult.Resources.SuggestionsTokenNotMatched(token));
+                    console.Out.WriteLine(result.CommandResult.LocalizationResources.SuggestionsTokenNotMatched(token));
                     foreach(string suggestion in suggestions)
                     {
                         console.Out.WriteLine(suggestion);

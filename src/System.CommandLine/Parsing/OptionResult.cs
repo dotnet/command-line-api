@@ -40,11 +40,16 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public Token? Token { get; }
 
+        /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
             Option.ValueType == typeof(bool)
                 ? GetValueOrDefault<bool>()
                 : GetValueOrDefault<object?>();
 
+        /// <summary>
+        /// Gets the parsed value or the default value for <see cref="Option"/>.
+        /// </summary>
+        /// <returns>The parsed value or the default value for <see cref="Option"/></returns>
         [return: MaybeNull]
         public T GetValueOrDefault<T>() =>
             this.ConvertIfNeeded(typeof(T))

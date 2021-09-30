@@ -16,8 +16,14 @@ namespace System.CommandLine.Help
             Description = description;
         }
 
+        /// <summary>
+        /// The name and other usgae details about the item.
+        /// </summary>
         public string Descriptor { get; }
 
+        /// <summary>
+        /// The description of what the item does.
+        /// </summary>
         public string Description { get; }
 
         public void Deconstruct(out string descriptor, out string description)
@@ -49,11 +55,23 @@ namespace System.CommandLine.Help
             return hashCode;
         }
 
+        /// <summary>
+        /// Checks if two specified <see cref="HelpItem"/> instances have the same value.
+        /// </summary>
+        /// <param name="left">The first <see cref="HelpItem"/>.</param>
+        /// <param name="right">The second <see cref="HelpItem"/>.</param>
+        /// <returns><see langword="true" /> if the objects are equal.</returns>
         public static bool operator ==(HelpItem? left, HelpItem? right)
         {
             return EqualityComparer<HelpItem?>.Default.Equals(left, right);
         }
 
+        /// <summary>
+        /// Checks if two specified <see cref="HelpItem"/> instances have different values.
+        /// </summary>
+        /// <param name="left">The first <see cref="HelpItem"/>.</param>
+        /// <param name="right">The second <see cref="HelpItem"/>.</param>
+        /// <returns><see langword="true" /> if the objects are not equal.</returns>
         public static bool operator !=(HelpItem? left, HelpItem? right)
         {
             return !(left == right);

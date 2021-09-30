@@ -72,7 +72,7 @@ namespace System.CommandLine
 
                 return new MissingArgumentConversionResult(
                     argument,
-                    symbolResult.Resources.RequiredArgumentMissing(symbolResult));
+                    symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult));
             }
 
             if (tokenCount > maximumNumberOfValues)
@@ -83,7 +83,7 @@ namespace System.CommandLine
                     {
                         return new TooManyArgumentsConversionResult(
                             argument,
-                            symbolResult!.Resources.ExpectsOneArgument(symbolResult));
+                            symbolResult!.LocalizationResources.ExpectsOneArgument(symbolResult));
                     }
                 }
             }

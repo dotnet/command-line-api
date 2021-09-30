@@ -47,7 +47,7 @@ namespace System.CommandLine.Builder
 
         internal VersionOption? VersionOption { get; set; }
 
-        internal Resources? Resources { get; set; }
+        internal LocalizationResources? LocalizationResources { get; set; }
 
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
@@ -55,7 +55,7 @@ namespace System.CommandLine.Builder
         /// <returns></returns>
         public Parser Build()
         {
-            var resources = Resources ?? Resources.Instance;
+            var resources = LocalizationResources ?? LocalizationResources.Instance;
 
             if (HelpOption is not null)
             {
@@ -74,7 +74,7 @@ namespace System.CommandLine.Builder
                     new[] { rootCommand },
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
-                    resources: Resources,
+                    resources: LocalizationResources,
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)

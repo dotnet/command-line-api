@@ -11,8 +11,8 @@ namespace System.CommandLine.Binding
             IArgument argument,
             Type expectedType,
             string value,
-            Resources resources) :
-            base(argument, FormatErrorMessage(argument, expectedType, value, resources))
+            LocalizationResources localizationResources) :
+            base(argument, FormatErrorMessage(argument, expectedType, value, localizationResources))
         {
         }
 
@@ -20,7 +20,7 @@ namespace System.CommandLine.Binding
             IArgument argument,
             Type expectedType,
             string value,
-            Resources resources)
+            LocalizationResources localizationResources)
         {
             if (argument is Argument a &&
                 a.Parents.Count == 1)
@@ -31,13 +31,13 @@ namespace System.CommandLine.Binding
                 switch(firstParent)
                 {
                     case ICommand _:
-                        return resources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
+                        return localizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
                     case IOption _:
-                        return resources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
+                        return localizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
                 }
             }
 
-            return resources.ArgumentConversionCannotParse(value, expectedType);
+            return localizationResources.ArgumentConversionCannotParse(value, expectedType);
         }
     }
 }

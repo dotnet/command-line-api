@@ -77,7 +77,7 @@ namespace System.CommandLine.Parsing
                 _allCommandResults,
                 _allOptionResults
             );
-            _rootCommandResult.Resources = _parser.Configuration.Resources;
+            _rootCommandResult.LocalizationResources = _parser.Configuration.LocalizationResources;
 
             _innermostCommandResult = _rootCommandResult;
         }
@@ -335,7 +335,7 @@ namespace System.CommandLine.Parsing
             _errors.Insert(
                 0,
                 new ParseError(
-                    _innermostCommandResult.Resources.RequiredCommandWasNotProvided(),
+                    _innermostCommandResult.LocalizationResources.RequiredCommandWasNotProvided(),
                     _innermostCommandResult));
         }
 

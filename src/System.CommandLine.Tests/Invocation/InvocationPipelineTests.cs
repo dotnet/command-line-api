@@ -307,7 +307,7 @@ namespace System.CommandLine.Tests.Invocation
             Func<BindingContext, IHelpBuilder> helpBuilderFactory = context =>
             {
                 factoryWasCalled = true;
-                return createdHelpBuilder = new HelpBuilder(context.ParseResult.Parser.Configuration.Resources);
+                return createdHelpBuilder = new HelpBuilder(context.ParseResult.Parser.Configuration.LocalizationResources);
             };
 
             var command = new Command("help-command");

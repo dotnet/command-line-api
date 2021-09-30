@@ -388,7 +388,7 @@ namespace System.CommandLine.Parsing
                 }
                 catch (FileNotFoundException)
                 {
-                    var message = configuration.Resources
+                    var message = configuration.LocalizationResources
                                                .ResponseFileNotFound(filePath);
 
                     errorList.Add(
@@ -396,7 +396,7 @@ namespace System.CommandLine.Parsing
                 }
                 catch (IOException e)
                 {
-                    var message = configuration.Resources
+                    var message = configuration.LocalizationResources
                                                .ErrorReadingResponseFile(filePath, e);
 
                     errorList.Add(

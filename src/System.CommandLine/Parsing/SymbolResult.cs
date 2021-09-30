@@ -11,7 +11,7 @@ namespace System.CommandLine.Parsing
     public abstract class SymbolResult
     {
         private protected readonly List<Token> _tokens = new();
-        private Resources? _resources;
+        private LocalizationResources? _resources;
         private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new();
 
         private protected SymbolResult(
@@ -91,9 +91,9 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Localization resources used to produce messages for this symbol result.
         /// </summary>
-        protected internal Resources Resources
+        protected internal LocalizationResources LocalizationResources
         {
-            get => _resources ??= Parent?.Resources ?? Resources.Instance;
+            get => _resources ??= Parent?.LocalizationResources ?? LocalizationResources.Instance;
             set => _resources = value;
         }
 
@@ -146,7 +146,7 @@ namespace System.CommandLine.Parsing
                     if (!argument.AllowedValues.Contains(token.Value))
                     {
                         return new ParseError(
-                            Resources
+                            LocalizationResources
                                 .UnrecognizedArgument(token.Value, argument.AllowedValues),
                             this);
                     }
