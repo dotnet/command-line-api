@@ -54,11 +54,9 @@ namespace System.CommandLine.Builder
         /// </summary>
         public Parser Build()
         {
-            var rootCommand = Command;
-
             var parser = new Parser(
                 new CommandLineConfiguration(
-                    rootCommand,
+                    Command,
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
                     resources: LocalizationResources,

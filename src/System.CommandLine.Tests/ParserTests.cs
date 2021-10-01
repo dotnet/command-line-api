@@ -1460,7 +1460,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_can_be_called_with_null_args()
         {
-            var parser = new Parser();
+            var parser = new Parser(new RootCommand());
 
             var result = parser.Parse(null);
 

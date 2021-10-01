@@ -54,20 +54,11 @@ namespace System.CommandLine
             }
             else
             {
-                // Reuse existing auto-generated root command, if one is present, to prevent repeated mutations
-                RootCommand? parentRootCommand =
-                    symbol.Parents
-                          .OfType<RootCommand>()
-                          .FirstOrDefault();
+                rootCommand = new RootCommand();
 
-                if (parentRootCommand is null)
-                {
-                    parentRootCommand = new RootCommand();
+                rootCommand.Add(symbol);
 
-                    parentRootCommand.Add(symbol);
-                }
-
-                RootCommand = rootCommand = parentRootCommand;
+                RootCommand = rootCommand;
             }
 
             _symbols.Add(RootCommand);
