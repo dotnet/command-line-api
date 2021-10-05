@@ -30,7 +30,7 @@ namespace System.CommandLine.Help
 
         public override string? Description
         {
-            get => _description ??= _builder.Resources.HelpOptionDescription();
+            get => _description ??= _builder.LocalizationResources.HelpOptionDescription();
             set => _description = value;
         }
 

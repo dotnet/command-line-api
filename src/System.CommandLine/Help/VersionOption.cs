@@ -57,7 +57,7 @@ namespace System.CommandLine.Help
 
         public override string? Description
         {
-            get => _description ??= _builder.Resources.VersionOptionDescription();
+            get => _description ??= _builder.LocalizationResources.VersionOptionDescription();
             set => _description = value;
         }
 

@@ -175,7 +175,7 @@ namespace System.CommandLine.Parsing
                         argument,
                         itemType,
                         Tokens[0].Value,
-                        Resources);
+                        LocalizationResources);
                 }
                 else
                 {
@@ -183,7 +183,7 @@ namespace System.CommandLine.Parsing
                         argument,
                         argument.ValueType,
                         Tokens[0].Value,
-                        Resources);
+                        LocalizationResources);
                 }
 
                 return ArgumentConversionResult.Failure(
