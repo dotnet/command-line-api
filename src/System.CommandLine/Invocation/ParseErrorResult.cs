@@ -33,7 +33,7 @@ namespace System.CommandLine.Invocation
 
             context.BindingContext
                    .HelpBuilder
-                   .Write(context.ParseResult.CommandResult.Command, StandardStreamWriter.Create(context.Console.Out));
+                   .Write(context.ParseResult.CommandResult.Command, StandardStreamWriter.Create(context.Console.Out), context.ParseResult);
         }
     }
 }

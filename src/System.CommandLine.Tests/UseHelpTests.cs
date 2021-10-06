@@ -257,7 +257,7 @@ namespace System.CommandLine.Tests
 
         private class CustomHelpBuilder : IHelpBuilder
         {
-            public void Write(ICommand command, TextWriter writer)
+            public void Write(ICommand command, TextWriter writer, ParseResult parseResult)
             {
                 throw new NotImplementedException();
             }

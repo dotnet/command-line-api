@@ -36,11 +36,15 @@ namespace System.CommandLine.Help
         /// </summary>
         public int MaxWidth { get; }
 
-        public virtual void Write(ICommand command, TextWriter writer)
+        public virtual void Write(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             if (command is null)
             {
                 throw new ArgumentNullException(nameof(command));
+            }
+            if (parseResult is null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
             }
 
             if (command.IsHidden)
@@ -50,15 +54,15 @@ namespace System.CommandLine.Help
 
             AddSynopsis(command, writer);
             AddUsage(command, writer);
-            AddCommandArguments(command, writer);
-            AddOptions(command, writer);
-            AddSubcommands(command, writer);
+            AddCommandArguments(command, writer, parseResult);
+            AddOptions(command, writer, parseResult);
+            AddSubcommands(command, writer, parseResult);
             AddAdditionalArguments(command, writer);
         }
 
         protected internal void Customize(ISymbol symbol,
-            Func<string?>? descriptor = null,
-            Func<string?>? defaultValue = null)
+            Func<ParseResult?, string?>? descriptor = null,
+            Func<ParseResult?, string?>? defaultValue = null)
         {
             if (symbol is null)
             {
@@ -124,9 +128,9 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected virtual void AddCommandArguments(ICommand command, TextWriter writer)
+        protected virtual void AddCommandArguments(ICommand command, TextWriter writer, ParseResult parseResult)
         {
-            HelpItem[] commandArguments = GetCommandArguments(command).ToArray();
+            HelpItem[] commandArguments = GetCommandArguments(command, parseResult).ToArray();
 
             if (commandArguments.Length > 0)
             {
@@ -136,27 +140,27 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected IEnumerable<HelpItem> GetCommandArguments(ICommand command)
+        protected IEnumerable<HelpItem> GetCommandArguments(ICommand command, ParseResult parseResult)
         {
             //TODO: This shows all parent arguments not just the first level
             return command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
                     .Reverse()
-                    .SelectMany(GetArguments)
+                    .SelectMany(x => GetArguments(x, parseResult))
                     .Distinct();
 
-            IEnumerable<HelpItem> GetArguments(ICommand command)
+            IEnumerable<HelpItem> GetArguments(ICommand command, ParseResult parseResult)
             {
                 var arguments = command.Arguments.Where(x => !x.IsHidden).ToList();
 
                 foreach (IArgument argument in arguments)
                 {
-                    string argumentDescriptor = GetArgumentDescriptor(argument);
+                    string argumentDescriptor = GetArgumentDescriptor(argument, parseResult);
 
-                    yield return new HelpItem(argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument)));
+                    yield return new HelpItem(argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument, parseResult)));
                 }
             }
 
-            IEnumerable<string> GetArgumentDescription(IIdentifierSymbol parent, IArgument argument)
+            IEnumerable<string> GetArgumentDescription(IIdentifierSymbol parent, IArgument argument, ParseResult parseResult)
             {
                 string? description = argument.Description;
                 if (!string.IsNullOrWhiteSpace(description))
@@ -166,14 +170,14 @@ namespace System.CommandLine.Help
 
                 if (argument.HasDefaultValue)
                 {
-                    yield return $"[{GetArgumentDefaultValue(parent, argument, true)}]";
+                    yield return $"[{GetArgumentDefaultValue(parent, argument, true, parseResult)}]";
                 }
             }
         }
 
-        protected virtual void AddOptions(ICommand command, TextWriter writer)
+        protected virtual void AddOptions(ICommand command, TextWriter writer, ParseResult parseResult)
         {
-            var options = GetOptions(command).ToArray();
+            var options = GetOptions(command, parseResult).ToArray();
 
             if (options.Length > 0)
             {
@@ -183,12 +187,12 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected IEnumerable<HelpItem> GetOptions(ICommand command)
-            => command.Options.Where(x => !x.IsHidden).Select(GetHelpItem);
+        protected IEnumerable<HelpItem> GetOptions(ICommand command, ParseResult parseResult)
+            => command.Options.Where(x => !x.IsHidden).Select(x => GetHelpItem(x, parseResult));
 
-        protected virtual void AddSubcommands(ICommand command, TextWriter writer)
+        protected virtual void AddSubcommands(ICommand command, TextWriter writer, ParseResult parseResult)
         {
-            var subcommands = GetSubcommands(command).ToArray();
+            var subcommands = GetSubcommands(command, parseResult).ToArray();
 
             if (subcommands.Length > 0)
             {
@@ -198,8 +202,8 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected IEnumerable<HelpItem> GetSubcommands(ICommand command)
-            => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(GetHelpItem);
+        protected IEnumerable<HelpItem> GetSubcommands(ICommand command, ParseResult parseResult)
+            => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetHelpItem(x, parseResult));
 
         protected virtual void AddAdditionalArguments(ICommand command, TextWriter writer)
         {
@@ -399,11 +403,11 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected HelpItem GetHelpItem(IIdentifierSymbol symbol)
+        protected HelpItem GetHelpItem(IIdentifierSymbol symbol, ParseResult parseResult)
         {
             string descriptor;
             if (Customizations.TryGetValue(symbol, out Customization customization) &&
-                customization.GetDescriptor?.Invoke() is { } setDescriptor)
+                customization.GetDescriptor?.Invoke(parseResult) is { } setDescriptor)
             {
                 descriptor = setDescriptor;
             }
@@ -423,7 +427,7 @@ namespace System.CommandLine.Help
                 {
                     if (!argument.IsHidden)
                     {
-                        var argumentDescriptor = GetArgumentDescriptor(argument);
+                        var argumentDescriptor = GetArgumentDescriptor(argument, parseResult);
                         if (!string.IsNullOrWhiteSpace(argumentDescriptor))
                         {
                             descriptor += $" {argumentDescriptor}";
@@ -438,28 +442,28 @@ namespace System.CommandLine.Help
                 }
             }
 
-            return new HelpItem(descriptor, GetDescription(symbol));
+            return new HelpItem(descriptor, GetDescription(symbol, parseResult));
         }
 
-        protected string GetDescription(IIdentifierSymbol symbol)
+        protected string GetDescription(IIdentifierSymbol symbol, ParseResult parseResult)
         {
-            return string.Join(" ", GetDescriptionParts(symbol));
+            return string.Join(" ", GetDescriptionParts(symbol, parseResult));
 
-            IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol)
+            IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol, ParseResult parseResult)
             {
                 string? description = symbol.Description;
                 if (!string.IsNullOrWhiteSpace(description))
                 {
                     yield return description!;
                 }
-                string argumentsDescription = GetArgumentsDescription(symbol);
+                string argumentsDescription = GetArgumentsDescription(symbol, parseResult);
                 if (!string.IsNullOrWhiteSpace(argumentsDescription))
                 {
                     yield return argumentsDescription;
                 }
             }
 
-            string GetArgumentsDescription(IIdentifierSymbol symbol)
+            string GetArgumentsDescription(IIdentifierSymbol symbol, ParseResult parseResult)
             {
                 IEnumerable<IArgument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
@@ -468,21 +472,21 @@ namespace System.CommandLine.Help
 
                 var isSingleArgument = defaultArguments.Length == 1;
                 var argumentDefaultValues = defaultArguments
-                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument));
+                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument, parseResult));
                 return $"[{string.Join(", ", argumentDefaultValues)}]";
             }
         }
 
-        private string GetArgumentDefaultValue(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName)
+        private string GetArgumentDefaultValue(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName, ParseResult parseResult)
         {
             string? defaultValue;
             if (Customizations.TryGetValue(parent, out Customization customization) &&
-                customization.GetDefaultValue?.Invoke() is { } parentSetDefaultValue)
+                customization.GetDefaultValue?.Invoke(parseResult) is { } parentSetDefaultValue)
             {
                 defaultValue = parentSetDefaultValue;
             }
             else if (Customizations.TryGetValue(argument, out customization) &&
-                customization.GetDefaultValue?.Invoke() is { } setDefaultValue)
+                customization.GetDefaultValue?.Invoke(parseResult) is { } setDefaultValue)
             {
                 defaultValue = setDefaultValue;
             }
@@ -506,10 +510,10 @@ namespace System.CommandLine.Help
             return $"{name}: {defaultValue}";
         }
 
-        protected string GetArgumentDescriptor(IArgument argument)
+        protected string GetArgumentDescriptor(IArgument argument, ParseResult parseResult)
         {
             if (Customizations.TryGetValue(argument, out Customization customization) &&
-                customization.GetDescriptor?.Invoke() is { } setDescriptor)
+                customization.GetDescriptor?.Invoke(parseResult) is { } setDescriptor)
             {
                 return setDescriptor;
             }
@@ -558,15 +562,15 @@ namespace System.CommandLine.Help
 
         private class Customization
         {
-            public Customization(Func<string?>? getDescriptor,
-                Func<string?>? getDefaultValue)
+            public Customization(Func<ParseResult?, string?>? getDescriptor,
+                Func<ParseResult?, string?>? getDefaultValue)
             {
                 GetDescriptor = getDescriptor;
                 GetDefaultValue = getDefaultValue;
             }
 
-            public Func<string?>? GetDescriptor { get; }
-            public Func<string?>? GetDefaultValue { get; }
+            public Func<ParseResult?, string?>? GetDescriptor { get; }
+            public Func<ParseResult?, string?>? GetDefaultValue { get; }
         }
     }
 }
