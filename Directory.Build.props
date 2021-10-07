@@ -10,4 +10,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- This repo is currently on the .NET 5 APIs, but a build task in license validation during source build requires 6.0. -->
+    <SuppressLicenseValidation>true</SuppressLicenseValidation>
+  </PropertyGroup>
+
 </Project>
