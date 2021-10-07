@@ -14,6 +14,13 @@ namespace System.CommandLine
     /// </summary>
     public static class OptionExtensions
     {
+        /// <summary>
+        /// Configures an option to accept only the specified values, and to suggest them as command line completions.
+        /// </summary>
+        /// <param name="option">The option to configure.</param>
+        /// <param name="values">The values that are allowed for the option.</param>
+        /// <typeparam name="TOption">The type of the option's parsed value.</typeparam>
+        /// <returns>The configured argument.</returns>
         public static TOption FromAmong<TOption>(
             this TOption option,
             params string[] values)
@@ -52,13 +59,18 @@ namespace System.CommandLine
         public static TOption AddSuggestions<TOption>(
             this TOption option,
             SuggestDelegate suggest)
-            where TOption : Option 
+            where TOption : Option
         {
             option.Argument.Suggestions.Add(suggest);
 
             return option;
         }
 
+        /// <summary>
+        /// Configures an option to accept only values corresponding to an existing file.
+        /// </summary>
+        /// <param name="option">The option to configure.</param>
+        /// <returns>The option being extended.</returns>
         public static Option<FileInfo> ExistingOnly(this Option<FileInfo> option)
         {
             option.Argument.AddValidator(
@@ -66,12 +78,17 @@ namespace System.CommandLine
                     a.Tokens
                      .Select(t => t.Value)
                      .Where(filePath => !File.Exists(filePath))
-                     .Select(a.Resources.FileDoesNotExist)
+                     .Select(a.LocalizationResources.FileDoesNotExist)
                      .FirstOrDefault());
 
             return option;
         }
 
+        /// <summary>
+        /// Configures an option to accept only values corresponding to an existing directory.
+        /// </summary>
+        /// <param name="option">The option to configure.</param>
+        /// <returns>The option being extended.</returns>
         public static Option<DirectoryInfo> ExistingOnly(this Option<DirectoryInfo> option)
         {
             option.Argument.AddValidator(
@@ -79,12 +96,17 @@ namespace System.CommandLine
                     a.Tokens
                      .Select(t => t.Value)
                      .Where(filePath => !Directory.Exists(filePath))
-                     .Select(a.Resources.DirectoryDoesNotExist)
+                     .Select(a.LocalizationResources.DirectoryDoesNotExist)
                      .FirstOrDefault());
 
             return option;
         }
 
+        /// <summary>
+        /// Configures an option to accept only values corresponding to an existing file or directory.
+        /// </summary>
+        /// <param name="option">The option to configure.</param>
+        /// <returns>The option being extended.</returns>
         public static Option<FileSystemInfo> ExistingOnly(this Option<FileSystemInfo> option)
         {
             option.Argument.AddValidator(
@@ -92,12 +114,17 @@ namespace System.CommandLine
                     a.Tokens
                      .Select(t => t.Value)
                      .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                     .Select(a.Resources.FileOrDirectoryDoesNotExist)
+                     .Select(a.LocalizationResources.FileOrDirectoryDoesNotExist)
                      .FirstOrDefault());
 
             return option;
         }
 
+        /// <summary>
+        /// Configures an option to accept only values corresponding to a existing files or directories.
+        /// </summary>
+        /// <param name="option">The option to configure.</param>
+        /// <returns>The option being extended.</returns>
         public static Option<T> ExistingOnly<T>(this Option<T> option)
             where T : IEnumerable<FileSystemInfo>
         {
@@ -109,6 +136,11 @@ namespace System.CommandLine
             return option;
         }
 
+        /// <summary>
+        /// Configures an option to accept only values representing legal file paths.
+        /// </summary>
+        /// <param name="option">The option to configure.</param>
+        /// <returns>The option being extended.</returns>
         public static TOption LegalFilePathsOnly<TOption>(
             this TOption option)
             where TOption : Option
@@ -118,6 +150,12 @@ namespace System.CommandLine
             return option;
         }
 
+        /// <summary>
+        /// Configures an option to accept only values representing legal file names.
+        /// </summary>
+        /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
+        /// <param name="option">The option to configure.</param>
+        /// <returns>The option being extended.</returns>
         public static TOption LegalFileNamesOnly<TOption>(
             this TOption option)
             where TOption : Option
@@ -127,9 +165,27 @@ namespace System.CommandLine
             return option;
         }
 
+        /// <summary>
+        /// Parses a command line string value using an option.
+        /// </summary>
+        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        /// <param name="option">The option to use to parse the command line input.</param>
+        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
+        /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public static ParseResult Parse(
             this Option option,
             string commandLine) =>
             new Parser(new CommandLineConfiguration(new[] { option })).Parse(commandLine);
+
+        /// <summary>
+        /// Parses a command line string value using an option.
+        /// </summary>
+        /// <param name="option">The option to use to parse the command line input.</param>
+        /// <param name="args">The string options to parse.</param>
+        /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        public static ParseResult Parse(
+            this Option option,
+            string[] args) =>
+            new Parser(new CommandLineConfiguration(new[] { option })).Parse(args);
     }
 }

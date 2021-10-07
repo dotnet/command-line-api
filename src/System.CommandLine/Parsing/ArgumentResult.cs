@@ -9,7 +9,7 @@ using System.Linq;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing an argument.
+    /// A result produced when parsing an <see cref="IArgument"/>.
     /// </summary>
     public class ArgumentResult : SymbolResult
     {
@@ -34,9 +34,14 @@ namespace System.CommandLine.Parsing
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= Convert(Argument);
 
+        /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
             GetValueOrDefault<object?>();
 
+        /// <summary>
+        /// Gets the parsed value or the default value for <see cref="Argument"/>.
+        /// </summary>
+        /// <returns>The parsed value or the default value for <see cref="Argument"/></returns>
         [return: MaybeNull]
         public T GetValueOrDefault<T>() =>
             GetArgumentConversionResult()
@@ -132,9 +137,9 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (arg.ConvertArguments != null)
+                if (arg.ConvertArguments is not null)
                 {
-                    if (_conversionResult != null)
+                    if (_conversionResult is not null)
                     {
                         return _conversionResult;
                     }

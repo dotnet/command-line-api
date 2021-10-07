@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
@@ -8,9 +9,12 @@ using System.Linq;
 
 namespace System.CommandLine.Suggestions
 {
-    public static class SuggestionSource
+    /// <summary>
+    /// Provides extension methods supporting <see cref="ISuggestionSource"/> and command line tab completion.
+    /// </summary>
+    internal static class SuggestionSource
     {
-        private static readonly Dictionary<Type, ISuggestionSource> _suggestionSourcesByType = new Dictionary<Type, ISuggestionSource>();
+        private static readonly ConcurrentDictionary<Type, ISuggestionSource> _suggestionSourcesByType = new();
 
         private static readonly string[] _trueAndFalse =
         {
@@ -18,12 +22,15 @@ namespace System.CommandLine.Suggestions
             bool.TrueString
         };
 
-        public static ISuggestionSource ForType(Type type)
+        /// <summary>
+        /// Gets a suggestion source that provides completions for a type (e.g. enum) with well-known values.
+        /// </summary>
+        internal static ISuggestionSource ForType(Type type)
         {
             return _suggestionSourcesByType.GetOrAdd(type, t => new SuggestionSourceForType(t));
         }
 
-        public static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource((_, __) => Array.Empty<string>());
+        internal static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource((_, _) => Array.Empty<string>());
 
         private class SuggestionSourceForType : ISuggestionSource
         {

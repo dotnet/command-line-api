@@ -166,7 +166,7 @@ namespace System.CommandLine.DragonFruit
             {
                 var argument = new Argument
                 {
-                    ArgumentType = argsParam.ParameterType,
+                    ValueType = argsParam.ParameterType,
                     Name = argsParam.Name
                 };
 
@@ -209,13 +209,12 @@ namespace System.CommandLine.DragonFruit
                     metadata.Description != null)
                 {
                     builder.Command.Description = metadata.Description;
-                    var options = builder.Options.ToArray();
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
                         var kebabCasedParameterName = parameterDescription.Key.ToKebabCase();
 
-                        var option = options.FirstOrDefault(o => o.HasAliasIgnoringPrefix(kebabCasedParameterName));
+                        var option = builder.Command.Options.FirstOrDefault(o => o.HasAliasIgnoringPrefix(kebabCasedParameterName));
 
                         if (option != null)
                         {

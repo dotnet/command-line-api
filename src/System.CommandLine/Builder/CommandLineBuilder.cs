@@ -10,32 +10,52 @@ using System.Linq;
 
 namespace System.CommandLine.Builder
 {
+    /// <summary>
+    /// Enables composition of command line configurations.
+    /// </summary>
     public class CommandLineBuilder : CommandBuilder
     {
         private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
 
+        /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command? rootCommand = null)
             : base(rootCommand ?? new RootCommand())
         {
         }
 
+        /// <summary>
+        /// Determines whether the parser recognizes command line directives.
+        /// </summary>
+        /// <seealso cref="IDirectiveCollection"/>
         public bool EnableDirectives { get; set; } = true;
 
+        /// <summary>
+        /// Determines whether the parser recognize and expands POSIX-style bundled options.
+        /// </summary>
         public bool EnablePosixBundling { get; set; } = true;
 
+        /// <summary>
+        /// Configures the parser's handling of response files. When enabled, a command line token beginning with <c>@</c> that is a valid file path will be expanded as though inserted into the command line. 
+        /// </summary>
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
         internal Func<BindingContext, IHelpBuilder>? HelpBuilderFactory { get; set; }
+
         internal Action<IHelpBuilder>? ConfigureHelp { get; set; }
 
         internal HelpOption? HelpOption { get; set; }
-        internal Option<bool>? VersionOption { get; set; }
 
-        internal Resources? Resources { get; set; }
+        internal VersionOption? VersionOption { get; set; }
 
+        internal LocalizationResources? LocalizationResources { get; set; }
+
+        /// <summary>
+        /// Creates a parser based on the configuration of the command line builder.
+        /// </summary>
+        /// <returns></returns>
         public Parser Build()
         {
-            var resources = Resources ?? Resources.Instance;
+            var resources = LocalizationResources ?? LocalizationResources.Instance;
 
             if (HelpOption is not null)
             {
@@ -54,7 +74,7 @@ namespace System.CommandLine.Builder
                     new[] { rootCommand },
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
-                    resources: Resources,
+                    resources: LocalizationResources,
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)

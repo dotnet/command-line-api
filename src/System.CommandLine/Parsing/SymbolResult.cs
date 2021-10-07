@@ -11,7 +11,7 @@ namespace System.CommandLine.Parsing
     public abstract class SymbolResult
     {
         private protected readonly List<Token> _tokens = new();
-        private Resources? _resources;
+        private LocalizationResources? _resources;
         private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new();
 
         private protected SymbolResult(
@@ -56,28 +56,44 @@ namespace System.CommandLine.Parsing
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity == 0;
 
         private protected virtual int RemainingArgumentCapacity =>
-            MaximumArgumentCapacity() - Tokens.Count;
+            MaximumArgumentCapacity - Tokens.Count;
 
-        internal int MaximumArgumentCapacity()
+        internal int MaximumArgumentCapacity
         {
-            var value = 0;
-
-            var arguments = Symbol.Arguments();
-
-            for (var i = 0; i < arguments.Count; i++)
+            get
             {
-                value += arguments[i].Arity.MaximumNumberOfValues;
-            }
+                switch (Symbol)
+                {
+                    case IOption option:
+                        return option.Argument.Arity.MaximumNumberOfValues;
 
-            return value;
+                    case IArgument argument:
+                        return argument.Arity.MaximumNumberOfValues;
+
+                    case ICommand command:
+                        var value = 0;
+
+                        var arguments = command.Arguments;
+
+                        for (var i = 0; i < arguments.Count; i++)
+                        {
+                            value += arguments[i].Arity.MaximumNumberOfValues;
+                        }
+
+                        return value;
+
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
         }
 
         /// <summary>
         /// Localization resources used to produce messages for this symbol result.
         /// </summary>
-        protected internal Resources Resources
+        protected internal LocalizationResources LocalizationResources
         {
-            get => _resources ??= Parent?.Resources ?? Resources.Instance;
+            get => _resources ??= Parent?.LocalizationResources ?? LocalizationResources.Instance;
             set => _resources = value;
         }
 
@@ -130,7 +146,7 @@ namespace System.CommandLine.Parsing
                     if (!argument.AllowedValues.Contains(token.Value))
                     {
                         return new ParseError(
-                            Resources
+                            LocalizationResources
                                 .UnrecognizedArgument(token.Value, argument.AllowedValues),
                             this);
                     }

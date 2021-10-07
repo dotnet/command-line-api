@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,17 +17,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_TypoCorrection
     {
-        private readonly NullConsole _nullConsole = new NullConsole();
+        private readonly NullConsole _nullConsole = new();
         private readonly Parser _testParser;
 
         public Perf_Parser_TypoCorrection()
         {
             var option = new Option("--0123456789");
 
-            _testParser = new CommandLineBuilder()
-                    .AddOption(option)
-                    .UseTypoCorrections()
-                    .Build();
+            _testParser = new CommandLineBuilder(new RootCommand { option })
+                          .UseTypoCorrections()
+                          .Build();
         }
 
         public IEnumerable<BdnParam<ParseResult>> GenerateTestParseResults()

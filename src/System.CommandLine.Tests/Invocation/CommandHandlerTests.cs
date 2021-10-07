@@ -67,8 +67,8 @@ namespace System.CommandLine.Tests.Invocation
             }
 
             var command = new Command("command");
-            command.AddOption(new Option<string>("--name"));
-            command.AddOption(new Option<string>("--age"));
+            command.AddOption(new Option<string>(new[] { "-n", "--name" }));
+            command.AddOption(new Option<string>(new[] { "-a", "--age" }));
             command.Handler = CommandHandler.Create<string, int>(Execute);
 
             await command.InvokeAsync("command --age 425 --name Gandalf", _console);
@@ -270,7 +270,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundParseResult.ValueForOption(option).Should().Be(123);
+            boundParseResult.GetValueForOption(option).Should().Be(123);
         }
 
         [Fact]
@@ -287,7 +287,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundContext.ParseResult.ValueForOption(option).Should().Be(123);
+            boundContext.ParseResult.GetValueForOption(option).Should().Be(123);
         }
 
         [Fact]
@@ -319,9 +319,8 @@ namespace System.CommandLine.Tests.Invocation
 
             await command.InvokeAsync("command -x 123", _console);
 
-            boundContext.ParseResult.ValueForOption(option).Should().Be(123);
+            boundContext.ParseResult.GetValueForOption(option).Should().Be(123);
         }
-
 
         private class ExecuteTestClass
         {
@@ -397,7 +396,6 @@ namespace System.CommandLine.Tests.Invocation
             boundName.Should().Be("Gandalf");
             boundAge.Should().Be(425);
         }
-
 
         [Fact]
         public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_hyphenated_argument_names()

@@ -123,7 +123,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override Type ArgumentType
+        public override Type ValueType
         {
             get => typeof(T);
             set => throw new NotImplementedException();

@@ -218,7 +218,7 @@ namespace System.CommandLine.Parsing
                             argument,
                             argument.ValueType,
                             CurrentToken.Value,
-                            _configuration.Resources) is FailedArgumentTypeConversionResult)
+                            _configuration.LocalizationResources) is FailedArgumentTypeConversionResult)
                     {
                         return;
                     }

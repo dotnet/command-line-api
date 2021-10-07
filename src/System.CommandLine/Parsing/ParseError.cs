@@ -3,6 +3,9 @@
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Describes an error that occurs while parsing command line input.
+    /// </summary>
     public class ParseError
     {
         internal ParseError(
@@ -18,10 +21,17 @@ namespace System.CommandLine.Parsing
             SymbolResult = symbolResult;
         }
 
+        /// <summary>
+        /// A message to explain the error to a user.
+        /// </summary>
         public string Message { get; }
 
+        /// <summary>
+        /// The symbol result detailing the symbol that failed to parse and the tokens involved.
+        /// </summary>
         public SymbolResult? SymbolResult { get; }
 
+        /// <inheritdoc />
         public override string ToString() => Message;
     }
 }

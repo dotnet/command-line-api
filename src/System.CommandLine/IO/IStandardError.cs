@@ -13,6 +13,9 @@ namespace System.CommandLine.IO
         /// </summary>
         IStandardStreamWriter Error { get; }
 
+        /// <summary>
+        /// Indicates whether the standard error stream has been redirected.
+        /// </summary>
         bool IsErrorRedirected { get; }
     }
 }

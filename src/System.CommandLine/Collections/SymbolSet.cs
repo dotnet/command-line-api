@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace System.CommandLine.Collections
 {
+    /// <summary>
+    /// A set of symbols, unique and indexed by their aliases.
+    /// </summary>
     public class SymbolSet : AliasedSet<ISymbol>, ISymbolSet
     {
         private List<Argument>? _arguments;
@@ -23,18 +26,6 @@ namespace System.CommandLine.Collections
             if (item is Symbol symbol)
             {   
                 symbol.OnNameOrAliasChanged += Resync;
-            }
-        }
-
-        internal override void Remove(ISymbol item)
-        {
-            base.Remove(item);
-
-            ResetIndex(item);
-
-            if (item is Symbol symbol)
-            {
-                symbol.OnNameOrAliasChanged -= Resync;
             }
         }
 

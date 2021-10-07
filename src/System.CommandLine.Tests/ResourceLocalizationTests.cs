@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Default_validation_messages_can_be_replaced_in_order_to_add_localization_support()
         {
-            var messages = new FakeResources("the-message");
+            var messages = new FakeLocalizationResources("the-message");
 
             var command = new Command("the-command")
             {
@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Default_validation_messages_can_be_replaced_using_CommandLineBuilder_in_order_to_add_localization_support()
         {
-            var messages = new FakeResources("the-message");
+            var messages = new FakeLocalizationResources("the-message");
 
             var parser = new CommandLineBuilder(new Command("the-command")
                          {
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests
                                  Arity = ArgumentArity.ExactlyOne
                              }
                          })
-                         .UseResources(messages)
+                         .UseLocalizationResources(messages)
                          .Build();
 
             var result = parser.Parse("the-command");
@@ -56,11 +56,11 @@ namespace System.CommandLine.Tests
                   .Contain("the-message");
         }
 
-        public class FakeResources : Resources
+        public class FakeLocalizationResources : LocalizationResources
         {
             private readonly string message;
 
-            public FakeResources(string message)
+            public FakeLocalizationResources(string message)
             {
                 this.message = message;
             }

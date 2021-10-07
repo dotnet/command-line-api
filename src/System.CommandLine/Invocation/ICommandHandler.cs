@@ -5,8 +5,16 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
+    /// <summary>
+    /// Defines the behavior of a command.
+    /// </summary>
     public interface ICommandHandler
     {
+        /// <summary>
+        /// Performs an action when the associated command is invoked on the command line.
+        /// </summary>
+        /// <param name="context">Provides context for the invocation, including parse results  and binding support.</param>
+        /// <returns></returns>
         Task<int> InvokeAsync(InvocationContext context);
     }
 }

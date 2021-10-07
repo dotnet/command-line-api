@@ -2,11 +2,31 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
+using System.Text;
 
 namespace System.CommandLine.IO
 {
+    /// <summary>
+    /// Provides methods for working with standard streams.
+    /// </summary>
     public static class StandardStreamWriter
     {
+        /// <summary>
+        /// Creates a <see cref="TextWriter"/> that writes to the specified <see cref="IStandardStreamWriter"/>.
+        /// </summary>
+        public static TextWriter Create(IStandardStreamWriter writer)
+        {
+            if (writer is null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            return new TextWriterThatWritesToStandardStreamWriter(writer);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IStandardStreamWriter"/> that writes to the specified <see cref="TextWriter"/>.
+        /// </summary>
         public static IStandardStreamWriter Create(TextWriter writer)
         {
             if (writer is null)
@@ -36,6 +56,28 @@ namespace System.CommandLine.IO
 
             writer.Write(value);
             writer.Write(Environment.NewLine);
+        }
+
+        private class TextWriterThatWritesToStandardStreamWriter : TextWriter
+        {
+            private readonly IStandardStreamWriter _writer;
+
+            public TextWriterThatWritesToStandardStreamWriter(IStandardStreamWriter writer)
+            {
+                _writer = writer;
+            }
+
+            public override Encoding Encoding => Encoding.UTF8;
+
+            public override void Write(char value)
+            {
+                _writer.Write(value.ToString());
+            }
+            
+            public override void Write(string value)
+            {
+                _writer.Write(value);
+            }
         }
 
         private class AnonymousStandardStreamWriter : IStandardStreamWriter

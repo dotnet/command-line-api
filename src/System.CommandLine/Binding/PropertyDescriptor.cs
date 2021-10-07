@@ -5,6 +5,7 @@ using System.Reflection;
 
 namespace System.CommandLine.Binding
 {
+    /// <inheritdoc />
     public class PropertyDescriptor : IValueDescriptor
     {
         private readonly PropertyInfo _propertyInfo;
@@ -17,18 +18,30 @@ namespace System.CommandLine.Binding
             _propertyInfo = propertyInfo;
         }
 
+        /// <inheritdoc />
         public string ValueName => _propertyInfo.Name;
 
+        /// <summary>
+        /// The model descriptor that the target property belongs to.
+        /// </summary>
         public ModelDescriptor Parent { get; }
 
         internal string Path => Parent + "." + ValueName;
 
+        /// <inheritdoc />
         public Type ValueType => _propertyInfo.PropertyType;
 
+        /// <inheritdoc />
         public bool HasDefaultValue => false;
 
+        /// <inheritdoc />
         public object? GetDefaultValue() => Binder.GetDefaultValue(ValueType);
 
+        /// <summary>
+        /// Sets a value on the target property.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="value"></param>
         public void SetValue(object? instance, object? value)
         {
             _propertyInfo.SetValue(instance, value);

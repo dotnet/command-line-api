@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
+    /// <summary>
+    /// Instantiates values to be passed to a user-defined command handler method.
+    /// </summary>
     public class ModelBindingCommandHandler : ICommandHandler
     {
         private readonly Delegate? _handlerDelegate;
@@ -17,30 +20,28 @@ namespace System.CommandLine.Invocation
         private readonly MethodInfo? _handlerMethodInfo;
         private readonly IMethodDescriptor _methodDescriptor;
         private Dictionary<IValueDescriptor, IValueSource> invokeArgumentBindingSources { get; } =
-            new Dictionary<IValueDescriptor, IValueSource>();
-        private readonly bool _enforceExplicitBinding = false; // We have not exposed this because we anticipate changing how explicit/implicit binding is defined.
+            new();
 
-        public ModelBindingCommandHandler(
+        internal ModelBindingCommandHandler(
             MethodInfo handlerMethodInfo,
-            IMethodDescriptor methodDescriptor)
+            IMethodDescriptor methodDescriptor,
+            object? invocationTarget)
         {
             _handlerMethodInfo = handlerMethodInfo ?? throw new ArgumentNullException(nameof(handlerMethodInfo));
             _invocationTargetBinder = _handlerMethodInfo.IsStatic
                                           ? null
                                           : new ModelBinder(_handlerMethodInfo.ReflectedType);
             _methodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
-        }
-
-        public ModelBindingCommandHandler(
-            MethodInfo handlerMethodInfo,
-            IMethodDescriptor methodDescriptor,
-            object? invocationTarget)
-            :this(handlerMethodInfo, methodDescriptor )
-        {
             _invocationTarget = invocationTarget;
         }
 
-        public ModelBindingCommandHandler(
+        internal ModelBindingCommandHandler(
+            MethodInfo handlerMethodInfo,
+            IMethodDescriptor methodDescriptor)
+            : this(handlerMethodInfo, methodDescriptor, null)
+        { }
+
+        internal ModelBindingCommandHandler(
              Delegate handlerDelegate,
              IMethodDescriptor methodDescriptor)
         {
@@ -48,6 +49,11 @@ namespace System.CommandLine.Invocation
             _methodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
         }
 
+        /// <summary>
+        /// Binds values for the underlying user-defined method and uses them to invoke that method.
+        /// </summary>
+        /// <param name="context">The current invocation context.</param>
+        /// <returns>A task whose value can be used to set the process exit code.</returns>
         public async Task<int> InvokeAsync(InvocationContext context)
         {
             var bindingContext = context.BindingContext;
@@ -56,7 +62,7 @@ namespace System.CommandLine.Invocation
                                                 invokeArgumentBindingSources,
                                                 bindingContext,
                                                 _methodDescriptor.ParameterDescriptors,
-                                                _enforceExplicitBinding);
+                                                false);
 
             var invocationArguments = boundValues
                                         .Select(x => x.Value)
@@ -83,12 +89,22 @@ namespace System.CommandLine.Invocation
             return await CommandHandler.GetExitCodeAsync(result, context);
         }
 
+        /// <summary>
+        /// Binds a method or constructor parameter based on the specified <see cref="Argument"/>.
+        /// </summary>
+        /// <param name="param">The parameter to bind.</param>
+        /// <param name="argument">The argument whose parsed result will be the source of the bound value.</param>
         public void BindParameter(ParameterInfo param, Argument argument)
         {
             var _ = argument ?? throw new InvalidOperationException("You must specify an argument to bind");
             BindValueSource(param, new SpecificSymbolValueSource(argument));
         }
 
+        /// <summary>
+        /// Binds a method or constructor parameter based on the specified <see cref="Option"/>.
+        /// </summary>
+        /// <param name="param">The parameter to bind.</param>
+        /// <param name="option">The option whose parsed result will be the source of the bound value.</param>
         public void BindParameter(ParameterInfo param, Option option)
         {
             var _ = option ?? throw new InvalidOperationException("You must specify an option to bind");
@@ -106,7 +122,7 @@ namespace System.CommandLine.Invocation
         }
 
         private ParameterDescriptor? FindParameterDescriptor(ParameterInfo? param)
-            => param == null
+            => param is null
                ? null
                : _methodDescriptor.ParameterDescriptors
                     .FirstOrDefault(x => x.ValueName == param.Name &&

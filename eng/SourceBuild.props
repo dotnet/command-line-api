@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <Exec
-      Command="git apply --ignore-whitespace --whitespace=nowarn &quot;%(SourceBuildPatchFile.FullPath)&quot;"
+      Command="git --work-tree=$(RepoRoot) apply --ignore-whitespace --whitespace=nowarn &quot;%(SourceBuildPatchFile.FullPath)&quot;"
       WorkingDirectory="$(RepoRoot)"
       Condition="'@(SourceBuildPatchFile)' != ''" />
   </Target>

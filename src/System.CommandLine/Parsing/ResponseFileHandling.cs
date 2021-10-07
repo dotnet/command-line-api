@@ -3,17 +3,28 @@
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Specifies settings for response file parsing.
+    /// </summary>
     public enum ResponseFileHandling
     {
-        // Empty lines and lines beginning with # are skipped.
 
-        // Each line in the file is treated as a single argument, regardless of whitespace on the line.
+        ///<summary>
+        /// Each line in the file is treated as a single argument, regardless of whitespace on the line.
+        ///</summary>
+        ///<remarks>
+        /// Empty lines and lines beginning with <c>#</c> are skipped.
+        ///</remarks>
         ParseArgsAsLineSeparated,
 
-        // Arguments are separated by whitespace (spaces and/or new-lines)
+        ///<summary>
+        /// Arguments are separated by whitespace (spaces and/or new-lines)
+        ///</summary>
         ParseArgsAsSpaceSeparated,
 
-        // Do not parse response files or treat arguments with &apos;@' as a response file
+        ///<summary>
+        /// Do not parse response files. Command line tokens beginning with <c>@</c> receive no special treatment.
+        ///</summary>
         Disabled
     }
 }

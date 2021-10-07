@@ -4,7 +4,7 @@ using System.CommandLine.Binding;
 
 namespace System.CommandLine.Parsing
 {
-    public static class CommandResultExtensions
+    internal static class CommandResultExtensions
     {
         internal static bool TryGetValueForArgument(
             this CommandResult commandResult,
@@ -27,6 +27,7 @@ namespace System.CommandLine.Parsing
                     {
                         value = valueDescriptor.GetDefaultValue();
                     }
+
                     return true;
                 }
             }
@@ -44,23 +45,46 @@ namespace System.CommandLine.Parsing
 
             for (var i = 0; i < options.Count; i++)
             {
-                var option = (Option) options[i];
-
-                if (!option.DisallowBinding &&
-                    valueDescriptor.ValueName.IsMatch(option))
+                if (options[i] is Option { DisallowBinding: false } option)
                 {
-                    var optionResult = commandResult.FindResultFor(option);
+                    var hasMatchingAlias =
+                        HasMatchingAlias(valueDescriptor, option);
 
-                    if (optionResult?.ConvertIfNeeded(valueDescriptor.ValueType) is SuccessfulArgumentConversionResult successful)
+                    if (hasMatchingAlias)
                     {
-                        value = successful.Value;
-                        return true;
+                        var optionResult = commandResult.FindResultFor(option);
+
+                        if (optionResult?.ConvertIfNeeded(valueDescriptor.ValueType) is SuccessfulArgumentConversionResult successful)
+                        {
+                            value = successful.Value;
+                            return true;
+                        }
                     }
                 }
             }
 
             value = null;
             return false;
+
+            static bool HasMatchingAlias(
+                IValueDescriptor valueDescriptor,
+                Option option)
+            {
+                if (option.HasAlias(valueDescriptor.ValueName))
+                {
+                    return true;
+                }
+
+                foreach (var alias in option.Aliases)
+                {
+                    if (valueDescriptor.ValueName.IsMatch(alias))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
     }
 }

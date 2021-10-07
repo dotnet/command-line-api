@@ -39,10 +39,10 @@ stages:
           # For public or PR jobs, use the hosted pool.  For internal jobs use the internal pool.
           # Will eventually change this to two BYOC pools.
           ${{ if ne(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Svc-Public
+            name: NetCore1ESPool-Public
             demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Svc-Internal
+            name: NetCore1ESPool-Internal
             demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019
         variables:
         # Only enable publishing in official builds.

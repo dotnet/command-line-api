@@ -5,12 +5,20 @@ using System.Linq.Expressions;
 
 namespace System.CommandLine.Binding
 {
+    /// <inheritdoc />
     public class ModelBinder<TModel> : ModelBinder
     {
+        /// <inheritdoc />
         public ModelBinder() : base(typeof(TModel))
         {
         }
 
+        /// <summary>
+        /// Configures a custom binding behavior for the specified property.
+        /// </summary>
+        /// <param name="property">An expression specifying the property to bind.</param>
+        /// <param name="valueDescriptor"></param>
+        /// <typeparam name="TValue">A value descriptor for the value from which the property will be bound.</typeparam>
         public void BindMemberFromValue<TValue>(
             Expression<Func<TModel, TValue>> property,
             IValueDescriptor valueDescriptor)
@@ -22,6 +30,12 @@ namespace System.CommandLine.Binding
                 new SpecificSymbolValueSource(valueDescriptor);
         }
 
+        /// <summary>
+        /// Configures a custom binding behavior for the specified property.
+        /// </summary>
+        /// <param name="property">An expression specifying the property to bind.</param>
+        /// <param name="getValue">A delegate that gets the value to bind to the target property.</param>
+        /// <typeparam name="TValue">The type of the target property.</typeparam>
         public void BindMemberFromValue<TValue>(
             Expression<Func<TModel, TValue>> property,
             Func<BindingContext?, TValue> getValue)

@@ -11,17 +11,17 @@ namespace System.CommandLine
     /// <summary>
     /// Provides localizable strings for help and error messages.
     /// </summary>
-    public class Resources
+    public class LocalizationResources
     {
         /// <summary>
-        /// Gets a global instance of the <see cref="Resources"/> class.
+        /// Gets a global instance of the <see cref="LocalizationResources"/> class.
         /// </summary>
-        public static Resources Instance { get; } = new();
+        public static LocalizationResources Instance { get; } = new();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Resources"/> class.
+        /// Initializes a new instance of the <see cref="LocalizationResources"/> class.
         /// </summary>
-        protected Resources()
+        protected LocalizationResources()
         {
         }
 
@@ -260,7 +260,12 @@ namespace System.CommandLine
         public virtual string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType)
             => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption, value, optionAlias, expectedType);
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Interpolates values into a localized string.
+        /// </summary>
+        /// <param name="resourceString">The string template into which values will be interpolated.</param>
+        /// <param name="formatArguments">The values to interpolate.</param>
+        /// <returns>The final string after interpolation.</returns>
         protected virtual string GetResourceString(string resourceString, params object[] formatArguments)
         {
             if (resourceString is null)

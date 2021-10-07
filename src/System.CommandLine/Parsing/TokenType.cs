@@ -3,13 +3,45 @@
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Identifies the type of a <see cref="Token"/>.
+    /// </summary>
     public enum TokenType
     {
+        /// <summary>
+        /// An argument token.
+        /// </summary>
+        /// <see cref="Argument"/>
         Argument,
+
+        /// <summary>
+        /// A command token.
+        /// </summary>
+        /// <see cref="Command"/>
         Command,
+        
+        /// <summary>
+        /// An option token.
+        /// </summary>
+        /// <see cref="Option"/>
         Option,
+        
+        /// <summary>
+        /// A double dash (<c>--</c>) token, which changes the meaning of subsequent tokens.
+        /// </summary>
+        /// <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/>
         EndOfArguments,
+
+        /// <summary>
+        /// A token following <see cref="EndOfArguments"/>.
+        /// </summary>
+        /// <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/>
         Operand,
+        
+        /// <summary>
+        /// A directive token.
+        /// </summary>
+        /// <see cref="IDirectiveCollection"/>
         Directive
     }
 }

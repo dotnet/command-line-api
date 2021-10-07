@@ -2,18 +2,22 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Help;
 using System.CommandLine.Parsing;
 using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
+    /// <summary>
+    /// Supports command invocation by providing access to parse results and other services.
+    /// </summary>
     public sealed class InvocationContext : IDisposable
     {
         private CancellationTokenSource? _cts;
         private Action<CancellationTokenSource>? _cancellationHandlingAddedEvent;
 
-        public BindingContext BindingContext { get; }
-
+        /// <param name="parseResult">The result of the current parse operation.</param>
+        /// <param name="console">The console to which output is to be written.</param>
         public InvocationContext(
             ParseResult parseResult,
             IConsole? console = null)
@@ -23,27 +27,56 @@ namespace System.CommandLine.Invocation
             BindingContext.ServiceProvider.AddService(_ => this);
         }
 
+        /// <summary>
+        /// The binding context for the current invocation.
+        /// </summary>
+        public BindingContext BindingContext { get; }
+
+        /// <summary>
+        /// The console to which output should be written during the current invocation.
+        /// </summary>
         public IConsole Console => BindingContext.Console;
 
+        /// <summary>
+        /// Enables writing help output.
+        /// </summary>
+        public IHelpBuilder HelpBuilder => Parser.Configuration.HelpBuilderFactory(BindingContext);
+
+        /// <summary>
+        /// The parser used to create the <see cref="ParseResult"/>.
+        /// </summary>
         public Parser Parser => BindingContext.ParseResult.Parser;
 
-        public Resources Resources => Parser.Configuration.Resources;
+        /// <summary>
+        /// Provides localizable strings for help and error messages.
+        /// </summary>
+        public LocalizationResources LocalizationResources => Parser.Configuration.LocalizationResources;
 
+        /// <summary>
+        /// The parse result for the current invocation.
+        /// </summary>
         public ParseResult ParseResult
         {
             get => BindingContext.ParseResult;
             set => BindingContext.ParseResult = value;
         }
 
+        /// <summary>
+        /// A value that can be used to set the exit code for the process.
+        /// </summary>
         public int ExitCode { get; set; }
 
+        /// <summary>
+        /// The result of the current invocation.
+        /// </summary>
+        /// <remarks>As the <see cref="InvocationContext"/> is passed through the invocation pipeline to the <see cref="ICommandHandler"/> associated with the invoked command, only the last value of this property will be the one applied.</remarks>
         public IInvocationResult? InvocationResult { get; set; }
 
         internal event Action<CancellationTokenSource> CancellationHandlingAdded
         {
             add
             {
-                if (_cts != null)
+                if (_cts is not null)
                 {
                     throw new InvalidOperationException("Handlers must be added before adding cancellation handling.");
                 }
@@ -68,6 +101,7 @@ namespace System.CommandLine.Invocation
             return _cts.Token;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             (Console as IDisposable)?.Dispose();

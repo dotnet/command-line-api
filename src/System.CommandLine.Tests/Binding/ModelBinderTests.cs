@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests.Binding
                 new Argument
                 {
                     Name = "value",
-                    ArgumentType = type
+                    ValueType = type
                 }
             };
 
@@ -88,7 +88,7 @@ namespace System.CommandLine.Tests.Binding
                 new Argument
                 {
                     Name = "value",
-                    ArgumentType = type
+                    ValueType = type
                 }
             };
 
@@ -167,7 +167,7 @@ namespace System.CommandLine.Tests.Binding
                 new Argument
                 {
                     Name = "value",
-                    ArgumentType = type
+                    ValueType = type
                 }
             };
             var parser = new Parser(command);
@@ -540,29 +540,6 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Explicit_model_binder_binds_only_to_configured_ctor_parameters()
-        {
-            var intOption = new Option<int>("-a");
-            var stringOption = new Option<string>("-b");
-            var parser = new Parser(intOption, stringOption);
-            var ctor = typeof(ClassWithMultiLetterCtorParameters)
-                .GetConstructors(BindingFlags.Public | BindingFlags.Instance)[0];
-            var paramInfo = ctor.GetParameters()[0];
-
-            var bindingContext = new BindingContext(parser.Parse("-a 42 -b Hello"));
-            var binder = new ModelBinder<ClassWithMultiLetterCtorParameters>
-            {
-                EnforceExplicitBinding = true
-            };
-            binder.BindConstructorArgumentFromValue(paramInfo, intOption);
-            var instance = binder.CreateInstance(bindingContext) as ClassWithMultiLetterCtorParameters;
-
-            instance.Should().NotBeNull();
-            instance.IntOption.Should().Be(42);
-            instance.StringOption.Should().Be("the default");
-        }
-
-        [Fact]
         public async Task Bound_array_command_arguments_default_to_an_empty_array_when_not_specified()
         {
             var rootCommand = new RootCommand("Command")
@@ -655,7 +632,7 @@ namespace System.CommandLine.Tests.Binding
             rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
 
             var parser = new CommandLineBuilder(rootCommand)
-                         .UseMiddleware(context =>
+                         .AddMiddleware(context =>
                          {
                              var binder = new ModelBinder<ClassWithSetter<int>>();
 
@@ -683,7 +660,7 @@ namespace System.CommandLine.Tests.Binding
             rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
 
             var parser = new CommandLineBuilder(rootCommand)
-                         .UseMiddleware(context =>
+                         .AddMiddleware(context =>
                          {
                              var binder = new ModelBinder<ClassWithSetter<int>>();
 
@@ -793,6 +770,40 @@ namespace System.CommandLine.Tests.Binding
         {
             public decimal OptDecimal { get; set; }
         }
+
+        [Fact] // issue: https://github.com/dotnet/command-line-api/issues/1365
+        public void Binder_does_not_match_by_substring()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Option<string>(
+                    new[] { "-b", "--bundle" },
+                    "the path to the app bundle to be installed"),
+                new Option<string>(
+                    new[] { "-1", "--bundle_id", "--bundle-id" },
+                    "specify bundle id for list and upload")
+            };
+
+            DeployOptions boundOptions = null;
+
+            rootCommand.Handler = CommandHandler.Create<DeployOptions>(options =>
+            {
+                boundOptions = options;
+                return 0;
+            });
+            
+            rootCommand.Invoke("-1 value");
+
+            boundOptions.Bundle.Should().Be(null);
+            boundOptions.BundleId.Should().Be("value");
+        }
+
+        class DeployOptions
+        {
+            public string Bundle { get; set; }
+            public string BundleId { get; set; }
+        }
+
 
 #if NETCOREAPP2_1_OR_GREATER
         [Theory]

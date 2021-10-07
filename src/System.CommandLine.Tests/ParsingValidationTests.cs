@@ -159,8 +159,8 @@ namespace System.CommandLine.Tests
 
             command.AddValidator(commandResult =>
             {
-                if (commandResult.Children.Contains("--one") &&
-                    commandResult.Children.Contains("--two"))
+                if (commandResult.Children.ContainsAlias("--one") &&
+                    commandResult.Children.ContainsAlias("--two"))
                 {
                     return "Options '--one' and '--two' cannot be used together.";
                 }
@@ -851,7 +851,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(Resources.Instance.RequiredCommandWasNotProvided()) &&
+                      e => e.Message.Equals(LocalizationResources.Instance.RequiredCommandWasNotProvided()) &&
                            e.SymbolResult.Symbol.Name.Equals("inner"));
         }
 
@@ -867,7 +867,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle(
-                      e => e.Message.Equals(Resources.Instance.RequiredCommandWasNotProvided()) &&
+                      e => e.Message.Equals(LocalizationResources.Instance.RequiredCommandWasNotProvided()) &&
                            e.SymbolResult.Symbol == rootCommand);
         }
 
@@ -918,8 +918,8 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("");
 
             result.Errors.Should().BeEmpty();
-            result.ValueForOption(optionX).Should().Be(123);
-            result.ValueForOption(optionY).Should().Be(456);
+            result.GetValueForOption(optionX).Should().Be(123);
+            result.GetValueForOption(optionY).Should().Be(456);
         }
     }
 }

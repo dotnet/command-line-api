@@ -7,6 +7,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
+using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -15,7 +16,7 @@ namespace System.CommandLine.Tests
 {
     public class UseHelpTests
     {
-        private readonly TestConsole _console = new TestConsole();
+        private readonly TestConsole _console = new();
 
         [Fact]
         public async Task UseHelp_writes_help_for_the_specified_command()
@@ -25,8 +26,10 @@ namespace System.CommandLine.Tests
             command.AddCommand(subcommand);
 
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(command)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        command
+                    })
                     .UseHelp()
                     .Build();
 
@@ -47,8 +50,10 @@ namespace System.CommandLine.Tests
             command.AddCommand(subcommand);
 
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(command)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        command
+                    })
                     .UseHelp()
                     .Build();
 
@@ -65,8 +70,10 @@ namespace System.CommandLine.Tests
         public async Task UseHelp_accepts_default_values(string value)
         {
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(new Command("command"))
+                new CommandLineBuilder(new RootCommand
+                    {
+                        new Command("command")
+                    })
                     .UseHelp()
                     .Build();
 
@@ -82,8 +89,10 @@ namespace System.CommandLine.Tests
             command.AddOption(new Option("-h"));
             
             var parser =
-                new CommandLineBuilder()
-                    .AddCommand(command)
+                new CommandLineBuilder(new RootCommand
+                    {
+                        command
+                    })
                     .UseHelp()
                     .Build();
 
@@ -213,79 +222,42 @@ namespace System.CommandLine.Tests
             console2.Should().ShowHelp();
         }
 
-        [Fact]
-        public void UseHelp_allows_help_builder_to_be_customized()
+        [Theory]
+        [InlineData("/lost")]
+        [InlineData("--confused")]
+        public async Task UseHelp_with_custom_aliases_uses_aliases(string helpAlias)
         {
-            var option = new Option<string>("-x");
-            var command = new RootCommand
-            {
-                option
-            };
+            var parser =
+                new CommandLineBuilder()
+                    .UseHelp("/lost", "--confused")
+                    .Build();
 
-            var console = new TestConsole();
+            await parser.InvokeAsync(helpAlias, _console);
 
-            new CommandLineBuilder(command)
-                         .UseHelp<HelpBuilder>(builder =>
-                         {
-                             builder.Customize(option, descriptor: "-x (eXtreme)");
-                         })
-                         .Build()
-                         .Invoke("-h", console);
-
-            console.Should().ShowHelp();
-            console.Out.ToString().Should().Contain("-x (eXtreme)");
+            _console.Should().ShowHelp();
         }
 
-        [Fact]
-        public void UseHelp_specifying_multiple_delegates_the_last_one_in_wins()
+        [Theory]
+        [InlineData("-h")]
+        [InlineData("/h")]
+        [InlineData("--help")]
+        [InlineData("-?")]
+        [InlineData("/?")]
+        public async Task UseHelp_with_custom_aliases_default_aliases_replaced(string helpAlias)
         {
-            var option = new Option<string>("-x");
-            var command = new RootCommand
-            {
-                option
-            };
+            var parser =
+                new CommandLineBuilder()
+                    .UseHelp("--confused")
+                    .Build();
 
-            var console = new TestConsole();
+            await parser.InvokeAsync(helpAlias, _console);
 
-            new CommandLineBuilder(command)
-                         .UseHelp<HelpBuilder>(builder =>
-                         {
-                             builder.Customize(option, descriptor: "-x (eXtreme)");
-                         })
-                         .UseHelp<HelpBuilder>(null)
-                         .Build()
-                         .Invoke("-h", console);
-
-            console.Should().ShowHelp();
-            console.Out.ToString().Should().NotContain("-x (eXTreme)");
-        }
-
-        [Fact]
-        public void UseHelp_specifying_wrong_type_for_the_help_builder_throws_exception()
-        {
-            var option = new Option<string>("-x");
-            var command = new RootCommand
-            {
-                option
-            };
-
-
-            var console = new TestConsole();
-            var parser = new CommandLineBuilder(command)
-                         .UseHelp<HelpBuilder>(builder =>
-                         {
-                             builder.Customize(option, descriptor: "-x (eXtreme)");
-                         })
-                         .UseHelpBuilder(context => new CustomHelpBuilder())
-                         .Build();
-
-            Action action = () => parser.Invoke("-h", console);
-            action.Should().Throw<InvalidCastException>();
+            _console.Out.ToString().Should().Be("");
         }
 
         private class CustomHelpBuilder : IHelpBuilder
         {
-            public void Write(ICommand command)
+            public void Write(ICommand command, TextWriter writer, ParseResult parseResult)
             {
                 throw new NotImplementedException();
             }

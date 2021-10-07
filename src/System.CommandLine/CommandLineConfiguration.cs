@@ -26,6 +26,7 @@ namespace System.CommandLine
         /// <param name="symbols">The symbols to parse.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
+        /// <param name="enableLegacyDoubleDashBehavior">Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.</param>
         /// <param name="resources">Provide custom validation messages.</param>
         /// <param name="responseFileHandling">One of the enumeration values that specifies how response files (.rsp) are handled.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
@@ -37,7 +38,8 @@ namespace System.CommandLine
             IReadOnlyList<Symbol> symbols,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
-            Resources? resources = null,
+            bool enableLegacyDoubleDashBehavior = false,
+            LocalizationResources? resources = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
@@ -84,15 +86,16 @@ namespace System.CommandLine
 
             AddGlobalOptionsToChildren(rootCommand);
 
+            EnableLegacyDoubleDashBehavior = enableLegacyDoubleDashBehavior;
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
-            Resources = resources ?? Resources.Instance;
+            LocalizationResources = resources ?? LocalizationResources.Instance;
             ResponseFileHandling = responseFileHandling;
             Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;
 
-            if (configureHelp != null)
+            if (configureHelp is { })
             {
                 var factory = HelpBuilderFactory;
                 _helpBuilderFactory = context =>
@@ -112,7 +115,7 @@ namespace System.CommandLine
                 maxWidth = systemConsole.GetWindowWidth();
             }
 
-            return new HelpBuilder(context.Console, context.ParseResult.CommandResult.Resources, maxWidth);
+            return new HelpBuilder(context.ParseResult.CommandResult.LocalizationResources, maxWidth);
         }
 
         private void AddGlobalOptionsToChildren(Command parentCommand)
@@ -125,9 +128,9 @@ namespace System.CommandLine
                 {
                     var globalOptions = parentCommand.GlobalOptions;
 
-                    for (var globalOptionIndex = 0; globalOptionIndex < globalOptions.Count; globalOptionIndex++)
+                    for (var i = 0; i < globalOptions.Count; i++)
                     {
-                        childCommand.TryAddGlobalOption(globalOptions[globalOptionIndex]);
+                        childCommand.TryAddGlobalOption(globalOptions[i]);
                     }
 
                     AddGlobalOptionsToChildren(childCommand);
@@ -146,6 +149,11 @@ namespace System.CommandLine
         public bool EnableDirectives { get; }
 
         /// <summary>
+        /// Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.
+        /// </summary>
+        public bool EnableLegacyDoubleDashBehavior { get; }
+
+        /// <summary>
         /// Gets whether POSIX bundling is enabled.
         /// </summary>
         /// <remarks>
@@ -156,7 +164,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the localizable resources.
         /// </summary>
-        public Resources Resources { get; }
+        public LocalizationResources LocalizationResources { get; }
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= DefaultHelpBuilderFactory;
 

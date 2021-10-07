@@ -5,7 +5,7 @@ using System.CommandLine.IO;
 
 namespace System.CommandLine.Invocation
 {
-    public class ParseErrorResult : IInvocationResult
+    internal class ParseErrorResult : IInvocationResult
     {
         private readonly int? _errorExitCode;
 
@@ -14,6 +14,7 @@ namespace System.CommandLine.Invocation
             _errorExitCode = errorExitCode;
         }
 
+        /// <inheritdoc />
         public void Apply(InvocationContext context)
         {
             context.Console.ResetTerminalForegroundColor();
@@ -32,7 +33,7 @@ namespace System.CommandLine.Invocation
 
             context.BindingContext
                    .HelpBuilder
-                   .Write(context.ParseResult.CommandResult.Command);
+                   .Write(context.ParseResult.CommandResult.Command, StandardStreamWriter.Create(context.Console.Out), context.ParseResult);
         }
     }
 }

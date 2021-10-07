@@ -69,7 +69,7 @@ namespace System.CommandLine
 
             for (var i = _pool.Length; --i >= 0;)
             {
-                if (Interlocked.CompareExchange(ref _pool[i], reference, null) == null)
+                if (Interlocked.CompareExchange(ref _pool[i], reference, null) is null)
                 {
                     return;
                 }

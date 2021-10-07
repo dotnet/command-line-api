@@ -129,7 +129,7 @@ namespace System.CommandLine.Tests.Binding
                     new Argument
                     {
                         Name = "value",
-                        ArgumentType = type
+                        ValueType = type
                     }
                 };
 

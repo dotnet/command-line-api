@@ -10,6 +10,7 @@ namespace System.CommandLine.Invocation
     internal class FeatureRegistration
     {
         private static readonly string _assemblyName = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).FullName;
+
         private readonly FileInfo _sentinelFile;
 
         public FeatureRegistration(string featureName)

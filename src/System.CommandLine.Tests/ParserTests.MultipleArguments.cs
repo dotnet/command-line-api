@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -36,12 +37,12 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2 3 4");
 
-                result.ValueForArgument(multipleArityArg)
-                    .Should()
-                    .BeEquivalentSequenceTo("1", "2", "3");
-                result.ValueForArgument(singleArityArg)
-                    .Should()
-                    .BeEquivalentSequenceTo("4");
+                result.GetValueForArgument(multipleArityArg)
+                      .Should()
+                      .BeEquivalentSequenceTo("1", "2", "3");
+                result.GetValueForArgument(singleArityArg)
+                      .Should()
+                      .BeEquivalentSequenceTo("4");
             }
 
             [Fact]
@@ -64,8 +65,8 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2");
 
-                result.ValueForArgument(stringArg).Should().Be("1");
-                result.ValueForArgument(intArg).Should().Be(2);
+                result.GetValueForArgument(stringArg).Should().Be("1");
+                result.GetValueForArgument(intArg).Should().Be(2);
             }
 
             [Theory]
@@ -99,22 +100,22 @@ namespace System.CommandLine.Tests
                 var parseResult = command.Parse(commandLine);
 
                 parseResult
-                    .ValueForArgument(first)
+                    .GetValueForArgument(first)
                     .Should()
                     .Be("one");
 
                 parseResult
-                    .ValueForArgument(second)
+                    .GetValueForArgument(second)
                     .Should()
                     .Be("two");
 
                 parseResult
-                    .ValueForArgument(third)
+                    .GetValueForArgument(third)
                     .Should()
                     .BeEquivalentSequenceTo("three", "four", "five");
 
                 parseResult
-                    .ValueForOption(verbose)
+                    .GetValueForOption(verbose)
                     .Should()
                     .BeTrue();
             }
@@ -168,7 +169,7 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("-e foo");
 
-                var optionResult = result.ValueForOption(option);
+                var optionResult = result.GetValueForOption(option);
 
                 optionResult.Should().Be("foo");
             }
@@ -190,12 +191,12 @@ namespace System.CommandLine.Tests
 
                 var _ = new AssertionScope();
 
-                result.ValueForArgument(ints)
+                result.GetValueForArgument(ints)
                       .Should()
                       .BeEquivalentTo(new[] { 1, 2, 3 },
                                       options => options.WithStrictOrdering());
 
-                result.ValueForArgument(strings)
+                result.GetValueForArgument(strings)
                       .Should()
                       .BeEquivalentTo(new[] { "one", "two" },
                                       options => options.WithStrictOrdering());
@@ -217,44 +218,65 @@ namespace System.CommandLine.Tests
 
                 var _ = new AssertionScope();
 
-                result.ValueForArgument(ints)
+                result.GetValueForArgument(ints)
                       .Should()
                       .BeEquivalentTo(new[] { 1, 2, 3 },
                                       options => options.WithStrictOrdering());
 
-                result.ValueForArgument(strings)
+                result.GetValueForArgument(strings)
                       .Should()
                       .Be("four");
 
-                result.UnparsedTokens.Should()
+                result.UnparsedTokens
+                      .Should()
                       .ContainSingle()
                       .Which
                       .Should()
                       .Be("five");
             }
 
-            [Fact(Skip = "https://github.com/dotnet/command-line-api/issues/1143")]
-            public void tokens_that_cannot_be_converted_by_multiple_arity_option_flow_to_next_single_arity_argument()
+            [Fact]
+            public void Unsatisfied_subsequent_argument_with_min_arity_0_parses_as_default_value()
             {
-                var option = new Option<int[]>("-i");
-                var argument = new Argument<string>("arg");
-
-                var command = new RootCommand
+                var arg1 = new Argument("arg1")
                 {
-                    option,
-                    argument
+                    ValueType = typeof(string),
+                    Arity = ArgumentArity.ExactlyOne
+                };
+                var arg2 = new Argument("arg2")
+                {
+                    ValueType = typeof(string),
+                    Arity = ArgumentArity.ZeroOrOne,
+                };
+                arg2.SetDefaultValue("the-default");
+                var rootCommand = new RootCommand
+                {
+                    arg1,
+                    arg2,
                 };
 
-                var result = command.Parse("-i 1 2 3 four");
+                var result = rootCommand.Parse("value-1");
 
-                result.FindResultFor(option)
-                      .GetValueOrDefault()
-                      .Should()
-                      .BeEquivalentTo(new[] { 1, 2, 3 }, options => options.WithStrictOrdering());
+                result.ValueForArgument(arg1).Should().Be("value-1");
+                result.ValueForArgument(arg2).Should().Be("the-default");
+            }
 
-                result.FindResultFor(argument)
-                      .Should()
-                      .Be("four");
+            [Fact] // https://github.com/dotnet/command-line-api/issues/1403
+            public void Unsatisfied_subsequent_argument_with_min_arity_1_parses_as_default_value()
+            {
+                Argument<string> arg1 = new(name: "arg1");
+                Argument<string> arg2 = new(name: "arg2", getDefaultValue: () => "the-default");
+
+                var rootCommand = new RootCommand
+                {
+                    arg1,
+                    arg2,
+                };
+
+                var result = rootCommand.Parse("");
+
+                result.FindResultFor(arg1).Should().BeNull();
+                result.GetValueForArgument(arg2).Should().Be("the-default");
             }
         }
     }

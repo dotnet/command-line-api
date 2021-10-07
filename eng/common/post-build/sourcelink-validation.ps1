@@ -1,9 +1,9 @@
 param(
-  [Parameter(Mandatory=$true)][string] $InputPath,              # Full path to directory where Symbols.NuGet packages to be checked are stored
-  [Parameter(Mandatory=$true)][string] $ExtractPath,            # Full path to directory where the packages will be extracted during validation
-  [Parameter(Mandatory=$false)][string] $GHRepoName,            # GitHub name of the repo including the Org. E.g., dotnet/arcade
-  [Parameter(Mandatory=$false)][string] $GHCommit,              # GitHub commit SHA used to build the packages
-  [Parameter(Mandatory=$true)][string] $SourcelinkCliVersion    # Version of SourceLink CLI to use
+  [Parameter(Mandatory = $true)][string] $InputPath, # Full path to directory where Symbols.NuGet packages to be checked are stored
+  [Parameter(Mandatory = $true)][string] $ExtractPath, # Full path to directory where the packages will be extracted during validation
+  [Parameter(Mandatory = $false)][string] $GHRepoName, # GitHub name of the repo including the Org. E.g., dotnet/arcade
+  [Parameter(Mandatory = $false)][string] $GHCommit, # GitHub commit SHA used to build the packages
+  [Parameter(Mandatory = $true)][string] $SourcelinkCliVersion    # Version of SourceLink CLI to use
 )
 
 . $PSScriptRoot\post-build-utils.ps1
@@ -17,6 +17,7 @@ $global:RepoFiles = @{}
 $MaxParallelJobs = 16
 
 $MaxRetries = 5
+$RetryWaitTimeInSeconds = 30
 
 # Wait time between check for system load
 $SecondsBetweenLoadChecks = 10
@@ -32,7 +33,7 @@ $ValidatePackage = {
   if (!(Test-Path $PackagePath)) {
     Write-Host "Input file does not exist: $PackagePath"
     return [pscustomobject]@{
-      result = 1
+      result      = 1
       packagePath = $PackagePath
     }
   }
@@ -55,106 +56,115 @@ $ValidatePackage = {
     $zip = [System.IO.Compression.ZipFile]::OpenRead($PackagePath)
 
     $zip.Entries | 
-      Where-Object {$RelevantExtensions -contains [System.IO.Path]::GetExtension($_.Name)} |
-        ForEach-Object {
-          $FileName = $_.FullName
-          $Extension = [System.IO.Path]::GetExtension($_.Name)
-          $FakeName = -Join((New-Guid), $Extension)
-          $TargetFile = Join-Path -Path $ExtractPath -ChildPath $FakeName 
+    Where-Object { $RelevantExtensions -contains [System.IO.Path]::GetExtension($_.Name) } |
+    ForEach-Object {
+      $FileName = $_.FullName
+      $Extension = [System.IO.Path]::GetExtension($_.Name)
+      $FakeName = -Join ((New-Guid), $Extension)
+      $TargetFile = Join-Path -Path $ExtractPath -ChildPath $FakeName 
 
-          # We ignore resource DLLs
-          if ($FileName.EndsWith('.resources.dll')) {
-            return [pscustomobject]@{
-              result = 0
-              packagePath = $PackagePath
-            }
-          }
+      # We ignore resource DLLs
+      if ($FileName.EndsWith('.resources.dll')) {
+        return [pscustomobject]@{
+          result      = 0
+          packagePath = $PackagePath
+        }
+      }
 
-          [System.IO.Compression.ZipFileExtensions]::ExtractToFile($_, $TargetFile, $true)
+      [System.IO.Compression.ZipFileExtensions]::ExtractToFile($_, $TargetFile, $true)
 
-          $ValidateFile = {
-            param( 
-              [string] $FullPath,                                # Full path to the module that has to be checked
-              [string] $RealPath,
-              [ref] $FailedFiles
-            )
+      $ValidateFile = {
+        param( 
+          [string] $FullPath, # Full path to the module that has to be checked
+          [string] $RealPath,
+          [ref] $FailedFiles
+        )
 
-            $sourcelinkExe = "$env:USERPROFILE\.dotnet\tools"
-            $sourcelinkExe = Resolve-Path "$sourcelinkExe\sourcelink.exe"
-            $SourceLinkInfos = & $sourcelinkExe print-urls $FullPath | Out-String
+        $sourcelinkExe = "$env:USERPROFILE\.dotnet\tools"
+        $sourcelinkExe = Resolve-Path "$sourcelinkExe\sourcelink.exe"
+        $SourceLinkInfos = & $sourcelinkExe print-urls $FullPath | Out-String
 
-            if ($LASTEXITCODE -eq 0 -and -not ([string]::IsNullOrEmpty($SourceLinkInfos))) {
-              $NumFailedLinks = 0
+        if ($LASTEXITCODE -eq 0 -and -not ([string]::IsNullOrEmpty($SourceLinkInfos))) {
+          $NumFailedLinks = 0
 
-              # We only care about Http addresses
-              $Matches = (Select-String '(http[s]?)(:\/\/)([^\s,]+)' -Input $SourceLinkInfos -AllMatches).Matches
+          # We only care about Http addresses
+          $Matches = (Select-String '(http[s]?)(:\/\/)([^\s,]+)' -Input $SourceLinkInfos -AllMatches).Matches
 
-              if ($Matches.Count -ne 0) {
-                $Matches.Value |
-                  ForEach-Object {
-                    $Link = $_
-                    $CommitUrl = "https://raw.githubusercontent.com/${using:GHRepoName}/${using:GHCommit}/"
+          if ($Matches.Count -ne 0) {
+            $Matches.Value |
+            ForEach-Object {
+              $Link = $_
+              $CommitUrl = "https://raw.githubusercontent.com/${using:GHRepoName}/${using:GHCommit}/"
                     
-                    $FilePath = $Link.Replace($CommitUrl, "")
-                    $Status = 200
-                    $Cache = $using:RepoFiles
+              $FilePath = $Link.Replace($CommitUrl, "")
+              $Status = 200
+              $Cache = $using:RepoFiles
 
-                    $totalRetries = 0
+              $attempts = 0
 
-                    while ($totalRetries -lt $using:MaxRetries) {
-                      if ( !($Cache.ContainsKey($FilePath)) ) {
-                        try {
-                          $Uri = $Link -as [System.URI]
+              while ($attempts -lt $using:MaxRetries) {
+                if ( !($Cache.ContainsKey($FilePath)) ) {
+                  try {
+                    $Uri = $Link -as [System.URI]
                         
-                          # Only GitHub links are valid
-                          if ($Uri.AbsoluteURI -ne $null -and ($Uri.Host -match 'github' -or $Uri.Host -match 'githubusercontent')) {
-                            $Status = (Invoke-WebRequest -Uri $Link -UseBasicParsing -Method HEAD -TimeoutSec 5).StatusCode
-                          }
-                          else {
-                            # If it's not a github link, we want to break out of the loop and not retry.
-                            $Status = 0
-                            $totalRetries = $using:MaxRetries
-                          }
-                        }
-                        catch {
-                          Write-Host $_
-                          $Status = 0
-                        }
-                      }
-
-                      if ($Status -ne 200) {
-                        $totalRetries++
-                        
-                        if ($totalRetries -ge $using:MaxRetries) {
-                          if ($NumFailedLinks -eq 0) {
-                            if ($FailedFiles.Value -eq 0) {
-                              Write-Host
-                            }
-  
-                            Write-Host "`tFile $RealPath has broken links:"
-                          }
-  
-                          Write-Host "`t`tFailed to retrieve $Link"
-  
-                          $NumFailedLinks++
-                        }
-                      }
-                      else {
-                        break
-                      }
+                    if ($Link -match "submodules") {
+                      # Skip submodule links until sourcelink properly handles submodules
+                      $Status = 200
+                    }
+                    elseif ($Uri.AbsoluteURI -ne $null -and ($Uri.Host -match 'github' -or $Uri.Host -match 'githubusercontent')) {
+                      # Only GitHub links are valid
+                      $Status = (Invoke-WebRequest -Uri $Link -UseBasicParsing -Method HEAD -TimeoutSec 5).StatusCode
+                    }
+                    else {
+                      # If it's not a github link, we want to break out of the loop and not retry.
+                      $Status = 0
+                      $attempts = $using:MaxRetries
                     }
                   }
-              }
+                  catch {
+                    Write-Host $_
+                    $Status = 0
+                  }
+                }
 
-              if ($NumFailedLinks -ne 0) {
-                $FailedFiles.value++
-                $global:LASTEXITCODE = 1
+                if ($Status -ne 200) {
+                  $attempts++
+                        
+                  if ($attempts -lt $using:MaxRetries) {
+                    $attemptsLeft = $using:MaxRetries - $attempts
+                    Write-Warning "Download failed, $attemptsLeft attempts remaining, will retry in $using:RetryWaitTimeInSeconds seconds"
+                    Start-Sleep -Seconds $using:RetryWaitTimeInSeconds
+                  }
+                  else {
+                    if ($NumFailedLinks -eq 0) {
+                      if ($FailedFiles.Value -eq 0) {
+                        Write-Host
+                      }
+  
+                      Write-Host "`tFile $RealPath has broken links:"
+                    }
+  
+                    Write-Host "`t`tFailed to retrieve $Link"
+  
+                    $NumFailedLinks++
+                  }
+                }
+                else {
+                  break
+                }
               }
             }
           }
-        
-          &$ValidateFile $TargetFile $FileName ([ref]$FailedFiles)
+
+          if ($NumFailedLinks -ne 0) {
+            $FailedFiles.value++
+            $global:LASTEXITCODE = 1
+          }
         }
+      }
+        
+      &$ValidateFile $TargetFile $FileName ([ref]$FailedFiles)
+    }
   }
   catch {
     Write-Host $_
@@ -166,24 +176,24 @@ $ValidatePackage = {
   if ($FailedFiles -eq 0) {
     Write-Host 'Passed.'
     return [pscustomobject]@{
-      result = 0
+      result      = 0
       packagePath = $PackagePath
     }
   }
   else {
     Write-PipelineTelemetryError -Category 'SourceLink' -Message "$PackagePath has broken SourceLink links."
     return [pscustomobject]@{
-      result = 1
+      result      = 1
       packagePath = $PackagePath
     }
   }
 }
 
 function CheckJobResult(
-    $result, 
-    $packagePath,
-    [ref]$ValidationFailures,
-    [switch]$logErrors) {
+  $result, 
+  $packagePath,
+  [ref]$ValidationFailures,
+  [switch]$logErrors) {
   if ($result -ne '0') {
     if ($logErrors) {
       Write-PipelineTelemetryError -Category 'SourceLink' -Message "$packagePath has broken SourceLink links."
@@ -209,7 +219,7 @@ function ValidateSourceLinkLinks {
   }
 
   if ($GHRepoName -ne '' -and $GHCommit -ne '') {
-    $RepoTreeURL = -Join('http://api.github.com/repos/', $GHRepoName, '/git/trees/', $GHCommit, '?recursive=1')
+    $RepoTreeURL = -Join ('http://api.github.com/repos/', $GHRepoName, '/git/trees/', $GHCommit, '?recursive=1')
     $CodeExtensions = @('.cs', '.vb', '.fs', '.fsi', '.fsx', '.fsscript')
 
     try {
@@ -240,23 +250,23 @@ function ValidateSourceLinkLinks {
 
   # Process each NuGet package in parallel
   Get-ChildItem "$InputPath\*.symbols.nupkg" |
-    ForEach-Object {
-      Write-Host "Starting $($_.FullName)"
-      Start-Job -ScriptBlock $ValidatePackage -ArgumentList $_.FullName | Out-Null
-      $NumJobs = @(Get-Job -State 'Running').Count
+  ForEach-Object {
+    Write-Host "Starting $($_.FullName)"
+    Start-Job -ScriptBlock $ValidatePackage -ArgumentList $_.FullName | Out-Null
+    $NumJobs = @(Get-Job -State 'Running').Count
       
-      while ($NumJobs -ge $MaxParallelJobs) {
-        Write-Host "There are $NumJobs validation jobs running right now. Waiting $SecondsBetweenLoadChecks seconds to check again."
-        sleep $SecondsBetweenLoadChecks
-        $NumJobs = @(Get-Job -State 'Running').Count
-      }
-
-      foreach ($Job in @(Get-Job -State 'Completed')) {
-        $jobResult = Wait-Job -Id $Job.Id | Receive-Job
-        CheckJobResult $jobResult.result $jobResult.packagePath ([ref]$ValidationFailures) -LogErrors
-        Remove-Job -Id $Job.Id
-      }
+    while ($NumJobs -ge $MaxParallelJobs) {
+      Write-Host "There are $NumJobs validation jobs running right now. Waiting $SecondsBetweenLoadChecks seconds to check again."
+      sleep $SecondsBetweenLoadChecks
+      $NumJobs = @(Get-Job -State 'Running').Count
     }
+
+    foreach ($Job in @(Get-Job -State 'Completed')) {
+      $jobResult = Wait-Job -Id $Job.Id | Receive-Job
+      CheckJobResult $jobResult.result $jobResult.packagePath ([ref]$ValidationFailures) -LogErrors
+      Remove-Job -Id $Job.Id
+    }
+  }
 
   foreach ($Job in @(Get-Job)) {
     $jobResult = Wait-Job -Id $Job.Id | Receive-Job

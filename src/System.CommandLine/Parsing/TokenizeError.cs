@@ -3,15 +3,22 @@
 
 namespace System.CommandLine.Parsing
 {
+    /// <summary>
+    /// Describes an error that occurs while tokenizing command line input.
+    /// </summary>
     public class TokenizeError
     {
-        public TokenizeError(string message)
+        internal TokenizeError(string message)
         {
             Message = message ?? throw new ArgumentNullException(nameof(message));
         }
 
+        /// <summary>
+        /// A message to explain the error to a user.
+        /// </summary>
         public string Message { get; }
 
+        /// <inheritdoc />
         public override string ToString() => Message;
     }
 }

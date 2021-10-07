@@ -5,7 +5,6 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.CommandLine.Rendering.Views;
-using System.CommandLine.Tests;
 using System.CommandLine.Tests.Utility;
 using System.Drawing;
 using FluentAssertions;
@@ -16,7 +15,7 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class ViewRenderingTests
     {
-        private readonly TestTerminal _terminal = new TestTerminal();
+        private readonly TestTerminal _terminal = new();
 
         [Fact]
         public void Views_can_be_registered_for_specific_types()
@@ -34,7 +33,7 @@ namespace System.CommandLine.Rendering.Tests
             };
 
             var parser = new CommandLineBuilder(command)
-                         .UseMiddleware(c =>
+                         .AddMiddleware(c =>
                          {
                              c.BindingContext
                               .AddService(

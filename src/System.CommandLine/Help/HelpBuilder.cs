@@ -3,36 +3,48 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace System.CommandLine.Help
 {
+    /// <inheritdoc />
     public class HelpBuilder : IHelpBuilder
     {
         private const string Indent = "  ";
 
         private Dictionary<ISymbol, Customization> Customizations { get; } = new();
 
-        protected IConsole Console { get; }
-        protected Resources Resources { get; }
-        public int MaxWidth { get; }
-
-        public HelpBuilder(IConsole console, Resources resources, int maxWidth = int.MaxValue)
+        /// <param name="localizationResources"></param>
+        /// <param name="maxWidth"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public HelpBuilder(LocalizationResources localizationResources, int maxWidth = int.MaxValue)
         {
-            Console = console ?? throw new ArgumentNullException(nameof(console));
-            Resources = resources ?? throw new ArgumentNullException(nameof(resources));
+            LocalizationResources = localizationResources ?? throw new ArgumentNullException(nameof(localizationResources));
             if (maxWidth <= 0) maxWidth = int.MaxValue;
             MaxWidth = maxWidth;
         }
 
-        public virtual void Write(ICommand command)
+        /// <summary>
+        /// Provides localizable strings for help and error messages.
+        /// </summary>
+        protected LocalizationResources LocalizationResources { get; }
+
+        /// <summary>
+        /// The maximum width for which to format help output.
+        /// </summary>
+        public int MaxWidth { get; }
+
+        public virtual void Write(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             if (command is null)
             {
                 throw new ArgumentNullException(nameof(command));
+            }
+            if (parseResult is null)
+            {
+                throw new ArgumentNullException(nameof(parseResult));
             }
 
             if (command.IsHidden)
@@ -40,17 +52,17 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            AddSynopsis(command);
-            AddUsage(command);
-            AddCommandArguments(command);
-            AddOptions(command);
-            AddSubcommands(command);
-            AddAdditionalArguments(command);
+            AddSynopsis(command, writer);
+            AddUsage(command, writer);
+            AddCommandArguments(command, writer, parseResult);
+            AddOptions(command, writer, parseResult);
+            AddSubcommands(command, writer, parseResult);
+            AddAdditionalArguments(command, writer);
         }
 
         protected internal void Customize(ISymbol symbol,
-            Func<string?>? descriptor = null,
-            Func<string?>? defaultValue = null)
+            Func<ParseResult?, string?>? descriptor = null,
+            Func<ParseResult?, string?>? defaultValue = null)
         {
             if (symbol is null)
             {
@@ -60,17 +72,17 @@ namespace System.CommandLine.Help
             Customizations[symbol] = new Customization(descriptor, defaultValue);
         }
 
-        protected virtual void AddSynopsis(ICommand command)
+        protected virtual void AddSynopsis(ICommand command, TextWriter writer)
         {
-            WriteHeading(Resources.Instance.HelpDescriptionTitle(), command.Description);
-            Console.Out.WriteLine();
+            WriteHeading(LocalizationResources.Instance.HelpDescriptionTitle(), command.Description, writer);
+            writer.WriteLine();
         }
 
-        protected virtual void AddUsage(ICommand command)
+        protected virtual void AddUsage(ICommand command, TextWriter writer)
         {
             string description = GetUsage(command);
-            WriteHeading(Resources.HelpUsageTitle(), description);
-            Console.Out.WriteLine();
+            WriteHeading(LocalizationResources.HelpUsageTitle(), description, writer);
+            writer.WriteLine();
         }
 
         protected string GetUsage(ICommand command)
@@ -93,13 +105,12 @@ namespace System.CommandLine.Help
 
                     if (displayOptionTitle)
                     {
-                        yield return Resources.HelpUsageOptionsTitle();
+                        yield return LocalizationResources.HelpUsageOptionsTitle();
                         displayOptionTitle = false;
                     }
 
                     yield return FormatArgumentUsage(parentCommand.Arguments);
                 }
-
 
                 var hasCommandWithHelp = command.Children
                     .OfType<ICommand>()
@@ -107,49 +118,49 @@ namespace System.CommandLine.Help
 
                 if (hasCommandWithHelp)
                 {
-                    yield return Resources.HelpUsageCommandTitle();
+                    yield return LocalizationResources.HelpUsageCommandTitle();
                 }
 
                 if (!command.TreatUnmatchedTokensAsErrors)
                 {
-                    yield return Resources.HelpUsageAdditionalArguments();
+                    yield return LocalizationResources.HelpUsageAdditionalArguments();
                 }
             }
         }
 
-        protected virtual void AddCommandArguments(ICommand command)
+        protected virtual void AddCommandArguments(ICommand command, TextWriter writer, ParseResult parseResult)
         {
-            HelpItem[] commandArguments = GetCommandArguments(command).ToArray();
+            HelpItem[] commandArguments = GetCommandArguments(command, parseResult).ToArray();
 
             if (commandArguments.Length > 0)
             {
-                WriteHeading(Resources.HelpArgumentsTitle(), null);
-                RenderAsColumns(commandArguments);
-                Console.Out.WriteLine();
+                WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, writer);
+                RenderAsColumns(writer, commandArguments);
+                writer.WriteLine();
             }
         }
 
-        protected IEnumerable<HelpItem> GetCommandArguments(ICommand command)
+        protected IEnumerable<HelpItem> GetCommandArguments(ICommand command, ParseResult parseResult)
         {
             //TODO: This shows all parent arguments not just the first level
             return command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
                     .Reverse()
-                    .SelectMany(GetArguments)
+                    .SelectMany(x => GetArguments(x, parseResult))
                     .Distinct();
 
-            IEnumerable<HelpItem> GetArguments(ICommand command)
+            IEnumerable<HelpItem> GetArguments(ICommand command, ParseResult parseResult)
             {
                 var arguments = command.Arguments.Where(x => !x.IsHidden).ToList();
 
                 foreach (IArgument argument in arguments)
                 {
-                    string argumentDescriptor = GetArgumentDescriptor(argument);
+                    string argumentDescriptor = GetArgumentDescriptor(argument, parseResult);
 
-                    yield return new HelpItem(argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument)));
+                    yield return new HelpItem(argumentDescriptor, string.Join(" ", GetArgumentDescription(command, argument, parseResult)));
                 }
             }
 
-            IEnumerable<string> GetArgumentDescription(IIdentifierSymbol parent, IArgument argument)
+            IEnumerable<string> GetArgumentDescription(IIdentifierSymbol parent, IArgument argument, ParseResult parseResult)
             {
                 string? description = argument.Description;
                 if (!string.IsNullOrWhiteSpace(description))
@@ -159,65 +170,65 @@ namespace System.CommandLine.Help
 
                 if (argument.HasDefaultValue)
                 {
-                    yield return $"[{GetArgumentDefaultValue(parent, argument, true)}]";
+                    yield return $"[{GetArgumentDefaultValue(parent, argument, true, parseResult)}]";
                 }
             }
         }
 
-        protected virtual void AddOptions(ICommand command)
+        protected virtual void AddOptions(ICommand command, TextWriter writer, ParseResult parseResult)
         {
-            var options = GetOptions(command).ToArray();
+            var options = GetOptions(command, parseResult).ToArray();
 
             if (options.Length > 0)
             {
-                WriteHeading(Resources.HelpOptionsTitle(), null);
-                RenderAsColumns(options);
-                Console.Out.WriteLine();
+                WriteHeading(LocalizationResources.HelpOptionsTitle(), null, writer);
+                RenderAsColumns(writer, options);
+                writer.WriteLine();
             }
         }
 
-        protected IEnumerable<HelpItem> GetOptions(ICommand command)
-            => command.Options.Where(x => !x.IsHidden).Select(GetHelpItem);
+        protected IEnumerable<HelpItem> GetOptions(ICommand command, ParseResult parseResult)
+            => command.Options.Where(x => !x.IsHidden).Select(x => GetHelpItem(x, parseResult));
 
-        protected virtual void AddSubcommands(ICommand command)
+        protected virtual void AddSubcommands(ICommand command, TextWriter writer, ParseResult parseResult)
         {
-            var subcommands = GetSubcommands(command).ToArray();
+            var subcommands = GetSubcommands(command, parseResult).ToArray();
 
             if (subcommands.Length > 0)
             {
-                WriteHeading(Resources.HelpCommandsTitle(), null);
-                RenderAsColumns(subcommands);
-                Console.Out.WriteLine();
+                WriteHeading(LocalizationResources.HelpCommandsTitle(), null, writer);
+                RenderAsColumns(writer, subcommands);
+                writer.WriteLine();
             }
         }
 
-        protected IEnumerable<HelpItem> GetSubcommands(ICommand command)
-            => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(GetHelpItem);
+        protected IEnumerable<HelpItem> GetSubcommands(ICommand command, ParseResult parseResult)
+            => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetHelpItem(x, parseResult));
 
-        protected virtual void AddAdditionalArguments(ICommand command)
+        protected virtual void AddAdditionalArguments(ICommand command, TextWriter writer)
         {
             if (command.TreatUnmatchedTokensAsErrors)
             {
                 return;
             }
 
-            WriteHeading(Resources.HelpAdditionalArgumentsTitle(),
-                Resources.HelpAdditionalArgumentsDescription());
+            WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
+                LocalizationResources.HelpAdditionalArgumentsDescription(), writer);
         }
 
-        protected void WriteHeading(string descriptor, string? description)
+        protected void WriteHeading(string descriptor, string? description, TextWriter writer)
         {
             if (!string.IsNullOrWhiteSpace(descriptor))
             {
-                Console.Out.WriteLine(descriptor);
+                writer.WriteLine(descriptor);
             }
             if (!string.IsNullOrWhiteSpace(description))
             {
                 int maxWidth = MaxWidth - Indent.Length;
                 foreach (var part in WrapItem(description!, maxWidth))
                 {
-                    Console.Out.Write(Indent);
-                    Console.Out.WriteLine(part);
+                    writer.Write(Indent);
+                    writer.WriteLine(part);
                 }
             }
         }
@@ -287,7 +298,7 @@ namespace System.CommandLine.Help
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
-        protected void RenderAsColumns(params HelpItem[] items)
+        protected void RenderAsColumns(TextWriter writer, params HelpItem[] items)
         {
             if (items.Length == 0)
             {
@@ -316,7 +327,7 @@ namespace System.CommandLine.Help
 
                 foreach (var (first, second) in ZipWithEmpty(descriptorParts, descriptionParts))
                 {
-                    Console.Out.Write($"{Indent}{first}");
+                    writer.Write($"{Indent}{first}");
                     if (!string.IsNullOrWhiteSpace(second))
                     {
                         int padSize = firstColumnWidth - first.Length;
@@ -325,9 +336,9 @@ namespace System.CommandLine.Help
                         {
                             padding = new string(' ', padSize);
                         }
-                        Console.Out.Write($"{padding}{Indent}{second}");
+                        writer.Write($"{padding}{Indent}{second}");
                     }
-                    Console.Out.WriteLine();
+                    writer.WriteLine();
                 }
             }
 
@@ -392,11 +403,11 @@ namespace System.CommandLine.Help
             }
         }
 
-        protected HelpItem GetHelpItem(IIdentifierSymbol symbol)
+        protected HelpItem GetHelpItem(IIdentifierSymbol symbol, ParseResult parseResult)
         {
             string descriptor;
             if (Customizations.TryGetValue(symbol, out Customization customization) &&
-                customization.GetDescriptor?.Invoke() is { } setDescriptor)
+                customization.GetDescriptor?.Invoke(parseResult) is { } setDescriptor)
             {
                 descriptor = setDescriptor;
             }
@@ -416,7 +427,7 @@ namespace System.CommandLine.Help
                 {
                     if (!argument.IsHidden)
                     {
-                        var argumentDescriptor = GetArgumentDescriptor(argument);
+                        var argumentDescriptor = GetArgumentDescriptor(argument, parseResult);
                         if (!string.IsNullOrWhiteSpace(argumentDescriptor))
                         {
                             descriptor += $" {argumentDescriptor}";
@@ -427,32 +438,32 @@ namespace System.CommandLine.Help
                 if (symbol is IOption option &&
                     option.IsRequired)
                 {
-                    descriptor += $" {Resources.HelpOptionsRequired()}";
+                    descriptor += $" {LocalizationResources.HelpOptionsRequired()}";
                 }
             }
 
-            return new HelpItem(descriptor, GetDescription(symbol));
+            return new HelpItem(descriptor, GetDescription(symbol, parseResult));
         }
 
-        protected string GetDescription(IIdentifierSymbol symbol)
+        protected string GetDescription(IIdentifierSymbol symbol, ParseResult parseResult)
         {
-            return string.Join(" ", GetDescriptionParts(symbol));
+            return string.Join(" ", GetDescriptionParts(symbol, parseResult));
 
-            IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol)
+            IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol, ParseResult parseResult)
             {
                 string? description = symbol.Description;
                 if (!string.IsNullOrWhiteSpace(description))
                 {
                     yield return description!;
                 }
-                string argumentsDescription = GetArgumentsDescription(symbol);
+                string argumentsDescription = GetArgumentsDescription(symbol, parseResult);
                 if (!string.IsNullOrWhiteSpace(argumentsDescription))
                 {
                     yield return argumentsDescription;
                 }
             }
 
-            string GetArgumentsDescription(IIdentifierSymbol symbol)
+            string GetArgumentsDescription(IIdentifierSymbol symbol, ParseResult parseResult)
             {
                 IEnumerable<IArgument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
@@ -461,21 +472,21 @@ namespace System.CommandLine.Help
 
                 var isSingleArgument = defaultArguments.Length == 1;
                 var argumentDefaultValues = defaultArguments
-                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument));
+                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument, parseResult));
                 return $"[{string.Join(", ", argumentDefaultValues)}]";
             }
         }
 
-        private string GetArgumentDefaultValue(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName)
+        private string GetArgumentDefaultValue(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName, ParseResult parseResult)
         {
             string? defaultValue;
             if (Customizations.TryGetValue(parent, out Customization customization) &&
-                customization.GetDefaultValue?.Invoke() is { } parentSetDefaultValue)
+                customization.GetDefaultValue?.Invoke(parseResult) is { } parentSetDefaultValue)
             {
                 defaultValue = parentSetDefaultValue;
             }
             else if (Customizations.TryGetValue(argument, out customization) &&
-                customization.GetDefaultValue?.Invoke() is { } setDefaultValue)
+                customization.GetDefaultValue?.Invoke(parseResult) is { } setDefaultValue)
             {
                 defaultValue = setDefaultValue;
             }
@@ -493,16 +504,16 @@ namespace System.CommandLine.Help
             }
 
             string name = displayArgumentName ?
-                Resources.HelpArgumentDefaultValueTitle() :
+                LocalizationResources.HelpArgumentDefaultValueTitle() :
                 argument.Name;
 
             return $"{name}: {defaultValue}";
         }
 
-        protected string GetArgumentDescriptor(IArgument argument)
+        protected string GetArgumentDescriptor(IArgument argument, ParseResult parseResult)
         {
             if (Customizations.TryGetValue(argument, out Customization customization) &&
-                customization.GetDescriptor?.Invoke() is { } setDescriptor)
+                customization.GetDescriptor?.Invoke(parseResult) is { } setDescriptor)
             {
                 return setDescriptor;
             }
@@ -551,15 +562,15 @@ namespace System.CommandLine.Help
 
         private class Customization
         {
-            public Customization(Func<string?>? getDescriptor,
-                Func<string?>? getDefaultValue)
+            public Customization(Func<ParseResult?, string?>? getDescriptor,
+                Func<ParseResult?, string?>? getDefaultValue)
             {
                 GetDescriptor = getDescriptor;
                 GetDefaultValue = getDefaultValue;
             }
 
-            public Func<string?>? GetDescriptor { get; }
-            public Func<string?>? GetDefaultValue { get; }
+            public Func<ParseResult?, string?>? GetDescriptor { get; }
+            public Func<ParseResult?, string?>? GetDefaultValue { get; }
         }
     }
 }
