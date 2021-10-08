@@ -13,7 +13,7 @@ namespace System.CommandLine.Help
         public HelpOption(string[] aliases, CommandLineBuilder builder)
             : base(aliases)
         {
-            _builder = builder;
+            _builder = builder ?? throw new ArgumentNullException(nameof(builder));
             DisallowBinding = true;
         }
 

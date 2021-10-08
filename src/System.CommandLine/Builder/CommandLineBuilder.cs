@@ -16,6 +16,7 @@ namespace System.CommandLine.Builder
     public class CommandLineBuilder : CommandBuilder
     {
         private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
+        private LocalizationResources _localizationResources;
 
         /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command? rootCommand = null)
@@ -47,7 +48,11 @@ namespace System.CommandLine.Builder
 
         internal VersionOption? VersionOption { get; set; }
 
-        internal LocalizationResources? LocalizationResources { get; set; }
+        internal LocalizationResources LocalizationResources
+        {
+            get => _localizationResources ??= LocalizationResources.Instance;
+            set => _localizationResources = value;
+        }
 
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.

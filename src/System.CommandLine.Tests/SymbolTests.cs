@@ -32,12 +32,10 @@ namespace System.CommandLine.Tests
                 _ => throw new ArgumentOutOfRangeException(nameof(symbol))
             };
 
+            var parser1 = parse().Parser;
+            var parser2 = parse().Parser;
 
-
-
-
-            // TODO-JOSEQU (Parse_extension_method_reuses_parser_instance) write test
-            Assert.True(false, "Test Parse_extension_method_reuses_parser_instance is not written yet.");
+            parser1.Should().BeSameAs(parser2);
         }
 
         protected abstract Symbol CreateSymbol(string name);
