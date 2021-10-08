@@ -1,6 +1,11 @@
 {
   "tools": {
-    "dotnet": "5.0.300",
+    "dotnet": "6.0.100-rc.1.21463.6",
+    "runtimes": {
+      "dotnet": [
+          "5.0.10"
+      ]
+    },
     "vs": {
       "version": "16.8"
     },
