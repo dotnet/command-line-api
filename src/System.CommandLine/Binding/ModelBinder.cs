@@ -317,42 +317,13 @@ namespace System.CommandLine.Binding
             return (null, false);
         }
 
-        protected ConstructorDescriptor FindModelConstructorDescriptor(ConstructorInfo constructorInfo)
-        {
-            var constructorParameters = constructorInfo.GetParameters();
-
-            return ModelDescriptor.ConstructorDescriptors
-                .FirstOrDefault(ctorDesc
-                        => ModelDescriptor.ModelType == constructorInfo.DeclaringType &&
-                           ctorDesc.ParameterDescriptors
-                                   .Any(x => constructorParameters.Any(y => MatchParameter(x, y))));
-
-            static bool MatchParameter(ParameterDescriptor desc, ParameterInfo info)
-            {
-                return desc.ValueType == info.ParameterType &&
-                       desc.ValueName == info.Name &&
-                       desc.HasDefaultValue == info.HasDefaultValue &&
-                       desc.AllowsNull == ParameterDescriptor.CalculateAllowsNull(info);
-            }
-        }
-
-        protected IValueDescriptor FindModelPropertyDescriptor(Type propertyType, string propertyName)
+        private protected IValueDescriptor FindModelPropertyDescriptor(Type propertyType, string propertyName)
         {
             return ModelDescriptor.PropertyDescriptors
                 .FirstOrDefault(desc =>
                     desc.ValueType == propertyType &&
                     string.Equals(desc.ValueName, propertyName, StringComparison.Ordinal)
                     );
-        }
-
-        private ConstructorInfo FindConstructorOrThrow(ParameterInfo parameter, string message)
-        {
-            if (parameter.Member is not ConstructorInfo constructor)
-            {
-                throw new ArgumentException(paramName: nameof(parameter),
-                      message: message);
-            }
-            return constructor;
         }
 
         internal class AnonymousValueDescriptor : IValueDescriptor

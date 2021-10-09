@@ -21,7 +21,7 @@ namespace System.CommandLine.Parsing
         public Parser(params Symbol[] symbols) : this(new CommandLineConfiguration(symbols))
         {
         }
-
+        
         public Parser() : this(new RootCommand())
         {
         }

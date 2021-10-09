@@ -11,71 +11,42 @@ namespace System.CommandLine.Help
     /// </summary>
     public static class HelpBuilderExtension
     {
-        public static void Customize(this HelpBuilder helpBuilder, 
-            IOption option, 
-            string? descriptor = null, 
-            string? defaultValue = null)
-        {
-            helpBuilder.Customize(option, (_) => descriptor, (_) => defaultValue);
-        }
-
-        public static void Customize(this HelpBuilder helpBuilder,
-            ICommand command,
-            string? descriptor = null)
-        {
-            helpBuilder.Customize(command, (_) => descriptor);
-        }
-
-        public static void Customize(this HelpBuilder helpBuilder,
-            IArgument argument,
+        /// <param name="builder">The help builder to write with.</param>
+        /// <param name="symbol">The symbol to customize the help details for.</param>
+        /// <param name="descriptor">The name and invocation details, typically in the first help column.</param>
+        /// <param name="defaultValue">The displayed default value for the symbol.</param>
+        public static void Customize(
+            this HelpBuilder builder,
+            ISymbol symbol,
             string? descriptor = null,
             string? defaultValue = null)
         {
-            helpBuilder.Customize(argument, (_) => descriptor, (_) => defaultValue);
+            builder.Customize(symbol, _ => descriptor, _ => defaultValue);
         }
 
-        public static void Customize(this HelpBuilder helpBuilder,
-            IOption option,
+        /// <param name="symbol">The symbol to customize the help details for.</param>
+        /// <param name="descriptor">A delegate to display the name and invocation details, typically in the first help column.</param>
+        /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
+        /// /// <param name="builder">The help builder to write with.</param>
+        public static void Customize(
+            this HelpBuilder builder,
+            ISymbol symbol,
             Func<ParseResult?, string?>? descriptor = null,
             Func<ParseResult?, string?>? defaultValue = null)
         {
-            helpBuilder.Customize(option, descriptor, defaultValue);
+            builder.Customize(symbol, descriptor, defaultValue);
         }
 
-        public static void Customize(this HelpBuilder helpBuilder,
+        /// <summary>
+        /// Writes help output for the specified command.
+        /// </summary>
+        /// <param name="builder">The help builder to write with.</param>
+        /// <param name="command">The command for which to write help output.</param>
+        /// <param name="writer">The writer to write output to.</param>
+        public static void Write(
+            this IHelpBuilder builder,
             ICommand command,
-            Func<ParseResult?, string?>? descriptor = null)
-        {
-            helpBuilder.Customize(command, descriptor);
-        }
-
-        public static void Customize(this HelpBuilder helpBuilder,
-            IArgument argument,
-            Func<ParseResult?, string?>? descriptor = null,
-            Func<ParseResult?, string?>? defaultValue = null)
-        {
-            helpBuilder.Customize(argument, descriptor, defaultValue);
-        }
-
-        public static void Customize(this HelpBuilder helpBuilder,
-            IOption option)
-        {
-            helpBuilder.Customize(option);
-        }
-
-        public static void Customize(this HelpBuilder helpBuilder,
-            ICommand command)
-        {
-            helpBuilder.Customize(command);
-        }
-
-        public static void Customize(this HelpBuilder helpBuilder,
-            IArgument argument)
-        {
-            helpBuilder.Customize(argument);
-        }
-
-        public static void Write(this IHelpBuilder builder, ICommand command, TextWriter writer) =>
-            builder.Write(command, writer, ParseResult.Empty);
+            TextWriter writer) =>
+            builder.Write(command, writer, ParseResult.Empty());
     }
 }

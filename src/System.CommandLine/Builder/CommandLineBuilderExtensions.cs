@@ -95,6 +95,12 @@ namespace System.CommandLine.Builder
             return builder;
         }
 
+        /// <summary>
+        /// Configures how console instances will be created.
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <param name="createConsole">A delegate that creates a console instance.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder ConfigureConsole(
             this CommandLineBuilder builder,
             Func<BindingContext, IConsole> createConsole)
