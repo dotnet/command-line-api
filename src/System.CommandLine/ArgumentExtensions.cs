@@ -227,12 +227,7 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Argument argument,
             string commandLine) =>
-            new Parser(
-                new CommandLineConfiguration(
-                    new RootCommand
-                    {
-                        argument
-                    })).Parse(commandLine);
+            argument.GetOrCreateDefaultParser().Parse(commandLine);
 
         /// <summary>
         /// Parses a command line string value using an argument.
@@ -243,11 +238,6 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Argument argument,
             string[] args) =>
-            new Parser(
-                new CommandLineConfiguration(
-                    new RootCommand
-                    {
-                        argument
-                    })).Parse(args);
+            argument.GetOrCreateDefaultParser().Parse(args);
     }
 }

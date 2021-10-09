@@ -16,7 +16,7 @@ namespace System.CommandLine.Builder
     public class CommandLineBuilder : CommandBuilder
     {
         private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
-        private LocalizationResources _localizationResources;
+        private LocalizationResources? _localizationResources;
 
         /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command? rootCommand = null)
@@ -71,9 +71,7 @@ namespace System.CommandLine.Builder
                                                        .ToArray(),
                     helpBuilderFactory: HelpBuilderFactory,
                     configureHelp: ConfigureHelp));
-
-            Command.ImplicitParser = parser;
-
+            
             return parser;
         }
 

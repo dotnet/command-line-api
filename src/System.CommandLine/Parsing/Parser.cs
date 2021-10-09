@@ -15,6 +15,11 @@ namespace System.CommandLine.Parsing
         public Parser(CommandLineConfiguration configuration)
         {
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+            if (configuration.RootCommand is Command { ImplicitParser: null} cmd)
+            {
+                cmd.ImplicitParser = this;
+            }
         }
 
         public Parser(Symbol symbol) : this(new CommandLineConfiguration(symbol))
