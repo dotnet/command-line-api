@@ -18,7 +18,7 @@ namespace System.CommandLine.Parsing
         private readonly IReadOnlyList<Token> _unparsedTokens;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
 
-        public static ParseResult Empty => new RootCommand().Parse(Array.Empty<string>());
+        internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
 
         internal ParseResult(
             Parser parser,

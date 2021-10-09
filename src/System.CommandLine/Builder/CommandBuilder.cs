@@ -14,6 +14,9 @@ namespace System.CommandLine.Builder
             Command = command;
         }
 
+        /// <summary>
+        /// The command that the builder uses as its configuration root.
+        /// </summary>
         public Command Command { get; }
     }
 }

@@ -914,13 +914,6 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().Contain(expected);
         }
 
-        [Fact]
-        public void Null_argument_on_customize_throws()
-        {
-            Action action = () => _helpBuilder.Customize((IArgument)null);
-            action.Should().Throw<ArgumentNullException>();
-        }
-
         #endregion Arguments
 
         #region Options
@@ -1342,11 +1335,11 @@ namespace System.CommandLine.Tests.Help
         public void Option_can_customize_descriptor_based_on_parse_result()
         {
             var option = new Option<bool>("option");
-            var commandA = new Command("a", $"a command help")
+            var commandA = new Command("a", "a command help")
             {
                 option
             };
-            var commandB = new Command("b", $"b command help")
+            var commandB = new Command("b", "b command help")
             {
                 option
             };
@@ -1373,13 +1366,6 @@ namespace System.CommandLine.Tests.Help
             console = new TestConsole();
             parser.Invoke("root b -h", console);
             console.Out.ToString().Should().Contain(optionBHelpText);
-        }
-
-        [Fact]
-        public void Null_option_on_customize_throws()
-        {
-            Action action = () => _helpBuilder.Customize((IOption)null);
-            action.Should().Throw<ArgumentNullException>();
         }
 
         #endregion Options
@@ -1585,13 +1571,6 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().Contain(expected);
         }
 
-        [Fact]
-        public void Null_command_on_customize_throws()
-         {
-            Action action = () => _helpBuilder.Customize((ICommand)null);
-            action.Should().Throw<ArgumentNullException>();
-        }
-
         #endregion Subcommands
 
         [Fact]
@@ -1693,6 +1672,13 @@ namespace System.CommandLine.Tests.Help
         {
             var helpBuilder = new HelpBuilder(LocalizationResources.Instance, maxWidth);
             Assert.Equal(int.MaxValue, helpBuilder.MaxWidth);
+        }
+
+        [Fact]
+        public void Customize_throws_when_symbol_is_null()
+        {
+            Action action = () => _helpBuilder.Customize(null!, "");
+            action.Should().Throw<ArgumentNullException>();
         }
 
         private class CustomHelpBuilderThatAddsTextAfterDefaultText : HelpBuilder

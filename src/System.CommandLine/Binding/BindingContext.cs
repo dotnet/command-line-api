@@ -21,6 +21,8 @@ namespace System.CommandLine.Binding
         private IConsole _console;
         private readonly Dictionary<Type, ModelBinder> _modelBindersByValueDescriptor = new();
 
+        /// <param name="parseResult">The parse result used for binding to command line input.</param>
+        /// <param name="console">A console instance used for writing output.</param>
         public BindingContext(
             ParseResult parseResult,
             IConsole? console = default)

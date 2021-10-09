@@ -16,9 +16,8 @@ namespace System.CommandLine.Help
 
         private Dictionary<ISymbol, Customization> Customizations { get; } = new();
 
-        /// <param name="localizationResources"></param>
-        /// <param name="maxWidth"></param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="localizationResources">Resources used to localize the help output.</param>
+        /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
         public HelpBuilder(LocalizationResources localizationResources, int maxWidth = int.MaxValue)
         {
             LocalizationResources = localizationResources ?? throw new ArgumentNullException(nameof(localizationResources));
@@ -36,6 +35,12 @@ namespace System.CommandLine.Help
         /// </summary>
         public int MaxWidth { get; }
 
+        /// <summary>
+        /// Writes help for the specified command.
+        /// </summary>
+        /// <param name="command">The command to write help output for.</param>
+        /// <param name="writer">The writer to write help output to.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
         public virtual void Write(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             if (command is null)
@@ -60,6 +65,12 @@ namespace System.CommandLine.Help
             AddAdditionalArguments(command, writer);
         }
 
+        /// <summary>
+        /// Specifies custom help details for a specific symbol.
+        /// </summary>
+        /// <param name="symbol">The symbol to specify custom help details for.</param>
+        /// <param name="descriptor">A delegate to display the name and invocation details, typically in the first help column.</param>
+        /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
         protected internal void Customize(ISymbol symbol,
             Func<ParseResult?, string?>? descriptor = null,
             Func<ParseResult?, string?>? defaultValue = null)
@@ -72,12 +83,22 @@ namespace System.CommandLine.Help
             Customizations[symbol] = new Customization(descriptor, defaultValue);
         }
 
+        /// <summary>
+        /// Writes the synopsis for the specified command.
+        /// </summary>
+        /// <param name="command">The command to write help details for.</param>
+        /// <param name="writer">The writer to write help output to.</param>
         protected virtual void AddSynopsis(ICommand command, TextWriter writer)
         {
             WriteHeading(LocalizationResources.Instance.HelpDescriptionTitle(), command.Description, writer);
             writer.WriteLine();
         }
 
+        /// <summary>
+        /// Writes usage for the specified command.
+        /// </summary>
+        /// <param name="command">The command to write help details for.</param>
+        /// <param name="writer">The writer to write help output to.</param>
         protected virtual void AddUsage(ICommand command, TextWriter writer)
         {
             string description = GetUsage(command);
@@ -85,6 +106,10 @@ namespace System.CommandLine.Help
             writer.WriteLine();
         }
 
+        /// <summary>
+        /// Gets the usage for the specified command.
+        /// </summary>
+        /// <param name="command">The command to get usage for.</param>
         protected string GetUsage(ICommand command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
@@ -128,6 +153,12 @@ namespace System.CommandLine.Help
             }
         }
 
+        /// <summary>
+        /// Writes help output for the specified command's arguments.
+        /// </summary>
+        /// <param name="command">The command to write out argument help for.</param>
+        /// <param name="writer">The writer to write help output to.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
         protected virtual void AddCommandArguments(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             HelpItem[] commandArguments = GetCommandArguments(command, parseResult).ToArray();
@@ -140,6 +171,12 @@ namespace System.CommandLine.Help
             }
         }
 
+        /// <summary>
+        /// Gets help items for the specified command's arguments.
+        /// </summary>
+        /// <param name="command">The command to get argument help items for.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
+        /// <returns>Help items for the specified command's arguments.</returns>
         protected IEnumerable<HelpItem> GetCommandArguments(ICommand command, ParseResult parseResult)
         {
             //TODO: This shows all parent arguments not just the first level
@@ -175,6 +212,12 @@ namespace System.CommandLine.Help
             }
         }
 
+        /// <summary>
+        /// Writes help output for the specified command's options.
+        /// </summary>
+        /// <param name="command">The command to get argument help items for.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
+        /// <param name="writer">The writer to write help output to.</param>
         protected virtual void AddOptions(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             var options = GetOptions(command, parseResult).ToArray();
@@ -187,9 +230,20 @@ namespace System.CommandLine.Help
             }
         }
 
+        /// <summary>
+        /// Gets help items for the specified command's options.
+        /// </summary>
+        /// <param name="command">The command to get argument help items for.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
         protected IEnumerable<HelpItem> GetOptions(ICommand command, ParseResult parseResult)
             => command.Options.Where(x => !x.IsHidden).Select(x => GetHelpItem(x, parseResult));
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command">The command to get argument help items for.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
+        /// <param name="writer">The writer to write help output to.</param>
         protected virtual void AddSubcommands(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             var subcommands = GetSubcommands(command, parseResult).ToArray();
@@ -202,9 +256,17 @@ namespace System.CommandLine.Help
             }
         }
 
+        /// <summary>
+        /// Gets help items for the specified command's subcommands.
+        /// </summary>
+        /// <param name="command">The command to get argument help items for.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
         protected IEnumerable<HelpItem> GetSubcommands(ICommand command, ParseResult parseResult)
             => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetHelpItem(x, parseResult));
 
+        /// <summary>
+        /// Writes help output for additional arguments.
+        /// </summary>
         protected virtual void AddAdditionalArguments(ICommand command, TextWriter writer)
         {
             if (command.TreatUnmatchedTokensAsErrors)
@@ -216,6 +278,12 @@ namespace System.CommandLine.Help
                 LocalizationResources.HelpAdditionalArgumentsDescription(), writer);
         }
 
+        /// <summary>
+        /// Writes a heading to help output.
+        /// </summary>
+        /// <param name="descriptor">The name and invocation details, typically in the first help column.</param>
+        /// <param name="description">The description of the symbol, typically in the second help column.</param>
+        /// <param name="writer">The writer to write help output to.</param>
         protected void WriteHeading(string descriptor, string? description, TextWriter writer)
         {
             if (!string.IsNullOrWhiteSpace(descriptor))
@@ -298,6 +366,11 @@ namespace System.CommandLine.Help
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
+        /// <summary>
+        /// Writes the specified help items, aligning output in columns.
+        /// </summary>
+        /// <param name="writer">The writer to write help output to.</param>
+        /// <param name="items">The help items to write out in columns.</param>
         protected void RenderAsColumns(TextWriter writer, params HelpItem[] items)
         {
             if (items.Length == 0)
@@ -320,10 +393,10 @@ namespace System.CommandLine.Help
                 secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
             }
 
-            foreach (var (descriptor, description) in items)
+            foreach (var helpItem in items)
             {
-                IEnumerable<string> descriptorParts = WrapItem(descriptor, firstColumnWidth);
-                IEnumerable<string> descriptionParts = WrapItem(description, secondColumnWidth);
+                IEnumerable<string> descriptorParts = WrapItem(helpItem.Descriptor, firstColumnWidth);
+                IEnumerable<string> descriptionParts = WrapItem(helpItem.Description, secondColumnWidth);
 
                 foreach (var (first, second) in ZipWithEmpty(descriptorParts, descriptionParts))
                 {
@@ -403,6 +476,11 @@ namespace System.CommandLine.Help
             }
         }
 
+        /// <summary>
+        /// Gets a help item for the specified symbol.
+        /// </summary>
+        /// <param name="symbol">The symbol to get a help item for.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
         protected HelpItem GetHelpItem(IIdentifierSymbol symbol, ParseResult parseResult)
         {
             string descriptor;
@@ -445,25 +523,31 @@ namespace System.CommandLine.Help
             return new HelpItem(descriptor, GetDescription(symbol, parseResult));
         }
 
+        /// <summary>
+        /// Gets the description for the specified symbol.
+        /// </summary>
+        /// <param name="symbol">The symbol to get the description for.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
+        /// <returns></returns>
         protected string GetDescription(IIdentifierSymbol symbol, ParseResult parseResult)
         {
-            return string.Join(" ", GetDescriptionParts(symbol, parseResult));
+            return string.Join(" ", GetDescriptionParts());
 
-            IEnumerable<string> GetDescriptionParts(IIdentifierSymbol symbol, ParseResult parseResult)
+            IEnumerable<string> GetDescriptionParts()
             {
                 string? description = symbol.Description;
                 if (!string.IsNullOrWhiteSpace(description))
                 {
                     yield return description!;
                 }
-                string argumentsDescription = GetArgumentsDescription(symbol, parseResult);
+                string argumentsDescription = GetArgumentsDescription();
                 if (!string.IsNullOrWhiteSpace(argumentsDescription))
                 {
                     yield return argumentsDescription;
                 }
             }
 
-            string GetArgumentsDescription(IIdentifierSymbol symbol, ParseResult parseResult)
+            string GetArgumentsDescription()
             {
                 IEnumerable<IArgument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
@@ -510,6 +594,11 @@ namespace System.CommandLine.Help
             return $"{name}: {defaultValue}";
         }
 
+        /// <summary>
+        /// Gets the descriptor for the specified argument.
+        /// </summary>
+        /// <param name="argument">The argument to get the descriptor for.</param>
+        /// <param name="parseResult">A parse result providing context for help formatting.</param>
         protected string GetArgumentDescriptor(IArgument argument, ParseResult parseResult)
         {
             if (Customizations.TryGetValue(argument, out Customization customization) &&

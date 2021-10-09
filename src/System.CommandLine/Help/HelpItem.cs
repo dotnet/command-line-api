@@ -10,6 +10,8 @@ namespace System.CommandLine.Help
     /// </summary>
     public class HelpItem : IEquatable<HelpItem?>
     {
+        /// <param name="descriptor"></param>
+        /// <param name="description"></param>
         public HelpItem(string descriptor, string description)
         {
             Descriptor = descriptor;
@@ -25,12 +27,6 @@ namespace System.CommandLine.Help
         /// The description of what the item does.
         /// </summary>
         public string Description { get; }
-
-        public void Deconstruct(out string descriptor, out string description)
-        {
-            descriptor = Descriptor;
-            description = Description;
-        }
 
         /// <inheritdoc />
         public override bool Equals(object? obj)

@@ -15,8 +15,8 @@ namespace System.CommandLine.Help
         /// Writes help output for the specified command.
         /// </summary>
         /// <param name="command">The command for which to write help output.</param>
-        /// <param name="output">The output stream.</param>
+        /// <param name="writer">The writer to write output to.</param>
         /// <param name="parseResult">The parse result for which to write help output.</param>
-        void Write(ICommand command, TextWriter output, ParseResult parseResult);
+        void Write(ICommand command, TextWriter writer, ParseResult parseResult);
     }
 }
