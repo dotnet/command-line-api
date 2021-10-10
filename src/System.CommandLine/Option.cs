@@ -17,7 +17,7 @@ namespace System.CommandLine
         IdentifierSymbol,
         IOption
     {
-        private string? _implicitName;
+        private string? _name;
         private protected readonly HashSet<string> _unprefixedAliases = new();
 
         /// <summary>
@@ -34,8 +34,9 @@ namespace System.CommandLine
             Type? argumentType = null,
             Func<object?>? getDefaultValue = null,
             IArgumentArity? arity = null)
-            : this(new[] { name }, description, argumentType, getDefaultValue, arity)
-        { }
+            : this(name, description, CreateArgument(argumentType, getDefaultValue, arity))
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
@@ -53,6 +54,27 @@ namespace System.CommandLine
             IArgumentArity? arity = null)
             : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity))
         { }
+
+        internal Option(
+            string name,
+            string? description,
+            Argument? argument)
+            : base(description)
+        {
+            if (name is null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            _name = name.RemovePrefix();
+
+            AddAlias(name);
+
+            if (argument is not null)
+            {
+                AddArgumentInner(argument);
+            }
+        }
 
         internal Option(
             string[] aliases,
@@ -159,12 +181,11 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override string Name
         {
-            get => base.Name;
             set
             {
                 if (!HasAlias(value))
                 {
-                    _implicitName = null;
+                    _name = null;
                     RemoveAlias(DefaultName);
                 }
 
@@ -251,10 +272,20 @@ namespace System.CommandLine
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
-        private protected override string DefaultName =>
-            _implicitName ??= Aliases
-                              .OrderBy(a => a.Length)
-                              .Last()
-                              .RemovePrefix();
+        private protected override string DefaultName
+        {
+            get
+            {
+                if (_name is null)
+                {
+                    _name = Aliases
+                            .OrderBy(a => a.Length)
+                            .Last()
+                            .RemovePrefix();
+                }
+
+                return _name;
+            }
+        }
     }
 }

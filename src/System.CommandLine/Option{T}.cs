@@ -14,7 +14,7 @@ namespace System.CommandLine
         public Option(
             string name,
             string? description = null) 
-            : base(new[] { name }, description, new Argument<T>())
+            : base(name, description, new Argument<T>())
         { }
 
         /// <inheritdoc/>
@@ -26,11 +26,11 @@ namespace System.CommandLine
 
         /// <inheritdoc/>
         public Option(
-            string alias,
+            string name,
             ParseArgument<T> parseArgument,
             bool isDefault = false,
             string? description = null) 
-            : base(new[] { alias }, description, 
+            : base(name, description, 
                   new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
         { }
 
@@ -45,10 +45,10 @@ namespace System.CommandLine
 
         /// <inheritdoc/>
         public Option(
-            string alias,
+            string name,
             Func<T> getDefaultValue,
             string? description = null) 
-            : base(new[] { alias }, description, 
+            : base(new[] { name }, description, 
                   new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
         { }
 
