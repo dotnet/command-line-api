@@ -40,8 +40,8 @@ namespace System.CommandLine.Binding
         /// <summary>
         /// Sets a value on the target property.
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="value"></param>
+        /// <param name="instance">The instance on which to set a value.</param>
+        /// <param name="value">The value to set.</param>
         public void SetValue(object? instance, object? value)
         {
             _propertyInfo.SetValue(instance, value);

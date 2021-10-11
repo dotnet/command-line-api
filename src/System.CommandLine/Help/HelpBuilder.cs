@@ -528,7 +528,6 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="symbol">The symbol to get the description for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        /// <returns></returns>
         protected string GetDescription(IIdentifierSymbol symbol, ParseResult parseResult)
         {
             return string.Join(" ", GetDescriptionParts());

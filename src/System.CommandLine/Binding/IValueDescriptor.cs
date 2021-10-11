@@ -26,7 +26,6 @@ namespace System.CommandLine.Binding
         /// <summary>
         /// Gets the default value, if any.
         /// </summary>
-        /// <returns></returns>
         object? GetDefaultValue();
     }
 }

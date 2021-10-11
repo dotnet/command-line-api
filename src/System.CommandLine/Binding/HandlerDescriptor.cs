@@ -15,7 +15,6 @@ namespace System.CommandLine.Binding
         /// <summary>
         /// Gets a command handler that can bind to the specifications of the descriptor.
         /// </summary>
-        /// <returns></returns>
         public abstract ICommandHandler GetCommandHandler();
 
         /// <inheritdoc />

@@ -8,7 +8,7 @@ namespace System.CommandLine.Builder
     /// </summary>
     public class CommandBuilder
     {
-        /// <param name="command"></param>
+        /// <param name="command">The command to be configured.</param>
         internal CommandBuilder(Command command) 
         {
             Command = command;

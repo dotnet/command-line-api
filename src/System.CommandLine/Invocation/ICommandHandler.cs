@@ -14,7 +14,7 @@ namespace System.CommandLine.Invocation
         /// Performs an action when the associated command is invoked on the command line.
         /// </summary>
         /// <param name="context">Provides context for the invocation, including parse results  and binding support.</param>
-        /// <returns></returns>
+        /// <returns>A value that can be used as the exit code for the process.</returns>
         Task<int> InvokeAsync(InvocationContext context);
     }
 }

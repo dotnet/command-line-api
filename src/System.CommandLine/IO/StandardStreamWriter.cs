@@ -37,6 +37,10 @@ namespace System.CommandLine.IO
             return new AnonymousStandardStreamWriter(writer.Write);
         }
 
+        /// <summary>
+        /// Appends the current environment's line terminator.
+        /// </summary>
+        /// <param name="writer">The writer to write to.</param>
         public static void WriteLine(this IStandardStreamWriter writer)
         {
             if (writer is null)
@@ -47,6 +51,11 @@ namespace System.CommandLine.IO
             writer.Write(Environment.NewLine);
         }
 
+        /// <summary>
+        /// Writes the current string value, followed by the current environment's line terminator.
+        /// </summary>
+        /// <param name="writer">The writer to write to.</param>
+        /// <param name="value">The value to write.</param>
         public static void WriteLine(this IStandardStreamWriter writer, string value)
         {
             if (writer is null)

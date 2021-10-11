@@ -10,8 +10,8 @@ namespace System.CommandLine.Help
     /// </summary>
     public class HelpItem : IEquatable<HelpItem?>
     {
-        /// <param name="descriptor"></param>
-        /// <param name="description"></param>
+        /// <param name="descriptor">The name and invocation details, typically displayed in the first help column.</param>
+        /// <param name="description">The description of a symbol, typically displayed in the second help column.</param>
         public HelpItem(string descriptor, string description)
         {
             Descriptor = descriptor;
@@ -19,7 +19,7 @@ namespace System.CommandLine.Help
         }
 
         /// <summary>
-        /// The name and other usgae details about the item.
+        /// The name and other usage details about the item.
         /// </summary>
         public string Descriptor { get; }
 

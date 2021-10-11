@@ -26,7 +26,7 @@ namespace System.CommandLine
         /// Gets the values specified for a given directive. A return value indicates whether the specified directive name was present.
         /// </summary>
         /// <param name="name">The name of the directive.</param>
-        /// <param name="values"></param>
+        /// <param name="values">The values provided for the specified directive.</param>
         /// <returns><see langword="true"/> if a directive with the specified name was parsed; otherwise, <see langword="false"/>.</returns>
         bool TryGetValues(string name,  [NotNullWhen(true)] out IEnumerable<string>? values);
     }
