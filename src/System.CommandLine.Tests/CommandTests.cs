@@ -460,6 +460,46 @@ namespace System.CommandLine.Tests
                   .BeEmpty();
         }
 
+        [Fact]
+        public void AddGlobalOption_updates_Options_and_GlobalOptions_property()
+        {
+            var option = new Option<string>("-x");
+            var command = new Command("mycommand");
+            command.AddGlobalOption(option);
+
+            command.GlobalOptions
+                .Should()
+                .Contain(option);
+
+            command.Options
+                .Should()
+                .Contain(option);
+        }
+
+        // https://github.com/dotnet/command-line-api/issues/1437
+        [Fact]
+        public void When_Options_is_referenced_before_a_global_option_is_added_then_adding_a_global_option_updates_the_Options_collection()
+        {
+            var option = new Option<string>("-x");
+            var command = new Command("mycommand");
+
+            // referencing command.Options here would reproduce the above bug before the fix
+            // keeping it ensures the fix works and doesn't regress
+            command.Options
+                .Should()
+                .BeEmpty();
+
+            command.AddGlobalOption(option);
+
+            command.GlobalOptions
+                .Should()
+                .Contain(option);
+
+            command.Options
+                .Should()
+                .Contain(option);
+        }
+
 
         protected override Symbol CreateSymbol(string name) => new Command(name);
     }
