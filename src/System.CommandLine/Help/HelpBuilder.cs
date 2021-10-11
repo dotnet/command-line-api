@@ -14,7 +14,7 @@ namespace System.CommandLine.Help
     {
         private const string Indent = "  ";
 
-        private Dictionary<ISymbol, Customization> _customizationsBySymbol;
+        private Dictionary<ISymbol, Customization>? _customizationsBySymbol;
 
         /// <param name="localizationResources">Resources used to localize the help output.</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
