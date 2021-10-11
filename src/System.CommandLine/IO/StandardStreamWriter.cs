@@ -38,7 +38,7 @@ namespace System.CommandLine.IO
         }
 
         /// <summary>
-        /// Writes the current environment's line terminator to the standard output stream.
+        /// Appends the current environment's line terminator.
         /// </summary>
         /// <param name="writer">The writer to write to.</param>
         public static void WriteLine(this IStandardStreamWriter writer)
