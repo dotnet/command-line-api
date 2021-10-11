@@ -9,7 +9,7 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Provides extension methods for the help builder.
     /// </summary>
-    public static class HelpBuilderExtension
+    public static class HelpBuilderExtensions
     {
         /// <param name="builder">The help builder to write with.</param>
         /// <param name="symbol">The symbol to customize the help details for.</param>

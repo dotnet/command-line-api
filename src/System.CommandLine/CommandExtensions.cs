@@ -86,7 +86,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Parses a command line string value using an argument.
+        /// Parses an array strings using the specified command.
         /// </summary>
         /// <param name="command">The command to use to parse the command line input.</param>
         /// <param name="args">The string arguments to parse.</param>
@@ -97,7 +97,7 @@ namespace System.CommandLine
             new Parser(command).Parse(args);
 
         /// <summary>
-        /// Parses a command line string value using an argument.
+        /// Parses a command line string value using the specified command.
         /// </summary>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <param name="command">The command to use to parse the command line input.</param>

@@ -23,7 +23,7 @@ namespace System.CommandLine.Binding
         private List<PropertyDescriptor>? _propertyDescriptors;
         private List<ConstructorDescriptor>? _constructorDescriptors;
 
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="modelType">The type of the model.</param>
         protected ModelDescriptor(Type modelType)
         {
             ModelType = modelType ??

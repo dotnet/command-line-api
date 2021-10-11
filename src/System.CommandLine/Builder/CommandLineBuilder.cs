@@ -52,7 +52,6 @@ namespace System.CommandLine.Builder
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
-        /// <returns></returns>
         public Parser Build()
         {
             var resources = LocalizationResources ?? LocalizationResources.Instance;

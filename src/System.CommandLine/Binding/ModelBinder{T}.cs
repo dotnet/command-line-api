@@ -17,8 +17,8 @@ namespace System.CommandLine.Binding
         /// Configures a custom binding behavior for the specified property.
         /// </summary>
         /// <param name="property">An expression specifying the property to bind.</param>
-        /// <param name="valueDescriptor"></param>
-        /// <typeparam name="TValue">A value descriptor for the value from which the property will be bound.</typeparam>
+        /// <param name="valueDescriptor">A value descriptor for the value from which the property will be bound.</param>
+        /// <typeparam name="TValue">The type of the value to be bound.</typeparam>
         public void BindMemberFromValue<TValue>(
             Expression<Func<TModel, TValue>> property,
             IValueDescriptor valueDescriptor)
