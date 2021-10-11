@@ -44,7 +44,7 @@ namespace System.CommandLine.Collections
             base.Add(item);
             ResetIndex(item);
             if (item is Symbol symbol)
-            {   
+            {
                 symbol.OnNameOrAliasChanged += Resync;
             }
         }

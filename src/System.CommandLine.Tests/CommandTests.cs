@@ -460,6 +460,44 @@ namespace System.CommandLine.Tests
                   .BeEmpty();
         }
 
+        [Fact]
+        public void AddGlobalOption_updates_Options_and_GlobalOptions_property()
+        {
+            var option = new Option<string>("-x");
+            var command = new Command("mycommand");
+            command.AddGlobalOption(option);
+
+            command.GlobalOptions
+                .Should()
+                .ContainSingle(o => o.Equals(option));
+
+            command.Options
+                .Should()
+                .ContainSingle(o => o.Equals(option));
+        }
+
+        // https://github.com/dotnet/command-line-api/issues/1437
+        [Fact]
+        public void AddGlobalOption_referencing_Options_before_AddGlobalOption()
+        {
+            var option = new Option<string>("-x");
+            var command = new Command("mycommand");
+
+            command.Options
+                .Should()
+                .BeEmpty();
+
+            command.AddGlobalOption(option);
+
+            command.GlobalOptions
+                .Should()
+                .ContainSingle(o => o.Equals(option));
+
+            command.Options
+                .Should()
+                .ContainSingle(o => o.Equals(option));
+        }
+
 
         protected override Symbol CreateSymbol(string name) => new Command(name);
     }
