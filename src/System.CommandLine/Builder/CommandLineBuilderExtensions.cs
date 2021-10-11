@@ -71,7 +71,7 @@ namespace System.CommandLine.Builder
                         // because Main will not finish executing.
                         // Wait for the invocation to finish.
                         blockProcessExit.Wait();
-                        Environment.ExitCode = context.ExitCode;
+                        ExitCode = context.ExitCode;
                     };
                     Console.CancelKeyPress += consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit += processExitHandler;
@@ -241,7 +241,7 @@ ERR:
                     const string environmentVariableName = "DOTNET_COMMANDLINE_DEBUG_PROCESSES";
 
                     var process = Diagnostics.Process.GetCurrentProcess();
-                    string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
+                    var debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
                     if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
                         context.Console.Error.WriteLine(context.LocalizationResources.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
@@ -572,6 +572,7 @@ ERR:
                     await next(context);
                 }
             }, MiddlewareOrderInternal.ParseErrorReporting);
+
             return builder;
         }
 

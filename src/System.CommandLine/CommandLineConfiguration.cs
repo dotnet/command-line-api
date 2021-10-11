@@ -38,7 +38,7 @@ namespace System.CommandLine
             bool enableLegacyDoubleDashBehavior = false,
             LocalizationResources? resources = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
-            IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
+            IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
             Action<IHelpBuilder>? configureHelp = null)
         {
@@ -146,7 +146,7 @@ namespace System.CommandLine
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= DefaultHelpBuilderFactory;
 
-        internal IReadOnlyCollection<InvocationMiddleware> Middleware { get; }
+        internal IReadOnlyList<InvocationMiddleware> Middleware { get; }
 
         /// <summary>
         /// Gets the root command.

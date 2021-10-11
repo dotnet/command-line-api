@@ -48,7 +48,7 @@ namespace System.CommandLine
             string name,
             Func<T> getDefaultValue,
             string? description = null) 
-            : base(new[] { name }, description, 
+            : base(name, description, 
                   new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
         { }
 
