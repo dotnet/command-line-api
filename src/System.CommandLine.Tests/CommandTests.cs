@@ -483,6 +483,8 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("-x");
             var command = new Command("mycommand");
 
+            // referencing command.Options here would reproduce the above bug before the fix
+            // keeping it ensures the fix works and doesn't regress
             command.Options
                 .Should()
                 .BeEmpty();
