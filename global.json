@@ -6,9 +6,6 @@
           "5.0.10"
       ]
     },
-    "vs": {
-      "version": "16.8"
-    },
     "xcopy-msbuild": "16.10.0-preview2"
   },
   "msbuild-sdks": {
