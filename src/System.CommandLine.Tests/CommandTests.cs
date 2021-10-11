@@ -478,7 +478,7 @@ namespace System.CommandLine.Tests
 
         // https://github.com/dotnet/command-line-api/issues/1437
         [Fact]
-        public void AddGlobalOption_referencing_Options_before_AddGlobalOption()
+        public void When_Options_is_referenced_before_a_global_option_is_added_then_adding_a_global_option_updates_the_Options_collection()
         {
             var option = new Option<string>("-x");
             var command = new Command("mycommand");
