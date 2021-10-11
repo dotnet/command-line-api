@@ -52,7 +52,7 @@ namespace System.CommandLine.IO
         }
 
         /// <summary>
-        /// Writes the current string value, followed by the current environment's line terminator, to the stream.
+        /// Writes the current string value, followed by the current environment's line terminator.
         /// </summary>
         /// <param name="writer">The writer to write to.</param>
         /// <param name="value">The value to write.</param>
