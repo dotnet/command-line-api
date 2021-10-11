@@ -469,11 +469,11 @@ namespace System.CommandLine.Tests
 
             command.GlobalOptions
                 .Should()
-                .ContainSingle(o => o.Equals(option));
+                .Contain(option);
 
             command.Options
                 .Should()
-                .ContainSingle(o => o.Equals(option));
+                .Contain(option);
         }
 
         // https://github.com/dotnet/command-line-api/issues/1437
@@ -491,11 +491,11 @@ namespace System.CommandLine.Tests
 
             command.GlobalOptions
                 .Should()
-                .ContainSingle(o => o.Equals(option));
+                .Contain(option);
 
             command.Options
                 .Should()
-                .ContainSingle(o => o.Equals(option));
+                .Contain(option);
         }
 
 
