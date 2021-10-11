@@ -18,15 +18,7 @@ namespace System.CommandLine.Collections
         internal override void Add(ISymbol item)
         {
             ThrowIfAnyAliasIsInUse(item);
-
-            base.Add(item);
-
-            ResetIndex(item);
-
-            if (item is Symbol symbol)
-            {   
-                symbol.OnNameOrAliasChanged += Resync;
-            }
+            AddWithoutAliasCollisionCheck(item);
         }
 
         private void ResetIndex(ISymbol item)
@@ -47,7 +39,15 @@ namespace System.CommandLine.Collections
             DirtyItems.Add(symbol);
         }
 
-        internal void AddWithoutAliasCollisionCheck(ISymbol item) => base.Add(item);
+        internal void AddWithoutAliasCollisionCheck(ISymbol item)
+        {
+            base.Add(item);
+            ResetIndex(item);
+            if (item is Symbol symbol)
+            {   
+                symbol.OnNameOrAliasChanged += Resync;
+            }
+        }
 
         internal bool IsAnyAliasInUse(
             ISymbol item,
