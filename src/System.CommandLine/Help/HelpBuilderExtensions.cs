@@ -14,31 +14,31 @@ namespace System.CommandLine.Help
         /// <param name="builder">The help builder to write with.</param>
         /// <param name="symbol">The symbol to customize the help details for.</param>
         /// <param name="descriptor">The name and invocation details, typically in the first help column.</param>
-        /// <param name="defaultValue">The displayed default value for the symbol.</param>
         /// <param name="description">The description for the symbol.</param>
+        /// <param name="defaultValue">The displayed default value for the symbol.</param>
         public static void Customize(
             this HelpBuilder builder,
             ISymbol symbol,
             string? descriptor = null,
-            string? defaultValue = null,
-            string? description = null)
+            string? description = null,
+            string? defaultValue = null)
         {
-            builder.Customize(symbol, _ => descriptor, _ => defaultValue, _ => description);
+            builder.Customize(symbol, _ => descriptor, _ => description, _ => defaultValue);
         }
 
         /// <param name="symbol">The symbol to customize the help details for.</param>
         /// <param name="descriptor">A delegate to display the name and invocation details, typically in the first help column.</param>
-        /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
         /// <param name="description">A delegate to display the description for the symbol.</param>
+        /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
         /// /// <param name="builder">The help builder to write with.</param>
         public static void Customize(
             this HelpBuilder builder,
             ISymbol symbol,
             Func<ParseResult?, string?>? descriptor = null,
-            Func<ParseResult?, string?>? defaultValue = null,
-            Func<ParseResult?, string?>? description = null)
+            Func<ParseResult?, string?>? description = null,
+            Func<ParseResult?, string?>? defaultValue = null)
         {
-            builder.Customize(symbol, descriptor, defaultValue, description);
+            builder.Customize(symbol, descriptor, description, defaultValue);
         }
 
         /// <summary>
