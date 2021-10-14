@@ -1332,6 +1332,43 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        public void Option_can_customize_description_based_on_parse_result()
+        {
+            var option = new Option<bool>("option");
+            var commandA = new Command("a", "a command help")
+            {
+                option
+            };
+            var commandB = new Command("b", "b command help")
+            {
+                option
+            };
+            var command = new Command("root", "root command help")
+            {
+                commandA, commandB
+            };
+            var optionAHelpText = "option a help";
+            var optionBHelpText = "option b help";
+            Func<ParseResult, string> descriptionCallback = (ParseResult parseResult) =>
+                parseResult.CommandResult.Command.Equals(commandA) ? optionAHelpText : optionBHelpText;
+
+            HelpBuilder helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
+            helpBuilder.Customize(option, description: descriptionCallback);
+            var parser = new CommandLineBuilder(command)
+                .UseDefaults()
+                .UseHelpBuilder(context => helpBuilder)
+                .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("root a -h", console);
+            console.Out.ToString().Should().Contain($"option          {optionAHelpText}");
+
+            console = new TestConsole();
+            parser.Invoke("root b -h", console);
+            console.Out.ToString().Should().Contain($"option          {optionBHelpText}");
+        }
+
+        [Fact]
         public void Option_can_customize_descriptor_based_on_parse_result()
         {
             var option = new Option<bool>("option");

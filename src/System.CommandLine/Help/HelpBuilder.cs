@@ -70,9 +70,11 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="symbol">The symbol to specify custom help details for.</param>
         /// <param name="descriptor">A delegate to display the name and invocation details, typically in the first help column.</param>
+        /// <param name="description">A delegate to display the description of the symbol, typically in the second help column.</param>
         /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
         protected internal void Customize(ISymbol symbol,
             Func<ParseResult?, string?>? descriptor = null,
+            Func<ParseResult?, string?>? description = null,
             Func<ParseResult?, string?>? defaultValue = null)
         {
             if (symbol is null)
@@ -80,7 +82,7 @@ namespace System.CommandLine.Help
                 throw new ArgumentNullException(nameof(symbol));
             }
 
-            Customizations[symbol] = new Customization(descriptor, defaultValue);
+            Customizations[symbol] = new Customization(descriptor, description, defaultValue);
         }
 
         /// <summary>
@@ -539,6 +541,11 @@ namespace System.CommandLine.Help
                 {
                     yield return description!;
                 }
+                else if (Customizations.TryGetValue(symbol, out var customization) &&
+                    customization.GetDescription?.Invoke(parseResult) is { } descriptionValue)
+                {
+                    yield return descriptionValue;
+                }
                 string argumentsDescription = GetArgumentsDescription();
                 if (!string.IsNullOrWhiteSpace(argumentsDescription))
                 {
@@ -651,13 +658,16 @@ namespace System.CommandLine.Help
         private class Customization
         {
             public Customization(Func<ParseResult?, string?>? getDescriptor,
+                Func<ParseResult?, string?>? getDescription,
                 Func<ParseResult?, string?>? getDefaultValue)
             {
                 GetDescriptor = getDescriptor;
+                GetDescription = getDescription;
                 GetDefaultValue = getDefaultValue;
             }
 
             public Func<ParseResult?, string?>? GetDescriptor { get; }
+            public Func<ParseResult?, string?>? GetDescription { get; }
             public Func<ParseResult?, string?>? GetDefaultValue { get; }
         }
     }
