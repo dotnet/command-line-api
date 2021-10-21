@@ -271,8 +271,6 @@ namespace System.CommandLine.Binding
                     bool includeMissingValues,
                     Type? parentType)
         {
-
-
             if (bindingContext.TryBindToScalarValue(
                     valueDescriptor,
                     valueSource,

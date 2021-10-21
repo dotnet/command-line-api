@@ -171,14 +171,15 @@ namespace System.CommandLine.Parsing
                 }
                 else if (arg.TrySplitIntoSubtokens(out var first, out var rest))
                 {
-                    if (knownTokens.TryGetValue(first!, out var subtoken) &&
+                    if (knownTokens.TryGetValue(first, out var subtoken) &&
                         subtoken.token is { Type: TokenType.Option })
                     {
-                        tokenList.Add(Option(first!));
+                        tokenList.Add(Option(first));
 
-                        // trim outer quotes in case of, e.g., -x="why"
-                        var secondPartWithOuterQuotesRemoved = rest!.Trim('"');
-                        tokenList.Add(Argument(secondPartWithOuterQuotesRemoved));
+                        if (rest is { })
+                        {
+                            tokenList.Add(Argument(rest));
+                        }
                     }
                     else
                     {
@@ -483,21 +484,24 @@ namespace System.CommandLine.Parsing
 
         internal static bool TrySplitIntoSubtokens(
             this string arg,
-            out string? first,
+            out string first,
             out string? rest)
         {
-            {
-                var i = arg.IndexOfAny(_argumentDelimiters);
+            var i = arg.IndexOfAny(_argumentDelimiters);
 
-                if (i >= 0)
+            if (i >= 0)
+            {
+                first = arg.Substring(0, i);
+                rest = arg.Substring(i + 1, arg.Length - 1 - i);
+                if (rest.Length == 0)
                 {
-                    first = arg.Substring(0, i);
-                    rest = arg.Substring(i + 1, arg.Length - 1 - i);
-                    return true;
+                    rest = null;
                 }
+
+                return true;
             }
 
-            first = null;
+            first = arg;
             rest = null;
             return false;
         }

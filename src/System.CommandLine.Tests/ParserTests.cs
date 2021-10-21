@@ -1167,24 +1167,49 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("-x \"hello\"", "hello")]
-        [InlineData("-x=\"hello\"", "hello")]
-        [InlineData("-x:\"hello\"", "hello")]
-        [InlineData("-x \"\"", "")]
-        [InlineData("-x=\"\"", "")]
-        [InlineData("-x:\"\"", "")]
-        public void When_an_option_argument_is_enclosed_in_double_quotes_its_value_has_the_quotes_removed(string input, string expected)
+        [InlineData("-x", "\"hello\"")]
+        [InlineData("-x=", "\"hello\"")]
+        [InlineData("-x:", "\"hello\"")]
+        [InlineData("-x", "\"\"")]
+        [InlineData("-x=", "\"\"")]
+        [InlineData("-x:", "\"\"")]
+        public void When_an_option_argument_is_enclosed_in_double_quotes_its_value_retains_the_quotes(
+            string arg1,
+            string arg2)
         {
             var option = new Option("-x") { Arity = ArgumentArity.ZeroOrMore };
 
-            var parseResult = option.Parse(input);
+            var parseResult = option.Parse(new[] { arg1, arg2 });
 
             parseResult
                 .FindResultFor(option)
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
-                .BeEquivalentTo(new[] { expected });
+                .BeEquivalentTo(new[] { arg2 });
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1445
+        public void Trailing_option_delimiters_are_ignored()
+        {
+            var rootCommand = new RootCommand
+            {
+                new Command("subcommand")
+                {
+                    new Option<DirectoryInfo>("--directory")
+                }
+            };
+
+            var args = new[] { "subcommand", "--directory:", @"c:\" };
+
+            var result = rootCommand.Parse(args);
+
+            result.Errors.Should().BeEmpty();
+
+            result.Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentSequenceTo(new[] { "subcommand", "--directory", @"c:\" });
         }
 
         [Theory]
