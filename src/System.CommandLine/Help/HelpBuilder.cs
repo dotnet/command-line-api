@@ -124,17 +124,10 @@ namespace System.CommandLine.Help
                         .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
                         .Reverse();
 
-                var displayOptionTitle = command.Options.Any(x => !x.IsHidden);
 
                 foreach (ICommand parentCommand in parentCommands)
                 {
                     yield return parentCommand.Name;
-
-                    if (displayOptionTitle)
-                    {
-                        yield return LocalizationResources.HelpUsageOptionsTitle();
-                        displayOptionTitle = false;
-                    }
 
                     yield return FormatArgumentUsage(parentCommand.Arguments);
                 }
@@ -146,6 +139,14 @@ namespace System.CommandLine.Help
                 if (hasCommandWithHelp)
                 {
                     yield return LocalizationResources.HelpUsageCommandTitle();
+                }
+
+                var displayOptionTitle = command.Options.Any(x => !x.IsHidden);
+                
+                if (displayOptionTitle)
+                {
+                    yield return LocalizationResources.HelpUsageOptionsTitle();
+                    displayOptionTitle = false;
                 }
 
                 if (!command.TreatUnmatchedTokensAsErrors)
