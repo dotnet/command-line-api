@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} [options] the-command {expectedDescriptor}";
+                $"{_indentation}{_executableName} the-command {expectedDescriptor} [options]";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -181,7 +181,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} [options] the-command {expectedDescriptor}";
+                $"{_indentation}{_executableName} the-command {expectedDescriptor} [options]";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -202,7 +202,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} [options] outer inner inner-er";
+                $"{_indentation}{_executableName} outer inner inner-er [options]";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -231,7 +231,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}outer [options] [<outer-args>...] inner [<inner-args>...]";
+                $"{_indentation}outer [<outer-args>...] inner [<inner-args>...] [options]";
 
             _console.ToString().Should().Contain(expected);
         }

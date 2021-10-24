@@ -2,7 +2,7 @@
   Test description
 
 Usage:
-  the-root-command [options] <the-root-arg-no-description-no-default> [<the-root-arg-no-description-default> <the-root-arg-no-default> [<the-root-arg> [<the-root-arg-enum-default>]]]
+  the-root-command <the-root-arg-no-description-no-default> [<the-root-arg-no-description-default> <the-root-arg-no-default> [<the-root-arg> [<the-root-arg-enum-default>]]] [options]
 
 Arguments:
   <the-root-arg-no-description-no-default>
