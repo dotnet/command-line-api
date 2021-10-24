@@ -92,7 +92,7 @@ namespace System.CommandLine.Help
         /// <param name="writer">The writer to write help output to.</param>
         protected virtual void AddSynopsis(ICommand command, TextWriter writer)
         {
-            WriteHeading(LocalizationResources.Instance.HelpDescriptionTitle(), command.Description, writer);
+            WriteHeading(LocalizationResources.HelpDescriptionTitle(), command.Description, writer);
             writer.WriteLine();
         }
 
@@ -286,7 +286,7 @@ namespace System.CommandLine.Help
         /// <param name="descriptor">The name and invocation details, typically in the first help column.</param>
         /// <param name="description">The description of the symbol, typically in the second help column.</param>
         /// <param name="writer">The writer to write help output to.</param>
-        protected void WriteHeading(string descriptor, string? description, TextWriter writer)
+        protected void WriteHeading(string? descriptor, string? description, TextWriter writer)
         {
             if (!string.IsNullOrWhiteSpace(descriptor))
             {

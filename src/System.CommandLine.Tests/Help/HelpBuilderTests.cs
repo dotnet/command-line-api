@@ -100,6 +100,27 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().NotContain(_executableName);
         }
 
+        [Fact]
+        public void Synopsis_section_properly_uses_localized_HelpDescriptionTitle()
+        {
+            var command = new RootCommand("test description");
+
+            var customLocalization = new CustomLocalizationResources
+            {
+                OverrideHelpDescriptionTitle = "Custom Description:"
+            };
+            HelpBuilder helpBuilder = new(
+                customLocalization,
+                LargeMaxWidth
+            );
+            helpBuilder.Write(command, _console);
+
+            var expected = $"Custom Description:{NewLine}{_indentation}test description{NewLine}";
+
+            var foo = _console.ToString();
+            _console.ToString().Should().Contain(expected);
+        }
+
         #endregion Synopsis
 
         #region Usage
@@ -1723,7 +1744,7 @@ namespace System.CommandLine.Tests.Help
             private readonly string _theTextToAdd;
 
             public CustomHelpBuilderThatAddsTextAfterDefaultText(string theTextToAdd) 
-                : base(CommandLine.LocalizationResources.Instance)
+                : base(LocalizationResources.Instance)
             {
                 _theTextToAdd = theTextToAdd;
             }
@@ -1732,6 +1753,16 @@ namespace System.CommandLine.Tests.Help
             {
                 base.Write(command, writer, parseResult);
                 writer.Write(_theTextToAdd);
+            }
+        }
+
+        private class CustomLocalizationResources : LocalizationResources
+        {
+            public string OverrideHelpDescriptionTitle { get; set; }
+
+            public override string HelpDescriptionTitle()
+            {
+                return OverrideHelpDescriptionTitle ?? base.HelpDescriptionTitle();
             }
         }
     }
