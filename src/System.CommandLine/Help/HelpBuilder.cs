@@ -544,7 +544,9 @@ namespace System.CommandLine.Help
                 {
                     yield return description!;
                 }
-                else if (Customizations.TryGetValue(symbol, out var customization) &&
+                else if (
+                    _customizationsBySymbol is { } &&
+                    _customizationsBySymbol.TryGetValue(symbol, out var customization) &&
                     customization.GetDescription?.Invoke(parseResult) is { } descriptionValue)
                 {
                     yield return descriptionValue;

@@ -49,7 +49,6 @@ namespace System.CommandLine
         {
         }
 
-        // FIX: (RootCommand) worthwhile to consolidate calls to Get*Assembly?
         internal static Assembly GetAssembly() => _assembly.Value;
 
         /// <summary>

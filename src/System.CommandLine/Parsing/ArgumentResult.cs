@@ -185,10 +185,6 @@ namespace System.CommandLine.Parsing
                         Tokens[0].Value,
                         LocalizationResources);
                 }
-
-                return ArgumentConversionResult.Failure(
-                    argument,
-                    ErrorMessage ?? $"Invalid: {Parent.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}");
             }
 
             return argument.Arity.MaximumNumberOfValues switch

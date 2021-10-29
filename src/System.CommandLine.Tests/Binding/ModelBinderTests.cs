@@ -9,7 +9,6 @@ using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using Xunit;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests.Binding

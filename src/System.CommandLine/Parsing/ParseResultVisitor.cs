@@ -200,7 +200,7 @@ namespace System.CommandLine.Parsing
 
             if (argumentResults.Count > 0)
             {
-                var arguments = _innermostCommandResult.Command.Arguments;
+                var arguments = _innermostCommandResult!.Command.Arguments;
 
                 var commandArgumentResultCount = argumentResults.Count;
 
