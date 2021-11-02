@@ -330,7 +330,7 @@ namespace System.CommandLine.Tests
             var result = command.Parse("mycommand");
             result.GetValueForArgument(argument)
                   .Should()
-                  .BeEmpty();
+                  .BeNull();
         }
 
         [Fact]

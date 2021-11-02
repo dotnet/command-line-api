@@ -53,11 +53,6 @@ namespace System.CommandLine.Binding
 
         internal static object? GetDefaultValue(Type type)
         {
-            if (type == typeof(string))
-            {
-                return "";
-            }
-
             if (GetItemTypeIfEnumerable(type) is { } itemType)
             {
                 if (type.IsArray)
