@@ -321,7 +321,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_of_string_defaults_to_empty_when_not_specified()
+        public void Option_of_string_defaults_to_null_when_not_specified()
         {
             var option = new Option<string>("-x");
 
@@ -331,7 +331,7 @@ namespace System.CommandLine.Tests
                 .BeFalse();
             result.GetValueForOption(option)
                 .Should()
-                .BeEmpty();
+                .BeNull();
         }
 
         [Fact]

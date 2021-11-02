@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests.Binding
     public partial class ModelBindingCommandHandlerTests
     {
         [Theory]
-        [InlineData(typeof(string), "")]
+        [InlineData(typeof(string), null)]
         [InlineData(typeof(FileInfo), null)]
         [InlineData(typeof(int), 0)]
         [InlineData(typeof(int?), null)]

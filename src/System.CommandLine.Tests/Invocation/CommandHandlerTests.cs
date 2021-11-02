@@ -142,7 +142,7 @@ namespace System.CommandLine.Tests.Invocation
 
             await command.InvokeAsync("command", _console);
 
-            boundName.Should().Be("");
+            boundName.Should().BeNull();
             boundAge.Should().Be(0);
         }
 
