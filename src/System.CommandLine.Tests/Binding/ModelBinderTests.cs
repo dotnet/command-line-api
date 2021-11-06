@@ -9,7 +9,6 @@ using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using Xunit;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests.Binding
@@ -524,7 +523,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var intOption = new Option<int>("--int-property");
             var stringOption = new Option<string>("--string-property");
-            var parser = new Parser(intOption, stringOption);
+            var parser = new Parser(new RootCommand { intOption, stringOption });
 
             var bindingContext = new BindingContext(parser.Parse("--int-property 42 --string-property Hello"));
             var binder = new ModelBinder<ClassWithMultiLetterSetters>

@@ -19,7 +19,7 @@ namespace System.CommandLine.Invocation
         private readonly ModelBinder? _invocationTargetBinder;
         private readonly MethodInfo? _handlerMethodInfo;
         private readonly IMethodDescriptor _methodDescriptor;
-        private Dictionary<IValueDescriptor, IValueSource> invokeArgumentBindingSources { get; } =
+        private Dictionary<IValueDescriptor, IValueSource> _invokeArgumentBindingSources { get; } =
             new();
 
         internal ModelBindingCommandHandler(
@@ -59,7 +59,7 @@ namespace System.CommandLine.Invocation
             var bindingContext = context.BindingContext;
 
             var (boundValues, _) = ModelBinder.GetBoundValues(
-                                                invokeArgumentBindingSources,
+                                                _invokeArgumentBindingSources,
                                                 bindingContext,
                                                 _methodDescriptor.ParameterDescriptors,
                                                 false);
@@ -118,7 +118,7 @@ namespace System.CommandLine.Invocation
             {
                 throw new InvalidOperationException("You must bind to a parameter on this handler");
             }
-            invokeArgumentBindingSources.Add(paramDesc, valueSource);
+            _invokeArgumentBindingSources.Add(paramDesc, valueSource);
         }
 
         private ParameterDescriptor? FindParameterDescriptor(ParameterInfo? param)

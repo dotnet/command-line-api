@@ -8,7 +8,6 @@ using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine
 {
@@ -23,7 +22,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the CommandLineConfiguration class.
         /// </summary>
-        /// <param name="symbols">The symbols to parse.</param>
+        /// <param name="symbol">The symbol to parse.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
         /// <param name="enableLegacyDoubleDashBehavior">Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.</param>
@@ -32,54 +31,33 @@ namespace System.CommandLine
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
         /// <param name="configureHelp">Configures the help builder.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="symbols"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="symbols"/> does not contain at least one option or command.</exception>
         public CommandLineConfiguration(
-            IReadOnlyList<Symbol> symbols,
+            Symbol symbol,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
             bool enableLegacyDoubleDashBehavior = false,
             LocalizationResources? resources = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
-            IReadOnlyCollection<InvocationMiddleware>? middlewarePipeline = null,
+            IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
             Action<IHelpBuilder>? configureHelp = null)
         {
-            if (symbols is null)
+            if (symbol is null)
             {
-                throw new ArgumentNullException(nameof(symbols));
+                throw new ArgumentNullException(nameof(symbol));
             }
 
-            if (symbols.Count == 0)
-            {
-                throw new ArgumentException("You must specify at least one option or command.");
-            }
-          
-            if (symbols.Count == 1 &&
-                symbols[0] is Command rootCommand)
+            if (symbol is Command rootCommand)
             {
                 RootCommand = rootCommand;
             }
             else
             {
-                // Reuse existing auto-generated root command, if one is present, to prevent repeated mutations
-                RootCommand? parentRootCommand =
-                    symbols.SelectMany(s => s.Parents)
-                        .OfType<RootCommand>()
-                        .FirstOrDefault();
+                rootCommand = new RootCommand();
 
-                if (parentRootCommand is null)
-                {
-                    parentRootCommand = new RootCommand();
+                rootCommand.Add(symbol);
 
-                    for (var i = 0; i < symbols.Count; i++)
-                    {
-                        var symbol = symbols[i];
-                        parentRootCommand.Add(symbol);
-                    }
-                }
-
-                RootCommand = rootCommand = parentRootCommand;
+                RootCommand = rootCommand;
             }
 
             _symbols.Add(RootCommand);
@@ -91,7 +69,7 @@ namespace System.CommandLine
             EnableDirectives = enableDirectives;
             LocalizationResources = resources ?? LocalizationResources.Instance;
             ResponseFileHandling = responseFileHandling;
-            Middleware = middlewarePipeline ?? new List<InvocationMiddleware>();
+            Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;
 
@@ -168,7 +146,7 @@ namespace System.CommandLine
 
         internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= DefaultHelpBuilderFactory;
 
-        internal IReadOnlyCollection<InvocationMiddleware> Middleware { get; }
+        internal IReadOnlyList<InvocationMiddleware> Middleware { get; }
 
         /// <summary>
         /// Gets the root command.

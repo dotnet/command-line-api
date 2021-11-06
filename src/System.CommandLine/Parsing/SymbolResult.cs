@@ -126,9 +126,7 @@ namespace System.CommandLine.Parsing
         internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
             _defaultArgumentValues.GetOrAdd(
                 argument,
-                arg => new ArgumentResult(
-                    arg,
-                    this));
+                arg => new ArgumentResult(arg, this));
 
         internal virtual bool UseDefaultValueFor(IArgument argument) => false;
 

@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option("--flag");
             var option2 = new Option("--flag2");
-            var result = new Parser(option, option2)
+            var result = new Parser(new RootCommand { option, option2 })
                 .Parse("--flag");
 
             result.HasOption(option).Should().BeTrue();
@@ -46,25 +46,15 @@ namespace System.CommandLine.Tests
             var optionTwo = new Option(new[] { "-t", "--two" });
 
             var result = new Parser(
-                    optionOne,
-                    optionTwo)
+                    new RootCommand
+                    {
+                        optionOne,
+                        optionTwo
+                    })
                 .Parse("-o -t");
 
             result.HasOption(optionOne).Should().BeTrue();
             result.HasOption(optionTwo).Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_no_options_are_specified_then_an_error_is_returned()
-        {
-            Action create = () => new Parser(Array.Empty<Symbol>());
-
-            create.Should()
-                  .Throw<ArgumentException>()
-                  .Which
-                  .Message
-                  .Should()
-                  .Be("You must specify at least one option or command.");
         }
 
         [Theory]
@@ -86,10 +76,14 @@ namespace System.CommandLine.Tests
         public void Two_options_cannot_have_conflicting_aliases()
         {
             Action create = () =>
-                new Parser(new Option(
-                               new[] { "-o", "--one" }),
-                           new Option(
-                               new[] { "-t", "--one" }));
+                new Parser(
+                    new RootCommand
+                    {
+                        new Option(
+                            new[] { "-o", "--one" }),
+                        new Option(
+                            new[] { "-t", "--one" })
+                    });
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -390,9 +384,11 @@ namespace System.CommandLine.Tests
         {
             var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore };
             var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
-            var parser = new Parser(
+            var parser = new RootCommand
+            {
                 animalsOption,
-                vegetablesOption);
+                vegetablesOption
+            };
 
             var result = parser.Parse("-a cat -v carrot -a dog");
 
@@ -1152,7 +1148,11 @@ namespace System.CommandLine.Tests
             var option1 = new Option(new[] { "-a" });
             var option2 = new Option(new[] { "--a" });
 
-            var parser = new Parser(option1, option2);
+            var parser = new RootCommand
+            {
+                option1, 
+                option2
+            };
 
             parser.Parse("-a").CommandResult
                   .Children
@@ -1460,7 +1460,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_can_be_called_with_null_args()
         {
-            var parser = new Parser();
+            var parser = new Parser(new RootCommand());
 
             var result = parser.Parse(null);
 

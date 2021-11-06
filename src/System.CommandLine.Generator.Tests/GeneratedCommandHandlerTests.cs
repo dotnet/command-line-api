@@ -12,7 +12,7 @@ using Xunit;
 
 namespace System.CommandLine.Generator.Tests
 {
-    public class CommandHandlerTests
+    public class GeneratedCommandHandlerTests
     {
         private readonly TestConsole _console = new();
 

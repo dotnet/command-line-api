@@ -94,7 +94,7 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Command command,
             params string[] args) =>
-            new Parser(command).Parse(args);
+            command.GetOrCreateDefaultParser().Parse(args);
 
         /// <summary>
         /// Parses a command line string value using the specified command.
@@ -106,7 +106,7 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Command command,
             string commandLine) =>
-            new Parser(command).Parse(commandLine);
+            command.GetOrCreateDefaultParser().Parse(commandLine);
 
         private const string _messageForWhenGeneratorIsNotInUse =
             "This overload should not be called. You should reference the System.CommandLine.Generator package which will generate a more specific overload for your delegate.";

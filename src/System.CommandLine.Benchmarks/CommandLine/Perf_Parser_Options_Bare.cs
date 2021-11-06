@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Parsing;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
@@ -47,13 +48,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Benchmark]
-        public Parser ParserFromOptions_Ctor() => new Parser(_testSymbols.ToArray());
+        public Parser ParserFromOptions_Ctor()
+        {
+            return Utils.CreateParser(_testSymbols);
+        }
 
         [GlobalSetup(Target = nameof(ParserFromOptions_Parse))]
         public void SetupParserFromOptions_Parse()
         {
             var testSymbolsArr = GenerateTestOptions(TestSymbolsCount, ArgumentArity.Zero).ToArray();
-            _testParser = new Parser(testSymbolsArr);
+            _testParser = testSymbolsArr.CreateParser();
             _testSymbolsAsString = GenerateTestOptionsAsStringExpr(testSymbolsArr.Length);
         }
 

@@ -25,7 +25,7 @@ namespace System.CommandLine.Builder
         private static readonly Lazy<string> _assemblyVersion =
             new(() =>
             {
-                var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+                var assembly = RootCommand.GetAssembly();
                 var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
                 if (assemblyVersionAttribute is null)
                 {
@@ -71,7 +71,7 @@ namespace System.CommandLine.Builder
                         // because Main will not finish executing.
                         // Wait for the invocation to finish.
                         blockProcessExit.Wait();
-                        Environment.ExitCode = context.ExitCode;
+                        ExitCode = context.ExitCode;
                     };
                     Console.CancelKeyPress += consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit += processExitHandler;
@@ -241,7 +241,7 @@ ERR:
                     const string environmentVariableName = "DOTNET_COMMANDLINE_DEBUG_PROCESSES";
 
                     var process = Diagnostics.Process.GetCurrentProcess();
-                    string debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
+                    var debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
                     if (string.IsNullOrWhiteSpace(debuggableProcessNames))
                     {
                         context.Console.Error.WriteLine(context.LocalizationResources.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
@@ -287,14 +287,16 @@ ERR:
             {
                 if (context.ParseResult.Directives.TryGetValues("env", out var directives))
                 {
-                    foreach (var envDirective in directives)
+                    for (var i = 0; i < directives.Count; i++)
                     {
+                        var envDirective = directives[i];
                         var components = envDirective.Split(new[] { '=' }, count: 2);
                         var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
                         if (string.IsNullOrEmpty(variable) || components.Length < 2)
                         {
                             continue;
                         }
+
                         var value = components[1].Trim();
                         SetEnvironmentVariable(variable, value);
                     }
@@ -399,7 +401,7 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            return builder.UseHelp(new HelpOption());
+            return builder.UseHelp(new HelpOption(builder));
         }
 
         /// <summary>
@@ -413,7 +415,7 @@ ERR:
             this CommandLineBuilder builder,
             params string[] helpAliases)
         {
-            return builder.UseHelp(new HelpOption(helpAliases));
+            return builder.UseHelp(new HelpOption(helpAliases, builder));
         }
 
         internal static CommandLineBuilder UseHelp(
@@ -570,6 +572,7 @@ ERR:
                     await next(context);
                 }
             }, MiddlewareOrderInternal.ParseErrorReporting);
+
             return builder;
         }
 
@@ -660,7 +663,7 @@ ERR:
                 return builder;
             }
 
-            var versionOption = new VersionOption();
+            var versionOption = new VersionOption(builder);
 
             builder.VersionOption = versionOption;
             builder.Command.AddOption(versionOption);
@@ -701,7 +704,7 @@ ERR:
                 return builder;
             }
 
-            var versionOption = new VersionOption(aliases);
+            var versionOption = new VersionOption(aliases, builder);
 
             builder.VersionOption = versionOption;
             command.AddOption(versionOption);

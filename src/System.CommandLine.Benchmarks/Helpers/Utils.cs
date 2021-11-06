@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -10,7 +11,7 @@ using Microsoft.CodeAnalysis.Emit;
 
 namespace System.CommandLine.Benchmarks.Helpers
 {
-    static class Utils
+    internal static class Utils
     {
         internal static string GetInputFullFilePath(string name)
             => Path.Combine(Path.GetDirectoryName(typeof(Program).Assembly.Location), "Input", name);
@@ -41,6 +42,18 @@ namespace System.CommandLine.Benchmarks.Helpers
             }
 
             return pathToAssemblyFile;
+        }
+
+        public static Parser CreateParser(this IEnumerable<Symbol> symbols)
+        {
+            var rootCommand = new RootCommand();
+
+            foreach (var symbol in symbols)
+            {
+                rootCommand.Add(symbol);
+            }
+
+            return new Parser(rootCommand);
         }
     }
 }

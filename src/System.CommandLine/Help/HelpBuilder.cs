@@ -14,7 +14,7 @@ namespace System.CommandLine.Help
     {
         private const string Indent = "  ";
 
-        private Dictionary<ISymbol, Customization> Customizations { get; } = new();
+        private Dictionary<ISymbol, Customization>? _customizationsBySymbol;
 
         /// <param name="localizationResources">Resources used to localize the help output.</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
@@ -82,7 +82,9 @@ namespace System.CommandLine.Help
                 throw new ArgumentNullException(nameof(symbol));
             }
 
-            Customizations[symbol] = new Customization(descriptor, description, defaultValue);
+            _customizationsBySymbol ??= new();
+
+            _customizationsBySymbol[symbol] = new Customization(descriptor, description, defaultValue);
         }
 
         /// <summary>
@@ -487,7 +489,8 @@ namespace System.CommandLine.Help
         protected HelpItem GetHelpItem(IIdentifierSymbol symbol, ParseResult parseResult)
         {
             string descriptor;
-            if (Customizations.TryGetValue(symbol, out Customization customization) &&
+            if (_customizationsBySymbol is { } &&
+                _customizationsBySymbol.TryGetValue(symbol, out Customization customization) &&
                 customization.GetDescriptor?.Invoke(parseResult) is { } setDescriptor)
             {
                 descriptor = setDescriptor;
@@ -516,8 +519,7 @@ namespace System.CommandLine.Help
                     }
                 }
 
-                if (symbol is IOption option &&
-                    option.IsRequired)
+                if (symbol is IOption { IsRequired: true })
                 {
                     descriptor += $" {LocalizationResources.HelpOptionsRequired()}";
                 }
@@ -542,7 +544,9 @@ namespace System.CommandLine.Help
                 {
                     yield return description!;
                 }
-                else if (Customizations.TryGetValue(symbol, out var customization) &&
+                else if (
+                    _customizationsBySymbol is { } &&
+                    _customizationsBySymbol.TryGetValue(symbol, out var customization) &&
                     customization.GetDescription?.Invoke(parseResult) is { } descriptionValue)
                 {
                     yield return descriptionValue;
@@ -571,13 +575,14 @@ namespace System.CommandLine.Help
         private string GetArgumentDefaultValue(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName, ParseResult parseResult)
         {
             string? defaultValue;
-            if (Customizations.TryGetValue(parent, out Customization customization) &&
+            if (_customizationsBySymbol is { } &&
+                _customizationsBySymbol.TryGetValue(parent, out Customization customization) &&
                 customization.GetDefaultValue?.Invoke(parseResult) is { } parentSetDefaultValue)
             {
                 defaultValue = parentSetDefaultValue;
             }
-            else if (Customizations.TryGetValue(argument, out customization) &&
-                customization.GetDefaultValue?.Invoke(parseResult) is { } setDefaultValue)
+            else if (_customizationsBySymbol is { } && _customizationsBySymbol.TryGetValue(argument, out customization) &&
+                     customization.GetDefaultValue?.Invoke(parseResult) is { } setDefaultValue)
             {
                 defaultValue = setDefaultValue;
             }
@@ -608,7 +613,8 @@ namespace System.CommandLine.Help
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
         protected string GetArgumentDescriptor(IArgument argument, ParseResult parseResult)
         {
-            if (Customizations.TryGetValue(argument, out Customization customization) &&
+            if (_customizationsBySymbol is { } &&
+                _customizationsBySymbol.TryGetValue(argument, out Customization customization) &&
                 customization.GetDescriptor?.Invoke(parseResult) is { } setDescriptor)
             {
                 return setDescriptor;

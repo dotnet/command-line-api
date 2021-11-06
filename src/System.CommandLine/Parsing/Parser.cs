@@ -15,10 +15,14 @@ namespace System.CommandLine.Parsing
         public Parser(CommandLineConfiguration configuration)
         {
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+            if (configuration.RootCommand is Command { ImplicitParser: null} cmd)
+            {
+                cmd.ImplicitParser = this;
+            }
         }
 
-        /// <param name="symbols">The symbols to be added to the parser's root command.</param>
-        public Parser(params Symbol[] symbols) : this(new CommandLineConfiguration(symbols))
+        public Parser(Symbol symbol) : this(new CommandLineConfiguration(symbol))
         {
         }
         

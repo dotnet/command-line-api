@@ -13,8 +13,8 @@ namespace System.CommandLine.IO
         /// </summary>
         public SystemConsole()
         {
-            Error = StandardStreamWriter.Create(Console.Error);
-            Out = StandardStreamWriter.Create(Console.Out);
+            Error = StandardErrorStreamWriter.Instance;
+            Out = StandardOutStreamWriter.Instance;
         }
 
         /// <inheritdoc />
@@ -33,5 +33,19 @@ namespace System.CommandLine.IO
         public bool IsInputRedirected => Console.IsInputRedirected;
 
         internal int GetWindowWidth() => IsOutputRedirected ? int.MaxValue : Console.WindowWidth;
+
+        private struct StandardErrorStreamWriter : IStandardStreamWriter
+        {
+            public static readonly StandardErrorStreamWriter Instance = new();
+
+            public void Write(string value) => Console.Error.Write(value);
+        }
+
+        private struct StandardOutStreamWriter : IStandardStreamWriter
+        {
+            public static readonly StandardOutStreamWriter Instance = new();
+
+            public void Write(string value) => Console.Out.Write(value);
+        }
     }
 }

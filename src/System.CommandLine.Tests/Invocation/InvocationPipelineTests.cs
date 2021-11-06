@@ -195,7 +195,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                             command
                          })
-                         .UseMiddleware(async (context, next) =>
+                         .AddMiddleware(async (context, next) =>
                          {
                              var tokens = context.ParseResult
                                                  .Tokens
@@ -230,7 +230,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                              command
                          })
-                         .UseMiddleware(async (_, _) =>
+                         .AddMiddleware(async (_, _) =>
                          {
                              middlewareWasCalled = true;
                              await Task.Yield();
@@ -260,7 +260,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                              command
                          })
-                         .UseMiddleware(async (context, next) =>
+                         .AddMiddleware(async (context, next) =>
                          {
                              middlewareWasCalled = true;
                              await Task.Yield();

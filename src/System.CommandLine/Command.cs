@@ -140,7 +140,7 @@ namespace System.CommandLine
 
         private protected override string DefaultName => throw new NotImplementedException();
 
-        internal List<ValidateSymbolResult<CommandResult>> Validators { get; } = new List<ValidateSymbolResult<CommandResult>>();
+        internal List<ValidateSymbolResult<CommandResult>> Validators { get; } = new();
 
         /// <summary>
         /// Adds a custom validator to the command. Validators can be used

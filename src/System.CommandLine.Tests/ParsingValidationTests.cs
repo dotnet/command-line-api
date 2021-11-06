@@ -911,9 +911,11 @@ namespace System.CommandLine.Tests
             var optionX = new Option<int>("-x", () => 123);
             var optionY = new Option<int>("-y", () => 456);
 
-            var parser = new Parser(
+            var parser = new RootCommand
+            {
                 optionX,
-                optionY);
+                optionY
+            };
 
             var result = parser.Parse("");
 

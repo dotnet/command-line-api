@@ -16,6 +16,7 @@ namespace System.CommandLine.Builder
     public class CommandLineBuilder : CommandBuilder
     {
         private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
+        private LocalizationResources? _localizationResources;
 
         /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command? rootCommand = null)
@@ -47,30 +48,20 @@ namespace System.CommandLine.Builder
 
         internal VersionOption? VersionOption { get; set; }
 
-        internal LocalizationResources? LocalizationResources { get; set; }
+        internal LocalizationResources LocalizationResources
+        {
+            get => _localizationResources ??= LocalizationResources.Instance;
+            set => _localizationResources = value;
+        }
 
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
         public Parser Build()
         {
-            var resources = LocalizationResources ?? LocalizationResources.Instance;
-
-            if (HelpOption is not null)
-            {
-                HelpOption.Description = resources.HelpOptionDescription();
-            }
-
-            if (VersionOption is not null)
-            {
-                VersionOption.Description = resources.VersionOptionDescription();
-            }
-
-            var rootCommand = Command;
-
             var parser = new Parser(
                 new CommandLineConfiguration(
-                    new[] { rootCommand },
+                    Command,
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
                     resources: LocalizationResources,
@@ -80,9 +71,7 @@ namespace System.CommandLine.Builder
                                                        .ToArray(),
                     helpBuilderFactory: HelpBuilderFactory,
                     configureHelp: ConfigureHelp));
-
-            Command.ImplicitParser = parser;
-
+            
             return parser;
         }
 

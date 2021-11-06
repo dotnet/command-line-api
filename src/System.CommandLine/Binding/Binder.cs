@@ -3,9 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -13,41 +10,6 @@ namespace System.CommandLine.Binding
 {
     internal static class Binder
     {
-        internal static bool CanBeBoundFromScalarValue(this Type type)
-        {
-            while (true)
-            {
-                if (type.IsPrimitive || type.IsEnum)
-                {
-                    return true;
-                }
-
-                if (type == typeof(string))
-                {
-                    return true;
-                }
-
-                if (TypeDescriptor.GetConverter(type) is { } typeConverter && 
-                    typeConverter.CanConvertFrom(typeof(string)))
-                {
-                    return true;
-                }
-
-                if (TryFindConstructorWithSingleParameterOfType(type, typeof(string), out _))
-                {
-                    return true;
-                }
-
-                if (GetItemTypeIfEnumerable(type) is { } itemType)
-                {
-                    type = itemType;
-                    continue;
-                }
-
-                return false;
-            }
-        }
-
         private static MethodInfo EnumerableEmptyMethod { get; }
             = typeof(Enumerable).GetMethod(nameof(Array.Empty));
 
@@ -209,29 +171,6 @@ namespace System.CommandLine.Binding
         {
             return t.IsGenericType &&
                    t.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
-
-        internal static bool TryFindConstructorWithSingleParameterOfType(
-            this Type type,
-            Type parameterType,
-            [NotNullWhen(true)] out ConstructorInfo? ctor)
-        {
-            var (x, _) = type.GetConstructors()
-                             .Select(c => (ctor: c, parameters: c.GetParameters()))
-                             .SingleOrDefault(tuple => tuple.ctor.IsPublic &&
-                                                       tuple.parameters.Length == 1 &&
-                                                       tuple.parameters[0].ParameterType == parameterType);
-
-            if (x is not null)
-            {
-                ctor = x;
-                return true;
-            }
-            else
-            {
-                ctor = null;
-                return false;
-            }
         }
     }
 }

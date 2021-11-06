@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ExactlyOne
                 }
             };
-            var parser = new Parser(new CommandLineConfiguration(new[] { command }, resources: messages));
+            var parser = new Parser(new CommandLineConfiguration(command, resources: messages));
             var result = parser.Parse("the-command");
 
             result.Errors
