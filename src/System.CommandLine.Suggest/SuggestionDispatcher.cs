@@ -63,6 +63,7 @@ namespace System.CommandLine.Suggest
             };
 
             Parser = new CommandLineBuilder(root)
+                     .EnableLegacyDoubleDashBehavior()
                      .UseVersionOption()
                      .UseHelp()
                      .UseParseDirective()

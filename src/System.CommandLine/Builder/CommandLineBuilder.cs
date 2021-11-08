@@ -36,6 +36,12 @@ namespace System.CommandLine.Builder
         public bool EnablePosixBundling { get; set; } = true;
 
         /// <summary>
+        /// Determines the behavior when parsing a double dash (<c>--</c>) in a command line.
+        /// </summary>
+        /// <remarks>When set to <see langword="true"/>, all tokens following <c>--</c> will be placed into the <see cref="ParseResult.UnparsedTokens"/> collection. When set to <see langword="false"/>, all tokens following <c>--</c> will be treated as command arguments, even if they match an existing option.</remarks>
+        public bool EnableLegacyDoubleDashBehavior { get; set; }
+
+        /// <summary>
         /// Configures the parser's handling of response files. When enabled, a command line token beginning with <c>@</c> that is a valid file path will be expanded as though inserted into the command line. 
         /// </summary>
         public ResponseFileHandling ResponseFileHandling { get; set; }
@@ -64,6 +70,7 @@ namespace System.CommandLine.Builder
                     Command,
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
+                    enableLegacyDoubleDashBehavior: EnableLegacyDoubleDashBehavior,
                     resources: LocalizationResources,
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: _middlewareList.OrderBy(m => m.order)
