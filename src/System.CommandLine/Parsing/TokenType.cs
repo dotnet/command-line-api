@@ -30,13 +30,13 @@ namespace System.CommandLine.Parsing
         /// A double dash (<c>--</c>) token, which changes the meaning of subsequent tokens.
         /// </summary>
         /// <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/>
-        EndOfArguments,
+        DoubleDash,
 
         /// <summary>
-        /// A token following <see cref="EndOfArguments"/>.
+        /// A token following <see cref="DoubleDash"/> when <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/> is set to <see langword="true"/>.
         /// </summary>
         /// <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/>
-        Operand,
+        Unparsed,
         
         /// <summary>
         /// A directive token.

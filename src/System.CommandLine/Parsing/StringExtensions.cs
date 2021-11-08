@@ -64,7 +64,7 @@ namespace System.CommandLine.Parsing
             var errorList = new List<TokenizeError>();
 
             ICommand? currentCommand = null;
-            var foundEndOfArguments = false;
+            var foundDoubleDash = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
 
@@ -74,16 +74,24 @@ namespace System.CommandLine.Parsing
             {
                 var arg = argList[i];
 
-                if (foundEndOfArguments)
+                if (foundDoubleDash)
                 {
-                    tokenList.Add(Operand(arg));
+                    if (configuration.EnableLegacyDoubleDashBehavior)
+                    {
+                        tokenList.Add(Unparsed(arg));
+                    }
+                    else
+                    {
+                        tokenList.Add(Argument(arg));
+                    }
                     continue;
                 }
 
-                if (arg == "--")
+                if (!foundDoubleDash && 
+                    arg == "--")
                 {
-                    tokenList.Add(EndOfArguments());
-                    foundEndOfArguments = true;
+                    tokenList.Add(DoubleDash());
+                    foundDoubleDash = true;
                     continue;
                 }
 
@@ -199,9 +207,9 @@ namespace System.CommandLine.Parsing
 
                 Token UnbundledOption(string value) => new(value, i, wasBundled: true);
 
-                Token EndOfArguments() => new("--", TokenType.EndOfArguments, i);
+                Token DoubleDash() => new("--", TokenType.DoubleDash, i);
 
-                Token Operand(string value) => new(value, TokenType.Operand, i);
+                Token Unparsed(string value) => new(value, TokenType.Unparsed, i);
 
                 Token Directive(string value) => new(value, TokenType.Directive, i);
             }

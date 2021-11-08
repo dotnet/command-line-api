@@ -94,36 +94,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void A_double_dash_delimiter_specifies_that_no_further_command_line_args_will_be_treated_as_options()
-        {
-            var option = new Option(new[] { "-o", "--one" });
-            var result = new Parser(option)
-                .Parse("-o \"some stuff\" -- -x -y -z -o:foo");
-
-            result.HasOption(option)
-                  .Should()
-                  .BeTrue();
-
-            result.UnparsedTokens
-                  .Should()
-                  .BeEquivalentSequenceTo("-x",
-                                          "-y",
-                                          "-z",
-                                          "-o:foo");
-        }
-
-        [Fact]
-        public void The_portion_of_the_command_line_following_a_double_dash_is_accessible_as_UnparsedTokens()
-        {
-            var result = new Parser(new Option("-o"))
-                .Parse("-o \"some stuff\" -- x y z");
-
-            result.UnparsedTokens
-                  .Should()
-                  .BeEquivalentSequenceTo("x", "y", "z");
-        }
-
-        [Fact]
         public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
             var option = new Option<string>("-x") { Arity = ArgumentArity.ExactlyOne };

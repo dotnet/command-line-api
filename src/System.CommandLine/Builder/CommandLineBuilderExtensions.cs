@@ -130,6 +130,18 @@ namespace System.CommandLine.Builder
         }
 
         /// <summary>
+        /// Determines the behavior when parsing a double dash (<c>--</c>) in a command line.
+        /// </summary>
+        /// <remarks>When set to <see langword="true"/>, all tokens following <c>--</c> will be placed into the <see cref="ParseResult.UnparsedTokens"/> collection. When set to <see langword="false"/>, all tokens following <c>--</c> will be treated as command arguments, even if they match an existing option.</remarks>
+        public static CommandLineBuilder EnableLegacyDoubleDashBehavior(
+            this CommandLineBuilder builder,
+            bool value = true)
+        {
+            builder.EnableLegacyDoubleDashBehavior = value;
+            return builder;
+        }
+
+        /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.
         /// </summary>
         /// <param name="builder">A command line builder.</param>

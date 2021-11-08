@@ -110,6 +110,7 @@ namespace System.CommandLine.Hosting.Tests
                 {
                     Handler = CommandHandler.Create<IHost>(Execute),
                 })
+                .EnableLegacyDoubleDashBehavior()
                 .UseHost(host =>
                 {
                     var invocation = (InvocationContext)host.Properties[typeof(InvocationContext)];
@@ -147,6 +148,7 @@ namespace System.CommandLine.Hosting.Tests
                 {
                     Handler = CommandHandler.Create<IHost>(Execute),
                 })
+                .EnableLegacyDoubleDashBehavior()
                 .UseHost(args =>
                 {
                     var host = new HostBuilder();

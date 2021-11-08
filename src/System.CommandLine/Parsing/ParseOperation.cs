@@ -11,7 +11,7 @@ namespace System.CommandLine.Parsing
         private readonly TokenizeResult _tokenizeResult;
         private readonly CommandLineConfiguration _configuration;
         private int _index;
-        private readonly Dictionary<IArgument, int> _argumentCounts = new Dictionary<IArgument, int>();
+        private readonly Dictionary<IArgument, int> _argumentCounts = new();
 
         public ParseOperation(
             TokenizeResult tokenizeResult,
@@ -23,18 +23,15 @@ namespace System.CommandLine.Parsing
 
         private Token CurrentToken => _tokenizeResult.Tokens[_index];
 
-        public List<ParseError> Errors { get; } = new List<ParseError>();
+        public List<ParseError> Errors { get; } = new();
 
         public RootCommandNode? RootCommandNode { get; private set; }
 
-        public List<Token> UnmatchedTokens { get; } = new List<Token>();
+        public List<Token> UnmatchedTokens { get; } = new();
 
-        public List<Token> UnparsedTokens { get; } = new List<Token>();
+        public List<Token> UnparsedTokens { get; } = new();
 
-        private void Advance()
-        {
-            _index++;
-        }
+        private void Advance() => _index++;
 
         private void IncrementCount(IArgument argument)
         {
@@ -108,7 +105,8 @@ namespace System.CommandLine.Parsing
         {
             while (More())
             {
-                if (CurrentToken.Type == TokenType.EndOfArguments)
+                if (_configuration.EnableLegacyDoubleDashBehavior &&
+                    CurrentToken.Type == TokenType.DoubleDash)
                 {
                     return;
                 }
@@ -276,7 +274,7 @@ namespace System.CommandLine.Parsing
 
             while (More())
             {
-                if (CurrentToken.Type == TokenType.EndOfArguments)
+                if (CurrentToken.Type == TokenType.DoubleDash)
                 {
                     foundEndOfArguments = true;
                 }
