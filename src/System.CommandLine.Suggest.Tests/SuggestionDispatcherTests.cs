@@ -30,8 +30,7 @@ namespace System.CommandLine.Suggest.Tests
                 ? @"C:\Windows\System32\net.exe"
                 : "/bin/net";
 
-        private static Registration CurrentExeRegistrationPair()
-            => new Registration(CurrentExeFullPath());
+        private static Registration CurrentExeRegistrationPair() => new(CurrentExeFullPath());
 
         private static string CurrentExeFullPath() => Path.GetFullPath(_currentExeName);
 
