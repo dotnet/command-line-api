@@ -121,9 +121,8 @@ namespace System.CommandLine.Tests.Binding
         public void Argument_bool_will_default_to_true_when_no_argument_is_passed()
         {
             var option = new Option<bool>("-x");
-            var parser = new Parser(option);
 
-            var result = parser.Parse("-x");
+            var result = option.Parse("-x");
 
             result.Errors.Should().BeEmpty();
             result.GetValueForOption(option).Should().Be(true);

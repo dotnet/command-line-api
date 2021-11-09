@@ -25,11 +25,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var parser = new Parser(
-                new Option("-x", arity: ArgumentArity.ExactlyOne)
-                    .FromAmong("this", "that", "the-other-thing"));
-
-            var result = parser.Parse("-x none-of-those");
+            var option = new Option("-x", arity: ArgumentArity.ExactlyOne)
+                .FromAmong("this", "that", "the-other-thing");
+            
+            var result = option.Parse("-x none-of-those");
 
             result.Errors
                   .Select(e => e.Message)
@@ -44,9 +43,7 @@ namespace System.CommandLine.Tests
             var option = new Option("-x", arity: ArgumentArity.ExactlyOne)
                 .FromAmong("this", "that");
 
-            var parser = new Parser(option);
-
-            var result = parser.Parse("-x something_else");
+            var result = option.Parse("-x something_else");
 
             result.Errors
                   .Where(e => e.SymbolResult != null)
@@ -57,9 +54,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(new Option("-x", arity: ArgumentArity.ExactlyOne));
+            var option = new Option("-x", arity: ArgumentArity.ExactlyOne);
 
-            var result = parser.Parse("-x");
+            var result = option.Parse("-x");
 
             result.Errors
                   .Should()
@@ -894,10 +891,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_it_is_not_valid_to_specify_the_option_without_an_argument()
         {
-            var parser = new Parser(
-                new Option<int>("-x", () => 123));
+            var option = new Option<int>("-x", () => 123);
 
-            var result = parser.Parse("-x");
+            var result = option.Parse("-x");
 
             result.Errors
                   .Select(e => e.Message)
