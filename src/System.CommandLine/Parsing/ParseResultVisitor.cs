@@ -372,12 +372,27 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            for (var i = 0; i < optionResult.Children.Count; i++)
+            if (optionResult.Children.Count == 0)
             {
-                var result = optionResult.Children[i];
-                if (result is ArgumentResult argumentResult)
+                if (optionResult.Option.Argument is Argument { HasCustomParser: true })
                 {
-                    ValidateAndConvertArgumentResult(argumentResult);
+                    if (optionResult.Option is Option opt)
+                    {
+                        var argResult = optionResult.GetOrCreateDefaultArgumentResult(opt.Argument);
+                        optionResult.Children.Add(argResult);
+                        ValidateAndConvertArgumentResult(argResult);
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0; i < optionResult.Children.Count; i++)
+                {
+                    var result = optionResult.Children[i];
+                    if (result is ArgumentResult argumentResult)
+                    {
+                        ValidateAndConvertArgumentResult(argumentResult);
+                    }
                 }
             }
         }

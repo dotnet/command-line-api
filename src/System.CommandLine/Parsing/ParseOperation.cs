@@ -192,7 +192,7 @@ namespace System.CommandLine.Parsing
             var argument = optionNode.Option.Argument;
 
             var contiguousTokens = 0;
-            var  continueProcessing = true;
+            var continueProcessing = true;
 
             while (More() &&
                    CurrentToken.Type == TokenType.Argument &&
