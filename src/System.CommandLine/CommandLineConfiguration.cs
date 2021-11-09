@@ -22,7 +22,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the CommandLineConfiguration class.
         /// </summary>
-        /// <param name="symbol">The symbol to parse.</param>
+        /// <param name="command">The symbol to parse.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
         /// <param name="enableLegacyDoubleDashBehavior">Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.</param>
@@ -32,7 +32,7 @@ namespace System.CommandLine
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
         /// <param name="configureHelp">Configures the help builder.</param>
         public CommandLineConfiguration(
-            Symbol symbol,
+            Command command,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
             bool enableLegacyDoubleDashBehavior = false,
@@ -42,27 +42,11 @@ namespace System.CommandLine
             Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
             Action<IHelpBuilder>? configureHelp = null)
         {
-            if (symbol is null)
-            {
-                throw new ArgumentNullException(nameof(symbol));
-            }
-
-            if (symbol is Command rootCommand)
-            {
-                RootCommand = rootCommand;
-            }
-            else
-            {
-                rootCommand = new RootCommand();
-
-                rootCommand.Add(symbol);
-
-                RootCommand = rootCommand;
-            }
+            RootCommand = command ?? throw new ArgumentNullException(nameof(command));
 
             _symbols.Add(RootCommand);
 
-            AddGlobalOptionsToChildren(rootCommand);
+            AddGlobalOptionsToChildren(command);
 
             EnableLegacyDoubleDashBehavior = enableLegacyDoubleDashBehavior;
             EnablePosixBundling = enablePosixBundling;

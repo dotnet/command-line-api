@@ -500,6 +500,42 @@ namespace System.CommandLine.Tests
                 i.Should().Be(2);
             }
 
+            [Theory] // https://github.com/dotnet/command-line-api/issues/1294
+            [InlineData("", "option-is-implicit")]
+            [InlineData("--bananas", "argument-is-implicit")]
+            [InlineData("--bananas argument-is-specified", "argument-is-specified")]
+            public void Parse_delegate_is_called_when_Option_Arity_allows_zero_tokens(string commandLine, string expectedValue)
+            {
+                var opt = new Option<string>(
+                    "--bananas",
+                    parseArgument: result =>
+                    {
+                        if (result.Tokens.Count == 0)
+                        {
+                            if (result.Parent is OptionResult { IsImplicit: true })
+                            {
+                                return "option-is-implicit";
+                            }
+
+                            return "argument-is-implicit";
+                        }
+                        else
+                        {
+                            return result.Tokens[0].Value;
+                        }
+                    }, isDefault: true)
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                };
+
+                var rootCommand = new RootCommand
+                {
+                    opt
+                };
+
+                rootCommand.Parse(commandLine).ValueForOption(opt).Should().Be(expectedValue);
+            }
+
             [Theory]
             [InlineData("1 2 3 4 5 6 7 8")]
             [InlineData("-o 999 1 2 3 4 5 6 7 8")]

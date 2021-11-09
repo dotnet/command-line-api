@@ -22,7 +22,8 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public Parser(Symbol symbol) : this(new CommandLineConfiguration(symbol))
+        /// <param name="command">The root command for the parser.</param>
+        public Parser(Command command) : this(new CommandLineConfiguration(command))
         {
         }
         

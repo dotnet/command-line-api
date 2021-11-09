@@ -493,9 +493,8 @@ namespace System.CommandLine.Tests.Binding
         public void Option_argument_is_bound_to_longest_constructor()
         {
             var option = new Option<int>("--int-property");
-            var parser = new Parser(option);
 
-            var bindingContext = new BindingContext(parser.Parse("--int-property 42"));
+            var bindingContext = new BindingContext(option.Parse("--int-property 42"));
             var binder = new ModelBinder<ClassWithMultipleCtor>();
             var instance = binder.CreateInstance(bindingContext) as ClassWithMultipleCtor;
 
