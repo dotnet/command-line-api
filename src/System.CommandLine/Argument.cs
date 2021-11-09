@@ -178,6 +178,8 @@ namespace System.CommandLine
         /// </summary>
         public bool HasDefaultValue => _defaultValueFactory is not null;
 
+        internal virtual bool HasCustomParser => false;
+
         internal static Argument None() => new()
         {
             Arity = ArgumentArity.Zero,

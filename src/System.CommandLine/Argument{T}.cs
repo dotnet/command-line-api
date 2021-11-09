@@ -9,6 +9,8 @@ namespace System.CommandLine
     /// <inheritdoc cref="Argument" />
     public class Argument<T> : Argument, IValueDescriptor<T>
     {
+        private bool _hasCustomParser;
+
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
@@ -110,6 +112,8 @@ namespace System.CommandLine
                 }
             };
 
+            _hasCustomParser = true;
+
             Description = description;
         }
 
@@ -121,6 +125,8 @@ namespace System.CommandLine
         public Argument(ParseArgument<T> parse, bool isDefault = false) : this(null, parse, isDefault)
         {
         }
+
+        internal override bool HasCustomParser => _hasCustomParser;
 
         /// <inheritdoc />
         public override Type ValueType
