@@ -61,13 +61,14 @@ namespace System.CommandLine.Suggestions
 
                 if (t.IsEnum)
                 {
-                    var names = Enum.GetNames(t);
-                    return new AnonymousSuggestionSource((_, __) => names);
+                    return new AnonymousSuggestionSource((_, _) => GetEnumNames());
+
+                    IEnumerable<string> GetEnumNames() => Enum.GetNames(t);
                 }
 
                 if (t == typeof(bool))
                 {
-                    return new AnonymousSuggestionSource((_, __) => _trueAndFalse);
+                    return new AnonymousSuggestionSource((_, _) => _trueAndFalse);
                 }
 
                 return Empty;

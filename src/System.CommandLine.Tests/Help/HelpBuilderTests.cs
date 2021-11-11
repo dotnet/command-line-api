@@ -5,8 +5,6 @@ using FluentAssertions;
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Help;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -36,13 +34,9 @@ namespace System.CommandLine.Tests.Help
             _executableName = RootCommand.ExecutableName;
         }
 
-        private HelpBuilder GetHelpBuilder(int maxWidth)
-        {
-            return new HelpBuilder(
-                LocalizationResources.Instance,
-                maxWidth
-            );
-        }
+        private HelpBuilder GetHelpBuilder(int maxWidth) =>
+            new(LocalizationResources.Instance,
+                maxWidth);
 
         #region Synopsis
 
@@ -67,9 +61,9 @@ namespace System.CommandLine.Tests.Help
         public void Synopsis_section_properly_wraps_description()
         {
             var longSynopsisText =
-                $"test\t" +
-                $"description with some tabs that is long enough to wrap to a\t" +
-                $"new line";
+                "test\t" +
+                "description with some tabs that is long enough to wrap to a\t" +
+                "new line";
 
             var command = new RootCommand(description: longSynopsisText);
 
@@ -117,7 +111,6 @@ namespace System.CommandLine.Tests.Help
 
             var expected = $"Custom Description:{NewLine}{_indentation}test description{NewLine}";
 
-            var foo = _console.ToString();
             _console.ToString().Should().Contain(expected);
         }
 
@@ -132,7 +125,7 @@ namespace System.CommandLine.Tests.Help
         public void Usage_section_shows_arguments_if_there_are_arguments_for_command_when_there_is_one_argument(
             int minArity,
             int maxArity,
-            string expectedDescriptor)
+            string expectedArgsUsage)
         {
             var argument = new Argument
             {
@@ -158,7 +151,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} the-command {expectedDescriptor} [options]";
+                $"{_indentation}{_executableName} the-command {expectedArgsUsage} [options]";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -172,7 +165,7 @@ namespace System.CommandLine.Tests.Help
             int maxArityForArg1,
             int minArityForArg2,
             int maxArityForArg2,
-            string expectedDescriptor)
+            string expectedArgsUsage)
         {
             var arg1 = new Argument
             {
@@ -202,7 +195,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Usage:{NewLine}" +
-                $"{_indentation}{_executableName} the-command {expectedDescriptor} [options]";
+                $"{_indentation}{_executableName} the-command {expectedArgsUsage} [options]";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -486,7 +479,6 @@ namespace System.CommandLine.Tests.Help
             help.Should().Contain("Sets the verbosity.");
         }
 
-
         private enum VerbosityOptions
         {
             q,
@@ -738,7 +730,7 @@ namespace System.CommandLine.Tests.Help
         [Theory]
         [InlineData(typeof(FileAccess))]
         [InlineData(typeof(FileAccess?))]
-        public void Command_argument_descriptor_indicates_enums_values(Type type)
+        public void Command_argument_usage_indicates_enums_values(Type type)
         {
             var description = "This is the argument description";
 
@@ -765,7 +757,7 @@ namespace System.CommandLine.Tests.Help
         [Theory]
         [InlineData(typeof(bool))]
         [InlineData(typeof(bool?))]
-        public void Option_argument_descriptor_is_empty_for_boolean_values(Type type)
+        public void Option_argument_usage_is_empty_for_boolean_values(Type type)
         {
             var description = "This is the option description";
 
@@ -783,7 +775,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1157
-        public void Command_arguments_show_argument_name_as_descriptor()
+        public void Command_arguments_show_argument_name_in_first_column()
         {
             var command = new RootCommand
             {
@@ -806,7 +798,7 @@ namespace System.CommandLine.Tests.Help
         [Theory]
         [InlineData(typeof(FileAccess))]
         [InlineData(typeof(FileAccess?))]
-        public void Option_argument_descriptor_indicates_enums_values(Type type)
+        public void Option_argument_first_column_indicates_enums_values(Type type)
         {
             var description = "This is the argument description";
 
@@ -897,43 +889,6 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().Contain(expected);
         }
 
-        [Fact]
-        public void Command_arguments_can_customize_default_value()
-        {
-            var argument = new Argument<string>("some-arg", getDefaultValue: () => "not 42");
-            var command = new Command("the-command", "command help")
-            {
-                argument
-            };
-
-            _helpBuilder.Customize(argument, defaultValue: "42");
-
-            _helpBuilder.Write(command, _console);
-            var expected =
-                $"Arguments:{NewLine}" +
-                $"{_indentation}<some-arg>{_columnPadding}[default: 42]{NewLine}{NewLine}";
-
-            _console.ToString().Should().Contain(expected);
-        }
-
-        [Fact]
-        public void Command_arguments_can_customize_descriptor()
-        {
-            var argument = new Argument<string>("some-arg", getDefaultValue: () => "not 42");
-            var command = new Command("the-command", "command help")
-            {
-                argument
-            };
-
-            _helpBuilder.Customize(argument, descriptor: "some-other-arg");
-
-            _helpBuilder.Write(command, _console);
-            var expected =
-                $"Arguments:{NewLine}" +
-                $"{_indentation}some-other-arg{_columnPadding}[default: not 42]{NewLine}{NewLine}";
-
-            _console.ToString().Should().Contain(expected);
-        }
 
         #endregion Arguments
 
@@ -1314,117 +1269,7 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().Contain(expected);
         }
 
-        [Fact]
-        public void Option_can_customize_default_value()
-        {
-            var option = new Option<string>("--the-option", getDefaultValue: () => "not 42");
-            var command = new Command("the-command", "command help")
-            {
-                option
-            };
 
-            _helpBuilder.Customize(option, defaultValue: "42");
-            
-            _helpBuilder.Write(command, _console);
-            var expected =
-                $"Options:{NewLine}" +
-                $"{_indentation}--the-option <the-option>{_columnPadding}[default: 42]{NewLine}{NewLine}";
-
-            _console.ToString().Should().Contain(expected);
-        }
-
-        [Fact]
-        public void Option_can_customize_descriptor()
-        {
-            var option = new Option<string>("--the-option", "option description");
-            var command = new Command("the-command", "command help")
-            {
-                option
-            };
-
-            _helpBuilder.Customize(option, descriptor: "other-name");
-
-            _helpBuilder.Write(command, _console);
-            var expected =
-                $"Options:{NewLine}" +
-                $"{_indentation}other-name{_columnPadding}option description{NewLine}{NewLine}";
-
-            _console.ToString().Should().Contain(expected);
-        }
-
-        [Fact]
-        public void Option_can_customize_description_based_on_parse_result()
-        {
-            var option = new Option<bool>("option");
-            var commandA = new Command("a", "a command help")
-            {
-                option
-            };
-            var commandB = new Command("b", "b command help")
-            {
-                option
-            };
-            var command = new Command("root", "root command help")
-            {
-                commandA, commandB
-            };
-            var optionAHelpText = "option a help";
-            var optionBHelpText = "option b help";
-            Func<ParseResult, string> descriptionCallback = (ParseResult parseResult) =>
-                parseResult.CommandResult.Command.Equals(commandA) ? optionAHelpText : optionBHelpText;
-
-            HelpBuilder helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
-            helpBuilder.Customize(option, description: descriptionCallback);
-            var parser = new CommandLineBuilder(command)
-                .UseDefaults()
-                .UseHelpBuilder(context => helpBuilder)
-                .Build();
-
-            var console = new TestConsole();
-            parser.Invoke("root a -h", console);
-            console.Out.ToString().Should().Contain($"option          {optionAHelpText}");
-
-            console = new TestConsole();
-            parser.Invoke("root b -h", console);
-            console.Out.ToString().Should().Contain($"option          {optionBHelpText}");
-        }
-
-        [Fact]
-        public void Option_can_customize_descriptor_based_on_parse_result()
-        {
-            var option = new Option<bool>("option");
-            var commandA = new Command("a", "a command help")
-            {
-                option
-            };
-            var commandB = new Command("b", "b command help")
-            {
-                option
-            };
-            var command = new Command("root", "root command help")
-            {
-                commandA, commandB
-            };
-            var optionAHelpText = "option a help";
-            var optionBHelpText = "option b help";
-            Func<ParseResult, string> descriptionCallback = (ParseResult parseResult) =>
-                parseResult.CommandResult.Command.Equals(commandA) ? optionAHelpText : optionBHelpText;
-
-            HelpBuilder helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
-            helpBuilder.Customize(option, descriptor: descriptionCallback);
-            var parser = new CommandLineBuilder(command)
-                .UseDefaults()
-                .UseHelpBuilder(context => helpBuilder)
-                .Build();
-
-            var console = new TestConsole();
-            parser.Invoke("root a -h", console);
-            console.Out.ToString().Should().Contain(optionAHelpText);
-
-            console = new TestConsole();
-            parser.Invoke("root b -h", console);
-            console.Out.ToString().Should().Contain(optionBHelpText);
-        }
 
         #endregion Options
 
@@ -1610,41 +1455,9 @@ namespace System.CommandLine.Tests.Help
             help.Should().Contain("the-visible");
         }
 
-        [Fact]
-        public void Subcommand_can_customize_descriptor()
-        {
-            var subcommand = new Command("subcommand", "subcommand description");
-            var command = new Command("the-command", "command help")
-            {
-                subcommand
-            };
-
-            _helpBuilder.Customize(subcommand, descriptor: "other-name");
-
-            _helpBuilder.Write(command, _console);
-            var expected =
-                $"Commands:{NewLine}" +
-                $"{_indentation}other-name{_columnPadding}subcommand description{NewLine}{NewLine}";
-
-            _console.ToString().Should().Contain(expected);
-        }
 
         #endregion Subcommands
 
-        [Fact]
-        public void Help_text_can_be_added_after_default_text_by_inheriting_HelpBuilder()
-        {
-            var parser = new CommandLineBuilder()
-                         .UseDefaults()
-                         .UseHelpBuilder(context => new CustomHelpBuilderThatAddsTextAfterDefaultText("The text to add"))
-                         .Build();
-
-            var console = new TestConsole();
-
-            parser.Invoke("-h", console);
-
-            console.Out.ToString().Should().EndWith("The text to add");
-        }
 
         [Fact]
         public void Help_describes_default_value_for_subcommand_with_arguments_and_only_defaultable_is_shown()
@@ -1684,7 +1497,7 @@ namespace System.CommandLine.Tests.Help
 
             var help = _console.ToString();
 
-            help.Should().Contain($"[default: the-arg-value]");
+            help.Should().Contain("[default: the-arg-value]");
         }
 
         [Fact]
@@ -1707,7 +1520,7 @@ namespace System.CommandLine.Tests.Help
                     {
                         Name = "outer-args"
                     },
-                    new Command("inner", $"inner command help")
+                    new Command("inner", "inner command help")
                     {
                         argument, otherArgument
                     }
@@ -1719,7 +1532,7 @@ namespace System.CommandLine.Tests.Help
 
             var help = _console.ToString();
 
-            help.Should().Contain($"[the-arg: the-arg-value, the-other-arg: the-other-arg-value]");
+            help.Should().Contain("[the-arg: the-arg-value, the-other-arg: the-other-arg-value]");
         }
 
         [Theory]
@@ -1730,40 +1543,6 @@ namespace System.CommandLine.Tests.Help
         {
             var helpBuilder = new HelpBuilder(LocalizationResources.Instance, maxWidth);
             Assert.Equal(int.MaxValue, helpBuilder.MaxWidth);
-        }
-
-        [Fact]
-        public void Customize_throws_when_symbol_is_null()
-        {
-            Action action = () => _helpBuilder.Customize(null!, "");
-            action.Should().Throw<ArgumentNullException>();
-        }
-
-        private class CustomHelpBuilderThatAddsTextAfterDefaultText : HelpBuilder
-        {
-            private readonly string _theTextToAdd;
-
-            public CustomHelpBuilderThatAddsTextAfterDefaultText(string theTextToAdd) 
-                : base(LocalizationResources.Instance)
-            {
-                _theTextToAdd = theTextToAdd;
-            }
-
-            public override void Write(ICommand command, TextWriter writer, ParseResult parseResult)
-            {
-                base.Write(command, writer, parseResult);
-                writer.Write(_theTextToAdd);
-            }
-        }
-
-        private class CustomLocalizationResources : LocalizationResources
-        {
-            public string OverrideHelpDescriptionTitle { get; set; }
-
-            public override string HelpDescriptionTitle()
-            {
-                return OverrideHelpDescriptionTitle ?? base.HelpDescriptionTitle();
-            }
         }
     }
 }

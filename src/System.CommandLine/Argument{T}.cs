@@ -9,7 +9,7 @@ namespace System.CommandLine
     /// <inheritdoc cref="Argument" />
     public class Argument<T> : Argument, IValueDescriptor<T>
     {
-        private bool _hasCustomParser;
+        private readonly bool _hasCustomParser;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
