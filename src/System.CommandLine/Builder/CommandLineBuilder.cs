@@ -48,8 +48,6 @@ namespace System.CommandLine.Builder
 
         internal Func<BindingContext, IHelpBuilder>? HelpBuilderFactory { get; set; }
 
-        internal Action<IHelpBuilder>? ConfigureHelp { get; set; }
-
         internal HelpOption? HelpOption { get; set; }
 
         internal VersionOption? VersionOption { get; set; }
@@ -76,8 +74,7 @@ namespace System.CommandLine.Builder
                     middlewarePipeline: _middlewareList.OrderBy(m => m.order)
                                                        .Select(m => m.middleware)
                                                        .ToArray(),
-                    helpBuilderFactory: HelpBuilderFactory,
-                    configureHelp: ConfigureHelp));
+                    helpBuilderFactory: HelpBuilderFactory));
             
             return parser;
         }

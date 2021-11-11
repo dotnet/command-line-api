@@ -22,7 +22,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the CommandLineConfiguration class.
         /// </summary>
-        /// <param name="command">The symbol to parse.</param>
+        /// <param name="command">The root command for the parser.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
         /// <param name="enableLegacyDoubleDashBehavior">Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.</param>
@@ -30,7 +30,6 @@ namespace System.CommandLine
         /// <param name="responseFileHandling">One of the enumeration values that specifies how response files (.rsp) are handled.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
-        /// <param name="configureHelp">Configures the help builder.</param>
         public CommandLineConfiguration(
             Command command,
             bool enablePosixBundling = true,
@@ -39,8 +38,7 @@ namespace System.CommandLine
             LocalizationResources? resources = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
-            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null,
-            Action<IHelpBuilder>? configureHelp = null)
+            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
 
@@ -56,17 +54,6 @@ namespace System.CommandLine
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;
-
-            if (configureHelp is { })
-            {
-                var factory = HelpBuilderFactory;
-                _helpBuilderFactory = context =>
-                {
-                    IHelpBuilder helpBuilder = factory(context);
-                    configureHelp(helpBuilder);
-                    return helpBuilder;
-                };
-            }
         }
 
         private static IHelpBuilder DefaultHelpBuilderFactory(BindingContext context)
