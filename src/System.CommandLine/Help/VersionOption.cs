@@ -32,6 +32,7 @@ namespace System.CommandLine.Help
 
         private void AddValidators()
         {
+            // FIX: (AddValidators) perf
             AddValidator(result =>
             {
                 if (result.Parent is { } parent &&

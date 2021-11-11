@@ -19,9 +19,8 @@ namespace System.CommandLine.Parsing
         private readonly List<Token> _unmatchedTokens;
         private readonly List<ParseError> _errors;
 
-        private readonly Dictionary<IArgument, ArgumentResult> _allArgumentResults = new();
-        private readonly Dictionary<ICommand, CommandResult> _allCommandResults = new();
-        private readonly Dictionary<IOption, OptionResult> _allOptionResults = new();
+        private readonly Dictionary<ISymbol, SymbolResult> _symbolResults = new();
+
         private RootCommandResult? _rootCommandResult;
         private CommandResult? _innermostCommandResult;
         private bool _isHelpRequested;
@@ -54,19 +53,19 @@ namespace System.CommandLine.Parsing
         private void AddToResult(CommandResult result)
         {
             _innermostCommandResult?.Children.Add(result);
-            _allCommandResults.Add(result.Command, result);
+            _symbolResults.Add(result.Command, result);
         }
 
         private void AddToResult(OptionResult result)
         {
             _innermostCommandResult?.Children.Add(result);
-            _allOptionResults.Add(result.Option, result);
+            _symbolResults.Add(result.Option, result);
         }
 
         private void AddToResult(ArgumentResult result)
         {
             _innermostCommandResult?.Children.Add(result);
-            _allArgumentResults.TryAdd(result.Argument, result);
+            _symbolResults.TryAdd(result.Argument, result);
         }
 
         protected override void VisitRootCommandNode(RootCommandNode rootCommandNode)
@@ -74,10 +73,8 @@ namespace System.CommandLine.Parsing
             _rootCommandResult = new RootCommandResult(
                 rootCommandNode.Command,
                 rootCommandNode.Token,
-                _allArgumentResults,
-                _allCommandResults,
-                _allOptionResults
-            );
+                _symbolResults);
+
             _rootCommandResult.LocalizationResources = _parser.Configuration.LocalizationResources;
 
             _innermostCommandResult = _rootCommandResult;
@@ -97,9 +94,9 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitCommandArgumentNode(CommandArgumentNode argumentNode)
         {
-            _allArgumentResults.TryGetValue(argumentNode.Argument, out var argumentResult);
+            _symbolResults.TryGetValue(argumentNode.Argument, out var symbolResult);
 
-            if (argumentResult is null)
+            if (symbolResult is not ArgumentResult argumentResult)
             {
                 argumentResult =
                     new ArgumentResult(
@@ -115,9 +112,9 @@ namespace System.CommandLine.Parsing
 
         protected override void VisitOptionNode(OptionNode optionNode)
         {
-            _allOptionResults.TryGetValue(optionNode.Option, out var symbolResult);
+            _symbolResults.TryGetValue(optionNode.Option, out var symbolResult);
 
-            if (symbolResult is null)
+            if (symbolResult is not OptionResult)
             {
                 if (optionNode.Option is HelpOption)
                 {
@@ -136,11 +133,11 @@ namespace System.CommandLine.Parsing
         protected override void VisitOptionArgumentNode(
             OptionArgumentNode argumentNode)
         {
-            _allOptionResults.TryGetValue(
+            _symbolResults.TryGetValue(
                 argumentNode.ParentOptionNode.Option,
                 out var optionResult);
 
-            if (optionResult is null)
+            if (optionResult is not OptionResult)
             {
                 return;
             }
@@ -154,7 +151,7 @@ namespace System.CommandLine.Parsing
                         argumentNode.Argument,
                         optionResult);
                 optionResult.Children.Add(argumentResult);
-                _allArgumentResults.TryAdd(argumentResult.Argument, argumentResult);
+                _symbolResults.TryAdd(argumentResult.Argument, argumentResult);
             }
 
             argumentResult.AddToken(argumentNode.Token);
@@ -180,7 +177,7 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandHandler();
 
-            PopulateDefaultValues();
+            PopulateDefaultValues(out var commandArgumentResults1, out var optionResults);
 
             ValidateCommandResult();
 
@@ -189,20 +186,20 @@ namespace System.CommandLine.Parsing
                 ValidateAndConvertOptionResult(optionResult);
             }
 
-            var argumentResults = new List<ArgumentResult>();
+            var commandArgumentResults = new List<ArgumentResult>();
             foreach (var result in _rootCommandResult.AllArgumentResults)
             {
                 if (result.Parent is not OptionResult)  
                 {
-                    argumentResults.Add(result);
+                    commandArgumentResults.Add(result);
                 }
             }
 
-            if (argumentResults.Count > 0)
+            if (commandArgumentResults.Count > 0)
             {
                 var arguments = _innermostCommandResult!.Command.Arguments;
 
-                var commandArgumentResultCount = argumentResults.Count;
+                var commandArgumentResultCount = commandArgumentResults.Count;
 
                 for (var i = 0; i < arguments.Count; i++)
                 {
@@ -214,7 +211,7 @@ namespace System.CommandLine.Parsing
                             nextArgument,
                             _innermostCommandResult);
 
-                        var previousArgumentResult = argumentResults[i - 1];
+                        var previousArgumentResult = commandArgumentResults[i - 1];
 
                         var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
 
@@ -230,7 +227,7 @@ namespace System.CommandLine.Parsing
                             nextArgumentResult.AddToken(token!);
                         }
 
-                        argumentResults.Add(nextArgumentResult);
+                        commandArgumentResults.Add(nextArgumentResult);
 
                         if (previousArgumentResult.Parent is CommandResult)
                         {
@@ -240,7 +237,7 @@ namespace System.CommandLine.Parsing
                         _rootCommandResult.AddToSymbolMap(nextArgumentResult);
                     }
 
-                    var argumentResult = argumentResults[i];
+                    var argumentResult = commandArgumentResults[i];
 
                     ValidateAndConvertArgumentResult(argumentResult);
 
@@ -251,11 +248,11 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (argumentResults.Count > arguments.Count)
+                if (commandArgumentResults.Count > arguments.Count)
                 {
-                    for (var i = arguments.Count; i < argumentResults.Count; i++)
+                    for (var i = arguments.Count; i < commandArgumentResults.Count; i++)
                     {
-                        var result = argumentResults[i];
+                        var result = commandArgumentResults[i];
 
                         if (result.Parent is CommandResult)
                         {
@@ -421,9 +418,12 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void PopulateDefaultValues()
+        private void PopulateDefaultValues(out List<ArgumentResult> commandArgumentResults, out List<OptionResult> optionResults)
         {
             CommandResult? commandResult = _innermostCommandResult;
+
+            commandArgumentResults = new();
+            optionResults = new();
 
             while (commandResult is { })
             {

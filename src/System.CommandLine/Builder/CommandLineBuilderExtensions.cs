@@ -684,6 +684,7 @@ ERR:
             {
                 if (context.ParseResult.FindResultFor(versionOption) is { })
                 {
+                    // FIX: (UseVersionOption) perf
                     if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
                     {
                         context.InvocationResult = new ParseErrorResult(null);
@@ -725,6 +726,7 @@ ERR:
             {
                 if (context.ParseResult.FindResultFor(versionOption) is { })
                 {
+                    // FIX: (UseVersionOption) perf
                     if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
                     {
                         context.InvocationResult = new ParseErrorResult(null);

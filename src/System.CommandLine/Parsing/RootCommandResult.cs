@@ -2,48 +2,55 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
     internal class RootCommandResult : CommandResult
     {
-        private readonly Dictionary<IArgument, ArgumentResult> _allArgumentResults;
-        private readonly Dictionary<ICommand, CommandResult> _allCommandResults;
-        private readonly Dictionary<IOption, OptionResult> _allOptionResults;
+        private readonly Dictionary<ISymbol, SymbolResult> _symbolResults;
 
         public RootCommandResult(
             ICommand command,
             Token token,
-            Dictionary<IArgument, ArgumentResult> _allArgumentResults,
-            Dictionary<ICommand, CommandResult> _allCommandResults,
-            Dictionary<IOption, OptionResult> _allOptionResults) : base(command, token)
+            Dictionary<ISymbol, SymbolResult> symbolResults) : base(command, token)
         {
-            this._allArgumentResults = _allArgumentResults;
-            this._allCommandResults = _allCommandResults;
-            this._allOptionResults = _allOptionResults;
+            _symbolResults = symbolResults;
         }
 
         internal override RootCommandResult Root => this;
 
         public override ArgumentResult? FindResultFor(IArgument argument)
         {
-            _allArgumentResults.TryGetValue(argument, out var result);
+            if (_symbolResults.TryGetValue(argument, out var result) &&
+                result is ArgumentResult argumentResult)
+            {
+                return argumentResult;
+            }
 
-            return result;
+            return default;
         }
 
         public override CommandResult? FindResultFor(ICommand command)
         {
-            _allCommandResults.TryGetValue(command, out var result);
+            if (_symbolResults.TryGetValue(command, out var result) &&
+                result is CommandResult commandResult)
+            {
+                return commandResult;
+            }
 
-            return result;
+            return default;
         }
 
         public override OptionResult? FindResultFor(IOption option)
         {
-            _allOptionResults.TryGetValue(option, out var result);
+            if (_symbolResults.TryGetValue(option, out var result) &&
+                result is OptionResult optionResult)
+            {
+                return optionResult;
+            }
 
-            return result;
+            return default;
         }
 
         internal SymbolResult? FindResultForSymbol(ISymbol symbol)
@@ -63,25 +70,13 @@ namespace System.CommandLine.Parsing
 
         internal void AddToSymbolMap(SymbolResult result)
         {
-            switch (result)
-            {
-                case ArgumentResult argumentResult:
-                    _allArgumentResults.TryAdd(argumentResult.Argument, argumentResult);
-                    break;
-                case CommandResult commandResult:
-                    _allCommandResults.TryAdd(commandResult.Command, commandResult);
-                    break;
-                case OptionResult optionResult:
-                    _allOptionResults.TryAdd(optionResult.Option, optionResult);
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported {nameof(SymbolResult)} type: {result.GetType()}");
-            }
+            _symbolResults.TryAdd(result.Symbol, result);
         }
 
-        internal IReadOnlyCollection<ArgumentResult> AllArgumentResults => _allArgumentResults.Values;
+        // FIX: (RootCommandResult) delete these:
 
-        internal IReadOnlyCollection<OptionResult> AllOptionResults => _allOptionResults.Values;
+        internal IReadOnlyCollection<ArgumentResult> AllArgumentResults => _symbolResults.Values.OfType<ArgumentResult>().ToArray();
+
+        internal IReadOnlyCollection<OptionResult> AllOptionResults => _symbolResults.Values.OfType<OptionResult>().ToArray();
     }
 }
