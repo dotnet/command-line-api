@@ -21,6 +21,9 @@ namespace System.CommandLine.Parsing
 
         private readonly Dictionary<ISymbol, SymbolResult> _symbolResults = new();
 
+        private readonly List<OptionResult> _optionResults = new();
+        private readonly List<ArgumentResult> _argumentResults = new();
+
         private RootCommandResult? _rootCommandResult;
         private CommandResult? _innermostCommandResult;
         private bool _isHelpRequested;
@@ -59,13 +62,22 @@ namespace System.CommandLine.Parsing
         private void AddToResult(OptionResult result)
         {
             _innermostCommandResult?.Children.Add(result);
-            _symbolResults.Add(result.Option, result);
+            if (_symbolResults.TryAdd(result.Option, result))
+            {
+                _optionResults.Add(result);
+            }
         }
 
         private void AddToResult(ArgumentResult result)
         {
-            _innermostCommandResult?.Children.Add(result);
-            _symbolResults.TryAdd(result.Argument, result);
+            if (result.Parent is not OptionResult)
+            {
+                _innermostCommandResult?.Children.Add(result);
+                if (_symbolResults.TryAdd(result.Argument, result))
+                {
+                    _argumentResults.Add(result);
+                }
+            }
         }
 
         protected override void VisitRootCommandNode(RootCommandNode rootCommandNode)
@@ -177,22 +189,38 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandHandler();
 
-            PopulateDefaultValues(out var commandArgumentResults1, out var optionResults);
+            PopulateDefaultValues();
 
             ValidateCommandResult();
 
-            foreach (var optionResult in _rootCommandResult!.AllOptionResults)
+            var commandArgumentResults = new List<ArgumentResult>();
+
+            var optionResults = _symbolResults.Values.OfType<OptionResult>().ToArray();
+
+            if (optionResults.Length > _optionResults.Count)
+            {
+                
+            }
+
+            // FIX: (Stop) use _optionResults
+            foreach (var optionResult in optionResults)
             {
                 ValidateAndConvertOptionResult(optionResult);
             }
 
-            var commandArgumentResults = new List<ArgumentResult>();
-            foreach (var result in _rootCommandResult.AllArgumentResults)
+            var argumentResults = _symbolResults.Values.OfType<ArgumentResult>().ToArray();
+
+
+            // FIX: (Stop) use _argumentResults
+            foreach (var result in _argumentResults)
             {
-                if (result.Parent is not OptionResult)  
+                // if (result.Parent is not OptionResult)  
                 {
                     commandArgumentResults.Add(result);
                 }
+              // else
+               {
+               }
             }
 
             if (commandArgumentResults.Count > 0)
@@ -234,7 +262,7 @@ namespace System.CommandLine.Parsing
                             AddToResult(nextArgumentResult);
                         }
 
-                        _rootCommandResult.AddToSymbolMap(nextArgumentResult);
+                        _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                     }
 
                     var argumentResult = commandArgumentResults[i];
@@ -418,13 +446,10 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void PopulateDefaultValues(out List<ArgumentResult> commandArgumentResults, out List<OptionResult> optionResults)
+        private void PopulateDefaultValues()
         {
             CommandResult? commandResult = _innermostCommandResult;
-
-            commandArgumentResults = new();
-            optionResults = new();
-
+            
             while (commandResult is { })
             {
                 for (var symbolIndex = 0; symbolIndex < commandResult.Command.Children.Count; symbolIndex++)
@@ -434,11 +459,16 @@ namespace System.CommandLine.Parsing
 
                     switch (symbolResult)
                     {
-                        case OptionResult o when o.Option.Argument.ValueType == typeof(bool) && o.Children.Count == 0:
-                            o.Children.Add(
-                                new ArgumentResult(
-                                    o.Option.Argument,
-                                    o));
+                        case OptionResult o:
+
+                            if (o.Option.Argument.ValueType == typeof(bool) && o.Children.Count == 0)
+                            {
+                                o.Children.Add(
+                                    new ArgumentResult(
+                                        o.Option.Argument,
+                                        o));
+                            }
+
                             break;
 
                         case null:
@@ -456,17 +486,15 @@ namespace System.CommandLine.Parsing
 
                                     optionResult.Children.Add(childArgumentResult);
                                     commandResult.Children.Add(optionResult);
-                                    _rootCommandResult.AddToSymbolMap(optionResult);
+                                    _symbolResults.TryAdd(optionResult.Symbol, optionResult);
 
                                     break;
 
                                 case Argument { HasDefaultValue: true } argument:
 
                                     var argumentResult = commandResult.GetOrCreateDefaultArgumentResult(argument);
-
-                                    commandResult.Children.Add(argumentResult);
-                                    _rootCommandResult.AddToSymbolMap(argumentResult);
-
+                                    
+                                    AddToResult(argumentResult);
                                     break;
                             }
 

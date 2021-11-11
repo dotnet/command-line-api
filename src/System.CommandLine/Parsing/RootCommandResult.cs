@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -67,16 +66,5 @@ namespace System.CommandLine.Parsing
                     throw new ArgumentException($"Unsupported symbol type: {symbol.GetType()}");
             }
         }
-
-        internal void AddToSymbolMap(SymbolResult result)
-        {
-            _symbolResults.TryAdd(result.Symbol, result);
-        }
-
-        // FIX: (RootCommandResult) delete these:
-
-        internal IReadOnlyCollection<ArgumentResult> AllArgumentResults => _symbolResults.Values.OfType<ArgumentResult>().ToArray();
-
-        internal IReadOnlyCollection<OptionResult> AllOptionResults => _symbolResults.Values.OfType<OptionResult>().ToArray();
     }
 }
