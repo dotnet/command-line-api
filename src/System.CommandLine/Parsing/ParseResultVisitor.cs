@@ -70,13 +70,11 @@ namespace System.CommandLine.Parsing
 
         private void AddToResult(ArgumentResult result)
         {
-            if (result.Parent is not OptionResult)
+            _innermostCommandResult?.Children.Add(result);
+
+            if (_symbolResults.TryAdd(result.Argument, result))
             {
-                _innermostCommandResult?.Children.Add(result);
-                if (_symbolResults.TryAdd(result.Argument, result))
-                {
-                    _argumentResults.Add(result);
-                }
+                _argumentResults.Add(result);
             }
         }
 
@@ -156,14 +154,14 @@ namespace System.CommandLine.Parsing
 
             var argument = argumentNode.Argument;
 
-            if (optionResult.FindResultFor(argument) is not { } argumentResult)
+            if (!_symbolResults.TryGetValue(argument, out var argumentResult))
             {
                 argumentResult =
                     new ArgumentResult(
                         argumentNode.Argument,
                         optionResult);
                 optionResult.Children.Add(argumentResult);
-                _symbolResults.TryAdd(argumentResult.Argument, argumentResult);
+                _symbolResults.TryAdd(argument, argumentResult);
             }
 
             argumentResult.AddToken(argumentNode.Token);
@@ -193,14 +191,7 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            var commandArgumentResults = new List<ArgumentResult>();
-
             var optionResults = _symbolResults.Values.OfType<OptionResult>().ToArray();
-
-            if (optionResults.Length > _optionResults.Count)
-            {
-                
-            }
 
             // FIX: (Stop) use _optionResults
             foreach (var optionResult in optionResults)
@@ -208,26 +199,11 @@ namespace System.CommandLine.Parsing
                 ValidateAndConvertOptionResult(optionResult);
             }
 
-            var argumentResults = _symbolResults.Values.OfType<ArgumentResult>().ToArray();
-
-
-            // FIX: (Stop) use _argumentResults
-            foreach (var result in _argumentResults)
-            {
-                // if (result.Parent is not OptionResult)  
-                {
-                    commandArgumentResults.Add(result);
-                }
-              // else
-               {
-               }
-            }
-
-            if (commandArgumentResults.Count > 0)
+            if (_argumentResults.Count > 0)
             {
                 var arguments = _innermostCommandResult!.Command.Arguments;
 
-                var commandArgumentResultCount = commandArgumentResults.Count;
+                var commandArgumentResultCount = _argumentResults.Count;
 
                 for (var i = 0; i < arguments.Count; i++)
                 {
@@ -239,7 +215,7 @@ namespace System.CommandLine.Parsing
                             nextArgument,
                             _innermostCommandResult);
 
-                        var previousArgumentResult = commandArgumentResults[i - 1];
+                        var previousArgumentResult = _argumentResults[i - 1];
 
                         var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
 
@@ -255,7 +231,7 @@ namespace System.CommandLine.Parsing
                             nextArgumentResult.AddToken(token!);
                         }
 
-                        commandArgumentResults.Add(nextArgumentResult);
+                        _argumentResults.Add(nextArgumentResult);
 
                         if (previousArgumentResult.Parent is CommandResult)
                         {
@@ -265,7 +241,7 @@ namespace System.CommandLine.Parsing
                         _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                     }
 
-                    var argumentResult = commandArgumentResults[i];
+                    var argumentResult = _argumentResults[i];
 
                     ValidateAndConvertArgumentResult(argumentResult);
 
@@ -276,11 +252,11 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (commandArgumentResults.Count > arguments.Count)
+                if (_argumentResults.Count > arguments.Count)
                 {
-                    for (var i = arguments.Count; i < commandArgumentResults.Count; i++)
+                    for (var i = arguments.Count; i < _argumentResults.Count; i++)
                     {
-                        var result = commandArgumentResults[i];
+                        var result = _argumentResults[i];
 
                         if (result.Parent is CommandResult)
                         {
