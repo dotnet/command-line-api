@@ -292,8 +292,7 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-                if (option is Option o &&
-                    o.IsRequired &&
+                if (option is Option { IsRequired: true } o && 
                     _rootCommandResult!.FindResultFor(o) is null)
                 {
                     _errors.Add(
