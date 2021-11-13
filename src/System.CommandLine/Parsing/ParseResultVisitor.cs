@@ -10,6 +10,8 @@ namespace System.CommandLine.Parsing
 {
     internal class ParseResultVisitor : SyntaxVisitor
     {
+        // FIX: (ParseResultVisitor) perf regression in https://github.com/dotnet/command-line-api/pull/1416
+
         private readonly Parser _parser;
         private readonly TokenizeResult _tokenizeResult;
         private readonly string? _rawInput;

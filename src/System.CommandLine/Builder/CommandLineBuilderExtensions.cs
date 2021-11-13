@@ -682,7 +682,7 @@ ERR:
 
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.FindResultFor(versionOption) is { })
+                if (context.ParseResult.FindResultFor(versionOption) is { } re)
                 {
                     // FIX: (UseVersionOption) perf
                     if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
