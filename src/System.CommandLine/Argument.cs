@@ -37,7 +37,7 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            Name = name!;
+            Name = name;
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }

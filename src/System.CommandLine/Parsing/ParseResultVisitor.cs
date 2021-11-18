@@ -193,10 +193,7 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            var optionResults = _symbolResults.Values.OfType<OptionResult>().ToArray();
-
-            // FIX: (Stop) use _optionResults
-            foreach (var optionResult in optionResults)
+            foreach (var optionResult in _optionResults)
             {
                 ValidateAndConvertOptionResult(optionResult);
             }
@@ -388,7 +385,6 @@ namespace System.CommandLine.Parsing
                     if (result is ArgumentResult argumentResult)
                     {
                         ValidateAndConvertArgumentResult(argumentResult);
-
                     }
                 }
             }
@@ -430,12 +426,11 @@ namespace System.CommandLine.Parsing
                     {
                         case OptionResult o:
 
-                            if (o.Option.Argument.ValueType == typeof(bool) && o.Children.Count == 0)
+                            if (o.Children.Count == 0 && 
+                                o.Option.Argument.ValueType == typeof(bool))
                             {
                                 o.Children.Add(
-                                    new ArgumentResult(
-                                        o.Option.Argument,
-                                        o));
+                                    new ArgumentResult(o.Option.Argument, o));
                             }
 
                             break;
@@ -455,7 +450,10 @@ namespace System.CommandLine.Parsing
 
                                     optionResult.Children.Add(childArgumentResult);
                                     commandResult.Children.Add(optionResult);
-                                    _symbolResults.TryAdd(optionResult.Symbol, optionResult);
+                                    if (_symbolResults.TryAdd(optionResult.Symbol, optionResult))
+                                    {
+                                        _optionResults.Add(optionResult);
+                                    }
 
                                     break;
 
