@@ -280,24 +280,22 @@ namespace System.CommandLine.Parsing
 
                     if (!string.IsNullOrWhiteSpace(errorMessage))
                     {
-                        _errors.Add(
-                            new ParseError(errorMessage!, _innermostCommandResult));
+                        AddErrorToResult(_innermostCommandResult, new ParseError(errorMessage!, _innermostCommandResult));
                     }
                 }
             }
 
             var options = _innermostCommandResult.Command.Options;
 
-            for (var i = 0;
-                i < options.Count;
-                i++)
+            for (var i = 0; i < options.Count; i++)
             {
                 var option = options[i];
 
-                if (option is Option { IsRequired: true } o && 
+                if (option is Option { IsRequired: true } o &&
                     _rootCommandResult!.FindResultFor(o) is null)
                 {
-                    _errors.Add(
+                    AddErrorToResult(
+                        _innermostCommandResult,
                         new ParseError($"Option '{o.Aliases.First()}' is required.",
                                        _innermostCommandResult));
                 }
@@ -305,9 +303,7 @@ namespace System.CommandLine.Parsing
 
             var arguments = _innermostCommandResult.Command.Arguments;
 
-            for (var i = 0;
-                i < arguments.Count;
-                i++)
+            for (var i = 0; i < arguments.Count; i++)
             {
                 var symbol = arguments[i];
 
@@ -319,8 +315,7 @@ namespace System.CommandLine.Parsing
 
                 if (arityFailure is not null)
                 {
-                    _errors.Add(
-                        new ParseError(arityFailure.ErrorMessage!, _innermostCommandResult));
+                    AddErrorToResult(_innermostCommandResult, new ParseError(arityFailure.ErrorMessage!, _innermostCommandResult));
                 }
             }
         }
@@ -356,8 +351,7 @@ namespace System.CommandLine.Parsing
 
             if (arityFailure is { })
             {
-                _errors.Add(
-                    new ParseError(arityFailure.ErrorMessage!, optionResult));
+                AddErrorToResult(optionResult, new ParseError(arityFailure.ErrorMessage!, optionResult));
             }
 
             if (optionResult.Option is Option option)
@@ -369,7 +363,7 @@ namespace System.CommandLine.Parsing
 
                     if (!string.IsNullOrWhiteSpace(message))
                     {
-                        _errors.Add(new ParseError(message!, optionResult));
+                        AddErrorToResult(optionResult, new ParseError(message!, optionResult));
                     }
                 }
             }
@@ -394,6 +388,7 @@ namespace System.CommandLine.Parsing
                     if (result is ArgumentResult argumentResult)
                     {
                         ValidateAndConvertArgumentResult(argumentResult);
+
                     }
                 }
             }
@@ -409,17 +404,14 @@ namespace System.CommandLine.Parsing
 
                 if (parseError is { })
                 {
-                    _errors.Add(parseError);
+                    AddErrorToResult(argumentResult, parseError);
                     return;
                 }
             }
 
             if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed)
             {
-                _errors.Add(
-                    new ParseError(
-                        failed.ErrorMessage!,
-                        argumentResult));
+                AddErrorToResult(argumentResult, new ParseError(failed.ErrorMessage!, argumentResult));
             }
         }
 
@@ -483,7 +475,19 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public ParseResult Result =>
+        private void AddErrorToResult(SymbolResult symbolResult, ParseError parseError)
+        {
+            symbolResult.ErrorMessage ??= parseError.Message;
+
+            if (symbolResult.Parent is OptionResult optionResult)
+            {
+                optionResult.ErrorMessage ??= symbolResult.ErrorMessage;
+            }
+
+            _errors.Add(parseError);
+        }
+
+        public ParseResult GetResult() =>
             new(_parser,
                 _rootCommandResult ?? throw new InvalidOperationException("No root command was found"),
                 _innermostCommandResult ?? throw new InvalidOperationException("No command was found"),

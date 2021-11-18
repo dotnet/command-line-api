@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option("-x", arity: ArgumentArity.ExactlyOne)
                 .FromAmong("this", "that", "the-other-thing");
-            
+
             var result = option.Parse("-x none-of-those");
 
             result.Errors
@@ -50,6 +50,42 @@ namespace System.CommandLine.Tests
                   .Should()
                   .Contain(e => e.SymbolResult.Symbol.Name == option.Name);
         }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1475
+        public void When_FromAmong_is_used_then_the_OptionResult_ErrorMessage_is_set()
+        {
+            var option = new Option<string>("--opt").FromAmong("a", "b");
+            var command = new Command("test") { option };
+
+            var parseResult = command.Parse("test --opt c");
+
+            parseResult.FindResultFor(option)
+                       .ErrorMessage
+                       .Should()
+                       .Be(parseResult.Errors.Single().Message)
+                       .And
+                       .Should()
+                       .NotBeNull();
+        }
+
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1475
+        public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
+        {
+            var option = new Argument<string>().FromAmong("a", "b");
+            var command = new Command("test") { option };
+
+            var parseResult = command.Parse("test c");
+
+            parseResult.FindResultFor(option)
+                       .ErrorMessage
+                       .Should()
+                       .Be(parseResult.Errors.Single().Message)
+                       .And
+                       .Should()
+                       .NotBeNull();
+        }
+
 
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()

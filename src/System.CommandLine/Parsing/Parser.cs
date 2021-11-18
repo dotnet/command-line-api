@@ -67,7 +67,7 @@ namespace System.CommandLine.Parsing
 
             visitor.Visit(operation.RootCommandNode!);
 
-            return visitor.Result;
+            return visitor.GetResult();
         }
     }
 }

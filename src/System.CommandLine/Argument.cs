@@ -186,7 +186,7 @@ namespace System.CommandLine
             ValueType = typeof(bool)
         };
 
-        internal void AddAllowedValues(IEnumerable<string> values)
+        internal void AddAllowedValues(IReadOnlyList<string> values)
         {
             if (AllowedValues is null)
             {
