@@ -15,7 +15,7 @@ namespace System.CommandLine.Binding
 
         internal static object? GetDefaultValue(Type type)
         {
-            if (GetItemTypeIfEnumerable(type) is { } itemType)
+            if (GetElementTypeIfEnumerable(type) is { } itemType)
             {
                 if (type.IsArray)
                 {
@@ -60,7 +60,7 @@ namespace System.CommandLine.Binding
                 => Array.CreateInstance(itemType, 0);
         }
 
-        internal static Type? GetItemTypeIfEnumerable(Type type)
+        internal static Type? GetElementTypeIfEnumerable(Type type)
         {
             if (type.IsArray)
             {

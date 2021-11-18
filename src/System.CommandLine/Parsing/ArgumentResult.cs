@@ -169,7 +169,7 @@ namespace System.CommandLine.Parsing
                     return new FailedArgumentConversionResult(arg, ErrorMessage);
                 }
 
-                if (Binder.GetItemTypeIfEnumerable(argument.ValueType) is { } itemType)
+                if (Binder.GetElementTypeIfEnumerable(argument.ValueType) is { } itemType)
                 {
                     return new FailedArgumentTypeConversionResult(
                         argument,
