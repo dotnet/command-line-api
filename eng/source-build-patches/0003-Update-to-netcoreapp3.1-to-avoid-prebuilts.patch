@@ -67,12 +67,11 @@ index a80a4172..305a95ab 100644
      <LangVersion>9</LangVersion>
      <Nullable>enable</Nullable>
  
-@@ -26,11 +26,6 @@
+@@ -26,10 +26,6 @@
      <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
    </ItemGroup>
  
 -  <ItemGroup>
--    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 -    <PackageReference Include="system.memory" Version="4.5.4" />
 -  </ItemGroup>
 -
