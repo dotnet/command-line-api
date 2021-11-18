@@ -140,7 +140,6 @@ namespace System.CommandLine.DragonFruit.Tests
                     .Should().NotBeEmpty()
                     .And
                     .Contain("--unknown");
-            _terminal.ForegroundColor.Should().Be(ConsoleColor.Red);
         }
 
         [Fact]
@@ -160,7 +159,6 @@ namespace System.CommandLine.DragonFruit.Tests
                 .Should().NotBeEmpty()
                 .And
                 .Contain("--unknown");
-            _terminal.ForegroundColor.Should().Be(ConsoleColor.Red);
         }
 
         [Fact]
@@ -180,7 +178,6 @@ namespace System.CommandLine.DragonFruit.Tests
                     .Should().NotBeEmpty()
                     .And
                     .Contain("This threw an error");
-            _terminal.ForegroundColor.Should().Be(ConsoleColor.Red);
         }
 
         [Fact]
@@ -200,7 +197,6 @@ namespace System.CommandLine.DragonFruit.Tests
                 .Should().NotBeEmpty()
                 .And
                 .Contain("This threw an error");
-            _terminal.ForegroundColor.Should().Be(ConsoleColor.Red);
         }
     }
 }
