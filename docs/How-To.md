@@ -35,27 +35,27 @@ The following command lines will be equivalent:
 Commands can have child commands, often called verbs, and these can nest as many levels as you like. You can add a subcommand like this:
 
 ```csharp
-var parent = new RootCommand("parent");
-var child = new Command("child");
-parent.Add(child);
-var grandchild = new Command("grandchild");
-child.Add(grandchild);
+var rootCommand = new RootCommand();
+var verbCommand = new Command("verb");
+rootCommand.Add(verbCommand);
+var childVerbCommand = new Command("childverb");
+verbCommand.Add(childVerbCommand);
 ```
 
 The innermost subcommand in this example can be invoked like this:
 
 ```console
-> parent child grandchild
+> myapp verb childverb
 ```
 
 Collection initializer syntax is supported, so the following is equivalent:
 
 ```csharp
-var parent = new RootCommand("parent")
+var rootCommand = new RootCommand()
 {
-    new Command("child")
+    new Command("verb")
     {
-        new Command("grandchild")
+        new Command("childverb")
     }
 };
 ```
