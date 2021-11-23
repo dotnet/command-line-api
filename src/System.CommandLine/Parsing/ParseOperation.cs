@@ -27,9 +27,9 @@ namespace System.CommandLine.Parsing
 
         public RootCommandNode? RootCommandNode { get; private set; }
 
-        public List<Token> UnmatchedTokens { get; } = new();
+        public List<Token>? UnmatchedTokens { get; private set; }
 
-        public List<Token> UnparsedTokens { get; } = new();
+        public List<Token>? UnparsedTokens { get; private set; } 
 
         private void Advance() => _index++;
 
@@ -117,7 +117,7 @@ namespace System.CommandLine.Parsing
 
                 if (child is null)
                 {
-                    UnmatchedTokens.Add(CurrentToken);
+                    AddCurrentTokenToUnmatched();
                     Advance();
                 }
                 else
@@ -138,7 +138,7 @@ namespace System.CommandLine.Parsing
 
             for (var i = 0; i < commandNode.Command.Arguments.Count; i++)
             {
-                if (commandNode.Command.Arguments[i] is {} arg &&
+                if (commandNode.Command.Arguments[i] is { } arg &&
                     !IsFull(arg))
                 {
                     argument = arg;
@@ -280,11 +280,15 @@ namespace System.CommandLine.Parsing
                 }
                 else if (foundEndOfArguments)
                 {
-                    UnparsedTokens.Add(CurrentToken);
+                    AddCurrentTokenToUnparsed();
                 }
 
                 Advance();
             }
         }
+
+        private void AddCurrentTokenToUnmatched() => (UnmatchedTokens ??= new()).Add(CurrentToken);
+
+        private void AddCurrentTokenToUnparsed() => (UnparsedTokens ??= new()).Add(CurrentToken);
     }
 }

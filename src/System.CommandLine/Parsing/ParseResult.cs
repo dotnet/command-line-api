@@ -18,17 +18,15 @@ namespace System.CommandLine.Parsing
         private readonly IReadOnlyList<Token> _unparsedTokens;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
 
-        internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
-
         internal ParseResult(
             Parser parser,
             RootCommandResult rootCommandResult,
             CommandResult commandResult,
             IDirectiveCollection directives,
             TokenizeResult tokenizeResult,
-            IReadOnlyList<Token> unparsedTokens,
-            IReadOnlyList<Token> unmatchedTokens,
-            List<ParseError>? errors = null,
+            IReadOnlyList<Token>? unparsedTokens,
+            IReadOnlyList<Token>? unmatchedTokens,
+            List<ParseError>? errors,
             string? rawInput = null)
         {
             Parser = parser;
@@ -53,24 +51,30 @@ namespace System.CommandLine.Parsing
                 Tokens = Array.Empty<Token>();
             }
 
-            _unparsedTokens = unparsedTokens;
-            _unmatchedTokens = unmatchedTokens;
-
+            _unparsedTokens = unparsedTokens ?? Array.Empty<Token>();
+            _errors = errors ?? new List<ParseError>();
             RawInput = rawInput;
 
-            _errors = errors ?? (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors
-                                     ? new List<ParseError>(unmatchedTokens.Count)
-                                     : new List<ParseError>());
-
-            if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
+            if (unmatchedTokens is null)
             {
-                for (var i = 0; i < unmatchedTokens.Count; i++)
+                _unmatchedTokens = Array.Empty<Token>();
+            }
+            else
+            {
+                _unmatchedTokens = unmatchedTokens;
+
+                if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
                 {
-                    var token = unmatchedTokens[i];
-                    _errors.Add(new ParseError(parser.Configuration.LocalizationResources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
+                    for (var i = 0; i < _unmatchedTokens.Count; i++)
+                    {
+                        var token = _unmatchedTokens[i];
+                        _errors.Add(new ParseError(parser.Configuration.LocalizationResources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
+                    }
                 }
             }
         }
+
+        internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
 
         /// <summary>
         /// A result indicating the command specified in the command line input.
@@ -90,7 +94,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Gets the parse errors found while parsing command line input.
         /// </summary>
-        public IReadOnlyCollection<ParseError> Errors => _errors;
+        public IReadOnlyList<ParseError> Errors => _errors;
 
         /// <summary>
         /// Gets the directives found while parsing command line input.

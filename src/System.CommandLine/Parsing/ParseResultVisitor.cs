@@ -17,8 +17,8 @@ namespace System.CommandLine.Parsing
         private readonly string? _rawInput;
 
         private readonly DirectiveCollection _directives = new();
-        private readonly List<Token> _unparsedTokens;
-        private readonly List<Token> _unmatchedTokens;
+        private List<Token>? _unparsedTokens;
+        private readonly List<Token>? _unmatchedTokens;
         private readonly List<ParseError> _errors;
 
         private readonly Dictionary<ISymbol, SymbolResult> _symbolResults = new();
@@ -33,26 +33,32 @@ namespace System.CommandLine.Parsing
         public ParseResultVisitor(
             Parser parser,
             TokenizeResult tokenizeResult,
-            List<Token> unparsedTokens,
-            List<Token> unmatchedTokens,
-            IReadOnlyCollection<ParseError> parseErrors,
+            List<Token>? unparsedTokens,
+            List<Token>? unmatchedTokens,
             string? rawInput)
         {
             _parser = parser;
             _tokenizeResult = tokenizeResult;
-            _unparsedTokens = unparsedTokens;
-            _unmatchedTokens = unmatchedTokens;
+
+            if (unparsedTokens is { })
+            {
+                _unparsedTokens = unparsedTokens;
+            }
+
+            if (unmatchedTokens is { })
+            {
+                _unmatchedTokens = unmatchedTokens;
+            }
+
             _rawInput = rawInput;
 
-            _errors = new List<ParseError>(_tokenizeResult.Errors.Count + parseErrors.Count);
+            _errors = new List<ParseError>(_tokenizeResult.Errors.Count);
 
             for (var i = 0; i < _tokenizeResult.Errors.Count; i++)
             {
                 var error = _tokenizeResult.Errors[i];
                 _errors.Add(new ParseError(error.Message));
             }
-
-            _errors.AddRange(parseErrors);
         }
 
         private void AddToResult(CommandResult result)
@@ -247,6 +253,7 @@ namespace System.CommandLine.Parsing
                     if (argumentResult.PassedOnTokens is { } &&
                         i == arguments.Count - 1)
                     {
+                        _unparsedTokens ??= new List<Token>();
                         _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
                     }
                 }
