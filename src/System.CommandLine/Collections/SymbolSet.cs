@@ -34,10 +34,7 @@ namespace System.CommandLine.Collections
             }
         }
 
-        private void Resync(ISymbol symbol)
-        {
-            DirtyItems.Add(symbol);
-        }
+        private void Resync(ISymbol symbol) => MarkAsDirty(symbol);
 
         internal void AddWithoutAliasCollisionCheck(ISymbol item)
         {

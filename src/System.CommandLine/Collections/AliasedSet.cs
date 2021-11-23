@@ -14,12 +14,12 @@ namespace System.CommandLine.Collections
     public abstract class AliasedSet<T> : IReadOnlyList<T>
         where T : class
     {
+        private HashSet<T>? _dirtyItems;
+
         private protected readonly Dictionary<string, T> ItemsByAlias = new();
 
         private protected List<T> Items { get; } = new();
 
-        private protected HashSet<T> DirtyItems { get; } = new();
-        
         /// <inheritdoc/>
         public int Count => Items.Count;
 
@@ -65,6 +65,12 @@ namespace System.CommandLine.Collections
             }
         }
 
+        private protected void MarkAsDirty(T item)
+        {
+            _dirtyItems ??= new();
+            _dirtyItems.Add(item);
+        }
+
         /// <summary>
         /// Gets the list of aliases of the specified item.
         /// </summary>
@@ -77,12 +83,12 @@ namespace System.CommandLine.Collections
 
         private protected void EnsureAliasIndexIsCurrent()
         {
-            if (DirtyItems.Count == 0)
+            if (_dirtyItems is null || _dirtyItems.Count == 0)
             {
                 return;
             }
 
-            foreach (var dirtyItem in DirtyItems)
+            foreach (var dirtyItem in _dirtyItems)
             {
                 var aliases = GetAliases(dirtyItem).ToArray();
 
@@ -104,7 +110,7 @@ namespace System.CommandLine.Collections
                 }
             }
 
-            DirtyItems.Clear();
+            _dirtyItems.Clear();
         }
     }
 }

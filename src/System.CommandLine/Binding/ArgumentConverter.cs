@@ -198,7 +198,7 @@ namespace System.CommandLine.Binding
             }
             else
             {
-                itemType = Binder.GetItemTypeIfEnumerable(type) ?? typeof(string);
+                itemType = Binder.GetElementTypeIfEnumerable(type) ?? typeof(string);
             }
 
             var (values, isArray) = type.IsArray
@@ -312,7 +312,7 @@ namespace System.CommandLine.Binding
                     return true;
                 }
 
-                if (Binder.GetItemTypeIfEnumerable(type) is { } itemType)
+                if (Binder.GetElementTypeIfEnumerable(type) is { } itemType)
                 {
                     type = itemType;
                     continue;

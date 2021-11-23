@@ -254,13 +254,5 @@ namespace System.CommandLine.Tests
 
             _console.Out.ToString().Should().Be("");
         }
-
-        private class CustomHelpBuilder : IHelpBuilder
-        {
-            public void Write(ICommand command, TextWriter writer, ParseResult parseResult)
-            {
-                throw new NotImplementedException();
-            }
-        }
     }
 }

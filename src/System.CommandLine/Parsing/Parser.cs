@@ -62,12 +62,11 @@ namespace System.CommandLine.Parsing
                 tokenizeResult,
                 operation.UnparsedTokens,
                 operation.UnmatchedTokens,
-                operation.Errors,
                 rawInput);
 
             visitor.Visit(operation.RootCommandNode!);
 
-            return visitor.Result;
+            return visitor.GetResult();
         }
     }
 }

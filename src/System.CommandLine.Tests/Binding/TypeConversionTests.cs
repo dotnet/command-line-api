@@ -407,6 +407,23 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void An_option_with_a_default_value_of_null_parses_as_null_when_the_option_has_not_been_applied()
+        {
+            var option = new Option<string>("-x", () => null);
+
+            var command = new Command("something")
+            {
+                option
+            };
+
+            var result = command.Parse("something");
+
+            result.GetValueForOption(option)
+                  .Should()
+                  .Be(null);
+        }
+
+        [Fact]
         public void A_default_value_of_a_non_string_type_can_be_specified()
         {
             var option = new Option<int>("-x", () => 123);

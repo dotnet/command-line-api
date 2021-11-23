@@ -37,7 +37,7 @@ namespace System.CommandLine
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            Name = name!;
+            Name = name;
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }
@@ -186,7 +186,7 @@ namespace System.CommandLine
             ValueType = typeof(bool)
         };
 
-        internal void AddAllowedValues(IEnumerable<string> values)
+        internal void AddAllowedValues(IReadOnlyList<string> values)
         {
             if (AllowedValues is null)
             {

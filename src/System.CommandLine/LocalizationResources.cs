@@ -13,10 +13,12 @@ namespace System.CommandLine
     /// </summary>
     public class LocalizationResources
     {
+        private static LocalizationResources? _instance;
+
         /// <summary>
         /// Gets a global instance of the <see cref="LocalizationResources"/> class.
         /// </summary>
-        public static LocalizationResources Instance { get; } = new();
+        public static LocalizationResources Instance => _instance ??= new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalizationResources"/> class.
