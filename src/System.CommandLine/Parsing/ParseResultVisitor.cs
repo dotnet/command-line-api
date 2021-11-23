@@ -10,8 +10,6 @@ namespace System.CommandLine.Parsing
 {
     internal class ParseResultVisitor : SyntaxVisitor
     {
-        // FIX: (ParseResultVisitor) perf regression in https://github.com/dotnet/command-line-api/pull/1416
-
         private readonly Parser _parser;
         private readonly TokenizeResult _tokenizeResult;
         private readonly string? _rawInput;
@@ -39,19 +37,9 @@ namespace System.CommandLine.Parsing
         {
             _parser = parser;
             _tokenizeResult = tokenizeResult;
-
-            if (unparsedTokens is { })
-            {
-                _unparsedTokens = unparsedTokens;
-            }
-
-            if (unmatchedTokens is { })
-            {
-                _unmatchedTokens = unmatchedTokens;
-            }
-
+            _unparsedTokens = unparsedTokens;
+            _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
-
             _errors = new List<ParseError>(_tokenizeResult.Errors.Count);
 
             for (var i = 0; i < _tokenizeResult.Errors.Count; i++)
@@ -79,7 +67,6 @@ namespace System.CommandLine.Parsing
         private void AddToResult(ArgumentResult result)
         {
             _innermostCommandResult?.Children.Add(result);
-
             if (_symbolResults.TryAdd(result.Argument, result))
             {
                 _argumentResults.Add(result);
