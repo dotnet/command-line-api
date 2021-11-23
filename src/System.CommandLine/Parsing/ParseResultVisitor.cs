@@ -181,11 +181,6 @@ namespace System.CommandLine.Parsing
             _directives.Add(directiveNode.Name, directiveNode.Value);
         }
 
-        protected override void VisitUnknownNode(SyntaxNode node)
-        {
-            _unmatchedTokens.Add(node.Token);
-        }
-
         protected override void Stop(SyntaxNode node)
         {
             if (_isHelpRequested)

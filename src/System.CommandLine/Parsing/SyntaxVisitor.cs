@@ -62,11 +62,6 @@ namespace System.CommandLine.Parsing
                     VisitOptionArgumentNode(optionArgumentNode);
 
                     break;
-
-                default:
-                    VisitUnknownNode(node);
-
-                    break;
             }
         }
 
@@ -99,10 +94,6 @@ namespace System.CommandLine.Parsing
         }
 
         protected virtual void Stop(SyntaxNode node)
-        {
-        }
-
-        protected virtual void VisitUnknownNode(SyntaxNode node)
         {
         }
     }
