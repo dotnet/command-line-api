@@ -52,5 +52,12 @@ namespace System.CommandLine.Help
             ICommand command,
             TextWriter writer) =>
             builder.Write(command, writer, ParseResult.Empty());
+
+        public static string FormatHelp(this IHelpBuilder helpBuilder, ICommand command, ParseResult parseResult)
+        {
+            using var output = new StringWriter();
+            helpBuilder.Write(command, output, parseResult);
+            return output.ToString();
+        }
     }
 }

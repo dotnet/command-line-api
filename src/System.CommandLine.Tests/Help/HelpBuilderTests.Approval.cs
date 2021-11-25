@@ -5,12 +5,14 @@ using Xunit;
 using System.IO;
 using ApprovalTests;
 using System.CommandLine.Help;
+using ApprovalTests.Reporters;
 
 namespace System.CommandLine.Tests.Help
 {
     public partial class HelpBuilderTests
     {
         [Fact]
+        [UseReporter(typeof(DiffReporter))]
         public void Help_describes_default_values_for_complex_root_command_scenario()
         {
             var command = new RootCommand(description: "Test description")

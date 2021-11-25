@@ -66,7 +66,7 @@ namespace System.CommandLine.Binding
         /// Adds a model binder which can be used to bind a specific type.
         /// </summary>
         /// <param name="binder">The model binder to add.</param>
-        public void AddModelBinder(ModelBinder binder) => 
+        public void AddModelBinder(ModelBinder binder) =>
             _modelBindersByValueDescriptor.Add(binder.ValueDescriptor.ValueType, binder);
 
         /// <summary>
@@ -80,6 +80,7 @@ namespace System.CommandLine.Binding
             {
                 return binder;
             }
+
             return new ModelBinder(valueDescriptor);
         }
 
@@ -138,8 +139,8 @@ namespace System.CommandLine.Binding
                 else
                 {
                     var parsed = ArgumentConverter.ConvertObject(
-                        valueDescriptor as IArgument ?? new Argument(valueDescriptor.ValueName), 
-                        valueDescriptor.ValueType, 
+                        valueDescriptor as IArgument ?? new Argument(valueDescriptor.ValueName),
+                        valueDescriptor.ValueType,
                         value,
                         localizationResources);
 
