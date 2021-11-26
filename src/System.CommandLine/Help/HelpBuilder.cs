@@ -431,7 +431,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        private static IEnumerable<string> WrapText(string text, int maxWidth)
+        protected static IEnumerable<string> WrapText(string text, int maxWidth)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
