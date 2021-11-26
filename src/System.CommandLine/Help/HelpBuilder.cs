@@ -12,7 +12,7 @@ namespace System.CommandLine.Help
     /// <inheritdoc />
     public class HelpBuilder : IHelpBuilder
     {
-        private const string Indent = "  ";
+        protected const string Indent = "  ";
 
         private Dictionary<ISymbol, Customization>? _customizationsBySymbol;
 
