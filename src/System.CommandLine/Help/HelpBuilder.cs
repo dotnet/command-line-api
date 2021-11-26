@@ -47,6 +47,7 @@ namespace System.CommandLine.Help
             {
                 throw new ArgumentNullException(nameof(command));
             }
+
             if (parseResult is null)
             {
                 throw new ArgumentNullException(nameof(parseResult));
@@ -57,13 +58,103 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            WriteSynopsis(command, writer);
-            WriteCommandUsage(command, writer);
-            WriteCommandArguments(command, writer, parseResult);
-            WriteOptions(command, writer, parseResult);
-            WriteSubcommands(command, writer, parseResult);
-            WriteAdditionalArguments(command, writer);
+            var context = new HelpContext(this, parseResult, command);
+
+            foreach (var section in DefaultLayout())
+            {
+                switch (section)
+                {
+                    case HelpDelegate d:
+                        var output = d(context);
+                        if (!string.IsNullOrWhiteSpace(output))
+                        {
+                            writer.WriteLine(output);
+                        }
+
+                        break;
+
+                    default:
+                        writer.WriteLine(section);
+                        break;
+                }
+            }
         }
+
+        private IEnumerable<object> DefaultLayout()
+        {
+            yield return SynopsisSection();
+            yield return CommandUsageSection();
+            yield return CommandArgumentsSection();
+            yield return OptionsSection();
+            yield return SubcommandsSection();
+            yield return AdditionalArgumentsSection();
+        }
+
+        /// <summary>
+        /// Writes a help section describing a command's synopsis.
+        /// </summary>
+        public static HelpDelegate SynopsisSection() =>
+            ctx =>
+            {
+                using var output = new StringWriter();
+                ctx.HelpBuilder.WriteSynopsis(ctx.Command, output);
+                return output.ToString();
+            };
+
+        /// <summary>
+        /// Writes a help section describing a command's usage.
+        /// </summary>
+        public static HelpDelegate CommandUsageSection() =>
+            ctx =>
+            {
+                var output = new StringWriter();
+                ctx.HelpBuilder.WriteCommandUsage(ctx.Command, output);
+                return output.ToString();
+            };
+
+        ///  <summary>
+        /// Writes a help section describing a command's arguments.
+        ///  </summary>
+        public static HelpDelegate CommandArgumentsSection() =>
+            ctx =>
+            {
+                var output = new StringWriter();
+                ctx.HelpBuilder.WriteCommandArguments(ctx.Command, output, ctx.ParseResult);
+                return output.ToString();
+            };
+
+        ///  <summary>
+        /// Writes a help section describing a command's options.
+        ///  </summary>
+        public static HelpDelegate OptionsSection() =>
+            ctx =>
+            {
+                var output = new StringWriter();
+                ctx.HelpBuilder.WriteOptions(ctx.Command, output, ctx.ParseResult);
+                return output.ToString();
+            };
+
+        ///  <summary>
+        /// Writes a help section describing a command's subcommands.
+        ///  </summary>
+        public static HelpDelegate SubcommandsSection() =>
+            ctx =>
+            {
+                var output = new StringWriter();
+                ctx.HelpBuilder.WriteSubcommands(ctx.Command, output, ctx.ParseResult);
+                return output.ToString();
+            };
+
+        ///  <summary>
+        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="Command.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
+        ///  </summary>
+        public static HelpDelegate AdditionalArgumentsSection() =>
+            ctx =>
+            {
+                var output = new StringWriter();
+                ctx.HelpBuilder.WriteAdditionalArguments(ctx.Command, output);
+                return output.ToString();
+            };
 
         /// <summary>
         /// Specifies custom help details for a specific symbol.
@@ -72,7 +163,7 @@ namespace System.CommandLine.Help
         /// <param name="firstColumnText">A delegate to display the first help column (typically name and usage information).</param>
         /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
         /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
-        protected internal void Customize(ISymbol symbol,
+        internal void Customize(ISymbol symbol,
             Func<ParseResult?, string?>? firstColumnText = null,
             Func<ParseResult?, string?>? secondColumnText = null,
             Func<ParseResult?, string?>? defaultValue = null)
@@ -92,10 +183,9 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="command">The command to write help details for.</param>
         /// <param name="writer">The writer to write help output to.</param>
-        protected virtual void WriteSynopsis(ICommand command, TextWriter writer)
+        private void WriteSynopsis(ICommand command, TextWriter writer)
         {
             WriteHeading(LocalizationResources.HelpDescriptionTitle(), command.Description, writer);
-            writer.WriteLine();
         }
 
         /// <summary>
@@ -103,18 +193,17 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="command">The command to write help details for.</param>
         /// <param name="writer">The writer to write help output to.</param>
-        protected virtual void WriteCommandUsage(ICommand command, TextWriter writer)
+        private void WriteCommandUsage(ICommand command, TextWriter writer)
         {
             string description = GetUsage(command);
             WriteHeading(LocalizationResources.HelpUsageTitle(), description, writer);
-            writer.WriteLine();
         }
 
         /// <summary>
         /// Gets the usage for the specified command.
         /// </summary>
         /// <param name="command">The command to get usage for.</param>
-        protected string GetUsage(ICommand command)
+        private string GetUsage(ICommand command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -148,7 +237,6 @@ namespace System.CommandLine.Help
                 if (displayOptionTitle)
                 {
                     yield return LocalizationResources.HelpUsageOptionsTitle();
-                    displayOptionTitle = false;
                 }
 
                 if (!command.TreatUnmatchedTokensAsErrors)
@@ -164,7 +252,7 @@ namespace System.CommandLine.Help
         /// <param name="command">The command to write out argument help for.</param>
         /// <param name="writer">The writer to write help output to.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        protected virtual void WriteCommandArguments(ICommand command, TextWriter writer, ParseResult parseResult)
+        private void WriteCommandArguments(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             TwoColumnHelpRow[] commandArguments = GetCommandArgumentRows(command, parseResult).ToArray();
 
@@ -172,7 +260,6 @@ namespace System.CommandLine.Help
             {
                 WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, writer);
                 RenderAsColumns(writer, commandArguments);
-                writer.WriteLine();
             }
         }
 
@@ -182,7 +269,7 @@ namespace System.CommandLine.Help
         /// <param name="command">The command to get argument help items for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
         /// <returns>Help items for the specified command's arguments.</returns>
-        protected IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(ICommand command, ParseResult parseResult)
+        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(ICommand command, ParseResult parseResult)
         {
             return command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
                     .Reverse()
@@ -222,7 +309,7 @@ namespace System.CommandLine.Help
         /// <param name="command">The command to get argument help items for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
         /// <param name="writer">The writer to write help output to.</param>
-        protected virtual void WriteOptions(ICommand command, TextWriter writer, ParseResult parseResult)
+        private void WriteOptions(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             var options = GetOptionRows(command, parseResult).ToArray();
 
@@ -230,7 +317,6 @@ namespace System.CommandLine.Help
             {
                 WriteHeading(LocalizationResources.HelpOptionsTitle(), null, writer);
                 RenderAsColumns(writer, options);
-                writer.WriteLine();
             }
         }
 
@@ -239,7 +325,7 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="command">The command to get argument help items for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        protected IEnumerable<TwoColumnHelpRow> GetOptionRows(ICommand command, ParseResult parseResult)
+        private IEnumerable<TwoColumnHelpRow> GetOptionRows(ICommand command, ParseResult parseResult)
             => command.Options.Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, parseResult));
 
         /// <summary>
@@ -248,7 +334,7 @@ namespace System.CommandLine.Help
         /// <param name="command">The command to get argument help items for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
         /// <param name="writer">The writer to write help output to.</param>
-        protected virtual void WriteSubcommands(ICommand command, TextWriter writer, ParseResult parseResult)
+        private void WriteSubcommands(ICommand command, TextWriter writer, ParseResult parseResult)
         {
             var subcommands = GetSubcommandRows(command, parseResult).ToArray();
 
@@ -256,7 +342,6 @@ namespace System.CommandLine.Help
             {
                 WriteHeading(LocalizationResources.HelpCommandsTitle(), null, writer);
                 RenderAsColumns(writer, subcommands);
-                writer.WriteLine();
             }
         }
 
@@ -265,13 +350,13 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="command">The command to get argument help items for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        protected IEnumerable<TwoColumnHelpRow> GetSubcommandRows(ICommand command, ParseResult parseResult)
+        private IEnumerable<TwoColumnHelpRow> GetSubcommandRows(ICommand command, ParseResult parseResult)
             => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, parseResult));
 
         /// <summary>
         /// Writes help output for additional arguments.
         /// </summary>
-        protected virtual void WriteAdditionalArguments(ICommand command, TextWriter writer)
+        private void WriteAdditionalArguments(ICommand command, TextWriter writer)
         {
             if (command.TreatUnmatchedTokensAsErrors)
             {
@@ -285,19 +370,19 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Writes a heading to help output.
         /// </summary>
-        /// <param name="firstColumnText">The first column content (typically the name and invocation details).</param>
-        /// <param name="secondColumnText">The second column content (typically the description of the symbol).</param>
+        /// <param name="heading">The heading text.</param>
+        /// <param name="description">The description text, which will typically be indented and, if it's long enough, wrapped.</param>
         /// <param name="writer">The writer to write help output to.</param>
-        protected void WriteHeading(string? firstColumnText, string? secondColumnText, TextWriter writer)
+        private void WriteHeading(string? heading, string? description, TextWriter writer)
         {
-            if (!string.IsNullOrWhiteSpace(firstColumnText))
+            if (!string.IsNullOrWhiteSpace(heading))
             {
-                writer.WriteLine(firstColumnText);
+                writer.WriteLine(heading);
             }
-            if (!string.IsNullOrWhiteSpace(secondColumnText))
+            if (!string.IsNullOrWhiteSpace(description))
             {
                 int maxWidth = MaxWidth - Indent.Length;
-                foreach (var part in WrapText(secondColumnText!, maxWidth))
+                foreach (var part in WrapText(description!, maxWidth))
                 {
                     writer.Write(Indent);
                     writer.WriteLine(part);
@@ -375,7 +460,7 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="writer">The writer to write help output to.</param>
         /// <param name="items">The help items to write out in columns.</param>
-        protected void RenderAsColumns(TextWriter writer, params TwoColumnHelpRow[] items)
+        private void RenderAsColumns(TextWriter writer, params TwoColumnHelpRow[] items)
         {
             if (items.Length == 0)
             {
@@ -485,7 +570,7 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        protected TwoColumnHelpRow GetTwoColumnRow(IIdentifierSymbol symbol, ParseResult parseResult)
+        private TwoColumnHelpRow GetTwoColumnRow(IIdentifierSymbol symbol, ParseResult parseResult)
         {
             string firstColumnText;
             if (_customizationsBySymbol is { } &&
@@ -532,7 +617,7 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="symbol">The symbol to get the description for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        protected string GetSecondColumnText(IIdentifierSymbol symbol, ParseResult parseResult)
+        private string GetSecondColumnText(IIdentifierSymbol symbol, ParseResult parseResult)
         {
             return string.Join(" ", GetSecondColumnTextParts());
 
@@ -610,7 +695,7 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="argument">The argument to get the first column text for.</param>
         /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        protected string GetArgumentFirstColumnText(IArgument argument, ParseResult parseResult)
+        private string GetArgumentFirstColumnText(IArgument argument, ParseResult parseResult)
         {
             if (_customizationsBySymbol is { } &&
                 _customizationsBySymbol.TryGetValue(argument, out Customization customization) &&
