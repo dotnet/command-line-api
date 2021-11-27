@@ -57,7 +57,7 @@ namespace System.CommandLine.Builder
             get => _localizationResources ??= LocalizationResources.Instance;
             set => _localizationResources = value;
         }
-
+        
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
