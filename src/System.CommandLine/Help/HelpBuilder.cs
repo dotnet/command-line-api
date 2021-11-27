@@ -58,29 +58,16 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            var context = new HelpContext(this, parseResult, command);
+            var context = new HelpContext(this, parseResult, command, writer);
 
-            foreach (var section in DefaultLayout())
+            foreach (var writeSection in DefaultLayout())
             {
-                switch (section)
-                {
-                    case HelpDelegate d:
-                        var output = d(context);
-                        if (!string.IsNullOrWhiteSpace(output))
-                        {
-                            writer.WriteLine(output);
-                        }
-
-                        break;
-
-                    default:
-                        writer.WriteLine(section);
-                        break;
-                }
+                writeSection(context);
+                writer.WriteLine();
             }
         }
 
-        private IEnumerable<object> DefaultLayout()
+        private IEnumerable<HelpDelegate> DefaultLayout()
         {
             yield return SynopsisSection();
             yield return CommandUsageSection();
@@ -94,67 +81,37 @@ namespace System.CommandLine.Help
         /// Writes a help section describing a command's synopsis.
         /// </summary>
         public static HelpDelegate SynopsisSection() =>
-            ctx =>
-            {
-                using var output = new StringWriter();
-                ctx.HelpBuilder.WriteSynopsis(ctx.Command, output);
-                return output.ToString();
-            };
+            ctx => ctx.HelpBuilder.WriteSynopsis(ctx);
 
         /// <summary>
         /// Writes a help section describing a command's usage.
         /// </summary>
         public static HelpDelegate CommandUsageSection() =>
-            ctx =>
-            {
-                var output = new StringWriter();
-                ctx.HelpBuilder.WriteCommandUsage(ctx.Command, output);
-                return output.ToString();
-            };
+            ctx => ctx.HelpBuilder.WriteCommandUsage(ctx);
 
         ///  <summary>
         /// Writes a help section describing a command's arguments.
         ///  </summary>
         public static HelpDelegate CommandArgumentsSection() =>
-            ctx =>
-            {
-                var output = new StringWriter();
-                ctx.HelpBuilder.WriteCommandArguments(ctx.Command, output, ctx.ParseResult);
-                return output.ToString();
-            };
+            ctx => ctx.HelpBuilder.WriteCommandArguments(ctx);
 
         ///  <summary>
         /// Writes a help section describing a command's options.
         ///  </summary>
         public static HelpDelegate OptionsSection() =>
-            ctx =>
-            {
-                var output = new StringWriter();
-                ctx.HelpBuilder.WriteOptions(ctx.Command, output, ctx.ParseResult);
-                return output.ToString();
-            };
+            ctx => ctx.HelpBuilder.WriteOptions(ctx);
 
         ///  <summary>
         /// Writes a help section describing a command's subcommands.
         ///  </summary>
         public static HelpDelegate SubcommandsSection() =>
-            ctx =>
-            {
-                var output = new StringWriter();
-                ctx.HelpBuilder.WriteSubcommands(ctx.Command, output, ctx.ParseResult);
-                return output.ToString();
-            };
+            ctx => ctx.HelpBuilder.WriteSubcommands(ctx);
 
         ///  <summary>
         /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="Command.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
         ///  </summary>
         public static HelpDelegate AdditionalArgumentsSection() =>
-            ctx =>
-            {
-                var output = new StringWriter();
-                ctx.HelpBuilder.WriteAdditionalArguments(ctx.Command, output);
-                return output.ToString();
-            };
+            ctx => ctx.HelpBuilder.WriteAdditionalArguments(ctx);
 
         /// <summary>
         /// Specifies custom help details for a specific symbol.
@@ -178,32 +135,13 @@ namespace System.CommandLine.Help
             _customizationsBySymbol[symbol] = new Customization(firstColumnText, secondColumnText, defaultValue);
         }
 
-        /// <summary>
-        /// Writes the synopsis for the specified command.
-        /// </summary>
-        /// <param name="command">The command to write help details for.</param>
-        /// <param name="writer">The writer to write help output to.</param>
-        private void WriteSynopsis(ICommand command, TextWriter writer)
-        {
-            WriteHeading(LocalizationResources.HelpDescriptionTitle(), command.Description, writer);
-        }
+       private void WriteSynopsis(HelpContext context) => 
+           WriteHeading(LocalizationResources.HelpDescriptionTitle(), context.Command.Description, context.Output);
 
-        /// <summary>
-        /// Writes usage for the specified command.
-        /// </summary>
-        /// <param name="command">The command to write help details for.</param>
-        /// <param name="writer">The writer to write help output to.</param>
-        private void WriteCommandUsage(ICommand command, TextWriter writer)
-        {
-            string description = GetUsage(command);
-            WriteHeading(LocalizationResources.HelpUsageTitle(), description, writer);
-        }
+       private void WriteCommandUsage(HelpContext context) => 
+           WriteHeading(LocalizationResources.HelpUsageTitle(), GetUsage(context.Command), context.Output);
 
-        /// <summary>
-        /// Gets the usage for the specified command.
-        /// </summary>
-        /// <param name="command">The command to get usage for.</param>
-        private string GetUsage(ICommand command)
+       private string GetUsage(ICommand command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -246,20 +184,14 @@ namespace System.CommandLine.Help
             }
         }
 
-        /// <summary>
-        /// Writes help output for the specified command's arguments.
-        /// </summary>
-        /// <param name="command">The command to write out argument help for.</param>
-        /// <param name="writer">The writer to write help output to.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        private void WriteCommandArguments(ICommand command, TextWriter writer, ParseResult parseResult)
+        private void WriteCommandArguments(HelpContext context)
         {
-            TwoColumnHelpRow[] commandArguments = GetCommandArgumentRows(command, parseResult).ToArray();
+            TwoColumnHelpRow[] commandArguments = GetCommandArgumentRows(context.Command, context.ParseResult).ToArray();
 
             if (commandArguments.Length > 0)
             {
-                WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, writer);
-                RenderAsColumns(writer, commandArguments);
+                WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, context.Output);
+                RenderAsColumns(context.Output, commandArguments);
             }
         }
 
@@ -303,76 +235,40 @@ namespace System.CommandLine.Help
             }
         }
 
-        /// <summary>
-        /// Writes help output for the specified command's options.
-        /// </summary>
-        /// <param name="command">The command to get argument help items for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        /// <param name="writer">The writer to write help output to.</param>
-        private void WriteOptions(ICommand command, TextWriter writer, ParseResult parseResult)
+        private void WriteOptions(HelpContext context)
         {
-            var options = GetOptionRows(command, parseResult).ToArray();
+            var options = context.Command.Options.Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context.ParseResult)).ToArray();
 
             if (options.Length > 0)
             {
-                WriteHeading(LocalizationResources.HelpOptionsTitle(), null, writer);
-                RenderAsColumns(writer, options);
+                WriteHeading(LocalizationResources.HelpOptionsTitle(), null, context.Output);
+                RenderAsColumns(context.Output, options);
             }
         }
 
-        /// <summary>
-        /// Gets help rows for the specified command's options.
-        /// </summary>
-        /// <param name="command">The command to get argument help items for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        private IEnumerable<TwoColumnHelpRow> GetOptionRows(ICommand command, ParseResult parseResult)
-            => command.Options.Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, parseResult));
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="command">The command to get argument help items for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        /// <param name="writer">The writer to write help output to.</param>
-        private void WriteSubcommands(ICommand command, TextWriter writer, ParseResult parseResult)
+        private void WriteSubcommands(HelpContext context)
         {
-            var subcommands = GetSubcommandRows(command, parseResult).ToArray();
+            var subcommands = context.Command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context.ParseResult)).ToArray();
 
             if (subcommands.Length > 0)
             {
-                WriteHeading(LocalizationResources.HelpCommandsTitle(), null, writer);
-                RenderAsColumns(writer, subcommands);
+                WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
+                RenderAsColumns(context.Output, subcommands);
             }
         }
 
-        /// <summary>
-        /// Gets help items for the specified command's subcommands.
-        /// </summary>
-        /// <param name="command">The command to get argument help items for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        private IEnumerable<TwoColumnHelpRow> GetSubcommandRows(ICommand command, ParseResult parseResult)
-            => command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, parseResult));
-
-        /// <summary>
-        /// Writes help output for additional arguments.
-        /// </summary>
-        private void WriteAdditionalArguments(ICommand command, TextWriter writer)
+        private void WriteAdditionalArguments(HelpContext context)
         {
-            if (command.TreatUnmatchedTokensAsErrors)
+            if (context.Command.TreatUnmatchedTokensAsErrors)
             {
                 return;
             }
 
             WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
-                LocalizationResources.HelpAdditionalArgumentsDescription(), writer);
+                LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
         }
 
-        /// <summary>
-        /// Writes a heading to help output.
-        /// </summary>
-        /// <param name="heading">The heading text.</param>
-        /// <param name="description">The description text, which will typically be indented and, if it's long enough, wrapped.</param>
-        /// <param name="writer">The writer to write help output to.</param>
+       
         private void WriteHeading(string? heading, string? description, TextWriter writer)
         {
             if (!string.IsNullOrWhiteSpace(heading))

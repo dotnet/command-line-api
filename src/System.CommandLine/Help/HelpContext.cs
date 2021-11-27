@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
+using System.IO;
 
 namespace System.CommandLine.Help
 {
@@ -13,11 +14,13 @@ namespace System.CommandLine.Help
         /// <param name="helpBuilder">The current help builder.</param>
         /// <param name="parseResult">The result of the current parse operation.</param>
         /// <param name="command">The command for which help is being formatted.</param>
-        public HelpContext(HelpBuilder helpBuilder, ParseResult parseResult, ICommand command)
+        /// <param name="output">A text writer to write output to.</param>
+        public HelpContext(HelpBuilder helpBuilder, ParseResult parseResult, ICommand command, TextWriter output)
         {
             HelpBuilder = helpBuilder;
             ParseResult = parseResult;
             Command = command;
+            Output = output;
         }
 
         /// <summary>
@@ -34,10 +37,15 @@ namespace System.CommandLine.Help
         /// The command for which help is being formatted.
         /// </summary>
         public ICommand Command { get; }
+
+        /// <summary>
+        /// A text writer to write output to.
+        /// </summary>
+        public TextWriter Output { get; }
     }
 
     /// <summary>
     /// Specifies help formatting behavior.
     /// </summary>
-    public delegate string? HelpDelegate(HelpContext context);
+    public delegate void HelpDelegate(HelpContext context);
 }
