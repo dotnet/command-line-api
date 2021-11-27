@@ -15,14 +15,24 @@ namespace System.CommandLine.Help
         private const string Indent = "  ";
 
         private Dictionary<ISymbol, Customization>? _customizationsBySymbol;
+        private static IEnumerable<HelpDelegate>? _layout;
 
         /// <param name="localizationResources">Resources used to localize the help output.</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
-        public HelpBuilder(LocalizationResources localizationResources, int maxWidth = int.MaxValue)
+        /// <param name="layout">Defines the sections to be printed for command line help.</param>
+        public HelpBuilder(
+            LocalizationResources localizationResources, 
+            int maxWidth = int.MaxValue,
+            IEnumerable<HelpDelegate>? layout = null)
         {
             LocalizationResources = localizationResources ?? throw new ArgumentNullException(nameof(localizationResources));
-            if (maxWidth <= 0) maxWidth = int.MaxValue;
+
+            if (maxWidth <= 0)
+            {
+                maxWidth = int.MaxValue;
+            }
             MaxWidth = maxWidth;
+            _layout = layout;
         }
 
         /// <summary>
@@ -60,14 +70,22 @@ namespace System.CommandLine.Help
 
             var context = new HelpContext(this, parseResult, command, writer);
 
-            foreach (var writeSection in DefaultLayout())
+            foreach (var writeSection in Layout)
             {
                 writeSection(context);
                 writer.WriteLine();
             }
         }
 
-        private IEnumerable<HelpDelegate> DefaultLayout()
+        /// <summary>
+        /// Gets the sections to be written for command line help.
+        /// </summary>
+        public static IEnumerable<HelpDelegate> Layout => _layout ??= DefaultLayout();
+
+        /// <summary>
+        /// Gets the default sections to be written for command line help.
+        /// </summary>
+        public static IEnumerable<HelpDelegate> DefaultLayout()
         {
             yield return SynopsisSection();
             yield return CommandUsageSection();
@@ -267,7 +285,6 @@ namespace System.CommandLine.Help
             WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
                 LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
         }
-
        
         private void WriteHeading(string? heading, string? description, TextWriter writer)
         {

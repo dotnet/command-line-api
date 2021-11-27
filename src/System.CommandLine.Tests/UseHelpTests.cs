@@ -1,16 +1,17 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
-using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
+using static System.Environment;
 
 namespace System.CommandLine.Tests
 {
@@ -253,6 +254,67 @@ namespace System.CommandLine.Tests
             await parser.InvokeAsync(helpAlias, _console);
 
             _console.Out.ToString().Should().Be("");
+        }
+
+
+        [Fact]
+        public void Help_sections_can_be_replaced()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseHelp(CustomLayout())
+                         .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("-h", console);
+
+            console.Out.ToString().Should().Be($"one{NewLine}two{NewLine}three{NewLine}");
+
+            IEnumerable<HelpDelegate> CustomLayout()
+            {
+                yield return ctx => ctx.Output.Write("one");
+                yield return ctx => ctx.Output.Write("two");
+                yield return ctx => ctx.Output.Write("three");
+            }
+        }
+
+        [Fact]
+        public void Help_sections_can_be_supplemented()
+        {
+            var command = new RootCommand("hello");
+            var parser = new CommandLineBuilder(command)
+                         .UseHelp(CustomLayout())
+                         .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("-h", console);
+
+            var output = console.Out.ToString();
+            output.Should().Be($"first{NewLine}{GetDefaultHelp(command)}last{NewLine}");
+
+            IEnumerable<HelpDelegate> CustomLayout()
+            {
+                yield return ctx => ctx.Output.Write("first");
+
+                foreach (var section in HelpBuilder.DefaultLayout())
+                {
+                    yield return section;
+                }
+
+                yield return ctx => ctx.Output.Write("last");
+            }
+        }
+
+        private string GetDefaultHelp(Command command)
+        {
+            var console = new TestConsole();
+
+            var parser = new CommandLineBuilder(command)
+                         .UseHelp()
+                         .Build();
+
+            parser.Invoke("-h", console);
+
+            return console.Out.ToString();
         }
     }
 }

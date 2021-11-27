@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
@@ -428,6 +429,21 @@ ERR:
             params string[] helpAliases)
         {
             return builder.UseHelp(new HelpOption(helpAliases, builder));
+        }
+
+        /// <summary>
+        /// Configures the application to show help when one of the specified option aliases are used on the command line.
+        /// </summary>
+        /// <remarks>The specified aliases will override the default values.</remarks>
+        /// <param name="builder">A command line builder.</param>
+        /// <param name="layout">Defines the sections to be written for command line help.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        public static CommandLineBuilder UseHelp(
+            this CommandLineBuilder builder,
+            IEnumerable<HelpDelegate> layout)
+        {
+            return builder.UseHelpBuilder(_ => new HelpBuilder(LocalizationResources.Instance, layout: layout))
+                          .UseHelp(new HelpOption(builder));
         }
 
         internal static CommandLineBuilder UseHelp(
