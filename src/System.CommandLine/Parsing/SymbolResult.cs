@@ -91,7 +91,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Localization resources used to produce messages for this symbol result.
         /// </summary>
-        protected internal LocalizationResources LocalizationResources
+        public LocalizationResources LocalizationResources
         {
             get => _resources ??= Parent?.LocalizationResources ?? LocalizationResources.Instance;
             set => _resources = value;

@@ -8,7 +8,7 @@ namespace System.CommandLine.Binding
     /// </summary>
     public class BoundValue
     {
-        internal BoundValue(
+        public BoundValue(
             object? value,
             IValueDescriptor valueDescriptor,
             IValueSource valueSource)

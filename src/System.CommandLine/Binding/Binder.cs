@@ -5,13 +5,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace System.CommandLine.Binding
 {
     internal static class Binder
     {
-        private static MethodInfo EnumerableEmptyMethod { get; }
-            = typeof(Enumerable).GetMethod(nameof(Array.Empty));
+        private static Lazy<MethodInfo> EnumerableEmptyMethod { get; } = new
+             (() => typeof(Enumerable).GetMethod(nameof(Array.Empty)), LazyThreadSafetyMode.None);
 
         internal static object? GetDefaultValue(Type type)
         {
@@ -52,7 +53,7 @@ namespace System.CommandLine.Binding
 
             static IEnumerable GetEmptyEnumerable(Type itemType)
             {
-                var genericMethod = EnumerableEmptyMethod.MakeGenericMethod(itemType);
+                var genericMethod = EnumerableEmptyMethod.Value.MakeGenericMethod(itemType);
                 return (IEnumerable)genericMethod.Invoke(null, new object[0]);
             }
 

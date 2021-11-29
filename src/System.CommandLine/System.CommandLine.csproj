@@ -43,4 +43,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <ItemGroup>
+  </ItemGroup>
 </Project>

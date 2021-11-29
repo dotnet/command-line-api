@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <PackageId>System.CommandLine</PackageId>
+    <PackageId>System.CommandLine.NamingConventionBinder</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
-    <Description>This package provides command handler support for System.CommandLine that binds parameters and performs model binding by matching option and argument names to parameter and property names.</Description>
+    <Description>This package provides command handler support for System.CommandLine performs parameter and model binding by matching option and argument names to parameter and property names.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
    
@@ -15,6 +15,7 @@
   </PropertyGroup>
    
   <ItemGroup>
+    <Compile Include="..\System.CommandLine\Binding\Binder.cs" Link="Binder.cs" />
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
   </ItemGroup>
    

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.NamingConventionBinder;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -72,7 +73,7 @@ namespace System.CommandLine.Invocation
             if (_handlerDelegate is null)
             {
                 var invocationTarget = _invocationTarget ?? 
-                    bindingContext.ServiceProvider.GetService(_handlerMethodInfo!.DeclaringType);
+                    bindingContext.GetService(_handlerMethodInfo!.DeclaringType);
                 if(invocationTarget is { })
                 {
                     _invocationTargetBinder?.UpdateInstance(invocationTarget, bindingContext);
@@ -86,7 +87,7 @@ namespace System.CommandLine.Invocation
                 result = _handlerDelegate.DynamicInvoke(invocationArguments);
             }
 
-            return await CommandHandler.GetExitCodeAsync(result, context);
+            return await NamingConventionBinder.CommandHandler.GetExitCodeAsync(result, context);
         }
 
         /// <summary>

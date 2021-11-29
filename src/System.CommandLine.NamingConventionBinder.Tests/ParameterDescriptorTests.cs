@@ -2,11 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Tests.Binding;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
 
-namespace System.CommandLine.Tests.Binding
+namespace System.CommandLine.NamingConventionBinder.Tests
 {
     public class ParameterDescriptorTests
     {

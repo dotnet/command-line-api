@@ -13,13 +13,21 @@ using System.Linq;
 
 namespace System.CommandLine.Binding
 {
+
+    public interface IModelBinder
+    {
+        // FIX: (IModelBinder) delete this
+        Type ValueType { get; }
+    }
+
+
     /// <summary>
     /// Creates object instances based on command line parser results, injected services, and other value sources.
     /// </summary>
-    public sealed class BindingContext
+    public sealed class BindingContext : IServiceProvider
     {
         private IConsole _console;
-        private readonly Dictionary<Type, ModelBinder> _modelBindersByValueDescriptor = new();
+        private readonly Dictionary<Type, IModelBinder> _modelBindersByValueDescriptor = new();
 
         /// <param name="parseResult">The parse result used for binding to command line input.</param>
         /// <param name="console">A console instance used for writing output.</param>
@@ -62,26 +70,28 @@ namespace System.CommandLine.Binding
 
         internal ServiceProvider ServiceProvider { get; }
 
+        /// <inheritdoc />
+        public object? GetService(Type serviceType) => ServiceProvider.GetService(serviceType);
+
         /// <summary>
         /// Adds a model binder which can be used to bind a specific type.
         /// </summary>
         /// <param name="binder">The model binder to add.</param>
-        public void AddModelBinder(ModelBinder binder) =>
-            _modelBindersByValueDescriptor.Add(binder.ValueDescriptor.ValueType, binder);
+        public void AddModelBinder(IModelBinder binder) =>
+            _modelBindersByValueDescriptor.Add(binder.ValueType, binder);
 
         /// <summary>
         /// Gets a model binder for the specified value descriptor.
         /// </summary>
-        /// <param name="valueDescriptor">The value descriptor for which to get a model binder.</param>
         /// <returns>A model binder for the specified value descriptor.</returns>
-        public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor)
+        public IModelBinder GetOrCreateModelBinder(Type forType, Func<Type, IModelBinder> create)
         {
-            if (_modelBindersByValueDescriptor.TryGetValue(valueDescriptor.ValueType, out ModelBinder binder))
+            if (_modelBindersByValueDescriptor.TryGetValue(forType, out var binder))
             {
                 return binder;
             }
 
-            return new ModelBinder(valueDescriptor);
+            return create(forType);
         }
 
         /// <summary>
@@ -109,7 +119,7 @@ namespace System.CommandLine.Binding
             ServiceProvider.AddService(typeof(T), s => factory(s));
         }
 
-        internal bool TryGetValueSource(
+        public bool TryGetValueSource(
             IValueDescriptor valueDescriptor,
             [MaybeNullWhen(false)] out IValueSource valueSource)
         {
@@ -123,7 +133,7 @@ namespace System.CommandLine.Binding
             return false;
         }
 
-        internal bool TryBindToScalarValue(
+        public bool TryBindToScalarValue(
             IValueDescriptor valueDescriptor,
             IValueSource valueSource,
             LocalizationResources localizationResources,

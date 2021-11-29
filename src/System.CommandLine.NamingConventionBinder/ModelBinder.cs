@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.NamingConventionBinder;
 using System.Linq;
 using System.Reflection;
 
@@ -10,7 +11,7 @@ namespace System.CommandLine.Binding
     /// <summary>
     /// Creates instances of a specified type by binding properties and constructor parameters from command line input.
     /// </summary>
-    public class ModelBinder
+    public class ModelBinder : IModelBinder
     {
         /// <param name="modelType">The type that the model binder can bind.</param>
         /// <exception cref="ArgumentNullException"></exception>
@@ -38,6 +39,8 @@ namespace System.CommandLine.Binding
         /// When set to <see langword="true"/>, the model binder will only bind constructor parameters or properties that it has been explicitly configured to bind.
         /// </summary>
         public bool EnforceExplicitBinding { get; set; }
+
+        public Type ValueType => ValueDescriptor.ValueType;
 
         internal Dictionary<IValueDescriptor, IValueSource> ConstructorArgumentBindingSources { get; } =
             new();
@@ -289,7 +292,14 @@ namespace System.CommandLine.Binding
 
                 if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
                 {
-                    var binder = bindingContext.GetModelBinder(valueDescriptor);
+                    var b = bindingContext.GetOrCreateModelBinder(
+                        valueDescriptor.ValueType, 
+                        _ => new ModelBinder(valueDescriptor));
+
+                    if (b is not ModelBinder binder)
+                    {
+                        return (null, false);
+                    }
 
                     if (binder.IsModelTypeUnbindable())
                     {
@@ -304,7 +314,7 @@ namespace System.CommandLine.Binding
                     }
                 }
 
-                if (valueDescriptor is ParameterDescriptor parameterDescriptor && parameterDescriptor.AllowsNull)
+                if (valueDescriptor is ParameterDescriptor { AllowsNull: true } parameterDescriptor)
                 {
                     return (new BoundValue(parameterDescriptor.GetDefaultValue(), valueDescriptor, valueSource), false);
                 }

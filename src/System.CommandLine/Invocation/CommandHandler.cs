@@ -10,30 +10,6 @@ namespace System.CommandLine.Invocation
     /// </summary>
     public static partial class CommandHandler
     {
-        private class AnonymousCommandHandler : ICommandHandler
-        {
-            private readonly Func<InvocationContext, Task> _getResult;
-
-            public AnonymousCommandHandler(Func<InvocationContext, Task> getResult)
-            {
-                _getResult = getResult;
-            }
-
-            public AnonymousCommandHandler(Action<InvocationContext> getResult)
-            {
-                _getResult = GetResult;
-
-                Task GetResult(InvocationContext context)
-                {
-                    getResult(context);
-                    return Task.FromResult(0);
-                }
-            }
-
-            public Task<int> InvokeAsync(InvocationContext context) =>
-                GetExitCodeAsync(_getResult(context), context);
-        }
-
         internal static async Task<int> GetExitCodeAsync(object returnValue, InvocationContext context)
         {
             switch (returnValue)
