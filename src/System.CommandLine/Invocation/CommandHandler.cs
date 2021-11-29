@@ -12,6 +12,7 @@ namespace System.CommandLine.Invocation
     {
         internal static async Task<int> GetExitCodeAsync(object returnValue, InvocationContext context)
         {
+            // FIX: (GetExitCodeAsync) simplify
             switch (returnValue)
             {
                 case Task<int> exitCodeTask:
