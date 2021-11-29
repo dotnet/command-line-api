@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.CommandLine.Rendering.Views;
 using System.CommandLine.Tests.Utility;

@@ -342,7 +342,7 @@ namespace System.CommandLine.Tests
             var handlerWasCalled = false;
 
             var globalOption = new Option<int>("--value");
-            globalOption.AddValidator(option => "oops!");
+            globalOption.AddValidator(_ => "oops!");
 
             var grandchildCommand = new Command("grandchild");
 
@@ -357,9 +357,9 @@ namespace System.CommandLine.Tests
 
             rootCommand.AddGlobalOption(globalOption);
 
-            rootCommand.Handler = CommandHandler.Create((int value) => handlerWasCalled = true);
-            childCommand.Handler = CommandHandler.Create((int value) => handlerWasCalled = true);
-            grandchildCommand.Handler = CommandHandler.Create((int value) => handlerWasCalled = true);
+            rootCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
+            childCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
+            grandchildCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
 
             var result = await rootCommand.InvokeAsync(commandLine);
 

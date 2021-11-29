@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\System.CommandLine.Hosting\System.CommandLine.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\System.CommandLine.NamingConventionBinder\System.CommandLine.NamingConventionBinder.csproj" />
     <ProjectReference Include="..\..\src\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 

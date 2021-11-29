@@ -60,7 +60,7 @@ namespace System.CommandLine.Tests
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.
 #pragma warning disable CS0162 // Unreachable code detected
-                return 0;
+                return Task.FromResult(0);
 #pragma warning restore CS0162
             });
 
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.
 #pragma warning disable CS0162 // Unreachable code detected
-                return 0;
+                return Task.FromResult(0);
 #pragma warning restore CS0162
             });
 

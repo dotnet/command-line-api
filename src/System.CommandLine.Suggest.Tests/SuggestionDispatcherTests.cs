@@ -168,7 +168,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = CommandLineStringSplitter.Instance.Split($"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"").ToArray();
+            var args = CommandLineStringSplitter.Instance.Split($"register --command-path \"{_netExeFullPath}\"").ToArray();
 
             await dispatcher.InvokeAsync(args);
 
@@ -182,7 +182,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = CommandLineStringSplitter.Instance.Split($"register --command-path \"{_netExeFullPath}\" --suggestion-command \"net-suggestions complete\"").ToArray();
+            var args = CommandLineStringSplitter.Instance.Split($"register --command-path \"{_netExeFullPath}\"").ToArray();
 
             await dispatcher.InvokeAsync(args);
             await dispatcher.InvokeAsync(args);

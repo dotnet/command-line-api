@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using System.CommandLine.Tests.Binding;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +13,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
 
-namespace System.CommandLine.Tests.Binding
+namespace System.CommandLine.NamingConventionBinder.Tests
 {
     public partial class ModelBindingCommandHandlerTests
     {

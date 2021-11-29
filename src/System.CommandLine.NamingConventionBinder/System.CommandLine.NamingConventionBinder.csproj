@@ -17,4 +17,8 @@
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
   </ItemGroup>
+   
+  <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+  </ItemGroup>
 </Project>

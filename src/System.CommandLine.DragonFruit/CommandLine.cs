@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
 namespace System.CommandLine.DragonFruit
 {

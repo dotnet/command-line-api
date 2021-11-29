@@ -21,14 +21,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine.NamingConventionBinder\System.CommandLine.NamingConventionBinder.csproj" />
     <ProjectReference Include="..\System.CommandLine.Rendering\System.CommandLine.Rendering.csproj" />
     <ProjectReference Include="..\System.CommandLine.Tests\System.CommandLine.Tests.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(DisableArcade)' == '1'" >
+  <ItemGroup Condition="'$(DisableArcade)' == '1'">
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" >
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

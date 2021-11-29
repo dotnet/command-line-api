@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net5.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
@@ -12,8 +12,12 @@
     <EmbeddedResource Remove="TestResults\**" />
     <None Remove="TestResults\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\System.CommandLine.Tests\Binding\TestModels.cs" Link="TestModels.cs" />
+  </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine.NamingConventionBinder\System.CommandLine.NamingConventionBinder.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
   
