@@ -67,7 +67,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.CommandLine.NamingCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.CommandLine.NamingConventionBinder.Tests", "src\System.CommandLine.NamingConventionBinder.Tests\System.CommandLine.NamingConventionBinder.Tests.csproj", "{789A05F2-5EF6-4FE8-9609-4706207E047E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.CommandLine.ApiCompatibilityTests", "src\System.CommandLine.ApiCompatibilityTests\System.CommandLine.ApiCompatibilityTests.csproj", "{A54EE328-D456-4BAF-A180-84E77E6409AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.CommandLine.ApiCompatibility.Tests", "src\System.CommandLine.ApiCompatibility.Tests\System.CommandLine.ApiCompatibility.Tests.csproj", "{A54EE328-D456-4BAF-A180-84E77E6409AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

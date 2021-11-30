@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace System.CommandLine.ApiCompatibilityTests;
+namespace System.CommandLine.ApiCompatibility.Tests;
 
 internal static class ApiContract
 {

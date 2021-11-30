@@ -8,7 +8,7 @@ using ApprovalTests;
 using ApprovalTests.Reporters;
 using Xunit;
 
-namespace System.CommandLine.ApiCompatibilityTests;
+namespace System.CommandLine.ApiCompatibility.Tests;
 
 public class ApiCompatibilityApprovalTests
 {

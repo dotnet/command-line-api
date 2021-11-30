@@ -25,7 +25,32 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        public Task<int> InvokeAsync(InvocationContext context) =>
-            CommandHandler.GetExitCodeAsync(_getResult(context), context);
+        public async Task<int> InvokeAsync(InvocationContext context)
+        {
+            object returnValue = _getResult(context);
+
+            int ret;
+
+            switch (returnValue)
+            {
+                case Task<int> exitCodeTask:
+                    ret = await exitCodeTask;
+                    break;
+                case Task task:
+                    await task;
+                    ret = context.ExitCode;
+                    break;
+                case int exitCode:
+                    ret = exitCode;
+                    break;
+                case null:
+                    ret = context.ExitCode;
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return ret;
+        }
     }
 }
