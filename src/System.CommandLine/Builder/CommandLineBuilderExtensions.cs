@@ -215,11 +215,11 @@ namespace System.CommandLine.Builder
 
                         await dotnetSuggestProcess.CompleteAsync();
 
-                        return string.Format(@"{0} exited with code {1}
+                        return $@"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}
 OUT:
-{2}
+{stdOut}
 ERR:
-{3}", dotnetSuggestProcess.StartInfo.FileName, dotnetSuggestProcess.ExitCode, stdOut, stdErr);
+{stdErr}";
                     }
                     catch (Exception exception)
                     {

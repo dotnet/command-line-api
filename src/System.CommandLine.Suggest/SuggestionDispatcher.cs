@@ -42,9 +42,9 @@ namespace System.CommandLine.Suggest
             {
                 Description = "Lists apps registered for suggestions",
                 Handler = CommandHandler.Create(
-                    c =>
+                    ctx =>
                     {
-                        c.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
+                        ctx.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
                         return Task.FromResult(0);
                     })
             };
@@ -60,7 +60,8 @@ namespace System.CommandLine.Suggest
 
             RegisterCommand = new Command("register", "Registers an app for suggestions")
             {
-                commandPathOption
+                commandPathOption,
+                new Option<string>("--suggestion-command", "The command to invoke to retrieve suggestions")
             };
 
             RegisterCommand.Handler = CommandHandler.Create(context =>
