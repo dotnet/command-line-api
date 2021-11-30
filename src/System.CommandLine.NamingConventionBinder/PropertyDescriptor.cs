@@ -3,7 +3,6 @@
 
 using System.CommandLine.Binding;
 using System.Reflection;
-using Binder = System.CommandLine.Binding.Binder;
 
 namespace System.CommandLine.NamingConventionBinder;
 
@@ -37,7 +36,7 @@ public class PropertyDescriptor : IValueDescriptor
     public bool HasDefaultValue => false;
 
     /// <inheritdoc />
-    public object? GetDefaultValue() => Binder.GetDefaultValue(ValueType);
+    public object? GetDefaultValue() => ArgumentConverter.GetDefaultValue(ValueType);
 
     /// <summary>
     /// Sets a value on the target property.

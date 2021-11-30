@@ -169,22 +169,11 @@ namespace System.CommandLine.Parsing
                     return new FailedArgumentConversionResult(arg, ErrorMessage);
                 }
 
-                if (Binder.GetElementTypeIfEnumerable(argument.ValueType) is { } itemType)
-                {
-                    return new FailedArgumentTypeConversionResult(
-                        argument,
-                        itemType,
-                        Tokens[0].Value,
-                        LocalizationResources);
-                }
-                else
-                {
-                    return new FailedArgumentTypeConversionResult(
-                        argument,
-                        argument.ValueType,
-                        Tokens[0].Value,
-                        LocalizationResources);
-                }
+                return new FailedArgumentTypeConversionResult(
+                    argument,
+                    argument.ValueType,
+                    Tokens[0].Value,
+                    LocalizationResources);
             }
 
             return argument.Arity.MaximumNumberOfValues switch

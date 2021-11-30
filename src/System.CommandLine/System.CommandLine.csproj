@@ -45,5 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="System.CommandLine.NamingConventionBinder" />
   </ItemGroup>
+
 </Project>

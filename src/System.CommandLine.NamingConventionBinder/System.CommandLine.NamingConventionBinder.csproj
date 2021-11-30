@@ -15,7 +15,6 @@
   </PropertyGroup>
    
   <ItemGroup>
-    <Compile Include="..\System.CommandLine\Binding\Binder.cs" Link="Binder.cs" />
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
   </ItemGroup>
    

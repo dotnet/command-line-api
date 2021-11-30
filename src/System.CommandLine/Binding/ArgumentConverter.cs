@@ -9,12 +9,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using static System.CommandLine.Binding.ArgumentConversionResult;
 
 namespace System.CommandLine.Binding
 {
     internal static class ArgumentConverter
     {
+        private static Lazy<MethodInfo> EnumerableEmptyMethod { get; } = new
+             (() => typeof(Enumerable).GetMethod(nameof(Array.Empty)), LazyThreadSafetyMode.None);
+
         private static readonly Dictionary<Type, TryConvertString> _stringConverters = new()
         {
             [typeof(DirectoryInfo)] = (string path, out object? value) =>
@@ -198,7 +202,7 @@ namespace System.CommandLine.Binding
             }
             else
             {
-                itemType = Binder.GetElementTypeIfEnumerable(type) ?? typeof(string);
+                itemType = TypeExtensions.GetElementTypeIfEnumerable(type) ?? typeof(string);
             }
 
             var (values, isArray) = type.IsArray
@@ -312,7 +316,7 @@ namespace System.CommandLine.Binding
                     return true;
                 }
 
-                if (Binder.GetElementTypeIfEnumerable(type) is { } itemType)
+                if (TypeExtensions.GetElementTypeIfEnumerable(type) is { } itemType)
                 {
                     type = itemType;
                     continue;
@@ -438,6 +442,54 @@ namespace System.CommandLine.Binding
             };
 
             return value is SuccessfulArgumentConversionResult;
+        }
+
+        internal static object? GetDefaultValue(Type type)
+        {
+            if (TypeExtensions.GetElementTypeIfEnumerable(type) is { } itemType)
+            {
+                if (type.IsArray)
+                {
+                    return CreateEmptyArray(itemType);
+                }
+
+                if (type.IsGenericType)
+                {
+                    return type.GetGenericTypeDefinition() switch
+                    {
+                        { } enumerable when enumerable == typeof(IEnumerable<>) => CreateEmptyEnumerable(itemType),
+                        { } list when list == typeof(List<>) => CreateEmptyList(itemType),
+                        { } array when array == typeof(IList<>) || 
+                                       array == typeof(ICollection<>) => CreateEmptyArray(itemType),
+                        _ => null
+                    };
+                }
+            }
+
+            return type switch
+            {
+                { } nonGeneric 
+                    when nonGeneric == typeof(IList) ||
+                         nonGeneric == typeof(ICollection) ||
+                         nonGeneric == typeof(IEnumerable)
+                    => CreateEmptyArray(typeof(object)),
+                _ when type.IsValueType => Activator.CreateInstance(type),
+                _ => null
+            };
+            
+            static object CreateEmptyList(Type itemType)
+            {
+                return Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+            }
+
+            static IEnumerable CreateEmptyEnumerable(Type itemType)
+            {
+                var genericMethod = EnumerableEmptyMethod.Value.MakeGenericMethod(itemType);
+                return (IEnumerable)genericMethod.Invoke(null, new object[0]);
+            }
+
+            static Array CreateEmptyArray(Type itemType)
+                => Array.CreateInstance(itemType, 0);
         }
     }
 }

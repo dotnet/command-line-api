@@ -3,7 +3,6 @@
 
 using System.CommandLine.Binding;
 using System.Reflection;
-using Binder = System.CommandLine.Binding.Binder;
 
 namespace System.CommandLine.NamingConventionBinder;
 
@@ -59,7 +58,7 @@ public class ParameterDescriptor : IValueDescriptor
     /// <inheritdoc />
     public object? GetDefaultValue() =>
         _parameterInfo.DefaultValue is DBNull
-            ? Binder.GetDefaultValue(ValueType)
+            ? ArgumentConverter.GetDefaultValue(ValueType)
             : _parameterInfo.DefaultValue;
 
     /// <inheritdoc />

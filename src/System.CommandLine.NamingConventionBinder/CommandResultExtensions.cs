@@ -88,4 +88,66 @@ internal static class CommandResultExtensions
             return false;
         }
     }
+
+    private static bool IsMatch(this string parameterName, string alias)
+    {
+        var parameterNameIndex = 0;
+
+        var indexAfterPrefix = IndexAfterPrefix(alias);
+        var parameterCandidateLength = alias.Length - indexAfterPrefix;
+
+        for (var aliasIndex = indexAfterPrefix;
+             aliasIndex < alias.Length && parameterNameIndex < parameterName.Length;
+             aliasIndex++)
+        {
+            var aliasChar = alias[aliasIndex];
+
+            if (aliasChar == '-')
+            {
+                parameterCandidateLength--;
+                continue;
+            }
+
+            var parameterNameChar = parameterName[parameterNameIndex];
+
+            if (aliasChar == '|')
+            {
+                // replacing "|" with "or"
+                parameterNameIndex += 2;
+                parameterCandidateLength++;
+                continue;
+            }
+
+            if (char.ToUpperInvariant(parameterNameChar) != char.ToUpperInvariant(aliasChar))
+            {
+                return false;
+            }
+
+            parameterNameIndex++;
+        }
+
+        if (parameterCandidateLength == parameterName.Length)
+        {
+            return true;
+        }
+
+        return false;
+
+        static int IndexAfterPrefix(string alias)
+        {
+            if (alias.Length > 0)
+            {
+                switch (alias[0])
+                {
+                    case '-' when alias.Length > 1 && alias[1] == '-':
+                        return 2;
+                    case '-':
+                    case '/':
+                        return 1;
+                }
+            }
+
+            return 0;
+        }
+    }
 }
