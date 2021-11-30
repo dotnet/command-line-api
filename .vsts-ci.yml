@@ -29,7 +29,7 @@ stages:
       enablePublishTestResults: true
       enablePublishBuildAssets: true
       enableTelemetry: true
-      enableSourceBuild: true
+      enableSourceBuild: false
       helixRepo: dotnet/command-line-api
       timeoutInMinutes: 180 # increase timeout since BAR publishing might wait a long time
       jobs:
