@@ -1,0 +1,125 @@
+﻿System.CommandLine.Binding
+  public abstract class HandlerDescriptor, System.CommandLine.NamingConventionBinder.IMethodDescriptor
+    public static HandlerDescriptor FromDelegate(System.Delegate delegate)
+    public static HandlerDescriptor FromMethodInfo(System.Reflection.MethodInfo methodInfo, System.Object target = null)
+    public System.Collections.Generic.IReadOnlyList<System.CommandLine.NamingConventionBinder.ParameterDescriptor> ParameterDescriptors { get; }
+    public ModelDescriptor Parent { get; }
+    public System.CommandLine.Invocation.ICommandHandler GetCommandHandler()
+     System.Collections.Generic.IEnumerable<System.CommandLine.NamingConventionBinder.ParameterDescriptor> InitializeParameterDescriptors()
+    public System.String ToString()
+  public class ModelDescriptor
+    public static ModelDescriptor FromType<T>()
+    public static ModelDescriptor FromType(System.Type type)
+    public System.Collections.Generic.IReadOnlyList<System.CommandLine.NamingConventionBinder.ConstructorDescriptor> ConstructorDescriptors { get; }
+    public System.Type ModelType { get; }
+    public System.Collections.Generic.IReadOnlyList<IValueDescriptor> PropertyDescriptors { get; }
+    public System.String ToString()
+System.CommandLine.NamingConventionBinder
+  public static class CommandHandler
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3>(Func<T1,T2,T3,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4>(Func<T1,T2,T3,T4,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5>(Func<T1,T2,T3,T4,T5,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6>(Func<T1,T2,T3,T4,T5,T6,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(Func<T1,T2,T3,T4,T5,T6,T7,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create(System.Delegate delegate)
+    public static System.CommandLine.Invocation.ICommandHandler Create(System.Reflection.MethodInfo method, System.Object target = null)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T>(Action<T> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2>(Action<T1,T2> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3>(Action<T1,T2,T3> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4>(Action<T1,T2,T3,T4> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5>(Action<T1,T2,T3,T4,T5> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6>(Action<T1,T2,T3,T4,T5,T6> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(Action<T1,T2,T3,T4,T5,T6,T7> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(Action<T1,T2,T3,T4,T5,T6,T7,T8> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Action<T1,T2,T3,T4,T5,T6,T7,T8,T9> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T>(Func<T,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2>(Func<T1,T2,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3>(Func<T1,T2,T3,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4>(Func<T1,T2,T3,T4,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5>(Func<T1,T2,T3,T4,T5,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6>(Func<T1,T2,T3,T4,T5,T6,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(Func<T1,T2,T3,T4,T5,T6,T7,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Int32> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T>(Func<T,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2>(Func<T1,T2,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3>(Func<T1,T2,T3,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4>(Func<T1,T2,T3,T4,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5>(Func<T1,T2,T3,T4,T5,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6>(Func<T1,T2,T3,T4,T5,T6,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(Func<T1,T2,T3,T4,T5,T6,T7,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T>(Func<T,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2>(Func<T1,T2,System.Threading.Tasks.Task<System.Int32>> action)
+  public class ConstructorDescriptor, IMethodDescriptor
+    public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
+    public System.CommandLine.Binding.ModelDescriptor Parent { get; }
+    public System.String ToString()
+  public abstract class IMethodDescriptor
+    public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
+    public System.CommandLine.Binding.ModelDescriptor Parent { get; }
+  public class ModelBinder, System.CommandLine.Binding.IModelBinder
+    .ctor(System.Type modelType)
+    public System.Boolean EnforceExplicitBinding { get; set; }
+    public System.CommandLine.Binding.ModelDescriptor ModelDescriptor { get; }
+    public System.CommandLine.Binding.IValueDescriptor ValueDescriptor { get; }
+    public System.Type ValueType { get; }
+    public System.Void BindMemberFromValue(System.Reflection.PropertyInfo property, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
+    public System.Object CreateInstance(System.CommandLine.Binding.BindingContext bindingContext)
+     System.CommandLine.Binding.IValueDescriptor FindModelPropertyDescriptor(System.Type propertyType, System.String propertyName)
+    public System.Void UpdateInstance<T>(T instance, System.CommandLine.Binding.BindingContext bindingContext)
+  public class ModelBinder<TModel> : ModelBinder, System.CommandLine.Binding.IModelBinder
+    .ctor()
+    public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
+    public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, Func<System.CommandLine.Binding.BindingContext,TValue> getValue)
+  public class ModelBindingCommandHandler, System.CommandLine.Invocation.ICommandHandler
+    public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Argument argument)
+    public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Option option)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context)
+  public class ParameterDescriptor, System.CommandLine.Binding.IValueDescriptor
+    public System.Boolean AllowsNull { get; }
+    public System.Boolean HasDefaultValue { get; }
+    public IMethodDescriptor Parent { get; }
+    public System.String ValueName { get; }
+    public System.Type ValueType { get; }
+    public System.Object GetDefaultValue()
+    public System.String ToString()
+  public class PropertyDescriptor, System.CommandLine.Binding.IValueDescriptor
+    public System.Boolean HasDefaultValue { get; }
+    public System.CommandLine.Binding.ModelDescriptor Parent { get; }
+    public System.String ValueName { get; }
+    public System.Type ValueType { get; }
+    public System.Object GetDefaultValue()
+    public System.Void SetValue(System.Object instance, System.Object value)
+    public System.String ToString()
