@@ -69,9 +69,8 @@
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, IConsole console = null)
     public static System.CommandLine.Parsing.ParseResult Parse(System.String[] args)
     public static System.CommandLine.Parsing.ParseResult Parse(System.String commandLine)
-    public static System.Void SetHandler<TDelegate>(TDelegate delegate, ISymbol[] symbols)
   public class CommandLineConfiguration
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableLegacyDoubleDashBehavior = False, LocalizationResources resources = null, System.CommandLine.Parsing.ResponseFileHandling responseFileHandling = ParseArgsAsLineSeparated, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.IHelpBuilder> helpBuilderFactory = null)
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableLegacyDoubleDashBehavior = False, LocalizationResources resources = null, System.CommandLine.Parsing.ResponseFileHandling responseFileHandling = ParseArgsAsLineSeparated, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null)
     public System.Boolean EnableDirectives { get; }
     public System.Boolean EnableLegacyDoubleDashBehavior { get; }
     public System.Boolean EnablePosixBundling { get; }
@@ -272,7 +271,7 @@ System.CommandLine.Builder
     public static CommandLineBuilder UseHelp()
     public static CommandLineBuilder UseHelp(System.String[] helpAliases)
     public static CommandLineBuilder UseHelp(System.Collections.Generic.IEnumerable<System.CommandLine.Help.HelpDelegate> layout)
-    public static TBuilder UseHelpBuilder<TBuilder>(System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.IHelpBuilder> getHelpBuilder)
+    public static TBuilder UseHelpBuilder<TBuilder>(System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
     public static CommandLineBuilder UseLocalizationResources(System.CommandLine.LocalizationResources validationMessages)
     public static CommandLineBuilder UseMiddleware(System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder UseMiddleware(System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
@@ -299,8 +298,7 @@ System.CommandLine.Collections
     .ctor()
     protected System.Collections.Generic.IReadOnlyCollection<System.String> GetAliases(System.CommandLine.ISymbol item)
 System.CommandLine.Help
-  public class HelpBuilder, IHelpBuilder
-    public static System.Collections.Generic.IEnumerable<HelpDelegate> Layout { get; }
+  public class HelpBuilder
     public static HelpDelegate AdditionalArgumentsSection()
     public static HelpDelegate CommandArgumentsSection()
     public static HelpDelegate CommandUsageSection()
@@ -309,18 +307,18 @@ System.CommandLine.Help
     public static HelpDelegate SubcommandsSection()
     public static HelpDelegate SynopsisSection()
     .ctor(System.CommandLine.LocalizationResources localizationResources, System.Int32 maxWidth = 2147483647, System.Collections.Generic.IEnumerable<HelpDelegate> layout = null)
+    public System.Collections.Generic.IEnumerable<HelpDelegate> Layout { get; }
     public System.Int32 MaxWidth { get; }
     protected System.CommandLine.LocalizationResources get_LocalizationResources()
-    public System.Void Write(System.CommandLine.ICommand command, System.IO.TextWriter writer, System.CommandLine.Parsing.ParseResult parseResult)
+    public System.Void Write(HelpContext context)
   public static class HelpBuilderExtensions
     public static System.Void Customize(System.CommandLine.ISymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public static System.Void Customize(System.CommandLine.ISymbol symbol, System.Func<System.CommandLine.Parsing.ParseResult,System.String> firstColumnText = null, System.Func<System.CommandLine.Parsing.ParseResult,System.String> secondColumnText = null, System.Func<System.CommandLine.Parsing.ParseResult,System.String> defaultValue = null)
-    public static System.String FormatHelp(System.CommandLine.ICommand command, System.CommandLine.Parsing.ParseResult parseResult)
-    public static System.Void Write(System.CommandLine.ICommand command, System.IO.TextWriter writer)
   public class HelpContext
-    .ctor(HelpBuilder helpBuilder, System.CommandLine.Parsing.ParseResult parseResult, System.CommandLine.ICommand command, System.IO.TextWriter output)
+    .ctor(HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null, System.Nullable<System.Int32> maxWidth = 2147483647)
     public System.CommandLine.ICommand Command { get; }
     public HelpBuilder HelpBuilder { get; }
+    public System.Int32 MaxWidth { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.Parsing.ParseResult ParseResult { get; }
   public delegate HelpDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
@@ -328,8 +326,6 @@ System.CommandLine.Help
     public System.IAsyncResult BeginInvoke(HelpContext context, System.AsyncCallback callback, System.Object object)
     public System.Void EndInvoke(System.IAsyncResult result)
     public System.Void Invoke(HelpContext context)
-  public abstract class IHelpBuilder
-    public System.Void Write(System.CommandLine.ICommand command, System.IO.TextWriter writer, System.CommandLine.Parsing.ParseResult parseResult)
   public class TwoColumnHelpRow, System.IEquatable<TwoColumnHelpRow>
     .ctor(System.String firstColumnText, System.String secondColumnText)
     public System.String FirstColumnText { get; }
@@ -383,7 +379,7 @@ System.CommandLine.Invocation
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; }
     public System.Int32 ExitCode { get; set; }
-    public System.CommandLine.Help.IHelpBuilder HelpBuilder { get; }
+    public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }
     public IInvocationResult InvocationResult { get; set; }
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
@@ -412,8 +408,8 @@ System.CommandLine.IO
   public abstract class IStandardStreamWriter
     public System.Void Write(System.String value)
   public static class StandardStreamWriter
-    public static System.IO.TextWriter Create(IStandardStreamWriter writer)
     public static IStandardStreamWriter Create(System.IO.TextWriter writer)
+    public static System.IO.TextWriter CreateTextWriter()
     public static System.Void WriteLine()
     public static System.Void WriteLine(System.String value)
   public class SystemConsole, System.CommandLine.IConsole, IStandardError, IStandardIn, IStandardOut
