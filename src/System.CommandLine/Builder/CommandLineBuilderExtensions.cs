@@ -470,7 +470,7 @@ ERR:
         /// Specifies an <see cref="HelpBuilder"/> to be used to format help output when help is requested.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
-        /// <param name="getHelpBuilder">A delegate that returns an instance of <see cref="IHelpBuilder"/></param>
+        /// <param name="getHelpBuilder">A delegate that returns an instance of <see cref="HelpBuilder"/></param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder,
             Func<BindingContext, HelpBuilder> getHelpBuilder)

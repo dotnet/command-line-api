@@ -21,7 +21,7 @@ namespace System.CommandLine.Generator
             Console = GetType("System.CommandLine.IConsole");
             ParseResult = GetType("System.CommandLine.Parsing.ParseResult");
             InvocationContext = GetType("System.CommandLine.Invocation.InvocationContext");
-            HelpBuilder = GetType("System.CommandLine.Help.IHelpBuilder");
+            HelpBuilder = GetType("System.CommandLine.Help.HelpBuilder");
             BindingContext = GetType("System.CommandLine.Binding.BindingContext");
 
             INamedTypeSymbol GetType(string typeName)

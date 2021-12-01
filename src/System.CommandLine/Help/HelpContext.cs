@@ -57,6 +57,9 @@ namespace System.CommandLine.Help
         /// </summary>
         public TextWriter Output { get; }
 
+        /// <summary>
+        /// The maximum width at which to format the text, used for wrapping text within multi-column output.
+        /// </summary>
         public int MaxWidth { get; }
     }
 }
