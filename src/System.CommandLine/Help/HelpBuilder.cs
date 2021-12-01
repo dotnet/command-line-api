@@ -50,7 +50,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Writes help output for the specified command.
         /// </summary>
-        public void Write(HelpContext context)
+        public virtual void Write(HelpContext context)
         {
             if (context is null)
             {
