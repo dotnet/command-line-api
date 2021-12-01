@@ -48,11 +48,11 @@ namespace System.CommandLine.Generator.Invocations
             {
                 case ReturnPattern.InvocationContextExitCode:
                     builder.Append(@"
-                return await Task.FromResult(context.ExitCode);");
+                return await global::System.Threading.Tasks.Task.FromResult(context.ExitCode);");
                     break;
                 case ReturnPattern.FunctionReturnValue:
                     builder.Append(@"
-                return await Task.FromResult(rv);");
+                return await global::System.Threading.Tasks.Task.FromResult(rv);");
                     break;
                 case ReturnPattern.AwaitFunction:
                     builder.Append(@"

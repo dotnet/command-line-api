@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
-    <LangVersion>9</LangVersion>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <ExcludeFromSourceBuild>true</ExcludeFromSourceBuild>
     <Nullable>enable</Nullable>
