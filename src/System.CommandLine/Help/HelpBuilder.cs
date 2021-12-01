@@ -17,7 +17,7 @@ namespace System.CommandLine.Help
         private const string Indent = "  ";
 
         private Dictionary<ISymbol, Customization>? _customizationsBySymbol;
-        private static IEnumerable<HelpDelegate>? _layout;
+        private IEnumerable<HelpDelegate>? _layout;
 
         /// <param name="localizationResources">Resources used to localize the help output.</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
@@ -72,7 +72,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Gets the sections to be written for command line help.
         /// </summary>
-        public static IEnumerable<HelpDelegate> Layout => _layout ??= DefaultLayout();
+        public IEnumerable<HelpDelegate> Layout => _layout ??= DefaultLayout();
 
         /// <summary>
         /// Gets the default sections to be written for command line help.
