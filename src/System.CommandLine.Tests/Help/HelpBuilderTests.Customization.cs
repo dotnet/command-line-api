@@ -206,45 +206,13 @@ namespace System.CommandLine.Tests.Help
             }
 
             [Fact]
-            public void Help_text_can_be_added_after_default_text_by_inheriting_HelpBuilder()
-            {
-                var parser = new CommandLineBuilder()
-                             .UseDefaults()
-                             .UseHelpBuilder(context => new CustomHelpBuilderThatAddsTextAfterDefaultText("The text to add"))
-                             .Build();
-
-                var console = new TestConsole();
-
-                parser.Invoke("-h", console);
-
-                console.Out.ToString().Should().EndWith("The text to add");
-            }
-
-            [Fact]
             public void Customize_throws_when_symbol_is_null()
             {
                 Action action = () => new HelpBuilder(LocalizationResources.Instance).Customize(null!, "");
                 action.Should().Throw<ArgumentNullException>();
             }
         }
-
-        private class CustomHelpBuilderThatAddsTextAfterDefaultText : HelpBuilder
-        {
-            private readonly string _theTextToAdd;
-
-            public CustomHelpBuilderThatAddsTextAfterDefaultText(string theTextToAdd)
-                : base(LocalizationResources.Instance)
-            {
-                _theTextToAdd = theTextToAdd;
-            }
-
-            public override void Write(ICommand command, TextWriter writer, ParseResult parseResult)
-            {
-                base.Write(command, writer, parseResult);
-                writer.Write(_theTextToAdd);
-            }
-        }
-
+        
         private class CustomLocalizationResources : LocalizationResources
         {
             public string OverrideHelpDescriptionTitle { get; set; }

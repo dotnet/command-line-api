@@ -467,13 +467,13 @@ ERR:
         }
 
         /// <summary>
-        /// Specifies an <see cref="IHelpBuilder"/> to be used to format help output when help is requested.
+        /// Specifies an <see cref="HelpBuilder"/> to be used to format help output when help is requested.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
-        /// <param name="getHelpBuilder">A delegate that returns an instance of <see cref="IHelpBuilder"/></param>
+        /// <param name="getHelpBuilder">A delegate that returns an instance of <see cref="HelpBuilder"/></param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder,
-            Func<BindingContext, IHelpBuilder> getHelpBuilder)
+            Func<BindingContext, HelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
         {
             if (builder is null)

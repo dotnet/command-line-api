@@ -40,27 +40,5 @@ namespace System.CommandLine.Help
         {
             builder.Customize(symbol, firstColumnText, secondColumnText, defaultValue);
         }
-
-        /// <summary>
-        /// Writes help output for the specified command.
-        /// </summary>
-        /// <param name="builder">The help builder to write with.</param>
-        /// <param name="command">The command for which to write help output.</param>
-        /// <param name="writer">The writer to write output to.</param>
-        public static void Write(
-            this IHelpBuilder builder,
-            ICommand command,
-            TextWriter writer) =>
-            builder.Write(command, writer, ParseResult.Empty());
-
-        /// <summary>
-        /// Gets help for a command as a string.
-        /// </summary>
-        public static string FormatHelp(this IHelpBuilder helpBuilder, ICommand command, ParseResult parseResult)
-        {
-            using var output = new StringWriter();
-            helpBuilder.Write(command, output, parseResult);
-            return output.ToString();
-        }
     }
 }

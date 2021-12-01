@@ -14,7 +14,7 @@ namespace System.CommandLine.IO
         /// <summary>
         /// Creates a <see cref="TextWriter"/> that writes to the specified <see cref="IStandardStreamWriter"/>.
         /// </summary>
-        public static TextWriter Create(IStandardStreamWriter writer)
+        public static TextWriter CreateTextWriter(this IStandardStreamWriter writer)
         {
             if (writer is null)
             {

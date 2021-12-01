@@ -17,7 +17,7 @@ namespace System.CommandLine
     public class CommandLineConfiguration
     {
         private readonly SymbolSet _symbols = new();
-        private Func<BindingContext, IHelpBuilder>? _helpBuilderFactory;
+        private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <summary>
         /// Initializes a new instance of the CommandLineConfiguration class.
@@ -38,7 +38,7 @@ namespace System.CommandLine
             LocalizationResources? resources = null,
             ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
-            Func<BindingContext, IHelpBuilder>? helpBuilderFactory = null)
+            Func<BindingContext, HelpBuilder>? helpBuilderFactory = null)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
 
@@ -56,7 +56,7 @@ namespace System.CommandLine
             _helpBuilderFactory = helpBuilderFactory;
         }
 
-        private static IHelpBuilder DefaultHelpBuilderFactory(BindingContext context)
+        private static HelpBuilder DefaultHelpBuilderFactory(BindingContext context)
         {
             int maxWidth = int.MaxValue;
             if (context.Console is SystemConsole systemConsole)
@@ -115,7 +115,7 @@ namespace System.CommandLine
         /// </summary>
         public LocalizationResources LocalizationResources { get; }
 
-        internal Func<BindingContext, IHelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= DefaultHelpBuilderFactory;
+        internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= DefaultHelpBuilderFactory;
 
         internal IReadOnlyList<InvocationMiddleware> Middleware { get; }
 

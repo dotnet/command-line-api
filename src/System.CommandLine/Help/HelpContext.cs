@@ -12,15 +12,29 @@ namespace System.CommandLine.Help
     public class HelpContext
     {
         /// <param name="helpBuilder">The current help builder.</param>
-        /// <param name="parseResult">The result of the current parse operation.</param>
         /// <param name="command">The command for which help is being formatted.</param>
         /// <param name="output">A text writer to write output to.</param>
-        public HelpContext(HelpBuilder helpBuilder, ParseResult parseResult, ICommand command, TextWriter output)
+        /// <param name="parseResult">The result of the current parse operation.</param>
+        /// <param name="maxWidth">The maximum width at which to format the text, used for wrapping text within multi-column output.</param>
+        public HelpContext(
+            HelpBuilder helpBuilder,
+            ICommand command,
+            TextWriter output,
+            ParseResult? parseResult = null,
+            int? maxWidth = int.MaxValue)
         {
             HelpBuilder = helpBuilder;
-            ParseResult = parseResult;
+            ParseResult = parseResult ?? ParseResult.Empty();
             Command = command;
             Output = output;
+            if (maxWidth is not null)
+            {
+                MaxWidth = maxWidth.Value;
+            }
+            else
+            {
+                MaxWidth = int.MaxValue;
+            }
         }
 
         /// <summary>
@@ -42,10 +56,10 @@ namespace System.CommandLine.Help
         /// A text writer to write output to.
         /// </summary>
         public TextWriter Output { get; }
-    }
 
-    /// <summary>
-    /// Specifies help formatting behavior.
-    /// </summary>
-    public delegate void HelpDelegate(HelpContext context);
+        /// <summary>
+        /// The maximum width at which to format the text, used for wrapping text within multi-column output.
+        /// </summary>
+        public int MaxWidth { get; }
+    }
 }

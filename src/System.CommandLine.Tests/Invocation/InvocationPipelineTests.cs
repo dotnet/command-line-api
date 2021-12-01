@@ -279,7 +279,7 @@ namespace System.CommandLine.Tests.Invocation
             bool handlerWasCalled = false;
 
             var command = new Command("help-command");
-            command.Handler = CommandHandler.Create((IHelpBuilder helpBuilder) =>
+            command.Handler = CommandHandler.Create((HelpBuilder helpBuilder) =>
             {
                 handlerWasCalled = true;
                 helpBuilder.Should().NotBeNull();
@@ -304,14 +304,14 @@ namespace System.CommandLine.Tests.Invocation
 
             HelpBuilder createdHelpBuilder = null;
 
-            Func<BindingContext, IHelpBuilder> helpBuilderFactory = context =>
+            Func<BindingContext, HelpBuilder> helpBuilderFactory = context =>
             {
                 factoryWasCalled = true;
                 return createdHelpBuilder = new HelpBuilder(context.ParseResult.Parser.Configuration.LocalizationResources);
             };
 
             var command = new Command("help-command");
-            command.Handler = CommandHandler.Create((IHelpBuilder helpBuilder) =>
+            command.Handler = CommandHandler.Create((HelpBuilder helpBuilder) =>
             {
                 handlerWasCalled = true;
                 createdHelpBuilder.Should().NotBeNull();

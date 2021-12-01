@@ -15,7 +15,7 @@ namespace System.CommandLine.Invocation
     {
         private CancellationTokenSource? _cts;
         private Action<CancellationTokenSource>? _cancellationHandlingAddedEvent;
-        private IHelpBuilder? _helpBuilder;
+        private HelpBuilder? _helpBuilder;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
         /// <param name="console">The console to which output is to be written.</param>
@@ -41,7 +41,7 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// Enables writing help output.
         /// </summary>
-        public IHelpBuilder HelpBuilder => _helpBuilder ??= Parser.Configuration.HelpBuilderFactory(BindingContext);
+        public HelpBuilder HelpBuilder => _helpBuilder ??= Parser.Configuration.HelpBuilderFactory(BindingContext);
 
         /// <summary>
         /// The parser used to create the <see cref="ParseResult"/>.
