@@ -12,7 +12,7 @@
   <ItemGroup>
     <None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(OutputPath)/../../../System.CommandLine.Generator.CommandHandler/**/System.CommandLine.Generator.CommandHandler.dll" 
-          Pack="true" 
+          Pack="true"
           PackagePath="lib/netstandard2.0/System.CommandLine.Generator.CommandHandler.dll" />
   </ItemGroup>
 
