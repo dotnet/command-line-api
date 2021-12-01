@@ -40,7 +40,7 @@ namespace System.CommandLine.Binding
 
         internal IConsoleFactory? ConsoleFactory { get; set; }
 
-        internal IHelpBuilder HelpBuilder => (IHelpBuilder)ServiceProvider.GetService(typeof(IHelpBuilder))!;
+        internal HelpBuilder HelpBuilder => (HelpBuilder)ServiceProvider.GetService(typeof(HelpBuilder))!;
 
         /// <summary>
         /// The console to which output should be written during the current invocation.

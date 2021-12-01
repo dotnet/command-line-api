@@ -136,14 +136,14 @@ namespace System.CommandLine.Generator.Tests
             InvocationContext? boundInvocationContext = null;
             IConsole? boundConsole = null;
             ParseResult? boundParseResult = null;
-            IHelpBuilder? boundHelpBuilder = null;
+            HelpBuilder? boundHelpBuilder = null;
             BindingContext? boundBindingContext = null;
 
             void Execute(
                 InvocationContext invocationContext,
                 IConsole console,
                 ParseResult parseResult,
-                IHelpBuilder helpBuilder,
+                HelpBuilder helpBuilder,
                 BindingContext bindingContext)
             {
                 boundInvocationContext = invocationContext;
@@ -155,7 +155,7 @@ namespace System.CommandLine.Generator.Tests
 
             var command = new Command("command");
 
-            command.SetHandler<Action<InvocationContext, IConsole, ParseResult, IHelpBuilder, BindingContext>>(Execute);
+            command.SetHandler<Action<InvocationContext, IConsole, ParseResult, HelpBuilder, BindingContext>>(Execute);
 
             await command.InvokeAsync("command", _console);
 

@@ -9,8 +9,10 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
-    /// <inheritdoc />
-    public class HelpBuilder : IHelpBuilder
+    /// <summary>
+    /// Formats output to be shown to users to describe how to use a command line tool.
+    /// </summary>
+    public class HelpBuilder 
     {
         private const string Indent = "  ";
 
@@ -46,34 +48,24 @@ namespace System.CommandLine.Help
         public int MaxWidth { get; }
 
         /// <summary>
-        /// Writes help for the specified command.
+        /// Writes help output for the specified command.
         /// </summary>
-        /// <param name="command">The command to write help output for.</param>
-        /// <param name="writer">The writer to write help output to.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        public virtual void Write(ICommand command, TextWriter writer, ParseResult parseResult)
+        public void Write(HelpContext context)
         {
-            if (command is null)
+            if (context is null)
             {
-                throw new ArgumentNullException(nameof(command));
+                throw new ArgumentNullException(nameof(context));
             }
 
-            if (parseResult is null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-
-            if (command.IsHidden)
+            if (context.Command.IsHidden)
             {
                 return;
             }
 
-            var context = new HelpContext(this, parseResult, command, writer);
-
             foreach (var writeSection in Layout)
             {
                 writeSection(context);
-                writer.WriteLine();
+                context.Output.WriteLine();
             }
         }
 

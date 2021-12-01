@@ -11,9 +11,17 @@ namespace System.CommandLine.Help
         /// <inheritdoc />
         public void Apply(InvocationContext context)
         {
+            var output = context.Console.Out.CreateTextWriter();
+
+            var helpContext = new HelpContext(context.BindingContext.HelpBuilder,
+                                              context.ParseResult.CommandResult.Command,
+                                              output,
+                                              context.ParseResult,
+                                              (context.Console as SystemConsole)?.GetWindowWidth());
+
             context.BindingContext
                    .HelpBuilder
-                   .Write(context.ParseResult.CommandResult.Command, StandardStreamWriter.Create(context.Console.Out), context.ParseResult);
+                   .Write(helpContext);
         }
     }
 }
