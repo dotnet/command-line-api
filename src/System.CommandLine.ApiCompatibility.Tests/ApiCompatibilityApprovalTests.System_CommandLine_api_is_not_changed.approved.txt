@@ -225,7 +225,6 @@ System.CommandLine.Binding
     public System.Object GetService(System.Type serviceType)
   public class BoundValue
     public static BoundValue DefaultForValueDescriptor(IValueDescriptor valueDescriptor)
-    .ctor(System.Object value, IValueDescriptor valueDescriptor, IValueSource valueSource)
     public System.Object Value { get; }
     public IValueDescriptor ValueDescriptor { get; }
     public IValueSource ValueSource { get; }
