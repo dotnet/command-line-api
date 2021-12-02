@@ -34,7 +34,7 @@ namespace System.CommandLine.Invocation
 
             InvocationMiddleware invocationChain = BuildInvocationChain(context);
 
-            Task.Run(() => invocationChain(context, _ => Task.CompletedTask)).GetAwaiter().GetResult();
+            invocationChain(context, static _ => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
 
             return GetExitCode(context);
         }
