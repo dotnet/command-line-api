@@ -53,7 +53,7 @@ public class ParameterDescriptor : IValueDescriptor
 
     internal static bool CalculateAllowsNull(ParameterInfo parameterInfo) 
         => parameterInfo.ParameterType.IsNullable() ||
-           (parameterInfo.HasDefaultValue && parameterInfo.DefaultValue is null);
+           parameterInfo.HasDefaultValue && parameterInfo.DefaultValue is null;
 
     /// <inheritdoc />
     public object? GetDefaultValue() =>

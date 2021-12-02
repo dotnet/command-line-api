@@ -8,34 +8,33 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 
-namespace System.CommandLine.NamingConventionBinder.Tests
+namespace System.CommandLine.NamingConventionBinder.Tests;
+
+public class ModelDescriptorTests
 {
-    public class ModelDescriptorTests
+    [Fact]
+    public void Model_descriptor_describes_the_properties_of_the_model_type()
     {
-        [Fact]
-        public void Model_descriptor_describes_the_properties_of_the_model_type()
-        {
-            var descriptor = ModelDescriptor.FromType<ClassWithMultiLetterSetters>();
+        var descriptor = ModelDescriptor.FromType<ClassWithMultiLetterSetters>();
 
-            descriptor.PropertyDescriptors
-                      .Select(p => p.ValueName)
-                      .Should()
-                      .BeEquivalentTo(
-                          nameof(ClassWithMultiLetterSetters.BoolOption),
-                          nameof(ClassWithMultiLetterSetters.IntOption),
-                          nameof(ClassWithMultiLetterSetters.StringOption));
-        }
+        descriptor.PropertyDescriptors
+                  .Select(p => p.ValueName)
+                  .Should()
+                  .BeEquivalentTo(
+                      nameof(ClassWithMultiLetterSetters.BoolOption),
+                      nameof(ClassWithMultiLetterSetters.IntOption),
+                      nameof(ClassWithMultiLetterSetters.StringOption));
+    }
 
-        [Fact]
-        public void Model_descriptor_describes_the_constructor_parameters_of_the_model_type()
-        {
-            var descriptor = ModelDescriptor.FromType<ClassWithSettersAndCtorParametersWithDifferentNames>();
+    [Fact]
+    public void Model_descriptor_describes_the_constructor_parameters_of_the_model_type()
+    {
+        var descriptor = ModelDescriptor.FromType<ClassWithSettersAndCtorParametersWithDifferentNames>();
 
-            descriptor.ConstructorDescriptors
-                      .SelectMany(p => p.ParameterDescriptors)
-                      .Select(p => p.ValueName)
-                      .Should()
-                      .BeEquivalentSequenceTo("i", "s", "b");
-        }
+        descriptor.ConstructorDescriptors
+                  .SelectMany(p => p.ParameterDescriptors)
+                  .Select(p => p.ValueName)
+                  .Should()
+                  .BeEquivalentSequenceTo("i", "s", "b");
     }
 }

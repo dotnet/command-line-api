@@ -11,7 +11,7 @@ namespace System.CommandLine.NamingConventionBinder;
 /// <summary>
 /// Creates instances of a specified type by binding properties and constructor parameters from command line input.
 /// </summary>
-public class ModelBinder : IModelBinder
+public class ModelBinder
 {
     /// <param name="modelType">The type that the model binder can bind.</param>
     /// <exception cref="ArgumentNullException"></exception>
@@ -39,9 +39,7 @@ public class ModelBinder : IModelBinder
     /// When set to <see langword="true"/>, the model binder will only bind constructor parameters or properties that it has been explicitly configured to bind.
     /// </summary>
     public bool EnforceExplicitBinding { get; set; }
-
-    public Type ValueType => ValueDescriptor.ValueType;
-
+    
     internal Dictionary<IValueDescriptor, IValueSource> ConstructorArgumentBindingSources { get; } =
         new();
 
@@ -292,14 +290,7 @@ public class ModelBinder : IModelBinder
 
             if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
             {
-                var b = bindingContext.GetOrCreateModelBinder(
-                    valueDescriptor.ValueType, 
-                    _ => new ModelBinder(valueDescriptor));
-
-                if (b is not ModelBinder binder)
-                {
-                    return (null, false);
-                }
+                var binder = bindingContext.GetOrCreateModelBinder(valueDescriptor);
 
                 if (binder.IsModelTypeUnbindable())
                 {
@@ -330,8 +321,7 @@ public class ModelBinder : IModelBinder
         return ModelDescriptor.PropertyDescriptors
                               .FirstOrDefault(desc =>
                                                   desc.ValueType == propertyType &&
-                                                  string.Equals(desc.ValueName, propertyName, StringComparison.Ordinal)
-                              );
+                                                  string.Equals(desc.ValueName, propertyName, StringComparison.Ordinal));
     }
 
     internal class AnonymousValueDescriptor : IValueDescriptor

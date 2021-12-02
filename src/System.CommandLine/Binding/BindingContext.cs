@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -13,21 +12,12 @@ using System.Linq;
 
 namespace System.CommandLine.Binding
 {
-
-    public interface IModelBinder
-    {
-        // FIX: (IModelBinder) delete this
-        Type ValueType { get; }
-    }
-
-
     /// <summary>
     /// Creates object instances based on command line parser results, injected services, and other value sources.
     /// </summary>
     public sealed class BindingContext : IServiceProvider
     {
         private IConsole _console;
-        private readonly Dictionary<Type, IModelBinder> _modelBindersByValueDescriptor = new();
 
         /// <param name="parseResult">The parse result used for binding to command line input.</param>
         /// <param name="console">A console instance used for writing output.</param>
@@ -74,27 +64,6 @@ namespace System.CommandLine.Binding
         public object? GetService(Type serviceType) => ServiceProvider.GetService(serviceType);
 
         /// <summary>
-        /// Adds a model binder which can be used to bind a specific type.
-        /// </summary>
-        /// <param name="binder">The model binder to add.</param>
-        public void AddModelBinder(IModelBinder binder) =>
-            _modelBindersByValueDescriptor.Add(binder.ValueType, binder);
-
-        /// <summary>
-        /// Gets a model binder for the specified value descriptor.
-        /// </summary>
-        /// <returns>A model binder for the specified value descriptor.</returns>
-        public IModelBinder GetOrCreateModelBinder(Type forType, Func<Type, IModelBinder> create)
-        {
-            if (_modelBindersByValueDescriptor.TryGetValue(forType, out var binder))
-            {
-                return binder;
-            }
-
-            return create(forType);
-        }
-
-        /// <summary>
         /// Adds the specified service factory to the binding context.
         /// </summary>
         /// <param name="serviceType">The type for which this service factory will provide an instance.</param>
@@ -119,7 +88,7 @@ namespace System.CommandLine.Binding
             ServiceProvider.AddService(typeof(T), s => factory(s));
         }
 
-        public bool TryGetValueSource(
+        internal bool TryGetValueSource(
             IValueDescriptor valueDescriptor,
             [MaybeNullWhen(false)] out IValueSource valueSource)
         {
@@ -133,7 +102,7 @@ namespace System.CommandLine.Binding
             return false;
         }
 
-        public bool TryBindToScalarValue(
+        internal bool TryBindToScalarValue(
             IValueDescriptor valueDescriptor,
             IValueSource valueSource,
             LocalizationResources localizationResources,

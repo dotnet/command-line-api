@@ -3,15 +3,14 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine.NamingConventionBinder.Tests
-{
-    public class BindingTestSet : Dictionary<(Type type, string variationName), BindingTestCase>
-    {
-        public void Add(BindingTestCase testCase)
-        {
-            Add((testCase.ParameterType, testCase.VariationName), testCase);
-        }
+namespace System.CommandLine.NamingConventionBinder.Tests;
 
-        public BindingTestCase this[Type type] => base[(type, null)];
+public class BindingTestSet : Dictionary<(Type type, string variationName), BindingTestCase>
+{
+    public void Add(BindingTestCase testCase)
+    {
+        Add((testCase.ParameterType, testCase.VariationName), testCase);
     }
+
+    public BindingTestCase this[Type type] => base[(type, null)];
 }

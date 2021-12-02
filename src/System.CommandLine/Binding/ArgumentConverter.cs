@@ -202,7 +202,7 @@ namespace System.CommandLine.Binding
             }
             else
             {
-                itemType = TypeExtensions.GetElementTypeIfEnumerable(type) ?? typeof(string);
+                itemType = type.GetElementTypeIfEnumerable() ?? typeof(string);
             }
 
             var (values, isArray) = type.IsArray
@@ -316,7 +316,7 @@ namespace System.CommandLine.Binding
                     return true;
                 }
 
-                if (TypeExtensions.GetElementTypeIfEnumerable(type) is { } itemType)
+                if (type.GetElementTypeIfEnumerable() is { } itemType)
                 {
                     type = itemType;
                     continue;
@@ -446,7 +446,7 @@ namespace System.CommandLine.Binding
 
         internal static object? GetDefaultValue(Type type)
         {
-            if (TypeExtensions.GetElementTypeIfEnumerable(type) is { } itemType)
+            if (type.GetElementTypeIfEnumerable() is { } itemType)
             {
                 if (type.IsArray)
                 {
