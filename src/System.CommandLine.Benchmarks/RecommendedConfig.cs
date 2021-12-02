@@ -7,8 +7,8 @@ using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Exporters.Json;
-using BenchmarkDotNet.Horology;
 using BenchmarkDotNet.Jobs;
+using Perfolizer.Horology;
 
 namespace System.CommandLine.Benchmarks
 {

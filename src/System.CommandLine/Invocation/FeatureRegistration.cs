@@ -23,13 +23,13 @@ namespace System.CommandLine.Invocation
 
         public async Task EnsureRegistered(Func<Task<string>> onInitialize)
         {
-            if (!_sentinelFile.Directory.Exists)
-            {
-                _sentinelFile.Directory.Create();
-            }
-
             if (!_sentinelFile.Exists)
             {
+                if (!_sentinelFile.Directory.Exists)
+                {
+                    _sentinelFile.Directory.Create();
+                }
+
                 try
                 {
                     var message = await onInitialize();
