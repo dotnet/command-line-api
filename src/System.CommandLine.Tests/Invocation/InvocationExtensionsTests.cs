@@ -86,7 +86,7 @@ namespace System.CommandLine.Tests.Invocation
 
                 // Help the compiler pick a CommandHandler.Create overload.
 #pragma warning disable CS0162 // Unreachable code detected
-                return 0;
+                return Task.FromResult(0);
 #pragma warning restore CS0162
             });
 
@@ -109,7 +109,7 @@ namespace System.CommandLine.Tests.Invocation
 
                 // Help the compiler pick a CommandHandler.Create overload.
 #pragma warning disable CS0162 // Unreachable code detected
-                return 0;
+                return Task.FromResult(0);
 #pragma warning restore CS0162
             });
 
@@ -124,9 +124,10 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create<InvocationContext>(context =>
+            rootCommand.Handler = CommandHandler.Create(context =>
             {
                 context.ExitCode = 123;
+                return Task.CompletedTask;
             });
 
             var resultCode = await rootCommand.InvokeAsync("");
@@ -139,9 +140,10 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create<InvocationContext>(context =>
+            rootCommand.Handler = CommandHandler.Create(context =>
             {
                 context.ExitCode = 123;
+                return Task.CompletedTask;
             });
 
             int resultCode = rootCommand.Invoke("");

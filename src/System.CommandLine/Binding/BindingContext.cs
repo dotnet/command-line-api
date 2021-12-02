@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -16,10 +15,9 @@ namespace System.CommandLine.Binding
     /// <summary>
     /// Creates object instances based on command line parser results, injected services, and other value sources.
     /// </summary>
-    public sealed class BindingContext
+    public sealed class BindingContext : IServiceProvider
     {
         private IConsole _console;
-        private readonly Dictionary<Type, ModelBinder> _modelBindersByValueDescriptor = new();
 
         /// <param name="parseResult">The parse result used for binding to command line input.</param>
         /// <param name="console">A console instance used for writing output.</param>
@@ -62,27 +60,8 @@ namespace System.CommandLine.Binding
 
         internal ServiceProvider ServiceProvider { get; }
 
-        /// <summary>
-        /// Adds a model binder which can be used to bind a specific type.
-        /// </summary>
-        /// <param name="binder">The model binder to add.</param>
-        public void AddModelBinder(ModelBinder binder) =>
-            _modelBindersByValueDescriptor.Add(binder.ValueDescriptor.ValueType, binder);
-
-        /// <summary>
-        /// Gets a model binder for the specified value descriptor.
-        /// </summary>
-        /// <param name="valueDescriptor">The value descriptor for which to get a model binder.</param>
-        /// <returns>A model binder for the specified value descriptor.</returns>
-        public ModelBinder GetModelBinder(IValueDescriptor valueDescriptor)
-        {
-            if (_modelBindersByValueDescriptor.TryGetValue(valueDescriptor.ValueType, out ModelBinder binder))
-            {
-                return binder;
-            }
-
-            return new ModelBinder(valueDescriptor);
-        }
+        /// <inheritdoc />
+        public object? GetService(Type serviceType) => ServiceProvider.GetService(serviceType);
 
         /// <summary>
         /// Adds the specified service factory to the binding context.

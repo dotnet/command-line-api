@@ -31,12 +31,15 @@ namespace System.CommandLine.Tests.Invocation
             {
                 var command = new Command("the-command")
                 {
-                    Handler = CommandHandler.Create<CancellationToken>(async ct =>
+                    Handler = CommandHandler.Create(async context =>
                     {
+                        var cancellationToken = context.GetCancellationToken();
+
                         try
                         {
-                            Console.WriteLine(ChildProcessWaiting);
-                            await Task.Delay(int.MaxValue, ct);
+                            context.Console.WriteLine(ChildProcessWaiting);
+                            await Task.Delay(int.MaxValue, cancellationToken);
+                            context.ExitCode = 1;
                         }
                         catch (OperationCanceledException)
                         {
@@ -50,10 +53,9 @@ namespace System.CommandLine.Tests.Invocation
                             // has finished executing. If it doesn't we won't get the CancelledExitCode.
                             await Task.Yield();
 
-                            return CancelledExitCode;
+                            context.ExitCode = CancelledExitCode;
                         }
 
-                        return 1;
                     })
                 };
                 return new CommandLineBuilder(new RootCommand

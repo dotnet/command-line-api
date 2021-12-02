@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests.Invocation
                     throw new Exception("oops!");
                     // Help the compiler pick a CommandHandler.Create overload.
 #pragma warning disable CS0162 // Unreachable code detected
-                    return 0;
+                    return Task.FromResult(0);
 #pragma warning restore CS0162
                 });
 
@@ -140,9 +140,8 @@ namespace System.CommandLine.Tests.Invocation
             Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
 
             invoke.Should()
-                  .Throw<TargetInvocationException>()
+                  .Throw<Exception>()
                   .Which
-                  .InnerException
                   .Message
                   .Should()
                   .Be("oops!");
@@ -157,7 +156,7 @@ namespace System.CommandLine.Tests.Invocation
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.
 #pragma warning disable CS0162 // Unreachable code detected
-                return 0;
+                return Task.FromResult(0);
 #pragma warning restore CS0162
             });
 
@@ -170,9 +169,8 @@ namespace System.CommandLine.Tests.Invocation
             Func<int> invoke = () => parser.Invoke("the-command", _console);
 
             invoke.Should()
-                .Throw<TargetInvocationException>()
+                .Throw<Exception>()
                 .Which
-                .InnerException
                 .Message
                 .Should()
                 .Be("oops!");
@@ -185,10 +183,11 @@ namespace System.CommandLine.Tests.Invocation
             var command = new Command("the-command");
             var implicitInnerCommand = new Command("implicit-inner-command");
             command.AddCommand(implicitInnerCommand);
-            implicitInnerCommand.Handler = CommandHandler.Create((ParseResult result) =>
+            implicitInnerCommand.Handler = CommandHandler.Create(context =>
             {
                 wasCalled = true;
-                result.Errors.Should().BeEmpty();
+                context.ParseResult.Errors.Should().BeEmpty();
+                return Task.FromResult(0);
             });
 
             var parser = new CommandLineBuilder(new RootCommand
@@ -220,10 +219,11 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create((ParseResult result) =>
+            command.Handler = CommandHandler.Create(context =>
             {
                 handlerWasCalled = true;
-                result.Errors.Should().BeEmpty();
+                context.ParseResult.Errors.Should().BeEmpty();
+                return Task.FromResult(0);
             });
 
             var parser = new CommandLineBuilder(new RootCommand
@@ -250,10 +250,11 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create((ParseResult result) =>
+            command.Handler = CommandHandler.Create(context =>
             {
                 handlerWasCalled = true;
-                result.Errors.Should().BeEmpty();
+                context.ParseResult.Errors.Should().BeEmpty();
+                return Task.FromResult(0);
             });
 
             var parser = new CommandLineBuilder(new RootCommand
@@ -279,10 +280,11 @@ namespace System.CommandLine.Tests.Invocation
             bool handlerWasCalled = false;
 
             var command = new Command("help-command");
-            command.Handler = CommandHandler.Create((HelpBuilder helpBuilder) =>
+            command.Handler = CommandHandler.Create(context =>
             {
                 handlerWasCalled = true;
-                helpBuilder.Should().NotBeNull();
+                context.HelpBuilder.Should().NotBeNull();
+                return Task.FromResult(0);
             });
 
             var parser = new CommandLineBuilder(new RootCommand
@@ -304,25 +306,24 @@ namespace System.CommandLine.Tests.Invocation
 
             HelpBuilder createdHelpBuilder = null;
 
-            Func<BindingContext, HelpBuilder> helpBuilderFactory = context =>
-            {
-                factoryWasCalled = true;
-                return createdHelpBuilder = new HelpBuilder(context.ParseResult.Parser.Configuration.LocalizationResources);
-            };
-
             var command = new Command("help-command");
-            command.Handler = CommandHandler.Create((HelpBuilder helpBuilder) =>
+            command.Handler = CommandHandler.Create(context =>
             {
                 handlerWasCalled = true;
+                context.HelpBuilder.Should().Be(createdHelpBuilder);
                 createdHelpBuilder.Should().NotBeNull();
-                helpBuilder.Should().Be(createdHelpBuilder);
+                return Task.FromResult(0);
             });
 
             var parser = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
-                         .UseHelpBuilder(helpBuilderFactory)
+                         .UseHelpBuilder(context =>
+                         {
+                             factoryWasCalled = true;
+                             return createdHelpBuilder = new HelpBuilder(context.ParseResult.Parser.Configuration.LocalizationResources);
+                         })
                          .Build();
 
             await parser.InvokeAsync("help-command", new TestConsole());

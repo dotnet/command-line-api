@@ -13,16 +13,21 @@ namespace System.CommandLine.Builder
     /// <summary>
     /// Enables composition of command line configurations.
     /// </summary>
-    public class CommandLineBuilder : CommandBuilder
+    public class CommandLineBuilder 
     {
         private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
         private LocalizationResources? _localizationResources;
 
         /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command? rootCommand = null)
-            : base(rootCommand ?? new RootCommand())
         {
+            Command = rootCommand ?? new RootCommand();
         }
+
+        /// <summary>
+        /// The command that the builder uses the root of the parser.
+        /// </summary>
+        public Command Command { get; }
 
         /// <summary>
         /// Determines whether the parser recognizes command line directives.

@@ -190,7 +190,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ValueType)!;
+            return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
         }
 
         /// <inheritdoc cref="GetValueForArgument"/>
@@ -210,7 +210,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(argument.ValueType)!;
+            return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
         }
 
         /// <inheritdoc cref="GetValueForArgument"/>
@@ -251,7 +251,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)Binder.GetDefaultValue(option.Argument.ValueType)!;
+            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
         }
 
         /// <inheritdoc cref="GetValueForOption"/>
@@ -266,7 +266,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            return (T)Binder.GetDefaultValue(option.Argument.ValueType)!;
+            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
         }
 
         /// <inheritdoc cref="GetValueForOption"/>

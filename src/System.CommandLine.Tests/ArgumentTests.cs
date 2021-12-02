@@ -363,15 +363,16 @@ namespace System.CommandLine.Tests
                 var callCount = 0;
                 var handlerWasCalled = false;
 
-                var command = new RootCommand
-                {
-                    Handler = CommandHandler.Create<int>(Run)
-                };
-                command.AddOption(new Option<int>("--value", result =>
+                var option = new Option<int>("--value", result =>
                 {
                     callCount++;
                     return int.Parse(result.Tokens.Single().Value);
-                }));
+                });
+                var command = new RootCommand
+                {
+                    Handler = CommandHandler.Create(option, Run)
+                };
+                command.AddOption(option);
 
                 await command.InvokeAsync("--value 42");
 

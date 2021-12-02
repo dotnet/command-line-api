@@ -23,20 +23,30 @@ namespace System.CommandLine.Suggest
 
             _suggestionStore = suggestionStore ?? new SuggestionStore();
 
+            var shellTypeArgument = new Argument<ShellType>
+            {
+                Name = nameof(ShellType)
+            };
+
             CompleteScriptCommand = new Command("script", "Print complete script for specific shell")
             {
-                new Argument<ShellType>
-                {
-                    Name = nameof(ShellType)
-                }
+                shellTypeArgument
             };
-            CompleteScriptCommand.Handler = CommandHandler.Create<IConsole, ShellType>(SuggestionShellScriptHandler.Handle);
+            CompleteScriptCommand.Handler = CommandHandler.Create(context =>
+            {
+                SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValueForArgument(shellTypeArgument));
+                return Task.FromResult(0);
+            });
 
             ListCommand = new Command("list")
             {
                 Description = "Lists apps registered for suggestions",
-                Handler = CommandHandler.Create<IConsole>(
-                    c => c.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration)))
+                Handler = CommandHandler.Create(
+                    ctx =>
+                    {
+                        ctx.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
+                        return Task.FromResult(0);
+                    })
             };
 
             GetCommand = new Command("get", "Gets suggestions from the specified executable")
@@ -44,15 +54,21 @@ namespace System.CommandLine.Suggest
                 ExecutableOption,
                 PositionOption
             };
-            GetCommand.Handler = CommandHandler.Create<ParseResult, IConsole>(Get);
+            GetCommand.Handler = CommandHandler.Create(Get);
+
+            var commandPathOption = new Option<string>("--command-path", "The path to the command for which to register suggestions");
 
             RegisterCommand = new Command("register", "Registers an app for suggestions")
             {
-                new Option<string>("--command-path", "The path to the command for which to register suggestions"),
+                commandPathOption,
                 new Option<string>("--suggestion-command", "The command to invoke to retrieve suggestions")
             };
 
-            RegisterCommand.Handler = CommandHandler.Create<string, string, IConsole>(Register);
+            RegisterCommand.Handler = CommandHandler.Create(context =>
+            {
+                Register(context.ParseResult.GetValueForOption(commandPathOption), context.Console);
+                return Task.FromResult(0);
+            });
 
             var root = new RootCommand
             {
@@ -84,9 +100,9 @@ namespace System.CommandLine.Suggest
 
         private Command ListCommand { get; }
 
-        private Option<int> PositionOption { get; } = new Option<int>(new[] { "-p", "--position" },
-                                                                      description: "The current character position on the command line",
-                                                                      getDefaultValue: () => short.MaxValue);
+        private Option<int> PositionOption { get; } = new(new[] { "-p", "--position" },
+                                                          description: "The current character position on the command line",
+                                                          getDefaultValue: () => short.MaxValue);
 
         private Command RegisterCommand { get; }
 
@@ -99,12 +115,11 @@ namespace System.CommandLine.Suggest
 
         private void Register(
             string commandPath,
-            string suggestionCommand,
             IConsole console)
         {
             var existingRegistration = _suggestionRegistration.FindRegistration(new FileInfo(commandPath));
 
-            if (existingRegistration == null)
+            if (existingRegistration is null)
             {
                 _suggestionRegistration.AddSuggestionRegistration(
                     new Registration(commandPath));
@@ -117,8 +132,9 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        private void Get(ParseResult parseResult, IConsole console)
+        private Task<int> Get(InvocationContext context)
         {
+            var parseResult = context.ParseResult;
             var commandPath = parseResult.GetValueForOption(ExecutableOption);
 
             Registration suggestionRegistration;
@@ -133,13 +149,13 @@ namespace System.CommandLine.Suggest
 
             var position = parseResult.GetValueForOption(PositionOption);
 
-            if (suggestionRegistration == null)
+            if (suggestionRegistration is null)
             {
                 // Can't find a completion exe to call
 #if DEBUG
                 Program.LogDebug($"Couldn't find registration for parse result: {parseResult}");
 #endif
-                return;
+                return Task.FromResult(0);
             }
 
             var targetExePath = suggestionRegistration.ExecutablePath;
@@ -162,7 +178,9 @@ namespace System.CommandLine.Suggest
             Program.LogDebug($"dotnet-suggest returning: \"{suggestions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
 #endif
 
-            console.Out.Write(suggestions);
+            context.Console.Out.Write(suggestions);
+
+            return Task.FromResult(0);
         }
 
         private static string ShellPrefixesToMatch(

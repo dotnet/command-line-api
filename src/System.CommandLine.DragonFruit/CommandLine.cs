@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.CommandLine.Rendering;
 using System.IO;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
 namespace System.CommandLine.DragonFruit
 {
