@@ -19,7 +19,7 @@ using Process = System.CommandLine.Invocation.Process;
 namespace System.CommandLine.Builder
 {
     /// <summary>
-    /// Provides extension methods for <see cref="CommandBuilder"/>.
+    /// Provides extension methods for <see cref="CommandLineBuilder"/>.
     /// </summary>
     public static class CommandLineBuilderExtensions
     {
