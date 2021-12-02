@@ -1,20 +1,7 @@
-﻿System.CommandLine.Binding
-  public abstract class HandlerDescriptor, System.CommandLine.NamingConventionBinder.IMethodDescriptor
-    public static HandlerDescriptor FromDelegate(System.Delegate delegate)
-    public static HandlerDescriptor FromMethodInfo(System.Reflection.MethodInfo methodInfo, System.Object target = null)
-    public System.Collections.Generic.IReadOnlyList<System.CommandLine.NamingConventionBinder.ParameterDescriptor> ParameterDescriptors { get; }
-    public ModelDescriptor Parent { get; }
-    public System.CommandLine.Invocation.ICommandHandler GetCommandHandler()
-     System.Collections.Generic.IEnumerable<System.CommandLine.NamingConventionBinder.ParameterDescriptor> InitializeParameterDescriptors()
-    public System.String ToString()
-  public class ModelDescriptor
-    public static ModelDescriptor FromType<T>()
-    public static ModelDescriptor FromType(System.Type type)
-    public System.Collections.Generic.IReadOnlyList<System.CommandLine.NamingConventionBinder.ConstructorDescriptor> ConstructorDescriptors { get; }
-    public System.Type ModelType { get; }
-    public System.Collections.Generic.IReadOnlyList<IValueDescriptor> PropertyDescriptors { get; }
-    public System.String ToString()
-System.CommandLine.NamingConventionBinder
+﻿System.CommandLine.NamingConventionBinder
+  public static class BindingContextExtensions
+    public static System.Void AddModelBinder(ModelBinder binder)
+    public static ModelBinder GetOrCreateModelBinder(System.CommandLine.Binding.IValueDescriptor valueDescriptor)
   public static class CommandHandler
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3>(Func<T1,T2,T3,System.Threading.Tasks.Task<System.Int32>> action)
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4>(Func<T1,T2,T3,T4,System.Threading.Tasks.Task<System.Int32>> action)
@@ -84,22 +71,29 @@ System.CommandLine.NamingConventionBinder
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2>(Func<T1,T2,System.Threading.Tasks.Task<System.Int32>> action)
   public class ConstructorDescriptor, IMethodDescriptor
     public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
-    public System.CommandLine.Binding.ModelDescriptor Parent { get; }
+    public ModelDescriptor Parent { get; }
+    public System.String ToString()
+  public abstract class HandlerDescriptor, IMethodDescriptor
+    public static HandlerDescriptor FromDelegate(System.Delegate delegate)
+    public static HandlerDescriptor FromMethodInfo(System.Reflection.MethodInfo methodInfo, System.Object target = null)
+    public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
+    public ModelDescriptor Parent { get; }
+    public System.CommandLine.Invocation.ICommandHandler GetCommandHandler()
+     System.Collections.Generic.IEnumerable<ParameterDescriptor> InitializeParameterDescriptors()
     public System.String ToString()
   public abstract class IMethodDescriptor
     public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
-    public System.CommandLine.Binding.ModelDescriptor Parent { get; }
-  public class ModelBinder, System.CommandLine.Binding.IModelBinder
+    public ModelDescriptor Parent { get; }
+  public class ModelBinder
     .ctor(System.Type modelType)
     public System.Boolean EnforceExplicitBinding { get; set; }
-    public System.CommandLine.Binding.ModelDescriptor ModelDescriptor { get; }
+    public ModelDescriptor ModelDescriptor { get; }
     public System.CommandLine.Binding.IValueDescriptor ValueDescriptor { get; }
-    public System.Type ValueType { get; }
     public System.Void BindMemberFromValue(System.Reflection.PropertyInfo property, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
     public System.Object CreateInstance(System.CommandLine.Binding.BindingContext bindingContext)
      System.CommandLine.Binding.IValueDescriptor FindModelPropertyDescriptor(System.Type propertyType, System.String propertyName)
     public System.Void UpdateInstance<T>(T instance, System.CommandLine.Binding.BindingContext bindingContext)
-  public class ModelBinder<TModel> : ModelBinder, System.CommandLine.Binding.IModelBinder
+  public class ModelBinder<TModel> : ModelBinder
     .ctor()
     public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
     public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, Func<System.CommandLine.Binding.BindingContext,TValue> getValue)
@@ -107,6 +101,13 @@ System.CommandLine.NamingConventionBinder
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Argument argument)
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Option option)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context)
+  public class ModelDescriptor
+    public static ModelDescriptor FromType<T>()
+    public static ModelDescriptor FromType(System.Type type)
+    public System.Collections.Generic.IReadOnlyList<ConstructorDescriptor> ConstructorDescriptors { get; }
+    public System.Type ModelType { get; }
+    public System.Collections.Generic.IReadOnlyList<System.CommandLine.Binding.IValueDescriptor> PropertyDescriptors { get; }
+    public System.String ToString()
   public class ParameterDescriptor, System.CommandLine.Binding.IValueDescriptor
     public System.Boolean AllowsNull { get; }
     public System.Boolean HasDefaultValue { get; }
@@ -117,7 +118,7 @@ System.CommandLine.NamingConventionBinder
     public System.String ToString()
   public class PropertyDescriptor, System.CommandLine.Binding.IValueDescriptor
     public System.Boolean HasDefaultValue { get; }
-    public System.CommandLine.Binding.ModelDescriptor Parent { get; }
+    public ModelDescriptor Parent { get; }
     public System.String ValueName { get; }
     public System.Type ValueType { get; }
     public System.Object GetDefaultValue()

@@ -220,13 +220,9 @@ System.CommandLine.Binding
     .ctor(System.CommandLine.Parsing.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.IConsole Console { get; }
     public System.CommandLine.Parsing.ParseResult ParseResult { get; set; }
-    public System.Void AddModelBinder(IModelBinder binder)
     public System.Void AddService(System.Type serviceType, System.Func<System.IServiceProvider,System.Object> factory)
     public System.Void AddService<T>(Func<System.IServiceProvider,T> factory)
-    public IModelBinder GetOrCreateModelBinder(System.Type forType, System.Func<System.Type,IModelBinder> create)
     public System.Object GetService(System.Type serviceType)
-    public System.Boolean TryBindToScalarValue(IValueDescriptor valueDescriptor, IValueSource valueSource, System.CommandLine.LocalizationResources localizationResources, ref BoundValue& boundValue)
-    public System.Boolean TryGetValueSource(IValueDescriptor valueDescriptor, ref IValueSource& valueSource)
   public class BoundValue
     public static BoundValue DefaultForValueDescriptor(IValueDescriptor valueDescriptor)
     .ctor(System.Object value, IValueDescriptor valueDescriptor, IValueSource valueSource)
@@ -234,8 +230,6 @@ System.CommandLine.Binding
     public IValueDescriptor ValueDescriptor { get; }
     public IValueSource ValueSource { get; }
     public System.String ToString()
-  public abstract class IModelBinder
-    public System.Type ValueType { get; }
   public abstract class IValueDescriptor
     public System.Boolean HasDefaultValue { get; }
     public System.String ValueName { get; }
@@ -245,10 +239,9 @@ System.CommandLine.Binding
   public abstract class IValueSource
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Builder
-  public class CommandBuilder
-    public System.CommandLine.Command Command { get; }
-  public class CommandLineBuilder : CommandBuilder
+  public class CommandLineBuilder
     .ctor(System.CommandLine.Command rootCommand = null)
+    public System.CommandLine.Command Command { get; }
     public System.Boolean EnableDirectives { get; set; }
     public System.Boolean EnableLegacyDoubleDashBehavior { get; set; }
     public System.Boolean EnablePosixBundling { get; set; }
