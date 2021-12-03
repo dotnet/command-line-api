@@ -28,18 +28,21 @@ namespace System.CommandLine.Parsing
                                 value,
                                 CompareOptions.OrdinalIgnoreCase);
 
-        internal static string RemovePrefix(this string rawAlias)
+        internal static string RemovePrefix(this string alias)
         {
-            for (var i = 0; i < _optionPrefixStrings.Length; i++)
-            {
-                var prefix = _optionPrefixStrings[i];
-                if (rawAlias.StartsWith(prefix, StringComparison.Ordinal))
-                {
-                    return rawAlias.Substring(prefix.Length);
-                }
-            }
+            int prefixLength = GetPrefixLength(alias);
+            return prefixLength > 0 ? alias.Substring(prefixLength) : alias;
+        }
 
-            return rawAlias;
+        internal static int GetPrefixLength(this string alias)
+        {
+            // empty aliases are illegal, so there is no need to check for length
+            if (alias[0] == '-')
+                return alias.Length > 1 && alias[1] == '-' ? 2 : 1;
+            if (alias[0] == '/')
+                return 1;
+
+            return 0;
         }
 
         internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
