@@ -574,10 +574,8 @@ namespace System.CommandLine.Parsing
         {
             var tokens = new Dictionary<string, (Token, bool isGreedy)>();
 
-            for (var commandAliasIndex = 0; commandAliasIndex < command.Aliases.Count; commandAliasIndex++)
+            foreach (var commandAlias in command.Aliases)
             {
-                var commandAlias = command.Aliases.ElementAt(commandAliasIndex);
-
                 tokens.Add(
                     commandAlias,
                     (new Token(
