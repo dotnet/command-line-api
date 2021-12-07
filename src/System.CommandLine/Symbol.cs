@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 using System.Diagnostics;
 using System.Linq;
 
@@ -69,15 +69,15 @@ namespace System.CommandLine
         public bool IsHidden { get; set; }
 
         /// <summary>
-        /// Gets the suggested values symbol.
+        /// Gets completions for the symbol.
         /// </summary>
-        public IEnumerable<CompletionItem> GetSuggestions() => 
-            GetSuggestions(CompletionContext.Empty());
+        public IEnumerable<CompletionItem> GetCompletions() => 
+            GetCompletions(CompletionContext.Empty());
 
         /// <inheritdoc />
-        public virtual IEnumerable<CompletionItem> GetSuggestions(CompletionContext context)
+        public virtual IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            var suggestions = new List<CompletionItem>();
+            var completions = new List<CompletionItem>();
 
             if (context.TextToMatch is { } textToMatch)
             {
@@ -93,18 +93,18 @@ namespace System.CommandLine
                                 if (alias is { } &&
                                     alias.ContainsCaseInsensitive(textToMatch))
                                 {
-                                    suggestions.Add(new CompletionItem(alias, CompletionItemKind.Keyword));
+                                    completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword));
                                 }
                             }
 
                             break;
 
                         case IArgument argument:
-                            foreach (var suggestion in argument.GetSuggestions(context))
+                            foreach (var completion in argument.GetCompletions(context))
                             {
-                                if (suggestion.Label.ContainsCaseInsensitive(textToMatch))
+                                if (completion.Label.ContainsCaseInsensitive(textToMatch))
                                 {
-                                    suggestions.Add(suggestion);
+                                    completions.Add(completion);
                                 }
                             }
 
@@ -113,7 +113,7 @@ namespace System.CommandLine
                 }
             }
 
-            return suggestions
+            return completions
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.TextToMatch ?? ""))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
         }

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -17,7 +17,7 @@ namespace System.CommandLine
         private IArgumentArity? _arity;
         private TryConvertArgument? _convertArguments;
         private Type _valueType = typeof(string);
-        private SuggestionSourceList? _suggestions = null;
+        private CompletionSourceList? _completions = null;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
@@ -75,12 +75,12 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the list of suggestion sources for the argument.
+        /// Gets the list of completion sources for the argument.
         /// </summary>
-        public SuggestionSourceList Suggestions =>
-            _suggestions ??= new SuggestionSourceList
+        public CompletionSourceList Completions =>
+            _completions ??= new CompletionSourceList
             {
-                SuggestionSource.ForType(ValueType)
+                CompletionSource.ForType(ValueType)
             };
 
         /// <summary>
@@ -197,10 +197,10 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override IEnumerable<CompletionItem> GetSuggestions(CompletionContext context)
+        public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            return Suggestions
-                   .SelectMany(source => source.GetSuggestions(context))
+            return Completions
+                   .SelectMany(source => source.GetCompletions(context))
                    .Distinct()
                    .OrderBy(c => c.SortText, StringComparer.OrdinalIgnoreCase);
         }

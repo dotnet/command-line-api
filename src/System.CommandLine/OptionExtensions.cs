@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 using System.IO;
 using System.Linq;
 
@@ -27,58 +27,58 @@ namespace System.CommandLine
             where TOption : Option
         {
             option.Argument.AddAllowedValues(values);
-            option.Argument.Suggestions.Add(values);
+            option.Argument.Completions.Add(values);
 
             return option;
         }
 
         /// <summary>
-        /// Adds suggestions for an option.
+        /// Adds completions for an option.
         /// </summary>
         /// <typeparam name="TOption">The type of the <see cref="Option" />.</typeparam>
-        /// <param name="option">The option for which to add suggestions.</param>
-        /// <param name="values">The suggestions to add.</param>
+        /// <param name="option">The option for which to add completions.</param>
+        /// <param name="values">The completions to add.</param>
         /// <returns>The option being extended.</returns>
-        public static TOption AddSuggestions<TOption>(
+        public static TOption AddCompletions<TOption>(
             this TOption option,
             params string[] values)
             where TOption : Option
         {
-            option.Argument.Suggestions.Add(values);
+            option.Argument.Completions.Add(values);
 
             return option;
         }
         
         /// <summary>
-        /// Adds suggestions for an option.
+        /// Adds completions for an option.
         /// </summary>
         /// <typeparam name="TOption">The type of the <see cref="Option" />.</typeparam>
-        /// <param name="option">The option for which to add suggestions.</param>
-        /// <param name="suggest">A <see cref="SuggestDelegate"/> that will be called to provide suggestions.</param>
+        /// <param name="option">The option for which to add completions.</param>
+        /// <param name="suggest">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
-        public static TOption AddSuggestions<TOption>(
+        public static TOption AddCompletions<TOption>(
             this TOption option,
             Func<CompletionContext, IEnumerable<string>> suggest)
             where TOption : Option
         {
-            option.Argument.Suggestions.Add(suggest);
+            option.Argument.Completions.Add(suggest);
 
             return option;
         }
    
         /// <summary>
-        /// Adds suggestions for an option.
+        /// Adds completions for an option.
         /// </summary>
         /// <typeparam name="TOption">The type of the <see cref="Option" />.</typeparam>
-        /// <param name="option">The option for which to add suggestions.</param>
-        /// <param name="suggest">A <see cref="SuggestDelegate"/> that will be called to provide suggestions.</param>
+        /// <param name="option">The option for which to add completions.</param>
+        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
-        public static TOption AddSuggestions<TOption>(
+        public static TOption AddCompletions<TOption>(
             this TOption option,
-            SuggestDelegate suggest)
+            CompletionDelegate complete)
             where TOption : Option
         {
-            option.Argument.Suggestions.Add(suggest);
+            option.Argument.Completions.Add(complete);
 
             return option;
         }

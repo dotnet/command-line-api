@@ -1,20 +1,20 @@
 ﻿System.CommandLine
-  public class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, IArgument, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IArgument, ISymbol
     .ctor()
     .ctor(System.String name)
     public IArgumentArity Arity { get; set; }
+    public CompletionSourceList Completions { get; }
     public System.Boolean HasDefaultValue { get; }
-    public SuggestionSourceList Suggestions { get; }
     public System.Type ValueType { get; set; }
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.ArgumentResult> validate)
      System.String get_DefaultName()
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
-    public System.Collections.Generic.IEnumerable<System.String> GetSuggestions(System.CommandLine.Parsing.ParseResult parseResult = null, System.String textToMatch = null)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
     public System.Void SetDefaultValueFactory(System.Func<System.CommandLine.Parsing.ArgumentResult,System.Object> getDefaultValue)
     public System.String ToString()
-  public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, IArgument, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IArgument, ISymbol
     .ctor()
     .ctor(System.String name, System.String description = null)
     .ctor(System.String name, Func<T> getDefaultValue, System.String description = null)
@@ -32,8 +32,8 @@
     public System.Int32 MaximumNumberOfValues { get; }
     public System.Int32 MinimumNumberOfValues { get; }
   public static class ArgumentExtensions
-    public static TArgument AddSuggestions<TArgument>(System.String[] values)
-    public static TArgument AddSuggestions<TArgument>(System.CommandLine.Suggestions.SuggestDelegate suggest)
+    public static TArgument AddCompletions<TArgument>(System.String[] values)
+    public static TArgument AddCompletions<TArgument>(System.CommandLine.Completions.CompletionDelegate complete)
     public static Argument<System.IO.FileInfo> ExistingOnly()
     public static Argument<System.IO.DirectoryInfo> ExistingOnly()
     public static Argument<System.IO.FileSystemInfo> ExistingOnly()
@@ -43,7 +43,7 @@
     public static TArgument LegalFilePathsOnly<TArgument>()
     public static System.CommandLine.Parsing.ParseResult Parse(System.String commandLine)
     public static System.CommandLine.Parsing.ParseResult Parse(System.String[] args)
-  public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, ICommand, IIdentifierSymbol, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource, ICommand, IIdentifierSymbol, ISymbol
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
     public System.Collections.Generic.IReadOnlyList<Option> GlobalOptions { get; }
@@ -77,20 +77,31 @@
     public LocalizationResources LocalizationResources { get; }
     public ICommand RootCommand { get; }
     public System.CommandLine.Collections.ISymbolSet Symbols { get; }
+  public static class CompletionSourceExtensions
+    public static System.Void Add(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> suggest)
+    public static System.Void Add(System.CommandLine.Completions.CompletionDelegate complete)
+    public static System.Void Add(System.String[] completions)
+  public class CompletionSourceList, System.Collections.Generic.IEnumerable<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyList<System.CommandLine.Completions.ICompletionSource>, System.Collections.IEnumerable
+    .ctor()
+    public System.Int32 Count { get; }
+    public System.CommandLine.Completions.ICompletionSource Item { get; }
+    public System.Void Add(System.CommandLine.Completions.ICompletionSource source)
+    public System.Void Clear()
+    public System.Collections.Generic.IEnumerator<System.CommandLine.Completions.ICompletionSource> GetEnumerator()
   public static class ConsoleExtensions
     public static System.Void Write(System.String value)
     public static System.Void WriteLine(System.String value)
-  public abstract class IArgument, System.CommandLine.Binding.IValueDescriptor, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public abstract class IArgument, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, ISymbol
     public IArgumentArity Arity { get; }
   public abstract class IArgumentArity
     public System.Int32 MaximumNumberOfValues { get; }
     public System.Int32 MinimumNumberOfValues { get; }
-  public abstract class ICommand, IIdentifierSymbol, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public abstract class ICommand, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
     public System.Collections.Generic.IReadOnlyList<IArgument> Arguments { get; }
     public System.Collections.Generic.IReadOnlyList<IOption> Options { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; }
   public abstract class IConsole, System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
-  public abstract class IdentifierSymbol : Symbol, IIdentifierSymbol, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public abstract class IdentifierSymbol : Symbol, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.String Name { get; set; }
      System.Void AddAliasInner(System.String alias)
@@ -99,14 +110,14 @@
   public abstract class IDirectiveCollection, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
     public System.Boolean Contains(System.String name)
     public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
-  public abstract class IIdentifierSymbol, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public abstract class IIdentifierSymbol, System.CommandLine.Completions.ICompletionSource, ISymbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.Boolean HasAlias(System.String alias)
-  public abstract class IOption, System.CommandLine.Binding.IValueDescriptor, IIdentifierSymbol, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public abstract class IOption, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
     public System.Boolean AllowMultipleArgumentsPerToken { get; }
     public IArgument Argument { get; }
     public System.Boolean IsRequired { get; }
-  public abstract class ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public abstract class ISymbol, System.CommandLine.Completions.ICompletionSource
     public System.CommandLine.Collections.ISymbolSet Children { get; }
     public System.String Description { get; }
     public System.Boolean IsHidden { get; }
@@ -152,7 +163,7 @@
     public System.String UnrecognizedCommandOrArgument(System.String arg)
     public System.String VersionOptionCannotBeCombinedWithOtherArguments(System.String optionAlias)
     public System.String VersionOptionDescription()
-  public class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor, IIdentifierSymbol, IOption, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, IOption, ISymbol
     .ctor(System.String name, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, IArgumentArity arity = null)
     .ctor(System.String[] aliases, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, IArgumentArity arity = null)
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
@@ -168,7 +179,7 @@
      System.Void RemoveAlias(System.String alias)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
-  public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, IIdentifierSymbol, IOption, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, IOption, ISymbol
     .ctor(System.String name, System.String description = null)
     .ctor(System.String[] aliases, System.String description = null)
     .ctor(System.String name, ParseArgument<T> parseArgument, System.Boolean isDefault = False, System.String description = null)
@@ -177,8 +188,9 @@
     .ctor(System.String[] aliases, Func<T> getDefaultValue, System.String description = null)
     public IArgumentArity Arity { get; set; }
   public static class OptionExtensions
-    public static TOption AddSuggestions<TOption>(System.String[] values)
-    public static TOption AddSuggestions<TOption>(System.CommandLine.Suggestions.SuggestDelegate suggest)
+    public static TOption AddCompletions<TOption>(System.String[] values)
+    public static TOption AddCompletions<TOption>(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> suggest)
+    public static TOption AddCompletions<TOption>(System.CommandLine.Completions.CompletionDelegate complete)
     public static Option<System.IO.FileInfo> ExistingOnly()
     public static Option<System.IO.DirectoryInfo> ExistingOnly()
     public static Option<System.IO.FileSystemInfo> ExistingOnly()
@@ -188,22 +200,12 @@
     public static TOption LegalFilePathsOnly<TOption>()
     public static System.CommandLine.Parsing.ParseResult Parse(System.String commandLine)
     public static System.CommandLine.Parsing.ParseResult Parse(System.String[] args)
-  public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, ICommand, IIdentifierSymbol, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource, ICommand, IIdentifierSymbol, ISymbol
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
      System.Void RemoveAlias(System.String alias)
-  public static class SuggestionSourceExtensions
-    public static System.Void Add(System.CommandLine.Suggestions.SuggestDelegate suggest)
-    public static System.Void Add(System.String[] suggestions)
-  public class SuggestionSourceList, System.Collections.Generic.IEnumerable<System.CommandLine.Suggestions.ISuggestionSource>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.Suggestions.ISuggestionSource>, System.Collections.Generic.IReadOnlyList<System.CommandLine.Suggestions.ISuggestionSource>, System.Collections.IEnumerable
-    .ctor()
-    public System.Int32 Count { get; }
-    public System.CommandLine.Suggestions.ISuggestionSource Item { get; }
-    public System.Void Add(System.CommandLine.Suggestions.ISuggestionSource source)
-    public System.Void Clear()
-    public System.Collections.Generic.IEnumerator<System.CommandLine.Suggestions.ISuggestionSource> GetEnumerator()
-  public abstract class Symbol, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
+  public abstract class Symbol, System.CommandLine.Completions.ICompletionSource, ISymbol
     public System.CommandLine.Collections.SymbolSet Children { get; }
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
@@ -212,7 +214,8 @@
      System.Void AddArgumentInner(Argument argument)
      System.Void AddSymbol(Symbol symbol)
      System.String get_DefaultName()
-    public System.Collections.Generic.IEnumerable<System.String> GetSuggestions(System.CommandLine.Parsing.ParseResult parseResult = null, System.String textToMatch = null)
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
      System.Void ThrowIfAliasIsInvalid(System.String alias)
     public System.String ToString()
 System.CommandLine.Binding
@@ -289,6 +292,31 @@ System.CommandLine.Collections
   public class SymbolSet : AliasedSet<System.CommandLine.ISymbol>, System.Collections.Generic.IEnumerable<System.CommandLine.ISymbol>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.ISymbol>, System.Collections.Generic.IReadOnlyList<System.CommandLine.ISymbol>, System.Collections.IEnumerable, ISymbolSet
     .ctor()
     protected System.Collections.Generic.IReadOnlyCollection<System.String> GetAliases(System.CommandLine.ISymbol item)
+System.CommandLine.Completions
+  public class CompletionContext
+    public System.CommandLine.Parsing.ParseResult ParseResult { get; }
+    public System.Int32 Position { get; }
+    public System.String RawInput { get; }
+    public System.String TextToMatch { get; }
+  public delegate CompletionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
+    .ctor(System.Object object, System.IntPtr method)
+    public System.IAsyncResult BeginInvoke(CompletionContext context, System.AsyncCallback callback, System.Object object)
+    public System.Collections.Generic.IEnumerable<CompletionItem> EndInvoke(System.IAsyncResult result)
+    public System.Collections.Generic.IEnumerable<CompletionItem> Invoke(CompletionContext context)
+  public class CompletionItem
+    .ctor(System.String label, System.String kind = Value, System.String sortText = null, System.String insertText = null, System.String documentation = null, System.String detail = null)
+    public System.String Detail { get; }
+    public System.String Documentation { get; set; }
+    public System.String InsertText { get; }
+    public System.String Kind { get; }
+    public System.String Label { get; }
+    public System.String SortText { get; }
+    protected System.Boolean Equals(CompletionItem other)
+    public System.Boolean Equals(System.Object obj)
+    public System.Int32 GetHashCode()
+    public System.String ToString()
+  public abstract class ICompletionSource
+    public System.Collections.Generic.IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
 System.CommandLine.Help
   public class HelpBuilder
     public static HelpDelegate AdditionalArgumentsSection()
@@ -490,7 +518,7 @@ System.CommandLine.Parsing
     public T ValueForOption<T>(System.String alias)
   public static class ParseResultExtensions
     public static System.String Diagram()
-    public static System.Collections.Generic.IEnumerable<System.String> GetSuggestions(System.Nullable<System.Int32> position = null)
+    public static System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
     public static System.Boolean HasOption(System.CommandLine.IOption option)
     public static System.Boolean HasOption(System.String alias)
     public static System.Int32 Invoke(System.CommandLine.IConsole console = null)
@@ -545,11 +573,3 @@ System.CommandLine.Parsing
     public System.IAsyncResult BeginInvoke(T symbolResult, System.AsyncCallback callback, System.Object object)
     public System.String EndInvoke(System.IAsyncResult result)
     public System.String Invoke(T symbolResult)
-System.CommandLine.Suggestions
-  public abstract class ISuggestionSource
-    public System.Collections.Generic.IEnumerable<System.String> GetSuggestions(System.CommandLine.Parsing.ParseResult parseResult = null, System.String textToMatch = null)
-  public delegate SuggestDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(System.CommandLine.Parsing.ParseResult parseResult, System.String textToMatch, System.AsyncCallback callback, System.Object object)
-    public System.Collections.Generic.IEnumerable<System.String> EndInvoke(System.IAsyncResult result)
-    public System.Collections.Generic.IEnumerable<System.String> Invoke(System.CommandLine.Parsing.ParseResult parseResult, System.String textToMatch)

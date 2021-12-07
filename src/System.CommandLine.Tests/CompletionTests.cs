@@ -13,11 +13,11 @@ using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
-    public class SuggestionTests
+    public class CompletionTests
     {
         private readonly ITestOutputHelper _output;
 
-        public SuggestionTests(ITestOutputHelper output)
+        public CompletionTests(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -26,9 +26,9 @@ namespace System.CommandLine.Tests
         public void Option_GetSuggestions_returns_argument_suggestions_if_configured()
         {
             var option = new Option("--hello", arity: ArgumentArity.ExactlyOne)
-                .AddSuggestions("one", "two", "three");
+                .AddCompletions("one", "two", "three");
 
-            var suggestions = option.GetSuggestions();
+            var suggestions = option.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests
 
             var command = command1;
 
-            var suggestions = command.GetSuggestions();
+            var suggestions = command.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests
                 new Command("three")
             };
 
-            var suggestions = command.GetSuggestions();
+            var suggestions = command.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
@@ -91,7 +91,7 @@ namespace System.CommandLine.Tests
                 new Option("--option")
             };
 
-            var suggestions = command.GetSuggestions();
+            var suggestions = command.GetCompletions();
 
             suggestions.Select(item => item.Label)
                        .Should()
@@ -108,11 +108,11 @@ namespace System.CommandLine.Tests
                 new Argument
                 {
                     Arity = ArgumentArity.OneOrMore,
-                    Suggestions = { "command-argument" }
+                    Completions = { "command-argument" }
                 }
             };
 
-            var suggestions = command.GetSuggestions();
+            var suggestions = command.GetCompletions();
 
             suggestions.Select(item => item.Label)
                        .Should()
@@ -129,7 +129,7 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var suggestions = command.GetSuggestions();
+            var suggestions = command.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
@@ -145,7 +145,7 @@ namespace System.CommandLine.Tests
                 new Argument("the-argument")
             };
 
-            var suggestions = command.GetSuggestions();
+            var suggestions = command.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
@@ -163,7 +163,7 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var suggestions = command.Parse("my").GetSuggestions();
+            var suggestions = command.Parse("my").GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
@@ -185,7 +185,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("--apple",
@@ -203,7 +203,7 @@ namespace System.CommandLine.Tests
                 {
                     originOption,
                     new Option<string>("--clone")
-                        .AddSuggestions(ctx =>
+                        .AddCompletions(ctx =>
                         {
                             var opt1Value = ctx.ParseResult.GetValueForOption(originOption);
                             return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
@@ -214,7 +214,7 @@ namespace System.CommandLine.Tests
 
             _output.WriteLine(result.ToString());
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("test");
@@ -233,7 +233,7 @@ namespace System.CommandLine.Tests
             var commandLine = "--apple grannysmith";
             var result = parser.Parse(commandLine);
 
-            result.GetSuggestions(commandLine.Length + 1)
+            result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("--banana",
@@ -261,7 +261,7 @@ namespace System.CommandLine.Tests
 
             var result = rootCommand.Parse("cherry ");
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Should()
                   .NotContain(new[]{"apple", "banana", "cherry"});
         }
@@ -289,7 +289,7 @@ namespace System.CommandLine.Tests
 
             var result = rootCommand.Parse("banana ");
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .NotContain(new[] { "apl", "bnn" });
@@ -309,7 +309,7 @@ namespace System.CommandLine.Tests
             var parseResult = command.Parse(commandLine);
 
             parseResult
-                .GetSuggestions(commandLine.Length + 1)
+                .GetCompletions(commandLine.Length + 1)
                 .Select(item => item.Label)
                 .Should()
                 .Contain("--parent-option");
@@ -329,7 +329,7 @@ namespace System.CommandLine.Tests
             var parseResult = command.Parse(commandLine);
 
             parseResult
-                .GetSuggestions(commandLine.Length + 1)
+                .GetCompletions(commandLine.Length + 1)
                 .Should()
                 .NotContain("--parent-option");
         }
@@ -350,7 +350,7 @@ namespace System.CommandLine.Tests
             var parseResult = command.Parse(commandLine);
 
             parseResult
-                .GetSuggestions(commandLine.Length + 1)
+                .GetCompletions(commandLine.Length + 1)
                 .Select(item => item.Label)
                 .Should()
                 .Contain("--child-option");
@@ -378,7 +378,7 @@ namespace System.CommandLine.Tests
             var commandLine = "cherry";
             var result = rootCommand.Parse(commandLine);
 
-            result.GetSuggestions(commandLine.Length + 1)
+            result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("rainier");
@@ -397,7 +397,7 @@ namespace System.CommandLine.Tests
             var input = "a";
             var result = command.Parse(input);
 
-            result.GetSuggestions(input.Length)
+            result.GetCompletions(input.Length)
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("--apple",
@@ -416,7 +416,7 @@ namespace System.CommandLine.Tests
                 new Option("-n", "Not hidden")
             };
 
-            var suggestions = command.Parse("the-command ").GetSuggestions();
+            var suggestions = command.Parse("the-command ").GetCompletions();
 
             suggestions.Should().NotContain("--hide-me");
         }
@@ -435,7 +435,7 @@ namespace System.CommandLine.Tests
             var commandLine = "--bread";
             var result = parser.Parse(commandLine);
 
-            result.GetSuggestions(commandLine.Length + 1)
+            result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("rye", "sourdough", "wheat");
@@ -443,7 +443,7 @@ namespace System.CommandLine.Tests
             commandLine = "--bread wheat --cheese ";
             result = parser.Parse(commandLine);
 
-            result.GetSuggestions(commandLine.Length + 1)
+            result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("cheddar", "cream cheese", "provolone");
@@ -464,7 +464,7 @@ namespace System.CommandLine.Tests
 
             var commandLine = "test";
             command.Parse(commandLine)
-                   .GetSuggestions(commandLine.Length + 1)
+                   .GetCompletions(commandLine.Length + 1)
                    .Select(item => item.Label)
                    .Should()
                    .BeEquivalentTo("one", "two");
@@ -486,7 +486,7 @@ namespace System.CommandLine.Tests
             var commandLine = "test";
 
             command.Parse(commandLine)
-                   .GetSuggestions(commandLine.Length + 1)
+                   .GetCompletions(commandLine.Length + 1)
                    .Select(item => item.Label)
                    .Should()
                    .BeEquivalentTo("one", "--one");
@@ -507,7 +507,7 @@ namespace System.CommandLine.Tests
             var parser = new Parser(command);
 
             ParseResult result = parser.Parse(input);
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .BeEmpty();
@@ -527,7 +527,7 @@ namespace System.CommandLine.Tests
             var commandLine = "outer";
             ParseResult result = parser.Parse(commandLine);
 
-            result.GetSuggestions(commandLine.Length + 1)
+            result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("--one", "--two", "--three");
@@ -548,7 +548,7 @@ namespace System.CommandLine.Tests
             var commandLine = "outer --two";
             ParseResult result = parser.Parse(commandLine);
 
-            result.GetSuggestions(commandLine.Length + 1)
+            result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("two-a", "two-b");
@@ -567,7 +567,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = parser.Parse("outer o");
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("one", "two");
@@ -579,11 +579,11 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command")
                 {
                     new Option("-t", arity: ArgumentArity.ExactlyOne)
-                        .AddSuggestions("vegetable", "mineral", "animal")
+                        .AddCompletions("vegetable", "mineral", "animal")
                 };
 
             command.Parse("the-command -t m")
-                   .GetSuggestions()
+                   .GetCompletions()
                    .Select(item => item.Label)
                    .Should()
                    .BeEquivalentTo("animal",
@@ -605,13 +605,13 @@ namespace System.CommandLine.Tests
                     new Argument
                         {
                             Arity = ArgumentArity.ExactlyOne,
-                            Suggestions = { _ => new[] { "vegetable", "mineral", "animal" } }
+                            Completions = { _ => new[] { "vegetable", "mineral", "animal" } }
                         }
                 }
             };
 
             command.Parse("the-command one m")
-                   .GetSuggestions()
+                   .GetCompletions()
                    .Select(item => item.Label)
                    .Should()
                    .BeEquivalentTo("animal", "mineral");
@@ -623,13 +623,13 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command")
             {
                 new Option<string>("-x")
-                    .AddSuggestions(_ => new [] { "vegetable", "mineral", "animal" })
+                    .AddCompletions(_ => new [] { "vegetable", "mineral", "animal" })
             };
 
             var parseResult = command.Parse("the-command -x m");
 
             parseResult
-                   .GetSuggestions()
+                   .GetCompletions()
                    .Select(item => item.Label)
                    .Should()
                    .BeEquivalentTo("animal", "mineral");
@@ -656,7 +656,7 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("outer two b" );
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("two-b");
@@ -677,7 +677,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("outer two b");
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("two-b");
@@ -713,7 +713,7 @@ namespace System.CommandLine.Tests
 
             var result = outer.Parse("outer two b");
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("two-b");
@@ -749,7 +749,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = outer.Parse("outer two b");
 
-            result.GetSuggestions()
+            result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("two-b");
@@ -764,7 +764,7 @@ namespace System.CommandLine.Tests
             };
 
             var suggestions = command.Parse("the-command create")
-                                     .GetSuggestions();
+                                     .GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
@@ -782,7 +782,7 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "--allows-one x";
-            var suggestions = command.Parse(commandLine).GetSuggestions(commandLine.Length + 1);
+            var suggestions = command.Parse(commandLine).GetCompletions(commandLine.Length + 1);
 
             suggestions.Select(item => item.Label)
                        .Should()
@@ -800,7 +800,7 @@ namespace System.CommandLine.Tests
                          .UseSuggestDirective()
                          .Build();
 
-            var suggestions = parser.Parse("--allows-one ").GetSuggestions();
+            var suggestions = parser.Parse("--allows-one ").GetCompletions();
 
             suggestions.Should().BeEmpty();
         }
@@ -814,7 +814,7 @@ namespace System.CommandLine.Tests
                 new Option<string>("--not", () => "the-default")
             };
 
-            var suggestions = command.Parse("m").GetSuggestions();
+            var suggestions = command.Parse("m").GetCompletions();
 
             suggestions.Select(item => item.Label)
                        .Should()
@@ -835,14 +835,14 @@ namespace System.CommandLine.Tests
             };
 
             var argument = new Argument<string>()
-                .AddSuggestions(expectedSuggestions);
+                .AddCompletions(expectedSuggestions);
 
             var r = new Command("#r")
             {
                 argument
             };
 
-            var suggestions = r.Parse(commandLine).GetSuggestions(position);
+            var suggestions = r.Parse(commandLine).GetCompletions(position);
 
             suggestions
                 .Select(item => item.Label)
@@ -1049,15 +1049,15 @@ namespace System.CommandLine.Tests
             public void Enum_suggestions_can_be_configured_with_list_clear()
             {
                 var argument = new Argument<DayOfWeek?>();
-                argument.Suggestions.Clear();
-                argument.Suggestions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
+                argument.Completions.Clear();
+                argument.Completions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
                 var command = new Command("the-command")
                 {
                     argument
                 };
 
                 var suggestions = command.Parse("the-command s")
-                                         .GetSuggestions();
+                                         .GetCompletions();
 
                 suggestions.Select(item => item.Label)
                            .Should()
@@ -1071,12 +1071,12 @@ namespace System.CommandLine.Tests
                 {
                     new Argument<DayOfWeek?>
                     {
-                        Suggestions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
+                        Completions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
                     }
                 };
 
                 var suggestions = command.Parse("the-command s")
-                                         .GetSuggestions();
+                                         .GetCompletions();
 
                 suggestions
                     .Select(item => item.Label)

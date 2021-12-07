@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine.Suggestions
+namespace System.CommandLine.Completions
 {
     /// <summary>
-    /// Provides suggestions for command line completion.
+    /// Provides command line completion.
     /// </summary>
-    /// <returns>A list of suggestions.</returns>
-    public delegate IEnumerable<CompletionItem> SuggestDelegate(CompletionContext context);
+    /// <returns>A list of completions.</returns>
+    public delegate IEnumerable<CompletionItem> CompletionDelegate(CompletionContext context);
 }

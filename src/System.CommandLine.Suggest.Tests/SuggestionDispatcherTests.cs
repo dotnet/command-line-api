@@ -203,7 +203,7 @@ namespace System.CommandLine.Suggest.Tests
 
         private class TestSuggestionStore : ISuggestionStore
         {
-            public string GetSuggestions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
+            public string GetCompletions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
             {
                 if (timeout <= TimeSpan.FromMilliseconds(100))
                 {
@@ -233,7 +233,7 @@ namespace System.CommandLine.Suggest.Tests
                 _getSuggestions = getSuggestions;
             }
 
-            public string GetSuggestions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
+            public string GetCompletions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
             {
                 return _getSuggestions(exeFileName, suggestionTargetArguments, timeout);
             }

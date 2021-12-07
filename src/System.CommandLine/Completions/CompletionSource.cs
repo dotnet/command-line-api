@@ -6,46 +6,46 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.Linq;
 
-namespace System.CommandLine.Suggestions
+namespace System.CommandLine.Completions
 {
     /// <summary>
-    /// Provides extension methods supporting <see cref="ISuggestionSource"/> and command line tab completion.
+    /// Provides extension methods supporting <see cref="ICompletionSource"/> and command line tab completion.
     /// </summary>
-    internal static class SuggestionSource
+    internal static class CompletionSource
     {
-        private static readonly ConcurrentDictionary<Type, ISuggestionSource> _suggestionSourcesByType = new();
+        private static readonly ConcurrentDictionary<Type, ICompletionSource> _completionSourcesByType = new();
         
         /// <summary>
         /// Gets a suggestion source that provides completions for a type (e.g. enum) with well-known values.
         /// </summary>
-        internal static ISuggestionSource ForType(Type type)
+        internal static ICompletionSource ForType(Type type)
         {
-            return _suggestionSourcesByType.GetOrAdd(type, t => new SuggestionSourceForType(t));
+            return _completionSourcesByType.GetOrAdd(type, t => new CompletionSourceForType(t));
         }
 
-        internal static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource(static _ => Array.Empty<CompletionItem>());
+        internal static ICompletionSource Empty { get; } = new AnonymousCompletionSource(static _ => Array.Empty<CompletionItem>());
 
-        private class SuggestionSourceForType : ISuggestionSource
+        private class CompletionSourceForType : ICompletionSource
         {
             private readonly Type _type;
-            private ISuggestionSource? _innerSuggestionSource;
+            private ICompletionSource? _innerCompletionSource;
 
-            public SuggestionSourceForType(Type type)
+            public CompletionSourceForType(Type type)
             {
                 _type = type;
             }
 
-            public IEnumerable<CompletionItem> GetSuggestions(CompletionContext context)
+            public IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
             {
-                if (_innerSuggestionSource is null)
+                if (_innerCompletionSource is null)
                 {
-                    _innerSuggestionSource = CreateForType(_type);
+                    _innerCompletionSource = CreateForType(_type);
                 }
 
-                return _innerSuggestionSource.GetSuggestions(context);
+                return _innerCompletionSource.GetCompletions(context);
             }
 
-            private static ISuggestionSource CreateForType(Type t)
+            private static ICompletionSource CreateForType(Type t)
             {
                 if (t.IsNullable())
                 {
@@ -54,14 +54,14 @@ namespace System.CommandLine.Suggestions
 
                 if (t.IsEnum)
                 {
-                    return new AnonymousSuggestionSource(_ => GetEnumNames());
+                    return new AnonymousCompletionSource(_ => GetEnumNames());
 
                     IEnumerable<CompletionItem> GetEnumNames() => Enum.GetNames(t).Select(n => new CompletionItem(n));
                 }
 
                 if (t == typeof(bool))
                 {
-                    return new AnonymousSuggestionSource(static  _ => new CompletionItem[]
+                    return new AnonymousCompletionSource(static  _ => new CompletionItem[]
                     {
                         new(bool.TrueString),
                         new(bool.FalseString)

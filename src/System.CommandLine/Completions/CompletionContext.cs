@@ -3,7 +3,7 @@
 
 using System.CommandLine.Parsing;
 
-namespace System.CommandLine.Suggestions
+namespace System.CommandLine.Completions
 {
     /// <summary>
     /// Supports command line completion operations.

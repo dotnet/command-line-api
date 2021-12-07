@@ -20,14 +20,14 @@ namespace System.CommandLine.Invocation
         {
             var commandLineToSuggest = context.ParseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
-            var suggestionParseResult = context.Parser.Parse(commandLineToSuggest);
+            var completionParseResult = context.Parser.Parse(commandLineToSuggest);
 
-            var suggestions = suggestionParseResult.GetSuggestions(_position);
+            var completions = completionParseResult.GetCompletions(_position);
 
             context.Console.Out.WriteLine(
                 string.Join(
                     Environment.NewLine,
-                    suggestions));
+                    completions));
         }
     }
 }

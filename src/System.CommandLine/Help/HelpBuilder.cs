@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 using System.IO;
 using System.Linq;
 
@@ -634,8 +634,8 @@ namespace System.CommandLine.Help
             }
 
             string firstColumn;
-            var suggestions = (argument is Argument a
-                                   ? a.GetSuggestions()
+            var completions = (argument is Argument a
+                                   ? a.GetCompletions()
                                    : Array.Empty<CompletionItem>())
                 .Select(item=>item.Label)
                 .ToArray();
@@ -645,9 +645,9 @@ namespace System.CommandLine.Help
             {
                 firstColumn = helpName!;
             }
-            else if (suggestions.Length > 0)
+            else if (completions.Length > 0)
             {
-                firstColumn = string.Join("|", suggestions);
+                firstColumn = string.Join("|", completions);
             }
             else
             {

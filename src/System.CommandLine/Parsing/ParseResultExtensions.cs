@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,11 +40,11 @@ namespace System.CommandLine.Parsing
             new InvocationPipeline(parseResult).Invoke(console);
 
         /// <summary>
-        /// Gets the text to be matched for completion, which can be used to filter a list of suggestions.
+        /// Gets the text to be matched for completion, which can be used to filter a list of completions.
         /// </summary>
         /// <param name="parseResult">A parse result.</param>
-        /// <param name="position">The position within the raw input, if available, at which to provide suggestions.</param>
-        /// <returns>A string containing the user-entered text to be matched for suggestions.</returns>
+        /// <param name="position">The position within the raw input, if available, at which to provide completions.</param>
+        /// <returns>A string containing the user-entered text to be matched for completions.</returns>
         public static string TextToMatch(
             this ParseResult parseResult,
             int? position = null)
@@ -261,41 +261,41 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
-        /// Gets suggestions for command line completion based on a given parse result.
+        /// Gets completions based on a given parse result.
         /// </summary>
-        /// <param name="parseResult">The parse result that provides context for the suggestions.</param>
-        /// <param name="position">The position at which suggestions are requested.</param>
-        /// <returns>A set of suggestions for completion.</returns>
-        public static IEnumerable<CompletionItem> GetSuggestions(
+        /// <param name="parseResult">The parse result that provides context for the completions.</param>
+        /// <param name="position">The position at which completions are requested.</param>
+        /// <returns>A set of completions for completion.</returns>
+        public static IEnumerable<CompletionItem> GetCompletions(
             this ParseResult parseResult,
             int? position = null)
         {
             var currentSymbolResult = parseResult.SymbolToComplete(position);
             var currentSymbol = currentSymbolResult.Symbol;
 
-            var suggestionContext = position is { } pos
+            var context = position is { } pos
                                         ? new CompletionContext(parseResult, pos)
                                         : new CompletionContext(parseResult);
 
-            var currentSymbolSuggestions =
-                currentSymbol is ISuggestionSource currentSuggestionSource
-                    ? currentSuggestionSource.GetSuggestions(suggestionContext)
+            var currentSymbolCompletions =
+                currentSymbol is ICompletionSource currentCompletionSource
+                    ? currentCompletionSource.GetCompletions(context)
                     : Array.Empty<CompletionItem>();
 
-            IEnumerable<CompletionItem> siblingSuggestions;
+            IEnumerable<CompletionItem> siblingCompletions;
 
             var parentSymbol = currentSymbolResult.Parent?.Symbol;
 
             if (parentSymbol is null ||
                 !currentSymbolResult.IsArgumentLimitReached)
             {
-                siblingSuggestions = Array.Empty<CompletionItem>();
+                siblingCompletions = Array.Empty<CompletionItem>();
             }
             else
             {
-                siblingSuggestions =
+                siblingCompletions =
                     parentSymbol
-                        .GetSuggestions(suggestionContext)
+                        .GetCompletions(context)
                         .Where(item => parentSymbol.Children
                                                    .OfType<ICommand>()
                                                    .SelectMany(c => c.Aliases)
@@ -304,20 +304,20 @@ namespace System.CommandLine.Parsing
 
             if (currentSymbolResult is CommandResult commandResult)
             {
-                currentSymbolSuggestions =
-                    currentSymbolSuggestions
+                currentSymbolCompletions =
+                    currentSymbolCompletions
                         .Where(item => OptionsWithArgumentLimitReached(currentSymbolResult).All(s => s != item.Label));
 
                 if (currentSymbolResult.Parent is CommandResult parent)
                 {
-                    siblingSuggestions =
-                        siblingSuggestions
+                    siblingCompletions =
+                        siblingCompletions
                             .Where(item =>
                                        OptionsWithArgumentLimitReached(parent).All(s => s != item.Label));
                 }
             }
 
-            return currentSymbolSuggestions.Concat(siblingSuggestions);
+            return currentSymbolCompletions.Concat(siblingCompletions);
 
             IEnumerable<string> OptionsWithArgumentLimitReached(SymbolResult symbolResult)
             {
