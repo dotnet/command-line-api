@@ -266,51 +266,60 @@ namespace System.CommandLine.Parsing
         /// <param name="parseResult">The parse result that provides context for the suggestions.</param>
         /// <param name="position">The position at which suggestions are requested.</param>
         /// <returns>A set of suggestions for completion.</returns>
-        public static IEnumerable<string?> GetSuggestions(
+        public static IEnumerable<CompletionItem> GetSuggestions(
             this ParseResult parseResult,
             int? position = null)
         {
-            var textToMatch = parseResult.TextToMatch(position);
             var currentSymbolResult = parseResult.SymbolToComplete(position);
             var currentSymbol = currentSymbolResult.Symbol;
 
+            var suggestionContext = position is { } pos
+                                        ? new CompletionContext(parseResult, pos)
+                                        : new CompletionContext(parseResult);
+
             var currentSymbolSuggestions =
                 currentSymbol is ISuggestionSource currentSuggestionSource
-                    ? currentSuggestionSource.GetSuggestions(parseResult, textToMatch)
-                    : Array.Empty<string>();
+                    ? currentSuggestionSource.GetSuggestions(suggestionContext)
+                    : Array.Empty<CompletionItem>();
 
-            IEnumerable<string?> siblingSuggestions;
+            IEnumerable<CompletionItem> siblingSuggestions;
+
             var parentSymbol = currentSymbolResult.Parent?.Symbol;
 
             if (parentSymbol is null ||
                 !currentSymbolResult.IsArgumentLimitReached)
             {
-                siblingSuggestions = Array.Empty<string?>();
+                siblingSuggestions = Array.Empty<CompletionItem>();
             }
             else
             {
-                siblingSuggestions = parentSymbol
-                                     .GetSuggestions(parseResult, textToMatch)
-                                     .Except(parentSymbol
-                                             .Children
-                                             .OfType<ICommand>()
-                                             .SelectMany(c => c.Aliases));
+                siblingSuggestions =
+                    parentSymbol
+                        .GetSuggestions(suggestionContext)
+                        .Where(item => parentSymbol.Children
+                                                   .OfType<ICommand>()
+                                                   .SelectMany(c => c.Aliases)
+                                                   .All(s => s != item.Label));
             }
 
             if (currentSymbolResult is CommandResult commandResult)
             {
-                currentSymbolSuggestions = currentSymbolSuggestions
-                    .Except(OptionsWithArgumentLimitReached(currentSymbolResult));
+                currentSymbolSuggestions =
+                    currentSymbolSuggestions
+                        .Where(item => OptionsWithArgumentLimitReached(currentSymbolResult).All(s => s != item.Label));
 
                 if (currentSymbolResult.Parent is CommandResult parent)
                 {
-                    siblingSuggestions = siblingSuggestions.Except(OptionsWithArgumentLimitReached(parent));
+                    siblingSuggestions =
+                        siblingSuggestions
+                            .Where(item =>
+                                       OptionsWithArgumentLimitReached(parent).All(s => s != item.Label));
                 }
             }
 
             return currentSymbolSuggestions.Concat(siblingSuggestions);
 
-            string[] OptionsWithArgumentLimitReached(SymbolResult symbolResult)
+            IEnumerable<string> OptionsWithArgumentLimitReached(SymbolResult symbolResult)
             {
                 var optionsWithArgLimitReached =
                     symbolResult
@@ -322,8 +331,7 @@ namespace System.CommandLine.Parsing
                               .Select(o => o.Symbol)
                               .OfType<IIdentifierSymbol>()
                               .SelectMany(c => c.Aliases)
-                              .Concat(commandResult.Command.Aliases)
-                              .ToArray();
+                              .Concat(commandResult.Command.Aliases);
 
                 return exclude;
             }

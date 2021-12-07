@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine.Suggestions
@@ -15,13 +14,7 @@ namespace System.CommandLine.Suggestions
     internal static class SuggestionSource
     {
         private static readonly ConcurrentDictionary<Type, ISuggestionSource> _suggestionSourcesByType = new();
-
-        private static readonly string[] _trueAndFalse =
-        {
-            bool.FalseString,
-            bool.TrueString
-        };
-
+        
         /// <summary>
         /// Gets a suggestion source that provides completions for a type (e.g. enum) with well-known values.
         /// </summary>
@@ -30,7 +23,7 @@ namespace System.CommandLine.Suggestions
             return _suggestionSourcesByType.GetOrAdd(type, t => new SuggestionSourceForType(t));
         }
 
-        internal static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource((_, _) => Array.Empty<string>());
+        internal static ISuggestionSource Empty { get; } = new AnonymousSuggestionSource(static _ => Array.Empty<CompletionItem>());
 
         private class SuggestionSourceForType : ISuggestionSource
         {
@@ -42,14 +35,14 @@ namespace System.CommandLine.Suggestions
                 _type = type;
             }
 
-            public IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
+            public IEnumerable<CompletionItem> GetSuggestions(CompletionContext context)
             {
                 if (_innerSuggestionSource is null)
                 {
                     _innerSuggestionSource = CreateForType(_type);
                 }
 
-                return _innerSuggestionSource.GetSuggestions(parseResult, textToMatch);
+                return _innerSuggestionSource.GetSuggestions(context);
             }
 
             private static ISuggestionSource CreateForType(Type t)
@@ -61,14 +54,18 @@ namespace System.CommandLine.Suggestions
 
                 if (t.IsEnum)
                 {
-                    return new AnonymousSuggestionSource((_, _) => GetEnumNames());
+                    return new AnonymousSuggestionSource(_ => GetEnumNames());
 
-                    IEnumerable<string> GetEnumNames() => Enum.GetNames(t);
+                    IEnumerable<CompletionItem> GetEnumNames() => Enum.GetNames(t).Select(n => new CompletionItem(n));
                 }
 
                 if (t == typeof(bool))
                 {
-                    return new AnonymousSuggestionSource((_, _) => _trueAndFalse);
+                    return new AnonymousSuggestionSource(static  _ => new CompletionItem[]
+                    {
+                        new(bool.TrueString),
+                        new(bool.FalseString)
+                    });
                 }
 
                 return Empty;

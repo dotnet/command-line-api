@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine.Suggestions
 {
@@ -15,9 +15,14 @@ namespace System.CommandLine.Suggestions
             _suggest = suggest ?? throw new ArgumentNullException(nameof(suggest));
         }
 
-        public IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
+        public AnonymousSuggestionSource(Func<CompletionContext, IEnumerable<string>> suggest)
         {
-            return _suggest(parseResult, textToMatch);
+            _suggest = context => suggest(context).Select(value => new CompletionItem(value));
+        }
+
+        public IEnumerable<CompletionItem> GetSuggestions(CompletionContext context)
+        {
+            return _suggest(context);
         }
     }
 }

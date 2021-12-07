@@ -197,13 +197,12 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
+        public override IEnumerable<CompletionItem> GetSuggestions(CompletionContext context)
         {
             return Suggestions
-                   .SelectMany(source => source.GetSuggestions(parseResult, textToMatch))
+                   .SelectMany(source => source.GetSuggestions(context))
                    .Distinct()
-                   .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
-                   .Containing(textToMatch ?? "");
+                   .OrderBy(c => c.SortText, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <inheritdoc />

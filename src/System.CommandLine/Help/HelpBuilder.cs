@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
+using System.CommandLine.Suggestions;
 using System.IO;
 using System.Linq;
 
@@ -633,7 +634,12 @@ namespace System.CommandLine.Help
             }
 
             string firstColumn;
-            var suggestions = argument.GetSuggestions().ToArray();
+            var suggestions = (argument is Argument a
+                                   ? a.GetSuggestions()
+                                   : Array.Empty<CompletionItem>())
+                .Select(item=>item.Label)
+                .ToArray();
+
             var helpName = GetArgumentHelpName(argument);
             if (!string.IsNullOrEmpty(helpName))
             {
