@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests
                 new Command("three")
             };
 
-            var suggestions = command.GetCompletions();
+            var completions = command.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
