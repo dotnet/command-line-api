@@ -53,7 +53,7 @@ namespace System.CommandLine.Parsing
 
             string? textToMatch = null;
             string? rawInput = parseResult.RawInput;
-
+            
             if (rawInput is not null)
             {
                 if (position is not null)
@@ -69,7 +69,7 @@ namespace System.CommandLine.Parsing
                     position = rawInput.Length;
                 }
             }
-            else if (lastToken?.Value != null)
+            else if (lastToken?.Value is not null)
             {
                 position = null;
                 textToMatch = lastToken.Value;
@@ -302,39 +302,28 @@ namespace System.CommandLine.Parsing
                                                    .All(s => s != item.Label));
             }
 
-            if (currentSymbolResult is CommandResult commandResult)
-            {
-                currentSymbolCompletions =
-                    currentSymbolCompletions
-                        .Where(item => OptionsWithArgumentLimitReached(currentSymbolResult).All(s => s != item.Label));
+            currentSymbolCompletions =
+                currentSymbolCompletions
+                    .Where(item => OptionsWithArgumentLimitReached(currentSymbolResult).All(s => s != item.Label));
 
-                if (currentSymbolResult.Parent is CommandResult parent)
-                {
-                    siblingCompletions =
-                        siblingCompletions
-                            .Where(item =>
-                                       OptionsWithArgumentLimitReached(parent).All(s => s != item.Label));
-                }
+            if (currentSymbolResult.Parent is CommandResult parent)
+            {
+                siblingCompletions =
+                    siblingCompletions
+                        .Where(item =>
+                                   OptionsWithArgumentLimitReached(parent).All(s => s != item.Label));
             }
 
             return currentSymbolCompletions.Concat(siblingCompletions);
 
-            IEnumerable<string> OptionsWithArgumentLimitReached(SymbolResult symbolResult)
-            {
-                var optionsWithArgLimitReached =
-                    symbolResult
-                        .Children
-                        .Where(c => c.IsArgumentLimitReached);
-
-                var exclude = optionsWithArgLimitReached
-                              .OfType<OptionResult>()
-                              .Select(o => o.Symbol)
-                              .OfType<IIdentifierSymbol>()
-                              .SelectMany(c => c.Aliases)
-                              .Concat(commandResult.Command.Aliases);
-
-                return exclude;
-            }
+            static IEnumerable<string> OptionsWithArgumentLimitReached(SymbolResult symbolResult) =>
+                symbolResult
+                    .Children
+                    .Where(c => c.IsArgumentLimitReached)
+                    .OfType<OptionResult>()
+                    .Select(o => o.Symbol)
+                    .OfType<IIdentifierSymbol>()
+                    .SelectMany(c => c.Aliases);
         }
 
         internal static SymbolResult SymbolToComplete(
