@@ -271,50 +271,22 @@ namespace System.CommandLine.Parsing
             int? position = null)
         {
             var currentSymbolResult = parseResult.SymbolToComplete(position);
+
             var currentSymbol = currentSymbolResult.Symbol;
 
             var context = position is { } pos
                                         ? new CompletionContext(parseResult, pos)
                                         : new CompletionContext(parseResult);
 
-            var currentSymbolCompletions =
+            var completions =
                 currentSymbol is ICompletionSource currentCompletionSource
                     ? currentCompletionSource.GetCompletions(context)
                     : Array.Empty<CompletionItem>();
+            
+            completions =
+                completions.Where(item => OptionsWithArgumentLimitReached(currentSymbolResult).All(s => s != item.Label));
 
-            IEnumerable<CompletionItem> siblingCompletions;
-
-            var parentSymbol = currentSymbolResult.Parent?.Symbol;
-
-            if (parentSymbol is null ||
-                !currentSymbolResult.IsArgumentLimitReached)
-            {
-                siblingCompletions = Array.Empty<CompletionItem>();
-            }
-            else
-            {
-                siblingCompletions =
-                    parentSymbol
-                        .GetCompletions(context)
-                        .Where(item => parentSymbol.Children
-                                                   .OfType<ICommand>()
-                                                   .SelectMany(c => c.Aliases)
-                                                   .All(s => s != item.Label));
-            }
-
-            currentSymbolCompletions =
-                currentSymbolCompletions
-                    .Where(item => OptionsWithArgumentLimitReached(currentSymbolResult).All(s => s != item.Label));
-
-            if (currentSymbolResult.Parent is CommandResult parent)
-            {
-                siblingCompletions =
-                    siblingCompletions
-                        .Where(item =>
-                                   OptionsWithArgumentLimitReached(parent).All(s => s != item.Label));
-            }
-
-            return currentSymbolCompletions.Concat(siblingCompletions);
+            return completions;
 
             static IEnumerable<string> OptionsWithArgumentLimitReached(SymbolResult symbolResult) =>
                 symbolResult
@@ -332,8 +304,7 @@ namespace System.CommandLine.Parsing
         {
             var commandResult = parseResult.CommandResult;
 
-            var currentSymbol = AllSymbolResultsForCompletion()
-                .LastOrDefault();
+            var currentSymbol = AllSymbolResultsForCompletion().Last();
 
             return currentSymbol;
 

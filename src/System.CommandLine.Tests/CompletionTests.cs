@@ -295,14 +295,13 @@ namespace System.CommandLine.Tests
                   .NotContain(new[] { "apl", "bnn" });
         }
 
-        [Fact]
-        public void When_a_subcommand_has_been_specified_then_its_sibling_options_will_be_suggested()
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1494
+        public void When_a_subcommand_has_been_specified_then_its_sibling_options_will_not_be_suggested()
         {
             var command = new RootCommand("parent")
             {
                 new Command("child"), 
-                new Option("--parent-option"), 
-                new Argument<string>()
+                new Option("--parent-option")
             };
 
             var commandLine = "child";
@@ -312,7 +311,7 @@ namespace System.CommandLine.Tests
                 .GetCompletions(commandLine.Length + 1)
                 .Select(item => item.Label)
                 .Should()
-                .Contain("--parent-option");
+                .NotContain("--parent-option");
         }
 
         [Fact]
