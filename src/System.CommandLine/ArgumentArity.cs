@@ -94,27 +94,27 @@ namespace System.CommandLine
         /// <summary>
         /// An arity that does not allow any values.
         /// </summary>
-        public static IArgumentArity Zero => new ArgumentArity(0, 0);
+        public static readonly IArgumentArity Zero = new ArgumentArity(0, 0);
 
         /// <summary>
         /// An arity that may have one value, but no more than one.
         /// </summary>
-        public static IArgumentArity ZeroOrOne => new ArgumentArity(0, 1);
+        public static readonly IArgumentArity ZeroOrOne = new ArgumentArity(0, 1);
 
         /// <summary>
         /// An arity that must have exactly one value.
         /// </summary>
-        public static IArgumentArity ExactlyOne => new ArgumentArity(1, 1);
+        public static readonly IArgumentArity ExactlyOne = new ArgumentArity(1, 1);
 
         /// <summary>
         /// An arity that may have multiple values.
         /// </summary>
-        public static IArgumentArity ZeroOrMore => new ArgumentArity(0, MaximumArity);
+        public static readonly IArgumentArity ZeroOrMore = new ArgumentArity(0, MaximumArity);
 
         /// <summary>
         /// An arity that must have at least one value.
         /// </summary>
-        public static IArgumentArity OneOrMore => new ArgumentArity(1, MaximumArity);
+        public static readonly IArgumentArity OneOrMore = new ArgumentArity(1, MaximumArity);
 
         internal static IArgumentArity Default(Type type, Argument argument, ISymbolSet parents)
         {
