@@ -293,10 +293,8 @@ System.CommandLine.Collections
     .ctor()
     protected System.Collections.Generic.IReadOnlyCollection<System.String> GetAliases(System.CommandLine.ISymbol item)
 System.CommandLine.Completions
-  public class CompletionContext
+  public abstract class CompletionContext
     public System.CommandLine.Parsing.ParseResult ParseResult { get; }
-    public System.Int32 Position { get; }
-    public System.String RawInput { get; }
     public System.String TextToMatch { get; }
   public delegate CompletionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
@@ -317,6 +315,11 @@ System.CommandLine.Completions
     public System.String ToString()
   public abstract class ICompletionSource
     public System.Collections.Generic.IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
+  public class TextCompletionContext : CompletionContext
+    public System.String CommandLineText { get; }
+    public System.Int32 Position { get; }
+    public TextCompletionContext AtPosition(System.Int32 position)
+  public class TokenCompletionContext : CompletionContext
 System.CommandLine.Help
   public class HelpBuilder
     public static HelpDelegate AdditionalArgumentsSection()
@@ -501,6 +504,7 @@ System.CommandLine.Parsing
     public CommandResult FindResultFor(System.CommandLine.ICommand command)
     public OptionResult FindResultFor(System.CommandLine.IOption option)
     public SymbolResult FindResultFor(System.CommandLine.ISymbol symbol)
+    public System.CommandLine.Completions.CompletionContext GetCompletionContext()
     public System.Object GetValueForArgument(System.CommandLine.IArgument argument)
     public T GetValueForArgument<T>(Argument<T> argument)
     public T GetValueForArgument<T>(System.CommandLine.IArgument argument)
@@ -523,7 +527,6 @@ System.CommandLine.Parsing
     public static System.Boolean HasOption(System.String alias)
     public static System.Int32 Invoke(System.CommandLine.IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.IConsole console = null)
-    public static System.String TextToMatch(System.Nullable<System.Int32> position = null)
   public static class ParserExtensions
     public static System.Int32 Invoke(System.String commandLine, System.CommandLine.IConsole console = null)
     public static System.Int32 Invoke(System.String[] args, System.CommandLine.IConsole console = null)

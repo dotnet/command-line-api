@@ -2,46 +2,116 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine.Completions
 {
     /// <summary>
     /// Supports command line completion operations.
     /// </summary>
-    public class CompletionContext
+    public abstract class CompletionContext
     {
-        internal CompletionContext(ParseResult parseResult)
+        internal CompletionContext(ParseResult parseResult, string textToMatch)
         {
             ParseResult = parseResult;
-            TextToMatch = parseResult.TextToMatch();
-            RawInput = parseResult.RawInput;
-        }
-
-        internal CompletionContext(
-            ParseResult parseResult,
-            int position)
-        {
-            ParseResult = parseResult;
-            TextToMatch = parseResult.TextToMatch(position);
-            Position = position;
+            TextToMatch = textToMatch;
         }
 
         /// The text of the word to be completed, if any.
-        public string? TextToMatch { get; }
+        public string TextToMatch { get; }
 
         /// The parse result for which completions are being requested.
         public ParseResult ParseResult { get; }
 
-        /// <summary>
-        /// The complete text of the command line, if available.
-        /// </summary>
-        public string? RawInput { get; }
+        internal static CompletionContext Empty() => new TokenCompletionContext(ParseResult.Empty());
 
         /// <summary>
-        /// The position of the cursor at which completions are requested.
+        /// Gets the text to be matched for completion, which can be used to filter a list of completions.
         /// </summary>
+        /// <param name="parseResult">A parse result.</param>
+        /// <param name="position">The position within the raw input, if available, at which to provide completions.</param>
+        /// <returns>A string containing the user-entered text to be matched for completions.</returns>
+        internal static string GetTextToMatch(
+            ParseResult parseResult,
+            int? position = null)
+        {
+            Token? lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
+
+            string? textToMatch = null;
+            string? rawInput = parseResult.CommandLineText;
+
+            if (rawInput is not null)
+            {
+                if (position is not null)
+                {
+                    if (position > rawInput.Length)
+                    {
+                        rawInput += ' ';
+                        position = Math.Min(rawInput.Length, position.Value);
+                    }
+                }
+                else
+                {
+                    position = rawInput.Length;
+                }
+            }
+            else if (lastToken?.Value is not null)
+            {
+                position = null;
+                textToMatch = lastToken.Value;
+            }
+
+            if (string.IsNullOrWhiteSpace(rawInput))
+            {
+                if (parseResult.UnmatchedTokens.Count > 0 ||
+                    lastToken?.Type == TokenType.Argument)
+                {
+                    return textToMatch ?? "";
+                }
+            }
+            else
+            {
+                var textBeforeCursor = rawInput!.Substring(0, position!.Value);
+
+                var textAfterCursor = rawInput.Substring(position.Value);
+
+                return textBeforeCursor.Split(' ').LastOrDefault() +
+                       textAfterCursor.Split(' ').FirstOrDefault();
+            }
+
+            return "";
+        }
+    }
+
+    // FIX: (CompletionContext) these need better names
+
+    public class TokenCompletionContext : CompletionContext
+    {
+        internal TokenCompletionContext(ParseResult parseResult) : base(parseResult, GetTextToMatch(parseResult))
+        {
+        }
+    }
+
+    public class TextCompletionContext : CompletionContext
+    {
+        private TextCompletionContext(
+            ParseResult parseResult,
+            string commandLineText,
+            int position) : base(parseResult, GetTextToMatch(parseResult, position))
+        {
+            CommandLineText = commandLineText;
+            Position = position;
+        }
+
+        internal TextCompletionContext(ParseResult parseResult, string commandLineText) : this(parseResult, commandLineText, commandLineText.Length)
+        {
+        }
+
         public int Position { get; }
 
-        internal static CompletionContext Empty() => new(ParseResult.Empty());
+        public string CommandLineText { get; }
+
+        public TextCompletionContext AtPosition(int position) =>
+            new(ParseResult, CommandLineText, position);
     }
 }

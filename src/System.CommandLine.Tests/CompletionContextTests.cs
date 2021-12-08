@@ -1,0 +1,224 @@
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Completions;
+using FluentAssertions;
+using Xunit;
+
+namespace System.CommandLine.Tests
+{
+    public class CompletionContextTests
+    {
+        [Fact]
+        public void CommandLineText_preserves_command_line_prior_to_splitting_when_complete_command_line_is_parsed()
+        {
+            var command = new RootCommand
+            {
+                new Command("verb")
+                {
+                    new Option<int>("-x")
+                }
+            };
+
+            var commandLine = "verb -x 123";
+
+            var parseResult = command.Parse(commandLine);
+
+            parseResult.GetCompletionContext()
+                       .Should()
+                       .BeOfType<TextCompletionContext>()
+                       .Which
+                       .CommandLineText
+                       .Should()
+                       .Be(commandLine);
+        }
+
+        [Fact]
+        public void CommandLineText_is_preserved_when_adjusting_position()
+        {
+            var command = new RootCommand
+            {
+                new Command("verb")
+                {
+                    new Option<int>("-x")
+                }
+            };
+
+            var commandLine = "verb -x 123";
+
+            var completionContext1 = (TextCompletionContext)command.Parse(commandLine).GetCompletionContext();
+
+            var completionContext2 = completionContext1.AtPosition(4);
+
+            completionContext2.CommandLineText.Should().Be(commandLine);
+        }
+
+        [Fact]
+        public void CommandLineText_is_unavailable_when_string_array_is_parsed()
+        {
+            var command = new RootCommand
+            {
+                new Command("verb")
+                {
+                    new Option<int>("-x")
+                }
+            };
+
+            var parseResult = command.Parse("verb", "-x", "123");
+
+            parseResult.GetCompletionContext()
+                       .Should()
+                       .BeOfType<TokenCompletionContext>();
+        }
+
+        [Fact]
+        public void When_position_is_unspecified_in_string_command_line_not_ending_with_a_space_then_it_returns_final_token()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("--option1"),
+                new Option("--option2")
+            };
+
+            string textToMatch = command.Parse("the-command t")
+                                        .GetCompletionContext()
+                                        .TextToMatch;
+
+            textToMatch.Should().Be("t");
+        }
+
+        [Fact]
+        public void When_position_is_unspecified_in_string_command_line_ending_with_a_space_then_it_returns_empty()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("--option1"),
+                new Option("--option2")
+            };
+
+            var commandLine = "the-command t";
+            string textToMatch = command.Parse(commandLine)
+                                        .GetCompletionContext()
+                                        .As<TextCompletionContext>()
+                                        .AtPosition(commandLine.Length + 1)
+                                        .TextToMatch;
+
+            textToMatch.Should().Be("");
+        }
+
+        [Fact]
+        public void When_position_is_greater_than_input_length_in_a_string_command_line_then_it_returns_empty()
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<string>(),
+                new Option<string>("--option1").FromAmong("apple", "banana", "cherry", "durian"),
+                new Option<string>("--option2")
+            };
+
+            var textToMatch = command.Parse("the-command --option1 a")
+                                     .GetCompletionContext()
+                                     .As<TextCompletionContext>()
+                                     .AtPosition(1000)
+                                     .TextToMatch;
+
+            textToMatch.Should().Be("");
+        }
+
+        [Fact]
+        public void When_position_is_unspecified_in_array_command_line_and_final_token_is_unmatched_then_it_returns_final_token()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("--option1"),
+                new Option("--option2")
+            };
+
+            string textToMatch = command.Parse("the-command", "opt")
+                                        .GetCompletionContext()
+                                        .TextToMatch;
+
+            textToMatch.Should().Be("opt");
+        }
+
+        [Fact]
+        public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_command_then_it_returns_empty()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("--option1"),
+                new Option("--option2")
+            };
+
+            string textToMatch = command.Parse(new[] { "the-command" })
+                                        .GetCompletionContext()
+                                        .TextToMatch;
+
+            textToMatch.Should().Be("");
+        }
+
+        [Fact]
+        public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_option_then_it_returns_empty()
+        {
+            var command = new Command("the-command")
+            {
+                new Option("--option1"),
+                new Option("--option2")
+            };
+
+            string textToMatch = command.Parse("the-command", "--option1")
+                                        .GetCompletionContext()
+                                        .TextToMatch;
+
+            textToMatch.Should().Be("");
+        }
+
+        [Fact]
+        public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_argument_then_it_returns_the_argument_value()
+        {
+            var command = new Command("the-command")
+            {
+                new Option<string>("--option1").FromAmong("apple", "banana", "cherry", "durian"),
+                new Option<string>("--option2"),
+                new Argument<string>()
+            };
+
+            string textToMatch = command.Parse("the-command", "--option1", "a")
+                                        .GetCompletionContext()
+                                        .TextToMatch;
+
+            textToMatch.Should().Be("a");
+        }
+
+        [Theory]
+        [InlineData("the-command $one --two", "one")]
+        [InlineData("the-command one$ --two", "one")]
+        [InlineData("the-command on$e --two ", "one")]
+        [InlineData(" the-command  $one --two ", "one")]
+        [InlineData(" the-command  one$ --two ", "one")]
+        [InlineData(" the-command  on$e --two ", "one")]
+        public void When_position_is_specified_in_string_command_line_then_it_returns_argument_at_cursor_position(
+            string commandLine,
+            string expected)
+        {
+            var command =
+                new Command("the-command")
+                {
+                    new Argument
+                    {
+                        Arity = ArgumentArity.ZeroOrMore
+                    }
+                };
+
+            var position = commandLine.IndexOf("$", StringComparison.Ordinal);
+
+            var textToMatch = command.Parse(commandLine.Replace("$", ""))
+                                     .GetCompletionContext()
+                                     .As<TextCompletionContext>()
+                                     .AtPosition(position)
+                                     .TextToMatch;
+
+            textToMatch.Should().Be(expected);
+        }
+    }
+}

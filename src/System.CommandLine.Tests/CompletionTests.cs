@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_GetSuggestions_returns_argument_suggestions_if_configured()
+        public void Option_GetCompletions_returns_argument_completions_if_configured()
         {
             var option = new Option("--hello", arity: ArgumentArity.ExactlyOne)
                 .AddCompletions("one", "two", "three");
@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_GetSuggestions_returns_available_option_aliases()
+        public void Command_GetCompletions_returns_available_option_aliases()
         {
             IReadOnlyCollection<Symbol> symbols = new[] {
                 new Option("--one", "option one"),
@@ -65,7 +65,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_GetSuggestions_returns_available_subcommands()
+        public void Command_GetCompletions_returns_available_subcommands()
         {
             var command = new Command("command")
             {
@@ -83,7 +83,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_GetSuggestions_returns_available_subcommands_and_option_aliases()
+        public void Command_GetCompletions_returns_available_subcommands_and_option_aliases()
         {
             var command = new Command("command")
             {
@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_GetSuggestions_returns_available_subcommands_and_option_aliases_and_configured_arguments()
+        public void Command_GetCompletions_returns_available_subcommands_and_option_aliases_and_configured_arguments()
         {
             var command = new Command("command")
             {
@@ -120,7 +120,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_GetSuggestions_without_text_to_match_orders_alphabetically()
+        public void Command_GetCompletions_without_text_to_match_orders_alphabetically()
         {
             var command = new Command("command")
             {
@@ -138,7 +138,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_GetSuggestions_does_not_return_argument_names()
+        public void Command_GetCompletions_does_not_return_argument_names()
         {
             var command = new Command("command")
             {
@@ -154,7 +154,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_GetSuggestions_with_text_to_match_orders_by_match_position_then_alphabetically()
+        public void Command_GetCompletions_with_text_to_match_orders_by_match_position_then_alphabetically()
         {
             var command = new Command("command")
             {
@@ -194,7 +194,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_GetSuggestions_can_access_ParseResult()
+        public void Command_GetCompletions_can_access_ParseResult()
         {
             var originOption = new Option<string>("--origin");
 
@@ -404,7 +404,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_can_be_hidden_from_suggestions_by_setting_IsHidden_to_true()
+        public void An_option_can_be_hidden_from_completions_by_setting_IsHidden_to_true()
         {
             var command = new Command("the-command")
             {
@@ -494,7 +494,7 @@ namespace System.CommandLine.Tests
         [Theory(Skip = "Needs discussion, Issue #19")]
         [InlineData("outer ")]
         [InlineData("outer -")]
-        public void Option_GetSuggestions_are_not_provided_without_matching_prefix(string input)
+        public void Option_GetCompletions_are_not_provided_without_matching_prefix(string input)
         {
             var command = new Command("outer")
             {
@@ -513,7 +513,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_GetSuggestions_can_be_based_on_the_proximate_option()
+        public void Option_GetCompletions_can_be_based_on_the_proximate_option()
         {
             var parser = new Parser(
                 new Command("outer")
@@ -533,7 +533,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Argument_suggestions_can_be_based_on_the_proximate_option()
+        public void Argument_completions_can_be_based_on_the_proximate_option()
         {
             var parser = new Parser(
                 new Command("outer")
@@ -554,7 +554,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_GetSuggestionsions_can_be_based_on_the_proximate_option_and_partial_input()
+        public void Option_GetCompletions_can_be_based_on_the_proximate_option_and_partial_input()
         {
             var parser = new Parser(
                 new Command("outer")
@@ -573,7 +573,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Suggestions_can_be_provided_in_the_absence_of_validation()
+        public void Completions_can_be_provided_in_the_absence_of_validation()
         {
             var command = new Command("the-command")
                 {
@@ -595,7 +595,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_argument_suggestions_can_be_provided_using_a_delegate()
+        public void Command_argument_completions_can_be_provided_using_a_delegate()
         {
             var command = new Command("the-command")
             {
@@ -617,7 +617,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Option_argument_suggestions_can_be_provided_using_a_delegate()
+        public void Option_argument_completions_can_be_provided_using_a_delegate()
         {
             var command = new Command("the-command")
             {
@@ -635,7 +635,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
+        public void When_caller_does_the_tokenizing_then_argument_completions_are_based_on_the_proximate_option()
         {
             var command = new Command("outer")
             {
@@ -662,7 +662,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_option()
+        public void When_caller_does_not_do_the_tokenizing_then_argument_completions_are_based_on_the_proximate_option()
         {
             var command = new Command("outer")
             {
@@ -683,7 +683,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_caller_does_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
+        public void When_caller_does_the_tokenizing_then_argument_completions_are_based_on_the_proximate_command()
         {
             var outer = new Command("outer")
             {
@@ -719,7 +719,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_caller_does_not_do_the_tokenizing_then_argument_suggestions_are_based_on_the_proximate_command()
+        public void When_caller_does_not_do_the_tokenizing_then_argument_completions_are_based_on_the_proximate_command()
         {
             var outer = new Command("outer")
             {
@@ -789,7 +789,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_suggestions_are_omitted()
+        public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_completions_are_omitted()
         {
             var parser = new CommandLineBuilder(new RootCommand
                          {
@@ -850,244 +850,50 @@ namespace System.CommandLine.Tests
             throw new NotImplementedException();
         }
 
-        public class TextToMatch
+        [Fact]
+        public void Default_completions_can_be_cleared_and_replaced()
         {
-            [Fact]
-            public void When_position_is_unspecified_in_string_command_line_not_ending_with_a_space_then_it_returns_final_token()
+            var argument = new Argument<DayOfWeek>();
+            argument.Completions.Clear();
+            argument.Completions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
+            var command = new Command("the-command")
             {
-                IReadOnlyCollection<Symbol> symbols = new[]
-                {
-                    new Option("--option1"),
-                    new Option("--option2")
-                };
-                var command1 = new Command(
-                    "the-command",
-                    ""
-                );
+                argument
+            };
 
-                foreach (var symbol in symbols)
+            var completions = command.Parse("the-command s")
+                                     .GetCompletions();
+
+            completions.Select(item => item.Label)
+                       .Should()
+                       .BeEquivalentTo("sat", "sun", "tues");
+        }
+
+        [Fact]
+        public void Default_completions_can_be_appended_to()
+        {
+            var command = new Command("the-command")
+            {
+                new Argument<DayOfWeek>
                 {
-                    command1.Add(symbol);
+                    Completions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
                 }
+            };
 
-                var command = command1;
+            var completions = command.Parse("the-command s")
+                                     .GetCompletions();
 
-                string textToMatch = command.Parse("the-command t")
-                                            .TextToMatch();
-
-                textToMatch.Should().Be("t");
-            }
-
-            [Fact]
-            public void When_position_is_unspecified_in_string_command_line_ending_with_a_space_then_it_returns_empty()
-            {
-                IReadOnlyCollection<Symbol> symbols = new[]
-                {
-                    new Option("--option1"),
-                    new Option("--option2")
-                };
-                var command1 = new Command(
-                    "the-command",
-                    ""
-                );
-
-                foreach (var symbol in symbols)
-                {
-                    command1.Add(symbol);
-                }
-
-                Command command = command1;
-
-                var commandLine = "the-command t";
-                string textToMatch = command.Parse(commandLine)
-                                            .TextToMatch(commandLine.Length + 1);
-
-                textToMatch.Should().Be("");
-            }
-
-            [Fact]
-            public void When_position_is_greater_than_input_length_in_a_string_command_line_then_it_returns_empty()
-            {
-                var command = new Command("the-command")
-                {
-                    new Argument<string>(),
-                    new Option<string>("--option1").FromAmong("apple", "banana", "cherry", "durian"),
-                    new Option<string>("--option2")
-                };
-
-                var textToMatch = command.Parse("the-command --option1 a")
-                                         .TextToMatch(1000);
-
-                textToMatch.Should().Be("");
-            }
-
-            [Fact]
-            public void When_position_is_unspecified_in_array_command_line_and_final_token_is_unmatched_then_it_returns_final_token()
-            {
-                IReadOnlyCollection<Symbol> symbols = new[]
-                {
-                    new Option("--option1"),
-                    new Option("--option2")
-                };
-                var command1 = new Command(
-                    "the-command",
-                    ""
-                );
-
-                foreach (var symbol in symbols)
-                {
-                    command1.Add(symbol);
-                }
-
-                var command = command1;
-
-                string textToMatch = command.Parse("the-command", "opt")
-                                            .TextToMatch();
-
-                textToMatch.Should().Be("opt");
-            }
-
-            [Fact]
-            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_command_then_it_returns_empty()
-            {
-                IReadOnlyCollection<Symbol> symbols = new[]
-                {
-                    new Option("--option1"),
-                    new Option("--option2")
-                };
-                var command1 = new Command(
-                    "the-command",
-                    ""
-                );
-
-                foreach (var symbol in symbols)
-                {
-                    command1.Add(symbol);
-                }
-
-                Command command = command1;
-
-                string textToMatch = command.Parse(new[] { "the-command" })
-                                            .TextToMatch();
-
-                textToMatch.Should().Be("");
-            }
-
-            [Fact]
-            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_option_then_it_returns_empty()
-            {
-                IReadOnlyCollection<Symbol> symbols = new[]
-                {
-                    new Option("--option1"),
-                    new Option("--option2")
-                };
-                var command1 = new Command(
-                    "the-command",
-                    ""
-                );
-
-                foreach (var symbol in symbols)
-                {
-                    command1.Add(symbol);
-                }
-
-                Command command = command1;
-
-                string textToMatch = command.Parse("the-command", "--option1")
-                                            .TextToMatch();
-
-                textToMatch.Should().Be("");
-            }
-  
-            [Fact]
-            public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_argument_then_it_returns_empty()
-            {
-                var command = new Command("the-command")
-                {
-                    new Option<string>("--option1").FromAmong("apple", "banana", "cherry", "durian"),
-                    new Option<string>("--option2"),
-                    new Argument<string>()
-                };
-
-                string textToMatch = command.Parse("the-command", "--option1", "a")
-                                            .TextToMatch();
-
-                textToMatch.Should().Be("a");
-            }
-
-            [Theory]
-            [InlineData("the-command $one --two", "one")]
-            [InlineData("the-command one$ --two", "one")]
-            [InlineData("the-command on$e --two ", "one")]
-            [InlineData(" the-command  $one --two ", "one")]
-            [InlineData(" the-command  one$ --two ", "one")]
-            [InlineData(" the-command  on$e --two ", "one")]
-            public void When_position_is_specified_in_string_command_line_then_it_returns_argument_at_cursor_position(
-                string commandLine,
-                string expected)
-            {
-                var command =
-                    new Command("the-command")
-                    {
-                        new Argument
-                        {
-                            Arity = ArgumentArity.ZeroOrMore
-                        }
-                    };
-
-                var position = commandLine.IndexOf("$", StringComparison.Ordinal);
-
-                var textToMatch = command.Parse(commandLine.Replace("$", ""))
-                                         .TextToMatch(position);
-
-                textToMatch.Should().Be(expected);
-            }
-
-            [Fact]
-            public void Enum_suggestions_can_be_configured_with_list_clear()
-            {
-                var argument = new Argument<DayOfWeek?>();
-                argument.Completions.Clear();
-                argument.Completions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
-                var command = new Command("the-command")
-                {
-                    argument
-                };
-
-                var completions = command.Parse("the-command s")
-                                         .GetCompletions();
-
-                completions.Select(item => item.Label)
-                           .Should()
-                           .BeEquivalentTo("sat", "sun","tues");
-            }
-
-            [Fact]
-            public void Enum_suggestions_can_be_configured_without_list_clear()
-            {
-                var command = new Command("the-command")
-                {
-                    new Argument<DayOfWeek?>
-                    {
-                        Completions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
-                    }
-                };
-
-                var completions = command.Parse("the-command s")
-                                         .GetCompletions();
-
-                completions
-                    .Select(item => item.Label)
-                    .Should()
-                    .BeEquivalentTo(
-                        "sat",
-                        nameof(DayOfWeek.Saturday),
-                        "sun", nameof(DayOfWeek.Sunday),
-                        "tues",
-                        nameof(DayOfWeek.Tuesday),
-                        nameof(DayOfWeek.Thursday),
-                        nameof(DayOfWeek.Wednesday));
-            }
+            completions
+                .Select(item => item.Label)
+                .Should()
+                .BeEquivalentTo(
+                    "sat",
+                    nameof(DayOfWeek.Saturday),
+                    "sun", nameof(DayOfWeek.Sunday),
+                    "tues",
+                    nameof(DayOfWeek.Tuesday),
+                    nameof(DayOfWeek.Thursday),
+                    nameof(DayOfWeek.Wednesday));
         }
     }
 }

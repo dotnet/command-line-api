@@ -625,7 +625,7 @@ ERR:
                     }
                     else
                     {
-                        position = context.ParseResult.RawInput?.Length ?? 0;
+                        position = context.ParseResult.CommandLineText?.Length ?? 0;
                     }
 
                     context.InvocationResult = new SuggestDirectiveResult(position);

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Completions;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -17,6 +18,7 @@ namespace System.CommandLine.Parsing
         private readonly RootCommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unparsedTokens;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
+        private CompletionContext? _completionContext;
 
         internal ParseResult(
             Parser parser,
@@ -27,7 +29,7 @@ namespace System.CommandLine.Parsing
             IReadOnlyList<Token>? unparsedTokens,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
-            string? rawInput = null)
+            string? commandLineText = null)
         {
             Parser = parser;
             _rootCommandResult = rootCommandResult;
@@ -53,7 +55,7 @@ namespace System.CommandLine.Parsing
 
             _unparsedTokens = unparsedTokens ?? Array.Empty<Token>();
             _errors = errors ?? new List<ParseError>();
-            RawInput = rawInput;
+            CommandLineText = commandLineText;
 
             if (unmatchedTokens is null)
             {
@@ -111,7 +113,7 @@ namespace System.CommandLine.Parsing
         /// Holds the value of a complete command line input prior to splitting and tokenization, when provided.
         /// </summary>
         /// <remarks>This will not be set when the parser is called from <c>Program.Main</c>. It is primarily used when calculating suggestions via the <c>dotnet-suggest</c> tool.</remarks>
-        internal string? RawInput { get; }
+        internal string? CommandLineText { get; }
 
         /// <summary>
         /// Gets the list of tokens used on the command line that were not matched by the parser.
@@ -123,6 +125,15 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <remarks>This list will contain all of the tokens following the first occurrence of a <c>--</c> token if <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/> is set to <see langword="true"/>.</remarks>
         public IReadOnlyList<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
+
+        /// <summary>
+        /// Gets the completion context for the parse result.
+        /// </summary>
+        public CompletionContext GetCompletionContext() =>
+            _completionContext ??=
+                CommandLineText is null
+                    ? new TokenCompletionContext(this)
+                    : new TextCompletionContext(this, CommandLineText);
 
         [return: MaybeNull]
         internal T GetValueFor<T>(IValueDescriptor<T> symbol) =>

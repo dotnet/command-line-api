@@ -40,63 +40,6 @@ namespace System.CommandLine.Parsing
             new InvocationPipeline(parseResult).Invoke(console);
 
         /// <summary>
-        /// Gets the text to be matched for completion, which can be used to filter a list of completions.
-        /// </summary>
-        /// <param name="parseResult">A parse result.</param>
-        /// <param name="position">The position within the raw input, if available, at which to provide completions.</param>
-        /// <returns>A string containing the user-entered text to be matched for completions.</returns>
-        public static string TextToMatch(
-            this ParseResult parseResult,
-            int? position = null)
-        {
-            Token? lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
-
-            string? textToMatch = null;
-            string? rawInput = parseResult.RawInput;
-            
-            if (rawInput is not null)
-            {
-                if (position is not null)
-                {
-                    if (position > rawInput.Length)
-                    {
-                        rawInput += ' ';
-                        position = Math.Min(rawInput.Length, position.Value);
-                    }
-                }
-                else
-                {
-                    position = rawInput.Length;
-                }
-            }
-            else if (lastToken?.Value is not null)
-            {
-                position = null;
-                textToMatch = lastToken.Value;
-            }
-
-            if (string.IsNullOrWhiteSpace(rawInput))
-            {
-                if (parseResult.UnmatchedTokens.Count > 0 ||
-                    lastToken?.Type == TokenType.Argument)
-                {
-                    return textToMatch ?? "";
-                }
-            }
-            else
-            {
-                var textBeforeCursor = rawInput!.Substring(0, position!.Value);
-
-                var textAfterCursor = rawInput.Substring(position.Value);
-
-                return textBeforeCursor.Split(' ').LastOrDefault() +
-                       textAfterCursor.Split(' ').FirstOrDefault();
-            }
-
-            return "";
-        }
-
-        /// <summary>
         /// Formats a string explaining a parse result.
         /// </summary>
         /// <param name="parseResult">The parse result to be diagrammed.</param>
@@ -274,9 +217,13 @@ namespace System.CommandLine.Parsing
 
             var currentSymbol = currentSymbolResult.Symbol;
 
-            var context = position is { } pos
-                                        ? new CompletionContext(parseResult, pos)
-                                        : new CompletionContext(parseResult);
+            var context = parseResult.GetCompletionContext();
+
+            if (position is not null && 
+                context is TextCompletionContext tcc)
+            {
+                context = tcc.AtPosition(position.Value);
+            }
 
             var completions =
                 currentSymbol is ICompletionSource currentCompletionSource
@@ -319,9 +266,7 @@ namespace System.CommandLine.Parsing
                     else if (item is OptionResult option)
                     {
                         var willAcceptAnArgument =
-                            !option.IsImplicit &&
-                            (!option.IsArgumentLimitReached ||
-                             parseResult.TextToMatch(position).Length > 0);
+                            WillAcceptAnArgument(parseResult, position, option);
 
                         if (willAcceptAnArgument)
                         {
@@ -329,6 +274,32 @@ namespace System.CommandLine.Parsing
                         }
                     }
                 }
+            }
+
+            static bool WillAcceptAnArgument(
+                ParseResult parseResult,
+                int? position,
+                OptionResult option)
+            {
+                if (option.IsImplicit)
+                {
+                    return false;
+                }
+
+                if (!option.IsArgumentLimitReached)
+                {
+                    return true;
+                }
+
+                return parseResult.GetCompletionContext() switch
+                {
+                    TextCompletionContext c when position.HasValue =>
+                        c.AtPosition(position.Value).TextToMatch.Length > 0,
+                    { } c =>
+                        c.TextToMatch.Length > 0,
+                    _ =>
+                        throw new ArgumentOutOfRangeException()
+                };
             }
         }
     }
