@@ -28,7 +28,7 @@ namespace System.CommandLine.Tests
             var option = new Option("--hello", arity: ArgumentArity.ExactlyOne)
                 .AddCompletions("one", "two", "three");
 
-            var suggestions = option.GetCompletions();
+            var completions = option.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
