@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
 
             var completions = command.GetCompletions();
 
-            suggestions
+            completions
                 .Select(item => item.Label)
                 .Should()
                 .BeEquivalentTo("one", "two", "three");
