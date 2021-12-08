@@ -78,7 +78,7 @@
     public ICommand RootCommand { get; }
     public System.CommandLine.Collections.ISymbolSet Symbols { get; }
   public static class CompletionSourceExtensions
-    public static System.Void Add(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> suggest)
+    public static System.Void Add(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
     public static System.Void Add(System.CommandLine.Completions.CompletionDelegate complete)
     public static System.Void Add(System.String[] completions)
   public class CompletionSourceList, System.Collections.Generic.IEnumerable<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyList<System.CommandLine.Completions.ICompletionSource>, System.Collections.IEnumerable
@@ -189,7 +189,7 @@
     public IArgumentArity Arity { get; set; }
   public static class OptionExtensions
     public static TOption AddCompletions<TOption>(System.String[] values)
-    public static TOption AddCompletions<TOption>(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> suggest)
+    public static TOption AddCompletions<TOption>(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
     public static TOption AddCompletions<TOption>(System.CommandLine.Completions.CompletionDelegate complete)
     public static Option<System.IO.FileInfo> ExistingOnly()
     public static Option<System.IO.DirectoryInfo> ExistingOnly()
