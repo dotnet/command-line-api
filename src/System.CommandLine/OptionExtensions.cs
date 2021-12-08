@@ -54,14 +54,14 @@ namespace System.CommandLine
         /// </summary>
         /// <typeparam name="TOption">The type of the <see cref="Option" />.</typeparam>
         /// <param name="option">The option for which to add completions.</param>
-        /// <param name="suggest">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
+        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
         public static TOption AddCompletions<TOption>(
             this TOption option,
-            Func<CompletionContext, IEnumerable<string>> suggest)
+            Func<CompletionContext, IEnumerable<string>> complete)
             where TOption : Option
         {
-            option.Argument.Completions.Add(suggest);
+            option.Argument.Completions.Add(complete);
 
             return option;
         }

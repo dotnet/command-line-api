@@ -16,7 +16,7 @@ namespace System.CommandLine.Completions
         private static readonly ConcurrentDictionary<Type, ICompletionSource> _completionSourcesByType = new();
         
         /// <summary>
-        /// Gets a suggestion source that provides completions for a type (e.g. enum) with well-known values.
+        /// Gets a completion source that provides completions for a type (e.g. enum) with well-known values.
         /// </summary>
         internal static ICompletionSource ForType(Type type)
         {

@@ -18,9 +18,9 @@ namespace System.CommandLine.Invocation
 
         public void Apply(InvocationContext context)
         {
-            var commandLineToSuggest = context.ParseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
+            var commandLineToComplete = context.ParseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
-            var completionParseResult = context.Parser.Parse(commandLineToSuggest);
+            var completionParseResult = context.Parser.Parse(commandLineToComplete);
 
             var completions = completionParseResult.GetCompletions(_position);
 
