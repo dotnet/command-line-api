@@ -114,7 +114,7 @@ namespace System.CommandLine.Tests
 
             var suggestions = command.GetCompletions();
 
-            suggestions.Select(item => item.Label)
+            completions.Select(item => item.Label)
                        .Should()
                        .BeEquivalentTo("subcommand", "--option", "command-argument");
         }
