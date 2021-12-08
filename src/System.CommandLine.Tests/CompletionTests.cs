@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var suggestions = command.GetCompletions();
+            var completions = command.GetCompletions();
 
             completions.Select(item => item.Label)
                        .Should()
