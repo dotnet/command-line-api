@@ -1078,7 +1078,7 @@ namespace System.CommandLine.Tests
                 var suggestions = command.Parse("the-command s")
                                          .GetCompletions();
 
-                suggestions
+                completions
                     .Select(item => item.Label)
                     .Should()
                     .BeEquivalentTo(
