@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests
 
             var command = command1;
 
-            var suggestions = command.GetCompletions();
+            var completions = command.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
