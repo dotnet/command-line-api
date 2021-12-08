@@ -1075,7 +1075,7 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                var suggestions = command.Parse("the-command s")
+                var completions = command.Parse("the-command s")
                                          .GetCompletions();
 
                 completions
