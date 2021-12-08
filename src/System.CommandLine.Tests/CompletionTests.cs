@@ -129,7 +129,7 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var suggestions = command.GetCompletions();
+            var completions = command.GetCompletions();
 
             suggestions
                 .Select(item => item.Label)
