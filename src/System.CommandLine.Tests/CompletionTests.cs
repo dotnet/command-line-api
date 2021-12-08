@@ -91,7 +91,7 @@ namespace System.CommandLine.Tests
                 new Option("--option")
             };
 
-            var suggestions = command.GetCompletions();
+            var completions = command.GetCompletions();
 
             completions.Select(item => item.Label)
                        .Should()
