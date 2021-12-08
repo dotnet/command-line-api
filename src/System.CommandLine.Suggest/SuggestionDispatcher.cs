@@ -169,7 +169,7 @@ namespace System.CommandLine.Suggest
             Program.LogDebug($"dotnet-suggest sending: {targetArgs}");
 #endif
 
-            string suggestions = _suggestionStore.GetCompletions(
+            string completions = _suggestionStore.GetCompletions(
                 targetExePath,
                 targetArgs,
                 Timeout).Trim();
