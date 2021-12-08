@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
 
             var completions = option.GetCompletions();
 
-            suggestions
+            completions
                 .Select(item => item.Label)
                 .Should()
                 .BeEquivalentTo("one", "two", "three");
