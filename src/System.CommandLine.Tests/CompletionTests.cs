@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests
 
             var completions = command.GetCompletions();
 
-            suggestions
+            completions
                 .Select(item => item.Label)
                 .Should()
                 .BeEquivalentSequenceTo("andmyothersubcommand", "andmythirdsubcommand", "mysubcommand");
@@ -145,9 +145,9 @@ namespace System.CommandLine.Tests
                 new Argument("the-argument")
             };
 
-            var suggestions = command.GetCompletions();
+            var completions = command.GetCompletions();
 
-            suggestions
+            completions
                 .Select(item => item.Label)
                 .Should()
                 .NotContain("the-argument");
@@ -163,9 +163,9 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var suggestions = command.Parse("my").GetCompletions();
+            var completions = command.Parse("my").GetCompletions();
 
-            suggestions
+            completions
                 .Select(item => item.Label)
                 .Should()
                 .BeEquivalentSequenceTo("mysubcommand", "andmyothersubcommand", "andmythirdsubcommand");
@@ -416,9 +416,9 @@ namespace System.CommandLine.Tests
                 new Option("-n", "Not hidden")
             };
 
-            var suggestions = command.Parse("the-command ").GetCompletions();
+            var completions = command.Parse("the-command ").GetCompletions();
 
-            suggestions.Should().NotContain("--hide-me");
+            completions.Select(item => item.Label).Should().NotContain("--hide-me");
         }
 
         [Fact]
@@ -763,10 +763,10 @@ namespace System.CommandLine.Tests
                 new Argument<FileMode>()
             };
 
-            var suggestions = command.Parse("the-command create")
+            var completions = command.Parse("the-command create")
                                      .GetCompletions();
 
-            suggestions
+            completions
                 .Select(item => item.Label)
                 .Should()
                 .BeEquivalentTo("CreateNew", "Create", "OpenOrCreate");
@@ -782,9 +782,9 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "--allows-one x";
-            var suggestions = command.Parse(commandLine).GetCompletions(commandLine.Length + 1);
+            var completions = command.Parse(commandLine).GetCompletions(commandLine.Length + 1);
 
-            suggestions.Select(item => item.Label)
+            completions.Select(item => item.Label)
                        .Should()
                        .BeEquivalentTo("--allows-many");
         }
@@ -800,9 +800,9 @@ namespace System.CommandLine.Tests
                          .UseSuggestDirective()
                          .Build();
 
-            var suggestions = parser.Parse("--allows-one ").GetCompletions();
+            var completions = parser.Parse("--allows-one ").GetCompletions();
 
-            suggestions.Should().BeEmpty();
+            completions.Should().BeEmpty();
         }
 
         [Fact]
@@ -814,9 +814,9 @@ namespace System.CommandLine.Tests
                 new Option<string>("--not", () => "the-default")
             };
 
-            var suggestions = command.Parse("m").GetCompletions();
+            var completions = command.Parse("m").GetCompletions();
 
-            suggestions.Select(item => item.Label)
+            completions.Select(item => item.Label)
                        .Should()
                        .BeEquivalentTo("--implicit");
         }
@@ -826,7 +826,6 @@ namespace System.CommandLine.Tests
         [InlineData("#r \"nuget:", 10)]
         public void It_can_provide_completions_within_quotes(string commandLine, int position)
         {
-            // FIX: (testname) make this test reflect the scenario correctly
             var expectedSuggestions = new[]
             {
                 "\"nuget:NewtonSoft.Json\"",
@@ -842,9 +841,9 @@ namespace System.CommandLine.Tests
                 argument
             };
 
-            var suggestions = r.Parse(commandLine).GetCompletions(position);
+            var completions = r.Parse(commandLine).GetCompletions(position);
 
-            suggestions
+            completions
                 .Select(item => item.Label)
                 .Should()
                 .BeEquivalentTo(expectedSuggestions);
@@ -1056,10 +1055,10 @@ namespace System.CommandLine.Tests
                     argument
                 };
 
-                var suggestions = command.Parse("the-command s")
+                var completions = command.Parse("the-command s")
                                          .GetCompletions();
 
-                suggestions.Select(item => item.Label)
+                completions.Select(item => item.Label)
                            .Should()
                            .BeEquivalentTo("sat", "sun","tues");
             }

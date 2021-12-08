@@ -175,10 +175,10 @@ namespace System.CommandLine.Suggest
                 Timeout).Trim();
 
 #if DEBUG
-            Program.LogDebug($"dotnet-suggest returning: \"{suggestions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
+            Program.LogDebug($"dotnet-suggest returning: \"{completions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
 #endif
 
-            context.Console.Out.Write(suggestions);
+            context.Console.Out.Write(completions);
 
             return Task.FromResult(0);
         }

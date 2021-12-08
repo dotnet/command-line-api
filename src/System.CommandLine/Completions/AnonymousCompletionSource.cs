@@ -15,9 +15,9 @@ namespace System.CommandLine.Completions
             _complete = complete ?? throw new ArgumentNullException(nameof(complete));
         }
 
-        public AnonymousCompletionSource(Func<CompletionContext, IEnumerable<string>> suggest)
+        public AnonymousCompletionSource(Func<CompletionContext, IEnumerable<string>> complete)
         {
-            _complete = context => suggest(context).Select(value => new CompletionItem(value));
+            _complete = context => complete(context).Select(value => new CompletionItem(value));
         }
 
         public IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
