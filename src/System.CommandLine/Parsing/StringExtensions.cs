@@ -167,8 +167,11 @@ namespace System.CommandLine.Parsing
                                 if (symbolSet.GetByAlias(arg) is Command cmd && 
                                     cmd != currentCommand)
                                 {
+                                    if (!(currentCommand is null && cmd == configuration.RootCommand))
+                                    {
+                                        knownTokens = cmd.ValidTokens();
+                                    }
                                     currentCommand = cmd;
-                                    knownTokens = currentCommand.ValidTokens();
                                     tokenList.Add(Command(arg));
                                 }
                                 else
