@@ -341,5 +341,104 @@ namespace System.CommandLine.Parsing
                 IOption option => FindResultFor(option),
                 _ => throw new ArgumentOutOfRangeException(nameof(symbol))
             };
+
+
+        /// <summary>
+        /// Gets completions based on a given parse result.
+        /// </summary>
+        /// <param name="position">The position at which completions are requested.</param>
+        /// <returns>A set of completions for completion.</returns>
+        public IEnumerable<CompletionItem> GetCompletions(
+            int? position = null)
+        {
+            var currentSymbolResult = SymbolToComplete(position);
+
+            var currentSymbol = currentSymbolResult.Symbol;
+
+            var context = GetCompletionContext();
+
+            if (position is not null &&
+                context is TextCompletionContext tcc)
+            {
+                context = tcc.AtCursorPosition(position.Value);
+            }
+
+            var completions =
+                currentSymbol is ICompletionSource currentCompletionSource
+                    ? currentCompletionSource.GetCompletions(context)
+                    : Array.Empty<CompletionItem>();
+
+            completions =
+                completions.Where(item => OptionsWithArgumentLimitReached(currentSymbolResult).All(s => s != item.Label));
+
+            return completions;
+
+            static IEnumerable<string> OptionsWithArgumentLimitReached(SymbolResult symbolResult) =>
+                symbolResult
+                    .Children
+                    .Where(c => c.IsArgumentLimitReached)
+                    .OfType<OptionResult>()
+                    .Select(o => o.Symbol)
+                    .OfType<IIdentifierSymbol>()
+                    .SelectMany(c => c.Aliases);
+        }
+
+
+
+        private SymbolResult SymbolToComplete(int? position = null)
+        {
+            var commandResult = CommandResult;
+
+            var currentSymbol = AllSymbolResultsForCompletion().Last();
+
+            return currentSymbol;
+
+            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+            {
+                foreach (var item in commandResult.AllSymbolResults())
+                {
+                    if (item is CommandResult command)
+                    {
+                        yield return command;
+                    }
+                    else if (item is OptionResult option)
+                    {
+                        var willAcceptAnArgument =
+                            WillAcceptAnArgument(this, position, option);
+
+                        if (willAcceptAnArgument)
+                        {
+                            yield return option;
+                        }
+                    }
+                }
+            }
+
+            static bool WillAcceptAnArgument(
+                ParseResult parseResult,
+                int? position,
+                OptionResult option)
+            {
+                if (option.IsImplicit)
+                {
+                    return false;
+                }
+
+                if (!option.IsArgumentLimitReached)
+                {
+                    return true;
+                }
+
+                return parseResult.GetCompletionContext() switch
+                {
+                    TextCompletionContext c when position.HasValue =>
+                        c.AtCursorPosition(position.Value).TextToMatch.Length > 0,
+                    { } c =>
+                        c.TextToMatch.Length > 0,
+                    _ =>
+                        throw new ArgumentOutOfRangeException()
+                };
+            }
+        }
     }
 }
