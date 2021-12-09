@@ -303,7 +303,7 @@ namespace System.CommandLine.Tests
                 yield return ctx => ctx.Output.Write("last");
             }
         }
-
+        
         private string GetDefaultHelp(Command command)
         {
             var console = new TestConsole();
