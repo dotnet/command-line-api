@@ -40,7 +40,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Provides localizable strings for help and error messages.
         /// </summary>
-        protected LocalizationResources LocalizationResources { get; }
+        public LocalizationResources LocalizationResources { get; }
 
         /// <summary>
         /// The maximum width for which to format help output.
