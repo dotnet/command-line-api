@@ -247,7 +247,7 @@ namespace System.CommandLine.Help
 
         private void WriteOptions(HelpContext context)
         {
-            var options = context.Command.Options.Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context.ParseResult)).ToArray();
+            var options = context.Command.Options.Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
 
             if (options.Length > 0)
             {
@@ -258,7 +258,7 @@ namespace System.CommandLine.Help
 
         private void WriteSubcommands(HelpContext context)
         {
-            var subcommands = context.Command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context.ParseResult)).ToArray();
+            var subcommands = context.Command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
 
             if (subcommands.Length > 0)
             {
@@ -474,13 +474,15 @@ namespace System.CommandLine.Help
         /// Gets a help item for the specified symbol.
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        private TwoColumnHelpRow GetTwoColumnRow(IIdentifierSymbol symbol, ParseResult parseResult)
+        /// <param name="context">The help context.</param>
+        public TwoColumnHelpRow GetTwoColumnRow(
+            IIdentifierSymbol symbol, 
+            HelpContext context)
         {
             string firstColumnText;
             if (_customizationsBySymbol is { } &&
                 _customizationsBySymbol.TryGetValue(symbol, out Customization customization) &&
-                customization.GetFirstColumn?.Invoke(parseResult) is { } firstColumn)
+                customization.GetFirstColumn?.Invoke(context.ParseResult) is { } firstColumn)
             {
                 firstColumnText = firstColumn;
             }
@@ -500,7 +502,7 @@ namespace System.CommandLine.Help
                 {
                     if (!argument.IsHidden)
                     {
-                        var argumentFirstColumn = GetArgumentFirstColumnText(argument, parseResult);
+                        var argumentFirstColumn = GetArgumentFirstColumnText(argument, context.ParseResult);
                         if (!string.IsNullOrWhiteSpace(argumentFirstColumn))
                         {
                             firstColumnText += $" {argumentFirstColumn}";
@@ -514,7 +516,7 @@ namespace System.CommandLine.Help
                 }
             }
 
-            return new TwoColumnHelpRow(firstColumnText, GetSecondColumnText(symbol, parseResult));
+            return new TwoColumnHelpRow(firstColumnText, GetSecondColumnText(symbol, context.ParseResult));
         }
 
         /// <summary>
