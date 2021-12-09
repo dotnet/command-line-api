@@ -1,5 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
+using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Benchmarks.CommandLine
@@ -11,10 +13,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public string[] Args { get; set; }
 
         [Benchmark]
-        public int Sync() => BuildCommand().Invoke(Args);
+        public int DefaultsSync() => BuildCommand().Invoke(Args);
 
         [Benchmark]
-        public Task<int> Async() => BuildCommand().InvokeAsync(Args);
+        public Task<int> DefaultsAsync() => BuildCommand().InvokeAsync(Args);
+
+        [Benchmark]
+        public int MinimalSync() => new CommandLineBuilder(BuildCommand()).Build().Invoke(Args);
+
+        [Benchmark]
+        public Task<int> MinimalAsync() => new CommandLineBuilder(BuildCommand()).Build().InvokeAsync(Args);
 
         private static RootCommand BuildCommand()
         {

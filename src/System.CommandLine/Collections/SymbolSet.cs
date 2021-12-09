@@ -54,12 +54,8 @@ namespace System.CommandLine.Collections
 
             if (item is IIdentifierSymbol identifier)
             {
-                var aliases = identifier.Aliases.ToArray();
-
-                for (var i = 0; i < aliases.Length; i++)
+                foreach (string alias in identifier.Aliases)
                 {
-                    var alias = aliases[i];
-
                     if (ItemsByAlias.ContainsKey(alias))
                     {
                         aliasAlreadyInUse = alias;

@@ -52,7 +52,7 @@ namespace System.CommandLine
             {
                 if (_arity is null)
                 {
-                    return ArgumentArity.Default(
+                    _arity = ArgumentArity.Default(
                         ValueType, 
                         this, 
                         Parents);

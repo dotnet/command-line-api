@@ -76,12 +76,21 @@ namespace System.CommandLine.Builder
                     enableLegacyDoubleDashBehavior: EnableLegacyDoubleDashBehavior,
                     resources: LocalizationResources,
                     responseFileHandling: ResponseFileHandling,
-                    middlewarePipeline: _middlewareList.OrderBy(m => m.order)
-                                                       .Select(m => m.middleware)
-                                                       .ToArray(),
+                    middlewarePipeline: GetMiddleware(),
                     helpBuilderFactory: HelpBuilderFactory));
             
             return parser;
+        }
+
+        private IReadOnlyList<InvocationMiddleware> GetMiddleware()
+        {
+            _middlewareList.Sort(static (m1, m2) => m1.order.CompareTo(m2.order));
+            InvocationMiddleware[] result = new InvocationMiddleware[_middlewareList.Count];
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = _middlewareList[i].middleware;
+            }
+            return result;
         }
 
         internal void AddMiddleware(

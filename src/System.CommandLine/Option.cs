@@ -18,7 +18,6 @@ namespace System.CommandLine
         IOption
     {
         private string? _name;
-        private protected readonly HashSet<string> _unprefixedAliases = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
@@ -206,10 +205,6 @@ namespace System.CommandLine
             ThrowIfAliasIsInvalid(alias);
 
             base.AddAliasInner(alias);
-
-            var unprefixedAlias = alias.RemovePrefix();
-
-            _unprefixedAliases.Add(unprefixedAlias!);
         }
 
         /// <summary>
@@ -223,14 +218,22 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="alias">The alias, which can include a prefix.</param>
         /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
-        public bool HasAliasIgnoringPrefix(string alias) => _unprefixedAliases.Contains(alias.RemovePrefix());
-
-        private protected override void RemoveAlias(string alias)
+        public bool HasAliasIgnoringPrefix(string alias)
         {
-            _unprefixedAliases.Remove(alias);
+            ReadOnlySpan<char> rawAlias = alias.AsSpan(alias.GetPrefixLength());
 
-            base.RemoveAlias(alias);
+            foreach (string existingAlias in _aliases)
+            {
+                if (MemoryExtensions.Equals(existingAlias.AsSpan(existingAlias.GetPrefixLength()), rawAlias, StringComparison.CurrentCulture))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
+
+        private protected override void RemoveAlias(string alias) => base.RemoveAlias(alias);
 
         /// <summary>
         /// Sets the default value for the option.
@@ -252,8 +255,7 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
-        internal bool IsGreedy => Arity.MinimumNumberOfValues > 0 &&
-                                  ValueType != typeof(bool);
+        internal bool IsGreedy => ValueType != typeof(bool) && Arity.MinimumNumberOfValues > 0;
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
