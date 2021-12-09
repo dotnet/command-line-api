@@ -233,6 +233,8 @@ namespace System.CommandLine
             return false;
         }
 
+        private protected override void RemoveAlias(string alias) => base.RemoveAlias(alias);
+
         /// <summary>
         /// Sets the default value for the option.
         /// </summary>

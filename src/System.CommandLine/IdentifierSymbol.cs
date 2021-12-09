@@ -10,7 +10,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class IdentifierSymbol : Symbol, IIdentifierSymbol
     {
-        protected readonly HashSet<string> _aliases = new();
+        private protected readonly HashSet<string> _aliases = new();
         private string? _specifiedName;
 
         /// <summary>
