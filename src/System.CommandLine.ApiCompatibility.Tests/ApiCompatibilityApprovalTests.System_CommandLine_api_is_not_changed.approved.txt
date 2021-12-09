@@ -317,8 +317,8 @@ System.CommandLine.Completions
     public System.Collections.Generic.IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
   public class TextCompletionContext : CompletionContext
     public System.String CommandLineText { get; }
-    public System.Int32 Position { get; }
-    public TextCompletionContext AtPosition(System.Int32 position)
+    public System.Int32 CursorPosition { get; }
+    public TextCompletionContext AtCursorPosition(System.Int32 position)
   public class TokenCompletionContext : CompletionContext
 System.CommandLine.Help
   public class HelpBuilder
@@ -505,6 +505,7 @@ System.CommandLine.Parsing
     public OptionResult FindResultFor(System.CommandLine.IOption option)
     public SymbolResult FindResultFor(System.CommandLine.ISymbol symbol)
     public System.CommandLine.Completions.CompletionContext GetCompletionContext()
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
     public System.Object GetValueForArgument(System.CommandLine.IArgument argument)
     public T GetValueForArgument<T>(Argument<T> argument)
     public T GetValueForArgument<T>(System.CommandLine.IArgument argument)
@@ -522,7 +523,6 @@ System.CommandLine.Parsing
     public T ValueForOption<T>(System.String alias)
   public static class ParseResultExtensions
     public static System.String Diagram()
-    public static System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
     public static System.Boolean HasOption(System.CommandLine.IOption option)
     public static System.Boolean HasOption(System.String alias)
     public static System.Int32 Invoke(System.CommandLine.IConsole console = null)
