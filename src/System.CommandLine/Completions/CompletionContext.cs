@@ -85,6 +85,9 @@ namespace System.CommandLine.Completions
 
     // FIX: (CompletionContext) these need better names
 
+    /// <summary>
+    /// Provides details for getting completions when the complete text of the original command line is not available.
+    /// </summary>
     public class TokenCompletionContext : CompletionContext
     {
         internal TokenCompletionContext(ParseResult parseResult) : base(parseResult, GetTextToMatch(parseResult))
@@ -92,26 +95,41 @@ namespace System.CommandLine.Completions
         }
     }
 
+    /// <summary>
+    /// Provides details for calculating completions in the context of complete, unsplit command line text.
+    /// </summary>
     public class TextCompletionContext : CompletionContext
     {
         private TextCompletionContext(
             ParseResult parseResult,
             string commandLineText,
-            int position) : base(parseResult, GetTextToMatch(parseResult, position))
+            int cursorPosition) : base(parseResult, GetTextToMatch(parseResult, cursorPosition))
         {
             CommandLineText = commandLineText;
-            Position = position;
+            CursorPosition = cursorPosition;
         }
 
-        internal TextCompletionContext(ParseResult parseResult, string commandLineText) : this(parseResult, commandLineText, commandLineText.Length)
+        internal TextCompletionContext(
+            ParseResult parseResult, 
+            string commandLineText) : this(parseResult, commandLineText, commandLineText.Length)
         {
         }
 
-        public int Position { get; }
+        /// <summary>
+        /// The position of the cursor within the command line. 
+        /// </summary>
+        public int CursorPosition { get; }
 
+        /// <summary>
+        /// The complete text of the command line prior to splitting, including any additional whitespace.
+        /// </summary>
         public string CommandLineText { get; }
 
-        public TextCompletionContext AtPosition(int position) =>
+        /// <summary>
+        /// Creates a new instance of <see cref="TextCompletionContext"/> at the specified cursor position.
+        /// </summary>
+        /// <param name="position">The cursor position at which completions are calculated.</param>
+        public TextCompletionContext AtCursorPosition(int position) =>
             new(ParseResult, CommandLineText, position);
     }
 }

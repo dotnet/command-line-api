@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests
 
             var completionContext1 = (TextCompletionContext)command.Parse(commandLine).GetCompletionContext();
 
-            var completionContext2 = completionContext1.AtPosition(4);
+            var completionContext2 = completionContext1.AtCursorPosition(4);
 
             completionContext2.CommandLineText.Should().Be(commandLine);
         }
@@ -100,7 +100,7 @@ namespace System.CommandLine.Tests
             string textToMatch = command.Parse(commandLine)
                                         .GetCompletionContext()
                                         .As<TextCompletionContext>()
-                                        .AtPosition(commandLine.Length + 1)
+                                        .AtCursorPosition(commandLine.Length + 1)
                                         .TextToMatch;
 
             textToMatch.Should().Be("");
@@ -119,7 +119,7 @@ namespace System.CommandLine.Tests
             var textToMatch = command.Parse("the-command --option1 a")
                                      .GetCompletionContext()
                                      .As<TextCompletionContext>()
-                                     .AtPosition(1000)
+                                     .AtCursorPosition(1000)
                                      .TextToMatch;
 
             textToMatch.Should().Be("");
@@ -215,7 +215,7 @@ namespace System.CommandLine.Tests
             var textToMatch = command.Parse(commandLine.Replace("$", ""))
                                      .GetCompletionContext()
                                      .As<TextCompletionContext>()
-                                     .AtPosition(position)
+                                     .AtCursorPosition(position)
                                      .TextToMatch;
 
             textToMatch.Should().Be(expected);
