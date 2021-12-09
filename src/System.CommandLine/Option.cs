@@ -253,8 +253,7 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
-        internal bool IsGreedy => Arity.MinimumNumberOfValues > 0 &&
-                                  ValueType != typeof(bool);
+        internal bool IsGreedy => ValueType != typeof(bool) && Arity.MinimumNumberOfValues > 0;
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.

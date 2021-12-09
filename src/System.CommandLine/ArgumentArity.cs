@@ -125,8 +125,7 @@ namespace System.CommandLine
 
             var parent = parents.Count > 0 ? parents[0] : default;
 
-            if (typeof(IEnumerable).IsAssignableFrom(type) &&
-                type != typeof(string))
+            if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
             {
                 return parent is ICommand
                            ? ZeroOrMore
