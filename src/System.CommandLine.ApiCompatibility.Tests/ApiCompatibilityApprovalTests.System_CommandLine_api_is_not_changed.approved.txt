@@ -2,7 +2,7 @@
   public class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, IArgument, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
     .ctor()
     .ctor(System.String name)
-    public IArgumentArity Arity { get; set; }
+    public ArgumentArity Arity { get; set; }
     public System.Boolean HasDefaultValue { get; }
     public SuggestionSourceList Suggestions { get; }
     public System.Type ValueType { get; set; }
@@ -22,15 +22,18 @@
     .ctor(System.String name, ParseArgument<T> parse, System.Boolean isDefault = False, System.String description = null)
     .ctor(ParseArgument<T> parse, System.Boolean isDefault = False)
     public System.Type ValueType { get; set; }
-  public class ArgumentArity, IArgumentArity
-    public static IArgumentArity ExactlyOne { get; }
-    public static IArgumentArity OneOrMore { get; }
-    public static IArgumentArity Zero { get; }
-    public static IArgumentArity ZeroOrMore { get; }
-    public static IArgumentArity ZeroOrOne { get; }
+  public struct ArgumentArity : System.ValueType, System.IEquatable<ArgumentArity>
+    public static ArgumentArity ExactlyOne { get; }
+    public static ArgumentArity OneOrMore { get; }
+    public static ArgumentArity Zero { get; }
+    public static ArgumentArity ZeroOrMore { get; }
+    public static ArgumentArity ZeroOrOne { get; }
     .ctor(System.Int32 minimumNumberOfValues, System.Int32 maximumNumberOfValues)
     public System.Int32 MaximumNumberOfValues { get; }
     public System.Int32 MinimumNumberOfValues { get; }
+    public System.Boolean Equals(ArgumentArity other)
+    public System.Boolean Equals(System.Object obj)
+    public System.Int32 GetHashCode()
   public static class ArgumentExtensions
     public static TArgument AddSuggestions<TArgument>(System.String[] values)
     public static TArgument AddSuggestions<TArgument>(System.CommandLine.Suggestions.SuggestDelegate suggest)
@@ -81,10 +84,7 @@
     public static System.Void Write(System.String value)
     public static System.Void WriteLine(System.String value)
   public abstract class IArgument, System.CommandLine.Binding.IValueDescriptor, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
-    public IArgumentArity Arity { get; }
-  public abstract class IArgumentArity
-    public System.Int32 MaximumNumberOfValues { get; }
-    public System.Int32 MinimumNumberOfValues { get; }
+    public ArgumentArity Arity { get; }
   public abstract class ICommand, IIdentifierSymbol, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
     public System.Collections.Generic.IReadOnlyList<IArgument> Arguments { get; }
     public System.Collections.Generic.IReadOnlyList<IOption> Options { get; }
@@ -153,11 +153,11 @@
     public System.String VersionOptionCannotBeCombinedWithOtherArguments(System.String optionAlias)
     public System.String VersionOptionDescription()
   public class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor, IIdentifierSymbol, IOption, ISymbol, System.CommandLine.Suggestions.ISuggestionSource
-    .ctor(System.String name, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, IArgumentArity arity = null)
-    .ctor(System.String[] aliases, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, IArgumentArity arity = null)
+    .ctor(System.String name, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, ArgumentArity arity = null)
+    .ctor(System.String[] aliases, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, ArgumentArity arity = null)
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.String ArgumentHelpName { get; set; }
-    public IArgumentArity Arity { get; set; }
+    public ArgumentArity Arity { get; set; }
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
     public System.Void AddAlias(System.String alias)
@@ -175,7 +175,7 @@
     .ctor(System.String[] aliases, ParseArgument<T> parseArgument, System.Boolean isDefault = False, System.String description = null)
     .ctor(System.String name, Func<T> getDefaultValue, System.String description = null)
     .ctor(System.String[] aliases, Func<T> getDefaultValue, System.String description = null)
-    public IArgumentArity Arity { get; set; }
+    public ArgumentArity Arity { get; set; }
   public static class OptionExtensions
     public static TOption AddSuggestions<TOption>(System.String[] values)
     public static TOption AddSuggestions<TOption>(System.CommandLine.Suggestions.SuggestDelegate suggest)

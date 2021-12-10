@@ -14,7 +14,7 @@ namespace System.CommandLine
     public class Argument : Symbol, IArgument
     {
         private Func<ArgumentResult, object?>? _defaultValueFactory;
-        private IArgumentArity? _arity;
+        private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
         private Type _valueType = typeof(string);
         private SuggestionSourceList? _suggestions = null;
@@ -46,11 +46,11 @@ namespace System.CommandLine
         /// Gets or sets the arity of the argument.
         /// </summary>
         [NotNull]
-        public IArgumentArity Arity
+        public ArgumentArity Arity
         {
             get
             {
-                if (_arity is null)
+                if (!_arity.IsNonDefault)
                 {
                     _arity = ArgumentArity.Default(
                         ValueType, 
@@ -210,7 +210,7 @@ namespace System.CommandLine
         public override string ToString() => $"{nameof(Argument)}: {Name}";
 
         /// <inheritdoc />
-        IArgumentArity IArgument.Arity => Arity;
+        ArgumentArity IArgument.Arity => Arity;
 
         /// <inheritdoc />
         string IValueDescriptor.ValueName => Name;

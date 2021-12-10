@@ -15,6 +15,6 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the arity of the argument.
         /// </summary>
-        IArgumentArity Arity { get; }
+        ArgumentArity Arity { get; }
     }
 }

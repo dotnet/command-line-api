@@ -32,7 +32,7 @@ namespace System.CommandLine
             string? description = null,
             Type? argumentType = null,
             Func<object?>? getDefaultValue = null,
-            IArgumentArity? arity = null)
+            ArgumentArity arity = default)
             : this(name, description, CreateArgument(argumentType, getDefaultValue, arity))
         {
         }
@@ -50,7 +50,7 @@ namespace System.CommandLine
             string? description = null,
             Type? argumentType = null,
             Func<object?>? getDefaultValue = null,
-            IArgumentArity? arity = null)
+            ArgumentArity arity = default)
             : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity))
         { }
 
@@ -103,11 +103,11 @@ namespace System.CommandLine
             }
         }
 
-        private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, IArgumentArity? arity)
+        private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, ArgumentArity arity)
         {
             if (argumentType is null &&
                 getDefaultValue is null &&
-                arity is null)
+                !arity.IsNonDefault)
             {
                 return null;
             }
@@ -121,7 +121,7 @@ namespace System.CommandLine
             {
                 rv.SetDefaultValueFactory(getDefaultValue);
             }
-            if (arity is not null)
+            if (arity.IsNonDefault)
             {
                 rv.Arity = arity;
             }
@@ -161,7 +161,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the arity of the option.
         /// </summary>
-        public virtual IArgumentArity Arity
+        public virtual ArgumentArity Arity
         {
             get => Argument.Arity;
             init
