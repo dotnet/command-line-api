@@ -13,7 +13,6 @@
     <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
     <VersionPrefix>1.1$(DotnetSuggestBuildNumber)</VersionPrefix>
     <VersionSuffix></VersionSuffix>
-    <ExcludeFromSourceBuild>true</ExcludeFromSourceBuild>
   </PropertyGroup>
 
   <PropertyGroup>
