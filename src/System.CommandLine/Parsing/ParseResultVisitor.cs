@@ -213,9 +213,10 @@ namespace System.CommandLine.Parsing
                                 break;
                             }
 
-                            var token = _innermostCommandResult?.Tokens[j];
-
-                            nextArgumentResult.AddToken(token!);
+                            if (_innermostCommandResult is not null)
+                            {
+                                nextArgumentResult.AddToken(_innermostCommandResult.Tokens[j]);
+                            }
                         }
 
                         _argumentResults.Add(nextArgumentResult);

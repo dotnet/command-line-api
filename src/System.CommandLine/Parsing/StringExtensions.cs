@@ -269,11 +269,11 @@ namespace System.CommandLine.Parsing
 
                 return TryUnbundle(out replacement);
 
-                Token? TokenForOptionAlias(char c)
+                Token TokenForOptionAlias(char c)
                 {
                     if (_argumentDelimiters.Contains(c))
                     {
-                        return null;
+                        return default;
                     }
 
                     foreach (var token in knownTokens.Values)
@@ -285,7 +285,7 @@ namespace System.CommandLine.Parsing
                         }
                     }
 
-                    return null;
+                    return default;
                 }
 
                 void AddRestValue(List<string> list, string rest)
@@ -313,7 +313,7 @@ namespace System.CommandLine.Parsing
                     for (var i = 0; i < alias.Length; i++)
                     {
                         var token = TokenForOptionAlias(alias[i]);
-                        if (token is null)
+                        if (token.IsDefault)
                         {
                             if (lastTokenHasArgument)
                             {

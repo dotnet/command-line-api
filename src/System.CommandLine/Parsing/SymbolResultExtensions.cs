@@ -25,8 +25,7 @@ namespace System.CommandLine.Parsing
             return symbolResult switch
             {
                 CommandResult commandResult => commandResult.Token,
-                OptionResult optionResult => optionResult.Token ??
-                                             CreateImplicitToken(optionResult.Option),
+                OptionResult optionResult => optionResult.Token.IsDefault ? CreateImplicitToken(optionResult.Option) : optionResult.Token,
                 _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
             };
 
@@ -36,7 +35,7 @@ namespace System.CommandLine.Parsing
 
                 var defaultAlias = option.Aliases.First(alias => alias.RemovePrefix() == optionName);
 
-                return new ImplicitToken(defaultAlias, TokenType.Option);
+                return new Token(defaultAlias, Parsing.Token.ImplicitPosition);
             }
         }
     }

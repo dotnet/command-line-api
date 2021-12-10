@@ -6,15 +6,18 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A unit of significant text on the command line.
     /// </summary>
-    public class Token : IEquatable<Token>
+    public readonly struct Token : IEquatable<Token>
     {
+        internal const int ImplicitPosition = -1;
+
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
         public Token(string? value, TokenType type)
         {
             Value = value ?? "";
             Type = type;
-            Position = -1;
+            Position = ImplicitPosition;
+            WasBundled = false;
         }
        
         internal Token(string? value, TokenType type, int position)
@@ -22,9 +25,10 @@ namespace System.CommandLine.Parsing
             Value = value ?? "";
             Type = type;
             Position = position;
+            WasBundled = false;
         }
 
-        internal Token(string value, int position = -1, bool wasBundled = false)
+        internal Token(string value, int position = ImplicitPosition, bool wasBundled = false)
         {
             Value = value;
             Type = TokenType.Option;
@@ -39,9 +43,11 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public string Value { get; }
 
-        internal bool IsImplicit => Position == -1;
-
         internal bool WasBundled { get; }
+
+        internal bool IsImplicit => Position == ImplicitPosition;
+
+        internal bool IsDefault => Value is null && Position == default && WasBundled == default && Type == default;
 
         /// <summary>
         /// The type of the token.

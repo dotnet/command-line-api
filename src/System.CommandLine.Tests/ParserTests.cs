@@ -973,7 +973,7 @@ namespace System.CommandLine.Tests
             result.FindResultFor(option)
                   .Token
                   .Should()
-                  .BeNull();
+                  .BeEquivalentTo(default(Token));
         }
 
         [Fact]

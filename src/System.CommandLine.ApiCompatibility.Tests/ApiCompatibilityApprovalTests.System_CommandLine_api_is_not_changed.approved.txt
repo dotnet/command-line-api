@@ -518,7 +518,7 @@ System.CommandLine.Parsing
   public class SymbolResultSet : System.CommandLine.Collections.AliasedSet<SymbolResult>, System.Collections.Generic.IEnumerable<SymbolResult>, System.Collections.Generic.IReadOnlyCollection<SymbolResult>, System.Collections.Generic.IReadOnlyList<SymbolResult>, System.Collections.IEnumerable
     .ctor()
     protected System.Collections.Generic.IReadOnlyCollection<System.String> GetAliases(SymbolResult result)
-  public class Token, System.IEquatable<Token>
+  public struct Token : System.ValueType, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)
     public static System.Boolean op_Inequality(Token left, Token right)
     .ctor(System.String value, TokenType type)
