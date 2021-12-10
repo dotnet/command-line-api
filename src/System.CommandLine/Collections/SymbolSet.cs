@@ -36,7 +36,11 @@ namespace System.CommandLine.Collections
         internal void AddWithoutAliasCollisionCheck(ISymbol item)
         {
             base.Add(item);
-            ResetIndex(item);
+
+            if (_arguments is not null || _options is not null)
+            {
+                ResetIndex(item);
+            }
         }
 
         internal bool IsAnyAliasInUse(
