@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.IO;
@@ -894,6 +895,75 @@ namespace System.CommandLine.Tests
                     nameof(DayOfWeek.Tuesday),
                     nameof(DayOfWeek.Thursday),
                     nameof(DayOfWeek.Wednesday));
+        }
+
+        [Fact]
+        public void Custom_Completion_Handler_Can_Parse_At_The_End()
+        {
+            var command = new CustomCompletionCommand("command")
+            {
+                new Argument<string>("args")
+            };
+            var parser = new CommandLineBuilder(command).Build();
+            var completions = parser.Parse("command sub ").GetCompletions();
+
+            completions.Select(item => item.Label)
+                       .Should()
+                       .BeEquivalentTo("--str", "-b");
+        }
+
+        [Fact]
+        public void Custom_Completion_Handler_Can_Parse_At_Position_BeforeBool()
+        {
+            var command = new CustomCompletionCommand("command")
+            {
+                new Argument<string>("args")
+            };
+            var parser = new CommandLineBuilder(command).Build();
+            var completions = parser.Parse("command sub  -b").GetCompletions(position: 12);
+
+            completions.Select(item => item.Label)
+                       .Should()
+                       .BeEquivalentTo("--str");
+        }
+
+        [Theory]
+        [InlineData("command sub  --str")]
+        [InlineData("command sub  --str val")]
+        public void Custom_Completion_Handler_Can_Parse_At_Position_BeforeStr(string input)
+        {
+            var command = new CustomCompletionCommand("command")
+            {
+                new Argument<string>("args")
+            };
+            var parser = new CommandLineBuilder(command).Build();
+            var completions = parser.Parse(input).GetCompletions(position: 12);
+
+            completions.Select(item => item.Label)
+                       .Should()
+                       .BeEquivalentTo("-b");
+        }
+
+        private class CustomCompletionCommand : Command
+        {
+            public CustomCompletionCommand(string name, string description = null) 
+                : base(name, description)
+            {
+            }
+
+            public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
+            {
+                Command sub = new Command("sub");
+                Option str = new Option<string>("--str");
+                Option b = new Option<bool>("-b");
+                sub.AddOption(str);
+                sub.AddOption(b);
+                this.AddCommand(sub);
+
+                var parser = new CommandLineBuilder(this).Build();
+                TextCompletionContext textCompletionContext = context as TextCompletionContext;
+                return parser.Parse(textCompletionContext.CommandLineText).GetCompletions(textCompletionContext.CursorPosition);
+            }
         }
     }
 }
