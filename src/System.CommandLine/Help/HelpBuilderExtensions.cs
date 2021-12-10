@@ -25,20 +25,5 @@ namespace System.CommandLine.Help
         {
             builder.Customize(symbol, _ => firstColumnText, _ => secondColumnText, _ => defaultValue);
         }
-
-        /// <param name="symbol">The symbol to customize the help details for.</param>
-        /// <param name="firstColumnText">A delegate to display the first help column (typically name and usage information).</param>
-        /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
-        /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
-        /// /// <param name="builder">The help builder to write with.</param>
-        public static void Customize(
-            this HelpBuilder builder,
-            ISymbol symbol,
-            Func<ParseResult?, string?>? firstColumnText = null,
-            Func<ParseResult?, string?>? secondColumnText = null,
-            Func<ParseResult?, string?>? defaultValue = null)
-        {
-            builder.Customize(symbol, firstColumnText, secondColumnText, defaultValue);
-        }
     }
 }
