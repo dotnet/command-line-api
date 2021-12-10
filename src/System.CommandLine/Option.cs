@@ -18,6 +18,7 @@ namespace System.CommandLine
         IOption
     {
         private string? _name;
+        private List<ValidateSymbolResult<OptionResult>>? _validators;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
@@ -192,7 +193,7 @@ namespace System.CommandLine
             }
         }
 
-        internal List<ValidateSymbolResult<OptionResult>> Validators { get; } = new();
+        internal List<ValidateSymbolResult<OptionResult>> Validators => _validators ??= new();
 
         /// <summary>
         /// Adds an alias for the option, which can be used to specify the option on the command line.
