@@ -2,13 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Collections;
+using System.CommandLine.Suggestions;
 
 namespace System.CommandLine.Parsing
 {
     /// <summary>
     /// A result produced during parsing for a specific symbol.
     /// </summary>
-    public abstract class SymbolResult
+    public abstract class SymbolResult : IMatchable
     {
         private protected readonly List<Token> _tokens = new();
         private LocalizationResources? _resources;
@@ -96,6 +98,8 @@ namespace System.CommandLine.Parsing
             get => _resources ??= Parent?.LocalizationResources ?? LocalizationResources.Instance;
             set => _resources = value;
         }
+
+        bool IMatchable.Matches(string name) => Symbol.Matches(name);
 
         internal void AddToken(Token token) => _tokens.Add(token);
 

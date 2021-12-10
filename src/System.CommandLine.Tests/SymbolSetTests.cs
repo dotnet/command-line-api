@@ -10,7 +10,7 @@ using Xunit;
 namespace System.CommandLine.Tests
 {
     public abstract class AliasedSetTests<TSymbol, TSet>
-        where TSymbol : class
+        where TSymbol : class, IMatchable
         where TSet : AliasedSet<TSymbol>
     {
         [Fact]

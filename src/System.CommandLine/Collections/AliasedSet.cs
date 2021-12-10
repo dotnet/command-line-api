@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Collections
 {
@@ -12,12 +11,8 @@ namespace System.CommandLine.Collections
     /// </summary>
     /// <typeparam name="T">The type of the instances contained by the set.</typeparam>
     public abstract class AliasedSet<T> : IReadOnlyList<T>
-        where T : class
+        where T : class, IMatchable
     {
-        private HashSet<T>? _dirtyItems;
-
-        private protected readonly Dictionary<string, T> ItemsByAlias = new();
-
         private protected List<T> Items { get; } = new();
 
         /// <inheritdoc/>
@@ -28,12 +23,7 @@ namespace System.CommandLine.Collections
         /// </summary>
         /// <param name="alias">The alias to locate.</param>
         /// <returns><see langword="true" /> if the set contains a value with the specified alias; otherwise, <see langword="false"/>.</returns>
-        public bool ContainsAlias(string alias)
-        {
-            EnsureAliasIndexIsCurrent();
-
-            return ItemsByAlias.ContainsKey(alias);
-        }
+        public bool ContainsAlias(string alias) => TryGetByAlias(alias, out T _);
 
         /// <summary>
         /// Gets the member of the set having the specified alias, if any.
@@ -42,11 +32,24 @@ namespace System.CommandLine.Collections
         /// <returns>The member of the set having the specified alias, if any; otherwise, null.</returns>
         public T? GetByAlias(string alias)
         {
-            EnsureAliasIndexIsCurrent();
-
-            ItemsByAlias.TryGetValue(alias, out var value);
+            TryGetByAlias(alias, out T? value);
 
             return value;
+        }
+
+        private bool TryGetByAlias(string alias, out T? value)
+        {
+            foreach (T item in Items)
+            {
+                if (item.Matches(alias))
+                {
+                    value = item;
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
         }
 
         /// <inheritdoc/>
@@ -55,21 +58,7 @@ namespace System.CommandLine.Collections
         /// <inheritdoc/>
         public IEnumerator<T> GetEnumerator() => Items.GetEnumerator();
 
-        internal virtual void Add(T item)
-        {
-            Items.Add(item);
-
-            foreach (var alias in GetAliases(item))
-            {
-                ItemsByAlias.TryAdd(alias, item);
-            }
-        }
-
-        private protected void MarkAsDirty(T item)
-        {
-            _dirtyItems ??= new();
-            _dirtyItems.Add(item);
-        }
+        internal virtual void Add(T item) => Items.Add(item);
 
         /// <summary>
         /// Gets the list of aliases of the specified item.
@@ -80,37 +69,5 @@ namespace System.CommandLine.Collections
 
         /// <inheritdoc/>
         public T this[int index] => Items[index];
-
-        private protected void EnsureAliasIndexIsCurrent()
-        {
-            if (_dirtyItems is null || _dirtyItems.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var dirtyItem in _dirtyItems)
-            {
-                var aliases = GetAliases(dirtyItem).ToArray();
-
-                foreach (var pair in ItemsByAlias.ToArray())
-                {
-                    if (pair.Value.Equals(dirtyItem))
-                    {
-                        ItemsByAlias.Remove(pair.Key);
-                    }
-                }
-
-                if (Items.Contains(dirtyItem))
-                {
-                    for (var j = 0; j < aliases.Length; j++)
-                    {
-                        var alias = aliases[j];
-                        ItemsByAlias.TryAdd(alias, dirtyItem);
-                    }
-                }
-            }
-
-            _dirtyItems.Clear();
-        }
     }
 }

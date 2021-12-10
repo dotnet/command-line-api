@@ -9,7 +9,7 @@ namespace System.CommandLine
     /// <summary>
     /// Defines a named symbol that resides in a hierarchy with parent and child symbols.
     /// </summary>
-    public interface ISymbol : ISuggestionSource
+    public interface ISymbol : ISuggestionSource, IMatchable
     {
         /// <summary>
         /// Gets the symbol name.

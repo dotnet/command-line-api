@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace System.CommandLine.Collections
 {
@@ -34,44 +33,42 @@ namespace System.CommandLine.Collections
             }
         }
 
-        private void Resync(ISymbol symbol) => MarkAsDirty(symbol);
-
         internal void AddWithoutAliasCollisionCheck(ISymbol item)
         {
             base.Add(item);
             ResetIndex(item);
-            if (item is Symbol symbol)
-            {
-                symbol.OnNameOrAliasChanged += Resync;
-            }
         }
 
         internal bool IsAnyAliasInUse(
             ISymbol item,
             [MaybeNullWhen(false)] out string aliasAlreadyInUse)
         {
-            EnsureAliasIndexIsCurrent();
-
-            if (item is IIdentifierSymbol identifier)
+            if (Items.Count > 0)
             {
-                foreach (string alias in identifier.Aliases)
+                if (item is IIdentifierSymbol identifier)
                 {
-                    if (ItemsByAlias.ContainsKey(alias))
+                    foreach (string alias in identifier.Aliases)
                     {
-                        aliasAlreadyInUse = alias;
-                        return true;
+                        foreach (ISymbol symbol in Items)
+                        {
+                            if (symbol.Matches(alias))
+                            {
+                                aliasAlreadyInUse = alias;
+                                return true;
+                            }
+                        }
                     }
                 }
-            }
-            else
-            {
-                for (var i = 0; i < Items.Count; i++)
+                else
                 {
-                    var existing = Items[i];
-                    if (string.Equals(item.Name, existing.Name, StringComparison.Ordinal))
+                    string name = item.Name;
+                    foreach (ISymbol symbol in Items)
                     {
-                        aliasAlreadyInUse = existing.Name;
-                        return true;
+                        if (symbol.Matches(name))
+                        {
+                            aliasAlreadyInUse = name;
+                            return true;
+                        }
                     }
                 }
             }

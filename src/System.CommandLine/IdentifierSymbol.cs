@@ -58,17 +58,11 @@ namespace System.CommandLine
             }
         }
 
-        private protected virtual void AddAliasInner(string alias)
-        {
-            _aliases.Add(alias);
+        public override bool Matches(string name) => string.Equals(name, _specifiedName, StringComparison.Ordinal) || _aliases.Contains(name);
 
-            OnNameOrAliasChanged?.Invoke(this);
-        }
+        private protected virtual void AddAliasInner(string alias) => _aliases.Add(alias);
 
-        private protected virtual void RemoveAlias(string alias)
-        {
-            _aliases.Remove(alias);
-        }
+        private protected virtual void RemoveAlias(string alias) => _aliases.Remove(alias);
 
         /// <inheritdoc />
         public virtual bool HasAlias(string alias) => _aliases.Contains(alias);

@@ -40,6 +40,8 @@ namespace System.CommandLine
         /// </summary>
         public ISymbolSet Parents => _parents;
 
+        public virtual bool Matches(string name) => string.Equals(name, _name, StringComparison.Ordinal);
+
         internal void AddParent(Symbol symbol)
         {
             _parents.AddWithoutAliasCollisionCheck(symbol);
@@ -115,8 +117,6 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         ISymbolSet ISymbol.Children => Children;
-
-        internal Action<ISymbol>? OnNameOrAliasChanged;
 
         [DebuggerStepThrough]
         private protected void ThrowIfAliasIsInvalid(string alias)
