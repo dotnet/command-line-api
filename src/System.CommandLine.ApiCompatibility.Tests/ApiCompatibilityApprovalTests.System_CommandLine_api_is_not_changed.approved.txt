@@ -518,13 +518,14 @@ System.CommandLine.Parsing
   public class SymbolResultSet : System.CommandLine.Collections.AliasedSet<SymbolResult>, System.Collections.Generic.IEnumerable<SymbolResult>, System.Collections.Generic.IReadOnlyCollection<SymbolResult>, System.Collections.Generic.IReadOnlyList<SymbolResult>, System.Collections.IEnumerable
     .ctor()
     protected System.Collections.Generic.IReadOnlyCollection<System.String> GetAliases(SymbolResult result)
-  public class Token
+  public class Token, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)
     public static System.Boolean op_Inequality(Token left, Token right)
     .ctor(System.String value, TokenType type)
     public TokenType Type { get; }
     public System.String Value { get; }
     public System.Boolean Equals(System.Object obj)
+    public System.Boolean Equals(Token other)
     public System.Int32 GetHashCode()
     public System.String ToString()
   public class TokenizeError
