@@ -16,7 +16,6 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
-        private readonly SymbolSet _symbols = new();
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <summary>
@@ -41,8 +40,6 @@ namespace System.CommandLine
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
-
-            _symbols.Add(RootCommand);
 
             AddGlobalOptionsToChildren(command);
 
@@ -90,7 +87,7 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the symbols to parse.
         /// </summary>
-        public ISymbolSet Symbols => _symbols;
+        public ISymbolSet Symbols => RootCommand.Children;
 
         /// <summary>
         /// Gets whether directives are enabled.
