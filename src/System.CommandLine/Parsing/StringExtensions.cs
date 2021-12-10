@@ -586,17 +586,11 @@ namespace System.CommandLine.Parsing
                             switch (identifier)
                             {
                                 case Command cmd:
-                                    tokens.TryAdd(
-                                        childAlias,
-                                        (new Token(childAlias, TokenType.Command, -1),
-                                            identifier));
+                                    tokens[childAlias] = (new Token(childAlias, TokenType.Command, -1), identifier);
                                     break;
 
                                 case Option option:
-                                    tokens.TryAdd(
-                                        childAlias,
-                                        (new Token(childAlias, TokenType.Option, -1),
-                                            identifier));
+                                    tokens[childAlias] = (new Token(childAlias, TokenType.Option, -1), identifier);
                                     break;
                             }
                         }
