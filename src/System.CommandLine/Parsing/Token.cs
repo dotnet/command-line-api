@@ -15,7 +15,6 @@ namespace System.CommandLine.Parsing
         public Token(string? value, TokenType type)
         {
             Value = value ?? "";
-            UnprefixedValue = Value.RemovePrefix();
             Type = type;
             Position = -1;
         }
@@ -23,7 +22,6 @@ namespace System.CommandLine.Parsing
         internal Token(string? value, TokenType type, int position)
         {
             Value = value ?? "";
-            UnprefixedValue = Value.RemovePrefix();
             Type = type;
             Position = position;
         }
@@ -31,7 +29,6 @@ namespace System.CommandLine.Parsing
         internal Token(string value, int position = -1, bool wasBundled = false)
         {
             Value = value;
-            UnprefixedValue = value.RemovePrefix();
             Type = TokenType.Option;
             Position = position;
             WasBundled = wasBundled;
@@ -45,8 +42,6 @@ namespace System.CommandLine.Parsing
         public string Value { get; }
 
         internal bool IsImplicit => Position == -1;
-
-        internal string UnprefixedValue { get; }
 
         internal bool WasBundled { get; }
 
@@ -87,6 +82,17 @@ namespace System.CommandLine.Parsing
         public static bool operator !=(Token left, Token right)
         {
             return !(left == right);
+        }
+
+        internal bool IsFirstCharOfTheUnprefixedValue(char c)
+        {
+            if (Value.Length == 0)
+            {
+                return false;
+            }
+
+            int index = Value.GetPrefixLength();
+            return index < Value.Length && Value[index] == c;
         }
     }
 }

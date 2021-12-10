@@ -279,7 +279,7 @@ namespace System.CommandLine.Parsing
                     foreach (var token in knownTokens.Values)
                     {
                         if (token.token is { Type : TokenType.Option } &&
-                            token.token.UnprefixedValue[0] == c)
+                            token.token.IsFirstCharOfTheUnprefixedValue(c))
                         {
                             return token.token;
                         }
