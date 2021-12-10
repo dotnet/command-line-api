@@ -170,7 +170,7 @@ namespace System.CommandLine
                 {
                     Argument.ValueType = typeof(string);
                 }
-                
+
                 Argument.Arity = value;
             }
         }
@@ -255,7 +255,19 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
-        internal bool IsGreedy => ValueType != typeof(bool) && Arity.MinimumNumberOfValues > 0;
+        internal virtual bool IsGreedy
+        {
+            get
+            {
+                if (Children.Count == 0 || Children.Arguments.Count == 0)
+                {
+                    return false;
+                }
+
+                var argument = Children.Arguments[0];
+                return argument.Arity.MinimumNumberOfValues > 0 && argument.ValueType != typeof(bool);
+            }
+        }
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.

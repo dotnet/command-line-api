@@ -152,20 +152,8 @@ namespace System.CommandLine.Parsing
                                 break;
 
                             case { Type: TokenType.Command }:
-                                // when a subcommand is encountered, re-scope which tokens are valid
-                                ISymbolSet symbolSet;
-
-                                if (currentCommand is { } command)
-                                {
-                                    symbolSet = command.Children;
-                                }
-                                else
-                                {
-                                    symbolSet = configuration.Symbols;
-                                }
-
-                                if (symbolSet.GetByAlias(arg) is Command cmd && 
-                                    cmd != currentCommand)
+                                Command cmd = (Command)token.symbol;
+                                if (cmd != currentCommand)
                                 {
                                     if (!(currentCommand is null && cmd == configuration.RootCommand))
                                     {
@@ -348,7 +336,7 @@ namespace System.CommandLine.Parsing
 
                             // If i == arg.Length - 1, we're already at the end of the string
                             // so no need for the custom handling of argument.
-                            if (t.isGreedy &&
+                            if (((Option)t.symbol).IsGreedy &&
                                 i < alias.Length - 1)
                             {
                                 // The current option requires an argument, and we're still in
@@ -374,12 +362,12 @@ namespace System.CommandLine.Parsing
 
                 var token = tokenList[tokenList.Count - 1];
 
-                if (token is not { Type: TokenType.Option })
+                if (token.Type != TokenType.Option)
                 {
                     return false;
                 }
 
-                if (knownTokens[token.Value].isGreedy)
+                if (((Option)knownTokens[token.Value].symbol).IsGreedy)
                 {
                     return true;
                 }
@@ -576,9 +564,9 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, (Token token, bool isGreedy)> ValidTokens(this ICommand command)
+        private static Dictionary<string, (Token token, ISymbol symbol)> ValidTokens(this ICommand command)
         {
-            var tokens = new Dictionary<string, (Token, bool isGreedy)>();
+            var tokens = new Dictionary<string, (Token, ISymbol symbol)>();
 
             foreach (var commandAlias in command.Aliases)
             {
@@ -587,7 +575,7 @@ namespace System.CommandLine.Parsing
                     (new Token(
                             commandAlias,
                             TokenType.Command,
-                            -1), isGreedy: false));
+                            -1), command));
 
                 for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
                 {
@@ -601,14 +589,14 @@ namespace System.CommandLine.Parsing
                                     tokens.TryAdd(
                                         childAlias,
                                         (new Token(childAlias, TokenType.Command, -1),
-                                            isGreedy: false));
+                                            identifier));
                                     break;
 
                                 case Option option:
                                     tokens.TryAdd(
                                         childAlias,
                                         (new Token(childAlias, TokenType.Option, -1),
-                                            isGreedy: option.IsGreedy));
+                                            identifier));
                                     break;
                             }
                         }
