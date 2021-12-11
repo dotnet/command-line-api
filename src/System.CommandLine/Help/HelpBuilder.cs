@@ -65,8 +65,14 @@ namespace System.CommandLine.Help
             foreach (var writeSection in Layout)
             {
                 writeSection(context);
-                context.Output.WriteLine();
+
+                if (!context.WasSectionSkipped)
+                {
+                    context.Output.WriteLine();
+                }
             }
+
+            context.Output.WriteLine();
         }
 
         /// <summary>
@@ -91,25 +97,56 @@ namespace System.CommandLine.Help
         /// Writes a help section describing a command's synopsis.
         /// </summary>
         public static HelpDelegate SynopsisSection() =>
-            ctx => ctx.HelpBuilder.WriteSynopsis(ctx);
+            ctx =>
+            {
+                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
+            };
 
         /// <summary>
         /// Writes a help section describing a command's usage.
         /// </summary>
         public static HelpDelegate CommandUsageSection() =>
-            ctx => ctx.HelpBuilder.WriteCommandUsage(ctx);
+            ctx =>
+            {
+                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpUsageTitle(), ctx.HelpBuilder.GetUsage(ctx.Command), ctx.Output);
+            };
 
         ///  <summary>
         /// Writes a help section describing a command's arguments.
         ///  </summary>
         public static HelpDelegate CommandArgumentsSection() =>
-            ctx => ctx.HelpBuilder.WriteCommandArguments(ctx);
+            ctx =>
+            {
+                TwoColumnHelpRow[] commandArguments = ctx.HelpBuilder.GetCommandArgumentRows(ctx.Command, ctx).ToArray();
+
+                if (commandArguments.Length <= 0)
+                {
+                    ctx.WasSectionSkipped = true;
+                    return;
+                }
+
+                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
+                ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
+            };
 
         ///  <summary>
         /// Writes a help section describing a command's options.
         ///  </summary>
         public static HelpDelegate OptionsSection() =>
-            ctx => ctx.HelpBuilder.WriteOptions(ctx);
+            ctx =>
+            {
+                var options = ctx.Command.Options.Where(x => !x.IsHidden).Select(x => ctx.HelpBuilder.GetTwoColumnRow(x, ctx)).ToArray();
+
+                if (options.Length <= 0)
+                {
+                    ctx.WasSectionSkipped = true;
+                    return;
+                }
+
+                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
+                ctx.HelpBuilder.WriteColumns(options, ctx);
+                ctx.Output.WriteLine();
+            };
 
         ///  <summary>
         /// Writes a help section describing a command's subcommands.
@@ -145,13 +182,7 @@ namespace System.CommandLine.Help
             _customizationsBySymbol[symbol] = new Customization(firstColumnText, secondColumnText, defaultValue);
         }
 
-       private void WriteSynopsis(HelpContext context) => 
-           WriteHeading(LocalizationResources.HelpDescriptionTitle(), context.Command.Description, context.Output);
-
-       private void WriteCommandUsage(HelpContext context) => 
-           WriteHeading(LocalizationResources.HelpUsageTitle(), GetUsage(context.Command), context.Output);
-
-       private string GetUsage(ICommand command)
+        private string GetUsage(ICommand command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -194,29 +225,18 @@ namespace System.CommandLine.Help
             }
         }
 
-        private void WriteCommandArguments(HelpContext context)
-        {
-            TwoColumnHelpRow[] commandArguments = GetCommandArgumentRows(context.Command, context).ToArray();
-
-            if (commandArguments.Length > 0)
-            {
-                WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, context.Output);
-                WriteColumns(commandArguments, context);
-            }
-        }
-
         private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(ICommand command, HelpContext context)
         {
             return command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
                     .Reverse()
-                    .SelectMany(cmd => GetArguments(cmd, context))
+                    .SelectMany(GetArguments)
                     .Distinct();
 
-            IEnumerable<TwoColumnHelpRow> GetArguments(ICommand cmd, HelpContext context)
+            IEnumerable<TwoColumnHelpRow> GetArguments(ICommand cmd)
             {
                 var arguments = cmd.Arguments.Where(x => !x.IsHidden);
 
-                foreach (IArgument argument in arguments)
+                foreach (var argument in arguments)
                 {
                     string argumentFirstColumn = GetArgumentFirstColumnText(argument, context);
 
@@ -239,37 +259,30 @@ namespace System.CommandLine.Help
             }
         }
 
-        private void WriteOptions(HelpContext context)
-        {
-            var options = context.Command.Options.Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
-
-            if (options.Length > 0)
-            {
-                WriteHeading(LocalizationResources.HelpOptionsTitle(), null, context.Output);
-                WriteColumns(options, context);
-            }
-        }
-
         private void WriteSubcommands(HelpContext context)
         {
             var subcommands = context.Command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
 
-            if (subcommands.Length > 0)
+            if (subcommands.Length <= 0)
             {
-                WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
-                WriteColumns(subcommands, context);
+                context.WasSectionSkipped = true;
+                return;
             }
+
+            WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
+            WriteColumns(subcommands, context);
         }
 
         private void WriteAdditionalArguments(HelpContext context)
         {
             if (context.Command.TreatUnmatchedTokensAsErrors)
             {
+                context.WasSectionSkipped = true;
                 return;
             }
 
             WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
-                LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
+                         LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
         }
        
         private void WriteHeading(string? heading, string? description, TextWriter writer)
@@ -380,9 +393,10 @@ namespace System.CommandLine.Help
                 }
                 secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
             }
-
-            foreach (var helpItem in items)
+            
+            for (var i = 0; i < items.Count; i++)
             {
+                var helpItem = items[i];
                 IEnumerable<string> firstColumnParts = WrapText(helpItem.FirstColumnText, firstColumnWidth);
                 IEnumerable<string> secondColumnParts = WrapText(helpItem.SecondColumnText, secondColumnWidth);
 
@@ -397,8 +411,10 @@ namespace System.CommandLine.Help
                         {
                             padding = new string(' ', padSize);
                         }
+
                         context.Output.Write($"{padding}{Indent}{second}");
                     }
+
                     context.Output.WriteLine();
                 }
             }

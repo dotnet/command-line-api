@@ -4,7 +4,6 @@
 using Xunit;
 using System.IO;
 using ApprovalTests;
-using System.CommandLine.Help;
 using ApprovalTests.Reporters;
 
 namespace System.CommandLine.Tests.Help

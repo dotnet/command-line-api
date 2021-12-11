@@ -308,6 +308,7 @@ System.CommandLine.Help
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
   public static class HelpBuilderExtensions
     public static System.Void Customize(System.CommandLine.ISymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
+    public static System.Void Write(System.CommandLine.ICommand command, System.IO.TextWriter writer)
   public class HelpContext
     .ctor(HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null, System.Nullable<System.Int32> maxWidth = 2147483647)
     public System.CommandLine.ICommand Command { get; }

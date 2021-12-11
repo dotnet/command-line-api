@@ -267,13 +267,13 @@ namespace System.CommandLine.Tests
             var console = new TestConsole();
             parser.Invoke("-h", console);
 
-            console.Out.ToString().Should().Be($"one{NewLine}two{NewLine}three{NewLine}");
+            console.Out.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}{NewLine}");
 
             IEnumerable<HelpDelegate> CustomLayout()
             {
-                yield return ctx => ctx.Output.Write("one");
-                yield return ctx => ctx.Output.Write("two");
-                yield return ctx => ctx.Output.Write("three");
+                yield return ctx => ctx.Output.WriteLine("one");
+                yield return ctx => ctx.Output.WriteLine("two");
+                yield return ctx => ctx.Output.WriteLine("three");
             }
         }
 
@@ -289,18 +289,22 @@ namespace System.CommandLine.Tests
             parser.Invoke("-h", console);
 
             var output = console.Out.ToString();
-            output.Should().Be($"first{NewLine}{GetDefaultHelp(command)}last{NewLine}");
+            var defaultHelp = GetDefaultHelp(command);
+
+            var expected = $"first{NewLine}{NewLine}{defaultHelp}last{NewLine}{NewLine}";
+
+            output.Should().Be(expected);
 
             IEnumerable<HelpDelegate> CustomLayout()
             {
-                yield return ctx => ctx.Output.Write("first");
+                yield return ctx => ctx.Output.WriteLine("first");
 
                 foreach (var section in HelpBuilder.DefaultLayout())
                 {
                     yield return section;
                 }
 
-                yield return ctx => ctx.Output.Write("last");
+                yield return ctx => ctx.Output.WriteLine("last");
             }
         }
         
@@ -314,7 +318,9 @@ namespace System.CommandLine.Tests
 
             parser.Invoke("-h", console);
 
-            return console.Out.ToString();
+            var output = console.Out.ToString();
+            output = output.Substring(0, output.Length - NewLine.Length);
+            return output;
         }
     }
 }

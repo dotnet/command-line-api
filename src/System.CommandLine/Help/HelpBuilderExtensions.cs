@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Parsing;
 using System.IO;
 
 namespace System.CommandLine.Help
@@ -24,6 +23,17 @@ namespace System.CommandLine.Help
             string? defaultValue = null)
         {
             builder.Customize(symbol, _ => firstColumnText, _ => secondColumnText, _ => defaultValue);
+        }
+
+        /// <summary>
+        /// Writes help output for the specified command.
+        /// </summary>
+        public static void Write(
+            this HelpBuilder helpBuilder,
+            ICommand command,
+            TextWriter writer)
+        {
+            helpBuilder.Write(new HelpContext(helpBuilder, command, writer));
         }
     }
 }
