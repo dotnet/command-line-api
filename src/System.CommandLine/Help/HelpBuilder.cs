@@ -18,15 +18,15 @@ namespace System.CommandLine.Help
         private const string Indent = "  ";
 
         private Dictionary<ISymbol, Customization>? _customizationsBySymbol;
-        private IEnumerable<HelpDelegate>? _layout;
+        private Func<HelpContext, IEnumerable<HelpDelegate>>? _getLayout;
 
         /// <param name="localizationResources">Resources used to localize the help output.</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
-        /// <param name="layout">Defines the sections to be printed for command line help.</param>
+        /// <param name="getLayout">Defines the sections to be printed for command line help.</param>
         public HelpBuilder(
             LocalizationResources localizationResources, 
             int maxWidth = int.MaxValue,
-            IEnumerable<HelpDelegate>? layout = null)
+            Func<HelpContext, IEnumerable<HelpDelegate>>? getLayout = null)
         {
             LocalizationResources = localizationResources ?? throw new ArgumentNullException(nameof(localizationResources));
 
@@ -35,7 +35,7 @@ namespace System.CommandLine.Help
                 maxWidth = int.MaxValue;
             }
             MaxWidth = maxWidth;
-            _layout = layout;
+            _getLayout = getLayout;
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            foreach (var writeSection in Layout)
+            foreach (var writeSection in GetLayout(context))
             {
                 writeSection(context);
 
@@ -79,7 +79,14 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Gets the sections to be written for command line help.
         /// </summary>
-        public IEnumerable<HelpDelegate> Layout => _layout ??= DefaultLayout();
+        public IEnumerable<HelpDelegate> GetLayout(HelpContext context)
+        {
+            if (_getLayout is null)
+            {
+                _getLayout = _ => DefaultLayout();
+            }
+            return _getLayout(context);
+        }
 
         /// <summary>
         /// Gets the default sections to be written for command line help.
@@ -239,23 +246,29 @@ namespace System.CommandLine.Help
 
                 foreach (var argument in arguments)
                 {
-                    string argumentFirstColumn = GetArgumentFirstColumnText(argument, context);
+                    Customization? customization = null;
 
-                    yield return new TwoColumnHelpRow(argumentFirstColumn, string.Join(" ", GetArgumentSecondColumnText(cmd, argument)));
-                }
-            }
+                    if (_customizationsBySymbol is { })
+                    {
+                        _customizationsBySymbol.TryGetValue(argument, out customization);
+                    }
 
-            IEnumerable<string> GetArgumentSecondColumnText(IIdentifierSymbol parent, IArgument argument)
-            {
-                string? description = argument.Description;
-                if (!string.IsNullOrWhiteSpace(description))
-                {
-                    yield return description!;
-                }
+                    var firstColumnText =
+                        customization?.GetFirstColumn?.Invoke(context) ??
+                        GetArgumentUsageTitle(argument, context);
 
-                if (argument.HasDefaultValue)
-                {
-                    yield return $"[{GetArgumentDefaultValueText(parent, argument, true, context)}]";
+                    var argumentDescription =
+                        customization?.GetSecondColumn?.Invoke(context) ??
+                        string.Join(" ", argument.Description);
+
+                    var defaultValueDescription = 
+                        argument.HasDefaultValue
+                         ? $"[{GetArgumentDefaultValueText(cmd, argument, true, context)}]"
+                         : "";
+                    
+                    var secondColumnText = $"{argumentDescription} {defaultValueDescription}".Trim();
+
+                    yield return new TwoColumnHelpRow(firstColumnText, secondColumnText);
                 }
             }
         }
@@ -513,10 +526,11 @@ namespace System.CommandLine.Help
                 {
                     if (!argument.IsHidden)
                     {
-                        var argumentFirstColumn = GetArgumentFirstColumnText(argument, context);
-                        if (!string.IsNullOrWhiteSpace(argumentFirstColumn))
+                        var argumentFirstColumnText = GetArgumentUsageTitle(argument, context);
+
+                        if (!string.IsNullOrWhiteSpace(argumentFirstColumnText))
                         {
-                            firstColumnText += $" {argumentFirstColumn}";
+                            firstColumnText += $" {argumentFirstColumnText}";
                         }
                     }
                 }
@@ -574,7 +588,11 @@ namespace System.CommandLine.Help
             }
         }
 
-        private string GetArgumentDefaultValueText(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName, HelpContext context)
+        private string GetArgumentDefaultValueText(
+            IIdentifierSymbol parent,
+            IArgument argument,
+            bool displayArgumentName,
+            HelpContext context)
         {
             string? defaultValue;
             if (_customizationsBySymbol is { } &&
@@ -601,25 +619,16 @@ namespace System.CommandLine.Help
                 }
             }
 
-            string name = displayArgumentName ?
-                LocalizationResources.HelpArgumentDefaultValueTitle() :
-                argument.Name;
+            string name = displayArgumentName ? LocalizationResources.HelpArgumentDefaultValueTitle() : argument.Name;
 
             return $"{name}: {defaultValue}";
         }
 
         /// <summary>
-        /// Gets the first column text for the specified argument (typically the name and usage information).
+        /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
         /// </summary>
-        private string GetArgumentFirstColumnText(IArgument argument, HelpContext context)
+        private string GetArgumentUsageTitle(IArgument argument, HelpContext context)
         {
-            if (_customizationsBySymbol is { } &&
-                _customizationsBySymbol.TryGetValue(argument, out Customization customization) &&
-                customization.GetFirstColumn?.Invoke(context) is { } firstColumnText)
-            {
-                return firstColumnText;
-            }
-
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
             {

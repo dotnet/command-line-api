@@ -440,9 +440,9 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
-            IEnumerable<HelpDelegate> layout)
+            Func<HelpContext, IEnumerable<HelpDelegate>> layout)
         {
-            return builder.UseHelpBuilder(_ => new HelpBuilder(builder.LocalizationResources, layout: layout))
+            return builder.UseHelpBuilder(_ => new HelpBuilder(builder.LocalizationResources, getLayout: layout))
                           .UseHelp(new HelpOption(() => builder.LocalizationResources));
         }
 

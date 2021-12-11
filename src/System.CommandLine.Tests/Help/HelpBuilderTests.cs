@@ -816,7 +816,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Help_describes_default_value_for_defaultable_argument()
+        public void Help_describes_default_value_for_argument()
         {
             var argument = new Argument
             {
@@ -834,7 +834,7 @@ namespace System.CommandLine.Tests.Help
 
             var help = _console.ToString();
 
-            help.Should().Contain($"[default: the-arg-value]");
+            help.Should().Contain("[default: the-arg-value]");
         }
 
         [Fact]

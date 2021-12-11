@@ -8,6 +8,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -261,7 +262,7 @@ namespace System.CommandLine.Tests
         public void Help_sections_can_be_replaced()
         {
             var parser = new CommandLineBuilder()
-                         .UseHelp(CustomLayout())
+                         .UseHelp(_ => CustomLayout())
                          .Build();
 
             var console = new TestConsole();
@@ -282,7 +283,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand("hello");
             var parser = new CommandLineBuilder(command)
-                         .UseHelp(CustomLayout())
+                         .UseHelp(_ => CustomLayout())
                          .Build();
 
             var console = new TestConsole();
@@ -307,8 +308,39 @@ namespace System.CommandLine.Tests
                 yield return ctx => ctx.Output.WriteLine("last");
             }
         }
-        
-        private string GetDefaultHelp(Command command)
+
+        [Fact]
+        public void Layout_can_be_composed_dynamically_based_on_context()
+        {
+            var commandWithTypicalHelp = new Command("typical");
+            var commandWithCustomHelp = new Command("custom");
+            var command = new RootCommand
+            {
+                commandWithTypicalHelp,
+                commandWithCustomHelp
+            };
+
+            var parser = new CommandLineBuilder(command)
+                         .UseHelp(context => context.Command == commandWithTypicalHelp
+                                                 ? HelpBuilder.DefaultLayout()
+                                                 : new HelpDelegate[]
+                                                     {
+                                                         c => c.Output.WriteLine("Custom layout!")
+                                                     }
+                                                     .Concat(HelpBuilder.DefaultLayout()))
+                         .Build();
+
+            var typicalOutput = new TestConsole();
+            parser.Invoke("typical -h", typicalOutput);
+
+            var customOutput = new TestConsole();
+            parser.Invoke("custom -h", customOutput);
+
+            typicalOutput.Out.ToString().Should().Be(GetDefaultHelp(commandWithTypicalHelp, false));
+            customOutput.Out.ToString().Should().Be($"Custom layout!{NewLine}{NewLine}{GetDefaultHelp(commandWithCustomHelp, false)}");
+        }
+
+        private string GetDefaultHelp(Command command, bool trimOneNewline = true)
         {
             var console = new TestConsole();
 
@@ -319,7 +351,11 @@ namespace System.CommandLine.Tests
             parser.Invoke("-h", console);
 
             var output = console.Out.ToString();
-            output = output.Substring(0, output.Length - NewLine.Length);
+
+            if (trimOneNewline)
+            {
+                output = output.Substring(0, output.Length - NewLine.Length);
+            }
             return output;
         }
     }
