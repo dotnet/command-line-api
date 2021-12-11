@@ -300,12 +300,15 @@ System.CommandLine.Help
     public static HelpDelegate SynopsisSection()
     .ctor(System.CommandLine.LocalizationResources localizationResources, System.Int32 maxWidth = 2147483647, System.Collections.Generic.IEnumerable<HelpDelegate> layout = null)
     public System.Collections.Generic.IEnumerable<HelpDelegate> Layout { get; }
+    public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.Int32 MaxWidth { get; }
-    protected System.CommandLine.LocalizationResources get_LocalizationResources()
+    public System.Void Customize(System.CommandLine.ISymbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
+    public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.IIdentifierSymbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
+    public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
   public static class HelpBuilderExtensions
     public static System.Void Customize(System.CommandLine.ISymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
-    public static System.Void Customize(System.CommandLine.ISymbol symbol, System.Func<System.CommandLine.Parsing.ParseResult,System.String> firstColumnText = null, System.Func<System.CommandLine.Parsing.ParseResult,System.String> secondColumnText = null, System.Func<System.CommandLine.Parsing.ParseResult,System.String> defaultValue = null)
+    public static System.Void Write(System.CommandLine.ICommand command, System.IO.TextWriter writer)
   public class HelpContext
     .ctor(HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null, System.Nullable<System.Int32> maxWidth = 2147483647)
     public System.CommandLine.ICommand Command { get; }

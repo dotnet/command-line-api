@@ -40,7 +40,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Provides localizable strings for help and error messages.
         /// </summary>
-        protected LocalizationResources LocalizationResources { get; }
+        public LocalizationResources LocalizationResources { get; }
 
         /// <summary>
         /// The maximum width for which to format help output.
@@ -65,8 +65,14 @@ namespace System.CommandLine.Help
             foreach (var writeSection in Layout)
             {
                 writeSection(context);
-                context.Output.WriteLine();
+
+                if (!context.WasSectionSkipped)
+                {
+                    context.Output.WriteLine();
+                }
             }
+
+            context.Output.WriteLine();
         }
 
         /// <summary>
@@ -91,25 +97,56 @@ namespace System.CommandLine.Help
         /// Writes a help section describing a command's synopsis.
         /// </summary>
         public static HelpDelegate SynopsisSection() =>
-            ctx => ctx.HelpBuilder.WriteSynopsis(ctx);
+            ctx =>
+            {
+                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
+            };
 
         /// <summary>
         /// Writes a help section describing a command's usage.
         /// </summary>
         public static HelpDelegate CommandUsageSection() =>
-            ctx => ctx.HelpBuilder.WriteCommandUsage(ctx);
+            ctx =>
+            {
+                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpUsageTitle(), ctx.HelpBuilder.GetUsage(ctx.Command), ctx.Output);
+            };
 
         ///  <summary>
         /// Writes a help section describing a command's arguments.
         ///  </summary>
         public static HelpDelegate CommandArgumentsSection() =>
-            ctx => ctx.HelpBuilder.WriteCommandArguments(ctx);
+            ctx =>
+            {
+                TwoColumnHelpRow[] commandArguments = ctx.HelpBuilder.GetCommandArgumentRows(ctx.Command, ctx).ToArray();
+
+                if (commandArguments.Length <= 0)
+                {
+                    ctx.WasSectionSkipped = true;
+                    return;
+                }
+
+                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
+                ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
+            };
 
         ///  <summary>
         /// Writes a help section describing a command's options.
         ///  </summary>
         public static HelpDelegate OptionsSection() =>
-            ctx => ctx.HelpBuilder.WriteOptions(ctx);
+            ctx =>
+            {
+                var options = ctx.Command.Options.Where(x => !x.IsHidden).Select(x => ctx.HelpBuilder.GetTwoColumnRow(x, ctx)).ToArray();
+
+                if (options.Length <= 0)
+                {
+                    ctx.WasSectionSkipped = true;
+                    return;
+                }
+
+                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
+                ctx.HelpBuilder.WriteColumns(options, ctx);
+                ctx.Output.WriteLine();
+            };
 
         ///  <summary>
         /// Writes a help section describing a command's subcommands.
@@ -130,10 +167,10 @@ namespace System.CommandLine.Help
         /// <param name="firstColumnText">A delegate to display the first help column (typically name and usage information).</param>
         /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
         /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
-        internal void Customize(ISymbol symbol,
-            Func<ParseResult?, string?>? firstColumnText = null,
-            Func<ParseResult?, string?>? secondColumnText = null,
-            Func<ParseResult?, string?>? defaultValue = null)
+        public void Customize(ISymbol symbol,
+            Func<HelpContext, string?>? firstColumnText = null,
+            Func<HelpContext, string?>? secondColumnText = null,
+            Func<HelpContext, string?>? defaultValue = null)
         {
             if (symbol is null)
             {
@@ -145,13 +182,7 @@ namespace System.CommandLine.Help
             _customizationsBySymbol[symbol] = new Customization(firstColumnText, secondColumnText, defaultValue);
         }
 
-       private void WriteSynopsis(HelpContext context) => 
-           WriteHeading(LocalizationResources.HelpDescriptionTitle(), context.Command.Description, context.Output);
-
-       private void WriteCommandUsage(HelpContext context) => 
-           WriteHeading(LocalizationResources.HelpUsageTitle(), GetUsage(context.Command), context.Output);
-
-       private string GetUsage(ICommand command)
+        private string GetUsage(ICommand command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -194,39 +225,22 @@ namespace System.CommandLine.Help
             }
         }
 
-        private void WriteCommandArguments(HelpContext context)
-        {
-            TwoColumnHelpRow[] commandArguments = GetCommandArgumentRows(context.Command, context.ParseResult).ToArray();
-
-            if (commandArguments.Length > 0)
-            {
-                WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, context.Output);
-                RenderAsColumns(context.Output, commandArguments);
-            }
-        }
-
-        /// <summary>
-        /// Gets help items for the specified command's arguments.
-        /// </summary>
-        /// <param name="command">The command to get argument help items for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        /// <returns>Help items for the specified command's arguments.</returns>
-        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(ICommand command, ParseResult parseResult)
+        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(ICommand command, HelpContext context)
         {
             return command.RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
                     .Reverse()
-                    .SelectMany(cmd => GetArguments(cmd, parseResult))
+                    .SelectMany(GetArguments)
                     .Distinct();
 
-            IEnumerable<TwoColumnHelpRow> GetArguments(ICommand command, ParseResult parseResult)
+            IEnumerable<TwoColumnHelpRow> GetArguments(ICommand cmd)
             {
-                var arguments = command.Arguments.Where(x => !x.IsHidden);
+                var arguments = cmd.Arguments.Where(x => !x.IsHidden);
 
-                foreach (IArgument argument in arguments)
+                foreach (var argument in arguments)
                 {
-                    string argumentFirstColumn = GetArgumentFirstColumnText(argument, parseResult);
+                    string argumentFirstColumn = GetArgumentFirstColumnText(argument, context);
 
-                    yield return new TwoColumnHelpRow(argumentFirstColumn, string.Join(" ", GetArgumentSecondColumnText(command, argument)));
+                    yield return new TwoColumnHelpRow(argumentFirstColumn, string.Join(" ", GetArgumentSecondColumnText(cmd, argument)));
                 }
             }
 
@@ -240,42 +254,35 @@ namespace System.CommandLine.Help
 
                 if (argument.HasDefaultValue)
                 {
-                    yield return $"[{GetArgumentDefaultValueText(parent, argument, true, parseResult)}]";
+                    yield return $"[{GetArgumentDefaultValueText(parent, argument, true, context)}]";
                 }
-            }
-        }
-
-        private void WriteOptions(HelpContext context)
-        {
-            var options = context.Command.Options.Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context.ParseResult)).ToArray();
-
-            if (options.Length > 0)
-            {
-                WriteHeading(LocalizationResources.HelpOptionsTitle(), null, context.Output);
-                RenderAsColumns(context.Output, options);
             }
         }
 
         private void WriteSubcommands(HelpContext context)
         {
-            var subcommands = context.Command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context.ParseResult)).ToArray();
+            var subcommands = context.Command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
 
-            if (subcommands.Length > 0)
+            if (subcommands.Length <= 0)
             {
-                WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
-                RenderAsColumns(context.Output, subcommands);
+                context.WasSectionSkipped = true;
+                return;
             }
+
+            WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
+            WriteColumns(subcommands, context);
         }
 
         private void WriteAdditionalArguments(HelpContext context)
         {
             if (context.Command.TreatUnmatchedTokensAsErrors)
             {
+                context.WasSectionSkipped = true;
                 return;
             }
 
             WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
-                LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
+                         LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
         }
        
         private void WriteHeading(string? heading, string? description, TextWriter writer)
@@ -361,13 +368,13 @@ namespace System.CommandLine.Help
         }
 
         /// <summary>
-        /// Writes the specified help items, aligning output in columns.
+        /// Writes the specified help rows, aligning output in columns.
         /// </summary>
-        /// <param name="writer">The writer to write help output to.</param>
         /// <param name="items">The help items to write out in columns.</param>
-        private void RenderAsColumns(TextWriter writer, params TwoColumnHelpRow[] items)
+        /// <param name="context">The help context.</param>
+        public void WriteColumns(IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
         {
-            if (items.Length == 0)
+            if (items.Count == 0)
             {
                 return;
             }
@@ -386,15 +393,16 @@ namespace System.CommandLine.Help
                 }
                 secondColumnWidth = windowWidth - firstColumnWidth - Indent.Length - Indent.Length;
             }
-
-            foreach (var helpItem in items)
+            
+            for (var i = 0; i < items.Count; i++)
             {
+                var helpItem = items[i];
                 IEnumerable<string> firstColumnParts = WrapText(helpItem.FirstColumnText, firstColumnWidth);
                 IEnumerable<string> secondColumnParts = WrapText(helpItem.SecondColumnText, secondColumnWidth);
 
                 foreach (var (first, second) in ZipWithEmpty(firstColumnParts, secondColumnParts))
                 {
-                    writer.Write($"{Indent}{first}");
+                    context.Output.Write($"{Indent}{first}");
                     if (!string.IsNullOrWhiteSpace(second))
                     {
                         int padSize = firstColumnWidth - first.Length;
@@ -403,9 +411,11 @@ namespace System.CommandLine.Help
                         {
                             padding = new string(' ', padSize);
                         }
-                        writer.Write($"{padding}{Indent}{second}");
+
+                        context.Output.Write($"{padding}{Indent}{second}");
                     }
-                    writer.WriteLine();
+
+                    context.Output.WriteLine();
                 }
             }
 
@@ -474,13 +484,15 @@ namespace System.CommandLine.Help
         /// Gets a help item for the specified symbol.
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        private TwoColumnHelpRow GetTwoColumnRow(IIdentifierSymbol symbol, ParseResult parseResult)
+        /// <param name="context">The help context.</param>
+        public TwoColumnHelpRow GetTwoColumnRow(
+            IIdentifierSymbol symbol, 
+            HelpContext context)
         {
             string firstColumnText;
             if (_customizationsBySymbol is { } &&
                 _customizationsBySymbol.TryGetValue(symbol, out Customization customization) &&
-                customization.GetFirstColumn?.Invoke(parseResult) is { } firstColumn)
+                customization.GetFirstColumn?.Invoke(context) is { } firstColumn)
             {
                 firstColumnText = firstColumn;
             }
@@ -500,7 +512,7 @@ namespace System.CommandLine.Help
                 {
                     if (!argument.IsHidden)
                     {
-                        var argumentFirstColumn = GetArgumentFirstColumnText(argument, parseResult);
+                        var argumentFirstColumn = GetArgumentFirstColumnText(argument, context);
                         if (!string.IsNullOrWhiteSpace(argumentFirstColumn))
                         {
                             firstColumnText += $" {argumentFirstColumn}";
@@ -514,15 +526,15 @@ namespace System.CommandLine.Help
                 }
             }
 
-            return new TwoColumnHelpRow(firstColumnText, GetSecondColumnText(symbol, parseResult));
+            return new TwoColumnHelpRow(firstColumnText, GetSecondColumnText(symbol, context));
         }
 
         /// <summary>
         /// Gets the second column content for the specified symbol (typically the description).
         /// </summary>
         /// <param name="symbol">The symbol to get the description for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        private string GetSecondColumnText(IIdentifierSymbol symbol, ParseResult parseResult)
+        /// <param name="context">A parse result providing context for help formatting.</param>
+        private string GetSecondColumnText(IIdentifierSymbol symbol, HelpContext context)
         {
             return string.Join(" ", GetSecondColumnTextParts());
 
@@ -536,7 +548,7 @@ namespace System.CommandLine.Help
                 else if (
                     _customizationsBySymbol is { } &&
                     _customizationsBySymbol.TryGetValue(symbol, out var customization) &&
-                    customization.GetSecondColumn?.Invoke(parseResult) is { } descriptionValue)
+                    customization.GetSecondColumn?.Invoke(context) is { } descriptionValue)
                 {
                     yield return descriptionValue;
                 }
@@ -556,22 +568,22 @@ namespace System.CommandLine.Help
 
                 var isSingleArgument = defaultArguments.Length == 1;
                 var argumentDefaultValues = defaultArguments
-                    .Select(argument => GetArgumentDefaultValueText(symbol, argument, isSingleArgument, parseResult));
+                    .Select(argument => GetArgumentDefaultValueText(symbol, argument, isSingleArgument, context));
                 return $"[{string.Join(", ", argumentDefaultValues)}]";
             }
         }
 
-        private string GetArgumentDefaultValueText(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName, ParseResult parseResult)
+        private string GetArgumentDefaultValueText(IIdentifierSymbol parent, IArgument argument, bool displayArgumentName, HelpContext context)
         {
             string? defaultValue;
             if (_customizationsBySymbol is { } &&
                 _customizationsBySymbol.TryGetValue(parent, out Customization customization) &&
-                customization.GetDefaultValue?.Invoke(parseResult) is { } parentSetDefaultValue)
+                customization.GetDefaultValue?.Invoke(context) is { } parentSetDefaultValue)
             {
                 defaultValue = parentSetDefaultValue;
             }
             else if (_customizationsBySymbol is { } && _customizationsBySymbol.TryGetValue(argument, out customization) &&
-                     customization.GetDefaultValue?.Invoke(parseResult) is { } setDefaultValue)
+                     customization.GetDefaultValue?.Invoke(context) is { } setDefaultValue)
             {
                 defaultValue = setDefaultValue;
             }
@@ -598,13 +610,11 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Gets the first column text for the specified argument (typically the name and usage information).
         /// </summary>
-        /// <param name="argument">The argument to get the first column text for.</param>
-        /// <param name="parseResult">A parse result providing context for help formatting.</param>
-        private string GetArgumentFirstColumnText(IArgument argument, ParseResult parseResult)
+        private string GetArgumentFirstColumnText(IArgument argument, HelpContext context)
         {
             if (_customizationsBySymbol is { } &&
                 _customizationsBySymbol.TryGetValue(argument, out Customization customization) &&
-                customization.GetFirstColumn?.Invoke(parseResult) is { } firstColumnText)
+                customization.GetFirstColumn?.Invoke(context) is { } firstColumnText)
             {
                 return firstColumnText;
             }
@@ -654,18 +664,18 @@ namespace System.CommandLine.Help
         private class Customization
         {
             public Customization(
-                Func<ParseResult?, string?>? getFirstColumn,
-                Func<ParseResult?, string?>? getSecondColumn,
-                Func<ParseResult?, string?>? getDefaultValue)
+                Func<HelpContext, string?>? getFirstColumn,
+                Func<HelpContext, string?>? getSecondColumn,
+                Func<HelpContext, string?>? getDefaultValue)
             {
                 GetFirstColumn = getFirstColumn;
                 GetSecondColumn = getSecondColumn;
                 GetDefaultValue = getDefaultValue;
             }
 
-            public Func<ParseResult?, string?>? GetFirstColumn { get; }
-            public Func<ParseResult?, string?>? GetSecondColumn { get; }
-            public Func<ParseResult?, string?>? GetDefaultValue { get; }
+            public Func<HelpContext, string?>? GetFirstColumn { get; }
+            public Func<HelpContext, string?>? GetSecondColumn { get; }
+            public Func<HelpContext, string?>? GetDefaultValue { get; }
         }
     }
 }

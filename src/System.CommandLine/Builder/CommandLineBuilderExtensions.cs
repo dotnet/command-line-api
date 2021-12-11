@@ -414,7 +414,7 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            return builder.UseHelp(new HelpOption(builder));
+            return builder.UseHelp(new HelpOption(() => builder.LocalizationResources));
         }
 
         /// <summary>
@@ -428,7 +428,7 @@ ERR:
             this CommandLineBuilder builder,
             params string[] helpAliases)
         {
-            return builder.UseHelp(new HelpOption(helpAliases, builder));
+            return builder.UseHelp(new HelpOption(helpAliases, () => builder.LocalizationResources));
         }
 
         /// <summary>
@@ -442,8 +442,8 @@ ERR:
             this CommandLineBuilder builder,
             IEnumerable<HelpDelegate> layout)
         {
-            return builder.UseHelpBuilder(_ => new HelpBuilder(LocalizationResources.Instance, layout: layout))
-                          .UseHelp(new HelpOption(builder));
+            return builder.UseHelpBuilder(_ => new HelpBuilder(builder.LocalizationResources, layout: layout))
+                          .UseHelp(new HelpOption(() => builder.LocalizationResources));
         }
 
         internal static CommandLineBuilder UseHelp(

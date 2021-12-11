@@ -91,8 +91,8 @@ namespace System.CommandLine.Tests.Help
                 var optionBDescription = "option b help";
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
-                helpBuilder.Customize(option, secondColumnText: parseResult =>
-                                          parseResult.CommandResult.Command.Equals(commandA)
+                helpBuilder.Customize(option, secondColumnText: ctx =>
+                                          ctx.Command.Equals(commandA)
                                               ? optionADescription
                                               : optionBDescription);
 
@@ -130,8 +130,8 @@ namespace System.CommandLine.Tests.Help
                 var optionBFirstColumnText = "option b help";
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
-                helpBuilder.Customize(option, firstColumnText: parseResult =>
-                                          parseResult.CommandResult.Command.Equals(commandA) 
+                helpBuilder.Customize(option, firstColumnText: ctx =>
+                                          ctx.Command.Equals(commandA) 
                                               ? optionAFirstColumnText
                                               : optionBFirstColumnText);
                 var parser = new CommandLineBuilder(command)
