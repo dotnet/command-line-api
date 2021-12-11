@@ -17,15 +17,15 @@ namespace System.CommandLine.Help
         private const string Indent = "  ";
 
         private Dictionary<ISymbol, Customization>? _customizationsBySymbol;
-        private IEnumerable<HelpDelegate>? _layout;
+        private Func<HelpContext, IEnumerable<HelpDelegate>>? _getLayout;
 
         /// <param name="localizationResources">Resources used to localize the help output.</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
-        /// <param name="layout">Defines the sections to be printed for command line help.</param>
+        /// <param name="getLayout">Defines the sections to be printed for command line help.</param>
         public HelpBuilder(
             LocalizationResources localizationResources, 
             int maxWidth = int.MaxValue,
-            IEnumerable<HelpDelegate>? layout = null)
+            Func<HelpContext, IEnumerable<HelpDelegate>>? getLayout = null)
         {
             LocalizationResources = localizationResources ?? throw new ArgumentNullException(nameof(localizationResources));
 
@@ -34,7 +34,7 @@ namespace System.CommandLine.Help
                 maxWidth = int.MaxValue;
             }
             MaxWidth = maxWidth;
-            _layout = layout;
+            _getLayout = getLayout;
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            foreach (var writeSection in Layout)
+            foreach (var writeSection in GetLayout(context))
             {
                 writeSection(context);
 
@@ -78,7 +78,14 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Gets the sections to be written for command line help.
         /// </summary>
-        public IEnumerable<HelpDelegate> Layout => _layout ??= DefaultLayout();
+        public IEnumerable<HelpDelegate> GetLayout(HelpContext context)
+        {
+            if (_getLayout is null)
+            {
+                _getLayout = _ => DefaultLayout();
+            }
+            return _getLayout(context);
+        }
 
         /// <summary>
         /// Gets the default sections to be written for command line help.
