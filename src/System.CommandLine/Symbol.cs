@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
+using System.CommandLine.Completions;
 using System.Diagnostics;
 using System.Linq;
 
@@ -67,47 +68,54 @@ namespace System.CommandLine
         /// </summary>
         public bool IsHidden { get; set; }
 
+        /// <summary>
+        /// Gets completions for the symbol.
+        /// </summary>
+        public IEnumerable<CompletionItem> GetCompletions() => 
+            GetCompletions(CompletionContext.Empty());
+
         /// <inheritdoc />
-        public virtual IEnumerable<string> GetSuggestions(ParseResult? parseResult = null, string? textToMatch = null)
+        public virtual IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            var suggestions = new HashSet<string>();
+            var completions = new List<CompletionItem>();
 
-            textToMatch ??= "";
-
-            for (var i = 0; i < Children.Count; i++)
+            if (context.TextToMatch is { } textToMatch)
             {
-                var child = Children[i];
-
-                switch (child)
+                for (var i = 0; i < Children.Count; i++)
                 {
-                    case IIdentifierSymbol identifier when !child.IsHidden:
-                        foreach (var alias in identifier.Aliases)
-                        {
-                            if (alias is { } suggestion && 
-                                suggestion.ContainsCaseInsensitive(textToMatch))
-                            {
-                                suggestions.Add(suggestion);
-                            }
-                        }
+                    var child = Children[i];
 
-                        break;
-                    case IArgument argument:
-                        foreach (var suggestion in argument.GetSuggestions(parseResult, textToMatch))
-                        {
-                            if (suggestion is { } && 
-                                suggestion.ContainsCaseInsensitive(textToMatch))
+                    switch (child)
+                    {
+                        case IIdentifierSymbol identifier when !child.IsHidden:
+                            foreach (var alias in identifier.Aliases)
                             {
-                                suggestions.Add(suggestion);
+                                if (alias is { } &&
+                                    alias.ContainsCaseInsensitive(textToMatch))
+                                {
+                                    completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword));
+                                }
                             }
-                        }
 
-                        break;
+                            break;
+
+                        case IArgument argument:
+                            foreach (var completion in argument.GetCompletions(context))
+                            {
+                                if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                                {
+                                    completions.Add(completion);
+                                }
+                            }
+
+                            break;
+                    }
                 }
             }
 
-            return suggestions
-                   .OrderBy(symbol => symbol!.IndexOfCaseInsensitive(textToMatch))
-                   .ThenBy(symbol => symbol, StringComparer.OrdinalIgnoreCase);
+            return completions
+                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.TextToMatch ?? ""))
+                   .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <inheritdoc/>

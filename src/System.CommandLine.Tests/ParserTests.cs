@@ -1681,7 +1681,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = rootCommand.Parse("subcommand arg1 arg2");
 
-            Action act = () => parseResult.GetSuggestions();
+            Action act = () => parseResult.GetCompletions();
             act.Should().NotThrow();
         }
 
