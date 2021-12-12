@@ -7,5 +7,5 @@ namespace System.CommandLine.Help
     /// Specifies help formatting behavior for a section of command line help.
     /// </summary>
     /// <returns><see langword="true"/> if anything was written; otherwise, <see langword="false"/>.</returns>
-    public delegate void HelpDelegate(HelpContext context);
+    public delegate void HelpSectionDelegate(HelpContext context);
 }

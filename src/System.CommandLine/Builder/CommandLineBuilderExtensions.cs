@@ -436,14 +436,20 @@ ERR:
         /// </summary>
         /// <remarks>The specified aliases will override the default values.</remarks>
         /// <param name="builder">A command line builder.</param>
-        /// <param name="layout">Defines the sections to be written for command line help.</param>
+        /// <param name="customize">A delegate that will be called to customize help if help is requested.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
-            Func<HelpContext, IEnumerable<HelpDelegate>> layout)
+            Action<HelpContext> customize)
         {
-            return builder.UseHelpBuilder(_ => new HelpBuilder(builder.LocalizationResources, getLayout: layout))
-                          .UseHelp(new HelpOption(() => builder.LocalizationResources));
+            builder.CustomizeHelpLayout(customize);
+            
+            if (builder.HelpOption is null)
+            {
+                builder.UseHelp(new HelpOption(() => builder.LocalizationResources));
+            }
+
+            return builder;
         }
 
         internal static CommandLineBuilder UseHelp(
@@ -480,7 +486,7 @@ ERR:
             {
                 throw new ArgumentNullException(nameof(builder));
             }
-            builder.HelpBuilderFactory = getHelpBuilder;
+            builder.UseHelpBuilderFactory(getHelpBuilder);
             return builder;
         }
 

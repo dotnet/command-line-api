@@ -257,12 +257,45 @@ namespace System.CommandLine.Tests
             _console.Out.ToString().Should().Be("");
         }
 
+        [Fact]
+        public void Individual_symbols_can_be_customized()
+        {
+            var subcommand = new Command("subcommand", "The default command description");
+            var option = new Option<int>("-x", "The default option description");
+            var argument = new Argument<int>("int-value", "The default argument description");
+
+            var rootCommand = new RootCommand
+            {
+                subcommand,
+                option,
+                argument
+            };
+
+            var parser = new CommandLineBuilder(rootCommand)
+                         .UseHelp(ctx =>
+                         {
+                             ctx.HelpBuilder.CustomizeSymbol(subcommand, secondColumnText: "The custom command description");
+                             ctx.HelpBuilder.CustomizeSymbol(option, secondColumnText: "The custom option description");
+                             ctx.HelpBuilder.CustomizeSymbol(argument, secondColumnText: "The custom argument description");
+                         })
+                         .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("-h", console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .ContainAll("The custom command description",
+                               "The custom option description",
+                               "The custom argument description");
+        }
 
         [Fact]
         public void Help_sections_can_be_replaced()
         {
             var parser = new CommandLineBuilder()
-                         .UseHelp(_ => CustomLayout())
+                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout))
                          .Build();
 
             var console = new TestConsole();
@@ -270,7 +303,7 @@ namespace System.CommandLine.Tests
 
             console.Out.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}{NewLine}");
 
-            IEnumerable<HelpDelegate> CustomLayout()
+            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
             {
                 yield return ctx => ctx.Output.WriteLine("one");
                 yield return ctx => ctx.Output.WriteLine("two");
@@ -283,7 +316,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand("hello");
             var parser = new CommandLineBuilder(command)
-                         .UseHelp(_ => CustomLayout())
+                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout))
                          .Build();
 
             var console = new TestConsole();
@@ -296,7 +329,7 @@ namespace System.CommandLine.Tests
 
             output.Should().Be(expected);
 
-            IEnumerable<HelpDelegate> CustomLayout()
+            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
             {
                 yield return ctx => ctx.Output.WriteLine("first");
 
@@ -321,13 +354,17 @@ namespace System.CommandLine.Tests
             };
 
             var parser = new CommandLineBuilder(command)
-                         .UseHelp(context => context.Command == commandWithTypicalHelp
-                                                 ? HelpBuilder.DefaultLayout()
-                                                 : new HelpDelegate[]
-                                                     {
-                                                         c => c.Output.WriteLine("Custom layout!")
-                                                     }
-                                                     .Concat(HelpBuilder.DefaultLayout()))
+                         .UseHelp(
+                             ctx =>
+                                 ctx.HelpBuilder
+                                    .CustomizeLayout(c =>
+                                                         c.Command == commandWithTypicalHelp
+                                                             ? HelpBuilder.DefaultLayout()
+                                                             : new HelpSectionDelegate[]
+                                                                 {
+                                                                     c => c.Output.WriteLine("Custom layout!")
+                                                                 }
+                                                                 .Concat(HelpBuilder.DefaultLayout())))
                          .Build();
 
             var typicalOutput = new TestConsole();

@@ -18,6 +18,7 @@ namespace System.CommandLine.Binding
     public sealed class BindingContext : IServiceProvider
     {
         private IConsole _console;
+        private HelpBuilder? _helpBuilder;
 
         /// <param name="parseResult">The parse result used for binding to command line input.</param>
         /// <param name="console">A console instance used for writing output.</param>
@@ -38,7 +39,7 @@ namespace System.CommandLine.Binding
 
         internal IConsoleFactory? ConsoleFactory { get; set; }
 
-        internal HelpBuilder HelpBuilder => (HelpBuilder)ServiceProvider.GetService(typeof(HelpBuilder))!;
+        internal HelpBuilder HelpBuilder => _helpBuilder ??= (HelpBuilder)ServiceProvider.GetService(typeof(HelpBuilder))!;
 
         /// <summary>
         /// The console to which output should be written during the current invocation.
