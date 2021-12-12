@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests.Help
                     option
                 };
 
-                _helpBuilder.Customize(option, defaultValue: "42");
+                _helpBuilder.CustomizeSymbol(option, defaultValue: "42");
 
                 _helpBuilder.Write(command, _console);
                 var expected =
@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests.Help
                     option
                 };
 
-                _helpBuilder.Customize(option, firstColumnText: "other-name");
+                _helpBuilder.CustomizeSymbol(option, firstColumnText: "other-name");
 
                 _helpBuilder.Write(command, _console);
                 var expected =
@@ -91,7 +91,7 @@ namespace System.CommandLine.Tests.Help
                 var optionBFirstColumnText = "option b help";
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
-                helpBuilder.Customize(option, firstColumnText: ctx =>
+                helpBuilder.CustomizeSymbol(option, firstColumnText: ctx =>
                                           ctx.Command.Equals(commandA) 
                                               ? optionAFirstColumnText
                                               : optionBFirstColumnText);
@@ -129,7 +129,7 @@ namespace System.CommandLine.Tests.Help
                 var optionBDescription = "option b help";
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
-                helpBuilder.Customize(option, secondColumnText: ctx =>
+                helpBuilder.CustomizeSymbol(option, secondColumnText: ctx =>
                                           ctx.Command.Equals(commandA)
                                               ? optionADescription
                                               : optionBDescription);
@@ -157,7 +157,7 @@ namespace System.CommandLine.Tests.Help
                     subcommand
                 };
 
-                _helpBuilder.Customize(subcommand, firstColumnText: "other-name");
+                _helpBuilder.CustomizeSymbol(subcommand, firstColumnText: "other-name");
 
                 _helpBuilder.Write(command, _console);
                 var expected =
@@ -176,7 +176,7 @@ namespace System.CommandLine.Tests.Help
                     argument
                 };
 
-                _helpBuilder.Customize(argument, firstColumnText: "<CUSTOM-ARG-NAME>");
+                _helpBuilder.CustomizeSymbol(argument, firstColumnText: "<CUSTOM-ARG-NAME>");
 
                 _helpBuilder.Write(command, _console);
                 var expected =
@@ -195,7 +195,7 @@ namespace System.CommandLine.Tests.Help
                     argument
                 };
 
-                _helpBuilder.Customize(argument, secondColumnText: "Custom description");
+                _helpBuilder.CustomizeSymbol(argument, secondColumnText: "Custom description");
 
                 _helpBuilder.Write(command, _console);
                 var expected =
@@ -214,7 +214,7 @@ namespace System.CommandLine.Tests.Help
                     argument
                 };
 
-                _helpBuilder.Customize(argument, defaultValue: "42");
+                _helpBuilder.CustomizeSymbol(argument, defaultValue: "42");
 
                 _helpBuilder.Write(command, _console);
                 var expected =
@@ -227,7 +227,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Customize_throws_when_symbol_is_null()
             {
-                Action action = () => new HelpBuilder(LocalizationResources.Instance).Customize(null!, "");
+                Action action = () => new HelpBuilder(LocalizationResources.Instance).CustomizeSymbol(null!, "");
                 action.Should().Throw<ArgumentNullException>();
             }
         }
