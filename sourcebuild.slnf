@@ -4,7 +4,6 @@
     "projects": [
       "src\\System.CommandLine\\System.CommandLine.csproj",
       "src\\System.CommandLine.DragonFruit\\System.CommandLine.DragonFruit.csproj",
-      "src\\System.CommandLine.NamingConventionBinder\\System.CommandLine.NamingConventionBinder.csproj",
       "src\\System.CommandLine.Rendering\\System.CommandLine.Rendering.csproj",
       "src\\System.CommandLine.Hosting\\System.CommandLine.Hosting.csproj"
     ]
