@@ -82,7 +82,7 @@ namespace System.CommandLine.Tests
 
             string textToMatch = command.Parse("the-command t")
                                         .GetCompletionContext()
-                                        .TextToMatch;
+                                        .WordToComplete;
 
             textToMatch.Should().Be("t");
         }
@@ -101,7 +101,7 @@ namespace System.CommandLine.Tests
                                         .GetCompletionContext()
                                         .As<TextCompletionContext>()
                                         .AtCursorPosition(commandLine.Length + 1)
-                                        .TextToMatch;
+                                        .WordToComplete;
 
             textToMatch.Should().Be("");
         }
@@ -120,7 +120,7 @@ namespace System.CommandLine.Tests
                                      .GetCompletionContext()
                                      .As<TextCompletionContext>()
                                      .AtCursorPosition(1000)
-                                     .TextToMatch;
+                                     .WordToComplete;
 
             textToMatch.Should().Be("");
         }
@@ -136,7 +136,7 @@ namespace System.CommandLine.Tests
 
             string textToMatch = command.Parse("the-command", "opt")
                                         .GetCompletionContext()
-                                        .TextToMatch;
+                                        .WordToComplete;
 
             textToMatch.Should().Be("opt");
         }
@@ -152,7 +152,7 @@ namespace System.CommandLine.Tests
 
             string textToMatch = command.Parse(new[] { "the-command" })
                                         .GetCompletionContext()
-                                        .TextToMatch;
+                                        .WordToComplete;
 
             textToMatch.Should().Be("");
         }
@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests
 
             string textToMatch = command.Parse("the-command", "--option1")
                                         .GetCompletionContext()
-                                        .TextToMatch;
+                                        .WordToComplete;
 
             textToMatch.Should().Be("");
         }
@@ -185,7 +185,7 @@ namespace System.CommandLine.Tests
 
             string textToMatch = command.Parse("the-command", "--option1", "a")
                                         .GetCompletionContext()
-                                        .TextToMatch;
+                                        .WordToComplete;
 
             textToMatch.Should().Be("a");
         }
@@ -216,7 +216,7 @@ namespace System.CommandLine.Tests
                                      .GetCompletionContext()
                                      .As<TextCompletionContext>()
                                      .AtCursorPosition(position)
-                                     .TextToMatch;
+                                     .WordToComplete;
 
             textToMatch.Should().Be(expected);
         }

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
-using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.IO;
@@ -896,6 +895,36 @@ namespace System.CommandLine.Tests
                     nameof(DayOfWeek.Tuesday),
                     nameof(DayOfWeek.Thursday),
                     nameof(DayOfWeek.Wednesday));
+        }
+
+        [Fact]
+        public void Completions_for_options_provide_a_description()
+        {
+            var description = "The option before -y.";
+            var option = new Option<string>("-x", description);
+
+            var completions = new RootCommand { option }.GetCompletions();
+
+            completions.Should().ContainSingle()
+                       .Which
+                       .Detail
+                       .Should()
+                       .Be(description);
+        }
+        
+        [Fact]
+        public void Completions_for_subcommands_provide_a_description()
+        {
+            var description = "The description for the subcommand";
+            var subcommand = new Command("-x", description);
+
+            var completions = new RootCommand { subcommand }.GetCompletions();
+
+            completions.Should().ContainSingle()
+                       .Which
+                       .Detail
+                       .Should()
+                       .Be(description);
         }
     }
 }

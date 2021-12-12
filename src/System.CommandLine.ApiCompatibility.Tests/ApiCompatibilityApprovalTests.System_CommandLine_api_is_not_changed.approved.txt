@@ -295,7 +295,7 @@ System.CommandLine.Collections
 System.CommandLine.Completions
   public abstract class CompletionContext
     public System.CommandLine.Parsing.ParseResult ParseResult { get; }
-    public System.String TextToMatch { get; }
+    public System.String WordToComplete { get; }
   public delegate CompletionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(CompletionContext context, System.AsyncCallback callback, System.Object object)
