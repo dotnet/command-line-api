@@ -79,7 +79,7 @@ namespace System.CommandLine
         {
             var completions = new List<CompletionItem>();
 
-            if (context.TextToMatch is { } textToMatch)
+            if (context.WordToComplete is { } textToMatch)
             {
                 for (var i = 0; i < Children.Count; i++)
                 {
@@ -114,7 +114,7 @@ namespace System.CommandLine
             }
 
             return completions
-                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.TextToMatch ?? ""))
+                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
         }
 

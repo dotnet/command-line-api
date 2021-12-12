@@ -432,9 +432,9 @@ namespace System.CommandLine.Parsing
                 return parseResult.GetCompletionContext() switch
                 {
                     TextCompletionContext c when position.HasValue =>
-                        c.AtCursorPosition(position.Value).TextToMatch.Length > 0,
+                        c.AtCursorPosition(position.Value).WordToComplete.Length > 0,
                     { } c =>
-                        c.TextToMatch.Length > 0,
+                        c.WordToComplete.Length > 0,
                     _ =>
                         throw new ArgumentOutOfRangeException()
                 };

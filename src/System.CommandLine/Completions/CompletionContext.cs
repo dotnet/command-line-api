@@ -11,14 +11,14 @@ namespace System.CommandLine.Completions
     /// </summary>
     public abstract class CompletionContext
     {
-        internal CompletionContext(ParseResult parseResult, string textToMatch)
+        internal CompletionContext(ParseResult parseResult, string wordToComplete)
         {
             ParseResult = parseResult;
-            TextToMatch = textToMatch;
+            WordToComplete = wordToComplete;
         }
 
         /// The text of the word to be completed, if any.
-        public string TextToMatch { get; }
+        public string WordToComplete { get; }
 
         /// The parse result for which completions are being requested.
         public ParseResult ParseResult { get; }
@@ -31,7 +31,7 @@ namespace System.CommandLine.Completions
         /// <param name="parseResult">A parse result.</param>
         /// <param name="position">The position within the raw input, if available, at which to provide completions.</param>
         /// <returns>A string containing the user-entered text to be matched for completions.</returns>
-        internal static string GetTextToMatch(
+        protected static string GetWordToComplete(
             ParseResult parseResult,
             int? position = null)
         {
@@ -90,7 +90,7 @@ namespace System.CommandLine.Completions
     /// </summary>
     public class TokenCompletionContext : CompletionContext
     {
-        internal TokenCompletionContext(ParseResult parseResult) : base(parseResult, GetTextToMatch(parseResult))
+        internal TokenCompletionContext(ParseResult parseResult) : base(parseResult, GetWordToComplete(parseResult))
         {
         }
     }
@@ -103,7 +103,7 @@ namespace System.CommandLine.Completions
         private TextCompletionContext(
             ParseResult parseResult,
             string commandLineText,
-            int cursorPosition) : base(parseResult, GetTextToMatch(parseResult, cursorPosition))
+            int cursorPosition) : base(parseResult, GetWordToComplete(parseResult, cursorPosition))
         {
             CommandLineText = commandLineText;
             CursorPosition = cursorPosition;
