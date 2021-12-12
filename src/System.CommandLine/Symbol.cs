@@ -93,7 +93,7 @@ namespace System.CommandLine
                                 if (alias is { } &&
                                     alias.ContainsCaseInsensitive(textToMatch))
                                 {
-                                    completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword));
+                                    completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: child.Description));
                                 }
                             }
 
