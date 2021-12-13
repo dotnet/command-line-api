@@ -122,6 +122,43 @@ namespace System.CommandLine.Tests.Binding
             boundStringValue.Should().Be("hi");
         }
 
+        [Fact]
+        public void If_parameter_order_does_not_match_symbol_order_then_an_error_results()
+        {
+            var boolOption = new Option<bool>("-o");
+            var stringArg = new Argument<string>("value");
+
+            var command = new RootCommand
+            {
+                boolOption,
+                stringArg
+            };
+
+            var wasCalled = false;
+
+            command.Handler = CommandHandler.Create((bool boolValue, string stringValue) => wasCalled = true, 
+                                                    stringArg, boolOption);
+
+            var exitCode = command.Invoke("-o hi");
+
+            wasCalled.Should().BeFalse();
+            exitCode.Should().Be(1);
+        }
+
+        [Fact]
+        public void If_service_is_not_found_then_an_error_results()
+        {
+            var command = new RootCommand();
+
+            var wasCalled = false;
+            command.Handler = CommandHandler.Create((ClassWithMultipleCtor instance) => wasCalled = true);
+
+            var exitCode = command.Invoke("");
+
+            wasCalled.Should().BeFalse();
+            exitCode.Should().Be(1);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(2)]

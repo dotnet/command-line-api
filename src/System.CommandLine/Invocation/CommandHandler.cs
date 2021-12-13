@@ -20,7 +20,14 @@ public static partial class CommandHandler
         }
         else
         {
-            return context.BindingContext.GetService<T>();
+            var service = context.BindingContext.GetService(typeof(T));
+
+            if (service is null)
+            {
+                throw new ArgumentException($"Service not found for type {typeof(T)}.");
+            }
+
+            return (T)service;
         }
     }
 }

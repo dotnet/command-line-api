@@ -5,15 +5,4 @@ namespace System.CommandLine.Binding;
 
 internal static class ServiceProviderExtensions
 {
-    public static T GetService<T>(this IServiceProvider serviceProvider)
-    {
-        var service = serviceProvider.GetService(typeof(T));
-
-        if (service is null)
-        {
-            throw new ArgumentException($"Service not found for type {typeof(T)}");
-        }
-
-        return (T)service;
-    }
 }
