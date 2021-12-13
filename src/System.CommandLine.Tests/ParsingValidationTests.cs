@@ -357,9 +357,9 @@ namespace System.CommandLine.Tests
 
             rootCommand.AddGlobalOption(globalOption);
 
-            rootCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
-            childCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
-            grandchildCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
+            rootCommand.Handler = CommandHandler.Create((int i) => handlerWasCalled = true, globalOption);
+            childCommand.Handler = CommandHandler.Create((int i) => handlerWasCalled = true, globalOption);
+            grandchildCommand.Handler = CommandHandler.Create((int i) => handlerWasCalled = true, globalOption);
 
             var result = await rootCommand.InvokeAsync(commandLine);
 

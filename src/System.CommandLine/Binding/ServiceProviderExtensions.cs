@@ -11,7 +11,7 @@ internal static class ServiceProviderExtensions
 
         if (service is null)
         {
-            throw new ArgumentException($"Service not found: {typeof(T)}");
+            throw new ArgumentException($"Service not found for type {typeof(T)}");
         }
 
         return (T)service;

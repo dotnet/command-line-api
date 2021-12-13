@@ -29,13 +29,13 @@ namespace System.CommandLine.Benchmarks.CommandLine
             Option<bool> boolOption = new Option<bool>(new[] { "--bool", "-b" }, "Bool option");
             Option<string> stringOption = new Option<string>(new[] { "--string", "-s" }, "String option");
 
-            RootCommand command = new RootCommand()
+            RootCommand command = new RootCommand
             {
                 boolOption,
                 stringOption
             };
 
-            command.Handler = CommandHandler.Create<bool, string>(boolOption, stringOption, static (bool _, string __) => { });
+            command.Handler = CommandHandler.Create(static (bool _, string _) => { }, boolOption, stringOption);
 
             return command;
         }

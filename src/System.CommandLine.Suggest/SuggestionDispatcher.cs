@@ -32,7 +32,7 @@ namespace System.CommandLine.Suggest
             {
                 shellTypeArgument
             };
-            CompleteScriptCommand.Handler = CommandHandler.Create(context =>
+            CompleteScriptCommand.Handler = CommandHandler.Create((InvocationContext context) =>
             {
                 SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValueForArgument(shellTypeArgument));
                 return Task.FromResult(0);
@@ -42,7 +42,7 @@ namespace System.CommandLine.Suggest
             {
                 Description = "Lists apps registered for suggestions",
                 Handler = CommandHandler.Create(
-                    ctx =>
+                    (InvocationContext ctx) =>
                     {
                         ctx.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
                         return Task.FromResult(0);
@@ -54,7 +54,7 @@ namespace System.CommandLine.Suggest
                 ExecutableOption,
                 PositionOption
             };
-            GetCommand.Handler = CommandHandler.Create(Get);
+            GetCommand.Handler = CommandHandler.Create((InvocationContext context) => Get(context));
 
             var commandPathOption = new Option<string>("--command-path", "The path to the command for which to register suggestions");
 
@@ -64,7 +64,7 @@ namespace System.CommandLine.Suggest
                 new Option<string>("--suggestion-command", "The command to invoke to retrieve suggestions")
             };
 
-            RegisterCommand.Handler = CommandHandler.Create(context =>
+            RegisterCommand.Handler = CommandHandler.Create((InvocationContext context) =>
             {
                 Register(context.ParseResult.GetValueForOption(commandPathOption), context.Console);
                 return Task.FromResult(0);

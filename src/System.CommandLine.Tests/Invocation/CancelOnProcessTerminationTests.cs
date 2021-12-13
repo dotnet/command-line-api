@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests.Invocation
             {
                 var command = new Command("the-command")
                 {
-                    Handler = CommandHandler.Create(async context =>
+                    Handler = CommandHandler.Create(async (InvocationContext context) =>
                     {
                         var cancellationToken = context.GetCancellationToken();
 

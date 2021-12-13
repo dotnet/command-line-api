@@ -7,24 +7,6 @@ namespace System.CommandLine.Invocation;
 
 public static partial class CommandHandler
 {
-    public static ICommandHandler SetHandler<T1, T2, T3>(
-        this Command command,
-        Action<T1, T2, T3> handle,
-        params IValueDescriptor[] symbols) =>
-        command.Handler = new AnonymousCommandHandler(
-            context =>
-            {
-                var index = 0;
-
-                var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
-                var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
-                var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
-
-                handle(value1,
-                       value2,
-                       value3);
-            });
-
     private static T? GetParsedValueOrService<T>(
         IValueDescriptor[] symbols,
         ref int index,

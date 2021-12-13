@@ -21,400 +21,376 @@ namespace System.CommandLine.Invocation
         /// Creates a command handler based on a <see cref="Action{T}"/>.
         /// </summary>
         public static ICommandHandler Create<T>(
-            IValueDescriptor<T> symbol1,
-            Action<T> handle) =>
+            Action<T> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T>(symbols, ref index, context);
+
+                    handle(value1!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            Action<T1, T2> handle) =>
+            Action<T1, T2> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+
+                    handle(value1!, value2!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            Action<T1, T2, T3> handle) =>
+            Action<T1, T2, T3> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            Action<T1, T2, T3, T4> handle) =>
+            Action<T1, T2, T3, T4> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            Action<T1, T2, T3, T4, T5> handle) =>
+            Action<T1, T2, T3, T4, T5> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            Action<T1, T2, T3, T4, T5, T6> handle) =>
+            Action<T1, T2, T3, T4, T5, T6> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            Action<T1, T2, T3, T4, T5, T6, T7> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            IValueDescriptor<T9> symbol9,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!,
-                    context.ParseResult.GetValueFor(symbol9)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+                    var value9 = GetParsedValueOrService<T9>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            IValueDescriptor<T9> symbol9,
-            IValueDescriptor<T10> symbol10,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!,
-                    context.ParseResult.GetValueFor(symbol9)!,
-                    context.ParseResult.GetValueFor(symbol10)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+                    var value9 = GetParsedValueOrService<T9>(symbols, ref index, context);
+                    var value10 = GetParsedValueOrService<T10>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            IValueDescriptor<T9> symbol9,
-            IValueDescriptor<T10> symbol10,
-            IValueDescriptor<T11> symbol11,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!,
-                    context.ParseResult.GetValueFor(symbol9)!,
-                    context.ParseResult.GetValueFor(symbol10)!,
-                    context.ParseResult.GetValueFor(symbol11)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+                    var value9 = GetParsedValueOrService<T9>(symbols, ref index, context);
+                    var value10 = GetParsedValueOrService<T10>(symbols, ref index, context);
+                    var value11 = GetParsedValueOrService<T11>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            IValueDescriptor<T9> symbol9,
-            IValueDescriptor<T10> symbol10,
-            IValueDescriptor<T11> symbol11,
-            IValueDescriptor<T12> symbol12,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!,
-                    context.ParseResult.GetValueFor(symbol9)!,
-                    context.ParseResult.GetValueFor(symbol10)!,
-                    context.ParseResult.GetValueFor(symbol11)!,
-                    context.ParseResult.GetValueFor(symbol12)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+                    var value9 = GetParsedValueOrService<T9>(symbols, ref index, context);
+                    var value10 = GetParsedValueOrService<T10>(symbols, ref index, context);
+                    var value11 = GetParsedValueOrService<T11>(symbols, ref index, context);
+                    var value12 = GetParsedValueOrService<T12>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            IValueDescriptor<T9> symbol9,
-            IValueDescriptor<T10> symbol10,
-            IValueDescriptor<T11> symbol11,
-            IValueDescriptor<T12> symbol12,
-            IValueDescriptor<T13> symbol13,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!,
-                    context.ParseResult.GetValueFor(symbol9)!,
-                    context.ParseResult.GetValueFor(symbol10)!,
-                    context.ParseResult.GetValueFor(symbol11)!,
-                    context.ParseResult.GetValueFor(symbol12)!,
-                    context.ParseResult.GetValueFor(symbol13)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+                    var value9 = GetParsedValueOrService<T9>(symbols, ref index, context);
+                    var value10 = GetParsedValueOrService<T10>(symbols, ref index, context);
+                    var value11 = GetParsedValueOrService<T11>(symbols, ref index, context);
+                    var value12 = GetParsedValueOrService<T12>(symbols, ref index, context);
+                    var value13 = GetParsedValueOrService<T13>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!, value13!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            IValueDescriptor<T9> symbol9,
-            IValueDescriptor<T10> symbol10,
-            IValueDescriptor<T11> symbol11,
-            IValueDescriptor<T12> symbol12,
-            IValueDescriptor<T13> symbol13,
-            IValueDescriptor<T14> symbol14,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!,
-                    context.ParseResult.GetValueFor(symbol9)!,
-                    context.ParseResult.GetValueFor(symbol10)!,
-                    context.ParseResult.GetValueFor(symbol11)!,
-                    context.ParseResult.GetValueFor(symbol12)!,
-                    context.ParseResult.GetValueFor(symbol13)!,
-                    context.ParseResult.GetValueFor(symbol14)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+                    var value9 = GetParsedValueOrService<T9>(symbols, ref index, context);
+                    var value10 = GetParsedValueOrService<T10>(symbols, ref index, context);
+                    var value11 = GetParsedValueOrService<T11>(symbols, ref index, context);
+                    var value12 = GetParsedValueOrService<T12>(symbols, ref index, context);
+                    var value13 = GetParsedValueOrService<T13>(symbols, ref index, context);
+                    var value14 = GetParsedValueOrService<T14>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!, value13!, value14!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            IValueDescriptor<T9> symbol9,
-            IValueDescriptor<T10> symbol10,
-            IValueDescriptor<T11> symbol11,
-            IValueDescriptor<T12> symbol12,
-            IValueDescriptor<T13> symbol13,
-            IValueDescriptor<T14> symbol14,
-            IValueDescriptor<T15> symbol15,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!,
-                    context.ParseResult.GetValueFor(symbol9)!,
-                    context.ParseResult.GetValueFor(symbol10)!,
-                    context.ParseResult.GetValueFor(symbol11)!,
-                    context.ParseResult.GetValueFor(symbol12)!,
-                    context.ParseResult.GetValueFor(symbol13)!,
-                    context.ParseResult.GetValueFor(symbol14)!,
-                    context.ParseResult.GetValueFor(symbol15)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+                    var value9 = GetParsedValueOrService<T9>(symbols, ref index, context);
+                    var value10 = GetParsedValueOrService<T10>(symbols, ref index, context);
+                    var value11 = GetParsedValueOrService<T11>(symbols, ref index, context);
+                    var value12 = GetParsedValueOrService<T12>(symbols, ref index, context);
+                    var value13 = GetParsedValueOrService<T13>(symbols, ref index, context);
+                    var value14 = GetParsedValueOrService<T14>(symbols, ref index, context);
+                    var value15 = GetParsedValueOrService<T15>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!, value13!, value14!, value15!);
+                });
 
         /// <summary>
         /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16}"/>.
         /// </summary>
         public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
-            IValueDescriptor<T1> symbol1,
-            IValueDescriptor<T2> symbol2,
-            IValueDescriptor<T3> symbol3,
-            IValueDescriptor<T4> symbol4,
-            IValueDescriptor<T5> symbol5,
-            IValueDescriptor<T6> symbol6,
-            IValueDescriptor<T7> symbol7,
-            IValueDescriptor<T8> symbol8,
-            IValueDescriptor<T9> symbol9,
-            IValueDescriptor<T10> symbol10,
-            IValueDescriptor<T11> symbol11,
-            IValueDescriptor<T12> symbol12,
-            IValueDescriptor<T13> symbol13,
-            IValueDescriptor<T14> symbol14,
-            IValueDescriptor<T15> symbol15,
-            IValueDescriptor<T16> symbol16,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> handle) =>
+            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> handle,
+            params IValueDescriptor[] symbols) =>
             new AnonymousCommandHandler(
-                context => handle(
-                    context.ParseResult.GetValueFor(symbol1)!,
-                    context.ParseResult.GetValueFor(symbol2)!,
-                    context.ParseResult.GetValueFor(symbol3)!,
-                    context.ParseResult.GetValueFor(symbol4)!,
-                    context.ParseResult.GetValueFor(symbol5)!,
-                    context.ParseResult.GetValueFor(symbol6)!,
-                    context.ParseResult.GetValueFor(symbol7)!,
-                    context.ParseResult.GetValueFor(symbol8)!,
-                    context.ParseResult.GetValueFor(symbol9)!,
-                    context.ParseResult.GetValueFor(symbol10)!,
-                    context.ParseResult.GetValueFor(symbol11)!,
-                    context.ParseResult.GetValueFor(symbol12)!,
-                    context.ParseResult.GetValueFor(symbol13)!,
-                    context.ParseResult.GetValueFor(symbol14)!,
-                    context.ParseResult.GetValueFor(symbol15)!,
-                    context.ParseResult.GetValueFor(symbol16)!));
+                context =>
+                {
+                    var index = 0;
+
+                    var value1 = GetParsedValueOrService<T1>(symbols, ref index, context);
+                    var value2 = GetParsedValueOrService<T2>(symbols, ref index, context);
+                    var value3 = GetParsedValueOrService<T3>(symbols, ref index, context);
+                    var value4 = GetParsedValueOrService<T4>(symbols, ref index, context);
+                    var value5 = GetParsedValueOrService<T5>(symbols, ref index, context);
+                    var value6 = GetParsedValueOrService<T6>(symbols, ref index, context);
+                    var value7 = GetParsedValueOrService<T7>(symbols, ref index, context);
+                    var value8 = GetParsedValueOrService<T8>(symbols, ref index, context);
+                    var value9 = GetParsedValueOrService<T9>(symbols, ref index, context);
+                    var value10 = GetParsedValueOrService<T10>(symbols, ref index, context);
+                    var value11 = GetParsedValueOrService<T11>(symbols, ref index, context);
+                    var value12 = GetParsedValueOrService<T12>(symbols, ref index, context);
+                    var value13 = GetParsedValueOrService<T13>(symbols, ref index, context);
+                    var value14 = GetParsedValueOrService<T14>(symbols, ref index, context);
+                    var value15 = GetParsedValueOrService<T15>(symbols, ref index, context);
+                    var value16 = GetParsedValueOrService<T16>(symbols, ref index, context);
+
+                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!, value13!, value14!, value15!, value16!);
+                });
     }
 }
