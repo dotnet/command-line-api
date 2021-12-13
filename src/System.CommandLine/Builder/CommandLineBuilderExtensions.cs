@@ -414,7 +414,7 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
         {
-            return builder.UseHelp(new HelpOption(builder));
+            return builder.UseHelp(new HelpOption(() => builder.LocalizationResources));
         }
 
         /// <summary>
@@ -428,7 +428,7 @@ ERR:
             this CommandLineBuilder builder,
             params string[] helpAliases)
         {
-            return builder.UseHelp(new HelpOption(helpAliases, builder));
+            return builder.UseHelp(new HelpOption(helpAliases, () => builder.LocalizationResources));
         }
 
         /// <summary>
@@ -436,14 +436,20 @@ ERR:
         /// </summary>
         /// <remarks>The specified aliases will override the default values.</remarks>
         /// <param name="builder">A command line builder.</param>
-        /// <param name="layout">Defines the sections to be written for command line help.</param>
+        /// <param name="customize">A delegate that will be called to customize help if help is requested.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
-            IEnumerable<HelpDelegate> layout)
+            Action<HelpContext> customize)
         {
-            return builder.UseHelpBuilder(_ => new HelpBuilder(LocalizationResources.Instance, layout: layout))
-                          .UseHelp(new HelpOption(builder));
+            builder.CustomizeHelpLayout(customize);
+            
+            if (builder.HelpOption is null)
+            {
+                builder.UseHelp(new HelpOption(() => builder.LocalizationResources));
+            }
+
+            return builder;
         }
 
         internal static CommandLineBuilder UseHelp(
@@ -480,7 +486,7 @@ ERR:
             {
                 throw new ArgumentNullException(nameof(builder));
             }
-            builder.HelpBuilderFactory = getHelpBuilder;
+            builder.UseHelpBuilderFactory(getHelpBuilder);
             return builder;
         }
 
@@ -625,7 +631,7 @@ ERR:
                     }
                     else
                     {
-                        position = context.ParseResult.RawInput?.Length ?? 0;
+                        position = context.ParseResult.CommandLineText?.Length ?? 0;
                     }
 
                     context.InvocationResult = new SuggestDirectiveResult(position);

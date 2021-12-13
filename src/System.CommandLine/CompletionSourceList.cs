@@ -3,33 +3,33 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 
 namespace System.CommandLine
 {
     /// <summary>
-    /// A list of suggestion sources to be used when providing suggestions for completion.
+    /// A list of completion sources to be used when providing completions for completion.
     /// </summary>
-    public class SuggestionSourceList : IReadOnlyList<ISuggestionSource>
+    public class CompletionSourceList : IReadOnlyList<ICompletionSource>
     {
-        private readonly List<ISuggestionSource> _sources = new();
+        private readonly List<ICompletionSource> _sources = new();
 
         /// <summary>
-        /// Adds a suggestion source to the list.
+        /// Adds a completion source to the list.
         /// </summary>
         /// <param name="source">The source to add.</param>
-        public void Add(ISuggestionSource source)
+        public void Add(ICompletionSource source)
         {
             _sources.Add(source);
         }
 
         /// <inheritdoc />
-        public IEnumerator<ISuggestionSource> GetEnumerator() => _sources.GetEnumerator();
+        public IEnumerator<ICompletionSource> GetEnumerator() => _sources.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
-        /// Clears the suggestion sources.
+        /// Clears the completion sources.
         /// </summary>
         public void Clear()
         {
@@ -40,6 +40,6 @@ namespace System.CommandLine
         public int Count => _sources.Count;
 
         /// <inheritdoc />
-        public ISuggestionSource this[int index] => _sources[index];
+        public ICompletionSource this[int index] => _sources[index];
     }
 }

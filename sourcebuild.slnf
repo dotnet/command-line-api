@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "System.CommandLine.sln",
+    "projects": [
+      "src\\System.CommandLine\\System.CommandLine.csproj",
+      "src\\System.CommandLine.DragonFruit\\System.CommandLine.DragonFruit.csproj",
+      "src\\System.CommandLine.Rendering\\System.CommandLine.Rendering.csproj"
+    ]
+  }
+}

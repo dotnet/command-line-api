@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 using System.Linq;
 using System.IO;
 
@@ -15,35 +15,52 @@ namespace System.CommandLine
     public static class ArgumentExtensions
     {
         /// <summary>
-        /// Adds suggestions for an argument.
+        /// Adds completions for an argument.
         /// </summary>
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
-        /// <param name="argument">The argument for which to add suggestions.</param>
-        /// <param name="values">The suggestions to add.</param>
+        /// <param name="argument">The argument for which to add completions.</param>
+        /// <param name="values">The completions to add.</param>
         /// <returns>The configured argument.</returns>
-        public static TArgument AddSuggestions<TArgument>(
+        public static TArgument AddCompletions<TArgument>(
             this TArgument argument,
             params string[] values)
             where TArgument : Argument
         {
-            argument.Suggestions.Add(values);
+            argument.Completions.Add(values);
+
+            return argument;
+        }
+    
+        /// <summary>
+        /// Adds completions for an option.
+        /// </summary>
+        /// <typeparam name="TArgument">The type of the argument.</typeparam>
+        /// <param name="argument">The argument for which to add completions.</param>
+        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
+        /// <returns>The option being extended.</returns>
+        public static TArgument AddCompletions<TArgument>(
+            this TArgument argument,
+            Func<CompletionContext, IEnumerable<string>> complete)
+            where TArgument : Argument
+        {
+            argument.Completions.Add(complete);
 
             return argument;
         }
 
         /// <summary>
-        /// Adds suggestions for an argument.
+        /// Adds completions for an argument.
         /// </summary>
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
-        /// <param name="argument">The argument for which to add suggestions.</param>
-        /// <param name="suggest">A <see cref="SuggestDelegate"/> that will be called to provide suggestions.</param>
+        /// <param name="argument">The argument for which to add completions.</param>
+        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The configured argument.</returns>
-        public static TArgument AddSuggestions<TArgument>(
+        public static TArgument AddCompletions<TArgument>(
             this TArgument argument,
-            SuggestDelegate suggest)
+            CompletionDelegate complete)
             where TArgument : Argument
         {
-            argument.Suggestions.Add(suggest);
+            argument.Completions.Add(complete);
 
             return argument;
         }
@@ -61,7 +78,7 @@ namespace System.CommandLine
             where TArgument : Argument
         {
             argument.AddAllowedValues(values);
-            argument.Suggestions.Add(values);
+            argument.Completions.Add(values);
 
             return argument;
         }

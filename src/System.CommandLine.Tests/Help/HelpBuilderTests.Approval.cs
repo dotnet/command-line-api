@@ -4,7 +4,6 @@
 using Xunit;
 using System.IO;
 using ApprovalTests;
-using System.CommandLine.Help;
 using ApprovalTests.Reporters;
 
 namespace System.CommandLine.Tests.Help
@@ -13,7 +12,7 @@ namespace System.CommandLine.Tests.Help
     {
         [Fact]
         [UseReporter(typeof(DiffReporter))]
-        public void Help_describes_default_values_for_complex_root_command_scenario()
+        public void Help_layout_has_not_changed()
         {
             var command = new RootCommand(description: "Test description")
             {

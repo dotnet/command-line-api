@@ -395,7 +395,8 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed)
+            if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed 
+                and not FailedArgumentConversionArityResult)
             {
                 AddErrorToResult(argumentResult, new ParseError(failed.ErrorMessage!, argumentResult));
             }

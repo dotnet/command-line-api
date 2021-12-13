@@ -6,7 +6,6 @@ using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine.Builder
 {
@@ -17,6 +16,8 @@ namespace System.CommandLine.Builder
     {
         private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
         private LocalizationResources? _localizationResources;
+        private Action<HelpContext>? _customizeHelpBuilder;
+        private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command? rootCommand = null)
@@ -51,7 +52,27 @@ namespace System.CommandLine.Builder
         /// </summary>
         public ResponseFileHandling ResponseFileHandling { get; set; }
 
-        internal Func<BindingContext, HelpBuilder>? HelpBuilderFactory { get; set; }
+        internal void CustomizeHelpLayout(Action<HelpContext> customize) => 
+            _customizeHelpBuilder = customize;
+
+        internal void UseHelpBuilderFactory(Func<BindingContext, HelpBuilder> factory) =>
+            _helpBuilderFactory = factory;
+
+        private Func<BindingContext, HelpBuilder> GetHelpBuilderFactory()
+        {
+            return CreateHelpBuilder;
+
+            HelpBuilder CreateHelpBuilder(BindingContext bindingContext)
+            {
+                var helpBuilder = _helpBuilderFactory is { }
+                                             ? _helpBuilderFactory(bindingContext)
+                                             : new HelpBuilder(LocalizationResources);
+
+                helpBuilder.OnCustomize = _customizeHelpBuilder;
+
+                return helpBuilder;
+            }
+        }
 
         internal HelpOption? HelpOption { get; set; }
 
@@ -62,7 +83,7 @@ namespace System.CommandLine.Builder
             get => _localizationResources ??= LocalizationResources.Instance;
             set => _localizationResources = value;
         }
-        
+
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
@@ -77,7 +98,7 @@ namespace System.CommandLine.Builder
                     resources: LocalizationResources,
                     responseFileHandling: ResponseFileHandling,
                     middlewarePipeline: GetMiddleware(),
-                    helpBuilderFactory: HelpBuilderFactory));
+                    helpBuilderFactory: GetHelpBuilderFactory()));
             
             return parser;
         }

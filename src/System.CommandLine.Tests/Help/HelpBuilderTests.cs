@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests.Help
             _executableName = RootCommand.ExecutableName;
         }
 
-        private HelpBuilder GetHelpBuilder(int maxWidth) =>
+        private HelpBuilder GetHelpBuilder(int maxWidth = SmallMaxWidth) =>
             new(LocalizationResources.Instance,
                 maxWidth);
 
@@ -816,7 +816,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Help_describes_default_value_for_defaultable_argument()
+        public void Help_describes_default_value_for_argument()
         {
             var argument = new Argument
             {
@@ -834,7 +834,7 @@ namespace System.CommandLine.Tests.Help
 
             var help = _console.ToString();
 
-            help.Should().Contain($"[default: the-arg-value]");
+            help.Should().Contain("[default: the-arg-value]");
         }
 
         [Fact]
@@ -1238,7 +1238,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option<List<int>>(
                     "--filter-size",
-                    getDefaultValue: () => new List<int>() { 0, 2, 4 })
+                    getDefaultValue: () => new List<int> { 0, 2, 4 })
                 { }
             };
 
@@ -1366,7 +1366,7 @@ namespace System.CommandLine.Tests.Help
             var expected =
                 $"Commands:{NewLine}" +
                 $"{_indentation}inner-command <inner-args>{_columnPadding}The\tsubcommand with some tabs that is {NewLine}" +
-                $"{_indentation}                          {_columnPadding}long enough to wrap to a\tnew line{NewLine}{NewLine}";
+                $"{_indentation}                          {_columnPadding}long enough to wrap to a\tnew line{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -1543,6 +1543,25 @@ namespace System.CommandLine.Tests.Help
         {
             var helpBuilder = new HelpBuilder(LocalizationResources.Instance, maxWidth);
             Assert.Equal(int.MaxValue, helpBuilder.MaxWidth);
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1506
+        public void Commands_without_arguments_do_not_produce_extra_newlines_between_usage_and_options_sections()
+        {
+            var command = new RootCommand
+            {
+                new Option<string>("-x", "the-option-description")
+            };
+
+            var helpBuilder = GetHelpBuilder();
+            var resources = helpBuilder.LocalizationResources;
+
+            using var writer = new StringWriter();
+            helpBuilder.Write(command, writer);
+
+            var output = writer.ToString();
+
+            output.Should().Contain($"{resources.HelpUsageOptionsTitle()}{NewLine}{NewLine}{resources.HelpOptionsTitle()}");
         }
     }
 }

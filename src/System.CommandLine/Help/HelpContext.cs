@@ -23,10 +23,11 @@ namespace System.CommandLine.Help
             ParseResult? parseResult = null,
             int? maxWidth = int.MaxValue)
         {
-            HelpBuilder = helpBuilder;
+            HelpBuilder = helpBuilder ?? throw new ArgumentNullException(nameof(helpBuilder));
+            Command = command ?? throw new ArgumentNullException(nameof(command));
+            Output = output ?? throw new ArgumentNullException(nameof(output));
             ParseResult = parseResult ?? ParseResult.Empty();
-            Command = command;
-            Output = output;
+
             if (maxWidth is not null)
             {
                 MaxWidth = maxWidth.Value;
@@ -61,5 +62,7 @@ namespace System.CommandLine.Help
         /// The maximum width at which to format the text, used for wrapping text within multi-column output.
         /// </summary>
         public int MaxWidth { get; }
+
+        internal bool WasSectionSkipped { get; set; }
     }
 }

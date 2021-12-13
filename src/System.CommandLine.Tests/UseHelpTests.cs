@@ -8,6 +8,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -256,24 +257,57 @@ namespace System.CommandLine.Tests
             _console.Out.ToString().Should().Be("");
         }
 
-
         [Fact]
-        public void Help_sections_can_be_replaced()
+        public void Individual_symbols_can_be_customized()
         {
-            var parser = new CommandLineBuilder()
-                         .UseHelp(CustomLayout())
+            var subcommand = new Command("subcommand", "The default command description");
+            var option = new Option<int>("-x", "The default option description");
+            var argument = new Argument<int>("int-value", "The default argument description");
+
+            var rootCommand = new RootCommand
+            {
+                subcommand,
+                option,
+                argument
+            };
+
+            var parser = new CommandLineBuilder(rootCommand)
+                         .UseHelp(ctx =>
+                         {
+                             ctx.HelpBuilder.CustomizeSymbol(subcommand, secondColumnText: "The custom command description");
+                             ctx.HelpBuilder.CustomizeSymbol(option, secondColumnText: "The custom option description");
+                             ctx.HelpBuilder.CustomizeSymbol(argument, secondColumnText: "The custom argument description");
+                         })
                          .Build();
 
             var console = new TestConsole();
             parser.Invoke("-h", console);
 
-            console.Out.ToString().Should().Be($"one{NewLine}two{NewLine}three{NewLine}");
+            console.Out
+                   .ToString()
+                   .Should()
+                   .ContainAll("The custom command description",
+                               "The custom option description",
+                               "The custom argument description");
+        }
 
-            IEnumerable<HelpDelegate> CustomLayout()
+        [Fact]
+        public void Help_sections_can_be_replaced()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout))
+                         .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("-h", console);
+
+            console.Out.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}{NewLine}");
+
+            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
             {
-                yield return ctx => ctx.Output.Write("one");
-                yield return ctx => ctx.Output.Write("two");
-                yield return ctx => ctx.Output.Write("three");
+                yield return ctx => ctx.Output.WriteLine("one");
+                yield return ctx => ctx.Output.WriteLine("two");
+                yield return ctx => ctx.Output.WriteLine("three");
             }
         }
 
@@ -282,29 +316,68 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand("hello");
             var parser = new CommandLineBuilder(command)
-                         .UseHelp(CustomLayout())
+                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout))
                          .Build();
 
             var console = new TestConsole();
             parser.Invoke("-h", console);
 
             var output = console.Out.ToString();
-            output.Should().Be($"first{NewLine}{GetDefaultHelp(command)}last{NewLine}");
+            var defaultHelp = GetDefaultHelp(command);
 
-            IEnumerable<HelpDelegate> CustomLayout()
+            var expected = $"first{NewLine}{NewLine}{defaultHelp}last{NewLine}{NewLine}";
+
+            output.Should().Be(expected);
+
+            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
             {
-                yield return ctx => ctx.Output.Write("first");
+                yield return ctx => ctx.Output.WriteLine("first");
 
                 foreach (var section in HelpBuilder.DefaultLayout())
                 {
                     yield return section;
                 }
 
-                yield return ctx => ctx.Output.Write("last");
+                yield return ctx => ctx.Output.WriteLine("last");
             }
         }
 
-        private string GetDefaultHelp(Command command)
+        [Fact]
+        public void Layout_can_be_composed_dynamically_based_on_context()
+        {
+            var commandWithTypicalHelp = new Command("typical");
+            var commandWithCustomHelp = new Command("custom");
+            var command = new RootCommand
+            {
+                commandWithTypicalHelp,
+                commandWithCustomHelp
+            };
+
+            var parser = new CommandLineBuilder(command)
+                         .UseHelp(
+                             ctx =>
+                                 ctx.HelpBuilder
+                                    .CustomizeLayout(c =>
+                                                         c.Command == commandWithTypicalHelp
+                                                             ? HelpBuilder.DefaultLayout()
+                                                             : new HelpSectionDelegate[]
+                                                                 {
+                                                                     c => c.Output.WriteLine("Custom layout!")
+                                                                 }
+                                                                 .Concat(HelpBuilder.DefaultLayout())))
+                         .Build();
+
+            var typicalOutput = new TestConsole();
+            parser.Invoke("typical -h", typicalOutput);
+
+            var customOutput = new TestConsole();
+            parser.Invoke("custom -h", customOutput);
+
+            typicalOutput.Out.ToString().Should().Be(GetDefaultHelp(commandWithTypicalHelp, false));
+            customOutput.Out.ToString().Should().Be($"Custom layout!{NewLine}{NewLine}{GetDefaultHelp(commandWithCustomHelp, false)}");
+        }
+
+        private string GetDefaultHelp(Command command, bool trimOneNewline = true)
         {
             var console = new TestConsole();
 
@@ -314,7 +387,13 @@ namespace System.CommandLine.Tests
 
             parser.Invoke("-h", console);
 
-            return console.Out.ToString();
+            var output = console.Out.ToString();
+
+            if (trimOneNewline)
+            {
+                output = output.Substring(0, output.Length - NewLine.Length);
+            }
+            return output;
         }
     }
 }

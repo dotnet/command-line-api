@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -11,7 +10,7 @@ namespace System.CommandLine.Suggest
 {
     public class SuggestionStore : ISuggestionStore
     {
-        public string GetSuggestions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
+        public string GetCompletions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
         {
             if (string.IsNullOrWhiteSpace(exeFileName))
             {

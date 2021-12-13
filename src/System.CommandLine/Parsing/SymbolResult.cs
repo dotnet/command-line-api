@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Collections;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 
 namespace System.CommandLine.Parsing
 {

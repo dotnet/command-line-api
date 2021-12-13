@@ -169,16 +169,16 @@ namespace System.CommandLine.Suggest
             Program.LogDebug($"dotnet-suggest sending: {targetArgs}");
 #endif
 
-            string suggestions = _suggestionStore.GetSuggestions(
+            string completions = _suggestionStore.GetCompletions(
                 targetExePath,
                 targetArgs,
                 Timeout).Trim();
 
 #if DEBUG
-            Program.LogDebug($"dotnet-suggest returning: \"{suggestions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
+            Program.LogDebug($"dotnet-suggest returning: \"{completions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
 #endif
 
-            context.Console.Out.Write(suggestions);
+            context.Console.Out.Write(completions);
 
             return Task.FromResult(0);
         }

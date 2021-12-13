@@ -2,14 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Collections;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 
 namespace System.CommandLine
 {
     /// <summary>
     /// Defines a named symbol that resides in a hierarchy with parent and child symbols.
     /// </summary>
-    public interface ISymbol : ISuggestionSource, IMatchable
+    public interface ISymbol : ICompletionSource, IMatchable
     {
         /// <summary>
         /// Gets the symbol name.

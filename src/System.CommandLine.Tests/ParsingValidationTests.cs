@@ -955,5 +955,53 @@ namespace System.CommandLine.Tests
             result.GetValueForOption(optionX).Should().Be(123);
             result.GetValueForOption(optionY).Should().Be(456);
         }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1505
+        public void Arity_failures_are_not_reported_for_both_an_argument_and_its_parent_option()
+        {
+            var newCommand = new Command("test")
+            {
+                new Option<string>("--opt", ParseMe)
+            };
+
+            var parseResult = newCommand.Parse("test --opt");
+            
+            parseResult.Errors
+                       .Should()
+                       .ContainSingle()
+                       .Which
+                       .Message
+                       .Should()
+                       .Be(
+"Required argument missing for option: --opt");
+        }
+
+        private static string ParseMe(ArgumentResult argumentResult)
+        {
+            if (argumentResult.Parent is not OptionResult or)
+            {
+                throw new NotSupportedException("The method should be only used with option.");
+            }
+
+            if (argumentResult.Tokens.Count == 0)
+            {
+                if (or.IsImplicit)
+                {
+                    return "default";
+                }
+                //no arg is not allowed
+                argumentResult.ErrorMessage = $"(CUSTOM) Required argument missing for option: {or.Token.Value}.";
+                return default!;
+            }
+            else if (argumentResult.Tokens.Count == 1)
+            {
+                return "value";
+            }
+            else
+            {
+                argumentResult.ErrorMessage = $"Using more than 1 argument is not allowed for '{or.Token.Value}', used: {argumentResult.Tokens.Count}.";
+                return default!;
+            }
+        }
     }
 }

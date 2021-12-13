@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.CommandLine.Suggestions;
+using System.CommandLine.Completions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,63 +38,6 @@ namespace System.CommandLine.Parsing
             this ParseResult parseResult,
             IConsole? console = null) =>
             new InvocationPipeline(parseResult).Invoke(console);
-
-        /// <summary>
-        /// Gets the text to be matched for completion, which can be used to filter a list of suggestions.
-        /// </summary>
-        /// <param name="parseResult">A parse result.</param>
-        /// <param name="position">The position within the raw input, if available, at which to provide suggestions.</param>
-        /// <returns>A string containing the user-entered text to be matched for suggestions.</returns>
-        public static string TextToMatch(
-            this ParseResult parseResult,
-            int? position = null)
-        {
-            Token lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
-
-            string? textToMatch = null;
-            string? rawInput = parseResult.RawInput;
-
-            if (rawInput is not null)
-            {
-                if (position is not null)
-                {
-                    if (position > rawInput.Length)
-                    {
-                        rawInput += ' ';
-                        position = Math.Min(rawInput.Length, position.Value);
-                    }
-                }
-                else
-                {
-                    position = rawInput.Length;
-                }
-            }
-            else if (!lastToken.IsDefault)
-            {
-                position = null;
-                textToMatch = lastToken.Value;
-            }
-
-            if (string.IsNullOrWhiteSpace(rawInput))
-            {
-                if (parseResult.UnmatchedTokens.Count > 0 ||
-                    lastToken.Type == TokenType.Argument)
-                {
-                    return textToMatch ?? "";
-                }
-            }
-            else
-            {
-                var textBeforeCursor = rawInput!.Substring(0, position!.Value);
-
-                var textAfterCursor = rawInput.Substring(position.Value);
-
-                return textBeforeCursor.Split(' ').LastOrDefault() +
-                       textAfterCursor.Split(' ').FirstOrDefault();
-            }
-
-            return "";
-        }
 
         /// <summary>
         /// Formats a string explaining a parse result.
@@ -258,110 +201,6 @@ namespace System.CommandLine.Parsing
             }
 
             return parseResult.CommandResult.Children.ContainsAlias(alias);
-        }
-
-        /// <summary>
-        /// Gets suggestions for command line completion based on a given parse result.
-        /// </summary>
-        /// <param name="parseResult">The parse result that provides context for the suggestions.</param>
-        /// <param name="position">The position at which suggestions are requested.</param>
-        /// <returns>A set of suggestions for completion.</returns>
-        public static IEnumerable<string?> GetSuggestions(
-            this ParseResult parseResult,
-            int? position = null)
-        {
-            var textToMatch = parseResult.TextToMatch(position);
-            var currentSymbolResult = parseResult.SymbolToComplete(position);
-            var currentSymbol = currentSymbolResult.Symbol;
-
-            var currentSymbolSuggestions =
-                currentSymbol is ISuggestionSource currentSuggestionSource
-                    ? currentSuggestionSource.GetSuggestions(parseResult, textToMatch)
-                    : Array.Empty<string>();
-
-            IEnumerable<string?> siblingSuggestions;
-            var parentSymbol = currentSymbolResult.Parent?.Symbol;
-
-            if (parentSymbol is null ||
-                !currentSymbolResult.IsArgumentLimitReached)
-            {
-                siblingSuggestions = Array.Empty<string?>();
-            }
-            else
-            {
-                siblingSuggestions = parentSymbol
-                                     .GetSuggestions(parseResult, textToMatch)
-                                     .Except(parentSymbol
-                                             .Children
-                                             .OfType<ICommand>()
-                                             .SelectMany(c => c.Aliases));
-            }
-
-            if (currentSymbolResult is CommandResult commandResult)
-            {
-                currentSymbolSuggestions = currentSymbolSuggestions
-                    .Except(OptionsWithArgumentLimitReached(currentSymbolResult));
-
-                if (currentSymbolResult.Parent is CommandResult parent)
-                {
-                    siblingSuggestions = siblingSuggestions.Except(OptionsWithArgumentLimitReached(parent));
-                }
-            }
-
-            return currentSymbolSuggestions.Concat(siblingSuggestions);
-
-            string[] OptionsWithArgumentLimitReached(SymbolResult symbolResult)
-            {
-                var optionsWithArgLimitReached =
-                    symbolResult
-                        .Children
-                        .Where(c => c.IsArgumentLimitReached);
-
-                var exclude = optionsWithArgLimitReached
-                              .OfType<OptionResult>()
-                              .Select(o => o.Symbol)
-                              .OfType<IIdentifierSymbol>()
-                              .SelectMany(c => c.Aliases)
-                              .Concat(commandResult.Command.Aliases)
-                              .ToArray();
-
-                return exclude;
-            }
-        }
-
-        internal static SymbolResult SymbolToComplete(
-            this ParseResult parseResult,
-            int? position = null)
-        {
-            var commandResult = parseResult.CommandResult;
-
-            var currentSymbol = AllSymbolResultsForCompletion()
-                .LastOrDefault();
-
-            return currentSymbol;
-
-            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
-            {
-                foreach (var item in commandResult.AllSymbolResults())
-                {
-                    if (item is CommandResult command)
-                    {
-                        yield return command;
-                    }
-                    else if (item is OptionResult option)
-                    {
-                        var willAcceptAnArgument =
-                            !option.IsImplicit &&
-                            (!option.IsArgumentLimitReached ||
-                             parseResult.TextToMatch(position).Length > 0);
-
-                        if (willAcceptAnArgument)
-                        {
-                            yield return option;
-                        }
-                    }
-                }
-            }
         }
     }
 }
