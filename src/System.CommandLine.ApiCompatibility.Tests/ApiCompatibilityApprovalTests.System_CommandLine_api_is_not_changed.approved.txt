@@ -33,6 +33,7 @@
     public System.Int32 MinimumNumberOfValues { get; }
   public static class ArgumentExtensions
     public static TArgument AddCompletions<TArgument>(System.String[] values)
+    public static TArgument AddCompletions<TArgument>(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
     public static TArgument AddCompletions<TArgument>(System.CommandLine.Completions.CompletionDelegate complete)
     public static Argument<System.IO.FileInfo> ExistingOnly()
     public static Argument<System.IO.DirectoryInfo> ExistingOnly()
