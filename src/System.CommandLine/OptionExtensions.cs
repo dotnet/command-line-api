@@ -52,7 +52,7 @@ namespace System.CommandLine
         /// <summary>
         /// Adds completions for an option.
         /// </summary>
-        /// <typeparam name="TOption">The type of the <see cref="Option" />.</typeparam>
+        /// <typeparam name="TOption">The type of the option.</typeparam>
         /// <param name="option">The option for which to add completions.</param>
         /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
@@ -69,7 +69,7 @@ namespace System.CommandLine
         /// <summary>
         /// Adds completions for an option.
         /// </summary>
-        /// <typeparam name="TOption">The type of the <see cref="Option" />.</typeparam>
+        /// <typeparam name="TOption">The type of the option.</typeparam>
         /// <param name="option">The option for which to add completions.</param>
         /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>

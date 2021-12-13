@@ -30,6 +30,23 @@ namespace System.CommandLine
 
             return argument;
         }
+    
+        /// <summary>
+        /// Adds completions for an option.
+        /// </summary>
+        /// <typeparam name="TArgument">The type of the argument.</typeparam>
+        /// <param name="argument">The argument for which to add completions.</param>
+        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
+        /// <returns>The option being extended.</returns>
+        public static TArgument AddCompletions<TArgument>(
+            this TArgument argument,
+            Func<CompletionContext, IEnumerable<string>> complete)
+            where TArgument : Argument
+        {
+            argument.Completions.Add(complete);
+
+            return argument;
+        }
 
         /// <summary>
         /// Adds completions for an argument.
