@@ -227,7 +227,7 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc cref="GetValueForArgument"/>
         [return: MaybeNull]
         [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
+            "This method got removed. Please use ParseResult.GetValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
         public T ValueForArgument<T>(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -235,14 +235,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            if (CommandResult.Children.GetByAlias(name) is ArgumentResult argumentResult)
-            {
-                return argumentResult.GetValueOrDefault<T>();
-            }
-            else
-            {
-                return default;
-            }
+            return default;
         }
 
         /// <inheritdoc cref="GetValueForOption"/>
@@ -282,7 +275,7 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc cref="GetValueForOption"/>
         [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
+            "This method got removed. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
         [return: MaybeNull]
         public T ValueForOption<T>(string alias)
         {
@@ -291,14 +284,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
             }
 
-            if (CommandResult.Children.GetByAlias(alias) is OptionResult optionResult)
-            {
-                return optionResult.GetValueOrDefault<T>();
-            }
-            else
-            {
-                return default;
-            }
+            return default;
         }
 
         /// <inheritdoc />
