@@ -11,7 +11,7 @@ namespace System.CommandLine.Invocation
     public static partial class CommandHandler
     {
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T}"/>.
+        /// Sets a command's handler based on an <see cref="Action"/>.
         /// </summary>
         public static ICommandHandler SetHandler(
             this Command command,
@@ -19,7 +19,7 @@ namespace System.CommandLine.Invocation
             command.Handler = new AnonymousCommandHandler(_ => handle());
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T>(
             this Command command,
@@ -36,7 +36,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2>(
             this Command command,
@@ -54,7 +54,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3>(
             this Command command,
@@ -73,7 +73,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4>(
             this Command command,
@@ -93,7 +93,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5>(
             this Command command,
@@ -114,7 +114,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6>(
             this Command command,
@@ -136,7 +136,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7>(
             this Command command,
@@ -159,7 +159,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
             this Command command,
@@ -183,7 +183,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             this Command command,
@@ -208,7 +208,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             this Command command,
@@ -234,7 +234,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
             this Command command,
@@ -261,7 +261,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
             this Command command,
@@ -289,7 +289,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
             this Command command,
@@ -318,7 +318,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
             this Command command,
@@ -348,7 +348,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
             this Command command,
@@ -379,7 +379,7 @@ namespace System.CommandLine.Invocation
                 });
 
         /// <summary>
-        /// Creates a command handler based on a <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16}"/>.
+        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16}"/>.
         /// </summary>
         public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
             this Command command,
