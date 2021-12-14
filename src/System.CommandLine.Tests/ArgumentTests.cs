@@ -369,10 +369,8 @@ namespace System.CommandLine.Tests
                     return int.Parse(result.Tokens.Single().Value);
                 });
 
-                var command = new RootCommand
-                {
-                    Handler = CommandHandler.Create((int value) => handlerWasCalled = true, option)
-                };
+                var command = new RootCommand();
+                command.SetHandler((int value) => handlerWasCalled = true, option);
                 command.AddOption(option);
 
                 await command.InvokeAsync("--value 42");

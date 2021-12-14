@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests.Binding
             switch (@case)
             {
                 case 1:
-                    command.Handler = CommandHandler.Create((ParseResult parseResult, bool boolValue, string stringValue) =>
+                    command.SetHandler((ParseResult parseResult, bool boolValue, string stringValue) =>
                     {
                         boundParseResult = parseResult;
                         boundBoolValue = boolValue;
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests.Binding
                     }, option, argument);
                     break;
                 case 2:
-                    command.Handler = CommandHandler.Create((bool boolValue, ParseResult parseResult, string stringValue) =>
+                    command.SetHandler((bool boolValue, ParseResult parseResult, string stringValue) =>
                     {
                         boundParseResult = parseResult;
                         boundBoolValue = boolValue;
@@ -53,7 +53,7 @@ namespace System.CommandLine.Tests.Binding
                     }, option, argument);
                     break;
                 case 3:
-                    command.Handler = CommandHandler.Create((bool boolValue, string stringValue, ParseResult parseResult) =>
+                    command.SetHandler((bool boolValue, string stringValue, ParseResult parseResult) =>
                     {
                         boundParseResult = parseResult;
                         boundBoolValue = boolValue;
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests.Binding
             switch (@case)
             {
                 case 1:
-                    command.Handler = CommandHandler.Create((ParseResult parseResult, bool boolValue, string stringValue) =>
+                    command.SetHandler((ParseResult parseResult, bool boolValue, string stringValue) =>
                     {
                         boundParseResult = parseResult;
                         boundBoolValue = boolValue;
@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests.Binding
                     }, option, argument);
                     break;
                 case 2:
-                    command.Handler = CommandHandler.Create((bool boolValue, ParseResult parseResult, string stringValue) =>
+                    command.SetHandler((bool boolValue, ParseResult parseResult, string stringValue) =>
                     {
                         boundParseResult = parseResult;
                         boundBoolValue = boolValue;
@@ -108,7 +108,7 @@ namespace System.CommandLine.Tests.Binding
                     }, option, argument);
                     break;
                 case 3:
-                    command.Handler = CommandHandler.Create((bool boolValue, string stringValue, ParseResult parseResult) =>
+                    command.SetHandler((bool boolValue, string stringValue, ParseResult parseResult) =>
                     {
                         boundParseResult = parseResult;
                         boundBoolValue = boolValue;
@@ -139,7 +139,7 @@ namespace System.CommandLine.Tests.Binding
 
             var wasCalled = false;
 
-            command.Handler = CommandHandler.Create((bool boolValue, string stringValue) => wasCalled = true, 
+            command.SetHandler((bool boolValue, string stringValue) => wasCalled = true, 
                                                     stringArg, boolOption);
 
             var exitCode = command.Invoke("-o hi");
@@ -154,7 +154,7 @@ namespace System.CommandLine.Tests.Binding
             var command = new RootCommand();
 
             var wasCalled = false;
-            command.Handler = CommandHandler.Create((ClassWithMultipleCtor instance) => wasCalled = true);
+            command.SetHandler((ClassWithMultipleCtor instance) => wasCalled = true);
 
             var exitCode = command.Invoke("");
 
@@ -175,7 +175,7 @@ namespace System.CommandLine.Tests.Binding
             };
 
             CustomType boundInstance = default;
-            command.Handler = CommandHandler.Create(
+            command.SetHandler(
                 (CustomType instance) => boundInstance = instance,
                 new CustomBinder(boolOption, stringArg));
 
@@ -305,31 +305,34 @@ namespace System.CommandLine.Tests.Binding
             // build up the method invocation
             var genericMethodDef = typeof(CommandHandler)
                                    .GetMethods()
-                                   .Where(m => m.Name == nameof(CommandHandler.Create))
+                                   .Where(m => m.Name == nameof(CommandHandler.SetHandler))
                                    .Where(m => m.IsGenericMethod /* symbols + handler Func */)
-                                   .Where(m => m.GetParameters().First().ParameterType.Name.StartsWith("Action"))
+                                   .Where(m => m.GetParameters().ElementAt(1).ParameterType.Name.StartsWith("Action"))
                                    .Single(m => m.GetGenericArguments().Length == arity);
 
             var genericParameterTypes = Enumerable.Range(1, arity)
                                                   .Select(_ => typeof(int))
                                                   .ToArray();
 
-            var createMethod = genericMethodDef.MakeGenericMethod(genericParameterTypes);
+            var setHandler = genericMethodDef.MakeGenericMethod(genericParameterTypes);
 
             var parameters = new List<object>();
 
+            parameters.Add(command);
             parameters.Add(handlerFunc);
             parameters.Add(command.Arguments.ToArray());
 
-            var handler = (ICommandHandler)createMethod.Invoke(null, parameters.ToArray());
+            var handler = (ICommandHandler)setHandler.Invoke(null, parameters.ToArray());
 
             command.Handler = handler;
 
-            command.Invoke(commandLine);
+            var exitCode = command.Invoke(commandLine);
 
             receivedValues.Should().BeEquivalentTo(
                 Enumerable.Range(1, arity),
                 config => config.WithStrictOrdering());
+
+            exitCode.Should().Be(0);
 
             Task Received(params int[] values)
             {
@@ -425,9 +428,9 @@ namespace System.CommandLine.Tests.Binding
             // build up the method invocation
             var genericMethodDef = typeof(CommandHandler)
                                    .GetMethods()
-                                   .Where(m => m.Name == nameof(CommandHandler.Create))
+                                   .Where(m => m.Name == nameof(CommandHandler.SetHandler))
                                    .Where(m => m.IsGenericMethod /* symbols + handler Func */)
-                                   .Where(m => m.GetParameters().First().ParameterType.Name.StartsWith("Func"))
+                                   .Where(m => m.GetParameters().ElementAt(1).ParameterType.Name.StartsWith("Func"))
                                    .Single(m => m.GetGenericArguments().Length == arity);
 
             var genericParameterTypes = Enumerable.Range(1, arity)
@@ -438,6 +441,7 @@ namespace System.CommandLine.Tests.Binding
 
             var parameters = new List<object>();
 
+            parameters.Add(command);
             parameters.Add(handlerFunc);
             parameters.Add(command.Arguments.ToArray());
 
@@ -445,16 +449,18 @@ namespace System.CommandLine.Tests.Binding
 
             command.Handler = handler;
 
-            command.Invoke(commandLine);
+            var exitCode = command.Invoke(commandLine);
 
             receivedValues.Should().BeEquivalentTo(
                 Enumerable.Range(1, arity),
                 config => config.WithStrictOrdering());
 
+            exitCode.Should().Be(123);
+
             Task Received(params int[] values)
             {
                 receivedValues.AddRange(values);
-                return Task.CompletedTask;
+                return Task.FromResult(123);
             }
         }
     }

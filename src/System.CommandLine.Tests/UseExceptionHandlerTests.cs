@@ -55,7 +55,7 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create(() =>
+            command.SetHandler(() =>
             {
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.
@@ -80,7 +80,7 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
         {
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create(() =>
+            command.SetHandler(() =>
             {
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.

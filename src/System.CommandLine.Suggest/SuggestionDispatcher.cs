@@ -32,7 +32,7 @@ namespace System.CommandLine.Suggest
             {
                 shellTypeArgument
             };
-            CompleteScriptCommand.Handler = CommandHandler.Create((InvocationContext context) =>
+            CompleteScriptCommand.SetHandler((InvocationContext context) =>
             {
                 SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValueForArgument(shellTypeArgument));
                 return Task.FromResult(0);
@@ -41,20 +41,19 @@ namespace System.CommandLine.Suggest
             ListCommand = new Command("list")
             {
                 Description = "Lists apps registered for suggestions",
-                Handler = CommandHandler.Create(
-                    (InvocationContext ctx) =>
-                    {
-                        ctx.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
-                        return Task.FromResult(0);
-                    })
             };
+            ListCommand.SetHandler((InvocationContext ctx) =>
+            {
+                ctx.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
+                return Task.FromResult(0);
+            });
 
             GetCommand = new Command("get", "Gets suggestions from the specified executable")
             {
                 ExecutableOption,
                 PositionOption
             };
-            GetCommand.Handler = CommandHandler.Create((InvocationContext context) => Get(context));
+            GetCommand.SetHandler((InvocationContext context) => Get(context));
 
             var commandPathOption = new Option<string>("--command-path", "The path to the command for which to register suggestions");
 
@@ -64,7 +63,7 @@ namespace System.CommandLine.Suggest
                 new Option<string>("--suggestion-command", "The command to invoke to retrieve suggestions")
             };
 
-            RegisterCommand.Handler = CommandHandler.Create((InvocationContext context) =>
+            RegisterCommand.SetHandler((InvocationContext context) =>
             {
                 Register(context.ParseResult.GetValueForOption(commandPathOption), context.Console);
                 return Task.FromResult(0);
