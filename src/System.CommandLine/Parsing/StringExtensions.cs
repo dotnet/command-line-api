@@ -481,24 +481,24 @@ namespace System.CommandLine.Parsing
                 tokens.Add(
                     commandAlias,
                     new Token(commandAlias, TokenType.Command, command, Token.ImplicitPosition));
+            }
 
-                for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
+            for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
+            {
+                switch (command.Children[childIndex])
                 {
-                    switch (command.Children[childIndex])
-                    {
-                        case Command cmd:
-                            foreach (var childAlias in cmd.Aliases)
-                            {
-                                tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
-                            }
-                            break;
-                        case Option option:
-                            foreach (var childAlias in option.Aliases)
-                            {
-                                tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
-                            }
-                            break;
-                    }
+                    case Command cmd:
+                        foreach (var childAlias in cmd.Aliases)
+                        {
+                            tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                        }
+                        break;
+                    case Option option:
+                        foreach (var childAlias in option.Aliases)
+                        {
+                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                        }
+                        break;
                 }
             }
 
