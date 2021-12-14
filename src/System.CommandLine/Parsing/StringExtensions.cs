@@ -123,20 +123,6 @@ namespace System.CommandLine.Parsing
                     continue;
                 }
 
-                if (configuration.EnablePosixBundling &&
-                    CanBeUnbundled(arg, out var replacements))
-                {
-                    for (var ri = 0; ri < replacements!.Count - 1; ri++)
-                    {
-                        tokenList.Add(UnbundledOption(replacements[ri]));
-                    }
-
-                    var lastBundledOptionArg = replacements[replacements.Count - 1];
-                    argList.Insert(i + 1, lastBundledOptionArg);
-                    argList.RemoveAt(i);
-                    arg = argList[i];
-                }
-
                 if (knownTokens.TryGetValue(arg, out var token))
                 {
                     if (PreviousTokenIsAnOptionExpectingAnArgument())
@@ -181,6 +167,10 @@ namespace System.CommandLine.Parsing
                         tokenList.Add(Argument(rest));
                     }
                 }
+                else if (configuration.EnablePosixBundling && CanBeUnbundled(arg) && TryUnbundle(arg.AsSpan(1), i))
+                {
+                    continue;
+                }
                 else
                 {
                     tokenList.Add(Argument(arg));
@@ -190,7 +180,6 @@ namespace System.CommandLine.Parsing
 
                 Token Command(string value, Command cmd) => new(value, TokenType.Command, cmd, i);
 
-                Token UnbundledOption(string value) => new(value, i, wasBundled: true);
                 Token Option(string value, Option option) => new(value, TokenType.Option, option, i);
 
                 Token DoubleDash() => new("--", TokenType.DoubleDash, default, i);
@@ -202,146 +191,73 @@ namespace System.CommandLine.Parsing
 
             return new TokenizeResult(tokenList, errorList);
 
-            bool CanBeUnbundled(string arg, out IReadOnlyList<string>? replacement)
+            bool CanBeUnbundled(string arg)
+                => arg.Length > 2
+                    && arg[0] == '-'
+                    && char.IsLetter(arg[1]) // don't check for "--" prefixed args
+                    && arg[2] != ':' && arg[2] != '=' // handled by TrySplitIntoSubtokens
+                    && !PreviousTokenIsAnOptionExpectingAnArgument();
+
+            bool TryUnbundle(ReadOnlySpan<char> alias, int argumentIndex)
             {
-                replacement = null;
+                int tokensBefore = tokenList.Count;
 
-                if (arg.Length < 2)
+                string candidate = new string('-', 2); // mutable string used to avoid allocations
+                unsafe
                 {
-                    return false;
-                }
-
-                if (arg[0] != '-')
-                {
-                    return false;
-                }
-
-                // don't unbundle if this is a known token
-                if (knownTokens.ContainsKey(arg))
-                {
-                    return false;
-                }
-
-                if (PreviousTokenIsAnOptionExpectingAnArgument())
-                {
-                    return false;
-                }
-
-                // don't unbundle if arg contains an argument token, e.g. "value" in "-abc:value"
-                for (var i = 0; i < _argumentDelimiters.Length; i++)
-                {
-                    var delimiter = _argumentDelimiters[i];
-
-                    if (arg.Contains(delimiter))
+                    fixed (char* pCandidate = candidate)
                     {
-                        foreach (var knownToken in knownTokens.Keys)
+                        for (int i = 0; i < alias.Length; i++)
                         {
-                            if (arg.StartsWith(knownToken + delimiter))
+                            if (alias[i] == ':' || alias[i] == '=')
                             {
+                                tokenList.Add(new Token(alias.Slice(i + 1).ToString(), TokenType.Argument, default, argumentIndex));
+                                return true;
+                            }
+
+                            pCandidate[1] = alias[i];
+                            if (!knownTokens.TryGetValue(candidate, out Token found))
+                            {
+                                if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == TokenType.Option)
+                                {
+                                    // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
+                                    tokenList.Add(new Token(alias.Slice(i).ToString(), TokenType.Argument, default, argumentIndex));
+                                    return true;
+                                }
+
+                                RevertTokens(tokensBefore);
                                 return false;
                             }
-                        }
-                    }
-                }
 
-                // remove the leading "-"
-                var alias = arg.Substring(1);
-
-                return TryUnbundle(out replacement);
-
-                Token TokenForOptionAlias(char c)
-                {
-                    if (_argumentDelimiters.Contains(c))
-                    {
-                        return default;
-                    }
-
-                    foreach (var token in knownTokens.Values)
-                    {
-                        if (token.token is { Type : TokenType.Option } &&
-                            token.token.IsFirstCharOfTheUnprefixedValue(c))
-                        {
-                            return token.token;
-                        }
-                    }
-
-                    return default;
-                }
-
-                void AddRestValue(List<string> list, string rest)
-                {
-                    if (_argumentDelimiters.Contains(rest[0]))
-                    {
-                        list[list.Count - 1] += rest;
-                    }
-                    else
-                    {
-                        list.Add(rest);
-                    }
-                }
-
-                bool TryUnbundle(out IReadOnlyList<string>? replacement)
-                {
-                    if (alias == string.Empty)
-                    {
-                        replacement = null;
-                        return false;
-                    }
-
-                    var lastTokenHasArgument = false;
-                    var builder = new List<string>();
-                    for (var i = 0; i < alias.Length; i++)
-                    {
-                        var token = TokenForOptionAlias(alias[i]);
-                        if (token.IsDefault)
-                        {
-                            if (lastTokenHasArgument)
+                            if (found.Type != TokenType.Option)
                             {
-                                // The previous token had an optional argument while the current
-                                // character does not match any known tokens. Interpret this as
-                                // the current character is the first char in the argument.
-                                AddRestValue(builder, alias.Substring(i));
-                                break;
-                            }
-                            else
-                            {
-                                // The previous token did not expect an argument, and the current
-                                // character does not match an option, so unbundeling cannot be
-                                // done.
-                                replacement = null;
+                                RevertTokens(tokensBefore);
                                 return false;
                             }
-                        }
 
-                        builder.Add(token.Value);
-
-                        // Here we're at an impass, because if we don't have the `IOption`
-                        // because we haven't received the correct command yet for instance,
-                        // we will take the wrong decision. This is the same logic as the earlier
-                        // `CanBeUnbundled` check to take the decision.
-                        // A better option is probably introducing a new token-type, and resolve
-                        // this after we have the correct model available.
-                        if (token is { Type: TokenType.Option } &&
-                            knownTokens.TryGetValue(token.Value, out var t))
-                        {
-                            lastTokenHasArgument = true;
-
-                            // If i == arg.Length - 1, we're already at the end of the string
-                            // so no need for the custom handling of argument.
-                            if (((Option)t.symbol).IsGreedy &&
-                                i < alias.Length - 1)
+                            tokenList.Add(new Token(found.Value, found.Type, found.Symbol, argumentIndex));
+                            if (i != alias.Length - 1 && ((Option)found.Symbol!).IsGreedy)
                             {
-                                // The current option requires an argument, and we're still in
-                                // the middle of unbundling a string. Example: `-lsomelib.so`
-                                // should be interpreted as `-l somelib.so`.
-                                AddRestValue(builder, alias.Substring(i + 1));
-                                break;
+                                int index = i + 1;
+                                if (alias[index] == ':' || alias[index] == '=')
+                                {
+                                    index++; // Last_bundled_option_can_accept_argument_with_colon_separator
+                                }
+                                tokenList.Add(new Token(alias.Slice(index).ToString(), TokenType.Argument, default, argumentIndex));
+                                return true;
                             }
                         }
                     }
+                }
 
-                    replacement = builder;
-                    return true;
+                return true;
+
+                void RevertTokens(int lastValidIndex)
+                {
+                    for (int i = tokenList.Count - 1; i > lastValidIndex; i--)
+                    {
+                        tokenList.RemoveAt(i);
+                    }
                 }
             }
 

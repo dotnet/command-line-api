@@ -77,16 +77,5 @@ namespace System.CommandLine.Parsing
         /// <param name="right">The second <see cref="Token"/>.</param>
         /// <returns><see langword="true" /> if the objects are not equal.</returns>
         public static bool operator !=(Token left, Token right) => !left.Equals(right);
-
-        internal bool IsFirstCharOfTheUnprefixedValue(char c)
-        {
-            if (Value.Length == 0)
-            {
-                return false;
-            }
-
-            int index = Value.GetPrefixLength();
-            return index < Value.Length && Value[index] == c;
-        }
     }
 }
