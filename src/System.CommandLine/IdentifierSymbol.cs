@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace System.CommandLine
 {
@@ -42,29 +43,53 @@ namespace System.CommandLine
             get => _specifiedName ?? DefaultName;
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (!string.Equals(_specifiedName, value, StringComparison.Ordinal))
                 {
-                    throw new ArgumentException("Value cannot be null or whitespace.", nameof(value));
+                    AddAlias(value);
+
+                    if (_specifiedName is { })
+                    {
+                        RemoveAlias(_specifiedName);
+                    }
+
+                    _specifiedName = value;
                 }
-
-                if (_specifiedName is { })
-                {
-                    RemoveAlias(_specifiedName);
-                }
-
-                _specifiedName = value;
-
-                AddAliasInner(value);
             }
         }
 
         public override bool Matches(string name) => string.Equals(name, Name, StringComparison.Ordinal) || _aliases.Contains(name);
 
-        private protected virtual void AddAliasInner(string alias) => _aliases.Add(alias);
+        /// <summary>
+        /// Adds an alias. Multiple aliases can be added, most often used to provide a shorthand alternative.
+        /// </summary>
+        /// <param name="alias">The alias to add.</param>
+        public void AddAlias(string alias)
+        {
+            ThrowIfAliasIsInvalid(alias);
+
+            _aliases.Add(alias);
+        }
 
         private protected virtual void RemoveAlias(string alias) => _aliases.Remove(alias);
 
         /// <inheritdoc />
-        public virtual bool HasAlias(string alias) => _aliases.Contains(alias);
+        public bool HasAlias(string alias) => _aliases.Contains(alias);
+
+        [DebuggerStepThrough]
+        private void ThrowIfAliasIsInvalid(string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias))
+            {
+                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
+            }
+
+            for (var i = 0; i < alias.Length; i++)
+            {
+                if (char.IsWhiteSpace(alias[i]))
+                {
+                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"", nameof(alias));
+                }
+            }
+        }
     }
 }

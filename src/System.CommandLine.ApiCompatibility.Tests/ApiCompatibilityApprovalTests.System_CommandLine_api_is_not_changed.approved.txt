@@ -56,8 +56,6 @@
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
     public System.Void Add(Symbol symbol)
     public System.Void Add(Argument argument)
-    public System.Void AddAlias(System.String alias)
-     System.Void AddAliasInner(System.String alias)
     public System.Void AddArgument(Argument argument)
     public System.Void AddCommand(Command command)
     public System.Void AddGlobalOption(Option option)
@@ -104,7 +102,7 @@
   public abstract class IdentifierSymbol : Symbol, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.String Name { get; set; }
-     System.Void AddAliasInner(System.String alias)
+    public System.Void AddAlias(System.String alias)
     public System.Boolean HasAlias(System.String alias)
     public System.Boolean Matches(System.String name)
      System.Void RemoveAlias(System.String alias)
@@ -172,8 +170,6 @@
     public ArgumentArity Arity { get; set; }
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
-    public System.Void AddAlias(System.String alias)
-     System.Void AddAliasInner(System.String alias)
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.OptionResult> validate)
      System.String get_DefaultName()
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
@@ -217,7 +213,6 @@
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean Matches(System.String name)
-     System.Void ThrowIfAliasIsInvalid(System.String alias)
     public System.String ToString()
 System.CommandLine.Binding
   public class BindingContext, System.IServiceProvider

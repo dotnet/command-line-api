@@ -196,19 +196,6 @@ namespace System.CommandLine
         internal List<ValidateSymbolResult<OptionResult>> Validators => _validators ??= new();
 
         /// <summary>
-        /// Adds an alias for the option, which can be used to specify the option on the command line.
-        /// </summary>
-        /// <param name="alias">The alias to add.</param>
-        public void AddAlias(string alias) => AddAliasInner(alias);
-
-        private protected override void AddAliasInner(string alias)
-        {
-            ThrowIfAliasIsInvalid(alias);
-
-            base.AddAliasInner(alias);
-        }
-
-        /// <summary>
         /// Adds a validator that will be called when the option is matched by the parser.
         /// </summary>
         /// <param name="validate">A <see cref="ValidateSymbolResult{OptionResult}"/> delegate used to validate the <see cref="OptionResult"/> produced during parsing.</param>
@@ -233,8 +220,6 @@ namespace System.CommandLine
 
             return false;
         }
-
-        private protected override void RemoveAlias(string alias) => base.RemoveAlias(alias);
 
         /// <summary>
         /// Sets the default value for the option.

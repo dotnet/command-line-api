@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
 using System.CommandLine.Completions;
-using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine
@@ -122,22 +121,5 @@ namespace System.CommandLine
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";
-
-        [DebuggerStepThrough]
-        private protected void ThrowIfAliasIsInvalid(string alias)
-        {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
-            }
-
-            for (var i = 0; i < alias.Length; i++)
-            {
-                if (char.IsWhiteSpace(alias[i]))
-                {
-                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"", nameof(alias));
-                }
-            }
-        }
     }
 }

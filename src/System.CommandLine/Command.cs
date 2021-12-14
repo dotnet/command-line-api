@@ -114,20 +114,6 @@ namespace System.CommandLine
         /// <param name="argument">The argument to add to the command.</param>
         public void Add(Argument argument) => AddArgument(argument);
 
-        /// <summary>
-        /// Adds an alias to the command. Multiple aliases can be added to a command, most often used to provide a
-        /// shorthand alternative.
-        /// </summary>
-        /// <param name="alias">The alias to add to the command.</param>
-        public virtual void AddAlias(string alias) => AddAliasInner(alias);
-
-        private protected override void AddAliasInner(string alias)
-        {
-            ThrowIfAliasIsInvalid(alias);
-
-            base.AddAliasInner(alias);
-        }
-
         private protected override string DefaultName => throw new NotImplementedException();
 
         internal List<ValidateSymbolResult<CommandResult>> Validators { get; } = new();
