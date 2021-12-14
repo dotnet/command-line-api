@@ -24,7 +24,7 @@ namespace EndToEndTestApp
                 durianOption,          
             };
 
-            rootCommand.Handler = CommandHandler.Create(
+            rootCommand.SetHandler(
                 (string apple, string banana, string cherry, string durian) => Task.CompletedTask,
                 appleOption,
                 bananaOption,

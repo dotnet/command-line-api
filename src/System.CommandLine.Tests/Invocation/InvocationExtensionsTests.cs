@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create(() => wasCalled = true);
+            rootCommand.SetHandler(() => wasCalled = true);
 
             var result = await rootCommand.InvokeAsync("");
 
@@ -65,7 +65,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create(() => wasCalled = true);
+            rootCommand.SetHandler(() => wasCalled = true);
 
             int result = rootCommand.Invoke("");
 
@@ -79,7 +79,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create(() =>
+            rootCommand.SetHandler(() =>
             {
                 wasCalled = true;
                 throw new Exception("oops!");
@@ -102,7 +102,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create(() =>
+            rootCommand.SetHandler(() =>
             {
                 wasCalled = true;
                 throw new Exception("oops!");
@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create((InvocationContext context) =>
+            rootCommand.SetHandler((InvocationContext context) =>
             {
                 context.ExitCode = 123;
                 return Task.CompletedTask;
@@ -140,7 +140,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create((InvocationContext context) =>
+            rootCommand.SetHandler((InvocationContext context) =>
             {
                 context.ExitCode = 123;
                 return Task.CompletedTask;

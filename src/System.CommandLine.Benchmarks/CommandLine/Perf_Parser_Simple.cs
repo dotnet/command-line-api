@@ -35,7 +35,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 stringOption
             };
 
-            command.Handler = CommandHandler.Create(static (bool _, string _) => { }, boolOption, stringOption);
+            command.SetHandler(static (bool _, string _) => { }, boolOption, stringOption);
 
             return command;
         }

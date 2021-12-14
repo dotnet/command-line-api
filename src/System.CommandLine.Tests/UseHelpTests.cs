@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
             var command = new Command("command");
             var subcommand = new Command("subcommand");
-            subcommand.Handler = CommandHandler.Create(() => wasCalled = true);
+            subcommand.SetHandler(() => wasCalled = true);
             command.AddCommand(subcommand);
 
             var parser =

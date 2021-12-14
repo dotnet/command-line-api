@@ -7,7 +7,7 @@ namespace System.CommandLine.Invocation;
 
 public static partial class CommandHandler
 {
-    private static T? GetParsedValueOrService<T>(
+    private static T? GetValueForHandlerParameter<T>(
         IValueDescriptor[] symbols,
         ref int index,
         InvocationContext context)

@@ -68,7 +68,6 @@ namespace System.CommandLine.Tests
                        .NotBeNull();
         }
 
-
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
         {
@@ -85,7 +84,6 @@ namespace System.CommandLine.Tests
                        .Should()
                        .NotBeNull();
         }
-
 
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
@@ -357,9 +355,9 @@ namespace System.CommandLine.Tests
 
             rootCommand.AddGlobalOption(globalOption);
 
-            rootCommand.Handler = CommandHandler.Create((int i) => handlerWasCalled = true, globalOption);
-            childCommand.Handler = CommandHandler.Create((int i) => handlerWasCalled = true, globalOption);
-            grandchildCommand.Handler = CommandHandler.Create((int i) => handlerWasCalled = true, globalOption);
+            rootCommand.SetHandler((int i) => handlerWasCalled = true, globalOption);
+            childCommand.SetHandler((int i) => handlerWasCalled = true, globalOption);
+            grandchildCommand.SetHandler((int i) => handlerWasCalled = true, globalOption);
 
             var result = await rootCommand.InvokeAsync(commandLine);
 
@@ -908,12 +906,8 @@ namespace System.CommandLine.Tests
         public void A_command_with_subcommands_is_valid_to_invoke_if_it_has_a_handler()
         {
             var outer = new Command("outer");
-            var inner = new Command("inner")
-                        {
-                            Handler = CommandHandler.Create(() =>
-                            {
-                            })
-                        };
+            var inner = new Command("inner");
+            inner.SetHandler(() => { });
             var innerer = new Command("inner-er");
             outer.AddCommand(inner);
             inner.AddCommand(innerer);
