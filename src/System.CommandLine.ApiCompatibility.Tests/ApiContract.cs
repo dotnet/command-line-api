@@ -34,21 +34,29 @@ internal static class ApiContract
                                          : "struct"
                                    : isDelegate
                                        ? "delegate"
-                                       : "class";
+                                       : type.IsInterface
+                                           ? "interface"
+                                           : "class";
 
                 output.Append($"  {type.GetAccessModifiers()} {typeKind} {type.GetReadableTypeName(ns)}");
-
+                
                 if (type.BaseType is { } baseType &&
                     baseType != typeof(object))
                 {
                     output.Append($" : {baseType.GetReadableTypeName(ns)}");
                 }
 
-                if (type.GetInterfaces() is { Length: > 0 } interfaces)
+                if (type.GetInterfaces().OrderBy(i => i.FullName).ToArray() is { Length: > 0 } interfaces)
                 {
-                    foreach (var @interface in interfaces.OrderBy(i => i.FullName))
+                    for (var i = 0; i < interfaces.Length; i++)
                     {
-                        output.Append($", {@interface.GetReadableTypeName(ns)}");
+                        var @interface = interfaces[i];
+
+                        var delimiter = i == 0 && type.IsInterface
+                                            ? " : "
+                                            : ", ";
+
+                        output.Append($"{delimiter}{@interface.GetReadableTypeName(ns)}");
                     }
                 }
 
@@ -312,7 +320,7 @@ internal static class ApiContract
             modifier = "public";
         }
 
-        if (type.IsAbstract)
+        if (type.IsAbstract && !type.IsInterface)
         {
             if (type.IsSealed)
             {
@@ -356,7 +364,21 @@ internal static class ApiContract
 
             for (var i = 0; i < genericArguments.Length; i++)
             {
-                WriteCSharpDeclarationTo(genericArguments[i], writer, omitNamespace);
+                var genericArg = genericArguments[i];
+
+                if (genericArg.IsGenericParameter)
+                {
+                    if (genericArg.GenericParameterAttributes.HasFlag(GenericParameterAttributes.Covariant))
+                    {
+                        writer.Write("out ");
+                    }
+                    else if (genericArg.GenericParameterAttributes.HasFlag(GenericParameterAttributes.Contravariant))
+                    {
+                        writer.Write("in ");
+                    }
+                }
+
+                WriteCSharpDeclarationTo(genericArg, writer, omitNamespace);
                 if (i < genericArguments.Length - 1)
                 {
                     writer.Write(",");
