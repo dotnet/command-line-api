@@ -1,24 +1,23 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Collections
 {
     /// <summary>
     /// A set of symbols, unique and indexed by their aliases.
     /// </summary>
-    public class SymbolSet : AliasedSet<ISymbol>, ISymbolSet
+    public class SymbolSet : IEnumerable<Symbol>
     {
+        private readonly List<Symbol> _symbols = new List<Symbol>();
         private List<Argument>? _arguments;
         private List<Option>? _options;
 
-        internal override void Add(ISymbol item)
-        {
-            ThrowIfAnyAliasIsInUse(item);
-            AddWithoutAliasCollisionCheck(item);
-        }
+        public int Count => _symbols.Count;
+
+        public Symbol this[int index] => _symbols[index];
 
         private void ResetIndex(ISymbol item)
         {
@@ -33,9 +32,9 @@ namespace System.CommandLine.Collections
             }
         }
 
-        internal void AddWithoutAliasCollisionCheck(ISymbol item)
+        internal void AddWithoutAliasCollisionCheck(Symbol item)
         {
-            base.Add(item);
+            _symbols.Add(item);
 
             if (_arguments is not null || _options is not null)
             {
@@ -43,60 +42,26 @@ namespace System.CommandLine.Collections
             }
         }
 
-        internal bool IsAnyAliasInUse(
-            ISymbol item,
-            [MaybeNullWhen(false)] out string aliasAlreadyInUse)
+        internal bool IsAnyAliasInUse(Option option)
         {
-            if (Items.Count > 0)
+            if (_symbols.Count > 0)
             {
-                if (item is IIdentifierSymbol identifier)
+                string name = option.Name;
+                foreach (Symbol item in _symbols)
                 {
-                    foreach (string alias in identifier.Aliases)
+                    if (item.Matches(name))
                     {
-                        foreach (ISymbol symbol in Items)
-                        {
-                            if (symbol.Matches(alias))
-                            {
-                                aliasAlreadyInUse = alias;
-                                return true;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    string name = item.Name;
-                    foreach (ISymbol symbol in Items)
-                    {
-                        if (symbol.Matches(name))
-                        {
-                            aliasAlreadyInUse = name;
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
-
-            aliasAlreadyInUse = null!;
 
             return false;
         }
 
-        internal void ThrowIfAnyAliasIsInUse(ISymbol item)
-        {
-            if (IsAnyAliasInUse(item, out var rawAliasAlreadyInUse))
-            {
-                throw new ArgumentException($"Alias '{rawAliasAlreadyInUse}' is already in use.");
-            }
-        }
+        public IEnumerator<Symbol> GetEnumerator() => _symbols.GetEnumerator();
 
-        /// <inheritdoc/>
-        protected override IReadOnlyCollection<string> GetAliases(ISymbol item) =>
-            item switch
-            {
-                IIdentifierSymbol named => named.Aliases,
-                _ => new[] { item.Name }
-            };
+        IEnumerator IEnumerable.GetEnumerator() => _symbols.GetEnumerator();
 
         internal IReadOnlyList<Argument> Arguments
         {
@@ -106,11 +71,11 @@ namespace System.CommandLine.Collections
 
                 List<Argument> BuildArgumentsList()
                 {
-                    var arguments = new List<Argument>(Count);
+                    var arguments = new List<Argument>(_symbols.Count);
 
-                    for (var i = 0; i < Count; i++)
+                    for (var i = 0; i < _symbols.Count; i++)
                     {
-                        if (this[i] is Argument argument)
+                        if (_symbols[i] is Argument argument)
                         {
                             arguments.Add(argument);
                         }
@@ -129,11 +94,11 @@ namespace System.CommandLine.Collections
 
                 List<Option> BuildOptionsList()
                 {
-                    var options = new List<Option>(Count);
+                    var options = new List<Option>(_symbols.Count);
 
-                    for (var i = 0; i < Count; i++)
+                    for (var i = 0; i < _symbols.Count; i++)
                     {
-                        if (this[i] is Option Option)
+                        if (_symbols[i] is Option Option)
                         {
                             options.Add(Option);
                         }

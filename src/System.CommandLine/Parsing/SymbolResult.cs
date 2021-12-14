@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced during parsing for a specific symbol.
     /// </summary>
-    public abstract class SymbolResult : IMatchable
+    public abstract class SymbolResult
     {
         private protected readonly List<Token> _tokens = new();
         private LocalizationResources? _resources;
@@ -36,7 +36,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Child symbol results in the parse tree.
         /// </summary>
-        public SymbolResultSet Children { get; } = new();
+        public List<SymbolResult> Children { get; } = new List<SymbolResult>();
 
         /// <summary>
         /// The parent symbol result in the parse tree.
@@ -98,8 +98,6 @@ namespace System.CommandLine.Parsing
             get => _resources ??= Parent?.LocalizationResources ?? LocalizationResources.Instance;
             set => _resources = value;
         }
-
-        bool IMatchable.Matches(string name) => Symbol.Matches(name);
 
         internal void AddToken(Token token) => _tokens.Add(token);
 

@@ -9,7 +9,7 @@ namespace System.CommandLine
     /// <summary>
     /// Defines a named symbol that resides in a hierarchy with parent and child symbols.
     /// </summary>
-    public interface ISymbol : ICompletionSource, IMatchable
+    public interface ISymbol : ICompletionSource
     {
         /// <summary>
         /// Gets the symbol name.
@@ -29,11 +29,11 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
-        ISymbolSet Children { get; }
+        SymbolSet Children { get; }
 
         /// <summary>
         /// Gets the parent symbols.
         /// </summary>
-        ISymbolSet Parents { get; }
+        SymbolSet Parents { get; }
     }
 }

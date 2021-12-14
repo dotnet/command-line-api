@@ -137,7 +137,7 @@ namespace System.CommandLine
         /// </summary>
         public static ArgumentArity OneOrMore => new ArgumentArity(1, MaximumArity);
 
-        internal static ArgumentArity Default(Type type, Argument argument, ISymbolSet parents)
+        internal static ArgumentArity Default(Type type, Argument argument, SymbolSet parents)
         {
             if (type == typeof(bool))
             {

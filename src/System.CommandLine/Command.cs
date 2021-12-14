@@ -76,7 +76,7 @@ namespace System.CommandLine
         /// parent commands.</remarks>
         public void AddGlobalOption(Option option)
         {
-            _globalOptions.Add(option);
+            _globalOptions.AddWithoutAliasCollisionCheck(option);
             Children.AddWithoutAliasCollisionCheck(option);
         }
         
@@ -90,9 +90,9 @@ namespace System.CommandLine
         /// parent commands.</remarks>
         internal bool TryAddGlobalOption(Option option)
         {
-            if (!_globalOptions.IsAnyAliasInUse(option, out _))
+            if (!_globalOptions.IsAnyAliasInUse(option))
             {
-                _globalOptions.Add(option);
+                _globalOptions.AddWithoutAliasCollisionCheck(option);
                 Children.AddWithoutAliasCollisionCheck(option);
                 return true;
             }
@@ -126,16 +126,6 @@ namespace System.CommandLine
             ThrowIfAliasIsInvalid(alias);
 
             base.AddAliasInner(alias);
-        }
-
-        private protected override void AddSymbol(Symbol symbol)
-        {
-            if (symbol is IOption option)
-            {
-                _globalOptions.ThrowIfAnyAliasIsInUse(option);
-            }
-            
-            base.AddSymbol(symbol);
         }
 
         private protected override string DefaultName => throw new NotImplementedException();

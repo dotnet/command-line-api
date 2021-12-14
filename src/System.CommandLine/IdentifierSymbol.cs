@@ -58,7 +58,7 @@ namespace System.CommandLine
             }
         }
 
-        public override bool Matches(string name) => string.Equals(name, _specifiedName, StringComparison.Ordinal) || _aliases.Contains(name);
+        public override bool Matches(string name) => string.Equals(name, Name, StringComparison.Ordinal) || _aliases.Contains(name);
 
         private protected virtual void AddAliasInner(string alias) => _aliases.Add(alias);
 

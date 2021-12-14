@@ -192,8 +192,8 @@ namespace System.CommandLine.Tests
 
             command.AddValidator(commandResult =>
             {
-                if (commandResult.Children.ContainsAlias("--one") &&
-                    commandResult.Children.ContainsAlias("--two"))
+                if (commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--one")) &&
+                    commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--two")))
                 {
                     return "Options '--one' and '--two' cannot be used together.";
                 }

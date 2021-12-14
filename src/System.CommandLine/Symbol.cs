@@ -39,7 +39,7 @@ namespace System.CommandLine
         /// <summary>
         /// Represents the parent symbols.
         /// </summary>
-        public ISymbolSet Parents => _parents;
+        public SymbolSet Parents => _parents;
 
         public virtual bool Matches(string name) => string.Equals(name, _name, StringComparison.Ordinal);
 
@@ -50,14 +50,14 @@ namespace System.CommandLine
 
         private protected virtual void AddSymbol(Symbol symbol)
         {
-            Children.Add(symbol);
+            Children.AddWithoutAliasCollisionCheck(symbol);
             symbol.AddParent(this);
         }
 
         private protected void AddArgumentInner(Argument argument)
         {
             argument.AddParent(this);
-            Children.Add(argument);
+            Children.AddWithoutAliasCollisionCheck(argument);
         }
 
         /// <summary>
@@ -122,9 +122,6 @@ namespace System.CommandLine
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";
-
-        /// <inheritdoc />
-        ISymbolSet ISymbol.Children => Children;
 
         [DebuggerStepThrough]
         private protected void ThrowIfAliasIsInvalid(string alias)

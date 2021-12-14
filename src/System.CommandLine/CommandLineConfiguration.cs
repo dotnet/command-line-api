@@ -87,7 +87,7 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the symbols to parse.
         /// </summary>
-        public ISymbolSet Symbols => RootCommand.Children;
+        public SymbolSet Symbols => RootCommand.Children;
 
         /// <summary>
         /// Gets whether directives are enabled.
