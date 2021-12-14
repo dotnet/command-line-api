@@ -46,7 +46,7 @@ namespace System.CommandLine.Rendering.Tests
 
             var command = new Command("hello")
                           {
-                              Handler = CommandHandler.Create(ctx =>
+                              Handler = CommandHandler.Create((InvocationContext ctx) =>
                               {
                                   detectedOutputMode = ctx.Console.DetectOutputMode();
                                   return Task.FromResult(0);

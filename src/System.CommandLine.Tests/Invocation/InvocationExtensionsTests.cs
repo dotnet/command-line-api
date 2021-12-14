@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create(context =>
+            rootCommand.Handler = CommandHandler.Create((InvocationContext context) =>
             {
                 context.ExitCode = 123;
                 return Task.CompletedTask;
@@ -140,7 +140,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.Handler = CommandHandler.Create(context =>
+            rootCommand.Handler = CommandHandler.Create((InvocationContext context) =>
             {
                 context.ExitCode = 123;
                 return Task.CompletedTask;

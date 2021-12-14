@@ -24,12 +24,12 @@ namespace EndToEndTestApp
                 durianOption,          
             };
 
-            rootCommand.Handler = CommandHandler.Create(  
-                appleOption,          
-                bananaOption,          
-                cherryOption,          
-                durianOption,         
-                Run);
+            rootCommand.Handler = CommandHandler.Create(
+                (string apple, string banana, string cherry, string durian) => Task.CompletedTask,
+                appleOption,
+                bananaOption,
+                cherryOption,
+                durianOption);
 
             var commandLine = new CommandLineBuilder(rootCommand)
                 .UseDefaults()
@@ -37,7 +37,5 @@ namespace EndToEndTestApp
 
             await commandLine.InvokeAsync(args);
         }
-
-        public static Task Run(string apple, string banana, string cherry, string durian) => Task.CompletedTask;
     }
 }

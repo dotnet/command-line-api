@@ -183,7 +183,7 @@ namespace System.CommandLine.Tests.Invocation
             var command = new Command("the-command");
             var implicitInnerCommand = new Command("implicit-inner-command");
             command.AddCommand(implicitInnerCommand);
-            implicitInnerCommand.Handler = CommandHandler.Create(context =>
+            implicitInnerCommand.Handler = CommandHandler.Create((InvocationContext context) =>
             {
                 wasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -219,7 +219,7 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create(context =>
+            command.Handler = CommandHandler.Create((InvocationContext context) =>
             {
                 handlerWasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -250,10 +250,10 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.Handler = CommandHandler.Create(context =>
+            command.Handler = CommandHandler.Create((ParseResult parseResult) =>
             {
                 handlerWasCalled = true;
-                context.ParseResult.Errors.Should().BeEmpty();
+                parseResult.Errors.Should().BeEmpty();
                 return Task.FromResult(0);
             });
 
@@ -280,7 +280,7 @@ namespace System.CommandLine.Tests.Invocation
             bool handlerWasCalled = false;
 
             var command = new Command("help-command");
-            command.Handler = CommandHandler.Create(context =>
+            command.Handler = CommandHandler.Create((InvocationContext context) =>
             {
                 handlerWasCalled = true;
                 context.HelpBuilder.Should().NotBeNull();
@@ -307,7 +307,7 @@ namespace System.CommandLine.Tests.Invocation
             HelpBuilder createdHelpBuilder = null;
 
             var command = new Command("help-command");
-            command.Handler = CommandHandler.Create(context =>
+            command.Handler = CommandHandler.Create((InvocationContext context) =>
             {
                 handlerWasCalled = true;
                 context.HelpBuilder.Should().Be(createdHelpBuilder);
