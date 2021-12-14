@@ -145,14 +145,14 @@ namespace System.CommandLine.Parsing
                     }
                     else
                     {
-                        switch (token.token)
+                        switch (token.Type)
                         {
-                            case { Type: TokenType.Option }:
-                                tokenList.Add(Option(arg));
+                            case TokenType.Option:
+                                tokenList.Add(Option(arg, (Option)token.Symbol!));
                                 break;
 
-                            case { Type: TokenType.Command }:
-                                Command cmd = (Command)token.symbol;
+                            case TokenType.Command:
+                                Command cmd = (Command)token.Symbol!;
                                 if (cmd != currentCommand)
                                 {
                                     if (!(currentCommand is null && cmd == configuration.RootCommand))
@@ -160,7 +160,7 @@ namespace System.CommandLine.Parsing
                                         knownTokens = cmd.ValidTokens();
                                     }
                                     currentCommand = cmd;
-                                    tokenList.Add(Command(arg));
+                                    tokenList.Add(Command(arg, cmd));
                                 }
                                 else
                                 {
@@ -171,21 +171,14 @@ namespace System.CommandLine.Parsing
                         }
                     }
                 }
-                else if (arg.TrySplitIntoSubtokens(out var first, out var rest))
+                else if (arg.TrySplitIntoSubtokens(out var first, out var rest) 
+                    && knownTokens.TryGetValue(first, out var subtoken) && subtoken.Type == TokenType.Option)
                 {
-                    if (knownTokens.TryGetValue(first, out var subtoken) &&
-                        subtoken.token is { Type: TokenType.Option })
-                    {
-                        tokenList.Add(Option(first));
+                    tokenList.Add(Option(first, (Option)subtoken.Symbol!));
 
-                        if (rest is { })
-                        {
-                            tokenList.Add(Argument(rest));
-                        }
-                    }
-                    else
+                    if (rest is { })
                     {
-                        tokenList.Add(Argument(arg));
+                        tokenList.Add(Argument(rest));
                     }
                 }
                 else
@@ -193,19 +186,18 @@ namespace System.CommandLine.Parsing
                     tokenList.Add(Argument(arg));
                 }
 
-                Token Argument(string value) => new(value, TokenType.Argument, i);
+                Token Argument(string value) => new(value, TokenType.Argument, default, i);
 
-                Token Command(string value) => new(value, TokenType.Command, i);
-
-                Token Option(string value) => new(value, TokenType.Option, i);
+                Token Command(string value, Command cmd) => new(value, TokenType.Command, cmd, i);
 
                 Token UnbundledOption(string value) => new(value, i, wasBundled: true);
+                Token Option(string value, Option option) => new(value, TokenType.Option, option, i);
 
-                Token DoubleDash() => new("--", TokenType.DoubleDash, i);
+                Token DoubleDash() => new("--", TokenType.DoubleDash, default, i);
 
-                Token Unparsed(string value) => new(value, TokenType.Unparsed, i);
+                Token Unparsed(string value) => new(value, TokenType.Unparsed, default, i);
 
-                Token Directive(string value) => new(value, TokenType.Directive, i);
+                Token Directive(string value) => new(value, TokenType.Directive, default, i);
             }
 
             return new TokenizeResult(tokenList, errorList);
@@ -367,7 +359,7 @@ namespace System.CommandLine.Parsing
                     return false;
                 }
 
-                if (((Option)knownTokens[token.Value].symbol).IsGreedy)
+                if (((Option)token.Symbol!).IsGreedy)
                 {
                     return true;
                 }
@@ -494,7 +486,7 @@ namespace System.CommandLine.Parsing
             if (i >= 0)
             {
                 first = arg.Substring(0, i);
-                rest = arg.Substring(i + 1, arg.Length - 1 - i);
+                rest = arg.Substring(i + 1);
                 if (rest.Length == 0)
                 {
                     rest = null;
@@ -564,36 +556,32 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, (Token token, ISymbol symbol)> ValidTokens(this ICommand command)
+        private static Dictionary<string, Token> ValidTokens(this ICommand command)
         {
-            var tokens = new Dictionary<string, (Token, ISymbol symbol)>();
+            Dictionary<string, Token> tokens = new ();
 
             foreach (var commandAlias in command.Aliases)
             {
                 tokens.Add(
                     commandAlias,
-                    (new Token(
-                            commandAlias,
-                            TokenType.Command,
-                            -1), command));
+                    new Token(commandAlias, TokenType.Command, command, Token.ImplicitPosition));
 
                 for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
                 {
-                    if (command.Children[childIndex] is IIdentifierSymbol identifier)
+                    switch (command.Children[childIndex])
                     {
-                        foreach (var childAlias in identifier.Aliases)
-                        {
-                            switch (identifier)
+                        case Command cmd:
+                            foreach (var childAlias in cmd.Aliases)
                             {
-                                case Command cmd:
-                                    tokens[childAlias] = (new Token(childAlias, TokenType.Command, -1), identifier);
-                                    break;
-
-                                case Option option:
-                                    tokens[childAlias] = (new Token(childAlias, TokenType.Option, -1), identifier);
-                                    break;
+                                tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
                             }
-                        }
+                            break;
+                        case Option option:
+                            foreach (var childAlias in option.Aliases)
+                            {
+                                tokens.TryAdd(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                            }
+                            break;
                     }
                 }
             }

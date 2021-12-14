@@ -35,7 +35,7 @@ namespace System.CommandLine.Parsing
 
                 var defaultAlias = option.Aliases.First(alias => alias.RemovePrefix() == optionName);
 
-                return new Token(defaultAlias, Parsing.Token.ImplicitPosition);
+                return new Token(defaultAlias, TokenType.Option, option, Parsing.Token.ImplicitPosition);
             }
         }
     }

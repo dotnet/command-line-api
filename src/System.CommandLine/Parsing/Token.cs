@@ -12,28 +12,21 @@ namespace System.CommandLine.Parsing
 
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
-        public Token(string? value, TokenType type)
+        /// <param name="symbol">The symbol represented by the token</param>
+        public Token(string? value, TokenType type, ISymbol symbol)
         {
             Value = value ?? "";
             Type = type;
+            Symbol = symbol;
             Position = ImplicitPosition;
-            WasBundled = false;
         }
        
-        internal Token(string? value, TokenType type, int position)
+        internal Token(string? value, TokenType type, ISymbol? symbol, int position)
         {
             Value = value ?? "";
             Type = type;
+            Symbol = symbol;
             Position = position;
-            WasBundled = false;
-        }
-
-        internal Token(string value, int position = ImplicitPosition, bool wasBundled = false)
-        {
-            Value = value;
-            Type = TokenType.Option;
-            Position = position;
-            WasBundled = wasBundled;
         }
 
         internal int Position { get; }
@@ -43,28 +36,31 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public string Value { get; }
 
-        internal bool WasBundled { get; }
-
         internal bool IsImplicit => Position == ImplicitPosition;
 
-        internal bool IsDefault => Value is null && Position == default && WasBundled == default && Type == default;
+        internal bool IsDefault => Value is null && Position == default && Type == default && Symbol is null;
 
         /// <summary>
         /// The type of the token.
         /// </summary>
         public TokenType Type { get; }
 
+        /// <summary>
+        /// The Symbol represented by the token (if any).
+        /// </summary>
+        public ISymbol? Symbol { get; }
+
         /// <inheritdoc />
         public override bool Equals(object obj) => obj is Token other && Equals(other);
 
         /// <inheritdoc />
-        public bool Equals(Token other) => Value == other.Value && Type == other.Type;
+        public bool Equals(Token other) => Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);
 
         /// <inheritdoc />
         public override int GetHashCode() => Value.GetHashCode() ^ (int)Type;
 
         /// <inheritdoc />
-        public override string ToString() => $"{Type}: {Value}";
+        public override string ToString() => IsDefault ? "default" : $"{Type}: {Value} {Symbol}";
 
         /// <summary>
         /// Checks if two specified <see cref="Token"/> instances have the same value.
