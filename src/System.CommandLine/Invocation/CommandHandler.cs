@@ -13,21 +13,29 @@ public static partial class CommandHandler
         InvocationContext context)
     {
         if (symbols.Length > index &&
-            symbols[index] is IValueDescriptor<T> symbol1)
+            symbols[index] is IValueDescriptor<T> symbol)
         {
             index++;
-            return context.ParseResult.GetValueFor(symbol1);
-        }
-        else
-        {
-            var service = context.BindingContext.GetService(typeof(T));
 
-            if (service is null)
+            if (symbol is IValueSource valueSource && 
+                valueSource.TryGetValue(symbol, context.BindingContext, out var boundValue) &&
+                boundValue is T value)
             {
-                throw new ArgumentException($"Service not found for type {typeof(T)}.");
+                return value;
             }
-
-            return (T)service;
+            else
+            {
+                return context.ParseResult.GetValueFor(symbol);
+            }
         }
+
+        var service = context.BindingContext.GetService(typeof(T));
+
+        if (service is null)
+        {
+            throw new ArgumentException($"Service not found for type {typeof(T)}.");
+        }
+
+        return (T)service;
     }
 }

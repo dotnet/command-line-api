@@ -81,7 +81,7 @@
     public System.CommandLine.Invocation.ICommandHandler GetCommandHandler()
      System.Collections.Generic.IEnumerable<ParameterDescriptor> InitializeParameterDescriptors()
     public System.String ToString()
-  public abstract class IMethodDescriptor
+  public interface IMethodDescriptor
     public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
     public ModelDescriptor Parent { get; }
   public class ModelBinder
