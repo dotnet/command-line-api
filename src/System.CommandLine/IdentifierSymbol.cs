@@ -40,7 +40,7 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public override string Name
         {
-            get => _specifiedName ?? DefaultName;
+            get => _specifiedName ??= DefaultName;
             set
             {
                 if (!string.Equals(_specifiedName, value, StringComparison.Ordinal))

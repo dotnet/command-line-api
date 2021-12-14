@@ -272,20 +272,19 @@ namespace System.CommandLine
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
-        private protected override string DefaultName
+        private protected override string DefaultName => _name ??= GetLongestAlias();
+        
+        private string GetLongestAlias()
         {
-            get
+            string max = "";
+            foreach (string alias in _aliases)
             {
-                if (_name is null)
+                if (alias.Length > max.Length)
                 {
-                    _name = Aliases
-                            .OrderBy(a => a.Length)
-                            .Last()
-                            .RemovePrefix();
+                    max = alias;
                 }
-
-                return _name;
             }
+            return max.RemovePrefix();
         }
     }
 }
