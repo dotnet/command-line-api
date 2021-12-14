@@ -2,7 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
+using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -157,6 +160,62 @@ namespace System.CommandLine.Tests.Binding
 
             wasCalled.Should().BeFalse();
             exitCode.Should().Be(1);
+        }
+
+        [Fact]
+        public void Custom_types_can_be_bound()
+        {
+            var boolOption = new Option<int>("-i");
+            var stringArg = new Argument<string>("value");
+
+            var command = new RootCommand
+            {
+                boolOption,
+                stringArg
+            };
+
+            CustomType boundInstance = default;
+            command.Handler = CommandHandler.Create(
+                (CustomType instance) => boundInstance = instance,
+                new CustomBinder(boolOption, stringArg));
+
+            var console = new TestConsole();
+            command.Invoke("-i 123 hi", console);
+
+            boundInstance.IntValue.Should().Be(123);
+            boundInstance.StringValue.Should().Be("hi");
+            boundInstance.Console.Should().NotBeNull();
+        }
+
+        public class CustomType
+        {
+            public string StringValue { get; set; }
+
+            public int IntValue { get; set; }
+
+            public IConsole Console { get; set; }
+        }
+
+        public class CustomBinder : BinderBase<CustomType>
+        {
+            private readonly Option<int> _intOption;
+            private readonly Argument<string> _stringArg;
+
+            public CustomBinder(Option<int> intOption, Argument<string> stringArg)
+            {
+                _intOption = intOption;
+                _stringArg = stringArg;
+            }
+
+            protected override CustomType GetBoundValue(BindingContext bindingContext)
+            {
+                return new CustomType
+                {
+                    Console = bindingContext.Console,
+                    IntValue = bindingContext.ParseResult.GetValueForOption(_intOption),
+                    StringValue = bindingContext.ParseResult.GetValueForArgument(_stringArg),
+                };
+            }
         }
 
         [Theory]
