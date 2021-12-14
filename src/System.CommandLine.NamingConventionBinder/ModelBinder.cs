@@ -227,13 +227,15 @@ public class ModelBinder
             var valueSource = GetValueSource(bindingSources, bindingContext, valueDescriptor, enforceExplicitBinding);
             var (boundValue, usedNonDefault) = 
                 GetBoundValue(valueSource, bindingContext, valueDescriptor, includeMissingValues, parentType);
+            
             if (usedNonDefault && !anyNonDefaults)
             {
                 anyNonDefaults = true;
             }
-            if (boundValue is not null)
+
+            if (boundValue.HasValue)
             {
-                values.Add(boundValue);
+                values.Add(boundValue.Value);
             }
         }
 

@@ -6,7 +6,7 @@ namespace System.CommandLine.Binding
     /// <summary>
     /// A value created by binding command line input.
     /// </summary>
-    public class BoundValue
+    public readonly struct BoundValue
     {
         internal BoundValue(
             object? value,
@@ -31,7 +31,7 @@ namespace System.CommandLine.Binding
         /// <summary>
         /// The value bound from the specified source.
         /// </summary>
-        public virtual object? Value { get; }
+        public object? Value { get; }
 
         /// <inheritdoc />
         public override string ToString() => $"{ValueDescriptor}: {Value}";
