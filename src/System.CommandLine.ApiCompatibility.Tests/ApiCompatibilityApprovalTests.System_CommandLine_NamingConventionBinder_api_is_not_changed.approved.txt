@@ -79,7 +79,6 @@
     public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
     public ModelDescriptor Parent { get; }
     public System.CommandLine.Invocation.ICommandHandler GetCommandHandler()
-     System.Collections.Generic.IEnumerable<ParameterDescriptor> InitializeParameterDescriptors()
     public System.String ToString()
   public interface IMethodDescriptor
     public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
@@ -91,7 +90,6 @@
     public System.CommandLine.Binding.IValueDescriptor ValueDescriptor { get; }
     public System.Void BindMemberFromValue(System.Reflection.PropertyInfo property, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
     public System.Object CreateInstance(System.CommandLine.Binding.BindingContext bindingContext)
-     System.CommandLine.Binding.IValueDescriptor FindModelPropertyDescriptor(System.Type propertyType, System.String propertyName)
     public System.Void UpdateInstance<T>(T instance, System.CommandLine.Binding.BindingContext bindingContext)
   public class ModelBinder<TModel> : ModelBinder
     .ctor()

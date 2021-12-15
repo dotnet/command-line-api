@@ -7,7 +7,6 @@
     public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; set; }
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.ArgumentResult> validate)
-     System.String get_DefaultName()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
     public System.Void SetDefaultValue(System.Object value)
@@ -54,14 +53,11 @@
     public System.Void Add(Symbol symbol)
     public System.Void Add(Argument argument)
     public System.Void AddAlias(System.String alias)
-     System.Void AddAliasInner(System.String alias)
     public System.Void AddArgument(Argument argument)
     public System.Void AddCommand(Command command)
     public System.Void AddGlobalOption(Option option)
     public System.Void AddOption(Option option)
-     System.Void AddSymbol(Symbol symbol)
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.CommandResult> validate)
-     System.String get_DefaultName()
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
@@ -93,40 +89,40 @@
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)
   public static class Handler
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler(this Command command, System.Action handle)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler(this Command command, System.Func<System.Threading.Tasks.Task> handle)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T>(this Command command, Action<T> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2>(this Command command, Action<T1,T2> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3>(this Command command, Action<T1,T2,T3> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4>(this Command command, Action<T1,T2,T3,T4> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5>(this Command command, Action<T1,T2,T3,T4,T5> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Action<T1,T2,T3,T4,T5,T6> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T>(this Command command, Func<T,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2>(this Command command, Func<T1,T2,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3>(this Command command, Func<T1,T2,T3,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4>(this Command command, Func<T1,T2,T3,T4,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5>(this Command command, Func<T1,T2,T3,T4,T5,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Func<T1,T2,T3,T4,T5,T6,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-    public static System.CommandLine.Invocation.ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler(this Command command, System.Action handle)
+    public static System.Void SetHandler(this Command command, System.Func<System.Threading.Tasks.Task> handle)
+    public static System.Void SetHandler<T>(this Command command, Action<T> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2>(this Command command, Action<T1,T2> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3>(this Command command, Action<T1,T2,T3> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4>(this Command command, Action<T1,T2,T3,T4> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5>(this Command command, Action<T1,T2,T3,T4,T5> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Action<T1,T2,T3,T4,T5,T6> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T>(this Command command, Func<T,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2>(this Command command, Func<T1,T2,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3>(this Command command, Func<T1,T2,T3,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4>(this Command command, Func<T1,T2,T3,T4,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5>(this Command command, Func<T1,T2,T3,T4,T5,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Func<T1,T2,T3,T4,T5,T6,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
   public interface IArgument : System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, ISymbol
     public IArgumentArity Arity { get; }
   public interface IArgumentArity
@@ -140,9 +136,7 @@
   public abstract class IdentifierSymbol : Symbol, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.String Name { get; set; }
-     System.Void AddAliasInner(System.String alias)
     public System.Boolean HasAlias(System.String alias)
-     System.Void RemoveAlias(System.String alias)
   public interface IDirectiveCollection : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
     public System.Boolean Contains(System.String name)
     public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
@@ -208,11 +202,8 @@
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
     public System.Void AddAlias(System.String alias)
-     System.Void AddAliasInner(System.String alias)
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.OptionResult> validate)
-     System.String get_DefaultName()
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
-     System.Void RemoveAlias(System.String alias)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, IOption, ISymbol
@@ -240,19 +231,14 @@
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
-     System.Void RemoveAlias(System.String alias)
   public abstract class Symbol, System.CommandLine.Completions.ICompletionSource, ISymbol
     public System.CommandLine.Collections.SymbolSet Children { get; }
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
     public System.CommandLine.Collections.ISymbolSet Parents { get; }
-     System.Void AddArgumentInner(Argument argument)
-     System.Void AddSymbol(Symbol symbol)
-     System.String get_DefaultName()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-     System.Void ThrowIfAliasIsInvalid(System.String alias)
     public System.String ToString()
 System.CommandLine.Binding
   public abstract class BinderBase<T>, IValueDescriptor<T>, IValueDescriptor, IValueSource
@@ -319,12 +305,9 @@ System.CommandLine.Collections
     public System.Int32 Count { get; }
     public T Item { get; }
     public System.Boolean ContainsAlias(System.String alias)
-     System.Void EnsureAliasIndexIsCurrent()
-     List<T> get_Items()
     protected System.Collections.Generic.IReadOnlyCollection<System.String> GetAliases(T item)
     public T GetByAlias(System.String alias)
     public IEnumerator<T> GetEnumerator()
-     System.Void MarkAsDirty(T item)
   public interface ISymbolSet : System.Collections.Generic.IEnumerable<System.CommandLine.ISymbol>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.ISymbol>, System.Collections.Generic.IReadOnlyList<System.CommandLine.ISymbol>, System.Collections.IEnumerable
     public System.CommandLine.ISymbol GetByAlias(System.String alias)
   public class SymbolSet : AliasedSet<System.CommandLine.ISymbol>, System.Collections.Generic.IEnumerable<System.CommandLine.ISymbol>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.ISymbol>, System.Collections.Generic.IReadOnlyList<System.CommandLine.ISymbol>, System.Collections.IEnumerable, ISymbolSet
@@ -475,7 +458,6 @@ System.CommandLine.Parsing
     public System.Boolean IsImplicit { get; }
     public System.CommandLine.IOption Option { get; }
     public Token Token { get; }
-     System.Int32 get_RemainingArgumentCapacity()
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
   public delegate ParseArgument<out T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
@@ -549,7 +531,6 @@ System.CommandLine.Parsing
     public ArgumentResult FindResultFor(System.CommandLine.IArgument argument)
     public CommandResult FindResultFor(System.CommandLine.ICommand command)
     public OptionResult FindResultFor(System.CommandLine.IOption option)
-     System.Int32 get_RemainingArgumentCapacity()
     public System.String ToString()
   public class SymbolResultSet : System.CommandLine.Collections.AliasedSet<SymbolResult>, System.Collections.Generic.IEnumerable<SymbolResult>, System.Collections.Generic.IReadOnlyCollection<SymbolResult>, System.Collections.Generic.IReadOnlyList<SymbolResult>, System.Collections.IEnumerable
     .ctor()

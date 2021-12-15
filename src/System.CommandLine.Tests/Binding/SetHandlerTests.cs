@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
@@ -14,7 +13,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests.Binding
 {
-    public class CommandHandlerCreateTests
+    public class SetHandlerTests
     {
         [Theory]
         [InlineData(1)]
@@ -316,15 +315,14 @@ namespace System.CommandLine.Tests.Binding
 
             var setHandler = genericMethodDef.MakeGenericMethod(genericParameterTypes);
 
-            var parameters = new List<object>();
+            var parameters = new List<object>
+            {
+                command,
+                handlerFunc,
+                command.Arguments.ToArray()
+            };
 
-            parameters.Add(command);
-            parameters.Add(handlerFunc);
-            parameters.Add(command.Arguments.ToArray());
-
-            var handler = (ICommandHandler)setHandler.Invoke(null, parameters.ToArray());
-
-            command.Handler = handler;
+            setHandler.Invoke(null, parameters.ToArray());
 
             var exitCode = command.Invoke(commandLine);
 
@@ -437,18 +435,17 @@ namespace System.CommandLine.Tests.Binding
                                                   .Select(_ => typeof(int))
                                                   .ToArray();
 
-            var createMethod = genericMethodDef.MakeGenericMethod(genericParameterTypes);
+            var setHandler = genericMethodDef.MakeGenericMethod(genericParameterTypes);
 
-            var parameters = new List<object>();
+            var parameters = new List<object>
+            {
+                command,
+                handlerFunc,
+                command.Arguments.ToArray()
+            };
 
-            parameters.Add(command);
-            parameters.Add(handlerFunc);
-            parameters.Add(command.Arguments.ToArray());
-
-            var handler = (ICommandHandler)createMethod.Invoke(null, parameters.ToArray());
-
-            command.Handler = handler;
-
+            setHandler.Invoke(null, parameters.ToArray());
+            
             var exitCode = command.Invoke(commandLine);
 
             receivedValues.Should().BeEquivalentTo(

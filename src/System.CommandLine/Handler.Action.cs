@@ -14,7 +14,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action"/>.
         /// </summary>
-        public static ICommandHandler SetHandler(
+        public static void SetHandler(
             this Command command,
             Action handle) =>
             command.Handler = new AnonymousCommandHandler(_ => handle());
@@ -22,7 +22,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T>(
+        public static void SetHandler<T>(
             this Command command,
             Action<T> handle,
             params IValueDescriptor[] symbols) =>
@@ -39,7 +39,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2>(
+        public static void SetHandler<T1, T2>(
             this Command command,
             Action<T1, T2> handle,
             params IValueDescriptor[] symbols) =>
@@ -57,7 +57,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3>(
+        public static void SetHandler<T1, T2, T3>(
             this Command command,
             Action<T1, T2, T3> handle,
             params IValueDescriptor[] symbols) =>
@@ -76,7 +76,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4>(
+        public static void SetHandler<T1, T2, T3, T4>(
             this Command command,
             Action<T1, T2, T3, T4> handle,
             params IValueDescriptor[] symbols) =>
@@ -96,7 +96,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5>(
+        public static void SetHandler<T1, T2, T3, T4, T5>(
             this Command command,
             Action<T1, T2, T3, T4, T5> handle,
             params IValueDescriptor[] symbols) =>
@@ -117,7 +117,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6> handle,
             params IValueDescriptor[] symbols) =>
@@ -139,7 +139,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7> handle,
             params IValueDescriptor[] symbols) =>
@@ -162,7 +162,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8> handle,
             params IValueDescriptor[] symbols) =>
@@ -186,7 +186,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> handle,
             params IValueDescriptor[] symbols) =>
@@ -211,7 +211,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> handle,
             params IValueDescriptor[] symbols) =>
@@ -237,7 +237,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> handle,
             params IValueDescriptor[] symbols) =>
@@ -264,7 +264,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> handle,
             params IValueDescriptor[] symbols) =>
@@ -292,7 +292,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> handle,
             params IValueDescriptor[] symbols) =>
@@ -321,7 +321,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> handle,
             params IValueDescriptor[] symbols) =>
@@ -351,7 +351,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> handle,
             params IValueDescriptor[] symbols) =>
@@ -382,7 +382,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16}"/>.
         /// </summary>
-        public static ICommandHandler SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
+        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> handle,
             params IValueDescriptor[] symbols) =>
