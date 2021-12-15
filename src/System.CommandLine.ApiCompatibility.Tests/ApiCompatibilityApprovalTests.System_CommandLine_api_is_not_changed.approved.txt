@@ -372,6 +372,11 @@ System.CommandLine.Help
     public System.Int32 MaxWidth { get; }
     public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<HelpSectionDelegate>> getLayout)
     public System.Void CustomizeSymbol(System.CommandLine.ISymbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
+    public System.String GetArgumentDefaultValue(System.CommandLine.IArgument argument)
+    public System.String GetArgumentDescription(System.CommandLine.IArgument argument)
+    public System.String GetArgumentUsageTitle(System.CommandLine.IArgument argument)
+    public System.String GetIdentifierSymbolDescription(System.CommandLine.IIdentifierSymbol symbol, HelpContext context)
+    public System.String GetIdentifierSymbolUsageTitle(System.CommandLine.IIdentifierSymbol symbol)
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.ISymbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
