@@ -117,7 +117,10 @@ internal static class ApiContract
 
         // methods
         foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                   .Where(m => m.DeclaringType == type)
+                                   .Where(m => m.DeclaringType == type &&
+                                               !m.IsAssembly &&
+                                               !m.IsFamilyAndAssembly &&
+                                               !m.IsPrivate)
                                    .OrderBy(m => m.Name)
                                    .ThenBy(m => m.GetParameters().Length))
         {
@@ -130,7 +133,10 @@ internal static class ApiContract
         // instance
         foreach (var ctor in type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
                                  .Where(m => m.DeclaringType == type)
-                                 .OrderBy(c => c.Name))
+                                 .Where(m => !m.IsAssembly &&
+                                             !m.IsFamilyAndAssembly &&
+                                             !m.IsPrivate)
+                                 .OrderBy(m => m.Name))
         {
             output.AppendLine($"    .ctor({GetParameterSignatures(ctor.GetParameters(), false, type.Namespace)})");
         }
@@ -139,7 +145,7 @@ internal static class ApiContract
                                  .Where(m => m.DeclaringType == type)
                                  .OrderBy(c => c.Name))
         {
-            if (prop.GetMethod?.IsPublic == true)
+            if (prop.GetMethod is { IsPublic: true, IsAssembly: false })
             {
                 if (printedMethods.Add(prop.GetMethod))
                 {
@@ -156,11 +162,17 @@ internal static class ApiContract
 
         foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
                                    .Where(m => m.DeclaringType == type &&
-                                               !m.IsPrivate &&
                                                !m.IsAssembly &&
+                                               !m.IsFamilyAndAssembly &&
+                                               !m.IsPrivate &&
                                                !m.IsPropertyAccessor())
                                    .OrderBy(c => c.Name))
         {
+            if (method.Name == "AddAliasInner")
+            {
+                
+            }
+
             if (printedMethods.Add(method))
             {
                 output.AppendLine($"    {GetMethodSignature(method, type.Namespace)}");
