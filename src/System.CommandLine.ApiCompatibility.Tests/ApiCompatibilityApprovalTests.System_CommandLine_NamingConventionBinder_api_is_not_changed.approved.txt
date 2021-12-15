@@ -1,7 +1,7 @@
 ﻿System.CommandLine.NamingConventionBinder
   public static class BindingContextExtensions
-    public static System.Void AddModelBinder(ModelBinder binder)
-    public static ModelBinder GetOrCreateModelBinder(System.CommandLine.Binding.IValueDescriptor valueDescriptor)
+    public static System.Void AddModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, ModelBinder binder)
+    public static ModelBinder GetOrCreateModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
   public static class CommandHandler
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3>(Func<T1,T2,T3,System.Threading.Tasks.Task<System.Int32>> action)
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4>(Func<T1,T2,T3,T4,System.Threading.Tasks.Task<System.Int32>> action)
@@ -18,7 +18,6 @@
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Threading.Tasks.Task<System.Int32>> action)
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task<System.Int32>> action)
     public static System.CommandLine.Invocation.ICommandHandler Create(System.Delegate delegate)
-    public static System.CommandLine.Invocation.ICommandHandler Create(System.Reflection.MethodInfo method, System.Object target = null)
     public static System.CommandLine.Invocation.ICommandHandler Create<T>(Action<T> action)
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2>(Action<T1,T2> action)
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3>(Action<T1,T2,T3> action)
@@ -69,6 +68,7 @@
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task> action)
     public static System.CommandLine.Invocation.ICommandHandler Create<T>(Func<T,System.Threading.Tasks.Task<System.Int32>> action)
     public static System.CommandLine.Invocation.ICommandHandler Create<T1, T2>(Func<T1,T2,System.Threading.Tasks.Task<System.Int32>> action)
+    public static System.CommandLine.Invocation.ICommandHandler Create(System.Reflection.MethodInfo method, System.Object target = null)
   public class ConstructorDescriptor, IMethodDescriptor
     public System.Collections.Generic.IReadOnlyList<ParameterDescriptor> ParameterDescriptors { get; }
     public ModelDescriptor Parent { get; }
