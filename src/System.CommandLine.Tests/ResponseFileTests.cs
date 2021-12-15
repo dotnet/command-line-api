@@ -224,7 +224,7 @@ namespace System.CommandLine.Tests
             result.HasOption(optionOne).Should().BeFalse();
             result.HasOption(optionTwo).Should().BeFalse();
             result.Errors.Should().HaveCount(1);
-            result.Errors.Single().Message.Should().Be("Response file not found 'nonexistent.rsp'");
+            result.Errors.Single().Message.Should().Be("Response file not found 'nonexistent.rsp'.");
         }
 
         [Fact]
@@ -247,7 +247,7 @@ namespace System.CommandLine.Tests
                   .Single()
                   .Message
                   .Should()
-                  .Be("Unrecognized command or argument '@'");
+                  .Be("Unrecognized command or argument '@'.");
         }
 
         [Fact]
