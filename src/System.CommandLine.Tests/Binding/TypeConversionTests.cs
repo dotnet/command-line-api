@@ -231,7 +231,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be("Required argument missing for option: -x");
+                    .Be("Required argument missing for option: '-x'.");
         }
 
         [Fact]
@@ -294,7 +294,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be("Required argument missing for option: -x");
+                    .Be("Required argument missing for option: '-x'.");
         }
 
         [Fact]
@@ -622,7 +622,7 @@ namespace System.CommandLine.Tests.Binding
             value.Errors
                  .Select(e => e.Message)
                  .Should()
-                 .Contain("Cannot parse argument 'Notaday' for option '-x' as expected type System.DayOfWeek.");
+                 .Contain("Cannot parse argument 'Notaday' for option '-x' as expected type 'System.DayOfWeek'.");
         }
 
         [Fact]
@@ -639,7 +639,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type System.Int32.");
+                    .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type 'System.Int32'.");
         }
 
         [Fact]
@@ -656,7 +656,7 @@ namespace System.CommandLine.Tests.Binding
                     .Which
                     .Message
                     .Should()
-                    .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type System.Int32.");
+                    .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type 'System.Int32'.");
         }
     }
 }

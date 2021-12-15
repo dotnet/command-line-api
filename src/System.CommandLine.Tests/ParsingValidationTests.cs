@@ -94,7 +94,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .Contain(e => e.Message == "Required argument missing for option: -x");
+                  .Contain(e => e.Message == "Required argument missing for option: '-x'.");
         }
 
         [Fact]
@@ -176,7 +176,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .ContainSingle(e => e == "Unrecognized command or argument 'some-arg'");
+                  .ContainSingle(e => e == "Unrecognized command or argument 'some-arg'.");
         }
 
         [Fact]
@@ -401,7 +401,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
-                                    e.Message == $"Character not allowed in a path: {invalidCharacter}");
+                                    e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }   
             
             [Fact]
@@ -419,7 +419,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
-                                    e.Message == $"Character not allowed in a path: {invalidCharacter}");
+                                    e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }
 
             [Fact]
@@ -472,7 +472,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
-                                    e.Message == $"Character not allowed in a file name: {invalidCharacter}");
+                                    e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
 
             [Fact]
@@ -490,7 +490,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
-                                    e.Message == $"Character not allowed in a file name: {invalidCharacter}");
+                                    e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
 
             [Fact]
@@ -544,7 +544,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File does not exist: {path}");
+                                    e.Message == $"File does not exist: '{path}'.");
             }
 
             [Fact]
@@ -563,7 +563,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File does not exist: {path}");
+                                    e.Message == $"File does not exist: '{path}'.");
             }
 
             [Fact]
@@ -582,7 +582,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: {path}");
+                                    e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -601,7 +601,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: {path}");
+                                    e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -620,7 +620,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -639,7 +639,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -658,7 +658,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
-                                    e.Message == $"File does not exist: {path}");
+                                    e.Message == $"File does not exist: '{path}'.");
             }
             
             [Fact]
@@ -677,7 +677,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
-                                    e.Message == $"File does not exist: {path}");
+                                    e.Message == $"File does not exist: '{path}'.");
             }
 
             [Fact]
@@ -696,7 +696,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: {path}");
+                                    e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -715,7 +715,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: {path}");
+                                    e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -736,7 +736,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -755,7 +755,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -774,7 +774,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -793,7 +793,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -928,7 +928,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain("Required argument missing for option: -x");
+                  .Contain("Required argument missing for option: '-x'.");
         }
 
         [Fact]
@@ -967,7 +967,7 @@ namespace System.CommandLine.Tests
                        .Message
                        .Should()
                        .Be(
-"Required argument missing for option: --opt");
+"Required argument missing for option: '--opt'.");
         }
 
         private static string ParseMe(ArgumentResult argumentResult)
