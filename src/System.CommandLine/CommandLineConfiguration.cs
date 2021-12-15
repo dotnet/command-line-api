@@ -56,9 +56,9 @@ namespace System.CommandLine
             _helpBuilderFactory = helpBuilderFactory;
         }
 
-        private static HelpBuilder DefaultHelpBuilderFactory(BindingContext context)
+        internal static HelpBuilder DefaultHelpBuilderFactory(BindingContext context, int? requestedMaxWidth = null)
         {
-            int maxWidth = int.MaxValue;
+            int maxWidth = requestedMaxWidth ?? int.MaxValue;           
             if (context.Console is SystemConsole systemConsole)
             {
                 maxWidth = systemConsole.GetWindowWidth();
@@ -115,7 +115,7 @@ namespace System.CommandLine
         /// </summary>
         public LocalizationResources LocalizationResources { get; }
 
-        internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= DefaultHelpBuilderFactory;
+        internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= (context) => DefaultHelpBuilderFactory(context);
 
         internal IReadOnlyList<InvocationMiddleware> Middleware { get; }
 

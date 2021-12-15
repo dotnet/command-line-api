@@ -411,10 +411,11 @@ ERR:
         /// </code>
         /// </summary>
         /// <param name="builder">A command line builder.</param>
+        /// <param name="maxWidth">Maximum output width for default help builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
+        public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, int? maxWidth = null)
         {
-            return builder.UseHelp(new HelpOption(() => builder.LocalizationResources));
+            return builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
         }
 
         /// <summary>
@@ -437,16 +438,18 @@ ERR:
         /// <remarks>The specified aliases will override the default values.</remarks>
         /// <param name="builder">A command line builder.</param>
         /// <param name="customize">A delegate that will be called to customize help if help is requested.</param>
+        /// <param name="maxWidth">Maximum output width for default help builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
-            Action<HelpContext> customize)
+            Action<HelpContext> customize,
+            int? maxWidth = null)
         {
             builder.CustomizeHelpLayout(customize);
             
             if (builder.HelpOption is null)
             {
-                builder.UseHelp(new HelpOption(() => builder.LocalizationResources));
+                builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
             }
 
             return builder;
@@ -454,12 +457,14 @@ ERR:
 
         internal static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
-            HelpOption helpOption)
+            HelpOption helpOption,
+            int? maxWidth = null)
         {
             if (builder.HelpOption is null)
             {
                 builder.HelpOption = helpOption;
                 builder.Command.TryAddGlobalOption(helpOption);
+                builder.MaxHelpWidth = maxWidth;
 
                 builder.AddMiddleware(async (context, next) =>
                 {

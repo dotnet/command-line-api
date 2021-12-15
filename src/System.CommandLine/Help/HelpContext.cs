@@ -15,27 +15,16 @@ namespace System.CommandLine.Help
         /// <param name="command">The command for which help is being formatted.</param>
         /// <param name="output">A text writer to write output to.</param>
         /// <param name="parseResult">The result of the current parse operation.</param>
-        /// <param name="maxWidth">The maximum width at which to format the text, used for wrapping text within multi-column output.</param>
         public HelpContext(
             HelpBuilder helpBuilder,
             ICommand command,
             TextWriter output,
-            ParseResult? parseResult = null,
-            int? maxWidth = int.MaxValue)
+            ParseResult? parseResult = null)
         {
             HelpBuilder = helpBuilder ?? throw new ArgumentNullException(nameof(helpBuilder));
             Command = command ?? throw new ArgumentNullException(nameof(command));
             Output = output ?? throw new ArgumentNullException(nameof(output));
             ParseResult = parseResult ?? ParseResult.Empty();
-
-            if (maxWidth is not null)
-            {
-                MaxWidth = maxWidth.Value;
-            }
-            else
-            {
-                MaxWidth = int.MaxValue;
-            }
         }
 
         /// <summary>
@@ -57,11 +46,6 @@ namespace System.CommandLine.Help
         /// A text writer to write output to.
         /// </summary>
         public TextWriter Output { get; }
-
-        /// <summary>
-        /// The maximum width at which to format the text, used for wrapping text within multi-column output.
-        /// </summary>
-        public int MaxWidth { get; }
 
         internal bool WasSectionSkipped { get; set; }
     }

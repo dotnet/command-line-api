@@ -16,8 +16,7 @@ namespace System.CommandLine.Help
             var helpContext = new HelpContext(context.BindingContext.HelpBuilder,
                                               context.ParseResult.CommandResult.Command,
                                               output,
-                                              context.ParseResult,
-                                              (context.Console as SystemConsole)?.GetWindowWidth());
+                                              context.ParseResult);
 
             context.BindingContext
                    .HelpBuilder

@@ -377,6 +377,54 @@ namespace System.CommandLine.Tests
             customOutput.Out.ToString().Should().Be($"Custom layout!{NewLine}{NewLine}{GetDefaultHelp(commandWithCustomHelp, false)}");
         }
 
+        [Fact]
+        public void Help_default_sections_can_be_wrapped()
+        {
+            Command command = new Command("test")
+            {
+                new Option<string>("--option", "option description")
+            };
+
+            var parser = new CommandLineBuilder(command)
+                         .UseHelp(maxWidth: 30)
+                         .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("test -h", console);
+
+            string result = console.Out.ToString();
+            result.Should().Be(
+        $"Description:{NewLine}{NewLine}" +
+        $"Usage:{NewLine}  test [options]{NewLine}{NewLine}" +
+        $"Options:{NewLine}" +
+        $"  --option   option {NewLine}" +
+        $"  <option>   description{NewLine}" +
+        $"  -?, -h,    Show help and {NewLine}" +
+        $"  --help     usage {NewLine}" +
+        $"             information{NewLine}{NewLine}{NewLine}");
+        }
+
+
+
+        [Fact]
+        public void Help_customized_sections_can_be_wrapped()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout), maxWidth: 10)
+                         .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("-h", console);
+
+            string result = console.Out.ToString();
+            result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}{NewLine}");
+
+            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
+            {
+                yield return ctx => ctx.HelpBuilder.WriteColumns(new[] { new TwoColumnHelpRow("12345678", "1234567890") }, ctx);
+            }
+        }
+
         private string GetDefaultHelp(Command command, bool trimOneNewline = true)
         {
             var console = new TestConsole();
