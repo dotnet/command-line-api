@@ -540,7 +540,12 @@ namespace System.CommandLine.Help
             }
         }
 
-        private string GetFirstColumnText(IIdentifierSymbol symbol)
+        /// <summary>
+        /// Gets the first column content for the specified symbol (typically the usage).
+        /// </summary>
+        /// <param name="symbol">The symbol to get a help item for.</param>
+        /// <returns>Text to dispay.</returns>
+        public string GetFirstColumnText(IIdentifierSymbol symbol)
         {
             var aliases = symbol.Aliases
                                 .Select(r => r.SplitPrefix())
@@ -578,7 +583,7 @@ namespace System.CommandLine.Help
         /// </summary>
         /// <param name="symbol">The symbol to get the description for.</param>
         /// <param name="context">A parse result providing context for help formatting.</param>
-        private string GetSecondColumnText(IIdentifierSymbol symbol, HelpContext context)
+        public string GetSecondColumnText(IIdentifierSymbol symbol, HelpContext context)
         {
             return string.Join(" ", GetSecondColumnTextParts());
 
@@ -588,13 +593,6 @@ namespace System.CommandLine.Help
                 if (!string.IsNullOrWhiteSpace(description))
                 {
                     yield return description!;
-                }
-                else if (
-                    _customizationsBySymbol is { } &&
-                    _customizationsBySymbol.TryGetValue(symbol, out var customization) &&
-                    customization.GetSecondColumn?.Invoke(context) is { } descriptionValue)
-                {
-                    yield return descriptionValue;
                 }
                 string argumentDescription = GetArgumentDescription();
                 if (!string.IsNullOrWhiteSpace(argumentDescription))
@@ -624,7 +622,6 @@ namespace System.CommandLine.Help
             HelpContext context)
         {
             string name = displayArgumentName ? LocalizationResources.HelpArgumentDefaultValueTitle() : argument.Name;
-
             if (_customizationsBySymbol is not null)
             {
                 if (_customizationsBySymbol.TryGetValue(parent, out Customization customization) &&
@@ -639,9 +636,20 @@ namespace System.CommandLine.Help
                     return $"{name}: {ownDefaultValue}";
                 }
             }
+            return GetArgumentDefaultValue(argument, name);
+        }
 
+        /// <summary>
+        /// Gets the argument default value to be displayed for help purposes.
+        /// </summary>
+        /// <param name="argument">The argument to get the description for.</param>
+        /// <param name="argumentDisplayName">The display name to be used for argument (if differs from argument name)</param>
+        public string GetArgumentDefaultValue(
+            IArgument argument,
+            string? argumentDisplayName)
+        {
             object? argumentDefaultValue = argument.GetDefaultValue();
-            string? defaultValue = null;
+            string? defaultValue;
             if (argumentDefaultValue is IEnumerable enumerable and not string)
             {
                 defaultValue = string.Join("|", enumerable.OfType<object>().ToArray());
@@ -651,7 +659,7 @@ namespace System.CommandLine.Help
                 defaultValue = argumentDefaultValue?.ToString();
             }
 
-            return $"{name}: {defaultValue}";
+            return $"{argumentDisplayName ?? argument.Name}: {defaultValue}";
         }
 
         /// <summary>
