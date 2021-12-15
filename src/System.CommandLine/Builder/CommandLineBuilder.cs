@@ -66,7 +66,7 @@ namespace System.CommandLine.Builder
             {
                 var helpBuilder = _helpBuilderFactory is { }
                                              ? _helpBuilderFactory(bindingContext)
-                                             : new HelpBuilder(LocalizationResources);
+                                             : CommandLineConfiguration.DefaultHelpBuilderFactory(bindingContext, MaxHelpWidth);
 
                 helpBuilder.OnCustomize = _customizeHelpBuilder;
 
@@ -77,6 +77,8 @@ namespace System.CommandLine.Builder
         internal HelpOption? HelpOption { get; set; }
 
         internal VersionOption? VersionOption { get; set; }
+
+        internal int? MaxHelpWidth { get; set; }
 
         internal LocalizationResources LocalizationResources
         {

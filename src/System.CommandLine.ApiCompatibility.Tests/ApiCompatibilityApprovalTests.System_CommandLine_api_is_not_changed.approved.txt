@@ -301,9 +301,9 @@ System.CommandLine.Builder
     public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
     public static CommandLineBuilder UseEnvironmentVariableDirective(this CommandLineBuilder builder)
     public static CommandLineBuilder UseExceptionHandler(this CommandLineBuilder builder, System.Action<System.Exception,System.CommandLine.Invocation.InvocationContext> onException = null, System.Nullable<System.Int32> errorExitCode = null)
-    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Nullable<System.Int32> maxWidth = null)
     public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.String[] helpAliases)
-    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Action<System.CommandLine.Help.HelpContext> customize)
+    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
     public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
     public static CommandLineBuilder UseLocalizationResources(this CommandLineBuilder builder, System.CommandLine.LocalizationResources validationMessages)
     public static CommandLineBuilder UseMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
@@ -379,10 +379,9 @@ System.CommandLine.Help
     public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.ISymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter writer)
   public class HelpContext
-    .ctor(HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null, System.Nullable<System.Int32> maxWidth = 2147483647)
+    .ctor(HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null)
     public System.CommandLine.ICommand Command { get; }
     public HelpBuilder HelpBuilder { get; }
-    public System.Int32 MaxWidth { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.Parsing.ParseResult ParseResult { get; }
   public delegate HelpSectionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
