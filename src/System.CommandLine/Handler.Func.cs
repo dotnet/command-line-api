@@ -2,14 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 
-namespace System.CommandLine.Invocation
+namespace System.CommandLine
 {
     /// <summary>
     /// Provides methods for creating and working with command handlers.
     /// </summary>
-    public static partial class CommandHandler
+    public static partial class Handler
     {
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{Task}"/>.

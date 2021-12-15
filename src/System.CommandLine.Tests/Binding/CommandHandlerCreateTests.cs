@@ -303,9 +303,9 @@ namespace System.CommandLine.Tests.Binding
             };
 
             // build up the method invocation
-            var genericMethodDef = typeof(CommandHandler)
+            var genericMethodDef = typeof(Handler)
                                    .GetMethods()
-                                   .Where(m => m.Name == nameof(CommandHandler.SetHandler))
+                                   .Where(m => m.Name == nameof(Handler.SetHandler))
                                    .Where(m => m.IsGenericMethod /* symbols + handler Func */)
                                    .Where(m => m.GetParameters().ElementAt(1).ParameterType.Name.StartsWith("Action"))
                                    .Single(m => m.GetGenericArguments().Length == arity);
@@ -426,9 +426,9 @@ namespace System.CommandLine.Tests.Binding
             };
 
             // build up the method invocation
-            var genericMethodDef = typeof(CommandHandler)
+            var genericMethodDef = typeof(Handler)
                                    .GetMethods()
-                                   .Where(m => m.Name == nameof(CommandHandler.SetHandler))
+                                   .Where(m => m.Name == nameof(Handler.SetHandler))
                                    .Where(m => m.IsGenericMethod /* symbols + handler Func */)
                                    .Where(m => m.GetParameters().ElementAt(1).ParameterType.Name.StartsWith("Func"))
                                    .Single(m => m.GetGenericArguments().Length == arity);

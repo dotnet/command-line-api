@@ -118,7 +118,8 @@ internal static class ApiContract
         // methods
         foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly)
                                    .Where(m => m.DeclaringType == type)
-                                   .OrderBy(c => c.Name))
+                                   .OrderBy(m => m.Name)
+                                   .ThenBy(m => m.GetParameters().Length))
         {
             if (printedMethods.Add(method))
             {
@@ -231,11 +232,6 @@ internal static class ApiContract
 
         var isExtensionMethod = method.IsDefined(typeof(ExtensionAttribute), false);
 
-        if (isExtensionMethod)
-        {
-            methodParameters = methodParameters.Skip(1);
-        }
-
         var parameters = GetParameterSignatures(methodParameters, isExtensionMethod, omitNamespace);
 
         return
@@ -243,20 +239,26 @@ internal static class ApiContract
     }
 
     public static string GetParameterSignatures(
-        this IEnumerable<ParameterInfo> methodParameters,
+        this IEnumerable<ParameterInfo> parameters,
         bool isExtensionMethod,
         string omitNamespace)
     {
-        var signature = methodParameters.Select(param =>
+        var signature = parameters.Select(param =>
         {
             var signature = string.Empty;
 
             if (param.ParameterType.IsByRef)
+            {
                 signature = "ref ";
+            }
             else if (param.IsOut)
+            {
                 signature = "out ";
+            }
             else if (isExtensionMethod && param.Position == 0)
+            {
                 signature = "this ";
+            }
 
             signature += $"{GetReadableTypeName(param.ParameterType, omitNamespace)} {param.Name}";
 
