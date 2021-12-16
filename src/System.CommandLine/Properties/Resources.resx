@@ -177,10 +177,10 @@
   <data name="HelpUsageAdditionalArguments" xml:space="preserve">
     <value>[[--] &lt;additional arguments&gt;...]]</value>
   </data>
-  <data name="HelpUsageCommandTitle" xml:space="preserve">
+  <data name="HelpUsageCommand" xml:space="preserve">
     <value>[command]</value>
   </data>
-  <data name="HelpUsageOptionsTitle" xml:space="preserve">
+  <data name="HelpUsageOptions" xml:space="preserve">
     <value>[options]</value>
   </data>
   <data name="HelpUsageTitle" xml:space="preserve">
@@ -189,13 +189,13 @@
   <data name="HelpDescriptionTitle" xml:space="preserve">
     <value>Description:</value>
   </data>
-  <data name="HelpArgumentDefaultValueTitle" xml:space="preserve">
+  <data name="HelpArgumentDefaultValueLabel" xml:space="preserve">
     <value>default</value>
   </data>
   <data name="HelpArgumentsTitle" xml:space="preserve">
     <value>Arguments:</value>
   </data>
-  <data name="HelpOptionsRequired" xml:space="preserve">
+  <data name="HelpOptionsRequiredLabel" xml:space="preserve">
     <value>(REQUIRED)</value>
   </data>
   <data name="HelpOptionsTitle" xml:space="preserve">

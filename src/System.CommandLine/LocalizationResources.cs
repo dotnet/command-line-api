@@ -143,14 +143,14 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to [options].
         /// </summary>
-        public virtual string HelpUsageOptionsTitle() =>
-            GetResourceString(Properties.Resources.HelpUsageOptionsTitle);
+        public virtual string HelpUsageOptions() =>
+            GetResourceString(Properties.Resources.HelpUsageOptions);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to [command].
         /// </summary>
-        public virtual string HelpUsageCommandTitle() =>
-            GetResourceString(Properties.Resources.HelpUsageCommandTitle);
+        public virtual string HelpUsageCommand() =>
+            GetResourceString(Properties.Resources.HelpUsageCommand);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to [[--] &lt;additional arguments&gt;...]].
@@ -173,14 +173,14 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to (REQUIRED).
         /// </summary>
-        public virtual string HelpOptionsRequired() =>
-            GetResourceString(Properties.Resources.HelpOptionsRequired);
+        public virtual string HelpOptionsRequiredLabel() =>
+            GetResourceString(Properties.Resources.HelpOptionsRequiredLabel);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to default.
         /// </summary>
-        public virtual string HelpArgumentDefaultValueTitle() =>
-            GetResourceString(Properties.Resources.HelpArgumentDefaultValueTitle);
+        public virtual string HelpArgumentDefaultValueLabel() =>
+            GetResourceString(Properties.Resources.HelpArgumentDefaultValueLabel);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to Commands:.

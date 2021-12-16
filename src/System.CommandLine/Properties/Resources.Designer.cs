@@ -218,9 +218,9 @@ namespace System.CommandLine.Properties {
         /// <summary>
         ///   Looks up a localized string similar to default.
         /// </summary>
-        internal static string HelpArgumentDefaultValueTitle {
+        internal static string HelpArgumentDefaultValueLabel {
             get {
-                return ResourceManager.GetString("HelpArgumentDefaultValueTitle", resourceCulture);
+                return ResourceManager.GetString("HelpArgumentDefaultValueLabel", resourceCulture);
             }
         }
         
@@ -263,9 +263,9 @@ namespace System.CommandLine.Properties {
         /// <summary>
         ///   Looks up a localized string similar to (REQUIRED).
         /// </summary>
-        internal static string HelpOptionsRequired {
+        internal static string HelpOptionsRequiredLabel {
             get {
-                return ResourceManager.GetString("HelpOptionsRequired", resourceCulture);
+                return ResourceManager.GetString("HelpOptionsRequiredLabel", resourceCulture);
             }
         }
         
@@ -290,18 +290,18 @@ namespace System.CommandLine.Properties {
         /// <summary>
         ///   Looks up a localized string similar to [command].
         /// </summary>
-        internal static string HelpUsageCommandTitle {
+        internal static string HelpUsageCommand {
             get {
-                return ResourceManager.GetString("HelpUsageCommandTitle", resourceCulture);
+                return ResourceManager.GetString("HelpUsageCommand", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to [options].
         /// </summary>
-        internal static string HelpUsageOptionsTitle {
+        internal static string HelpUsageOptions {
             get {
-                return ResourceManager.GetString("HelpUsageOptionsTitle", resourceCulture);
+                return ResourceManager.GetString("HelpUsageOptions", resourceCulture);
             }
         }
         

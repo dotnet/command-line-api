@@ -1,10 +1,11 @@
 ﻿System.CommandLine
   public class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IArgument, ISymbol
     .ctor()
-    .ctor(System.String name)
+    .ctor(System.String name = null, System.String description = null)
     public IArgumentArity Arity { get; set; }
     public CompletionSourceList Completions { get; }
     public System.Boolean HasDefaultValue { get; }
+    public System.String HelpName { get; set; }
     public System.Type ValueType { get; set; }
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.ArgumentResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
@@ -171,16 +172,16 @@
     protected System.String GetResourceString(System.String resourceString, System.Object[] formatArguments)
     public System.String HelpAdditionalArgumentsDescription()
     public System.String HelpAdditionalArgumentsTitle()
-    public System.String HelpArgumentDefaultValueTitle()
+    public System.String HelpArgumentDefaultValueLabel()
     public System.String HelpArgumentsTitle()
     public System.String HelpCommandsTitle()
     public System.String HelpDescriptionTitle()
     public System.String HelpOptionDescription()
-    public System.String HelpOptionsRequired()
+    public System.String HelpOptionsRequiredLabel()
     public System.String HelpOptionsTitle()
     public System.String HelpUsageAdditionalArguments()
-    public System.String HelpUsageCommandTitle()
-    public System.String HelpUsageOptionsTitle()
+    public System.String HelpUsageCommand()
+    public System.String HelpUsageOptions()
     public System.String HelpUsageTitle()
     public System.String InvalidCharactersInFileName(System.Char invalidChar)
     public System.String InvalidCharactersInPath(System.Char invalidChar)
