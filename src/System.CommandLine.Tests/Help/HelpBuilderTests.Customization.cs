@@ -246,8 +246,8 @@ namespace System.CommandLine.Tests.Help
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(option,
-                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.GetDefaultIdentifierSymbolUsageTitle(option, ctx),
-                    secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.GetDefaultIdentifierSymbolDescription(option));
+                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetIdentifierSymbolUsageLabel(option, ctx),
+                    secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetIdentifierSymbolDescription(option));
 
 
                 var parser = new CommandLineBuilder(command)
@@ -283,9 +283,9 @@ namespace System.CommandLine.Tests.Help
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(argument,
-                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.GetDefaultArgumentUsageTitle(argument),
-                    secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.GetDefaultArgumentDescription(argument),
-                    defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.GetDefaultArgumentDefaultValue(argument));
+                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetArgumentUsageLabel(argument),
+                    secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetArgumentDescription(argument),
+                    defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
 
 
                 var parser = new CommandLineBuilder(command)

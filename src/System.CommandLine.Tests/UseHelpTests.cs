@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
@@ -333,7 +332,7 @@ namespace System.CommandLine.Tests
             {
                 yield return ctx => ctx.Output.WriteLine("first");
 
-                foreach (var section in HelpBuilder.DefaultLayout())
+                foreach (var section in HelpBuilder.Default.GetLayout())
                 {
                     yield return section;
                 }
@@ -359,12 +358,12 @@ namespace System.CommandLine.Tests
                                  ctx.HelpBuilder
                                     .CustomizeLayout(c =>
                                                          c.Command == commandWithTypicalHelp
-                                                             ? HelpBuilder.DefaultLayout()
+                                                             ? HelpBuilder.Default.GetLayout()
                                                              : new HelpSectionDelegate[]
                                                                  {
                                                                      c => c.Output.WriteLine("Custom layout!")
                                                                  }
-                                                                 .Concat(HelpBuilder.DefaultLayout())))
+                                                                 .Concat(HelpBuilder.Default.GetLayout())))
                          .Build();
 
             var typicalOutput = new TestConsole();
