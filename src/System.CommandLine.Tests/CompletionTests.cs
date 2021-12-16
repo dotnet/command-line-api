@@ -662,7 +662,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_caller_does_not_do_the_tokenizing_then_argument_completions_are_based_on_the_proximate_option()
+        public void When_parsing_from_array_then_argument_completions_are_based_on_the_proximate_option()
         {
             var command = new Command("outer")
             {
@@ -683,7 +683,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_caller_does_the_tokenizing_then_argument_completions_are_based_on_the_proximate_command()
+        public void When_parsing_from_text_then_argument_completions_are_based_on_the_proximate_command()
         {
             var outer = new Command("outer")
             {
@@ -719,7 +719,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_caller_does_not_do_the_tokenizing_then_argument_completions_are_based_on_the_proximate_command()
+        public void When_parsing_from_array_then_argument_completions_are_based_on_the_proximate_command()
         {
             var outer = new Command("outer")
             {
@@ -752,6 +752,40 @@ namespace System.CommandLine.Tests
                   .Select(item => item.Label)
                   .Should()
                   .BeEquivalentTo("two-b");
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1518
+        public void When_parsing_from_text_if_the_proximate_option_is_completed_then_completions_consider_other_option_tokens()
+        {
+            var command = new RootCommand
+            {
+                new Option<string>("--framework").FromAmong("net7.0"),
+                new Option<string>("--language").FromAmong("C#"),
+                new Option<string>("--langVersion")
+            };
+            var parser = new CommandLineBuilder(command).Build();
+            var completions = parser.Parse("--framework net7.0 --l").GetCompletions();
+
+            completions.Select(item => item.Label)
+                       .Should()
+                       .BeEquivalentTo("--language", "--langVersion");
+        }
+
+        [Fact] 
+        public void When_parsing_from_array_if_the_proximate_option_is_completed_then_completions_consider_other_option_tokens()
+        {
+            var command = new RootCommand
+            {
+                new Option<string>("--framework").FromAmong("net7.0"),
+                new Option<string>("--language").FromAmong("C#"),
+                new Option<string>("--langVersion")
+            };
+            var parser = new CommandLineBuilder(command).Build();
+            var completions = parser.Parse(new[]{"--framework","net7.0","--l"}).GetCompletions();
+
+            completions.Select(item => item.Label)
+                       .Should()
+                       .BeEquivalentTo("--language", "--langVersion");
         }
 
         [Fact]
