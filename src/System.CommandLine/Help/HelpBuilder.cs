@@ -510,11 +510,21 @@ namespace System.CommandLine.Help
             {
                 var firstColumnText =
                     customization?.GetFirstColumn?.Invoke(context) ??
-                    GetIdentifierSymbolUsageTitle(identifierSymbol);
+                    GetDefaultIdentifierSymbolUsageTitle(identifierSymbol, context);
 
-                var secondColumnText = 
-                     customization?.GetSecondColumn?.Invoke(context) ??
-                    GetIdentifierSymbolDescription(identifierSymbol, context);
+                var customizedSymbolDescription = customization?.GetSecondColumn?.Invoke(context);
+
+                var symbolDescription =
+                    customizedSymbolDescription ??
+                    GetDefaultIdentifierSymbolDescription(identifierSymbol);
+
+                //in case symbol description is customized, do not output default value
+                //default value output is not customizable for identifier symbols
+                var defaultValueDescription = customizedSymbolDescription == null
+                    ? GetSymbolDefaultValue(identifierSymbol)
+                    : string.Empty;
+
+                var secondColumnText = $"{symbolDescription} {defaultValueDescription}".Trim();
 
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
@@ -523,20 +533,33 @@ namespace System.CommandLine.Help
             {
                 var firstColumnText =
                     customization?.GetFirstColumn?.Invoke(context) ??
-                    GetArgumentUsageTitle(argument);
+                    GetDefaultArgumentUsageTitle(argument);
 
                 var argumentDescription =
                     customization?.GetSecondColumn?.Invoke(context) ??
-                    GetArgumentDescription(argument);
+                    GetDefaultArgumentDescription(argument);
 
                 var defaultValueDescription =
                     argument.HasDefaultValue
-                        ? $"[{GetArgumentDefaultValueText(context.Command, argument, true, context)}]"
+                        ? $"[{GetArgumentDefaultValue(context.Command, argument, true, context)}]"
                         : "";
 
                 var secondColumnText = $"{argumentDescription} {defaultValueDescription}".Trim();
 
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
+            }
+
+            string GetSymbolDefaultValue(IIdentifierSymbol symbol)
+            {
+                IEnumerable<IArgument> arguments = symbol.Arguments();
+                var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
+
+                if (defaultArguments.Length == 0) return "";
+
+                var isSingleArgument = defaultArguments.Length == 1;
+                var argumentDefaultValues = defaultArguments
+                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument, context));
+                return $"[{string.Join(", ", argumentDefaultValues)}]";
             }
         }
 
@@ -544,8 +567,9 @@ namespace System.CommandLine.Help
         /// Gets the first column content for the specified symbol (typically the usage).
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
-        /// <returns>Text to dispay.</returns>
-        public string GetIdentifierSymbolUsageTitle(IIdentifierSymbol symbol)
+        /// <param name="context">The help context, used for localization purposes.</param>
+        /// <returns>Text to display.</returns>
+        public static string GetDefaultIdentifierSymbolUsageTitle(IIdentifierSymbol symbol, HelpContext context)
         {
             var aliases = symbol.Aliases
                                 .Select(r => r.SplitPrefix())
@@ -561,7 +585,7 @@ namespace System.CommandLine.Help
             {
                 if (!argument.IsHidden)
                 {
-                    var argumentFirstColumnText = GetArgumentUsageTitle(argument);
+                    var argumentFirstColumnText = GetDefaultArgumentUsageTitle(argument);
 
                     if (!string.IsNullOrWhiteSpace(argumentFirstColumnText))
                     {
@@ -572,7 +596,7 @@ namespace System.CommandLine.Help
 
             if (symbol is IOption { IsRequired: true })
             {
-                firstColumnText += $" {LocalizationResources.HelpOptionsRequired()}";
+                firstColumnText += $" {context.HelpBuilder.LocalizationResources.HelpOptionsRequired()}";
             }
 
             return firstColumnText;
@@ -582,40 +606,9 @@ namespace System.CommandLine.Help
         /// Gets the second column content for the specified symbol (typically the description).
         /// </summary>
         /// <param name="symbol">The symbol to get the description for.</param>
-        /// <param name="context">A parse result providing context for help formatting.</param>
-        public string GetIdentifierSymbolDescription(IIdentifierSymbol symbol, HelpContext context)
-        {
-            return string.Join(" ", GetSecondColumnTextParts());
+        public static string GetDefaultIdentifierSymbolDescription(IIdentifierSymbol symbol) => symbol.Description ?? string.Empty;
 
-            IEnumerable<string> GetSecondColumnTextParts()
-            {
-                string? description = symbol.Description;
-                if (!string.IsNullOrWhiteSpace(description))
-                {
-                    yield return description!;
-                }
-                string argumentDescription = GetArgumentDescription();
-                if (!string.IsNullOrWhiteSpace(argumentDescription))
-                {
-                    yield return argumentDescription;
-                }
-            }
-
-            string GetArgumentDescription()
-            {
-                IEnumerable<IArgument> arguments = symbol.Arguments();
-                var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
-
-                if (defaultArguments.Length == 0) return "";
-
-                var isSingleArgument = defaultArguments.Length == 1;
-                var argumentDefaultValues = defaultArguments
-                    .Select(argument => GetArgumentDefaultValueText(symbol, argument, isSingleArgument, context));
-                return $"[{string.Join(", ", argumentDefaultValues)}]";
-            }
-        }
-
-        private string GetArgumentDefaultValueText(
+        private string GetArgumentDefaultValue(
             IIdentifierSymbol parent,
             IArgument argument,
             bool displayArgumentName,
@@ -636,14 +629,14 @@ namespace System.CommandLine.Help
                     return $"{name}: {ownDefaultValue}";
                 }
             }
-            return $"{name}: {GetArgumentDefaultValue(argument)}";
+            return $"{name}: {GetDefaultArgumentDefaultValue(argument)}";
         }
 
         /// <summary>
         /// Gets the argument default value to be displayed for help purposes.
         /// </summary>
-        /// <param name="argument">The argument to get the description for.</param>
-        public string GetArgumentDefaultValue(
+        /// <param name="argument">The argument to get the default value for.</param>
+        public static string GetDefaultArgumentDefaultValue(
             IArgument argument)
         {
             object? argumentDefaultValue = argument.GetDefaultValue();
@@ -663,7 +656,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
         /// </summary>
-        public string GetArgumentUsageTitle(IArgument argument)
+        public static string GetDefaultArgumentUsageTitle(IArgument argument)
         {
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
@@ -709,9 +702,9 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Gets the description for an argument, typically used in the second column text in the arguments usage section.
         /// </summary>
-        public string GetArgumentDescription(IArgument argument) => argument.Description ?? string.Empty;
+        public static string GetDefaultArgumentDescription(IArgument argument) => argument.Description ?? string.Empty;
 
-        private string? GetArgumentHelpName(IArgument argument)
+        private static string? GetArgumentHelpName(IArgument argument)
         {
             var arg = argument as Argument;
             return arg?.HelpName;
