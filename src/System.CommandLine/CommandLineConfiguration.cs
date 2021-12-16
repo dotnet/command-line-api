@@ -41,8 +41,6 @@ namespace System.CommandLine
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
 
-            AddGlobalOptionsToChildren(command);
-
             EnableLegacyDoubleDashBehavior = enableLegacyDoubleDashBehavior;
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
@@ -62,26 +60,6 @@ namespace System.CommandLine
             }
 
             return new HelpBuilder(context.ParseResult.CommandResult.LocalizationResources, maxWidth);
-        }
-
-        private void AddGlobalOptionsToChildren(Command parentCommand)
-        {
-            for (var childIndex = 0; childIndex < parentCommand.Children.Count; childIndex++)
-            {
-                var child = parentCommand.Children[childIndex];
-
-                if (child is Command childCommand)
-                {
-                    var globalOptions = parentCommand.GlobalOptions;
-
-                    for (var i = 0; i < globalOptions.Count; i++)
-                    {
-                        childCommand.TryAddGlobalOption(globalOptions[i]);
-                    }
-
-                    AddGlobalOptionsToChildren(childCommand);
-                }
-            }
         }
 
         /// <summary>

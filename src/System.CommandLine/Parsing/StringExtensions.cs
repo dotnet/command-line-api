@@ -483,7 +483,7 @@ namespace System.CommandLine.Parsing
                     new Token(commandAlias, TokenType.Command, command, Token.ImplicitPosition));
             }
 
-            for (var childIndex = 0; childIndex < command.Children.Count; childIndex++)
+            for (int childIndex = 0; childIndex < command.Children.Count; childIndex++)
             {
                 switch (command.Children[childIndex])
                 {
@@ -500,6 +500,30 @@ namespace System.CommandLine.Parsing
                         }
                         break;
                 }
+            }
+
+            Command? current = command as Command;
+            while (current is not null)
+            {
+                Command? parentCommand = null;
+                for (int parentIndex = 0; parentIndex < current.Parents.Count; parentIndex++)
+                {
+                    if ((parentCommand = current.Parents[parentIndex] as Command) is not null)
+                    {
+                        foreach (Option globalOption in parentCommand.GlobalOptions)
+                        {
+                            foreach (var childAlias in globalOption.Aliases)
+                            {
+                                if (!tokens.ContainsKey(childAlias))
+                                {
+                                    tokens.Add(childAlias, new Token(childAlias, TokenType.Option, globalOption, Token.ImplicitPosition));
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+                current = parentCommand;
             }
 
             return tokens;

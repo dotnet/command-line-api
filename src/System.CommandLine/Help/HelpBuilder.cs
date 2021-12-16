@@ -135,9 +135,26 @@ namespace System.CommandLine.Help
         public static HelpSectionDelegate OptionsSection() =>
             ctx =>
             {
-                var options = ctx.Command.Options.Where(x => !x.IsHidden).Select(x => ctx.HelpBuilder.GetTwoColumnRow(x, ctx)).ToArray();
+                List<TwoColumnHelpRow> options = new();
+                HashSet<IOption> uniqueOptions = new(); // global help aliases may be duplicated, we just ignore them
+                AddOptions(ctx, options, ctx.Command.Options, uniqueOptions);
 
-                if (options.Length <= 0)
+                Command? current = ctx.Command as Command;
+                while (current is not null)
+                {
+                    Command? parentCommand = null;
+                    for (int parentIndex = 0; parentIndex < current.Parents.Count; parentIndex++)
+                    {
+                        if ((parentCommand = current.Parents[parentIndex] as Command) is not null)
+                        {
+                            AddOptions(ctx, options, parentCommand.GlobalOptions, uniqueOptions);
+                            break;
+                        }
+                    }
+                    current = parentCommand;
+                }
+
+                if (options.Count <= 0)
                 {
                     ctx.WasSectionSkipped = true;
                     return;
@@ -146,6 +163,17 @@ namespace System.CommandLine.Help
                 ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
                 ctx.HelpBuilder.WriteColumns(options, ctx);
                 ctx.Output.WriteLine();
+
+                static void AddOptions(HelpContext context, List<TwoColumnHelpRow> list, IReadOnlyList<IOption> options, HashSet<IOption> uniqueOptions)
+                {
+                    foreach (IOption option in options)
+                    {
+                        if (!option.IsHidden && uniqueOptions.Add(option))
+                        {
+                            list.Add(context.HelpBuilder.GetTwoColumnRow(option, context));
+                        }
+                    }
+                }
             };
 
         ///  <summary>
@@ -197,21 +225,27 @@ namespace System.CommandLine.Help
 
             IEnumerable<string> GetUsageParts()
             {
+                bool displayOptionTitle = false;
 
-                IEnumerable<ICommand> parentCommands =
-                    command
-                        .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
+                IEnumerable<Command> parentCommands =
+                    ((Command)command)
+                        .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<Command>())
                         .Reverse();
 
-                foreach (ICommand parentCommand in parentCommands)
+                foreach (Command parentCommand in parentCommands)
                 {
+                    if (!displayOptionTitle && parentCommand.GlobalOptions.Count > 0)
+                    {
+                        displayOptionTitle = parentCommand.GlobalOptions.Any(x => !x.IsHidden);
+                    }
+
                     yield return parentCommand.Name;
 
                     yield return FormatArgumentUsage(parentCommand.Arguments);
                 }
 
                 var hasCommandWithHelp = command.Children
-                    .OfType<ICommand>()
+                    .OfType<Command>()
                     .Any(x => !x.IsHidden);
 
                 if (hasCommandWithHelp)
@@ -219,7 +253,7 @@ namespace System.CommandLine.Help
                     yield return LocalizationResources.HelpUsageCommandTitle();
                 }
 
-                var displayOptionTitle = command.Options.Any(x => !x.IsHidden);
+                displayOptionTitle = displayOptionTitle || command.Options.Any(x => !x.IsHidden);
                 
                 if (displayOptionTitle)
                 {
