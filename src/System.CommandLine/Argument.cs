@@ -45,7 +45,6 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the arity of the argument.
         /// </summary>
-        [NotNull]
         public IArgumentArity Arity
         {
             get
@@ -64,9 +63,9 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Argument help name
+        /// The name used in help output to describe the argument. 
         /// </summary>
-        internal string? HelpName { get; set; }
+        public string? HelpName { get; set; }
 
         internal TryConvertArgument? ConvertArguments
         {
