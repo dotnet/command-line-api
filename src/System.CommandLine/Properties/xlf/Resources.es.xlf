@@ -91,7 +91,7 @@ The value of the variable should be the name of the processes, separated by a se
         <target state="new">Additional Arguments:</target>
         <note />
       </trans-unit>
-      <trans-unit id="HelpArgumentDefaultValueTitle">
+      <trans-unit id="HelpArgumentDefaultValueLabel">
         <source>default</source>
         <target state="new">default</target>
         <note />
@@ -116,14 +116,24 @@ The value of the variable should be the name of the processes, separated by a se
         <target state="new">Show help and usage information</target>
         <note />
       </trans-unit>
+      <trans-unit id="HelpOptionsRequiredLabel">
+        <source>(REQUIRED)</source>
+        <target state="new">(REQUIRED)</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageCommand">
+        <source>[command]</source>
+        <target state="new">[command]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageOptions">
+        <source>[options]</source>
+        <target state="new">[options]</target>
+        <note />
+      </trans-unit>
       <trans-unit id="InvalidCharactersInFileName">
         <source>Character not allowed in a file name: '{0}'.</source>
         <target state="new">Character not allowed in a file name: '{0}'.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="HelpOptionsRequired">
-        <source>(REQUIRED)</source>
-        <target state="new">(REQUIRED)</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionsTitle">
@@ -134,16 +144,6 @@ The value of the variable should be the name of the processes, separated by a se
       <trans-unit id="HelpUsageAdditionalArguments">
         <source>[[--] &lt;additional arguments&gt;...]]</source>
         <target state="new">[[--] &lt;additional arguments&gt;...]]</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="HelpUsageCommandTitle">
-        <source>[command]</source>
-        <target state="new">[command]</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="HelpUsageOptionsTitle">
-        <source>[options]</source>
-        <target state="new">[options]</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageTitle">
