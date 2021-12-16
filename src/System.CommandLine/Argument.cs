@@ -30,14 +30,11 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument.</param>
-        public Argument(string name)
+        /// <param name="description">The description of the argument, shown in help.</param>
+        public Argument(string? name = null, string? description = null)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
-            }
-
-            Name = name;
+            Name = name!;
+            Description = description;
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }

@@ -216,14 +216,14 @@ namespace System.CommandLine.Help
 
                 if (hasCommandWithHelp)
                 {
-                    yield return LocalizationResources.HelpUsageCommandTitle();
+                    yield return LocalizationResources.HelpUsageCommand();
                 }
 
                 var displayOptionTitle = command.Options.Any(x => !x.IsHidden);
                 
                 if (displayOptionTitle)
                 {
-                    yield return LocalizationResources.HelpUsageOptionsTitle();
+                    yield return LocalizationResources.HelpUsageOptions();
                 }
 
                 if (!command.TreatUnmatchedTokensAsErrors)
@@ -596,7 +596,7 @@ namespace System.CommandLine.Help
 
             if (symbol is IOption { IsRequired: true })
             {
-                firstColumnText += $" {context.HelpBuilder.LocalizationResources.HelpOptionsRequired()}";
+                firstColumnText += $" {context.HelpBuilder.LocalizationResources.HelpOptionsRequiredLabel()}";
             }
 
             return firstColumnText;
@@ -614,43 +614,58 @@ namespace System.CommandLine.Help
             bool displayArgumentName,
             HelpContext context)
         {
-            string name = displayArgumentName ? LocalizationResources.HelpArgumentDefaultValueTitle() : argument.Name;
+            string label = displayArgumentName 
+                              ? LocalizationResources.HelpArgumentDefaultValueLabel() 
+                              : argument.Name;
+
+            string? displayedDefaultValue = null;
+
             if (_customizationsBySymbol is not null)
             {
                 if (_customizationsBySymbol.TryGetValue(parent, out Customization customization) &&
                     customization.GetDefaultValue?.Invoke(context) is { } parentDefaultValue)
                 {
-                    return $"{name}: {parentDefaultValue}";
+                    displayedDefaultValue = parentDefaultValue;
                 }
-
-                if (_customizationsBySymbol.TryGetValue(argument, out customization) &&
-                    customization.GetDefaultValue?.Invoke(context) is { } ownDefaultValue)
+                else if (_customizationsBySymbol.TryGetValue(argument, out customization) &&
+                         customization.GetDefaultValue?.Invoke(context) is { } ownDefaultValue)
                 {
-                    return $"{name}: {ownDefaultValue}";
+                    displayedDefaultValue = ownDefaultValue;
                 }
             }
-            return $"{name}: {GetDefaultArgumentDefaultValue(argument)}";
+
+            displayedDefaultValue ??= GetDefaultArgumentDefaultValue(argument);
+
+            if (string.IsNullOrWhiteSpace(displayedDefaultValue))
+            {
+                return "";
+            }
+
+            return $"{label}: {displayedDefaultValue}";
         }
 
         /// <summary>
         /// Gets the argument default value to be displayed for help purposes.
         /// </summary>
         /// <param name="argument">The argument to get the default value for.</param>
-        public static string GetDefaultArgumentDefaultValue(
-            IArgument argument)
+        public static string GetDefaultArgumentDefaultValue(IArgument argument)
         {
-            object? argumentDefaultValue = argument.GetDefaultValue();
-            string? defaultValue;
-            if (argumentDefaultValue is IEnumerable enumerable and not string)
+            if (argument.HasDefaultValue)
             {
-                defaultValue = string.Join("|", enumerable.OfType<object>().ToArray());
-            }
-            else
-            {
-                defaultValue = argumentDefaultValue?.ToString();
+                if (argument.GetDefaultValue() is { } defaultValue)
+                {
+                    if (defaultValue is IEnumerable enumerable and not string)
+                    {
+                        return string.Join("|", enumerable.OfType<object>().ToArray());
+                    }
+                    else
+                    {
+                        return defaultValue.ToString();
+                    }
+                }
             }
 
-            return defaultValue ?? string.Empty;
+            return string.Empty;
         }
 
         /// <summary>
