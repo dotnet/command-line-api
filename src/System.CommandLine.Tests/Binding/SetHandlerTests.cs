@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
@@ -459,6 +458,26 @@ namespace System.CommandLine.Tests.Binding
                 receivedValues.AddRange(values);
                 return Task.FromResult(123);
             }
+        }
+
+        [Fact]
+        public async Task Unexpected_return_types_result_in_exit_code_0_if_no_exception_was_thrown()
+        {
+            var wasCalled = false;
+
+            var command = new Command("wat");
+
+            var handle = (ParseResult _) =>
+            {
+                wasCalled = true;
+                return Task.FromResult(new { NovelType = true });
+            };
+
+            command.SetHandler(handle);
+
+            var exitCode = await command.InvokeAsync("");
+            wasCalled.Should().BeTrue();
+            exitCode.Should().Be(0);
         }
     }
 }

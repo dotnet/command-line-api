@@ -48,11 +48,9 @@ namespace System.CommandLine.Invocation
                 case int exitCode:
                     ret = exitCode;
                     break;
-                case null:
+                default:
                     ret = context.ExitCode;
                     break;
-                default:
-                    throw new NotSupportedException();
             }
 
             return ret;
