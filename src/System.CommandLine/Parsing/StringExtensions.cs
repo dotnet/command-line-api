@@ -36,7 +36,6 @@ namespace System.CommandLine.Parsing
 
         internal static int GetPrefixLength(this string alias)
         {
-            // empty aliases are illegal, so there is no need to check for length
             if (alias[0] == '-')
                 return alias.Length > 1 && alias[1] == '-' ? 2 : 1;
             if (alias[0] == '/')
@@ -76,7 +75,7 @@ namespace System.CommandLine.Parsing
             for (var i = 0; i < argList.Count; i++)
             {
                 var arg = argList[i];
-
+                
                 if (foundDoubleDash)
                 {
                     if (configuration.EnableLegacyDoubleDashBehavior)
@@ -200,7 +199,7 @@ namespace System.CommandLine.Parsing
                         tokenList.Add(Argument(arg));
                     }
                 }
-                else
+                else if (arg.Length > 0)
                 {
                     tokenList.Add(Argument(arg));
                 }
