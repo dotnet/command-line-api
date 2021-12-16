@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -617,10 +616,8 @@ public static class CommandHandler
                 return context.ExitCode;
             case int exitCode:
                 return exitCode;
-            case null:
-                return context.ExitCode;
             default:
-                throw new NotSupportedException();
+                return context.ExitCode;
         }
     }
 }
