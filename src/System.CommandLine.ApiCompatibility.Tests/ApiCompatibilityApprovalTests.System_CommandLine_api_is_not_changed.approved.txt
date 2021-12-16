@@ -344,18 +344,6 @@ System.CommandLine.Completions
   public class TokenCompletionContext : CompletionContext
 System.CommandLine.Help
   public class HelpBuilder
-    public static HelpSectionDelegate AdditionalArgumentsSection()
-    public static HelpSectionDelegate CommandArgumentsSection()
-    public static HelpSectionDelegate CommandUsageSection()
-    public static System.Collections.Generic.IEnumerable<HelpSectionDelegate> DefaultLayout()
-    public static System.String GetDefaultArgumentDefaultValue(System.CommandLine.IArgument argument)
-    public static System.String GetDefaultArgumentDescription(System.CommandLine.IArgument argument)
-    public static System.String GetDefaultArgumentUsageTitle(System.CommandLine.IArgument argument)
-    public static System.String GetDefaultIdentifierSymbolDescription(System.CommandLine.IIdentifierSymbol symbol)
-    public static System.String GetDefaultIdentifierSymbolUsageTitle(System.CommandLine.IIdentifierSymbol symbol, HelpContext context)
-    public static HelpSectionDelegate OptionsSection()
-    public static HelpSectionDelegate SubcommandsSection()
-    public static HelpSectionDelegate SynopsisSection()
     .ctor(System.CommandLine.LocalizationResources localizationResources, System.Int32 maxWidth = 2147483647)
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.Int32 MaxWidth { get; }
@@ -364,6 +352,19 @@ System.CommandLine.Help
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.ISymbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
+   static class Default
+    public static HelpSectionDelegate AdditionalArgumentsSection()
+    public static HelpSectionDelegate CommandArgumentsSection()
+    public static HelpSectionDelegate CommandUsageSection()
+    public static System.String GetArgumentDefaultValue(System.CommandLine.IArgument argument)
+    public static System.String GetArgumentDescription(System.CommandLine.IArgument argument)
+    public static System.String GetArgumentUsageLabel(System.CommandLine.IArgument argument)
+    public static System.String GetIdentifierSymbolDescription(System.CommandLine.IIdentifierSymbol symbol)
+    public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.IIdentifierSymbol symbol, HelpContext context)
+    public static System.Collections.Generic.IEnumerable<HelpSectionDelegate> GetLayout()
+    public static HelpSectionDelegate OptionsSection()
+    public static HelpSectionDelegate SubcommandsSection()
+    public static HelpSectionDelegate SynopsisSection()
   public static class HelpBuilderExtensions
     public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.ISymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter writer)
