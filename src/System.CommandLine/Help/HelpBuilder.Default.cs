@@ -199,8 +199,9 @@ public partial class HelpBuilder
         public static HelpSectionDelegate OptionsSection() =>
             ctx =>
             {
+                // by making this logic more complex, we were able to get some nice perf wins elsewhere
                 List<TwoColumnHelpRow> options = new();
-                HashSet<IOption> uniqueOptions = new(); // global help aliases may be duplicated, we just ignore them
+                HashSet<IOption> uniqueOptions = new();
                 foreach (Option option in ctx.Command.Options)
                 {
                     if (!option.IsHidden && uniqueOptions.Add(option))
@@ -220,6 +221,7 @@ public partial class HelpBuilder
                         {
                             foreach (Option option in parentCommand.Options)
                             {
+                                // global help aliases may be duplicated, we just ignore them
                                 if (option.IsGlobal && !option.IsHidden && uniqueOptions.Add(option))
                                 {
                                     options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));

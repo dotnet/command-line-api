@@ -265,75 +265,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Parent_cant_be_its_own_child()
-        {
-            var command = new Command("the-command");
-
-            command.Add(command);
-
-            command
-                .Invoking(c => c.Validate())
-                .Should()
-                .Throw<ArgumentException>()
-                .And
-                .Message
-                .Should()
-                .Be("Parent can't be it's own child.");
-        }
-
-        [Fact]
-        public void When_multiple_arguments_are_configured_then_they_must_differ_by_name()
-        {
-            const string argumentName = "same";
-
-            var command = new Command("the-command")
-            {
-                new Argument<string>
-                {
-                    Name = argumentName
-                }
-            };
-
-            command.Add(new Argument<string>
-            {
-                Name = argumentName
-            });
-
-            Validate(argumentName, command);
-            Validate(argumentName, new Command("level_0") { new Command ("level_1") { command } }); // test the recursive validation
-            Validate("the-command", new RootCommand { command, command }); // duplicated commands
-        }
-
-        [Fact]
-        public void When_multiple_options_are_configured_then_they_must_differ_by_name()
-        {
-            const string optionName = "--same";
-
-            var command = new Command("the-command")
-            {
-                new Option(optionName)
-            };
-
-            command.Add(new Option(optionName));
-
-            Validate(optionName, command);
-            Validate(optionName, new Command("level_0") { new Command("level_1") { command } });
-            Validate("the-command", new RootCommand { command, command });
-        }
-
-        private static void Validate(string expectedName, Command command)
-        {
-            command
-                .Invoking(c => c.Validate())
-                .Should()
-                .Throw<ArgumentException>()
-                .And
-                .Message
-                .Should()
-                .Be($"Alias '{expectedName}' is already in use.");
-        }
-
-        [Fact]
         public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
         {
             var command = new Command("name");
@@ -494,8 +425,6 @@ namespace System.CommandLine.Tests
             var command = new Command("mycommand");
             command.AddGlobalOption(option);
 
-            option.IsGlobal.Should().BeTrue();
-
             command.Options
                 .Should()
                 .Contain(option);
@@ -515,8 +444,6 @@ namespace System.CommandLine.Tests
                 .BeEmpty();
 
             command.AddGlobalOption(option);
-
-            option.IsGlobal.Should().BeTrue();
 
             command.Options
                 .Should()

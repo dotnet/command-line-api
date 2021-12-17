@@ -73,27 +73,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Two_options_cannot_have_conflicting_aliases()
-        {
-            Action validate = () =>
-                    new RootCommand
-                    {
-                        new Option(
-                            new[] { "-o", "--one" }),
-                        new Option(
-                            new[] { "-t", "--one" })
-                    }
-                    .Validate();
-
-            validate.Should()
-                  .Throw<ArgumentException>()
-                  .Which
-                  .Message
-                  .Should()
-                  .Be("Alias '--one' is already in use.");
-        }
-
-        [Fact]
         public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
             var option = new Option<string>("-x") { Arity = ArgumentArity.ExactlyOne };

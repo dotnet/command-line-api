@@ -61,7 +61,6 @@
     public System.Void AddOption(Option option)
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.CommandResult> validate)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
-    public System.Void Validate()
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
@@ -138,7 +137,6 @@
     public System.String Name { get; set; }
     public System.Void AddAlias(System.String alias)
     public System.Boolean HasAlias(System.String alias)
-    public System.Boolean Matches(System.String name)
   public interface IDirectiveCollection : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
     public System.Boolean Contains(System.String name)
     public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
@@ -201,7 +199,6 @@
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
-    public System.Boolean IsGlobal { get; }
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.OptionResult> validate)
@@ -241,7 +238,6 @@
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Boolean Matches(System.String name)
     public System.String ToString()
 System.CommandLine.Binding
   public abstract class BinderBase<T>, IValueDescriptor<T>, IValueDescriptor, IValueSource
@@ -523,7 +519,7 @@ System.CommandLine.Parsing
     ParseArgsAsSpaceSeparated=1
     Disabled=2
   public abstract class SymbolResult
-    public System.Collections.Generic.List<SymbolResult> Children { get; }
+    public System.Collections.Generic.IReadOnlyList<SymbolResult> Children { get; }
     public System.String ErrorMessage { get; set; }
     public System.CommandLine.LocalizationResources LocalizationResources { get; set; }
     public SymbolResult Parent { get; }

@@ -40,7 +40,7 @@ namespace System.CommandLine
         /// </summary>
         internal ParentNode? FirstParent => _firstParent;
 
-        public virtual bool Matches(string name) => string.Equals(name, _name, StringComparison.Ordinal);
+        internal virtual bool Matches(string name) => string.Equals(name, _name, StringComparison.Ordinal);
 
         internal void AddParent(Symbol symbol)
         {

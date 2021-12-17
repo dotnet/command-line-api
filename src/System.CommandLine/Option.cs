@@ -180,7 +180,7 @@ namespace System.CommandLine
         /// Global options are applied to the command and recursively to subcommands.
         /// They do not apply to parent commands.
         /// </summary>
-        public bool IsGlobal { get; internal set; }
+        internal bool IsGlobal { get; set; }
 
         internal bool DisallowBinding { get; init; }
 

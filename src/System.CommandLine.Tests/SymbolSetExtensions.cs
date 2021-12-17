@@ -9,9 +9,9 @@ namespace System.CommandLine.Tests
     internal static class SymbolSetExtensions
     {
         internal static ISymbol GetByAlias(this SymbolSet symbolSet, string alias)
-            => symbolSet.SingleOrDefault(symbol => symbol.Matches(alias));
+            => symbolSet.SingleOrDefault(symbol => symbol.Name.Equals(alias) || symbol is IdentifierSymbol id && id.HasAlias(alias));
 
         internal static bool ContainsAlias(this SymbolSet symbolSet, string alias)
-            => symbolSet.Any(symbol => symbol.Matches(alias));
+            => symbolSet.OfType<IdentifierSymbol>().Any(symbol => symbol.HasAlias(alias));
     }
 }
