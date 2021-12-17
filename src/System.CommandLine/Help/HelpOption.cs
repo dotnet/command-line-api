@@ -34,6 +34,8 @@ namespace System.CommandLine.Help
 
         internal override Argument Argument => Argument.None();
 
+        internal override bool IsGreedy => false;
+
         public override bool Equals(object obj)
         {
             return obj is HelpOption;

@@ -8,6 +8,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Exporters.Json;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Reports;
 using Perfolizer.Horology;
 
 namespace System.CommandLine.Benchmarks
@@ -28,7 +29,8 @@ namespace System.CommandLine.Benchmarks
                 .WithArtifactsPath(artifactsPath.FullName)
                 .With(MemoryDiagnoser.Default)
                 .With(JsonExporter.Full)
-                .With(StatisticColumn.Median, StatisticColumn.Min, StatisticColumn.Max);
+                .With(StatisticColumn.Median, StatisticColumn.Min, StatisticColumn.Max)
+                .WithSummaryStyle(SummaryStyle.Default.WithSizeUnit(SizeUnit.B));
 #pragma warning restore CA1062 // Validate arguments of public methods
     }
 }

@@ -263,48 +263,6 @@ namespace System.CommandLine.Tests
 
             command.Arguments.Single().Name.Should().Be("arg");
         }
-  
-        [Fact]
-        public void When_multiple_arguments_are_configured_then_they_must_differ_by_name()
-        {
-            var command = new Command("the-command")
-            {
-                new Argument<string>
-                {
-                    Name = "same"
-                }
-            };
-
-            command
-                .Invoking(c => c.Add(new Argument<string>
-                {
-                    Name = "same"
-                }))
-                .Should()
-                .Throw<ArgumentException>()
-                .And
-                .Message
-                .Should()
-                .Be("Alias 'same' is already in use.");
-        }
-
-        [Fact]
-        public void When_multiple_options_are_configured_then_they_must_differ_by_name()
-        {
-            var command = new Command("the-command")
-            {
-                new Option("--same")
-            };
-
-            command
-                .Invoking(c => c.Add(new Option("--same")))
-                .Should()
-                .Throw<ArgumentException>()
-                .And
-                .Message
-                .Should()
-                .Be("Alias '--same' is already in use.");
-        }
 
         [Fact]
         public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
@@ -467,10 +425,6 @@ namespace System.CommandLine.Tests
             var command = new Command("mycommand");
             command.AddGlobalOption(option);
 
-            command.GlobalOptions
-                .Should()
-                .Contain(option);
-
             command.Options
                 .Should()
                 .Contain(option);
@@ -491,15 +445,10 @@ namespace System.CommandLine.Tests
 
             command.AddGlobalOption(option);
 
-            command.GlobalOptions
-                .Should()
-                .Contain(option);
-
             command.Options
                 .Should()
                 .Contain(option);
         }
-
 
         protected override Symbol CreateSymbol(string name) => new Command(name);
     }

@@ -1,40 +1,32 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-
 namespace System.CommandLine.Parsing
 {
     /// <summary>
     /// A unit of significant text on the command line.
     /// </summary>
-    public class Token
+    public readonly struct Token : IEquatable<Token>
     {
+        internal const int ImplicitPosition = -1;
+
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
-        public Token(string? value, TokenType type)
+        /// <param name="symbol">The symbol represented by the token</param>
+        public Token(string? value, TokenType type, ISymbol symbol)
         {
             Value = value ?? "";
-            UnprefixedValue = Value.RemovePrefix();
             Type = type;
-            Position = -1;
+            Symbol = symbol;
+            Position = ImplicitPosition;
         }
        
-        internal Token(string? value, TokenType type, int position)
+        internal Token(string? value, TokenType type, ISymbol? symbol, int position)
         {
             Value = value ?? "";
-            UnprefixedValue = Value.RemovePrefix();
             Type = type;
+            Symbol = symbol;
             Position = position;
-        }
-
-        internal Token(string value, int position = -1, bool wasBundled = false)
-        {
-            Value = value;
-            UnprefixedValue = value.RemovePrefix();
-            Type = TokenType.Option;
-            Position = position;
-            WasBundled = wasBundled;
         }
 
         internal int Position { get; }
@@ -44,28 +36,31 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public string Value { get; }
 
-        internal bool IsImplicit => Position == -1;
+        internal bool IsImplicit => Position == ImplicitPosition;
 
-        internal string UnprefixedValue { get; }
-
-        internal bool WasBundled { get; }
+        internal bool IsDefault => Value is null && Position == default && Type == default && Symbol is null;
 
         /// <summary>
         /// The type of the token.
         /// </summary>
         public TokenType Type { get; }
 
-        /// <inheritdoc />
-        public override bool Equals(object obj) =>
-            obj is Token token &&
-            Value == token.Value &&
-            Type == token.Type;
+        /// <summary>
+        /// The Symbol represented by the token (if any).
+        /// </summary>
+        public ISymbol? Symbol { get; }
 
         /// <inheritdoc />
-        public override int GetHashCode() => (Value, Type).GetHashCode();
+        public override bool Equals(object obj) => obj is Token other && Equals(other);
 
         /// <inheritdoc />
-        public override string ToString() => $"{Type}: {Value}";
+        public bool Equals(Token other) => Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);
+
+        /// <inheritdoc />
+        public override int GetHashCode() => Value.GetHashCode() ^ (int)Type;
+
+        /// <inheritdoc />
+        public override string ToString() => IsDefault ? "default" : $"{Type}: {Value} {Symbol}";
 
         /// <summary>
         /// Checks if two specified <see cref="Token"/> instances have the same value.
@@ -73,10 +68,7 @@ namespace System.CommandLine.Parsing
         /// <param name="left">The first <see cref="Token"/>.</param>
         /// <param name="right">The second <see cref="Token"/>.</param>
         /// <returns><see langword="true" /> if the objects are equal.</returns>
-        public static bool operator ==(Token left, Token right)
-        {
-            return EqualityComparer<Token>.Default.Equals(left, right);
-        }
+        public static bool operator ==(Token left, Token right) => left.Equals(right);
 
         /// <summary>
         /// Checks if two specified <see cref="Token"/> instances have different values.
@@ -84,9 +76,6 @@ namespace System.CommandLine.Parsing
         /// <param name="left">The first <see cref="Token"/>.</param>
         /// <param name="right">The second <see cref="Token"/>.</param>
         /// <returns><see langword="true" /> if the objects are not equal.</returns>
-        public static bool operator !=(Token left, Token right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(Token left, Token right) => !left.Equals(right);
     }
 }

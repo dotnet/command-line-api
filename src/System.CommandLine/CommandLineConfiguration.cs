@@ -16,7 +16,6 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
-        private readonly SymbolSet _symbols = new();
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <summary>
@@ -42,10 +41,6 @@ namespace System.CommandLine
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
 
-            _symbols.Add(RootCommand);
-
-            AddGlobalOptionsToChildren(command);
-
             EnableLegacyDoubleDashBehavior = enableLegacyDoubleDashBehavior;
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
@@ -67,30 +62,10 @@ namespace System.CommandLine
             return new HelpBuilder(context.ParseResult.CommandResult.LocalizationResources, maxWidth);
         }
 
-        private void AddGlobalOptionsToChildren(Command parentCommand)
-        {
-            for (var childIndex = 0; childIndex < parentCommand.Children.Count; childIndex++)
-            {
-                var child = parentCommand.Children[childIndex];
-
-                if (child is Command childCommand)
-                {
-                    var globalOptions = parentCommand.GlobalOptions;
-
-                    for (var i = 0; i < globalOptions.Count; i++)
-                    {
-                        childCommand.TryAddGlobalOption(globalOptions[i]);
-                    }
-
-                    AddGlobalOptionsToChildren(childCommand);
-                }
-            }
-        }
-
         /// <summary>
         /// Represents all of the symbols to parse.
         /// </summary>
-        public ISymbolSet Symbols => _symbols;
+        public SymbolSet Symbols => RootCommand.Children;
 
         /// <summary>
         /// Gets whether directives are enabled.
@@ -125,5 +100,60 @@ namespace System.CommandLine
         public ICommand RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
+
+        /// <summary>
+        /// Validates all symbols including the child hierarchy.
+        /// </summary>
+        /// <remarks>Due to the performance impact of this method, it's recommended to create
+        /// a Unit Test that calls this method to verify the RootCommand of every application.</remarks>
+        internal void ThrowIfInvalid()
+        {
+            ThrowIfInvalid((Command)RootCommand);
+
+            static void ThrowIfInvalid(Command command)
+            {
+                for (int i = 0; i < command.Children.Count; i++)
+                {
+                    for (int j = 1; j < command.Children.Count; j++)
+                    {
+                        if (command.Children[j] is IdentifierSymbol identifierSymbol)
+                        {
+                            foreach (string alias in identifierSymbol.Aliases)
+                            {
+                                if (command.Children[i].Matches(alias))
+                                {
+                                    throw new ArgumentException($"Alias '{alias}' is already in use.");
+                                }
+                            }
+
+                            if (identifierSymbol is Command childCommand)
+                            {
+                                if (ReferenceEquals(command, childCommand))
+                                {
+                                    throw new ArgumentException("Parent can't be it's own child.");
+                                }
+
+                                ThrowIfInvalid(childCommand);
+                            }
+                        }
+
+                        if (command.Children[i].Matches(command.Children[j].Name))
+                        {
+                            throw new ArgumentException($"Alias '{command.Children[j].Name}' is already in use.");
+                        }
+                    }
+
+                    if (command.Children.Count == 1 && command.Children[0] is Command singleChild)
+                    {
+                        if (ReferenceEquals(command, singleChild))
+                        {
+                            throw new ArgumentException("Parent can't be it's own child.");
+                        }
+
+                        ThrowIfInvalid(singleChild);
+                    }
+                }
+            }
+        }
     }
 }

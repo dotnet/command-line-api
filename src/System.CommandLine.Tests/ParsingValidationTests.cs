@@ -190,8 +190,8 @@ namespace System.CommandLine.Tests
 
             command.AddValidator(commandResult =>
             {
-                if (commandResult.Children.ContainsAlias("--one") &&
-                    commandResult.Children.ContainsAlias("--two"))
+                if (commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--one")) &&
+                    commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--two")))
                 {
                     return "Options '--one' and '--two' cannot be used together.";
                 }
@@ -984,7 +984,7 @@ namespace System.CommandLine.Tests
                     return "default";
                 }
                 //no arg is not allowed
-                argumentResult.ErrorMessage = $"(CUSTOM) Required argument missing for option: {or.Token?.Value}.";
+                argumentResult.ErrorMessage = $"(CUSTOM) Required argument missing for option: {or.Token.Value}.";
                 return default!;
             }
             else if (argumentResult.Tokens.Count == 1)
@@ -993,7 +993,7 @@ namespace System.CommandLine.Tests
             }
             else
             {
-                argumentResult.ErrorMessage = $"Using more than 1 argument is not allowed for '{or.Token?.Value}', used: {argumentResult.Tokens.Count}.";
+                argumentResult.ErrorMessage = $"Using more than 1 argument is not allowed for '{or.Token.Value}', used: {argumentResult.Tokens.Count}.";
                 return default!;
             }
         }

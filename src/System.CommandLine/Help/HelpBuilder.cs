@@ -114,21 +114,27 @@ namespace System.CommandLine.Help
 
             IEnumerable<string> GetUsageParts()
             {
+                bool displayOptionTitle = false;
 
-                IEnumerable<ICommand> parentCommands =
-                    command
-                        .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
+                IEnumerable<Command> parentCommands =
+                    ((Command)command)
+                        .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                         .Reverse();
 
-                foreach (ICommand parentCommand in parentCommands)
+                foreach (Command parentCommand in parentCommands)
                 {
+                    if (!displayOptionTitle)
+                    {
+                        displayOptionTitle = parentCommand.Options.Any(x => x.IsGlobal && !x.IsHidden);
+                    }
+
                     yield return parentCommand.Name;
 
                     yield return FormatArgumentUsage(parentCommand.Arguments);
                 }
 
                 var hasCommandWithHelp = command.Children
-                    .OfType<ICommand>()
+                    .OfType<Command>()
                     .Any(x => !x.IsHidden);
 
                 if (hasCommandWithHelp)
@@ -136,7 +142,7 @@ namespace System.CommandLine.Help
                     yield return LocalizationResources.HelpUsageCommand();
                 }
 
-                var displayOptionTitle = command.Options.Any(x => !x.IsHidden);
+                displayOptionTitle = displayOptionTitle || command.Options.Any(x => !x.IsHidden);
                 
                 if (displayOptionTitle)
                 {
@@ -152,7 +158,7 @@ namespace System.CommandLine.Help
 
         private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(ICommand command, HelpContext context) =>
             command
-                .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
+                .RecurseWhileNotNull(c => c.Parents.OfType<ICommand>().FirstOrDefault())
                 .Reverse()
                 .SelectMany(cmd => cmd.Arguments.Where(a => !a.IsHidden))
                 .Select(a => GetTwoColumnRow(a, context))
@@ -324,7 +330,7 @@ namespace System.CommandLine.Help
 
             bool IsMultiParented(IArgument argument) =>
                 argument is Argument a &&
-                a.Parents.Count > 1;
+                a.FirstParent is not null && a.FirstParent.Next is not null;
 
             bool IsOptional(IArgument argument) =>
                 IsMultiParented(argument) ||

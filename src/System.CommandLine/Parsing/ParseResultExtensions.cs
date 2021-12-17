@@ -93,7 +93,7 @@ namespace System.CommandLine.Parsing
 
                 var includeArgumentName =
                     argumentResult.Argument is Argument argument &&
-                    argument.Parents[0] is ICommand command &&
+                    argument.FirstParent!.Symbol is ICommand command &&
                     command.Arguments.Count > 1;
 
                 if (includeArgumentName)
@@ -190,7 +190,7 @@ namespace System.CommandLine.Parsing
         }
 
         /// <inheritdoc cref="HasOption(System.CommandLine.Parsing.ParseResult,System.CommandLine.IOption)"/>
-        [Obsolete("This method is obsolete and will be removed in a future version. Please use ParseResultExtensions.HasOption(ParseResult, IOption) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
+        [Obsolete("This method got removed. Please use ParseResultExtensions.HasOption(ParseResult, IOption) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
         public static bool HasOption(
             this ParseResult parseResult,
             string alias)
@@ -200,7 +200,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(parseResult));
             }
 
-            return parseResult.CommandResult.Children.ContainsAlias(alias);
+            return false;
         }
     }
 }

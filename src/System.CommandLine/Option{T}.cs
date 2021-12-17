@@ -62,7 +62,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc/>
-        public override IArgumentArity Arity
+        public override ArgumentArity Arity
         {
             get => base.Arity;
             init => Argument.Arity = value;

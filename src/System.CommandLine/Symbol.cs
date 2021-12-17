@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
 using System.CommandLine.Completions;
-using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine
@@ -14,7 +13,7 @@ namespace System.CommandLine
     public abstract class Symbol : ISymbol
     {
         private string? _name;
-        private readonly SymbolSet _parents = new();
+        private ParentNode? _firstParent;
 
         private protected Symbol()
         {
@@ -37,25 +36,39 @@ namespace System.CommandLine
         private protected abstract string DefaultName { get; }
 
         /// <summary>
-        /// Represents the parent symbols.
+        /// Represents the first parent node.
         /// </summary>
-        public ISymbolSet Parents => _parents;
+        internal ParentNode? FirstParent => _firstParent;
+
+        internal virtual bool Matches(string name) => string.Equals(name, _name, StringComparison.Ordinal);
 
         internal void AddParent(Symbol symbol)
         {
-            _parents.AddWithoutAliasCollisionCheck(symbol);
+            if (_firstParent == null)
+            {
+                _firstParent = new ParentNode(symbol);
+            }
+            else
+            {
+                ParentNode current = _firstParent;
+                while (current.Next is not null)
+                {
+                    current = current.Next;
+                }
+                current.Next = new ParentNode(symbol);
+            }
         }
 
         private protected virtual void AddSymbol(Symbol symbol)
         {
-            Children.Add(symbol);
+            Children.AddWithoutAliasCollisionCheck(symbol);
             symbol.AddParent(this);
         }
 
         private protected void AddArgumentInner(Argument argument)
         {
             argument.AddParent(this);
-            Children.Add(argument);
+            Children.AddWithoutAliasCollisionCheck(argument);
         }
 
         /// <summary>
@@ -67,6 +80,22 @@ namespace System.CommandLine
         /// Gets or sets a value indicating whether the symbol is hidden.
         /// </summary>
         public bool IsHidden { get; set; }
+
+        /// <summary>
+        /// Gets the parent symbols.
+        /// </summary>
+        public IEnumerable<Symbol> Parents
+        {
+            get
+            {
+                ParentNode? parent = _firstParent;
+                while (parent is not null)
+                {
+                    yield return parent.Symbol;
+                    parent = parent.Next;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets completions for the symbol.
@@ -120,27 +149,5 @@ namespace System.CommandLine
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";
-
-        /// <inheritdoc />
-        ISymbolSet ISymbol.Children => Children;
-
-        internal Action<ISymbol>? OnNameOrAliasChanged;
-
-        [DebuggerStepThrough]
-        private protected void ThrowIfAliasIsInvalid(string alias)
-        {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("An alias cannot be null, empty, or consist entirely of whitespace.");
-            }
-
-            for (var i = 0; i < alias.Length; i++)
-            {
-                if (char.IsWhiteSpace(alias[i]))
-                {
-                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"", nameof(alias));
-                }
-            }
-        }
     }
 }

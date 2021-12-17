@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Completions;
 
@@ -29,11 +30,11 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
-        ISymbolSet Children { get; }
+        SymbolSet Children { get; }
 
         /// <summary>
         /// Gets the parent symbols.
         /// </summary>
-        ISymbolSet Parents { get; }
+        IEnumerable<Symbol> Parents { get; }
     }
 }

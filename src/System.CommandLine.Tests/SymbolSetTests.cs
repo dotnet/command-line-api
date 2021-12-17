@@ -2,16 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Collections;
-using System.CommandLine.Parsing;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public abstract class AliasedSetTests<TSymbol, TSet>
-        where TSymbol : class
-        where TSet : AliasedSet<TSymbol>
+    public class SymbolSetTests
     {
         [Fact]
         public void GetByAlias_returns_null_when_command_alias_is_not_found()
@@ -67,11 +64,6 @@ namespace System.CommandLine.Tests
             set.GetByAlias("x").Should().NotBeNull();
         }
 
-        public abstract TSet CreateSet(Symbol symbol);
-    }
-
-    public class SymbolSetTests : AliasedSetTests<ISymbol, SymbolSet>
-    {
         [Fact]
         public void When_Name_is_changed_then_Contains_returns_true_for_new_name()
         {
@@ -186,34 +178,12 @@ namespace System.CommandLine.Tests
                .NotBeNull();
         }
 
-        public override SymbolSet CreateSet(Symbol symbol)
+        private SymbolSet CreateSet(Symbol symbol)
         {
             return new RootCommand
             {
                 symbol
             }.Children;
-        }
-    }
-
-    public class SymbolResultSetTests : AliasedSetTests<SymbolResult, SymbolResultSet>
-    {
-        public override SymbolResultSet CreateSet(Symbol symbol)
-        {
-            var rootCommand = new RootCommand
-            {
-                symbol
-            };
-
-            var commandLine = symbol switch
-            {
-                Command command => command.Name,
-                Option option => option.Aliases.First() + "  " + "argument-value",
-                Argument argument => "argument-value", _ => throw new ArgumentOutOfRangeException()
-            };
-
-            var parseResult = rootCommand.Parse(commandLine);
-
-            return parseResult.RootCommandResult.Children;
         }
     }
 }

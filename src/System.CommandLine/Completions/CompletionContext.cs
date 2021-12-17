@@ -35,7 +35,7 @@ namespace System.CommandLine.Completions
             ParseResult parseResult,
             int? position = null)
         {
-            Token? lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
+            Token lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
 
             string? textToMatch = null;
             string? rawInput = parseResult.CommandLineText;
@@ -55,7 +55,7 @@ namespace System.CommandLine.Completions
                     position = rawInput.Length;
                 }
             }
-            else if (lastToken?.Value is not null)
+            else if (!lastToken.IsDefault)
             {
                 position = null;
                 textToMatch = lastToken.Value;
@@ -64,7 +64,7 @@ namespace System.CommandLine.Completions
             if (string.IsNullOrWhiteSpace(rawInput))
             {
                 if (parseResult.UnmatchedTokens.Count > 0 ||
-                    lastToken?.Type == TokenType.Argument)
+                    lastToken.Type == TokenType.Argument)
                 {
                     return textToMatch ?? "";
                 }

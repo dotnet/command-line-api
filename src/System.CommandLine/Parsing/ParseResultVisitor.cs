@@ -51,13 +51,13 @@ namespace System.CommandLine.Parsing
 
         private void AddToResult(CommandResult result)
         {
-            _innermostCommandResult?.Children.Add(result);
+            _innermostCommandResult?.AddChild(result);
             _symbolResults.Add(result.Command, result);
         }
 
         private void AddToResult(OptionResult result)
         {
-            _innermostCommandResult?.Children.Add(result);
+            _innermostCommandResult?.AddChild(result);
             if (_symbolResults.TryAdd(result.Option, result))
             {
                 _optionResults.Add(result);
@@ -66,7 +66,7 @@ namespace System.CommandLine.Parsing
 
         private void AddToResult(ArgumentResult result)
         {
-            _innermostCommandResult?.Children.Add(result);
+            _innermostCommandResult?.AddChild(result);
             if (_symbolResults.TryAdd(result.Argument, result))
             {
                 _argumentResults.Add(result);
@@ -155,7 +155,7 @@ namespace System.CommandLine.Parsing
                     new ArgumentResult(
                         argumentNode.Argument,
                         optionResult);
-                optionResult.Children.Add(argumentResult);
+                optionResult.AddChild(argumentResult);
                 _symbolResults.TryAdd(argument, argumentResult);
             }
 
@@ -213,9 +213,10 @@ namespace System.CommandLine.Parsing
                                 break;
                             }
 
-                            var token = _innermostCommandResult?.Tokens[j];
-
-                            nextArgumentResult.AddToken(token!);
+                            if (_innermostCommandResult is not null)
+                            {
+                                nextArgumentResult.AddToken(_innermostCommandResult.Tokens[j]);
+                            }
                         }
 
                         _argumentResults.Add(nextArgumentResult);
@@ -361,7 +362,7 @@ namespace System.CommandLine.Parsing
                     if (optionResult.Option is Option opt)
                     {
                         var argResult = optionResult.GetOrCreateDefaultArgumentResult(opt.Argument);
-                        optionResult.Children.Add(argResult);
+                        optionResult.AddChild(argResult);
                         ValidateAndConvertArgumentResult(argResult);
                     }
                 }
@@ -419,7 +420,7 @@ namespace System.CommandLine.Parsing
                             if (o.Children.Count == 0 && 
                                 o.Option.Argument.ValueType == typeof(bool))
                             {
-                                o.Children.Add(
+                                o.AddChild(
                                     new ArgumentResult(o.Option.Argument, o));
                             }
 
@@ -438,8 +439,8 @@ namespace System.CommandLine.Parsing
                                     var childArgumentResult = optionResult.GetOrCreateDefaultArgumentResult(
                                         option.Argument);
 
-                                    optionResult.Children.Add(childArgumentResult);
-                                    commandResult.Children.Add(optionResult);
+                                    optionResult.AddChild(childArgumentResult);
+                                    commandResult.AddChild(optionResult);
                                     if (_symbolResults.TryAdd(optionResult.Symbol, optionResult))
                                     {
                                         _optionResults.Add(optionResult);

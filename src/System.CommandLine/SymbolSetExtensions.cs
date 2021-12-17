@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     internal static class SymbolSetExtensions
     {
-        public static bool HasAnyOfType<T>(this ISymbolSet source)
+        public static bool HasAnyOfType<T>(this SymbolSet source)
         {
             for (var i = 0; i < source.Count; i++)
             {
@@ -19,21 +19,5 @@ namespace System.CommandLine
 
             return false;
         }
-
-#nullable disable
-        // requires C# 9.0
-        public static T FirstOrDefaultOfType<T>(this ISymbolSet source)
-        {
-            for (var i = 0; i < source.Count; i++)
-            {
-                if (source[i] is T result)
-                {
-                    return result;
-                }
-            }
-
-            return default;
-        }
-#nullable restore
     }
 }

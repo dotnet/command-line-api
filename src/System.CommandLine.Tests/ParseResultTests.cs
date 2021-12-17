@@ -83,20 +83,5 @@ namespace System.CommandLine.Tests
             result2.CommandResult.Symbol.Name.Should().Be("inner-two");
             result2.Errors.Count.Should().Be(1);
         }
-
-        [Fact]
-        public void ValueForOption_throws_with_empty_alias()
-        {
-            var command = new Command("one");
-
-            var result = command.Parse("");
-
-            Action action = () =>
-            {
-                result.ValueForOption<string>(string.Empty);
-            };
-
-            action.Should().Throw<ArgumentException>("Value cannot be null or whitespace.");
-        }
     }
 }

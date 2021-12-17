@@ -53,7 +53,7 @@ public partial class HelpBuilder
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
             {
-                if (argument.Parents.FirstOrDefault() is ICommand)
+                if (((Argument)argument).FirstParent?.Symbol is ICommand)
                 {
                     return $"<{argument.Name}>";
                 }
@@ -199,9 +199,43 @@ public partial class HelpBuilder
         public static HelpSectionDelegate OptionsSection() =>
             ctx =>
             {
-                var options = ctx.Command.Options.Where(x => !x.IsHidden).Select(x => ctx.HelpBuilder.GetTwoColumnRow(x, ctx)).ToArray();
+                // by making this logic more complex, we were able to get some nice perf wins elsewhere
+                List<TwoColumnHelpRow> options = new();
+                HashSet<IOption> uniqueOptions = new();
+                foreach (Option option in ctx.Command.Options)
+                {
+                    if (!option.IsHidden && uniqueOptions.Add(option))
+                    {
+                        options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                    }
+                }
 
-                if (options.Length <= 0)
+                Command? current = ctx.Command as Command;
+                while (current is not null)
+                {
+                    Command? parentCommand = null;
+                    ParentNode? parent = current.FirstParent;
+                    while (parent is not null)
+                    {
+                        if ((parentCommand = parent.Symbol as Command) is not null)
+                        {
+                            foreach (Option option in parentCommand.Options)
+                            {
+                                // global help aliases may be duplicated, we just ignore them
+                                if (option.IsGlobal && !option.IsHidden && uniqueOptions.Add(option))
+                                {
+                                    options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                                }
+                            }
+
+                            break;
+                        }
+                        parent = parent.Next;
+                    }
+                    current = parentCommand;
+                }
+
+                if (options.Count <= 0)
                 {
                     ctx.WasSectionSkipped = true;
                     return;

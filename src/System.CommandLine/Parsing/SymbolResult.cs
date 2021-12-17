@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Collections;
+using System.CommandLine.Completions;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -11,6 +13,7 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public abstract class SymbolResult
     {
+        private readonly List<SymbolResult> _children = new List<SymbolResult>();
         private protected readonly List<Token> _tokens = new();
         private LocalizationResources? _resources;
         private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new();
@@ -35,7 +38,9 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Child symbol results in the parse tree.
         /// </summary>
-        public SymbolResultSet Children { get; } = new();
+        public IReadOnlyList<SymbolResult> Children => _children;
+
+        internal void AddChild(SymbolResult symbolResult) => _children.Add(symbolResult);
 
         /// <summary>
         /// The parent symbol result in the parse tree.

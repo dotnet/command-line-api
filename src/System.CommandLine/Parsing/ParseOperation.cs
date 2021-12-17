@@ -87,18 +87,13 @@ namespace System.CommandLine.Parsing
                 return null;
             }
 
-            if (parentNode.Command.Children.GetByAlias(CurrentToken.Value) is ICommand command)
-            {
-                var commandNode = new CommandNode(CurrentToken, command, parentNode);
+            var commandNode = new CommandNode(CurrentToken, (Command)CurrentToken.Symbol!, parentNode);
 
-                Advance();
+            Advance();
 
-                ParseCommandChildren(commandNode);
+            ParseCommandChildren(commandNode);
 
-                return commandNode;
-            }
-
-            return null;
+            return commandNode;
         }
 
         private void ParseCommandChildren(CommandNode parent)
@@ -170,19 +165,14 @@ namespace System.CommandLine.Parsing
                 return null;
             }
 
-            OptionNode? optionNode = null;
+            OptionNode optionNode = new OptionNode(
+                CurrentToken,
+                (Option)CurrentToken.Symbol!,
+                parent);
 
-            if (parent.Command.Children.GetByAlias(CurrentToken.Value) is IOption option)
-            {
-                optionNode = new OptionNode(
-                    CurrentToken,
-                    option,
-                    parent);
+            Advance();
 
-                Advance();
-
-                ParseOptionArguments(optionNode);
-            }
+            ParseOptionArguments(optionNode);
 
             return optionNode;
         }

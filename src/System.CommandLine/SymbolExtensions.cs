@@ -59,21 +59,23 @@ namespace System.CommandLine
                 return cmd;
             }
 
-            if (symbol.Parents.Count == 0)
+            if (symbol.FirstParent is null)
             {
                 return new RootCommand { symbol };
             }
 
-            var root = symbol.Parents
-                             .OfType<RootCommand>()
-                             .FirstOrDefault();
-
-            if (root is null)
+            ParentNode? current = symbol.FirstParent;
+            while (current is not null)
             {
-                root = new RootCommand { symbol };
-            }
+                if (current.Symbol is RootCommand root)
+                {
+                    return root;
+                }
 
-            return root;
+                current = current.Next;
+            }
+            
+            return new RootCommand { symbol };
         }
     }
 }

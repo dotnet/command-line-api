@@ -81,10 +81,7 @@ namespace System.CommandLine.Tests
                 new Option<int>("-x")
             };
 
-            int exitCode = await new CommandLineBuilder(new RootCommand
-                                 {
-                                     command
-                                 })
+            int exitCode = await new CommandLineBuilder(command)
                                  .UseParseDirective(errorExitCode: 42)
                                  .Build()
                                  .InvokeAsync("[parse] -x not-an-int");

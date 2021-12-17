@@ -18,6 +18,7 @@ namespace System.CommandLine
         IOption
     {
         private string? _name;
+        private List<ValidateSymbolResult<OptionResult>>? _validators;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
@@ -32,7 +33,7 @@ namespace System.CommandLine
             string? description = null,
             Type? argumentType = null,
             Func<object?>? getDefaultValue = null,
-            IArgumentArity? arity = null)
+            ArgumentArity arity = default)
             : this(name, description, CreateArgument(argumentType, getDefaultValue, arity))
         {
         }
@@ -50,7 +51,7 @@ namespace System.CommandLine
             string? description = null,
             Type? argumentType = null,
             Func<object?>? getDefaultValue = null,
-            IArgumentArity? arity = null)
+            ArgumentArity arity = default)
             : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity))
         { }
 
@@ -103,11 +104,11 @@ namespace System.CommandLine
             }
         }
 
-        private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, IArgumentArity? arity)
+        private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, ArgumentArity arity)
         {
             if (argumentType is null &&
                 getDefaultValue is null &&
-                arity is null)
+                !arity.IsNonDefault)
             {
                 return null;
             }
@@ -121,7 +122,7 @@ namespace System.CommandLine
             {
                 rv.SetDefaultValueFactory(getDefaultValue);
             }
-            if (arity is not null)
+            if (arity.IsNonDefault)
             {
                 rv.Arity = arity;
             }
@@ -161,7 +162,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the arity of the option.
         /// </summary>
-        public virtual IArgumentArity Arity
+        public virtual ArgumentArity Arity
         {
             get => Argument.Arity;
             init
@@ -170,10 +171,16 @@ namespace System.CommandLine
                 {
                     Argument.ValueType = typeof(string);
                 }
-                
+
                 Argument.Arity = value;
             }
         }
+
+        /// <summary>
+        /// Global options are applied to the command and recursively to subcommands.
+        /// They do not apply to parent commands.
+        /// </summary>
+        internal bool IsGlobal { get; set; }
 
         internal bool DisallowBinding { get; init; }
 
@@ -192,20 +199,7 @@ namespace System.CommandLine
             }
         }
 
-        internal List<ValidateSymbolResult<OptionResult>> Validators { get; } = new();
-
-        /// <summary>
-        /// Adds an alias for the option, which can be used to specify the option on the command line.
-        /// </summary>
-        /// <param name="alias">The alias to add.</param>
-        public void AddAlias(string alias) => AddAliasInner(alias);
-
-        private protected override void AddAliasInner(string alias)
-        {
-            ThrowIfAliasIsInvalid(alias);
-
-            base.AddAliasInner(alias);
-        }
+        internal List<ValidateSymbolResult<OptionResult>> Validators => _validators ??= new();
 
         /// <summary>
         /// Adds a validator that will be called when the option is matched by the parser.
@@ -233,8 +227,6 @@ namespace System.CommandLine
             return false;
         }
 
-        private protected override void RemoveAlias(string alias) => base.RemoveAlias(alias);
-
         /// <summary>
         /// Sets the default value for the option.
         /// </summary>
@@ -255,7 +247,19 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
-        internal bool IsGreedy => ValueType != typeof(bool) && Arity.MinimumNumberOfValues > 0;
+        internal virtual bool IsGreedy
+        {
+            get
+            {
+                if (Children.Count == 0 || Children.Arguments.Count == 0)
+                {
+                    return false;
+                }
+
+                var argument = Children.Arguments[0];
+                return argument.Arity.MinimumNumberOfValues > 0 && argument.ValueType != typeof(bool);
+            }
+        }
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
@@ -274,20 +278,19 @@ namespace System.CommandLine
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
-        private protected override string DefaultName
+        private protected override string DefaultName => _name ??= GetLongestAlias();
+        
+        private string GetLongestAlias()
         {
-            get
+            string max = "";
+            foreach (string alias in _aliases)
             {
-                if (_name is null)
+                if (alias.Length > max.Length)
                 {
-                    _name = Aliases
-                            .OrderBy(a => a.Length)
-                            .Last()
-                            .RemovePrefix();
+                    max = alias;
                 }
-
-                return _name;
             }
+            return max.RemovePrefix();
         }
     }
 }

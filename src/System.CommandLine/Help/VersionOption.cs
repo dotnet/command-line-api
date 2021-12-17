@@ -38,7 +38,7 @@ namespace System.CommandLine.Help
                     parent.Children.Where(r => r.Symbol is not VersionOption)
                           .Any(IsNotImplicit))
                 {
-                    return result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Symbol.Name);
+                    return result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token.Value ?? result.Symbol.Name);
                 }
 
                 return null;
@@ -62,7 +62,9 @@ namespace System.CommandLine.Help
         }
 
         internal override Argument Argument => Argument.None();
-        
+
+        internal override bool IsGreedy => false;
+
         public override bool Equals(object obj)
         {
             return obj is VersionOption;

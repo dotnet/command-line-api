@@ -23,8 +23,6 @@ namespace System.CommandLine
         ICommand, 
         IEnumerable<Symbol>
     {
-        private readonly SymbolSet _globalOptions = new();
-
         /// <summary>
         /// Initializes a new instance of the Command class.
         /// </summary>
@@ -43,11 +41,6 @@ namespace System.CommandLine
         /// Represents all of the options for the command, including global options.
         /// </summary>
         public IReadOnlyList<Option> Options => Children.Options;
-
-        /// <summary>
-        /// Represents all of the global options for the command
-        /// </summary>
-        public IReadOnlyList<Option> GlobalOptions => _globalOptions.Options;
 
         /// <summary>
         /// Adds an <see cref="Argument"/> to the command.
@@ -76,30 +69,8 @@ namespace System.CommandLine
         /// parent commands.</remarks>
         public void AddGlobalOption(Option option)
         {
-            _globalOptions.Add(option);
-            Children.AddWithoutAliasCollisionCheck(option);
-        }
-        
-        /// <summary>
-        /// Adds a global <see cref="Option"/> to the command. A return value indicates whether the option alias is
-        /// already in use.
-        /// </summary>
-        /// <param name="option">The global option to add to the command.</param>
-        /// <returns><see langword="true"/> if the option was added;<see langword="false"/> if it was already in use.</returns>
-        /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
-        /// parent commands.</remarks>
-        internal bool TryAddGlobalOption(Option option)
-        {
-            if (!_globalOptions.IsAnyAliasInUse(option, out _))
-            {
-                _globalOptions.Add(option);
-                Children.AddWithoutAliasCollisionCheck(option);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            option.IsGlobal = true;
+            AddOption(option);
         }
 
         /// <summary>
@@ -113,30 +84,6 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to add to the command.</param>
         public void Add(Argument argument) => AddArgument(argument);
-
-        /// <summary>
-        /// Adds an alias to the command. Multiple aliases can be added to a command, most often used to provide a
-        /// shorthand alternative.
-        /// </summary>
-        /// <param name="alias">The alias to add to the command.</param>
-        public virtual void AddAlias(string alias) => AddAliasInner(alias);
-
-        private protected override void AddAliasInner(string alias)
-        {
-            ThrowIfAliasIsInvalid(alias);
-
-            base.AddAliasInner(alias);
-        }
-
-        private protected override void AddSymbol(Symbol symbol)
-        {
-            if (symbol is IOption option)
-            {
-                _globalOptions.ThrowIfAnyAliasIsInUse(option);
-            }
-            
-            base.AddSymbol(symbol);
-        }
 
         private protected override string DefaultName => throw new NotImplementedException();
 

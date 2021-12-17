@@ -73,27 +73,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Two_options_cannot_have_conflicting_aliases()
-        {
-            Action create = () =>
-                new Parser(
-                    new RootCommand
-                    {
-                        new Option(
-                            new[] { "-o", "--one" }),
-                        new Option(
-                            new[] { "-t", "--one" })
-                    });
-
-            create.Should()
-                  .Throw<ArgumentException>()
-                  .Which
-                  .Message
-                  .Should()
-                  .Be("Alias '--one' is already in use.");
-        }
-
-        [Fact]
         public void Short_form_options_can_be_specified_using_equals_delimiter()
         {
             var option = new Option<string>("-x") { Arity = ArgumentArity.ExactlyOne };
@@ -973,7 +952,7 @@ namespace System.CommandLine.Tests
             result.FindResultFor(option)
                   .Token
                   .Should()
-                  .BeNull();
+                  .BeEquivalentTo(default(Token));
         }
 
         [Fact]
@@ -1453,9 +1432,9 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument),
-                       new Token("2", TokenType.Argument),
-                       new Token("3", TokenType.Argument));
+                       new Token("1", TokenType.Argument, default),
+                       new Token("2", TokenType.Argument, default),
+                       new Token("3", TokenType.Argument, default));
         }
 
         [Fact]
@@ -1474,19 +1453,19 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument),
-                       new Token("2", TokenType.Argument),
-                       new Token("3", TokenType.Argument));
+                       new Token("1", TokenType.Argument, default),
+                       new Token("2", TokenType.Argument, default),
+                       new Token("3", TokenType.Argument, default));
             command.Parse("1 2 3 4 5")
                    .CommandResult
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument),
-                       new Token("2", TokenType.Argument),
-                       new Token("3", TokenType.Argument),
-                       new Token("4", TokenType.Argument),
-                       new Token("5", TokenType.Argument));
+                       new Token("1", TokenType.Argument, default),
+                       new Token("2", TokenType.Argument, default),
+                       new Token("3", TokenType.Argument, default),
+                       new Token("4", TokenType.Argument, default),
+                       new Token("5", TokenType.Argument, default));
         }
 
         [Fact]
@@ -1543,9 +1522,9 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument),
-                       new Token("2", TokenType.Argument),
-                       new Token("3", TokenType.Argument));
+                       new Token("1", TokenType.Argument, default),
+                       new Token("2", TokenType.Argument, default),
+                       new Token("3", TokenType.Argument, default));
         }
 
         [Fact]
@@ -1563,19 +1542,19 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument),
-                       new Token("2", TokenType.Argument),
-                       new Token("3", TokenType.Argument));
+                       new Token("1", TokenType.Argument, default),
+                       new Token("2", TokenType.Argument, default),
+                       new Token("3", TokenType.Argument, default));
             command.Parse("-x 1 -x 2 -x 3 -x 4 -x 5")
                    .FindResultFor(option)
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument),
-                       new Token("2", TokenType.Argument),
-                       new Token("3", TokenType.Argument),
-                       new Token("4", TokenType.Argument),
-                       new Token("5", TokenType.Argument));
+                       new Token("1", TokenType.Argument, default),
+                       new Token("2", TokenType.Argument, default),
+                       new Token("3", TokenType.Argument, default),
+                       new Token("4", TokenType.Argument, default),
+                       new Token("5", TokenType.Argument, default));
         }
 
         [Fact]
