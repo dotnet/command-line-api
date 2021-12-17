@@ -263,47 +263,74 @@ namespace System.CommandLine.Tests
 
             command.Arguments.Single().Name.Should().Be("arg");
         }
-  
+
         [Fact]
-        public void When_multiple_arguments_are_configured_then_they_must_differ_by_name()
+        public void Parent_cant_be_its_own_child()
         {
-            var command = new Command("the-command")
-            {
-                new Argument<string>
-                {
-                    Name = "same"
-                }
-            };
+            var command = new Command("the-command");
+
+            command.Add(command);
 
             command
-                .Invoking(c => c.Add(new Argument<string>
-                {
-                    Name = "same"
-                }))
+                .Invoking(c => c.Validate())
                 .Should()
                 .Throw<ArgumentException>()
                 .And
                 .Message
                 .Should()
-                .Be("Alias 'same' is already in use.");
+                .Be("Parent can't be it's own child.");
+        }
+
+        [Fact]
+        public void When_multiple_arguments_are_configured_then_they_must_differ_by_name()
+        {
+            const string argumentName = "same";
+
+            var command = new Command("the-command")
+            {
+                new Argument<string>
+                {
+                    Name = argumentName
+                }
+            };
+
+            command.Add(new Argument<string>
+            {
+                Name = argumentName
+            });
+
+            Validate(argumentName, command);
+            Validate(argumentName, new Command("level_0") { new Command ("level_1") { command } }); // test the recursive validation
+            Validate("the-command", new RootCommand { command, command }); // duplicated commands
         }
 
         [Fact]
         public void When_multiple_options_are_configured_then_they_must_differ_by_name()
         {
+            const string optionName = "--same";
+
             var command = new Command("the-command")
             {
-                new Option("--same")
+                new Option(optionName)
             };
 
+            command.Add(new Option(optionName));
+
+            Validate(optionName, command);
+            Validate(optionName, new Command("level_0") { new Command("level_1") { command } });
+            Validate("the-command", new RootCommand { command, command });
+        }
+
+        private static void Validate(string expectedName, Command command)
+        {
             command
-                .Invoking(c => c.Add(new Option("--same")))
+                .Invoking(c => c.Validate())
                 .Should()
                 .Throw<ArgumentException>()
                 .And
                 .Message
                 .Should()
-                .Be("Alias '--same' is already in use.");
+                .Be($"Alias '{expectedName}' is already in use.");
         }
 
         [Fact]

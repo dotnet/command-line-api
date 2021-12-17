@@ -75,17 +75,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Two_options_cannot_have_conflicting_aliases()
         {
-            Action create = () =>
-                new Parser(
+            Action validate = () =>
                     new RootCommand
                     {
                         new Option(
                             new[] { "-o", "--one" }),
                         new Option(
                             new[] { "-t", "--one" })
-                    });
+                    }
+                    .Validate();
 
-            create.Should()
+            validate.Should()
                   .Throw<ArgumentException>()
                   .Which
                   .Message

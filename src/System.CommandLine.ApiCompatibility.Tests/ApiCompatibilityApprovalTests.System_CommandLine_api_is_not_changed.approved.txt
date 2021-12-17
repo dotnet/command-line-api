@@ -62,6 +62,7 @@
     public System.Void AddOption(Option option)
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.CommandResult> validate)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
+    public System.Void Validate()
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)

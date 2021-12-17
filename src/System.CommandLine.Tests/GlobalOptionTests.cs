@@ -31,9 +31,10 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
 
             command.AddGlobalOption(new Option("--same"));
+            command.AddGlobalOption(new Option("--same"));
 
             command
-                .Invoking(c => c.AddGlobalOption(new Option("--same")))
+                .Invoking(c => c.Validate())
                 .Should()
                 .Throw<ArgumentException>()
                 .Which
@@ -48,9 +49,10 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
 
             command.AddGlobalOption(new Option("--same"));
+            command.Add(new Option("--same"));
 
             command
-                .Invoking(c => c.Add(new Option("--same")))
+                .Invoking(c => c.Validate())
                 .Should()
                 .Throw<ArgumentException>()
                 .And

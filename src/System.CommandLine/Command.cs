@@ -146,6 +146,56 @@ namespace System.CommandLine
         /// </summary>
         public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
 
+        /// <summary>
+        /// Validates all symbols including the child hierarchy.
+        /// </summary>
+        /// <remarks>Due to the performance impact of this method, it's recommended to create
+        /// a Unit Test that calls this method to verify the RootCommand of every application.</remarks>
+        public void Validate()
+        {
+            for (int i = 0; i < Children.Count; i++)
+            {
+                for (int j = 1; j < Children.Count; j++)
+                {
+                    if (Children[j] is IdentifierSymbol identifierSymbol)
+                    {
+                        foreach (string alias in identifierSymbol.Aliases)
+                        {
+                            if (Children[i].Matches(alias))
+                            {
+                                throw new ArgumentException($"Alias '{alias}' is already in use.");
+                            }
+                        }
+
+                        if (identifierSymbol is Command command)
+                        {
+                            if (ReferenceEquals(this, command))
+                            {
+                                throw new ArgumentException("Parent can't be it's own child.");
+                            }
+
+                            command.Validate();
+                        }
+                    }
+
+                    if (Children[i].Matches(Children[j].Name))
+                    {
+                        throw new ArgumentException($"Alias '{Children[j].Name}' is already in use.");
+                    }
+                }
+
+                if (Children.Count == 1 && Children[0] is Command singleCommand)
+                {
+                    if (ReferenceEquals(this, singleCommand))
+                    {
+                        throw new ArgumentException("Parent can't be it's own child.");
+                    }
+
+                    singleCommand.Validate();
+                }
+            }
+        }
+
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
