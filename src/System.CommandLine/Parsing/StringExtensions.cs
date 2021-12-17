@@ -495,7 +495,10 @@ namespace System.CommandLine.Parsing
                     case Option option:
                         foreach (var childAlias in option.Aliases)
                         {
-                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                            if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
+                            {
+                                tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                            }
                         }
                         break;
                 }
@@ -509,13 +512,16 @@ namespace System.CommandLine.Parsing
                 {
                     if ((parentCommand = current.Parents[parentIndex] as Command) is not null)
                     {
-                        foreach (Option globalOption in parentCommand.GlobalOptions)
+                        foreach (Option option in parentCommand.Options)
                         {
-                            foreach (var childAlias in globalOption.Aliases)
+                            if (option.IsGlobal)
                             {
-                                if (!tokens.ContainsKey(childAlias))
+                                foreach (var childAlias in option.Aliases)
                                 {
-                                    tokens.Add(childAlias, new Token(childAlias, TokenType.Option, globalOption, Token.ImplicitPosition));
+                                    if (!tokens.ContainsKey(childAlias))
+                                    {
+                                        tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                                    }
                                 }
                             }
                         }

@@ -50,7 +50,6 @@
   public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource, ICommand, IIdentifierSymbol, ISymbol
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
-    public System.Collections.Generic.IReadOnlyList<Option> GlobalOptions { get; }
     public System.CommandLine.Invocation.ICommandHandler Handler { get; set; }
     public System.Collections.Generic.IReadOnlyList<Option> Options { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
@@ -202,6 +201,7 @@
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
+    public System.Boolean IsGlobal { get; }
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.OptionResult> validate)

@@ -201,7 +201,14 @@ public partial class HelpBuilder
             {
                 List<TwoColumnHelpRow> options = new();
                 HashSet<IOption> uniqueOptions = new(); // global help aliases may be duplicated, we just ignore them
-                AddOptions(ctx, options, ctx.Command.Options, uniqueOptions);
+                foreach (Option option in ctx.Command.Options)
+                {
+                    if (!option.IsHidden && uniqueOptions.Add(option))
+                    {
+                        options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                    }
+                }
+
                 Command? current = ctx.Command as Command;
                 while (current is not null)
                 {
@@ -210,7 +217,14 @@ public partial class HelpBuilder
                     {
                         if ((parentCommand = current.Parents[parentIndex] as Command) is not null)
                         {
-                            AddOptions(ctx, options, parentCommand.GlobalOptions, uniqueOptions);
+                            foreach (Option option in parentCommand.Options)
+                            {
+                                if (option.IsGlobal && !option.IsHidden && uniqueOptions.Add(option))
+                                {
+                                    options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                                }
+                            }
+
                             break;
                         }
                     }
@@ -226,17 +240,6 @@ public partial class HelpBuilder
                 ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
                 ctx.HelpBuilder.WriteColumns(options, ctx);
                 ctx.Output.WriteLine();
-
-                static void AddOptions(HelpContext context, List<TwoColumnHelpRow> list, IReadOnlyList<IOption> options, HashSet<IOption> uniqueOptions)
-                {
-                    foreach (IOption option in options)
-                    {
-                        if (!option.IsHidden && uniqueOptions.Add(option))
-                        {
-                            list.Add(context.HelpBuilder.GetTwoColumnRow(option, context));
-                        }
-                    }
-                }
             };
 
         ///  <summary>

@@ -42,23 +42,6 @@ namespace System.CommandLine.Collections
             }
         }
 
-        internal bool IsAnyAliasInUse(Option option)
-        {
-            if (_symbols.Count > 0)
-            {
-                string name = option.Name;
-                foreach (Symbol item in _symbols)
-                {
-                    if (item.Matches(name))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         public IEnumerator<Symbol> GetEnumerator() => _symbols.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _symbols.GetEnumerator();

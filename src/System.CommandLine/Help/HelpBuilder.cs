@@ -123,9 +123,9 @@ namespace System.CommandLine.Help
 
                 foreach (Command parentCommand in parentCommands)
                 {
-                    if (!displayOptionTitle && parentCommand.GlobalOptions.Count > 0)
+                    if (!displayOptionTitle)
                     {
-                        displayOptionTitle = parentCommand.GlobalOptions.Any(x => !x.IsHidden);
+                        displayOptionTitle = parentCommand.Options.Any(x => x.IsGlobal && !x.IsHidden);
                     }
 
                     yield return parentCommand.Name;

@@ -23,8 +23,6 @@ namespace System.CommandLine
         ICommand, 
         IEnumerable<Symbol>
     {
-        private readonly SymbolSet _globalOptions = new();
-
         /// <summary>
         /// Initializes a new instance of the Command class.
         /// </summary>
@@ -43,11 +41,6 @@ namespace System.CommandLine
         /// Represents all of the options for the command, including global options.
         /// </summary>
         public IReadOnlyList<Option> Options => Children.Options;
-
-        /// <summary>
-        /// Represents all of the global options for the command
-        /// </summary>
-        public IReadOnlyList<Option> GlobalOptions => _globalOptions.Options;
 
         /// <summary>
         /// Adds an <see cref="Argument"/> to the command.
@@ -76,30 +69,8 @@ namespace System.CommandLine
         /// parent commands.</remarks>
         public void AddGlobalOption(Option option)
         {
-            _globalOptions.AddWithoutAliasCollisionCheck(option);
-            Children.AddWithoutAliasCollisionCheck(option);
-        }
-        
-        /// <summary>
-        /// Adds a global <see cref="Option"/> to the command. A return value indicates whether the option alias is
-        /// already in use.
-        /// </summary>
-        /// <param name="option">The global option to add to the command.</param>
-        /// <returns><see langword="true"/> if the option was added;<see langword="false"/> if it was already in use.</returns>
-        /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
-        /// parent commands.</remarks>
-        internal bool TryAddGlobalOption(Option option)
-        {
-            if (!_globalOptions.IsAnyAliasInUse(option))
-            {
-                _globalOptions.AddWithoutAliasCollisionCheck(option);
-                Children.AddWithoutAliasCollisionCheck(option);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            option.IsGlobal = true;
+            AddOption(option);
         }
 
         /// <summary>

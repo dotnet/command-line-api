@@ -494,9 +494,7 @@ namespace System.CommandLine.Tests
             var command = new Command("mycommand");
             command.AddGlobalOption(option);
 
-            command.GlobalOptions
-                .Should()
-                .Contain(option);
+            option.IsGlobal.Should().BeTrue();
 
             command.Options
                 .Should()
@@ -518,15 +516,12 @@ namespace System.CommandLine.Tests
 
             command.AddGlobalOption(option);
 
-            command.GlobalOptions
-                .Should()
-                .Contain(option);
+            option.IsGlobal.Should().BeTrue();
 
             command.Options
                 .Should()
                 .Contain(option);
         }
-
 
         protected override Symbol CreateSymbol(string name) => new Command(name);
     }

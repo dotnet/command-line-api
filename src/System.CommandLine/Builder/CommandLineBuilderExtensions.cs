@@ -463,7 +463,7 @@ ERR:
             if (builder.HelpOption is null)
             {
                 builder.HelpOption = helpOption;
-                builder.Command.TryAddGlobalOption(helpOption);
+                builder.Command.AddGlobalOption(helpOption);
                 builder.MaxHelpWidth = maxWidth;
 
                 builder.AddMiddleware(async (context, next) =>
