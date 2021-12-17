@@ -30,14 +30,11 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument.</param>
-        public Argument(string name)
+        /// <param name="description">The description of the argument, shown in help.</param>
+        public Argument(string? name = null, string? description = null)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
-            }
-
-            Name = name;
+            Name = name!;
+            Description = description;
         }
 
         internal HashSet<string>? AllowedValues { get; private set; }
@@ -45,7 +42,6 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the arity of the argument.
         /// </summary>
-        [NotNull]
         public ArgumentArity Arity
         {
             get
@@ -64,9 +60,9 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Argument help name
+        /// The name used in help output to describe the argument. 
         /// </summary>
-        internal string? HelpName { get; set; }
+        public string? HelpName { get; set; }
 
         internal TryConvertArgument? ConvertArguments
         {

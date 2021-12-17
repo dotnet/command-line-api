@@ -136,7 +136,7 @@ namespace System.CommandLine
         /// that will be performed when the command is invoked.
         /// </summary>
         /// <remarks>
-        /// <para>Use one of the <see cref="CommandHandler.Create(Action)" /> overloads to construct a handler.</para>
+        /// <para>Use one of the <see cref="Handler.SetHandler(Command, Action)" /> overloads to construct a handler.</para>
         /// <para>If the handler is not specified, parser errors will be generated for command line input that
         /// invokes this command.</para></remarks>
         public ICommandHandler? Handler { get; set; }

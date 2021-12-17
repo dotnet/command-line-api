@@ -34,21 +34,29 @@ internal static class ApiContract
                                          : "struct"
                                    : isDelegate
                                        ? "delegate"
-                                       : "class";
+                                       : type.IsInterface
+                                           ? "interface"
+                                           : "class";
 
                 output.Append($"  {type.GetAccessModifiers()} {typeKind} {type.GetReadableTypeName(ns)}");
-
+                
                 if (type.BaseType is { } baseType &&
                     baseType != typeof(object))
                 {
                     output.Append($" : {baseType.GetReadableTypeName(ns)}");
                 }
 
-                if (type.GetInterfaces() is { Length: > 0 } interfaces)
+                if (type.GetInterfaces().OrderBy(i => i.FullName).ToArray() is { Length: > 0 } interfaces)
                 {
-                    foreach (var @interface in interfaces.OrderBy(i => i.FullName))
+                    for (var i = 0; i < interfaces.Length; i++)
                     {
-                        output.Append($", {@interface.GetReadableTypeName(ns)}");
+                        var @interface = interfaces[i];
+
+                        var delimiter = i == 0 && type.IsInterface
+                                            ? " : "
+                                            : ", ";
+
+                        output.Append($"{delimiter}{@interface.GetReadableTypeName(ns)}");
                     }
                 }
 
@@ -109,8 +117,12 @@ internal static class ApiContract
 
         // methods
         foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                                   .Where(m => m.DeclaringType == type)
-                                   .OrderBy(c => c.Name))
+                                   .Where(m => m.DeclaringType == type &&
+                                               !m.IsAssembly &&
+                                               !m.IsFamilyAndAssembly &&
+                                               !m.IsPrivate)
+                                   .OrderBy(m => m.Name)
+                                   .ThenBy(m => m.GetParameters().Length))
         {
             if (printedMethods.Add(method))
             {
@@ -121,7 +133,10 @@ internal static class ApiContract
         // instance
         foreach (var ctor in type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
                                  .Where(m => m.DeclaringType == type)
-                                 .OrderBy(c => c.Name))
+                                 .Where(m => !m.IsAssembly &&
+                                             !m.IsFamilyAndAssembly &&
+                                             !m.IsPrivate)
+                                 .OrderBy(m => m.Name))
         {
             output.AppendLine($"    .ctor({GetParameterSignatures(ctor.GetParameters(), false, type.Namespace)})");
         }
@@ -130,7 +145,7 @@ internal static class ApiContract
                                  .Where(m => m.DeclaringType == type)
                                  .OrderBy(c => c.Name))
         {
-            if (prop.GetMethod?.IsPublic == true)
+            if (prop.GetMethod is { IsPublic: true, IsAssembly: false })
             {
                 if (printedMethods.Add(prop.GetMethod))
                 {
@@ -147,11 +162,17 @@ internal static class ApiContract
 
         foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
                                    .Where(m => m.DeclaringType == type &&
-                                               !m.IsPrivate &&
                                                !m.IsAssembly &&
+                                               !m.IsFamilyAndAssembly &&
+                                               !m.IsPrivate &&
                                                !m.IsPropertyAccessor())
                                    .OrderBy(c => c.Name))
         {
+            if (method.Name == "AddAliasInner")
+            {
+                
+            }
+
             if (printedMethods.Add(method))
             {
                 output.AppendLine($"    {GetMethodSignature(method, type.Namespace)}");
@@ -223,11 +244,6 @@ internal static class ApiContract
 
         var isExtensionMethod = method.IsDefined(typeof(ExtensionAttribute), false);
 
-        if (isExtensionMethod)
-        {
-            methodParameters = methodParameters.Skip(1);
-        }
-
         var parameters = GetParameterSignatures(methodParameters, isExtensionMethod, omitNamespace);
 
         return
@@ -235,20 +251,26 @@ internal static class ApiContract
     }
 
     public static string GetParameterSignatures(
-        this IEnumerable<ParameterInfo> methodParameters,
+        this IEnumerable<ParameterInfo> parameters,
         bool isExtensionMethod,
         string omitNamespace)
     {
-        var signature = methodParameters.Select(param =>
+        var signature = parameters.Select(param =>
         {
             var signature = string.Empty;
 
             if (param.ParameterType.IsByRef)
+            {
                 signature = "ref ";
+            }
             else if (param.IsOut)
+            {
                 signature = "out ";
+            }
             else if (isExtensionMethod && param.Position == 0)
+            {
                 signature = "this ";
+            }
 
             signature += $"{GetReadableTypeName(param.ParameterType, omitNamespace)} {param.Name}";
 
@@ -312,7 +334,7 @@ internal static class ApiContract
             modifier = "public";
         }
 
-        if (type.IsAbstract)
+        if (type.IsAbstract && !type.IsInterface)
         {
             if (type.IsSealed)
             {
@@ -356,7 +378,21 @@ internal static class ApiContract
 
             for (var i = 0; i < genericArguments.Length; i++)
             {
-                WriteCSharpDeclarationTo(genericArguments[i], writer, omitNamespace);
+                var genericArg = genericArguments[i];
+
+                if (genericArg.IsGenericParameter)
+                {
+                    if (genericArg.GenericParameterAttributes.HasFlag(GenericParameterAttributes.Covariant))
+                    {
+                        writer.Write("out ");
+                    }
+                    else if (genericArg.GenericParameterAttributes.HasFlag(GenericParameterAttributes.Contravariant))
+                    {
+                        writer.Write("in ");
+                    }
+                }
+
+                WriteCSharpDeclarationTo(genericArg, writer, omitNamespace);
                 if (i < genericArguments.Length - 1)
                 {
                     writer.Write(",");

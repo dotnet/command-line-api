@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
             var rootCommand = new RootCommand();
-            rootCommand.Handler = CommandHandler.Create(() => wasCalled = true);
+            rootCommand.SetHandler(() => wasCalled = true);
 
             var parser = new CommandLineBuilder(rootCommand)
                          .UseVersionOption()
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
             {
                 new Option("-x", getDefaultValue: () => true)
             };
-            rootCommand.Handler = CommandHandler.Create(() => { });
+            rootCommand.SetHandler(() => { });
 
             var parser = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
@@ -96,7 +96,7 @@ namespace System.CommandLine.Tests
             {
                 new Argument<bool>("x", getDefaultValue: () => true)
             };
-            rootCommand.Handler = CommandHandler.Create(() => { });
+            rootCommand.SetHandler(() => { });
 
             var parser = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
@@ -114,15 +114,14 @@ namespace System.CommandLine.Tests
         [InlineData("--version subcommand")]
         public void Version_is_not_valid_with_other_tokens(string commandLine)
         {
+            var subcommand = new Command("subcommand");
+            subcommand.SetHandler(() => { });
             var rootCommand = new RootCommand
             {
-                new Command("subcommand")
-                {
-                    Handler = CommandHandler.Create(() => { })
-                },
+                subcommand,
                 new Option("-x")
             };
-            rootCommand.Handler = CommandHandler.Create(() => { });
+            rootCommand.SetHandler(() => { });
 
             var parser = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
@@ -148,14 +147,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Version_option_is_not_added_to_subcommands()
         {
+            var childCommand = new Command("subcommand");
+            childCommand.SetHandler(() => { });
+
             var rootCommand = new RootCommand
             {
-                new Command("subcommand")
-                {
-                    Handler = CommandHandler.Create(() => { })
-                },
+                childCommand,
             };
-            rootCommand.Handler = CommandHandler.Create(() => { });
+            rootCommand.SetHandler(() => { });
 
             var parser = new CommandLineBuilder(rootCommand)
                          .UseVersionOption()
@@ -209,14 +208,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
         {
+            var childCommand =  new Command("subcommand");
+            childCommand.SetHandler(() => { });
             var rootCommand = new RootCommand
             {
-                new Command("subcommand")
-                {
-                    Handler = CommandHandler.Create(() => { })
-                }
+                childCommand
             };
-            rootCommand.Handler = CommandHandler.Create(() => { });
+            rootCommand.SetHandler(() => { });
 
             var parser = new CommandLineBuilder(rootCommand)
                 .UseVersionOption("-v")

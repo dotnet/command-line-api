@@ -68,7 +68,6 @@ namespace System.CommandLine.Tests
                        .NotBeNull();
         }
 
-
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
         {
@@ -86,7 +85,6 @@ namespace System.CommandLine.Tests
                        .NotBeNull();
         }
 
-
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
@@ -96,7 +94,7 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .Contain(e => e.Message == "Required argument missing for option: -x");
+                  .Contain(e => e.Message == "Required argument missing for option: '-x'.");
         }
 
         [Fact]
@@ -178,7 +176,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .ContainSingle(e => e == "Unrecognized command or argument 'some-arg'");
+                  .ContainSingle(e => e == "Unrecognized command or argument 'some-arg'.");
         }
 
         [Fact]
@@ -357,9 +355,9 @@ namespace System.CommandLine.Tests
 
             rootCommand.AddGlobalOption(globalOption);
 
-            rootCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
-            childCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
-            grandchildCommand.Handler = CommandHandler.Create(globalOption, _ => handlerWasCalled = true);
+            rootCommand.SetHandler((int i) => handlerWasCalled = true, globalOption);
+            childCommand.SetHandler((int i) => handlerWasCalled = true, globalOption);
+            grandchildCommand.SetHandler((int i) => handlerWasCalled = true, globalOption);
 
             var result = await rootCommand.InvokeAsync(commandLine);
 
@@ -403,7 +401,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
-                                    e.Message == $"Character not allowed in a path: {invalidCharacter}");
+                                    e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }   
             
             [Fact]
@@ -421,7 +419,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
-                                    e.Message == $"Character not allowed in a path: {invalidCharacter}");
+                                    e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }
 
             [Fact]
@@ -474,7 +472,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
-                                    e.Message == $"Character not allowed in a file name: {invalidCharacter}");
+                                    e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
 
             [Fact]
@@ -492,7 +490,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
-                                    e.Message == $"Character not allowed in a file name: {invalidCharacter}");
+                                    e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
 
             [Fact]
@@ -546,7 +544,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File does not exist: {path}");
+                                    e.Message == $"File does not exist: '{path}'.");
             }
 
             [Fact]
@@ -565,7 +563,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File does not exist: {path}");
+                                    e.Message == $"File does not exist: '{path}'.");
             }
 
             [Fact]
@@ -584,7 +582,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: {path}");
+                                    e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -603,7 +601,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: {path}");
+                                    e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -622,7 +620,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -641,7 +639,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -660,7 +658,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
-                                    e.Message == $"File does not exist: {path}");
+                                    e.Message == $"File does not exist: '{path}'.");
             }
             
             [Fact]
@@ -679,7 +677,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
-                                    e.Message == $"File does not exist: {path}");
+                                    e.Message == $"File does not exist: '{path}'.");
             }
 
             [Fact]
@@ -698,7 +696,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: {path}");
+                                    e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -717,7 +715,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: {path}");
+                                    e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -738,7 +736,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -757,7 +755,7 @@ namespace System.CommandLine.Tests
                 result.Errors
                       .Should()
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -776,7 +774,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -795,7 +793,7 @@ namespace System.CommandLine.Tests
                       .HaveCount(1)
                       .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: {path}");
+                                    e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -908,12 +906,8 @@ namespace System.CommandLine.Tests
         public void A_command_with_subcommands_is_valid_to_invoke_if_it_has_a_handler()
         {
             var outer = new Command("outer");
-            var inner = new Command("inner")
-                        {
-                            Handler = CommandHandler.Create(() =>
-                            {
-                            })
-                        };
+            var inner = new Command("inner");
+            inner.SetHandler(() => { });
             var innerer = new Command("inner-er");
             outer.AddCommand(inner);
             inner.AddCommand(innerer);
@@ -934,7 +928,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain("Required argument missing for option: -x");
+                  .Contain("Required argument missing for option: '-x'.");
         }
 
         [Fact]
@@ -973,7 +967,7 @@ namespace System.CommandLine.Tests
                        .Message
                        .Should()
                        .Be(
-"Required argument missing for option: --opt");
+"Required argument missing for option: '--opt'.");
         }
 
         private static string ParseMe(ArgumentResult argumentResult)

@@ -127,7 +127,7 @@
     <value>No argument was provided for Command '{0}'.</value>
   </data>
   <data name="DirectoryDoesNotExist" xml:space="preserve">
-    <value>Directory does not exist: {0}</value>
+    <value>Directory does not exist: '{0}'.</value>
   </data>
   <data name="OptionExpectsFewerArguments" xml:space="preserve">
     <value>Option '{0}' expects no more than {1} arguments, but {2} were provided.</value>
@@ -139,19 +139,19 @@
     <value>No argument was provided for Option '{0}'.</value>
   </data>
   <data name="FileDoesNotExist" xml:space="preserve">
-    <value>File does not exist: {0}</value>
+    <value>File does not exist: '{0}'.</value>
   </data>
   <data name="FileOrDirectoryDoesNotExist" xml:space="preserve">
-    <value>File or directory does not exist: {0}</value>
+    <value>File or directory does not exist: '{0}'.</value>
   </data>
   <data name="InvalidCharactersInPath" xml:space="preserve">
-    <value>Character not allowed in a path: {0}</value>
+    <value>Character not allowed in a path: '{0}'.</value>
   </data>
   <data name="CommandRequiredArgumentMissing" xml:space="preserve">
-    <value>Required argument missing for command: {0}</value>
+    <value>Required argument missing for command: '{0}'.</value>
   </data>
   <data name="OptionRequiredArgumentMissing" xml:space="preserve">
-    <value>Required argument missing for option: {0}</value>
+    <value>Required argument missing for option: '{0}'.</value>
   </data>
   <data name="RequiredCommandWasNotProvided" xml:space="preserve">
     <value>Required command was not provided.</value>
@@ -160,10 +160,10 @@
     <value>Argument '{0}' not recognized. Must be one of:{1}</value>
   </data>
   <data name="UnrecognizedCommandOrArgument" xml:space="preserve">
-    <value>Unrecognized command or argument '{0}'</value>
+    <value>Unrecognized command or argument '{0}'.</value>
   </data>
   <data name="ResponseFileNotFound" xml:space="preserve">
-    <value>Response file not found '{0}'</value>
+    <value>Response file not found '{0}'.</value>
   </data>
   <data name="ErrorReadingResponseFile" xml:space="preserve">
     <value>Error reading response file '{0}': {1}</value>
@@ -172,30 +172,30 @@
     <value>Show help and usage information</value>
   </data>
   <data name="InvalidCharactersInFileName" xml:space="preserve">
-    <value>Character not allowed in a file name: {0}</value>
+    <value>Character not allowed in a file name: '{0}'.</value>
   </data>
   <data name="HelpUsageAdditionalArguments" xml:space="preserve">
     <value>[[--] &lt;additional arguments&gt;...]]</value>
   </data>
-  <data name="HelpUsageCommandTitle" xml:space="preserve">
+  <data name="HelpUsageCommand" xml:space="preserve">
     <value>[command]</value>
   </data>
-  <data name="HelpUsageOptionsTitle" xml:space="preserve">
+  <data name="HelpUsageOptions" xml:space="preserve">
     <value>[options]</value>
   </data>
   <data name="HelpUsageTitle" xml:space="preserve">
     <value>Usage:</value>
   </data>
-    <data name="HelpDescriptionTitle" xml:space="preserve">
+  <data name="HelpDescriptionTitle" xml:space="preserve">
     <value>Description:</value>
   </data>
-  <data name="HelpArgumentDefaultValueTitle" xml:space="preserve">
+  <data name="HelpArgumentDefaultValueLabel" xml:space="preserve">
     <value>default</value>
   </data>
   <data name="HelpArgumentsTitle" xml:space="preserve">
     <value>Arguments:</value>
   </data>
-  <data name="HelpOptionsRequired" xml:space="preserve">
+  <data name="HelpOptionsRequiredLabel" xml:space="preserve">
     <value>(REQUIRED)</value>
   </data>
   <data name="HelpOptionsTitle" xml:space="preserve">
@@ -234,12 +234,12 @@ The value of the variable should be the name of the processes, separated by a se
     <value>Show version information</value>
   </data>
   <data name="ArgumentConversionCannotParse" xml:space="preserve">
-    <value>Cannot parse argument '{0}' as expected type {1}.</value>
+    <value>Cannot parse argument '{0}' as expected type '{1}'.</value>
   </data>
   <data name="ArgumentConversionCannotParseForCommand" xml:space="preserve">
-    <value>Cannot parse argument '{0}' for command '{1}' as expected type {2}.</value>
+    <value>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</value>
   </data>
   <data name="ArgumentConversionCannotParseForOption" xml:space="preserve">
-    <value>Cannot parse argument '{0}' for option '{1}' as expected type {2}.</value>
+    <value>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</value>
   </data>
 </root>

@@ -12,9 +12,6 @@
     <TargetFrameworks Condition="'$(TargetFrameworks)' == '' AND '$(OS)' == 'Windows_NT'">net461;net5.0;</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">net5.0;</TargetFrameworks>
 
-    <!-- Use the latest C# compiler features -->
-    <LangVersion>9</LangVersion>
-
     <!-- This repo does not produce any libraries, therefore generating docs is disabled -->
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
 

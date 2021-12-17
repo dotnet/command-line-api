@@ -368,18 +368,15 @@ namespace System.CommandLine.Tests
                     callCount++;
                     return int.Parse(result.Tokens.Single().Value);
                 });
-                var command = new RootCommand
-                {
-                    Handler = CommandHandler.Create(option, Run)
-                };
+
+                var command = new RootCommand();
+                command.SetHandler((int value) => handlerWasCalled = true, option);
                 command.AddOption(option);
 
                 await command.InvokeAsync("--value 42");
 
                 callCount.Should().Be(1);
                 handlerWasCalled.Should().BeTrue();
-
-                void Run(int value) => handlerWasCalled = true;
             }
 
             [Fact]

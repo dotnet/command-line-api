@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Collections;
 using System.CommandLine.Completions;
+using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -133,7 +134,7 @@ namespace System.CommandLine.Parsing
         internal virtual bool UseDefaultValueFor(IArgument argument) => false;
 
         /// <inheritdoc/>
-        public override string ToString() => $"{GetType().Name}: {this.Token()}";
+        public override string ToString() => $"{GetType().Name}: {this.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
         internal ParseError? UnrecognizedArgumentError(Argument argument)
         {

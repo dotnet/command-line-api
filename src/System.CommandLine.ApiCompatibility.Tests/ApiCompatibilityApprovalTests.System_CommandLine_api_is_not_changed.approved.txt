@@ -1,13 +1,13 @@
 ﻿System.CommandLine
   public class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IArgument, ISymbol
     .ctor()
-    .ctor(System.String name)
+    .ctor(System.String name = null, System.String description = null)
     public ArgumentArity Arity { get; set; }
     public CompletionSourceList Completions { get; }
     public System.Boolean HasDefaultValue { get; }
+    public System.String HelpName { get; set; }
     public System.Type ValueType { get; set; }
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.ArgumentResult> validate)
-     System.String get_DefaultName()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
     public System.Void SetDefaultValue(System.Object value)
@@ -35,18 +35,18 @@
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
   public static class ArgumentExtensions
-    public static TArgument AddCompletions<TArgument>(System.String[] values)
-    public static TArgument AddCompletions<TArgument>(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static TArgument AddCompletions<TArgument>(System.CommandLine.Completions.CompletionDelegate complete)
-    public static Argument<System.IO.FileInfo> ExistingOnly()
-    public static Argument<System.IO.DirectoryInfo> ExistingOnly()
-    public static Argument<System.IO.FileSystemInfo> ExistingOnly()
-    public static Argument<T> ExistingOnly<T>()
-    public static TArgument FromAmong<TArgument>(System.String[] values)
-    public static TArgument LegalFileNamesOnly<TArgument>()
-    public static TArgument LegalFilePathsOnly<TArgument>()
-    public static System.CommandLine.Parsing.ParseResult Parse(System.String commandLine)
-    public static System.CommandLine.Parsing.ParseResult Parse(System.String[] args)
+    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.String[] values)
+    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
+    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.CommandLine.Completions.CompletionDelegate complete)
+    public static Argument<System.IO.FileInfo> ExistingOnly(this Argument<System.IO.FileInfo> argument)
+    public static Argument<System.IO.DirectoryInfo> ExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
+    public static Argument<System.IO.FileSystemInfo> ExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
+    public static Argument<T> ExistingOnly<T>(this Argument<T> argument)
+    public static TArgument FromAmong<TArgument>(this TArgument argument, System.String[] values)
+    public static TArgument LegalFileNamesOnly<TArgument>(this TArgument argument)
+    public static TArgument LegalFilePathsOnly<TArgument>(this TArgument argument)
+    public static System.CommandLine.Parsing.ParseResult Parse(this Argument argument, System.String commandLine)
+    public static System.CommandLine.Parsing.ParseResult Parse(this Argument argument, System.String[] args)
   public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource, ICommand, IIdentifierSymbol, ISymbol
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
@@ -61,15 +61,14 @@
     public System.Void AddGlobalOption(Option option)
     public System.Void AddOption(Option option)
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.CommandResult> validate)
-     System.String get_DefaultName()
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
   public static class CommandExtensions
-    public static System.Int32 Invoke(System.String[] args, IConsole console = null)
-    public static System.Int32 Invoke(System.String commandLine, IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, IConsole console = null)
-    public static System.CommandLine.Parsing.ParseResult Parse(System.String[] args)
-    public static System.CommandLine.Parsing.ParseResult Parse(System.String commandLine)
+    public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
+    public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null)
+    public static System.CommandLine.Parsing.ParseResult Parse(this Command command, System.String[] args)
+    public static System.CommandLine.Parsing.ParseResult Parse(this Command command, System.String commandLine)
   public class CommandLineConfiguration
     .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableLegacyDoubleDashBehavior = False, LocalizationResources resources = null, System.CommandLine.Parsing.ResponseFileHandling responseFileHandling = ParseArgsAsLineSeparated, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null)
     public System.Boolean EnableDirectives { get; }
@@ -79,9 +78,9 @@
     public ICommand RootCommand { get; }
     public System.CommandLine.Collections.SymbolSet Symbols { get; }
   public static class CompletionSourceExtensions
-    public static System.Void Add(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static System.Void Add(System.CommandLine.Completions.CompletionDelegate complete)
-    public static System.Void Add(System.String[] completions)
+    public static System.Void Add(this CompletionSourceList completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
+    public static System.Void Add(this CompletionSourceList completionSources, System.CommandLine.Completions.CompletionDelegate complete)
+    public static System.Void Add(this CompletionSourceList completionSources, System.String[] completions)
   public class CompletionSourceList, System.Collections.Generic.IEnumerable<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyList<System.CommandLine.Completions.ICompletionSource>, System.Collections.IEnumerable
     .ctor()
     public System.Int32 Count { get; }
@@ -90,33 +89,67 @@
     public System.Void Clear()
     public System.Collections.Generic.IEnumerator<System.CommandLine.Completions.ICompletionSource> GetEnumerator()
   public static class ConsoleExtensions
-    public static System.Void Write(System.String value)
-    public static System.Void WriteLine(System.String value)
-  public abstract class IArgument, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, ISymbol
+    public static System.Void Write(this IConsole console, System.String value)
+    public static System.Void WriteLine(this IConsole console, System.String value)
+  public static class Handler
+    public static System.Void SetHandler(this Command command, System.Action handle)
+    public static System.Void SetHandler(this Command command, System.Func<System.Threading.Tasks.Task> handle)
+    public static System.Void SetHandler<T>(this Command command, Action<T> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2>(this Command command, Action<T1,T2> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3>(this Command command, Action<T1,T2,T3> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4>(this Command command, Action<T1,T2,T3,T4> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5>(this Command command, Action<T1,T2,T3,T4,T5> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Action<T1,T2,T3,T4,T5,T6> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T>(this Command command, Func<T,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2>(this Command command, Func<T1,T2,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3>(this Command command, Func<T1,T2,T3,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4>(this Command command, Func<T1,T2,T3,T4,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5>(this Command command, Func<T1,T2,T3,T4,T5,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Func<T1,T2,T3,T4,T5,T6,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
+  public interface IArgument : System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, ISymbol
     public ArgumentArity Arity { get; }
-  public abstract class ICommand, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
+  public interface ICommand : System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
     public System.Collections.Generic.IReadOnlyList<IArgument> Arguments { get; }
     public System.Collections.Generic.IReadOnlyList<IOption> Options { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; }
-  public abstract class IConsole, System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
+  public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
   public abstract class IdentifierSymbol : Symbol, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.String Name { get; set; }
     public System.Void AddAlias(System.String alias)
     public System.Boolean HasAlias(System.String alias)
     public System.Boolean Matches(System.String name)
-     System.Void RemoveAlias(System.String alias)
-  public abstract class IDirectiveCollection, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
+  public interface IDirectiveCollection : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
     public System.Boolean Contains(System.String name)
     public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
-  public abstract class IIdentifierSymbol, System.CommandLine.Completions.ICompletionSource, ISymbol
+  public interface IIdentifierSymbol : System.CommandLine.Completions.ICompletionSource, ISymbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.Boolean HasAlias(System.String alias)
-  public abstract class IOption, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
+  public interface IOption : System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
     public System.Boolean AllowMultipleArgumentsPerToken { get; }
     public IArgument Argument { get; }
     public System.Boolean IsRequired { get; }
-  public abstract class ISymbol, System.CommandLine.Completions.ICompletionSource
+  public interface ISymbol : System.CommandLine.Completions.ICompletionSource
     public System.CommandLine.Collections.SymbolSet Children { get; }
     public System.String Description { get; }
     public System.Boolean IsHidden { get; }
@@ -140,16 +173,16 @@
     protected System.String GetResourceString(System.String resourceString, System.Object[] formatArguments)
     public System.String HelpAdditionalArgumentsDescription()
     public System.String HelpAdditionalArgumentsTitle()
-    public System.String HelpArgumentDefaultValueTitle()
+    public System.String HelpArgumentDefaultValueLabel()
     public System.String HelpArgumentsTitle()
     public System.String HelpCommandsTitle()
     public System.String HelpDescriptionTitle()
     public System.String HelpOptionDescription()
-    public System.String HelpOptionsRequired()
+    public System.String HelpOptionsRequiredLabel()
     public System.String HelpOptionsTitle()
     public System.String HelpUsageAdditionalArguments()
-    public System.String HelpUsageCommandTitle()
-    public System.String HelpUsageOptionsTitle()
+    public System.String HelpUsageCommand()
+    public System.String HelpUsageOptions()
     public System.String HelpUsageTitle()
     public System.String InvalidCharactersInFileName(System.Char invalidChar)
     public System.String InvalidCharactersInPath(System.Char invalidChar)
@@ -171,7 +204,6 @@
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.OptionResult> validate)
-     System.String get_DefaultName()
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
@@ -184,37 +216,35 @@
     .ctor(System.String[] aliases, Func<T> getDefaultValue, System.String description = null)
     public ArgumentArity Arity { get; set; }
   public static class OptionExtensions
-    public static TOption AddCompletions<TOption>(System.String[] values)
-    public static TOption AddCompletions<TOption>(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static TOption AddCompletions<TOption>(System.CommandLine.Completions.CompletionDelegate complete)
-    public static Option<System.IO.FileInfo> ExistingOnly()
-    public static Option<System.IO.DirectoryInfo> ExistingOnly()
-    public static Option<System.IO.FileSystemInfo> ExistingOnly()
-    public static Option<T> ExistingOnly<T>()
-    public static TOption FromAmong<TOption>(System.String[] values)
-    public static TOption LegalFileNamesOnly<TOption>()
-    public static TOption LegalFilePathsOnly<TOption>()
-    public static System.CommandLine.Parsing.ParseResult Parse(System.String commandLine)
-    public static System.CommandLine.Parsing.ParseResult Parse(System.String[] args)
+    public static TOption AddCompletions<TOption>(this TOption option, System.String[] values)
+    public static TOption AddCompletions<TOption>(this TOption option, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
+    public static TOption AddCompletions<TOption>(this TOption option, System.CommandLine.Completions.CompletionDelegate complete)
+    public static Option<System.IO.FileInfo> ExistingOnly(this Option<System.IO.FileInfo> option)
+    public static Option<System.IO.DirectoryInfo> ExistingOnly(this Option<System.IO.DirectoryInfo> option)
+    public static Option<System.IO.FileSystemInfo> ExistingOnly(this Option<System.IO.FileSystemInfo> option)
+    public static Option<T> ExistingOnly<T>(this Option<T> option)
+    public static TOption FromAmong<TOption>(this TOption option, System.String[] values)
+    public static TOption LegalFileNamesOnly<TOption>(this TOption option)
+    public static TOption LegalFilePathsOnly<TOption>(this TOption option)
+    public static System.CommandLine.Parsing.ParseResult Parse(this Option option, System.String commandLine)
+    public static System.CommandLine.Parsing.ParseResult Parse(this Option option, System.String[] args)
   public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource, ICommand, IIdentifierSymbol, ISymbol
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
-     System.Void RemoveAlias(System.String alias)
   public abstract class Symbol, System.CommandLine.Completions.ICompletionSource, ISymbol
     public System.CommandLine.Collections.SymbolSet Children { get; }
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
     public System.CommandLine.Collections.SymbolSet Parents { get; }
-     System.Void AddArgumentInner(Argument argument)
-     System.Void AddSymbol(Symbol symbol)
-     System.String get_DefaultName()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean Matches(System.String name)
     public System.String ToString()
 System.CommandLine.Binding
+  public abstract class BinderBase<T>, IValueDescriptor<T>, IValueDescriptor, IValueSource
+    protected T GetBoundValue(BindingContext bindingContext)
   public class BindingContext, System.IServiceProvider
     .ctor(System.CommandLine.Parsing.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.IConsole Console { get; }
@@ -222,19 +252,19 @@ System.CommandLine.Binding
     public System.Void AddService(System.Type serviceType, System.Func<System.IServiceProvider,System.Object> factory)
     public System.Void AddService<T>(Func<System.IServiceProvider,T> factory)
     public System.Object GetService(System.Type serviceType)
-  public class BoundValue
+  public struct BoundValue : System.ValueType
     public static BoundValue DefaultForValueDescriptor(IValueDescriptor valueDescriptor)
     public System.Object Value { get; }
     public IValueDescriptor ValueDescriptor { get; }
     public IValueSource ValueSource { get; }
     public System.String ToString()
-  public abstract class IValueDescriptor
+  public interface IValueDescriptor
     public System.Boolean HasDefaultValue { get; }
     public System.String ValueName { get; }
     public System.Type ValueType { get; }
     public System.Object GetDefaultValue()
-  public abstract class IValueDescriptor<T>, IValueDescriptor
-  public abstract class IValueSource
+  public interface IValueDescriptor<out T> : IValueDescriptor
+  public interface IValueSource
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Builder
   public class CommandLineBuilder
@@ -246,32 +276,32 @@ System.CommandLine.Builder
     public System.CommandLine.Parsing.ResponseFileHandling ResponseFileHandling { get; set; }
     public System.CommandLine.Parsing.Parser Build()
   public static class CommandLineBuilderExtensions
-    public static CommandLineBuilder AddMiddleware(System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
-    public static CommandLineBuilder AddMiddleware(System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
-    public static CommandLineBuilder CancelOnProcessTermination()
-    public static CommandLineBuilder ConfigureConsole(System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.IConsole> createConsole)
-    public static CommandLineBuilder EnableDirectives(System.Boolean value = True)
-    public static CommandLineBuilder EnableLegacyDoubleDashBehavior(System.Boolean value = True)
-    public static CommandLineBuilder EnablePosixBundling(System.Boolean value = True)
-    public static CommandLineBuilder ParseResponseFileAs(System.CommandLine.Parsing.ResponseFileHandling responseFileHandling)
-    public static CommandLineBuilder RegisterWithDotnetSuggest()
-    public static CommandLineBuilder UseDebugDirective()
-    public static CommandLineBuilder UseDefaults()
-    public static CommandLineBuilder UseEnvironmentVariableDirective()
-    public static CommandLineBuilder UseExceptionHandler(System.Action<System.Exception,System.CommandLine.Invocation.InvocationContext> onException = null, System.Nullable<System.Int32> errorExitCode = null)
-    public static CommandLineBuilder UseHelp()
-    public static CommandLineBuilder UseHelp(System.String[] helpAliases)
-    public static CommandLineBuilder UseHelp(System.Action<System.CommandLine.Help.HelpContext> customize)
-    public static TBuilder UseHelpBuilder<TBuilder>(System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
-    public static CommandLineBuilder UseLocalizationResources(System.CommandLine.LocalizationResources validationMessages)
-    public static CommandLineBuilder UseMiddleware(System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
-    public static CommandLineBuilder UseMiddleware(System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
-    public static CommandLineBuilder UseParseDirective(System.Nullable<System.Int32> errorExitCode = null)
-    public static CommandLineBuilder UseParseErrorReporting(System.Nullable<System.Int32> errorExitCode = null)
-    public static CommandLineBuilder UseSuggestDirective()
-    public static CommandLineBuilder UseTypoCorrections(System.Int32 maxLevenshteinDistance = 3)
-    public static CommandLineBuilder UseVersionOption()
-    public static CommandLineBuilder UseVersionOption(System.String[] aliases)
+    public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
+    public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
+    public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder)
+    public static CommandLineBuilder ConfigureConsole(this CommandLineBuilder builder, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.IConsole> createConsole)
+    public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
+    public static CommandLineBuilder EnableLegacyDoubleDashBehavior(this CommandLineBuilder builder, System.Boolean value = True)
+    public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)
+    public static CommandLineBuilder ParseResponseFileAs(this CommandLineBuilder builder, System.CommandLine.Parsing.ResponseFileHandling responseFileHandling)
+    public static CommandLineBuilder RegisterWithDotnetSuggest(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseDebugDirective(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseEnvironmentVariableDirective(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseExceptionHandler(this CommandLineBuilder builder, System.Action<System.Exception,System.CommandLine.Invocation.InvocationContext> onException = null, System.Nullable<System.Int32> errorExitCode = null)
+    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Nullable<System.Int32> maxWidth = null)
+    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.String[] helpAliases)
+    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
+    public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
+    public static CommandLineBuilder UseLocalizationResources(this CommandLineBuilder builder, System.CommandLine.LocalizationResources validationMessages)
+    public static CommandLineBuilder UseMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
+    public static CommandLineBuilder UseMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
+    public static CommandLineBuilder UseParseDirective(this CommandLineBuilder builder, System.Nullable<System.Int32> errorExitCode = null)
+    public static CommandLineBuilder UseParseErrorReporting(this CommandLineBuilder builder, System.Nullable<System.Int32> errorExitCode = null)
+    public static CommandLineBuilder UseSuggestDirective(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseTypoCorrections(this CommandLineBuilder builder, System.Int32 maxLevenshteinDistance = 3)
+    public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
 System.CommandLine.Collections
   public class SymbolSet, System.Collections.Generic.IEnumerable<System.CommandLine.Symbol>, System.Collections.IEnumerable
     .ctor()
@@ -299,7 +329,7 @@ System.CommandLine.Completions
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
     public System.String ToString()
-  public abstract class ICompletionSource
+  public interface ICompletionSource
     public System.Collections.Generic.IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
   public class TextCompletionContext : CompletionContext
     public System.String CommandLineText { get; }
@@ -308,13 +338,6 @@ System.CommandLine.Completions
   public class TokenCompletionContext : CompletionContext
 System.CommandLine.Help
   public class HelpBuilder
-    public static HelpSectionDelegate AdditionalArgumentsSection()
-    public static HelpSectionDelegate CommandArgumentsSection()
-    public static HelpSectionDelegate CommandUsageSection()
-    public static System.Collections.Generic.IEnumerable<HelpSectionDelegate> DefaultLayout()
-    public static HelpSectionDelegate OptionsSection()
-    public static HelpSectionDelegate SubcommandsSection()
-    public static HelpSectionDelegate SynopsisSection()
     .ctor(System.CommandLine.LocalizationResources localizationResources, System.Int32 maxWidth = 2147483647)
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.Int32 MaxWidth { get; }
@@ -323,14 +346,26 @@ System.CommandLine.Help
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.ISymbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
+   static class Default
+    public static HelpSectionDelegate AdditionalArgumentsSection()
+    public static HelpSectionDelegate CommandArgumentsSection()
+    public static HelpSectionDelegate CommandUsageSection()
+    public static System.String GetArgumentDefaultValue(System.CommandLine.IArgument argument)
+    public static System.String GetArgumentDescription(System.CommandLine.IArgument argument)
+    public static System.String GetArgumentUsageLabel(System.CommandLine.IArgument argument)
+    public static System.String GetIdentifierSymbolDescription(System.CommandLine.IIdentifierSymbol symbol)
+    public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.IIdentifierSymbol symbol, HelpContext context)
+    public static System.Collections.Generic.IEnumerable<HelpSectionDelegate> GetLayout()
+    public static HelpSectionDelegate OptionsSection()
+    public static HelpSectionDelegate SubcommandsSection()
+    public static HelpSectionDelegate SynopsisSection()
   public static class HelpBuilderExtensions
-    public static System.Void CustomizeSymbol(System.CommandLine.ISymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
-    public static System.Void Write(System.CommandLine.ICommand command, System.IO.TextWriter writer)
+    public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.ISymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
+    public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter writer)
   public class HelpContext
-    .ctor(HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null, System.Nullable<System.Int32> maxWidth = 2147483647)
+    .ctor(HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null)
     public System.CommandLine.ICommand Command { get; }
     public HelpBuilder HelpBuilder { get; }
-    public System.Int32 MaxWidth { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.Parsing.ParseResult ParseResult { get; }
   public delegate HelpSectionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
@@ -346,45 +381,9 @@ System.CommandLine.Help
     public System.Boolean Equals(TwoColumnHelpRow other)
     public System.Int32 GetHashCode()
 System.CommandLine.Invocation
-  public static class CommandHandler
-    public static ICommandHandler Create(System.Action handle)
-    public static ICommandHandler Create<T>(IValueDescriptor<T> symbol1, Action<T> handle)
-    public static ICommandHandler Create<T1, T2>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, Action<T1,T2> handle)
-    public static ICommandHandler Create<T1, T2, T3>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, Action<T1,T2,T3> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, Action<T1,T2,T3,T4> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, Action<T1,T2,T3,T4,T5> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, Action<T1,T2,T3,T4,T5,T6> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, Action<T1,T2,T3,T4,T5,T6,T7> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, Action<T1,T2,T3,T4,T5,T6,T7,T8> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, IValueDescriptor<T13> symbol13, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, IValueDescriptor<T13> symbol13, IValueDescriptor<T14> symbol14, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, IValueDescriptor<T13> symbol13, IValueDescriptor<T14> symbol14, IValueDescriptor<T15> symbol15, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, IValueDescriptor<T13> symbol13, IValueDescriptor<T14> symbol14, IValueDescriptor<T15> symbol15, IValueDescriptor<T16> symbol16, Action<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16> handle)
-    public static ICommandHandler Create(System.Func<System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create(System.Func<InvocationContext,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T>(IValueDescriptor<T> symbol1, Func<T,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, Func<T1,T2,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, Func<T1,T2,T3,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, Func<T1,T2,T3,T4,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, Func<T1,T2,T3,T4,T5,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, Func<T1,T2,T3,T4,T5,T6,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, Func<T1,T2,T3,T4,T5,T6,T7,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, IValueDescriptor<T13> symbol13, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, IValueDescriptor<T13> symbol13, IValueDescriptor<T14> symbol14, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, IValueDescriptor<T13> symbol13, IValueDescriptor<T14> symbol14, IValueDescriptor<T15> symbol15, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Threading.Tasks.Task> handle)
-    public static ICommandHandler Create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8, IValueDescriptor<T9> symbol9, IValueDescriptor<T10> symbol10, IValueDescriptor<T11> symbol11, IValueDescriptor<T12> symbol12, IValueDescriptor<T13> symbol13, IValueDescriptor<T14> symbol14, IValueDescriptor<T15> symbol15, IValueDescriptor<T16> symbol16, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task> handle)
-  public abstract class ICommandHandler
+  public interface ICommandHandler
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(InvocationContext context)
-  public abstract class IInvocationResult
+  public interface IInvocationResult
     public System.Void Apply(InvocationContext context)
   public class InvocationContext, System.IDisposable
     .ctor(System.CommandLine.Parsing.ParseResult parseResult, System.CommandLine.IConsole console = null)
@@ -409,21 +408,21 @@ System.CommandLine.Invocation
     ExceptionHandler=-2000
     Configuration=-1000
 System.CommandLine.IO
-  public abstract class IStandardError
+  public interface IStandardError
     public IStandardStreamWriter Error { get; }
     public System.Boolean IsErrorRedirected { get; }
-  public abstract class IStandardIn
+  public interface IStandardIn
     public System.Boolean IsInputRedirected { get; }
-  public abstract class IStandardOut
+  public interface IStandardOut
     public System.Boolean IsOutputRedirected { get; }
     public IStandardStreamWriter Out { get; }
-  public abstract class IStandardStreamWriter
+  public interface IStandardStreamWriter
     public System.Void Write(System.String value)
   public static class StandardStreamWriter
     public static IStandardStreamWriter Create(System.IO.TextWriter writer)
-    public static System.IO.TextWriter CreateTextWriter()
-    public static System.Void WriteLine()
-    public static System.Void WriteLine(System.String value)
+    public static System.IO.TextWriter CreateTextWriter(this IStandardStreamWriter writer)
+    public static System.Void WriteLine(this IStandardStreamWriter writer)
+    public static System.Void WriteLine(this IStandardStreamWriter writer, System.String value)
   public class SystemConsole, System.CommandLine.IConsole, IStandardError, IStandardIn, IStandardOut
     .ctor()
     public IStandardStreamWriter Error { get; }
@@ -459,10 +458,9 @@ System.CommandLine.Parsing
     public System.Boolean IsImplicit { get; }
     public System.CommandLine.IOption Option { get; }
     public Token Token { get; }
-     System.Int32 get_RemainingArgumentCapacity()
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
-  public delegate ParseArgument<T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
+  public delegate ParseArgument<out T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(ArgumentResult result, System.AsyncCallback callback, System.Object object)
     public T EndInvoke(System.IAsyncResult result)
@@ -508,17 +506,17 @@ System.CommandLine.Parsing
     public T ValueForOption<T>(Option<T> option)
     public T ValueForOption<T>(System.String alias)
   public static class ParseResultExtensions
-    public static System.String Diagram()
-    public static System.Boolean HasOption(System.CommandLine.IOption option)
-    public static System.Boolean HasOption(System.String alias)
-    public static System.Int32 Invoke(System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.IConsole console = null)
+    public static System.String Diagram(this ParseResult parseResult)
+    public static System.Boolean HasOption(this ParseResult parseResult, System.CommandLine.IOption option)
+    public static System.Boolean HasOption(this ParseResult parseResult, System.String alias)
+    public static System.Int32 Invoke(this ParseResult parseResult, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this ParseResult parseResult, System.CommandLine.IConsole console = null)
   public static class ParserExtensions
-    public static System.Int32 Invoke(System.String commandLine, System.CommandLine.IConsole console = null)
-    public static System.Int32 Invoke(System.String[] args, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, System.CommandLine.IConsole console = null)
-    public static ParseResult Parse(System.String commandLine)
+    public static System.Int32 Invoke(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
+    public static System.Int32 Invoke(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
+    public static ParseResult Parse(this Parser parser, System.String commandLine)
   public enum ResponseFileHandling : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
     ParseArgsAsLineSeparated=0
     ParseArgsAsSpaceSeparated=1
@@ -533,7 +531,6 @@ System.CommandLine.Parsing
     public ArgumentResult FindResultFor(System.CommandLine.IArgument argument)
     public CommandResult FindResultFor(System.CommandLine.ICommand command)
     public OptionResult FindResultFor(System.CommandLine.IOption option)
-     System.Int32 get_RemainingArgumentCapacity()
     public System.String ToString()
   public struct Token : System.ValueType, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)
@@ -556,7 +553,7 @@ System.CommandLine.Parsing
     DoubleDash=3
     Unparsed=4
     Directive=5
-  public delegate ValidateSymbolResult<T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
+  public delegate ValidateSymbolResult<in T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(T symbolResult, System.AsyncCallback callback, System.Object object)
     public System.String EndInvoke(System.IAsyncResult result)

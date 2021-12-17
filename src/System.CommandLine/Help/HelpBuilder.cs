@@ -1,10 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
-using System.CommandLine.Completions;
 using System.IO;
 using System.Linq;
 
@@ -13,7 +10,7 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Formats output to be shown to users to describe how to use a command line tool.
     /// </summary>
-    public class HelpBuilder 
+    public partial class HelpBuilder 
     {
         private const string Indent = "  ";
 
@@ -81,114 +78,6 @@ namespace System.CommandLine.Help
         internal Action<HelpContext>? OnCustomize { get; set; }
 
         /// <summary>
-        /// Gets the default sections to be written for command line help.
-        /// </summary>
-        public static IEnumerable<HelpSectionDelegate> DefaultLayout()
-        {
-            yield return SynopsisSection();
-            yield return CommandUsageSection();
-            yield return CommandArgumentsSection();
-            yield return OptionsSection();
-            yield return SubcommandsSection();
-            yield return AdditionalArgumentsSection();
-        }
-
-        /// <summary>
-        /// Writes a help section describing a command's synopsis.
-        /// </summary>
-        public static HelpSectionDelegate SynopsisSection() =>
-            ctx =>
-            {
-                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
-            };
-
-        /// <summary>
-        /// Writes a help section describing a command's usage.
-        /// </summary>
-        public static HelpSectionDelegate CommandUsageSection() =>
-            ctx =>
-            {
-                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpUsageTitle(), ctx.HelpBuilder.GetUsage(ctx.Command), ctx.Output);
-            };
-
-        ///  <summary>
-        /// Writes a help section describing a command's arguments.
-        ///  </summary>
-        public static HelpSectionDelegate CommandArgumentsSection() =>
-            ctx =>
-            {
-                TwoColumnHelpRow[] commandArguments = ctx.HelpBuilder.GetCommandArgumentRows(ctx.Command, ctx).ToArray();
-
-                if (commandArguments.Length <= 0)
-                {
-                    ctx.WasSectionSkipped = true;
-                    return;
-                }
-
-                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
-            };
-
-        ///  <summary>
-        /// Writes a help section describing a command's options.
-        ///  </summary>
-        public static HelpSectionDelegate OptionsSection() =>
-            ctx =>
-            {
-                List<TwoColumnHelpRow> options = new();
-                HashSet<IOption> uniqueOptions = new(); // global help aliases may be duplicated, we just ignore them
-                AddOptions(ctx, options, ctx.Command.Options, uniqueOptions);
-
-                Command? current = ctx.Command as Command;
-                while (current is not null)
-                {
-                    Command? parentCommand = null;
-                    for (int parentIndex = 0; parentIndex < current.Parents.Count; parentIndex++)
-                    {
-                        if ((parentCommand = current.Parents[parentIndex] as Command) is not null)
-                        {
-                            AddOptions(ctx, options, parentCommand.GlobalOptions, uniqueOptions);
-                            break;
-                        }
-                    }
-                    current = parentCommand;
-                }
-
-                if (options.Count <= 0)
-                {
-                    ctx.WasSectionSkipped = true;
-                    return;
-                }
-
-                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(options, ctx);
-                ctx.Output.WriteLine();
-
-                static void AddOptions(HelpContext context, List<TwoColumnHelpRow> list, IReadOnlyList<IOption> options, HashSet<IOption> uniqueOptions)
-                {
-                    foreach (IOption option in options)
-                    {
-                        if (!option.IsHidden && uniqueOptions.Add(option))
-                        {
-                            list.Add(context.HelpBuilder.GetTwoColumnRow(option, context));
-                        }
-                    }
-                }
-            };
-
-        ///  <summary>
-        /// Writes a help section describing a command's subcommands.
-        ///  </summary>
-        public static HelpSectionDelegate SubcommandsSection() =>
-            ctx => ctx.HelpBuilder.WriteSubcommands(ctx);
-
-        ///  <summary>
-        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="Command.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
-        ///  </summary>
-        public static HelpSectionDelegate AdditionalArgumentsSection() =>
-            ctx => ctx.HelpBuilder.WriteAdditionalArguments(ctx);
-
-        /// <summary>
         /// Specifies custom help details for a specific symbol.
         /// </summary>
         /// <param name="symbol">The symbol to specify custom help details for.</param>
@@ -250,14 +139,14 @@ namespace System.CommandLine.Help
 
                 if (hasCommandWithHelp)
                 {
-                    yield return LocalizationResources.HelpUsageCommandTitle();
+                    yield return LocalizationResources.HelpUsageCommand();
                 }
 
                 displayOptionTitle = displayOptionTitle || command.Options.Any(x => !x.IsHidden);
                 
                 if (displayOptionTitle)
                 {
-                    yield return LocalizationResources.HelpUsageOptionsTitle();
+                    yield return LocalizationResources.HelpUsageOptions();
                 }
 
                 if (!command.TreatUnmatchedTokensAsErrors)
@@ -452,7 +341,7 @@ namespace System.CommandLine.Help
         {
             if (_getLayout is null)
             {
-                _getLayout = _ => DefaultLayout();
+                _getLayout = _ => Default.GetLayout();
             }
             return _getLayout(context);
         }
@@ -543,12 +432,20 @@ namespace System.CommandLine.Help
             TwoColumnHelpRow GetIdentifierSymbolRow()
             {
                 var firstColumnText =
-                    customization?.GetFirstColumn?.Invoke(context) ??
-                    GetFirstColumnText(identifierSymbol);
+                    customization?.GetFirstColumn?.Invoke(context) ?? Default.GetIdentifierSymbolUsageLabel(identifierSymbol, context);
 
-                var secondColumnText = 
-                     customization?.GetSecondColumn?.Invoke(context) ??
-                    GetSecondColumnText(identifierSymbol, context);
+                var customizedSymbolDescription = customization?.GetSecondColumn?.Invoke(context);
+
+                var symbolDescription =
+                    customizedSymbolDescription ?? Default.GetIdentifierSymbolDescription(identifierSymbol);
+
+                //in case symbol description is customized, do not output default value
+                //default value output is not customizable for identifier symbols
+                var defaultValueDescription = customizedSymbolDescription == null
+                    ? GetSymbolDefaultValue(identifierSymbol)
+                    : string.Empty;
+
+                var secondColumnText = $"{symbolDescription} {defaultValueDescription}".Trim();
 
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
@@ -556,88 +453,22 @@ namespace System.CommandLine.Help
             TwoColumnHelpRow GetCommandArgumentRow(IArgument argument)
             {
                 var firstColumnText =
-                    customization?.GetFirstColumn?.Invoke(context) ??
-                    GetArgumentUsageTitle(argument);
+                    customization?.GetFirstColumn?.Invoke(context) ?? Default.GetArgumentUsageLabel(argument);
 
                 var argumentDescription =
-                    customization?.GetSecondColumn?.Invoke(context) ??
-                    string.Join(" ", argument.Description);
+                    customization?.GetSecondColumn?.Invoke(context) ?? Default.GetArgumentDescription(argument);
 
                 var defaultValueDescription =
                     argument.HasDefaultValue
-                        ? $"[{GetArgumentDefaultValueText(context.Command, argument, true, context)}]"
+                        ? $"[{GetArgumentDefaultValue(context.Command, argument, true, context)}]"
                         : "";
 
                 var secondColumnText = $"{argumentDescription} {defaultValueDescription}".Trim();
 
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
-        }
 
-        private string GetFirstColumnText(IIdentifierSymbol symbol)
-        {
-            var aliases = symbol.Aliases
-                                .Select(r => r.SplitPrefix())
-                                .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
-                                .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
-                                .GroupBy(t => t.Alias)
-                                .Select(t => t.First())
-                                .Select(t => $"{t.Prefix}{t.Alias}");
-
-            var firstColumnText = string.Join(", ", aliases);
-
-            foreach (var argument in symbol.Arguments())
-            {
-                if (!argument.IsHidden)
-                {
-                    var argumentFirstColumnText = GetArgumentUsageTitle(argument);
-
-                    if (!string.IsNullOrWhiteSpace(argumentFirstColumnText))
-                    {
-                        firstColumnText += $" {argumentFirstColumnText}";
-                    }
-                }
-            }
-
-            if (symbol is IOption { IsRequired: true })
-            {
-                firstColumnText += $" {LocalizationResources.HelpOptionsRequired()}";
-            }
-
-            return firstColumnText;
-        }
-
-        /// <summary>
-        /// Gets the second column content for the specified symbol (typically the description).
-        /// </summary>
-        /// <param name="symbol">The symbol to get the description for.</param>
-        /// <param name="context">A parse result providing context for help formatting.</param>
-        private string GetSecondColumnText(IIdentifierSymbol symbol, HelpContext context)
-        {
-            return string.Join(" ", GetSecondColumnTextParts());
-
-            IEnumerable<string> GetSecondColumnTextParts()
-            {
-                string? description = symbol.Description;
-                if (!string.IsNullOrWhiteSpace(description))
-                {
-                    yield return description!;
-                }
-                else if (
-                    _customizationsBySymbol is { } &&
-                    _customizationsBySymbol.TryGetValue(symbol, out var customization) &&
-                    customization.GetSecondColumn?.Invoke(context) is { } descriptionValue)
-                {
-                    yield return descriptionValue;
-                }
-                string argumentDescription = GetArgumentDescription();
-                if (!string.IsNullOrWhiteSpace(argumentDescription))
-                {
-                    yield return argumentDescription;
-                }
-            }
-
-            string GetArgumentDescription()
+            string GetSymbolDefaultValue(IIdentifierSymbol symbol)
             {
                 IEnumerable<IArgument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
@@ -646,98 +477,45 @@ namespace System.CommandLine.Help
 
                 var isSingleArgument = defaultArguments.Length == 1;
                 var argumentDefaultValues = defaultArguments
-                    .Select(argument => GetArgumentDefaultValueText(symbol, argument, isSingleArgument, context));
+                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument, context));
                 return $"[{string.Join(", ", argumentDefaultValues)}]";
             }
         }
 
-        private string GetArgumentDefaultValueText(
+        private string GetArgumentDefaultValue(
             IIdentifierSymbol parent,
             IArgument argument,
             bool displayArgumentName,
             HelpContext context)
         {
-            string name = displayArgumentName ? LocalizationResources.HelpArgumentDefaultValueTitle() : argument.Name;
+            string label = displayArgumentName 
+                              ? LocalizationResources.HelpArgumentDefaultValueLabel() 
+                              : argument.Name;
+
+            string? displayedDefaultValue = null;
 
             if (_customizationsBySymbol is not null)
             {
                 if (_customizationsBySymbol.TryGetValue(parent, out Customization customization) &&
                     customization.GetDefaultValue?.Invoke(context) is { } parentDefaultValue)
                 {
-                    return $"{name}: {parentDefaultValue}";
+                    displayedDefaultValue = parentDefaultValue;
                 }
-
-                if (_customizationsBySymbol.TryGetValue(argument, out customization) &&
-                    customization.GetDefaultValue?.Invoke(context) is { } ownDefaultValue)
+                else if (_customizationsBySymbol.TryGetValue(argument, out customization) &&
+                         customization.GetDefaultValue?.Invoke(context) is { } ownDefaultValue)
                 {
-                    return $"{name}: {ownDefaultValue}";
+                    displayedDefaultValue = ownDefaultValue;
                 }
             }
 
-            object? argumentDefaultValue = argument.GetDefaultValue();
-            string? defaultValue = null;
-            if (argumentDefaultValue is IEnumerable enumerable and not string)
+            displayedDefaultValue ??= Default.GetArgumentDefaultValue(argument);
+
+            if (string.IsNullOrWhiteSpace(displayedDefaultValue))
             {
-                defaultValue = string.Join("|", enumerable.OfType<object>().ToArray());
-            }
-            else
-            {
-                defaultValue = argumentDefaultValue?.ToString();
+                return "";
             }
 
-            return $"{name}: {defaultValue}";
-        }
-
-        /// <summary>
-        /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
-        /// </summary>
-        private string GetArgumentUsageTitle(IArgument argument)
-        {
-            if (argument.ValueType == typeof(bool) ||
-                argument.ValueType == typeof(bool?))
-            {
-                if (argument.Parents.FirstOrDefault() is ICommand)
-                {
-                    return $"<{argument.Name}>";
-                }
-                else
-                {
-                    return "";
-                }
-            }
-
-            string firstColumn;
-            var completions = (argument is Argument a
-                                   ? a.GetCompletions()
-                                   : Array.Empty<CompletionItem>())
-                .Select(item=>item.Label)
-                .ToArray();
-
-            var helpName = GetArgumentHelpName(argument);
-            if (!string.IsNullOrEmpty(helpName))
-            {
-                firstColumn = helpName!;
-            }
-            else if (completions.Length > 0)
-            {
-                firstColumn = string.Join("|", completions);
-            }
-            else
-            {
-                firstColumn = argument.Name;
-            }
-
-            if (!string.IsNullOrWhiteSpace(firstColumn))
-            {
-                return $"<{firstColumn}>";
-            }
-            return firstColumn;
-        }
-
-        private string? GetArgumentHelpName(IArgument argument)
-        {
-            var arg = argument as Argument;
-            return arg?.HelpName;
+            return $"{label}: {displayedDefaultValue}";
         }
 
         private class Customization

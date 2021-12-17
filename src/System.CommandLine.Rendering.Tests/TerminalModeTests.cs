@@ -44,14 +44,12 @@ namespace System.CommandLine.Rendering.Tests
             var console = new TestConsole();
             OutputMode detectedOutputMode = OutputMode.Auto;
 
-            var command = new Command("hello")
-                          {
-                              Handler = CommandHandler.Create(ctx =>
-                              {
-                                  detectedOutputMode = ctx.Console.DetectOutputMode();
-                                  return Task.FromResult(0);
-                              })
-                          };
+            var command = new Command("hello");
+            command.SetHandler((InvocationContext ctx) =>
+            {
+                detectedOutputMode = ctx.Console.DetectOutputMode();
+                return Task.FromResult(0);
+            });
 
             var parser = new CommandLineBuilder(command)
                          .UseAnsiTerminalWhenAvailable()

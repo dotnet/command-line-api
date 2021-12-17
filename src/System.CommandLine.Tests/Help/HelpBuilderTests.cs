@@ -836,6 +836,46 @@ namespace System.CommandLine.Tests.Help
 
             help.Should().Contain("[default: the-arg-value]");
         }
+        
+        [Fact]
+        public void Help_does_not_show_default_value_for_argument_when_default_value_is_empty()
+        {
+            var argument = new Argument("the-arg", "The argument description");
+            argument.SetDefaultValue("");
+            
+            var command = new Command("the-command", "The command description")
+            {
+                argument
+            };
+
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command, _console);
+
+            var help = _console.ToString();
+
+            help.Should().NotContain("[default");
+        }
+        
+        [Fact]
+        public void Help_does_not_show_default_value_for_option_when_default_value_is_empty()
+        {
+            var option = new Option("-x", description: "The option description");
+            option.SetDefaultValue("");
+
+            var command = new Command("the-command", "The command description")
+            {
+                option
+            };
+
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command, _console);
+
+            var help = _console.ToString();
+
+            help.Should().NotContain("[default");
+        }
 
         [Fact]
         public void Command_arguments_default_value_provided()
@@ -1561,7 +1601,7 @@ namespace System.CommandLine.Tests.Help
 
             var output = writer.ToString();
 
-            output.Should().Contain($"{resources.HelpUsageOptionsTitle()}{NewLine}{NewLine}{resources.HelpOptionsTitle()}");
+            output.Should().Contain($"{resources.HelpUsageOptions()}{NewLine}{NewLine}{resources.HelpOptionsTitle()}");
         }
     }
 }

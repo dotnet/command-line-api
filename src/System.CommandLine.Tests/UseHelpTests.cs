@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
@@ -48,7 +47,7 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
             var command = new Command("command");
             var subcommand = new Command("subcommand");
-            subcommand.Handler = CommandHandler.Create(() => wasCalled = true);
+            subcommand.SetHandler(() => wasCalled = true);
             command.AddCommand(subcommand);
 
             var parser =
@@ -333,7 +332,7 @@ namespace System.CommandLine.Tests
             {
                 yield return ctx => ctx.Output.WriteLine("first");
 
-                foreach (var section in HelpBuilder.DefaultLayout())
+                foreach (var section in HelpBuilder.Default.GetLayout())
                 {
                     yield return section;
                 }
@@ -359,12 +358,12 @@ namespace System.CommandLine.Tests
                                  ctx.HelpBuilder
                                     .CustomizeLayout(c =>
                                                          c.Command == commandWithTypicalHelp
-                                                             ? HelpBuilder.DefaultLayout()
+                                                             ? HelpBuilder.Default.GetLayout()
                                                              : new HelpSectionDelegate[]
                                                                  {
                                                                      c => c.Output.WriteLine("Custom layout!")
                                                                  }
-                                                                 .Concat(HelpBuilder.DefaultLayout())))
+                                                                 .Concat(HelpBuilder.Default.GetLayout())))
                          .Build();
 
             var typicalOutput = new TestConsole();
@@ -375,6 +374,54 @@ namespace System.CommandLine.Tests
 
             typicalOutput.Out.ToString().Should().Be(GetDefaultHelp(commandWithTypicalHelp, false));
             customOutput.Out.ToString().Should().Be($"Custom layout!{NewLine}{NewLine}{GetDefaultHelp(commandWithCustomHelp, false)}");
+        }
+
+        [Fact]
+        public void Help_default_sections_can_be_wrapped()
+        {
+            Command command = new Command("test")
+            {
+                new Option<string>("--option", "option description")
+            };
+
+            var parser = new CommandLineBuilder(command)
+                         .UseHelp(maxWidth: 30)
+                         .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("test -h", console);
+
+            string result = console.Out.ToString();
+            result.Should().Be(
+        $"Description:{NewLine}{NewLine}" +
+        $"Usage:{NewLine}  test [options]{NewLine}{NewLine}" +
+        $"Options:{NewLine}" +
+        $"  --option   option {NewLine}" +
+        $"  <option>   description{NewLine}" +
+        $"  -?, -h,    Show help and {NewLine}" +
+        $"  --help     usage {NewLine}" +
+        $"             information{NewLine}{NewLine}{NewLine}");
+        }
+
+
+
+        [Fact]
+        public void Help_customized_sections_can_be_wrapped()
+        {
+            var parser = new CommandLineBuilder()
+                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout), maxWidth: 10)
+                         .Build();
+
+            var console = new TestConsole();
+            parser.Invoke("-h", console);
+
+            string result = console.Out.ToString();
+            result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}{NewLine}");
+
+            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
+            {
+                yield return ctx => ctx.HelpBuilder.WriteColumns(new[] { new TwoColumnHelpRow("12345678", "1234567890") }, ctx);
+            }
         }
 
         private string GetDefaultHelp(Command command, bool trimOneNewline = true)

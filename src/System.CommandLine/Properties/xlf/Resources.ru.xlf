@@ -3,18 +3,18 @@
   <file datatype="xml" source-language="en" target-language="ru" original="../Resources.resx">
     <body>
       <trans-unit id="ArgumentConversionCannotParse">
-        <source>Cannot parse argument '{0}' as expected type {1}.</source>
-        <target state="new">Cannot parse argument '{0}' as expected type {1}.</target>
+        <source>Cannot parse argument '{0}' as expected type '{1}'.</source>
+        <target state="new">Cannot parse argument '{0}' as expected type '{1}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForCommand">
-        <source>Cannot parse argument '{0}' for command '{1}' as expected type {2}.</source>
-        <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type {2}.</target>
+        <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</source>
+        <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption">
-        <source>Cannot parse argument '{0}' for option '{1}' as expected type {2}.</source>
-        <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type {2}.</target>
+        <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</source>
+        <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandExpectsFewerArguments">
@@ -33,8 +33,8 @@
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
-        <source>Required argument missing for command: {0}</source>
-        <target state="new">Required argument missing for command: {0}</target>
+        <source>Required argument missing for command: '{0}'.</source>
+        <target state="new">Required argument missing for command: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="DebugDirectiveAttachToProcess">
@@ -57,8 +57,8 @@ The value of the variable should be the name of the processes, separated by a se
         <note />
       </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">
-        <source>Directory does not exist: {0}</source>
-        <target state="new">Directory does not exist: {0}</target>
+        <source>Directory does not exist: '{0}'.</source>
+        <target state="new">Directory does not exist: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ErrorReadingResponseFile">
@@ -72,13 +72,13 @@ The value of the variable should be the name of the processes, separated by a se
         <note />
       </trans-unit>
       <trans-unit id="FileDoesNotExist">
-        <source>File does not exist: {0}</source>
-        <target state="new">File does not exist: {0}</target>
+        <source>File does not exist: '{0}'.</source>
+        <target state="new">File does not exist: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="FileOrDirectoryDoesNotExist">
-        <source>File or directory does not exist: {0}</source>
-        <target state="new">File or directory does not exist: {0}</target>
+        <source>File or directory does not exist: '{0}'.</source>
+        <target state="new">File or directory does not exist: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsDescription">
@@ -91,7 +91,7 @@ The value of the variable should be the name of the processes, separated by a se
         <target state="new">Additional Arguments:</target>
         <note />
       </trans-unit>
-      <trans-unit id="HelpArgumentDefaultValueTitle">
+      <trans-unit id="HelpArgumentDefaultValueLabel">
         <source>default</source>
         <target state="new">default</target>
         <note />
@@ -116,14 +116,24 @@ The value of the variable should be the name of the processes, separated by a se
         <target state="new">Show help and usage information</target>
         <note />
       </trans-unit>
-      <trans-unit id="InvalidCharactersInFileName">
-        <source>Character not allowed in a file name: {0}</source>
-        <target state="new">Character not allowed in a file name: {0}</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="HelpOptionsRequired">
+      <trans-unit id="HelpOptionsRequiredLabel">
         <source>(REQUIRED)</source>
         <target state="new">(REQUIRED)</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageCommand">
+        <source>[command]</source>
+        <target state="new">[command]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageOptions">
+        <source>[options]</source>
+        <target state="new">[options]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="InvalidCharactersInFileName">
+        <source>Character not allowed in a file name: '{0}'.</source>
+        <target state="new">Character not allowed in a file name: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionsTitle">
@@ -136,24 +146,14 @@ The value of the variable should be the name of the processes, separated by a se
         <target state="new">[[--] &lt;additional arguments&gt;...]]</target>
         <note />
       </trans-unit>
-      <trans-unit id="HelpUsageCommandTitle">
-        <source>[command]</source>
-        <target state="new">[command]</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="HelpUsageOptionsTitle">
-        <source>[options]</source>
-        <target state="new">[options]</target>
-        <note />
-      </trans-unit>
       <trans-unit id="HelpUsageTitle">
         <source>Usage:</source>
         <target state="new">Usage:</target>
         <note />
       </trans-unit>
       <trans-unit id="InvalidCharactersInPath">
-        <source>Character not allowed in a path: {0}</source>
-        <target state="new">Character not allowed in a path: {0}</target>
+        <source>Character not allowed in a path: '{0}'.</source>
+        <target state="new">Character not allowed in a path: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="OptionExpectsFewerArguments">
@@ -172,8 +172,8 @@ The value of the variable should be the name of the processes, separated by a se
         <note />
       </trans-unit>
       <trans-unit id="OptionRequiredArgumentMissing">
-        <source>Required argument missing for option: {0}</source>
-        <target state="new">Required argument missing for option: {0}</target>
+        <source>Required argument missing for option: '{0}'.</source>
+        <target state="new">Required argument missing for option: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="RequiredCommandWasNotProvided">
@@ -182,8 +182,8 @@ The value of the variable should be the name of the processes, separated by a se
         <note />
       </trans-unit>
       <trans-unit id="ResponseFileNotFound">
-        <source>Response file not found '{0}'</source>
-        <target state="new">Response file not found '{0}'</target>
+        <source>Response file not found '{0}'.</source>
+        <target state="new">Response file not found '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="SuggestionsTokenNotMatched">
@@ -197,8 +197,8 @@ The value of the variable should be the name of the processes, separated by a se
         <note />
       </trans-unit>
       <trans-unit id="UnrecognizedCommandOrArgument">
-        <source>Unrecognized command or argument '{0}'</source>
-        <target state="new">Unrecognized command or argument '{0}'</target>
+        <source>Unrecognized command or argument '{0}'.</source>
+        <target state="new">Unrecognized command or argument '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">

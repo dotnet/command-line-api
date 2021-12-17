@@ -1685,6 +1685,27 @@ namespace System.CommandLine.Tests
             act.Should().NotThrow();
         }
 
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1533
+        public void Empty_strings_in_parsed_args_array_are_ignored()
+        {
+            var option = new Option<int>("-x");
+            var subcommand = new Command("sub")
+            {
+                option
+            };
+            var command = new RootCommand
+            {
+                subcommand
+            };
+
+            var result = command.Parse("", "sub", "", "-x", "123");
+
+            result.Errors.Should().BeEmpty();
+
+            result.CommandResult.Command.Should().Be(subcommand);
+            result.FindResultFor(option).Should().NotBeNull();
+        }
+
         [TypeConverter(typeof(CustomTypeConverter))]
         public class ClassWithCustomTypeConverter
         {

@@ -87,7 +87,7 @@ public class ModelBindingCommandHandler : ICommandHandler
             result = _handlerDelegate.DynamicInvoke(invocationArguments);
         }
 
-        return await NamingConventionBinder.CommandHandler.GetExitCodeAsync(result, context);
+        return await CommandHandler.GetExitCodeAsync(result, context);
     }
 
     /// <summary>

@@ -346,6 +346,27 @@ public partial class ModelBindingCommandHandlerTests
         testCase.AssertBoundValue(boundValue);
     }
 
+    [Fact]
+    public async Task Unexpected_return_types_result_in_exit_code_0_if_no_exception_was_thrown()
+    {
+        var wasCalled = false;
+
+        Delegate @delegate = () =>
+        {
+            wasCalled = true;
+            return true;
+        };
+
+        var command = new Command("wat")
+        {
+            Handler = CommandHandler.Create(@delegate)
+        };
+
+        var exitCode = await command.InvokeAsync("");
+        wasCalled.Should().BeTrue();
+        exitCode.Should().Be(0);
+    }
+
     private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
     {
         invocationContext.InvocationResult = new BoundValueCapturer(value);

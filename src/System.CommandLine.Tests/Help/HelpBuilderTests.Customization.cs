@@ -230,6 +230,73 @@ namespace System.CommandLine.Tests.Help
                 Action action = () => new HelpBuilder(LocalizationResources.Instance).CustomizeSymbol(null!, "");
                 action.Should().Throw<ArgumentNullException>();
             }
+
+
+            [Theory]
+            [InlineData(false, false, "--option <option>\\s*description")]
+            [InlineData(true, false, "custom 1st\\s*description")]
+            [InlineData(false, true, "--option <option>\\s*custom 2nd")]
+            [InlineData(true, true, "custom 1st\\s*custom 2nd")]
+            public void Option_can_fallback_to_default_when_customizing(bool conditionA, bool conditionB, string expected)
+            {
+                var command = new Command("test");
+                var option = new Option<string>("--option", "description");
+
+                command.AddOption(option);
+
+                var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
+                helpBuilder.CustomizeSymbol(option,
+                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetIdentifierSymbolUsageLabel(option, ctx),
+                    secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetIdentifierSymbolDescription(option));
+
+
+                var parser = new CommandLineBuilder(command)
+                             .UseDefaults()
+                             .UseHelpBuilder(_ => helpBuilder)
+                             .Build();
+
+                var console = new TestConsole();
+                parser.Invoke("test -h", console);
+                console.Out.ToString().Should().MatchRegex(expected);
+            }
+
+            [Theory]
+            [InlineData(false, false, false, "\\<arg\\>\\s*description\\s*\\[default\\: default\\]")]
+            [InlineData(true, false, false, "custom 1st\\s*description\\s*\\[default\\: default\\]")]
+            [InlineData(false, true, false, "\\<arg\\>\\s*custom 2nd\\s*\\[default\\: default\\]")]
+            [InlineData(true, true, false, "custom 1st\\s*custom 2nd\\s*\\[default\\: default\\]")]
+            [InlineData(false, false, true, "\\<arg\\>\\s*description\\s*\\[default\\: custom def\\]")]
+            [InlineData(true, false, true, "custom 1st\\s*description\\s*\\[default\\: custom def\\]")]
+            [InlineData(false, true, true, "\\<arg\\>\\s*custom 2nd\\s*\\[default\\: custom def\\]")]
+            [InlineData(true, true, true, "custom 1st\\s*custom 2nd\\s*\\[default\\: custom def\\]")]
+            public void Argument_can_fallback_to_default_when_customizing(
+                bool conditionA, 
+                bool conditionB, 
+                bool conditionC, 
+                string expected)
+            {
+                var command = new Command("test");
+                var argument = new Argument<string>("arg", "description");
+                argument.SetDefaultValue("default");
+
+                command.AddArgument(argument);
+
+                var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
+                helpBuilder.CustomizeSymbol(argument,
+                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetArgumentUsageLabel(argument),
+                    secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetArgumentDescription(argument),
+                    defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
+
+
+                var parser = new CommandLineBuilder(command)
+                             .UseDefaults()
+                             .UseHelpBuilder(_ => helpBuilder)
+                             .Build();
+
+                var console = new TestConsole();
+                parser.Invoke("test -h", console);
+                console.Out.ToString().Should().MatchRegex(expected);
+            }
         }
         
         private class CustomLocalizationResources : LocalizationResources

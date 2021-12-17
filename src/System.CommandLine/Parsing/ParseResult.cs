@@ -375,7 +375,9 @@ namespace System.CommandLine.Parsing
         {
             var commandResult = CommandResult;
 
-            var currentSymbol = AllSymbolResultsForCompletion().Last();
+            var allSymbolResultsForCompletion = AllSymbolResultsForCompletion().ToArray();
+
+            var currentSymbol = allSymbolResultsForCompletion.Last();
 
             return currentSymbol;
 
@@ -403,27 +405,39 @@ namespace System.CommandLine.Parsing
             static bool WillAcceptAnArgument(
                 ParseResult parseResult,
                 int? position,
-                OptionResult option)
+                OptionResult optionResult)
             {
-                if (option.IsImplicit)
+                if (optionResult.IsImplicit)
                 {
                     return false;
                 }
 
-                if (!option.IsArgumentLimitReached)
+                if (!optionResult.IsArgumentLimitReached)
                 {
                     return true;
                 }
 
-                return parseResult.GetCompletionContext() switch
+                var completionContext = parseResult.GetCompletionContext();
+
+                if (completionContext is TextCompletionContext textCompletionContext)
                 {
-                    TextCompletionContext c when position.HasValue =>
-                        c.AtCursorPosition(position.Value).WordToComplete.Length > 0,
-                    { } c =>
-                        c.WordToComplete.Length > 0,
-                    _ =>
-                        throw new ArgumentOutOfRangeException()
-                };
+                    if (position.HasValue)
+                    {
+                        textCompletionContext = textCompletionContext.AtCursorPosition(position.Value);
+                    }
+
+                    if (textCompletionContext.WordToComplete.Length > 0)
+                    {
+                        var tokenToComplete = parseResult.Tokens.LastOrDefault(t => t.Value == textCompletionContext.WordToComplete);
+
+                        if (tokenToComplete is { })
+                        {
+                            return optionResult.Tokens.Contains(tokenToComplete);
+                        }
+                    }
+                }
+
+                return !optionResult.IsArgumentLimitReached;
             }
         }
     }
