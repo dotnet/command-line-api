@@ -23,9 +23,9 @@ namespace System.CommandLine.Binding
             LocalizationResources localizationResources)
         {
             if (argument is Argument a &&
-                a.Parents.Count == 1)
+                a.FirstParent is not null && a.FirstParent.Next is null)
             {
-                var firstParent = (IIdentifierSymbol) a.Parents[0];
+                var firstParent = (IIdentifierSymbol) a.FirstParent.Symbol;
                 var alias = firstParent.Aliases.First();
                 
                 switch(firstParent)

@@ -508,9 +508,10 @@ namespace System.CommandLine.Parsing
             while (current is not null)
             {
                 Command? parentCommand = null;
-                for (int parentIndex = 0; parentIndex < current.Parents.Count; parentIndex++)
+                ParentNode? parent = current.FirstParent;
+                while (parent is not null)
                 {
-                    if ((parentCommand = current.Parents[parentIndex] as Command) is not null)
+                    if ((parentCommand = parent.Symbol as Command) is not null)
                     {
                         foreach (Option option in parentCommand.Options)
                         {
@@ -527,6 +528,7 @@ namespace System.CommandLine.Parsing
                         }
                         break;
                     }
+                    parent = parent.Next;
                 }
                 current = parentCommand;
             }

@@ -154,7 +154,7 @@
     public System.String Description { get; }
     public System.Boolean IsHidden { get; }
     public System.String Name { get; }
-    public System.CommandLine.Collections.SymbolSet Parents { get; }
+    public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
   public class LocalizationResources
     public static LocalizationResources Instance { get; }
     public System.String ArgumentConversionCannotParse(System.String value, System.Type expectedType)
@@ -238,7 +238,7 @@
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
-    public System.CommandLine.Collections.SymbolSet Parents { get; }
+    public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean Matches(System.String name)

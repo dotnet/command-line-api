@@ -13,7 +13,7 @@ namespace System.CommandLine
     public abstract class Symbol : ISymbol
     {
         private string? _name;
-        private readonly SymbolSet _parents = new();
+        private ParentNode? _firstParent;
 
         private protected Symbol()
         {
@@ -36,15 +36,27 @@ namespace System.CommandLine
         private protected abstract string DefaultName { get; }
 
         /// <summary>
-        /// Represents the parent symbols.
+        /// Represents the first parent node.
         /// </summary>
-        public SymbolSet Parents => _parents;
+        internal ParentNode? FirstParent => _firstParent;
 
         public virtual bool Matches(string name) => string.Equals(name, _name, StringComparison.Ordinal);
 
         internal void AddParent(Symbol symbol)
         {
-            _parents.AddWithoutAliasCollisionCheck(symbol);
+            if (_firstParent == null)
+            {
+                _firstParent = new ParentNode(symbol);
+            }
+            else
+            {
+                ParentNode current = _firstParent;
+                while (current.Next is not null)
+                {
+                    current = current.Next;
+                }
+                current.Next = new ParentNode(symbol);
+            }
         }
 
         private protected virtual void AddSymbol(Symbol symbol)
@@ -68,6 +80,22 @@ namespace System.CommandLine
         /// Gets or sets a value indicating whether the symbol is hidden.
         /// </summary>
         public bool IsHidden { get; set; }
+
+        /// <summary>
+        /// Gets the parent symbols.
+        /// </summary>
+        public IEnumerable<Symbol> Parents
+        {
+            get
+            {
+                ParentNode? parent = _firstParent;
+                while (parent is not null)
+                {
+                    yield return parent.Symbol;
+                    parent = parent.Next;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets completions for the symbol.

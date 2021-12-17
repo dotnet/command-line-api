@@ -19,21 +19,5 @@ namespace System.CommandLine
 
             return false;
         }
-
-#nullable disable
-        // requires C# 9.0
-        public static T FirstOrDefaultOfType<T>(this SymbolSet source)
-        {
-            for (var i = 0; i < source.Count; i++)
-            {
-                if (source[i] is T result)
-                {
-                    return result;
-                }
-            }
-
-            return default;
-        }
-#nullable restore
     }
 }

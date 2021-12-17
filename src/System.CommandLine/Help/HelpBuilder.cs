@@ -118,7 +118,7 @@ namespace System.CommandLine.Help
 
                 IEnumerable<Command> parentCommands =
                     ((Command)command)
-                        .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<Command>())
+                        .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                         .Reverse();
 
                 foreach (Command parentCommand in parentCommands)
@@ -158,7 +158,7 @@ namespace System.CommandLine.Help
 
         private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(ICommand command, HelpContext context) =>
             command
-                .RecurseWhileNotNull(c => c.Parents.FirstOrDefaultOfType<ICommand>())
+                .RecurseWhileNotNull(c => c.Parents.OfType<ICommand>().FirstOrDefault())
                 .Reverse()
                 .SelectMany(cmd => cmd.Arguments.Where(a => !a.IsHidden))
                 .Select(a => GetTwoColumnRow(a, context))
@@ -330,7 +330,7 @@ namespace System.CommandLine.Help
 
             bool IsMultiParented(IArgument argument) =>
                 argument is Argument a &&
-                a.Parents.Count > 1;
+                a.FirstParent is not null && a.FirstParent.Next is not null;
 
             bool IsOptional(IArgument argument) =>
                 IsMultiParented(argument) ||

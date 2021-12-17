@@ -53,7 +53,7 @@ public partial class HelpBuilder
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
             {
-                if (argument.Parents.FirstOrDefault() is ICommand)
+                if (((Argument)argument).FirstParent?.Symbol is ICommand)
                 {
                     return $"<{argument.Name}>";
                 }
@@ -213,9 +213,10 @@ public partial class HelpBuilder
                 while (current is not null)
                 {
                     Command? parentCommand = null;
-                    for (int parentIndex = 0; parentIndex < current.Parents.Count; parentIndex++)
+                    ParentNode? parent = current.FirstParent;
+                    while (parent is not null)
                     {
-                        if ((parentCommand = current.Parents[parentIndex] as Command) is not null)
+                        if ((parentCommand = parent.Symbol as Command) is not null)
                         {
                             foreach (Option option in parentCommand.Options)
                             {
@@ -227,6 +228,7 @@ public partial class HelpBuilder
 
                             break;
                         }
+                        parent = parent.Next;
                     }
                     current = parentCommand;
                 }

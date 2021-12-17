@@ -137,14 +137,14 @@ namespace System.CommandLine
         /// </summary>
         public static ArgumentArity OneOrMore => new ArgumentArity(1, MaximumArity);
 
-        internal static ArgumentArity Default(Type type, Argument argument, SymbolSet parents)
+        internal static ArgumentArity Default(Type type, Argument argument, ParentNode? firstParent)
         {
             if (type == typeof(bool))
             {
                 return ZeroOrOne;
             }
 
-            var parent = parents.Count > 0 ? parents[0] : default;
+            var parent = firstParent?.Symbol;
 
             if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
             {

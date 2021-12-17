@@ -51,7 +51,7 @@ namespace System.CommandLine
                     _arity = ArgumentArity.Default(
                         ValueType, 
                         this, 
-                        Parents);
+                        FirstParent);
                 }
 
                 return _arity;
@@ -92,9 +92,9 @@ namespace System.CommandLine
         {
             get
             {
-                if (Parents.Count == 1)
+                if (FirstParent is not null && FirstParent.Next is null)
                 {
-                    switch (Parents[0])
+                    switch (FirstParent.Symbol)
                     {
                         case Option option:
                             return option.Name;
