@@ -504,7 +504,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            Command? current = command as Command;
+            Command? current = command;
             while (current is not null)
             {
                 Command? parentCommand = null;

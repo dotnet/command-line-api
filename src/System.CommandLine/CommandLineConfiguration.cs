@@ -108,7 +108,7 @@ namespace System.CommandLine
         /// a Unit Test that calls this method to verify the RootCommand of every application.</remarks>
         internal void ThrowIfInvalid()
         {
-            ThrowIfInvalid((Command)RootCommand);
+            ThrowIfInvalid(RootCommand);
 
             static void ThrowIfInvalid(Command command)
             {

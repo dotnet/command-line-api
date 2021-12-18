@@ -117,7 +117,7 @@ namespace System.CommandLine.Help
                 bool displayOptionTitle = false;
 
                 IEnumerable<Command> parentCommands =
-                    ((Command)command)
+                    command
                         .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                         .Reverse();
 

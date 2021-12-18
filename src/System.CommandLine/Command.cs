@@ -110,7 +110,7 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the symbols for the command.
         /// </summary>
-        public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
+        public IEnumerator<Symbol> GetEnumerator() => Children.GetEnumerator();
 
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

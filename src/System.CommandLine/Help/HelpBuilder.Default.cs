@@ -53,7 +53,7 @@ public partial class HelpBuilder
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
             {
-                if (((Argument)argument).FirstParent?.Symbol is Command)
+                if (argument.FirstParent?.Symbol is Command)
                 {
                     return $"<{argument.Name}>";
                 }
@@ -70,7 +70,7 @@ public partial class HelpBuilder
                               .Select(item=>item.Label)
                               .ToArray();
 
-            var arg = argument as Argument;
+            var arg = argument;
             var helpName = arg?.HelpName ?? string.Empty;
 
             if (!string.IsNullOrEmpty(helpName))
@@ -210,7 +210,7 @@ public partial class HelpBuilder
                     }
                 }
 
-                Command? current = ctx.Command as Command;
+                Command? current = ctx.Command;
                 while (current is not null)
                 {
                     Command? parentCommand = null;
