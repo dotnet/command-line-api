@@ -473,7 +473,7 @@ namespace System.CommandLine.Parsing
 
         private static Dictionary<string, Token> ValidTokens(this Command command)
         {
-            Dictionary<string, Token> tokens = new ();
+            Dictionary<string, Token> tokens = new (StringComparer.Ordinal);
 
             foreach (var commandAlias in command.Aliases)
             {

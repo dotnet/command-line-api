@@ -11,7 +11,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class IdentifierSymbol : Symbol
     {
-        private protected readonly HashSet<string> _aliases = new();
+        private protected readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
         private string? _specifiedName;
 
         /// <summary>
