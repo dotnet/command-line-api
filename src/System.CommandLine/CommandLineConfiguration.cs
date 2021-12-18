@@ -97,7 +97,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the root command.
         /// </summary>
-        public ICommand RootCommand { get; }
+        public Command RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
 
@@ -108,7 +108,7 @@ namespace System.CommandLine
         /// a Unit Test that calls this method to verify the RootCommand of every application.</remarks>
         internal void ThrowIfInvalid()
         {
-            ThrowIfInvalid((Command)RootCommand);
+            ThrowIfInvalid(RootCommand);
 
             static void ThrowIfInvalid(Command command)
             {

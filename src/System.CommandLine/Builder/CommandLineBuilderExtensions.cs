@@ -772,7 +772,7 @@ ERR:
 
         private static bool ShowHelp(
             InvocationContext context,
-            IOption helpOption)
+            Option helpOption)
         {
             if (context.ParseResult.FindResultFor(helpOption) is { })
             {

@@ -12,18 +12,18 @@ namespace System.CommandLine
     /// </summary>
     internal static class SymbolExtensions
     {
-        internal static IReadOnlyList<IArgument> Arguments(this ISymbol symbol)
+        internal static IReadOnlyList<Argument> Arguments(this Symbol symbol)
         {
             switch (symbol)
             {
-                case IOption option:
+                case Option option:
                     return new[]
                     {
                         option.Argument
                     };
-                case ICommand command:
+                case Command command:
                     return command.Arguments;
-                case IArgument argument:
+                case Argument argument:
                     return new[]
                     {
                         argument

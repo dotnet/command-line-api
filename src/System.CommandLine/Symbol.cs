@@ -9,8 +9,10 @@ using System.Linq;
 
 namespace System.CommandLine
 {
-    /// <inheritdoc />
-    public abstract class Symbol : ISymbol
+    /// <summary>
+    /// Defines a named symbol that resides in a hierarchy with parent and child symbols.
+    /// </summary>
+    public abstract class Symbol : ICompletionSource
     {
         private string? _name;
         private ParentNode? _firstParent;
@@ -116,7 +118,7 @@ namespace System.CommandLine
 
                     switch (child)
                     {
-                        case IIdentifierSymbol identifier when !child.IsHidden:
+                        case IdentifierSymbol identifier when !child.IsHidden:
                             foreach (var alias in identifier.Aliases)
                             {
                                 if (alias is { } &&
@@ -128,7 +130,7 @@ namespace System.CommandLine
 
                             break;
 
-                        case IArgument argument:
+                        case Argument argument:
                             foreach (var completion in argument.GetCompletions(context))
                             {
                                 if (completion.Label.ContainsCaseInsensitive(textToMatch))

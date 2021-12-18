@@ -49,12 +49,12 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the minimum number of values required for an <see cref="IArgument">argument</see>.
+        /// Gets the minimum number of values required for an <see cref="Argument">argument</see>.
         /// </summary>
         public int MinimumNumberOfValues { get; }
 
         /// <summary>
-        /// Gets the maximum number of values allowed for an <see cref="IArgument">argument</see>.
+        /// Gets the maximum number of values allowed for an <see cref="Argument">argument</see>.
         /// </summary>
         public int MaximumNumberOfValues { get; }
 
@@ -72,7 +72,7 @@ namespace System.CommandLine
 
         internal static FailedArgumentConversionArityResult? Validate(
             SymbolResult symbolResult,
-            IArgument argument,
+            Argument argument,
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
@@ -148,12 +148,12 @@ namespace System.CommandLine
 
             if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
             {
-                return parent is ICommand
+                return parent is Command
                            ? ZeroOrMore
                            : OneOrMore;
             }
 
-            if (parent is ICommand &&
+            if (parent is Command &&
                 (argument.HasDefaultValue ||
                  type.IsNullable()))
             {

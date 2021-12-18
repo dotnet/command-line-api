@@ -21,7 +21,7 @@ internal class SpecificSymbolValueSource : IValueSource
         var specificDescriptor = ValueDescriptor;
         switch (specificDescriptor)
         {
-            case IOption option:
+            case Option option:
                 var optionResult = bindingContext?.ParseResult.FindResultFor(option);
                 if (optionResult is not null)
                 {
@@ -29,7 +29,7 @@ internal class SpecificSymbolValueSource : IValueSource
                     return true;
                 }
                 break;
-            case IArgument argument:
+            case Argument argument:
                 var argumentResult = bindingContext?.ParseResult.FindResultFor(argument);
                 if (argumentResult is not null)
                 {

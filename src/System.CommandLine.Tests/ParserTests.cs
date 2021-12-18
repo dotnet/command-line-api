@@ -838,8 +838,8 @@ namespace System.CommandLine.Tests
             var result2 = rootCommand.Parse("outer inner -x hello");
             var result3 = rootCommand.Parse($"{RootCommand.ExecutableName} inner -x hello");
 
-            result2.RootCommandResult.Command.Should().Be(result1.RootCommandResult.Command);
-            result3.RootCommandResult.Command.Should().Be(result1.RootCommandResult.Command);
+            result2.RootCommandResult.Command.Should().BeSameAs(result1.RootCommandResult.Command);
+            result3.RootCommandResult.Command.Should().BeSameAs(result1.RootCommandResult.Command);
         }
 
         [Fact]
@@ -1069,19 +1069,19 @@ namespace System.CommandLine.Tests
                   .CommandResult
                   .Command
                   .Should()
-                  .Be(innerCommand);
+                  .BeSameAs(innerCommand);
 
             parser.Parse("outer --inner")
                   .CommandResult
                   .Command
                   .Should()
-                  .Be(outerCommand);
+                  .BeSameAs(outerCommand);
 
             parser.Parse("outer --inner inner")
                   .CommandResult
                   .Command
                   .Should()
-                  .Be(innerCommand);
+                  .BeSameAs(innerCommand);
 
             parser.Parse("outer --inner inner")
                   .CommandResult
@@ -1218,7 +1218,7 @@ namespace System.CommandLine.Tests
             _output.WriteLine(result.ToString());
 
             result.GetValueForOption(optionA).Should().Be("subcommand");
-            result.CommandResult.Command.Should().Be(root);
+            result.CommandResult.Command.Should().BeSameAs(root);
         }
 
         [Fact]
@@ -1236,7 +1236,7 @@ namespace System.CommandLine.Tests
 
             var result = root.Parse("subcommand one two three subcommand four");
 
-            result.CommandResult.Command.Should().Be(subcommand);
+            result.CommandResult.Command.Should().BeSameAs(subcommand);
 
             result.GetValueForArgument(argument)
                   .Should()
@@ -1681,7 +1681,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result.CommandResult.Command.Should().Be(subcommand);
+            result.CommandResult.Command.Should().BeSameAs(subcommand);
             result.FindResultFor(option).Should().NotBeNull();
         }
 

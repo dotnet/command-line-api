@@ -135,7 +135,7 @@ public class ModelBinder
                                                    bindingContext.ParseResult.CommandResult.LocalizationResources,
                                                    out var boundValue)
                    ? (true, boundValue?.Value, true)
-                   : (false,(object?) null, false);
+                   : (false, null, false);
     }
 
     private (bool success, object? newInstance, bool anyNonDefaults) InstanceFromSpecificConstructor(

@@ -5,7 +5,7 @@ namespace System.CommandLine.Binding
 {
     internal class MissingArgumentConversionResult : FailedArgumentConversionArityResult
     {
-        internal MissingArgumentConversionResult(IArgument argument, string errorMessage) : base(argument, errorMessage)
+        internal MissingArgumentConversionResult(Argument argument, string errorMessage) : base(argument, errorMessage)
         {
         }
     }

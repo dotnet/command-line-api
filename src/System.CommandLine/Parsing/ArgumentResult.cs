@@ -9,14 +9,14 @@ using System.Linq;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing an <see cref="IArgument"/>.
+    /// A result produced when parsing an <see cref="Argument"/>.
     /// </summary>
     public class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;
 
         internal ArgumentResult(
-            IArgument argument,
+            Argument argument,
             SymbolResult? parent) : base(argument, parent)
         {
             Argument = argument;
@@ -25,7 +25,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The argument to which the result applies.
         /// </summary>
-        public IArgument Argument { get; }
+        public Argument Argument { get; }
 
         internal bool IsImplicit => Argument.HasDefaultValue && Tokens.Count == 0;
 
@@ -102,7 +102,7 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-        private ArgumentConversionResult Convert(IArgument argument)
+        private ArgumentConversionResult Convert(Argument argument)
         {
             if (ShouldCheckArity() &&
                 Parent is { } &&

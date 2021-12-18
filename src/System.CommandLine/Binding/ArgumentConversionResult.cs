@@ -5,19 +5,19 @@ namespace System.CommandLine.Binding
 {
     internal abstract class ArgumentConversionResult
     {
-        private protected ArgumentConversionResult(IArgument argument)
+        private protected ArgumentConversionResult(Argument argument)
         {
             Argument = argument ?? throw new ArgumentNullException(nameof(argument));
         }
 
-        public IArgument Argument { get; }
+        public Argument Argument { get; }
 
         internal string? ErrorMessage { get; set; }
 
-        internal static FailedArgumentConversionResult Failure(IArgument argument, string error) => new(argument, error);
+        internal static FailedArgumentConversionResult Failure(Argument argument, string error) => new(argument, error);
 
-        public static SuccessfulArgumentConversionResult Success(IArgument argument, object? value) => new(argument, value);
+        public static SuccessfulArgumentConversionResult Success(Argument argument, object? value) => new(argument, value);
 
-        internal static NoArgumentConversionResult None(IArgument argument) => new(argument);
+        internal static NoArgumentConversionResult None(Argument argument) => new(argument);
     }
 }

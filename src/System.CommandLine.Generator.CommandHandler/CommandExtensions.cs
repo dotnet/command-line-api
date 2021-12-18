@@ -18,7 +18,7 @@ public static class CommandExtensions
     public static void SetHandler<TDelegate>(
         this Command command,
         TDelegate @delegate,
-        params ISymbol[] symbols)
+        params Symbol[] symbols)
     {
         throw new InvalidOperationException(_messageForWhenGeneratorIsNotInUse);
     }

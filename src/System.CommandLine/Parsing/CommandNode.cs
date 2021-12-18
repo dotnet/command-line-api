@@ -7,12 +7,12 @@ namespace System.CommandLine.Parsing
     {
         public CommandNode(
             Token token,
-            ICommand command,
+            Command command,
             CommandNode? parent) : base(token, parent)
         {
             Command = command;
         }
 
-        public ICommand Command { get; }
+        public Command Command { get; }
     }
 }

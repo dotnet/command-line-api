@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests.Help
     {
         public static void Write(
             this HelpBuilder builder,
-            ICommand command,
+            Command command,
             TextWriter writer) =>
             builder.Write(new HelpContext(builder, command, writer));
     }

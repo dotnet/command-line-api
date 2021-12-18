@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine
 {
@@ -12,10 +11,7 @@ namespace System.CommandLine
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
     /// <seealso cref="System.CommandLine.IdentifierSymbol" />
-    /// <seealso cref="System.CommandLine.IOption" />
-    public class Option :
-        IdentifierSymbol,
-        IOption
+    public class Option : IdentifierSymbol, IValueDescriptor
     {
         private string? _name;
         private List<ValidateSymbolResult<OptionResult>>? _validators;
@@ -129,6 +125,9 @@ namespace System.CommandLine
             return rv;
         }
 
+        /// <summary>
+        /// Gets the <see cref="Argument">argument</see> for the option.
+        /// </summary>
         internal virtual Argument Argument
         {
             get
@@ -242,9 +241,19 @@ namespace System.CommandLine
         public void SetDefaultValueFactory(Func<object?> getDefaultValue) =>
             Argument.SetDefaultValueFactory(getDefaultValue);
 
-        IArgument IOption.Argument => Argument;
-
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
+        /// </summary>
+        /// <example>
+        /// If set to <see langword="true"/>, the following command line is valid for passing multiple arguments:
+        /// <code>
+        /// > --opt 1 2 3
+        /// </code>
+        /// The following is equivalent and is always valid:
+        /// <code>
+        /// > --opt 1 --opt 2 --opt 3
+        /// </code>
+        /// </example>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
         internal virtual bool IsGreedy

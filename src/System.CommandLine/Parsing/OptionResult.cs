@@ -7,14 +7,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing an <see cref="IOption" />.
+    /// A result produced when parsing an <see cref="Option" />.
     /// </summary>
     public class OptionResult : SymbolResult
     {
         private ArgumentConversionResult? _argumentConversionResult;
 
         internal OptionResult(
-            IOption option,
+            Option option,
             Token? token = null,
             CommandResult? parent = null) :
             base(option ?? throw new ArgumentNullException(nameof(option)),
@@ -27,7 +27,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The option to which the result applies.
         /// </summary>
-        public IOption Option { get; }
+        public Option Option { get; }
 
         /// <summary>
         /// Indicates whether the result was created implicitly and not due to the option being specified on the command line.
@@ -95,6 +95,6 @@ namespace System.CommandLine.Parsing
 
         internal bool IsMinimumArgumentAritySatisfied => Tokens.Count >= Option.Argument.Arity.MinimumNumberOfValues;
 
-        internal override bool UseDefaultValueFor(IArgument argument) => IsImplicit;
+        internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
     }
 }

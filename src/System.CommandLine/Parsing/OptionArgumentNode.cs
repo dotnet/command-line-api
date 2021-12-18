@@ -7,7 +7,7 @@ namespace System.CommandLine.Parsing
     {
         public OptionArgumentNode(
             Token token,
-            IArgument argument,
+            Argument argument,
             OptionNode parent) : base(token, parent)
         {
             if (token.Type != TokenType.Argument)
@@ -19,7 +19,7 @@ namespace System.CommandLine.Parsing
             ParentOptionNode = parent;
         }
 
-        public IArgument Argument { get; }
+        public Argument Argument { get; }
 
         public OptionNode ParentOptionNode { get; }
     }

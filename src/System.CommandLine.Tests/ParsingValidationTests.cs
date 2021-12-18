@@ -915,7 +915,7 @@ namespace System.CommandLine.Tests
             var result = outer.Parse("outer inner");
 
             result.Errors.Should().BeEmpty();
-            result.CommandResult.Command.Should().Be(inner);
+            result.CommandResult.Command.Should().BeSameAs(inner);
         }
 
         [Fact]

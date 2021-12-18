@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
         /// <param name="symbol">The symbol represented by the token</param>
-        public Token(string? value, TokenType type, ISymbol symbol)
+        public Token(string? value, TokenType type, Symbol symbol)
         {
             Value = value ?? "";
             Type = type;
@@ -21,7 +21,7 @@ namespace System.CommandLine.Parsing
             Position = ImplicitPosition;
         }
        
-        internal Token(string? value, TokenType type, ISymbol? symbol, int position)
+        internal Token(string? value, TokenType type, Symbol? symbol, int position)
         {
             Value = value ?? "";
             Type = type;
@@ -48,7 +48,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The Symbol represented by the token (if any).
         /// </summary>
-        public ISymbol? Symbol { get; }
+        public Symbol? Symbol { get; }
 
         /// <inheritdoc />
         public override bool Equals(object obj) => obj is Token other && Equals(other);

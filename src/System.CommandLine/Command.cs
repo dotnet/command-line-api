@@ -3,10 +3,8 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Collections;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine
 {
@@ -18,10 +16,7 @@ namespace System.CommandLine
     /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class Command : 
-        IdentifierSymbol, 
-        ICommand, 
-        IEnumerable<Symbol>
+    public class Command : IdentifierSymbol, IEnumerable<Symbol>
     {
         /// <summary>
         /// Initializes a new instance of the Command class.
@@ -115,16 +110,10 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the symbols for the command.
         /// </summary>
-        public IEnumerator<Symbol> GetEnumerator() => Children.OfType<Symbol>().GetEnumerator();
+        public IEnumerator<Symbol> GetEnumerator() => Children.GetEnumerator();
 
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        /// <inheritdoc />
-        IReadOnlyList<IArgument> ICommand.Arguments => Arguments;
-
-        /// <inheritdoc />
-        IReadOnlyList<IOption> ICommand.Options => Options;
 
         internal Parser? ImplicitParser { get; set; }
     }

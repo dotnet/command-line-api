@@ -29,7 +29,7 @@ namespace System.CommandLine.Parsing
                 _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
             };
 
-            Token CreateImplicitToken(IOption option)
+            Token CreateImplicitToken(Option option)
             {
                 var optionName = option.Name;
 

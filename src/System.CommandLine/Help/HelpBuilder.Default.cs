@@ -20,7 +20,7 @@ public partial class HelpBuilder
         /// Gets an argument's default value to be displayed in help.
         /// </summary>
         /// <param name="argument">The argument to get the default value for.</param>
-        public static string GetArgumentDefaultValue(IArgument argument)
+        public static string GetArgumentDefaultValue(Argument argument)
         {
             if (argument.HasDefaultValue)
             {
@@ -43,17 +43,17 @@ public partial class HelpBuilder
         /// <summary>
         /// Gets the description for an argument (typically used in the second column text in the arguments section).
         /// </summary>
-        public static string GetArgumentDescription(IArgument argument) => argument.Description ?? string.Empty;
+        public static string GetArgumentDescription(Argument argument) => argument.Description ?? string.Empty;
 
         /// <summary>
         /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
         /// </summary>
-        public static string GetArgumentUsageLabel(IArgument argument)
+        public static string GetArgumentUsageLabel(Argument argument)
         {
             if (argument.ValueType == typeof(bool) ||
                 argument.ValueType == typeof(bool?))
             {
-                if (((Argument)argument).FirstParent?.Symbol is ICommand)
+                if (argument.FirstParent?.Symbol is Command)
                 {
                     return $"<{argument.Name}>";
                 }
@@ -70,7 +70,7 @@ public partial class HelpBuilder
                               .Select(item=>item.Label)
                               .ToArray();
 
-            var arg = argument as Argument;
+            var arg = argument;
             var helpName = arg?.HelpName ?? string.Empty;
 
             if (!string.IsNullOrEmpty(helpName))
@@ -97,7 +97,7 @@ public partial class HelpBuilder
         /// Gets the description for the specified symbol (typically the used as the second column in help text).
         /// </summary>
         /// <param name="symbol">The symbol to get the description for.</param>
-        public static string GetIdentifierSymbolDescription(IIdentifierSymbol symbol) => symbol.Description ?? string.Empty;
+        public static string GetIdentifierSymbolDescription(IdentifierSymbol symbol) => symbol.Description ?? string.Empty;
 
         /// <summary>
         /// Gets the usage label for the specified symbol (typically used as the first column text in help output).
@@ -105,7 +105,7 @@ public partial class HelpBuilder
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <param name="context">The help context, used for localization purposes.</param>
         /// <returns>Text to display.</returns>
-        public static string GetIdentifierSymbolUsageLabel(IIdentifierSymbol symbol, HelpContext context)
+        public static string GetIdentifierSymbolUsageLabel(IdentifierSymbol symbol, HelpContext context)
         {
             var aliases = symbol.Aliases
                                 .Select(r => r.SplitPrefix())
@@ -130,7 +130,7 @@ public partial class HelpBuilder
                 }
             }
 
-            if (symbol is IOption { IsRequired: true })
+            if (symbol is Option { IsRequired: true })
             {
                 firstColumnText += $" {context.HelpBuilder.LocalizationResources.HelpOptionsRequiredLabel()}";
             }
@@ -201,7 +201,7 @@ public partial class HelpBuilder
             {
                 // by making this logic more complex, we were able to get some nice perf wins elsewhere
                 List<TwoColumnHelpRow> options = new();
-                HashSet<IOption> uniqueOptions = new();
+                HashSet<Option> uniqueOptions = new();
                 foreach (Option option in ctx.Command.Options)
                 {
                     if (!option.IsHidden && uniqueOptions.Add(option))
@@ -210,7 +210,7 @@ public partial class HelpBuilder
                     }
                 }
 
-                Command? current = ctx.Command as Command;
+                Command? current = ctx.Command;
                 while (current is not null)
                 {
                     Command? parentCommand = null;

@@ -6,7 +6,7 @@ namespace System.CommandLine.Binding
     internal class SuccessfulArgumentConversionResult : ArgumentConversionResult
     {
         internal SuccessfulArgumentConversionResult(
-            IArgument argument, 
+            Argument argument, 
             object? value) : base(argument)
         {
             Value = value;
