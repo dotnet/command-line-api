@@ -19,6 +19,7 @@ namespace System.CommandLine
         private TryConvertArgument? _convertArguments;
         private Type _valueType = typeof(string);
         private CompletionSourceList? _completions = null;
+        private List<ValidateSymbolResult<ArgumentResult>>? _validators = null;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
@@ -108,7 +109,7 @@ namespace System.CommandLine
             }
         }
 
-        internal List<ValidateSymbolResult<ArgumentResult>> Validators { get; } = new();
+        internal List<ValidateSymbolResult<ArgumentResult>> Validators => _validators ??= new ();
 
         /// <summary>
         /// Adds a custom <see cref="ValidateSymbolResult{ArgumentResult}"/> to the argument. Validators can be used
