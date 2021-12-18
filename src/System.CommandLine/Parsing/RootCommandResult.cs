@@ -7,19 +7,19 @@ namespace System.CommandLine.Parsing
 {
     internal class RootCommandResult : CommandResult
     {
-        private readonly Dictionary<ISymbol, SymbolResult> _symbolResults;
+        private readonly Dictionary<Symbol, SymbolResult> _symbolResults;
 
         public RootCommandResult(
-            ICommand command,
+            Command command,
             Token token,
-            Dictionary<ISymbol, SymbolResult> symbolResults) : base(command, token)
+            Dictionary<Symbol, SymbolResult> symbolResults) : base(command, token)
         {
             _symbolResults = symbolResults;
         }
 
         internal override RootCommandResult Root => this;
 
-        public override ArgumentResult? FindResultFor(IArgument argument)
+        public override ArgumentResult? FindResultFor(Argument argument)
         {
             if (_symbolResults.TryGetValue(argument, out var result) &&
                 result is ArgumentResult argumentResult)
@@ -30,7 +30,7 @@ namespace System.CommandLine.Parsing
             return default;
         }
 
-        public override CommandResult? FindResultFor(ICommand command)
+        public override CommandResult? FindResultFor(Command command)
         {
             if (_symbolResults.TryGetValue(command, out var result) &&
                 result is CommandResult commandResult)
@@ -41,7 +41,7 @@ namespace System.CommandLine.Parsing
             return default;
         }
 
-        public override OptionResult? FindResultFor(IOption option)
+        public override OptionResult? FindResultFor(Option option)
         {
             if (_symbolResults.TryGetValue(option, out var result) &&
                 result is OptionResult optionResult)
@@ -52,15 +52,15 @@ namespace System.CommandLine.Parsing
             return default;
         }
 
-        internal SymbolResult? FindResultForSymbol(ISymbol symbol)
+        internal SymbolResult? FindResultForSymbol(Symbol symbol)
         {
             switch (symbol)
             {
-                case IArgument argument:
+                case Argument argument:
                     return FindResultFor(argument);
-                case ICommand command:
+                case Command command:
                     return FindResultFor(command);
-                case IOption option:
+                case Option option:
                     return FindResultFor(option);
                 default:
                     throw new ArgumentException($"Unsupported symbol type: {symbol.GetType()}");

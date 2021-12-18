@@ -6,7 +6,7 @@ namespace System.CommandLine.Binding
     internal class FailedArgumentConversionResult : ArgumentConversionResult
     {
         internal FailedArgumentConversionResult(
-            IArgument argument, 
+            Argument argument, 
             string errorMessage) : base(argument)
         {
             if (string.IsNullOrWhiteSpace(errorMessage))

@@ -11,7 +11,7 @@ namespace System.CommandLine.Parsing
         private readonly TokenizeResult _tokenizeResult;
         private readonly CommandLineConfiguration _configuration;
         private int _index;
-        private readonly Dictionary<IArgument, int> _argumentCounts = new();
+        private readonly Dictionary<Argument, int> _argumentCounts = new();
 
         public ParseOperation(
             TokenizeResult tokenizeResult,
@@ -33,7 +33,7 @@ namespace System.CommandLine.Parsing
 
         private void Advance() => _index++;
 
-        private void IncrementCount(IArgument argument)
+        private void IncrementCount(Argument argument)
         {
             if (!_argumentCounts.TryGetValue(argument, out var count))
             {
@@ -43,7 +43,7 @@ namespace System.CommandLine.Parsing
             _argumentCounts[argument] = count + 1;
         }
 
-        private bool IsFull(IArgument argument)
+        private bool IsFull(Argument argument)
         {
             if (!_argumentCounts.TryGetValue(argument, out var count))
             {
@@ -129,7 +129,7 @@ namespace System.CommandLine.Parsing
                 return null;
             }
 
-            IArgument? argument = default;
+            Argument? argument = default;
 
             for (var i = 0; i < commandNode.Command.Arguments.Count; i++)
             {

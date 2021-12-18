@@ -1,5 +1,5 @@
 ﻿System.CommandLine
-  public class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IArgument, ISymbol
+  public class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     .ctor()
     .ctor(System.String name = null, System.String description = null)
     public ArgumentArity Arity { get; set; }
@@ -14,7 +14,7 @@
     public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
     public System.Void SetDefaultValueFactory(System.Func<System.CommandLine.Parsing.ArgumentResult,System.Object> getDefaultValue)
     public System.String ToString()
-  public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IArgument, ISymbol
+  public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     .ctor()
     .ctor(System.String name, System.String description = null)
     .ctor(System.String name, Func<T> getDefaultValue, System.String description = null)
@@ -47,7 +47,7 @@
     public static TArgument LegalFilePathsOnly<TArgument>(this TArgument argument)
     public static System.CommandLine.Parsing.ParseResult Parse(this Argument argument, System.String commandLine)
     public static System.CommandLine.Parsing.ParseResult Parse(this Argument argument, System.String[] args)
-  public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource, ICommand, IIdentifierSymbol, ISymbol
+  public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
     public System.CommandLine.Invocation.ICommandHandler Handler { get; set; }
@@ -74,7 +74,7 @@
     public System.Boolean EnableLegacyDoubleDashBehavior { get; }
     public System.Boolean EnablePosixBundling { get; }
     public LocalizationResources LocalizationResources { get; }
-    public ICommand RootCommand { get; }
+    public Command RootCommand { get; }
     public System.CommandLine.Collections.SymbolSet Symbols { get; }
   public static class CompletionSourceExtensions
     public static System.Void Add(this CompletionSourceList completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
@@ -125,14 +125,8 @@
     public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
     public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
     public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,System.Threading.Tasks.Task> handle, System.CommandLine.Binding.IValueDescriptor[] symbols)
-  public interface IArgument : System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, ISymbol
-    public ArgumentArity Arity { get; }
-  public interface ICommand : System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
-    public System.Collections.Generic.IReadOnlyList<IArgument> Arguments { get; }
-    public System.Collections.Generic.IReadOnlyList<IOption> Options { get; }
-    public System.Boolean TreatUnmatchedTokensAsErrors { get; }
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
-  public abstract class IdentifierSymbol : Symbol, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
+  public abstract class IdentifierSymbol : Symbol, System.CommandLine.Completions.ICompletionSource
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.String Name { get; set; }
     public System.Void AddAlias(System.String alias)
@@ -140,19 +134,6 @@
   public interface IDirectiveCollection : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
     public System.Boolean Contains(System.String name)
     public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
-  public interface IIdentifierSymbol : System.CommandLine.Completions.ICompletionSource, ISymbol
-    public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
-    public System.Boolean HasAlias(System.String alias)
-  public interface IOption : System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, ISymbol
-    public System.Boolean AllowMultipleArgumentsPerToken { get; }
-    public IArgument Argument { get; }
-    public System.Boolean IsRequired { get; }
-  public interface ISymbol : System.CommandLine.Completions.ICompletionSource
-    public System.CommandLine.Collections.SymbolSet Children { get; }
-    public System.String Description { get; }
-    public System.Boolean IsHidden { get; }
-    public System.String Name { get; }
-    public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
   public class LocalizationResources
     public static LocalizationResources Instance { get; }
     public System.String ArgumentConversionCannotParse(System.String value, System.Type expectedType)
@@ -193,7 +174,7 @@
     public System.String UnrecognizedCommandOrArgument(System.String arg)
     public System.String VersionOptionCannotBeCombinedWithOtherArguments(System.String optionAlias)
     public System.String VersionOptionDescription()
-  public class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, IOption, ISymbol
+  public class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, ArgumentArity arity = null)
     .ctor(System.String[] aliases, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, ArgumentArity arity = null)
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
@@ -205,7 +186,7 @@
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
-  public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource, IIdentifierSymbol, IOption, ISymbol
+  public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null)
     .ctor(System.String[] aliases, System.String description = null)
     .ctor(System.String name, ParseArgument<T> parseArgument, System.Boolean isDefault = False, System.String description = null)
@@ -226,11 +207,11 @@
     public static TOption LegalFilePathsOnly<TOption>(this TOption option)
     public static System.CommandLine.Parsing.ParseResult Parse(this Option option, System.String commandLine)
     public static System.CommandLine.Parsing.ParseResult Parse(this Option option, System.String[] args)
-  public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource, ICommand, IIdentifierSymbol, ISymbol
+  public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
-  public abstract class Symbol, System.CommandLine.Completions.ICompletionSource, ISymbol
+  public abstract class Symbol, System.CommandLine.Completions.ICompletionSource
     public System.CommandLine.Collections.SymbolSet Children { get; }
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
@@ -339,29 +320,29 @@ System.CommandLine.Help
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.Int32 MaxWidth { get; }
     public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<HelpSectionDelegate>> getLayout)
-    public System.Void CustomizeSymbol(System.CommandLine.ISymbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
-    public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.ISymbol symbol, HelpContext context)
+    public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
+    public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.Symbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
    static class Default
     public static HelpSectionDelegate AdditionalArgumentsSection()
     public static HelpSectionDelegate CommandArgumentsSection()
     public static HelpSectionDelegate CommandUsageSection()
-    public static System.String GetArgumentDefaultValue(System.CommandLine.IArgument argument)
-    public static System.String GetArgumentDescription(System.CommandLine.IArgument argument)
-    public static System.String GetArgumentUsageLabel(System.CommandLine.IArgument argument)
-    public static System.String GetIdentifierSymbolDescription(System.CommandLine.IIdentifierSymbol symbol)
-    public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.IIdentifierSymbol symbol, HelpContext context)
+    public static System.String GetArgumentDefaultValue(System.CommandLine.Argument argument)
+    public static System.String GetArgumentDescription(System.CommandLine.Argument argument)
+    public static System.String GetArgumentUsageLabel(System.CommandLine.Argument argument)
+    public static System.String GetIdentifierSymbolDescription(System.CommandLine.IdentifierSymbol symbol)
+    public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.IdentifierSymbol symbol, HelpContext context)
     public static System.Collections.Generic.IEnumerable<HelpSectionDelegate> GetLayout()
     public static HelpSectionDelegate OptionsSection()
     public static HelpSectionDelegate SubcommandsSection()
     public static HelpSectionDelegate SynopsisSection()
   public static class HelpBuilderExtensions
-    public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.ISymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
-    public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter writer)
+    public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.Symbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
+    public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter writer)
   public class HelpContext
-    .ctor(HelpBuilder helpBuilder, System.CommandLine.ICommand command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null)
-    public System.CommandLine.ICommand Command { get; }
+    .ctor(HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null)
+    public System.CommandLine.Command Command { get; }
     public HelpBuilder HelpBuilder { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.Parsing.ParseResult ParseResult { get; }
@@ -441,7 +422,7 @@ System.CommandLine.IO
     protected System.Void set_Out(IStandardStreamWriter value)
 System.CommandLine.Parsing
   public class ArgumentResult : SymbolResult
-    public System.CommandLine.IArgument Argument { get; }
+    public System.CommandLine.Argument Argument { get; }
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
@@ -449,11 +430,11 @@ System.CommandLine.Parsing
   public class CommandLineStringSplitter
     public System.Collections.Generic.IEnumerable<System.String> Split(System.String commandLine)
   public class CommandResult : SymbolResult
-    public System.CommandLine.ICommand Command { get; }
+    public System.CommandLine.Command Command { get; }
     public Token Token { get; }
   public class OptionResult : SymbolResult
     public System.Boolean IsImplicit { get; }
-    public System.CommandLine.IOption Option { get; }
+    public System.CommandLine.Option Option { get; }
     public Token Token { get; }
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
@@ -481,18 +462,18 @@ System.CommandLine.Parsing
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnparsedTokens { get; }
-    public ArgumentResult FindResultFor(System.CommandLine.IArgument argument)
-    public CommandResult FindResultFor(System.CommandLine.ICommand command)
-    public OptionResult FindResultFor(System.CommandLine.IOption option)
-    public SymbolResult FindResultFor(System.CommandLine.ISymbol symbol)
+    public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
+    public CommandResult FindResultFor(System.CommandLine.Command command)
+    public OptionResult FindResultFor(System.CommandLine.Option option)
+    public SymbolResult FindResultFor(System.CommandLine.Symbol symbol)
     public System.CommandLine.Completions.CompletionContext GetCompletionContext()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
-    public System.Object GetValueForArgument(System.CommandLine.IArgument argument)
+    public System.Object GetValueForArgument(System.CommandLine.Argument argument)
     public T GetValueForArgument<T>(Argument<T> argument)
-    public T GetValueForArgument<T>(System.CommandLine.IArgument argument)
+    public T GetValueForArgument<T>(System.CommandLine.Argument argument)
     public System.Object GetValueForOption(System.CommandLine.Option option)
     public T GetValueForOption<T>(Option<T> option)
-    public T GetValueForOption<T>(System.CommandLine.IOption option)
+    public T GetValueForOption<T>(System.CommandLine.Option option)
     public System.String ToString()
     public System.Object ValueForArgument(System.String alias)
     public System.Object ValueForArgument(System.CommandLine.Argument argument)
@@ -504,7 +485,7 @@ System.CommandLine.Parsing
     public T ValueForOption<T>(System.String alias)
   public static class ParseResultExtensions
     public static System.String Diagram(this ParseResult parseResult)
-    public static System.Boolean HasOption(this ParseResult parseResult, System.CommandLine.IOption option)
+    public static System.Boolean HasOption(this ParseResult parseResult, System.CommandLine.Option option)
     public static System.Boolean HasOption(this ParseResult parseResult, System.String alias)
     public static System.Int32 Invoke(this ParseResult parseResult, System.CommandLine.IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this ParseResult parseResult, System.CommandLine.IConsole console = null)
@@ -523,17 +504,17 @@ System.CommandLine.Parsing
     public System.String ErrorMessage { get; set; }
     public System.CommandLine.LocalizationResources LocalizationResources { get; set; }
     public SymbolResult Parent { get; }
-    public System.CommandLine.ISymbol Symbol { get; }
+    public System.CommandLine.Symbol Symbol { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
-    public ArgumentResult FindResultFor(System.CommandLine.IArgument argument)
-    public CommandResult FindResultFor(System.CommandLine.ICommand command)
-    public OptionResult FindResultFor(System.CommandLine.IOption option)
+    public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
+    public CommandResult FindResultFor(System.CommandLine.Command command)
+    public OptionResult FindResultFor(System.CommandLine.Option option)
     public System.String ToString()
   public struct Token : System.ValueType, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)
     public static System.Boolean op_Inequality(Token left, Token right)
-    .ctor(System.String value, TokenType type, System.CommandLine.ISymbol symbol)
-    public System.CommandLine.ISymbol Symbol { get; }
+    .ctor(System.String value, TokenType type, System.CommandLine.Symbol symbol)
+    public System.CommandLine.Symbol Symbol { get; }
     public TokenType Type { get; }
     public System.String Value { get; }
     public System.Boolean Equals(System.Object obj)

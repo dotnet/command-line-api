@@ -110,7 +110,7 @@ namespace System.CommandLine.Binding
         private delegate bool TryConvertString(string token, out object? value);
 
         internal static ArgumentConversionResult ConvertObject(
-            IArgument argument,
+            Argument argument,
             Type type,
             object? value,
             LocalizationResources localizationResources)
@@ -135,7 +135,7 @@ namespace System.CommandLine.Binding
         }
 
         private static ArgumentConversionResult ConvertString(
-            IArgument argument,
+            Argument argument,
             Type type,
             string value,
             LocalizationResources localizationResources)
@@ -184,7 +184,7 @@ namespace System.CommandLine.Binding
         }
 
         public static ArgumentConversionResult ConvertStrings(
-            IArgument argument,
+            Argument argument,
             Type type,
             IReadOnlyList<string> tokens,
             LocalizationResources localizationResources,
@@ -354,7 +354,7 @@ namespace System.CommandLine.Binding
             typeConverter.CanConvertFrom(typeof(string));
 
         private static FailedArgumentConversionResult Failure(
-            IArgument argument,
+            Argument argument,
             Type expectedType,
             string value,
             LocalizationResources localizationResources)

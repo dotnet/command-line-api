@@ -19,7 +19,7 @@ namespace System.CommandLine.Collections
 
         public Symbol this[int index] => _symbols[index];
 
-        private void ResetIndex(ISymbol item)
+        private void ResetIndex(Symbol item)
         {
             switch (item)
             {

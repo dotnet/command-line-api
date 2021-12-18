@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.CommandLine.Completions;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine
 {
-    /// <inheritdoc cref="IArgument"/>
-    public class Argument : Symbol, IArgument
+    /// <summary>
+    /// A symbol defining a value that can be passed on the command line to a <see cref="Command">command</see> or <see cref="Option">option</see>.
+    /// </summary>
+    public class Argument : Symbol, IValueDescriptor
     {
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private ArgumentArity _arity;
@@ -203,9 +204,6 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         public override string ToString() => $"{nameof(Argument)}: {Name}";
-
-        /// <inheritdoc />
-        ArgumentArity IArgument.Arity => Arity;
 
         /// <inheritdoc />
         string IValueDescriptor.ValueName => Name;

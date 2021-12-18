@@ -93,7 +93,7 @@ namespace System.CommandLine.Parsing
 
                 var includeArgumentName =
                     argumentResult.Argument is Argument argument &&
-                    argument.FirstParent!.Symbol is ICommand command &&
+                    argument.FirstParent!.Symbol is Command command &&
                     command.Arguments.Count > 1;
 
                 if (includeArgumentName)
@@ -179,7 +179,7 @@ namespace System.CommandLine.Parsing
         /// <returns><see langword="true"/> if the option is present; otherwise,  <see langword="false"/>.</returns>
         public static bool HasOption(
             this ParseResult parseResult,
-            IOption option)
+            Option option)
         {
             if (parseResult is null)
             {
@@ -189,8 +189,8 @@ namespace System.CommandLine.Parsing
             return parseResult.FindResultFor(option) is { };
         }
 
-        /// <inheritdoc cref="HasOption(System.CommandLine.Parsing.ParseResult,System.CommandLine.IOption)"/>
-        [Obsolete("This method got removed. Please use ParseResultExtensions.HasOption(ParseResult, IOption) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
+        /// <inheritdoc cref="HasOption(System.CommandLine.Parsing.ParseResult,System.CommandLine.Option)"/>
+        [Obsolete("This method got removed. Please use ParseResultExtensions.HasOption(ParseResult, Option) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
         public static bool HasOption(
             this ParseResult parseResult,
             string alias)

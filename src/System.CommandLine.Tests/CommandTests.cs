@@ -215,7 +215,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("that");
 
-            result.CommandResult.Command.Should().Be(command);
+            result.CommandResult.Command.Should().BeSameAs(command);
             result.Errors.Should().BeEmpty();
         }
 
@@ -229,7 +229,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("that");
 
-            result.CommandResult.Command.Should().Be(command);
+            result.CommandResult.Command.Should().BeSameAs(command);
             result.Errors.Should().BeEmpty();
         }
 
@@ -246,7 +246,7 @@ namespace System.CommandLine.Tests
 
             var result = rootCommand.Parse("that");
 
-            result.CommandResult.Command.Should().Be(subcommand);
+            result.CommandResult.Command.Should().BeSameAs(subcommand);
             result.Errors.Should().BeEmpty();
         }
 

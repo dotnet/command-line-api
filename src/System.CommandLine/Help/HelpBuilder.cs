@@ -14,7 +14,7 @@ namespace System.CommandLine.Help
     {
         private const string Indent = "  ";
 
-        private Dictionary<ISymbol, Customization>? _customizationsBySymbol;
+        private Dictionary<Symbol, Customization>? _customizationsBySymbol;
         private Func<HelpContext, IEnumerable<HelpSectionDelegate>>? _getLayout;
 
         /// <param name="localizationResources">Resources used to localize the help output.</param>
@@ -84,7 +84,7 @@ namespace System.CommandLine.Help
         /// <param name="firstColumnText">A delegate to display the first help column (typically name and usage information).</param>
         /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
         /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
-        public void CustomizeSymbol(ISymbol symbol,
+        public void CustomizeSymbol(Symbol symbol,
             Func<HelpContext, string?>? firstColumnText = null,
             Func<HelpContext, string?>? secondColumnText = null,
             Func<HelpContext, string?>? defaultValue = null)
@@ -108,7 +108,7 @@ namespace System.CommandLine.Help
             _getLayout = getLayout ?? throw new ArgumentNullException(nameof(getLayout));
         }
 
-        private string GetUsage(ICommand command)
+        private string GetUsage(Command command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -156,9 +156,9 @@ namespace System.CommandLine.Help
             }
         }
 
-        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(ICommand command, HelpContext context) =>
+        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(Command command, HelpContext context) =>
             command
-                .RecurseWhileNotNull(c => c.Parents.OfType<ICommand>().FirstOrDefault())
+                .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                 .Reverse()
                 .SelectMany(cmd => cmd.Arguments.Where(a => !a.IsHidden))
                 .Select(a => GetTwoColumnRow(a, context))
@@ -166,7 +166,7 @@ namespace System.CommandLine.Help
 
         private void WriteSubcommands(HelpContext context)
         {
-            var subcommands = context.Command.Children.OfType<ICommand>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
+            var subcommands = context.Command.Children.OfType<Command>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
 
             if (subcommands.Length <= 0)
             {
@@ -272,7 +272,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        private string FormatArgumentUsage(IReadOnlyList<IArgument> arguments)
+        private string FormatArgumentUsage(IReadOnlyList<Argument> arguments)
         {
             var sb = StringBuilderPool.Default.Rent();
 
@@ -328,11 +328,10 @@ namespace System.CommandLine.Help
                 StringBuilderPool.Default.ReturnToPool(sb);
             }
 
-            bool IsMultiParented(IArgument argument) =>
-                argument is Argument a &&
+            bool IsMultiParented(Argument a) =>
                 a.FirstParent is not null && a.FirstParent.Next is not null;
 
-            bool IsOptional(IArgument argument) =>
+            bool IsOptional(Argument argument) =>
                 IsMultiParented(argument) ||
                 argument.Arity.MinimumNumberOfValues == 0;
         }
@@ -401,7 +400,7 @@ namespace System.CommandLine.Help
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <param name="context">The help context.</param>
         public TwoColumnHelpRow GetTwoColumnRow(
-            ISymbol symbol,
+            Symbol symbol,
             HelpContext context)
         {
             if (symbol is null)
@@ -416,11 +415,11 @@ namespace System.CommandLine.Help
                 _customizationsBySymbol.TryGetValue(symbol, out customization);
             }
 
-            if (symbol is IIdentifierSymbol identifierSymbol)
+            if (symbol is IdentifierSymbol identifierSymbol)
             {
                 return GetIdentifierSymbolRow();
             }
-            else if (symbol is IArgument argument)
+            else if (symbol is Argument argument)
             {
                 return GetCommandArgumentRow(argument);
             }
@@ -450,7 +449,7 @@ namespace System.CommandLine.Help
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
 
-            TwoColumnHelpRow GetCommandArgumentRow(IArgument argument)
+            TwoColumnHelpRow GetCommandArgumentRow(Argument argument)
             {
                 var firstColumnText =
                     customization?.GetFirstColumn?.Invoke(context) ?? Default.GetArgumentUsageLabel(argument);
@@ -468,9 +467,9 @@ namespace System.CommandLine.Help
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
 
-            string GetSymbolDefaultValue(IIdentifierSymbol symbol)
+            string GetSymbolDefaultValue(IdentifierSymbol symbol)
             {
-                IEnumerable<IArgument> arguments = symbol.Arguments();
+                IEnumerable<Argument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
 
                 if (defaultArguments.Length == 0) return "";
@@ -483,8 +482,8 @@ namespace System.CommandLine.Help
         }
 
         private string GetArgumentDefaultValue(
-            IIdentifierSymbol parent,
-            IArgument argument,
+            IdentifierSymbol parent,
+            Argument argument,
             bool displayArgumentName,
             HelpContext context)
         {

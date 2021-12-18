@@ -20,7 +20,7 @@ namespace System.CommandLine.Help
         /// <param name="defaultValue">The displayed default value for the symbol.</param>
         public static void CustomizeSymbol(
             this HelpBuilder builder,
-            ISymbol symbol,
+            Symbol symbol,
             string? firstColumnText = null,
             string? secondColumnText = null,
             string? defaultValue = null)
@@ -33,7 +33,7 @@ namespace System.CommandLine.Help
         /// </summary>
         public static void Write(
             this HelpBuilder helpBuilder,
-            ICommand command,
+            Command command,
             TextWriter writer)
         {
             helpBuilder.Write(new HelpContext(helpBuilder, command, writer));

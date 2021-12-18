@@ -9,7 +9,7 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol, such as an option or command, having one or more fixed names in a command line interface.
     /// </summary>
-    public abstract class IdentifierSymbol : Symbol, IIdentifierSymbol
+    public abstract class IdentifierSymbol : Symbol
     {
         private protected readonly HashSet<string> _aliases = new();
         private string? _specifiedName;
@@ -34,7 +34,9 @@ namespace System.CommandLine
             Description = description;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Gets the set of strings that can be used on the command line to specify the symbol.
+        /// </summary>
         public IReadOnlyCollection<string> Aliases => _aliases;
 
         /// <inheritdoc/>
@@ -72,7 +74,11 @@ namespace System.CommandLine
 
         private protected virtual void RemoveAlias(string alias) => _aliases.Remove(alias);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Determines whether the alias has already been defined.
+        /// </summary>
+        /// <param name="alias">The alias to search for.</param>
+        /// <returns><see langword="true">true</see> if the alias has already been defined; otherwise <see langkeyword="true">false</see>.</returns>
         public bool HasAlias(string alias) => _aliases.Contains(alias);
 
         [DebuggerStepThrough]

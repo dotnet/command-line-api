@@ -8,7 +8,7 @@ namespace System.CommandLine.Binding
     internal class FailedArgumentTypeConversionResult : FailedArgumentConversionResult
     {
         internal FailedArgumentTypeConversionResult(
-            IArgument argument,
+            Argument argument,
             Type expectedType,
             string value,
             LocalizationResources localizationResources) :
@@ -17,7 +17,7 @@ namespace System.CommandLine.Binding
         }
 
         private static string FormatErrorMessage(
-            IArgument argument,
+            Argument argument,
             Type expectedType,
             string value,
             LocalizationResources localizationResources)
@@ -25,14 +25,14 @@ namespace System.CommandLine.Binding
             if (argument is Argument a &&
                 a.FirstParent is not null && a.FirstParent.Next is null)
             {
-                var firstParent = (IIdentifierSymbol) a.FirstParent.Symbol;
+                var firstParent = (IdentifierSymbol) a.FirstParent.Symbol;
                 var alias = firstParent.Aliases.First();
                 
                 switch(firstParent)
                 {
-                    case ICommand _:
+                    case Command _:
                         return localizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
-                    case IOption _:
+                    case Option _:
                         return localizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
                 }
             }

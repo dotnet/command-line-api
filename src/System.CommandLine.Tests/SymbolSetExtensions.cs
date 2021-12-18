@@ -8,7 +8,7 @@ namespace System.CommandLine.Tests
 {
     internal static class SymbolSetExtensions
     {
-        internal static ISymbol GetByAlias(this SymbolSet symbolSet, string alias)
+        internal static Symbol GetByAlias(this SymbolSet symbolSet, string alias)
             => symbolSet.SingleOrDefault(symbol => symbol.Name.Equals(alias) || symbol is IdentifierSymbol id && id.HasAlias(alias));
 
         internal static bool ContainsAlias(this SymbolSet symbolSet, string alias)

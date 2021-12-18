@@ -152,7 +152,7 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc cref="GetValueForOption"/>
         [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(IOption) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
+            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(Option) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         public object? ValueForOption(Option option) =>
             GetValueForOption<object?>(option);
 
@@ -181,7 +181,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public object? GetValueForArgument(IArgument argument) =>
+        public object? GetValueForArgument(Argument argument) =>
             GetValueForArgument<object?>(argument);
 
         /// <inheritdoc cref="GetValueForArgument"/>
@@ -206,14 +206,14 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc cref="GetValueForArgument"/>
         [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(IArgument) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
+            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(Argument) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
         [return: MaybeNull]
         internal T ValueForArgument<T>(Argument argument) =>
             GetValueForArgument<T>(argument);
 
         /// <inheritdoc cref="GetValueForArgument"/>
         [return: MaybeNull]
-        public T GetValueForArgument<T>(IArgument argument)
+        public T GetValueForArgument<T>(Argument argument)
         {
             if (FindResultFor(argument) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -260,7 +260,7 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc cref="GetValueForOption"/>
         [return: MaybeNull]
-        public T GetValueForOption<T>(IOption option)
+        public T GetValueForOption<T>(Option option)
         {
             if (FindResultFor(option) is { } result)
             {
@@ -295,7 +295,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>A result for the specified argument, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public ArgumentResult? FindResultFor(IArgument argument) =>
+        public ArgumentResult? FindResultFor(Argument argument) =>
             _rootCommandResult.FindResultFor(argument);
 
         /// <summary>
@@ -303,7 +303,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>A result for the specified command, or <see langword="null"/> if it was not provided.</returns>
-        public CommandResult? FindResultFor(ICommand command) =>
+        public CommandResult? FindResultFor(Command command) =>
             _rootCommandResult.FindResultFor(command);
 
         /// <summary>
@@ -311,7 +311,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public OptionResult? FindResultFor(IOption option) =>
+        public OptionResult? FindResultFor(Option option) =>
             _rootCommandResult.FindResultFor(option);
 
         /// <summary>
@@ -319,12 +319,12 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="symbol">The symbol for which to find a result.</param>
         /// <returns>A result for the specified symbol, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public SymbolResult? FindResultFor(ISymbol symbol) =>
+        public SymbolResult? FindResultFor(Symbol symbol) =>
             symbol switch
             {
-                IArgument argument => FindResultFor(argument),
-                ICommand command => FindResultFor(command),
-                IOption option => FindResultFor(option),
+                Argument argument => FindResultFor(argument),
+                Command command => FindResultFor(command),
+                Option option => FindResultFor(option),
                 _ => throw new ArgumentOutOfRangeException(nameof(symbol))
             };
 
@@ -365,7 +365,7 @@ namespace System.CommandLine.Parsing
                     .Where(c => c.IsArgumentLimitReached)
                     .OfType<OptionResult>()
                     .Select(o => o.Symbol)
-                    .OfType<IIdentifierSymbol>()
+                    .OfType<IdentifierSymbol>()
                     .SelectMany(c => c.Aliases);
         }
 

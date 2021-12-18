@@ -7,12 +7,12 @@ namespace System.CommandLine.Parsing
     {
         public OptionNode(
             Token token,
-            IOption option,
+            Option option,
             CommandNode parent) : base(token, parent)
         {
             Option = option;
         }
 
-        public IOption Option { get; }
+        public Option Option { get; }
     }
 }

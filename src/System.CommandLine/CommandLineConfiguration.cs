@@ -97,7 +97,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the root command.
         /// </summary>
-        public ICommand RootCommand { get; }
+        public Command RootCommand { get; }
 
         internal ResponseFileHandling ResponseFileHandling { get; }
 

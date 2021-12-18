@@ -65,7 +65,7 @@ namespace System.CommandLine.Parsing
             var tokenList = new List<Token>();
             var errorList = new List<TokenizeError>();
 
-            ICommand? currentCommand = null;
+            Command? currentCommand = null;
             var foundDoubleDash = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
@@ -471,7 +471,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, Token> ValidTokens(this ICommand command)
+        private static Dictionary<string, Token> ValidTokens(this Command command)
         {
             Dictionary<string, Token> tokens = new ();
 

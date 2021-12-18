@@ -4,12 +4,12 @@
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing a <see cref="ICommand" />.
+    /// A result produced when parsing a <see cref="Command" />.
     /// </summary>
     public class CommandResult : SymbolResult
     {
         internal CommandResult(
-            ICommand command,
+            Command command,
             Token token,
             CommandResult? parent = null) :
             base(command ?? throw new ArgumentNullException(nameof(command)),
@@ -27,14 +27,14 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The command to which the result applies.
         /// </summary>
-        public ICommand Command { get; }
+        public Command Command { get; }
 
         /// <summary>
         /// The token that was parsed to specify the command.
         /// </summary>
         public Token Token { get; }
 
-        internal override bool UseDefaultValueFor(IArgument argument) =>
+        internal override bool UseDefaultValueFor(Argument argument) =>
             FindResultFor(argument) switch
             {
                 ArgumentResult arg => arg.Argument.HasDefaultValue && 

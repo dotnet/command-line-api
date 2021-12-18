@@ -16,10 +16,10 @@ namespace System.CommandLine.Parsing
         private readonly List<SymbolResult> _children = new List<SymbolResult>();
         private protected readonly List<Token> _tokens = new();
         private LocalizationResources? _resources;
-        private readonly Dictionary<IArgument, ArgumentResult> _defaultArgumentValues = new();
+        private readonly Dictionary<Argument, ArgumentResult> _defaultArgumentValues = new();
 
         private protected SymbolResult(
-            ISymbol symbol, 
+            Symbol symbol, 
             SymbolResult? parent)
         {
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
@@ -52,7 +52,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The symbol to which the result applies.
         /// </summary>
-        public ISymbol Symbol { get; }
+        public Symbol Symbol { get; }
 
         /// <summary>
         /// The list of tokens associated with this symbol result during parsing.
@@ -70,13 +70,13 @@ namespace System.CommandLine.Parsing
             {
                 switch (Symbol)
                 {
-                    case IOption option:
+                    case Option option:
                         return option.Argument.Arity.MaximumNumberOfValues;
 
-                    case IArgument argument:
+                    case Argument argument:
                         return argument.Arity.MaximumNumberOfValues;
 
-                    case ICommand command:
+                    case Command command:
                         var value = 0;
 
                         var arguments = command.Arguments;
@@ -110,7 +110,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public virtual ArgumentResult? FindResultFor(IArgument argument) =>
+        public virtual ArgumentResult? FindResultFor(Argument argument) =>
             Root?.FindResultFor(argument);
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
-        public virtual CommandResult? FindResultFor(ICommand command) =>
+        public virtual CommandResult? FindResultFor(Command command) =>
             Root?.FindResultFor(command);
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public virtual OptionResult? FindResultFor(IOption option) =>
+        public virtual OptionResult? FindResultFor(Option option) =>
             Root?.FindResultFor(option);
 
         internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
@@ -134,7 +134,7 @@ namespace System.CommandLine.Parsing
                 argument,
                 arg => new ArgumentResult(arg, this));
 
-        internal virtual bool UseDefaultValueFor(IArgument argument) => false;
+        internal virtual bool UseDefaultValueFor(Argument argument) => false;
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {this.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}";

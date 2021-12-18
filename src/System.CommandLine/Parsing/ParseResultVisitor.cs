@@ -19,7 +19,7 @@ namespace System.CommandLine.Parsing
         private readonly List<Token>? _unmatchedTokens;
         private readonly List<ParseError> _errors;
 
-        private readonly Dictionary<ISymbol, SymbolResult> _symbolResults = new();
+        private readonly Dictionary<Symbol, SymbolResult> _symbolResults = new();
 
         private readonly List<OptionResult> _optionResults = new();
         private readonly List<ArgumentResult> _argumentResults = new();
@@ -314,7 +314,7 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            if (!cmd.Children.HasAnyOfType<ICommand>())
+            if (!cmd.Children.HasAnyOfType<Command>())
             {
                 return;
             }
