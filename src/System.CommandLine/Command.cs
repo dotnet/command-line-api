@@ -3,8 +3,11 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Collections;
+using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -28,6 +31,11 @@ namespace System.CommandLine
         }
 
         /// <summary>
+        /// Gets the child symbols.
+        /// </summary>
+        public SymbolSet Children { get; } = new();
+
+        /// <summary>
         /// Represents all of the arguments for the command.
         /// </summary>
         public IReadOnlyList<Argument> Arguments => Children.Arguments;
@@ -41,7 +49,11 @@ namespace System.CommandLine
         /// Adds an <see cref="Argument"/> to the command.
         /// </summary>
         /// <param name="argument">The argument to add to the command.</param>
-        public void AddArgument(Argument argument) => AddArgumentInner(argument);
+        public void AddArgument(Argument argument)
+        {
+            argument.AddParent(this);
+            Children.AddWithoutAliasCollisionCheck(argument);
+        }
 
         /// <summary>
         /// Adds a subcommand to the command.
@@ -116,5 +128,59 @@ namespace System.CommandLine
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         internal Parser? ImplicitParser { get; set; }
+
+        private protected void AddSymbol(Symbol symbol)
+        {
+            Children.AddWithoutAliasCollisionCheck(symbol);
+            symbol.AddParent(this);
+        }
+
+        public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
+        {
+            if (Children.Count == 0)
+            {
+                return Array.Empty<CompletionItem>();
+            }
+
+            var completions = new List<CompletionItem>();
+
+            if (context.WordToComplete is { } textToMatch)
+            {
+                for (var i = 0; i < Children.Count; i++)
+                {
+                    var child = Children[i];
+
+                    switch (child)
+                    {
+                        case IdentifierSymbol identifier when !child.IsHidden:
+                            foreach (var alias in identifier.Aliases)
+                            {
+                                if (alias is { } &&
+                                    alias.ContainsCaseInsensitive(textToMatch))
+                                {
+                                    completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: child.Description));
+                                }
+                            }
+
+                            break;
+
+                        case Argument argument:
+                            foreach (var completion in argument.GetCompletions(context))
+                            {
+                                if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                                {
+                                    completions.Add(completion);
+                                }
+                            }
+
+                            break;
+                    }
+                }
+            }
+
+            return completions
+                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
+                   .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
+        }
     }
 }

@@ -55,10 +55,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
             GenerateTestNestedCommands(rootCommand, TestCommandsDepth, TestCommandsDepth);
 
             // Choose only one path from the commands tree for the test arguments string
-            Symbol currentCmd = rootCommand;
-            while (currentCmd.Children.Count > 0)
+            Command currentCmd = rootCommand;
+            while (currentCmd is not null && currentCmd.Children.Count > 0)
             {
-                currentCmd = currentCmd.Children[0];
+                currentCmd = currentCmd.Children[0] as Command;
                 _testSymbolsAsString = string.Join(" ", _testSymbolsAsString, currentCmd.Name);
             }
 

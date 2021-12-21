@@ -11,7 +11,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class IdentifierSymbol : Symbol
     {
-        private protected readonly HashSet<string> _aliases = new();
+        private protected readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
         private string? _specifiedName;
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace System.CommandLine
             get => _specifiedName ??= DefaultName;
             set
             {
-                if (!string.Equals(_specifiedName, value, StringComparison.Ordinal))
+                if (_specifiedName is null || !string.Equals(_specifiedName, value, StringComparison.Ordinal))
                 {
                     AddAlias(value);
 

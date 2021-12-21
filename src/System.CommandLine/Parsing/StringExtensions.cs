@@ -62,13 +62,13 @@ namespace System.CommandLine.Parsing
             this IReadOnlyList<string> args,
             CommandLineConfiguration configuration)
         {
-            var tokenList = new List<Token>();
             var errorList = new List<TokenizeError>();
 
             Command? currentCommand = null;
             var foundDoubleDash = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
+            var tokenList = new List<Token>(argList.Count);
 
             var knownTokens = configuration.RootCommand.ValidTokens();
 
@@ -473,7 +473,7 @@ namespace System.CommandLine.Parsing
 
         private static Dictionary<string, Token> ValidTokens(this Command command)
         {
-            Dictionary<string, Token> tokens = new ();
+            Dictionary<string, Token> tokens = new (StringComparer.Ordinal);
 
             foreach (var commandAlias in command.Aliases)
             {

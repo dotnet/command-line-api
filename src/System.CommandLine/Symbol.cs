@@ -61,23 +61,6 @@ namespace System.CommandLine
             }
         }
 
-        private protected virtual void AddSymbol(Symbol symbol)
-        {
-            Children.AddWithoutAliasCollisionCheck(symbol);
-            symbol.AddParent(this);
-        }
-
-        private protected void AddArgumentInner(Argument argument)
-        {
-            argument.AddParent(this);
-            Children.AddWithoutAliasCollisionCheck(argument);
-        }
-
-        /// <summary>
-        /// Gets the child symbols.
-        /// </summary>
-        public SymbolSet Children { get; } = new();
-
         /// <summary>
         /// Gets or sets a value indicating whether the symbol is hidden.
         /// </summary>
@@ -106,48 +89,7 @@ namespace System.CommandLine
             GetCompletions(CompletionContext.Empty());
 
         /// <inheritdoc />
-        public virtual IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
-        {
-            var completions = new List<CompletionItem>();
-
-            if (context.WordToComplete is { } textToMatch)
-            {
-                for (var i = 0; i < Children.Count; i++)
-                {
-                    var child = Children[i];
-
-                    switch (child)
-                    {
-                        case IdentifierSymbol identifier when !child.IsHidden:
-                            foreach (var alias in identifier.Aliases)
-                            {
-                                if (alias is { } &&
-                                    alias.ContainsCaseInsensitive(textToMatch))
-                                {
-                                    completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: child.Description));
-                                }
-                            }
-
-                            break;
-
-                        case Argument argument:
-                            foreach (var completion in argument.GetCompletions(context))
-                            {
-                                if (completion.Label.ContainsCaseInsensitive(textToMatch))
-                                {
-                                    completions.Add(completion);
-                                }
-                            }
-
-                            break;
-                    }
-                }
-            }
-
-            return completions
-                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
-                   .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
-        }
+        public abstract IEnumerable<CompletionItem> GetCompletions(CompletionContext context);
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";

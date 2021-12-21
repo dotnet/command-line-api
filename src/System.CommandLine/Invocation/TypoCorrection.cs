@@ -39,7 +39,7 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        private IEnumerable<string> GetPossibleTokens(Symbol targetSymbol, string token)
+        private IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)
         {
             IEnumerable<string> possibleMatches = targetSymbol
                 .Children
