@@ -200,6 +200,8 @@ namespace System.CommandLine
 
         internal List<ValidateSymbolResult<OptionResult>> Validators => _validators ??= new();
 
+        internal bool HasValidators => _validators is not null && _validators.Count > 0;
+
         /// <summary>
         /// Adds a validator that will be called when the option is matched by the parser.
         /// </summary>

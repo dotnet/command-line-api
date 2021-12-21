@@ -399,11 +399,11 @@ namespace System.CommandLine.Parsing
                 AddErrorToResult(optionResult, new ParseError(arityFailure.ErrorMessage!, optionResult));
             }
 
-            if (optionResult.Option is Option option)
+            if (optionResult.Option.HasValidators)
             {
-                for (var i = 0; i < option.Validators.Count; i++)
+                for (var i = 0; i < optionResult.Option.Validators.Count; i++)
                 {
-                    var validate = option.Validators[i];
+                    var validate = optionResult.Option.Validators[i];
                     var message = validate(optionResult);
 
                     if (!string.IsNullOrWhiteSpace(message))
