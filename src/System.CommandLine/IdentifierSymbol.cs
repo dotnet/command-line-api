@@ -45,7 +45,7 @@ namespace System.CommandLine
             get => _specifiedName ??= DefaultName;
             set
             {
-                if (!string.Equals(_specifiedName, value, StringComparison.Ordinal))
+                if (_specifiedName is null || !string.Equals(_specifiedName, value, StringComparison.Ordinal))
                 {
                     AddAlias(value);
 
