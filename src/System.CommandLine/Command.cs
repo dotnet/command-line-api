@@ -49,7 +49,11 @@ namespace System.CommandLine
         /// Adds an <see cref="Argument"/> to the command.
         /// </summary>
         /// <param name="argument">The argument to add to the command.</param>
-        public void AddArgument(Argument argument) => AddArgumentInner(argument);
+        public void AddArgument(Argument argument)
+        {
+            argument.AddParent(this);
+            Children.AddWithoutAliasCollisionCheck(argument);
+        }
 
         /// <summary>
         /// Adds a subcommand to the command.
@@ -125,16 +129,10 @@ namespace System.CommandLine
 
         internal Parser? ImplicitParser { get; set; }
 
-        private protected virtual void AddSymbol(Symbol symbol)
+        private protected void AddSymbol(Symbol symbol)
         {
             Children.AddWithoutAliasCollisionCheck(symbol);
             symbol.AddParent(this);
-        }
-
-        private protected void AddArgumentInner(Argument argument)
-        {
-            argument.AddParent(this);
-            Children.AddWithoutAliasCollisionCheck(argument);
         }
 
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
