@@ -33,19 +33,14 @@ namespace System.CommandLine.Parsing
 
         private void Advance() => _index++;
 
-        private void IncrementCount(Argument argument)
+        private void IncrementCount(Argument argument, int count)
         {
-            if (!_argumentCounts.TryGetValue(argument, out var count))
-            {
-                count = 0;
-            }
-
             _argumentCounts[argument] = count + 1;
         }
 
-        private bool IsFull(Argument argument)
+        private bool IsFull(Argument argument, out int count)
         {
-            if (!_argumentCounts.TryGetValue(argument, out var count))
+            if (!_argumentCounts.TryGetValue(argument, out count))
             {
                 count = 0;
             }
@@ -129,33 +124,25 @@ namespace System.CommandLine.Parsing
                 return null;
             }
 
-            Argument? argument = default;
-
             for (var i = 0; i < commandNode.Command.Arguments.Count; i++)
             {
-                if (commandNode.Command.Arguments[i] is { } arg &&
-                    !IsFull(arg))
+                Argument arg = commandNode.Command.Arguments[i];
+                if (!IsFull(arg, out int count))
                 {
-                    argument = arg;
-                    break;
+                    var argumentNode = new CommandArgumentNode(
+                       CurrentToken,
+                       arg,
+                       commandNode);
+
+                    IncrementCount(arg, count);
+
+                    Advance();
+
+                    return argumentNode;
                 }
             }
 
-            if (argument is null)
-            {
-                return null;
-            }
-
-            var argumentNode = new CommandArgumentNode(
-                CurrentToken,
-                argument,
-                commandNode);
-
-            IncrementCount(argument);
-
-            Advance();
-
-            return argumentNode;
+            return null;
         }
 
         private OptionNode? ParseOption(CommandNode parent)
@@ -188,7 +175,7 @@ namespace System.CommandLine.Parsing
                    CurrentToken.Type == TokenType.Argument &&
                    continueProcessing)
             {
-                if (IsFull(argument))
+                if (IsFull(argument, out int count))
                 {
                     if (contiguousTokens > 0)
                     {
@@ -218,7 +205,7 @@ namespace System.CommandLine.Parsing
                         argument,
                         optionNode));
 
-                IncrementCount(argument);
+                IncrementCount(argument, count);
 
                 contiguousTokens++;
 
