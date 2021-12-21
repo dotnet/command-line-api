@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
-    internal class ParseResultVisitor : SyntaxVisitor
+    internal sealed class ParseResultVisitor
     {
         private readonly Parser _parser;
         private readonly TokenizeResult _tokenizeResult;
@@ -49,6 +49,64 @@ namespace System.CommandLine.Parsing
             }
         }
 
+        public void Visit(SyntaxNode node)
+        {
+            VisitInternal(node);
+
+            Stop();
+        }
+
+        private void VisitInternal(SyntaxNode node)
+        {
+            switch (node)
+            {
+                case DirectiveNode directiveNode:
+                    VisitDirectiveNode(directiveNode);
+
+                    break;
+
+                case RootCommandNode rootCommandNode:
+                    VisitRootCommandNode(rootCommandNode);
+
+                    for (var i = 0; i < rootCommandNode.Children.Count; i++)
+                    {
+                        VisitInternal(rootCommandNode.Children[i]);
+                    }
+
+                    break;
+
+                case CommandNode commandNode:
+                    VisitCommandNode(commandNode);
+
+                    for (var i = 0; i < commandNode.Children.Count; i++)
+                    {
+                        VisitInternal(commandNode.Children[i]);
+                    }
+
+                    break;
+
+                case OptionNode optionNode:
+                    VisitOptionNode(optionNode);
+
+                    for (var i = 0; i < optionNode.Children.Count; i++)
+                    {
+                        VisitInternal(optionNode.Children[i]);
+                    }
+
+                    break;
+
+                case CommandArgumentNode commandArgumentNode:
+                    VisitCommandArgumentNode(commandArgumentNode);
+
+                    break;
+
+                case OptionArgumentNode optionArgumentNode:
+                    VisitOptionArgumentNode(optionArgumentNode);
+
+                    break;
+            }
+        }
+
         private void AddToResult(CommandResult result)
         {
             _innermostCommandResult?.AddChild(result);
@@ -73,7 +131,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        protected override void VisitRootCommandNode(RootCommandNode rootCommandNode)
+        private void VisitRootCommandNode(RootCommandNode rootCommandNode)
         {
             _rootCommandResult = new RootCommandResult(
                 rootCommandNode.Command,
@@ -85,7 +143,7 @@ namespace System.CommandLine.Parsing
             _innermostCommandResult = _rootCommandResult;
         }
 
-        protected override void VisitCommandNode(CommandNode commandNode)
+        private void VisitCommandNode(CommandNode commandNode)
         {
             var commandResult = new CommandResult(
                 commandNode.Command,
@@ -97,7 +155,7 @@ namespace System.CommandLine.Parsing
             _innermostCommandResult = commandResult;
         }
 
-        protected override void VisitCommandArgumentNode(CommandArgumentNode argumentNode)
+        private void VisitCommandArgumentNode(CommandArgumentNode argumentNode)
         {
             _symbolResults.TryGetValue(argumentNode.Argument, out var symbolResult);
 
@@ -115,7 +173,7 @@ namespace System.CommandLine.Parsing
             _innermostCommandResult?.AddToken(argumentNode.Token);
         }
 
-        protected override void VisitOptionNode(OptionNode optionNode)
+        private void VisitOptionNode(OptionNode optionNode)
         {
             _symbolResults.TryGetValue(optionNode.Option, out var symbolResult);
 
@@ -135,7 +193,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        protected override void VisitOptionArgumentNode(
+        private void VisitOptionArgumentNode(
             OptionArgumentNode argumentNode)
         {
             _symbolResults.TryGetValue(
@@ -163,12 +221,12 @@ namespace System.CommandLine.Parsing
             optionResult.AddToken(argumentNode.Token);
         }
 
-        protected override void VisitDirectiveNode(DirectiveNode directiveNode)
+        private void VisitDirectiveNode(DirectiveNode directiveNode)
         {
             _directives.Add(directiveNode.Name, directiveNode.Value);
         }
 
-        protected override void Stop(SyntaxNode node)
+        private void Stop()
         {
             if (_isHelpRequested)
             {
