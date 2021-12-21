@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -15,6 +17,7 @@ namespace System.CommandLine
     {
         private string? _name;
         private List<ValidateSymbolResult<OptionResult>>? _validators;
+        private Argument? _argument;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
@@ -90,14 +93,19 @@ namespace System.CommandLine
 
             for (var i = 0; i < aliases.Length; i++)
             {
-                var alias = aliases[i];
-                AddAlias(alias);
+                AddAlias(aliases[i]);
             }
 
             if (argument is not null)
             {
                 AddArgumentInner(argument);
             }
+        }
+
+        private void AddArgumentInner(Argument argument)
+        {
+            argument.AddParent(this);
+            _argument = argument;
         }
 
         private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, ArgumentArity arity)
@@ -132,17 +140,14 @@ namespace System.CommandLine
         {
             get
             {
-                switch (Children.Arguments.Count)
+                if (_argument is null)
                 {
-                    case 0:
-                        var none = Argument.None();
-                        AddSymbol(none);
-                        return none;
-
-                    default:
-                        DebugAssert.ThrowIf(Children.Arguments.Count > 1, $"Unexpected number of option arguments: {Children.Arguments.Count}");
-                        return Children.Arguments[0];
+                    var none = Argument.None();
+                    none.AddParent(this);
+                    _argument = none;
                 }
+
+                return _argument;
             }
         }
 
@@ -259,18 +264,7 @@ namespace System.CommandLine
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
         internal virtual bool IsGreedy
-        {
-            get
-            {
-                if (Children.Count == 0 || Children.Arguments.Count == 0)
-                {
-                    return false;
-                }
-
-                var argument = Children.Arguments[0];
-                return argument.Arity.MinimumNumberOfValues > 0 && argument.ValueType != typeof(bool);
-            }
-        }
+            => _argument is not null && _argument.Arity.MinimumNumberOfValues > 0 && _argument.ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
@@ -302,6 +296,33 @@ namespace System.CommandLine
                 }
             }
             return max.RemovePrefix();
+        }
+
+        public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
+        {
+            if (_argument is null)
+            {
+                return Array.Empty<CompletionItem>();
+            }
+
+            List<CompletionItem>? completions = null;
+
+            foreach (var completion in _argument.GetCompletions(context))
+            {
+                if (completion.Label.ContainsCaseInsensitive(context.WordToComplete))
+                {
+                    (completions ??= new List<CompletionItem>()).Add(completion);
+                }
+            }
+
+            if (completions is null)
+            {
+                return Array.Empty<CompletionItem>();
+            }
+
+            return completions
+                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
+                   .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
         }
     }
 }

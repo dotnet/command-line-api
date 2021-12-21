@@ -3,8 +3,11 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Collections;
+using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -26,6 +29,11 @@ namespace System.CommandLine
         public Command(string name, string? description = null) : base(name, description)
         {
         }
+
+        /// <summary>
+        /// Gets the child symbols.
+        /// </summary>
+        public SymbolSet Children { get; } = new();
 
         /// <summary>
         /// Represents all of the arguments for the command.
@@ -116,5 +124,65 @@ namespace System.CommandLine
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         internal Parser? ImplicitParser { get; set; }
+
+        private protected virtual void AddSymbol(Symbol symbol)
+        {
+            Children.AddWithoutAliasCollisionCheck(symbol);
+            symbol.AddParent(this);
+        }
+
+        private protected void AddArgumentInner(Argument argument)
+        {
+            argument.AddParent(this);
+            Children.AddWithoutAliasCollisionCheck(argument);
+        }
+
+        public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
+        {
+            if (Children.Count == 0)
+            {
+                return Array.Empty<CompletionItem>();
+            }
+
+            var completions = new List<CompletionItem>();
+
+            if (context.WordToComplete is { } textToMatch)
+            {
+                for (var i = 0; i < Children.Count; i++)
+                {
+                    var child = Children[i];
+
+                    switch (child)
+                    {
+                        case IdentifierSymbol identifier when !child.IsHidden:
+                            foreach (var alias in identifier.Aliases)
+                            {
+                                if (alias is { } &&
+                                    alias.ContainsCaseInsensitive(textToMatch))
+                                {
+                                    completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: child.Description));
+                                }
+                            }
+
+                            break;
+
+                        case Argument argument:
+                            foreach (var completion in argument.GetCompletions(context))
+                            {
+                                if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                                {
+                                    completions.Add(completion);
+                                }
+                            }
+
+                            break;
+                    }
+                }
+            }
+
+            return completions
+                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
+                   .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
+        }
     }
 }

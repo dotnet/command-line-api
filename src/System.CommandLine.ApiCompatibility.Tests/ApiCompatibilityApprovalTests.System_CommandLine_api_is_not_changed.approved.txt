@@ -50,6 +50,7 @@
   public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
+    public System.CommandLine.Collections.SymbolSet Children { get; }
     public System.CommandLine.Invocation.ICommandHandler Handler { get; set; }
     public System.Collections.Generic.IReadOnlyList<Option> Options { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
@@ -60,6 +61,7 @@
     public System.Void AddGlobalOption(Option option)
     public System.Void AddOption(Option option)
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.CommandResult> validate)
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
@@ -183,6 +185,7 @@
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
     public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.OptionResult> validate)
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
@@ -212,7 +215,6 @@
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
   public abstract class Symbol, System.CommandLine.Completions.ICompletionSource
-    public System.CommandLine.Collections.SymbolSet Children { get; }
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
