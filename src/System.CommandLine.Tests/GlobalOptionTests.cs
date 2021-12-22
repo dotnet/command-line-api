@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests
         }
         
         [Fact]
-        public async Task When_a_required_global_option_is_present_on_child_of_command_it_was_added_to_it_does_not_result_in_an_error()
+        public void When_a_required_global_option_is_present_on_child_of_command_it_was_added_to_it_does_not_result_in_an_error()
         {
             var command = new Command("child");
             var rootCommand = new RootCommand { command };
