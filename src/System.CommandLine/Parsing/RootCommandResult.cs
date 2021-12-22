@@ -54,17 +54,9 @@ namespace System.CommandLine.Parsing
 
         internal SymbolResult? FindResultForSymbol(Symbol symbol)
         {
-            switch (symbol)
-            {
-                case Argument argument:
-                    return FindResultFor(argument);
-                case Command command:
-                    return FindResultFor(command);
-                case Option option:
-                    return FindResultFor(option);
-                default:
-                    throw new ArgumentException($"Unsupported symbol type: {symbol.GetType()}");
-            }
+            _symbolResults.TryGetValue(symbol, out var result);
+
+            return result;
         }
     }
 }
