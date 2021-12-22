@@ -11,7 +11,6 @@ namespace System.CommandLine.Parsing
         private readonly TokenizeResult _tokenizeResult;
         private readonly CommandLineConfiguration _configuration;
         private int _index;
-        private readonly Dictionary<Argument, int> _argumentCounts = new();
 
         public ParseOperation(
             TokenizeResult tokenizeResult,
@@ -33,24 +32,11 @@ namespace System.CommandLine.Parsing
 
         private void Advance() => _index++;
 
-        private void IncrementCount(Argument argument, int count)
+        private bool More(out TokenType currentTokenType)
         {
-            _argumentCounts[argument] = count + 1;
-        }
-
-        private bool IsFull(Argument argument, out int count)
-        {
-            if (!_argumentCounts.TryGetValue(argument, out count))
-            {
-                count = 0;
-            }
-
-            return count >= argument.Arity.MaximumNumberOfValues;
-        }
-
-        private bool More()
-        {
-            return _index < _tokenizeResult.Tokens.Count;
+            bool result = _index < _tokenizeResult.Tokens.Count;
+            currentTokenType = result ? _tokenizeResult.Tokens[_index].Type : (TokenType)(-1);
+            return result;
         }
 
         public void Parse()
@@ -75,83 +61,90 @@ namespace System.CommandLine.Parsing
             return rootCommandNode;
         }
 
-        private CommandNode? ParseSubcommand(CommandNode parentNode)
+        private void ParseSubcommand(CommandNode parentNode)
         {
-            if (CurrentToken.Type != TokenType.Command)
-            {
-                return null;
-            }
-
             var commandNode = new CommandNode(CurrentToken, (Command)CurrentToken.Symbol!, parentNode);
 
             Advance();
 
             ParseCommandChildren(commandNode);
 
-            return commandNode;
+            parentNode.AddChildNode(commandNode);
         }
 
         private void ParseCommandChildren(CommandNode parent)
         {
-            while (More())
+            int currentArgumentCount = 0;
+            int currentArgumentIndex = 0;
+
+            while (More(out TokenType currentTokenType))
             {
                 if (_configuration.EnableLegacyDoubleDashBehavior &&
-                    CurrentToken.Type == TokenType.DoubleDash)
+                    currentTokenType == TokenType.DoubleDash)
                 {
                     return;
                 }
 
-                var child = ParseSubcommand(parent) ??
-                            (SyntaxNode?)ParseOption(parent) ??
-                            ParseCommandArgument(parent);
-
-                if (child is null)
+                if (currentTokenType == TokenType.Command)
+                {
+                    ParseSubcommand(parent);
+                }
+                else if (currentTokenType == TokenType.Option)
+                {
+                    ParseOption(parent);
+                }
+                else if (currentTokenType == TokenType.Argument)
+                {
+                    ParseCommandArguments(parent, ref currentArgumentCount, ref currentArgumentIndex);
+                }
+                else
                 {
                     AddCurrentTokenToUnmatched();
                     Advance();
                 }
-                else
-                {
-                    parent.AddChildNode(child);
-                }
             }
         }
 
-        private CommandArgumentNode? ParseCommandArgument(CommandNode commandNode)
+        private void ParseCommandArguments(CommandNode commandNode, ref int currentArgumentCount, ref int currentArgumentIndex)
         {
-            if (CurrentToken.Type != TokenType.Argument)
+            while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Argument)
             {
-                return null;
-            }
-
-            for (var i = 0; i < commandNode.Command.Arguments.Count; i++)
-            {
-                Argument arg = commandNode.Command.Arguments[i];
-                if (!IsFull(arg, out int count))
+                while (currentArgumentIndex < commandNode.Command.Arguments.Count)
                 {
-                    var argumentNode = new CommandArgumentNode(
-                       CurrentToken,
-                       arg,
-                       commandNode);
+                    Argument argument = commandNode.Command.Arguments[currentArgumentIndex];
 
-                    IncrementCount(arg, count);
+                    if (currentArgumentCount < argument.Arity.MaximumNumberOfValues)
+                    {
+                        var argumentNode = new CommandArgumentNode(
+                            CurrentToken,
+                            argument,
+                            commandNode);
 
+                        commandNode.AddChildNode(argumentNode);
+
+                        currentArgumentCount++;
+
+                        Advance();
+
+                        break;
+                    }
+                    else
+                    {
+                        currentArgumentCount = 0;
+                        currentArgumentIndex++;
+                    }
+                }
+
+                if (currentArgumentCount == 0) // no matching arguments found
+                {
+                    AddCurrentTokenToUnmatched();
                     Advance();
-
-                    return argumentNode;
                 }
             }
-
-            return null;
         }
 
-        private OptionNode? ParseOption(CommandNode parent)
+        private void ParseOption(CommandNode parent)
         {
-            if (CurrentToken.Type != TokenType.Option)
-            {
-                return null;
-            }
-
             OptionNode optionNode = new OptionNode(
                 CurrentToken,
                 (Option)CurrentToken.Symbol!,
@@ -161,7 +154,7 @@ namespace System.CommandLine.Parsing
 
             ParseOptionArguments(optionNode);
 
-            return optionNode;
+            parent.AddChildNode(optionNode);
         }
 
         private void ParseOptionArguments(OptionNode optionNode)
@@ -169,13 +162,11 @@ namespace System.CommandLine.Parsing
             var argument = optionNode.Option.Argument;
 
             var contiguousTokens = 0;
-            var continueProcessing = true;
+            int argumentCount = 0;
 
-            while (More() &&
-                   CurrentToken.Type == TokenType.Argument &&
-                   continueProcessing)
+            while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Argument)
             {
-                if (IsFull(argument, out int count))
+                if (argumentCount >= argument.Arity.MaximumNumberOfValues)
                 {
                     if (contiguousTokens > 0)
                     {
@@ -205,27 +196,24 @@ namespace System.CommandLine.Parsing
                         argument,
                         optionNode));
 
-                IncrementCount(argument, count);
+                argumentCount++;
 
                 contiguousTokens++;
 
                 Advance();
 
-                continueProcessing = optionNode.Option.AllowMultipleArgumentsPerToken;
+                if (!optionNode.Option.AllowMultipleArgumentsPerToken)
+                {
+                    return;
+                }
             }
         }
 
         private void ParseDirectives(RootCommandNode parent)
         {
-            while (More())
+            while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Directive)
             {
                 var token = CurrentToken;
-
-                if (token.Type != TokenType.Directive)
-                {
-                    return;
-                }
-
                 var withoutBrackets = token.Value.Substring(1, token.Value.Length - 2);
                 var keyAndValue = withoutBrackets.Split(new[]
                 {
@@ -249,9 +237,9 @@ namespace System.CommandLine.Parsing
         {
             var foundEndOfArguments = false;
 
-            while (More())
+            while (More(out TokenType currentTokenType))
             {
-                if (CurrentToken.Type == TokenType.DoubleDash)
+                if (currentTokenType == TokenType.DoubleDash)
                 {
                     foundEndOfArguments = true;
                 }
