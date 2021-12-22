@@ -178,16 +178,9 @@ namespace System.CommandLine.Parsing
                         return;
                     }
                 }
-                else if (argument.ValueType == typeof(bool))
+                else if (argument.ValueType == typeof(bool) && !bool.TryParse(CurrentToken.Value, out _))
                 {
-                    if (ArgumentConverter.ConvertObject(
-                            argument,
-                            argument.ValueType,
-                            CurrentToken.Value,
-                            _configuration.LocalizationResources) is FailedArgumentTypeConversionResult)
-                    {
-                        return;
-                    }
+                    return;
                 }
 
                 optionNode.AddChildNode(
