@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Collections;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -63,11 +63,6 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Represents all of the symbols to parse.
-        /// </summary>
-        public SymbolSet Symbols => RootCommand.Children;
-
-        /// <summary>
         /// Gets whether directives are enabled.
         /// </summary>
         public bool EnableDirectives { get; }
@@ -112,15 +107,17 @@ namespace System.CommandLine
 
             static void ThrowIfInvalid(Command command)
             {
-                for (int i = 0; i < command.Children.Count; i++)
+                Symbol[] children = command.Children.ToArray(); // it' not perfect, but this method should never be on a hot path
+
+                for (int i = 0; i < children.Length; i++)
                 {
-                    for (int j = 1; j < command.Children.Count; j++)
+                    for (int j = 1; j < children.Length; j++)
                     {
-                        if (command.Children[j] is IdentifierSymbol identifierSymbol)
+                        if (children[j] is IdentifierSymbol identifierSymbol)
                         {
                             foreach (string alias in identifierSymbol.Aliases)
                             {
-                                if (command.Children[i].Matches(alias))
+                                if (children[i].Matches(alias))
                                 {
                                     throw new ArgumentException($"Alias '{alias}' is already in use.");
                                 }
@@ -137,13 +134,13 @@ namespace System.CommandLine
                             }
                         }
 
-                        if (command.Children[i].Matches(command.Children[j].Name))
+                        if (children[i].Matches(children[j].Name))
                         {
-                            throw new ArgumentException($"Alias '{command.Children[j].Name}' is already in use.");
+                            throw new ArgumentException($"Alias '{children[j].Name}' is already in use.");
                         }
                     }
 
-                    if (command.Children.Count == 1 && command.Children[0] is Command singleChild)
+                    if (children.Length == 1 && children[0] is Command singleChild)
                     {
                         if (ReferenceEquals(command, singleChild))
                         {

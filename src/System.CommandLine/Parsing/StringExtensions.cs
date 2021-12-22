@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Collections;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -482,25 +481,26 @@ namespace System.CommandLine.Parsing
                     new Token(commandAlias, TokenType.Command, command, Token.ImplicitPosition));
             }
 
-            for (int childIndex = 0; childIndex < command.Children.Count; childIndex++)
+            var subCommands = command.SubCommands;
+            for (int childIndex = 0; childIndex < subCommands.Count; childIndex++)
             {
-                switch (command.Children[childIndex])
+                Command cmd = subCommands[childIndex];
+                foreach (var childAlias in cmd.Aliases)
                 {
-                    case Command cmd:
-                        foreach (var childAlias in cmd.Aliases)
-                        {
-                            tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
-                        }
-                        break;
-                    case Option option:
-                        foreach (var childAlias in option.Aliases)
-                        {
-                            if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
-                            {
-                                tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
-                            }
-                        }
-                        break;
+                    tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                }
+            }
+
+            var options = command.Options;
+            for (int childIndex = 0; childIndex < options.Count; childIndex++)
+            {
+                Option option = options[childIndex];
+                foreach (var childAlias in option.Aliases)
+                {
+                    if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
+                    {
+                        tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                    }
                 }
             }
 
@@ -513,8 +513,10 @@ namespace System.CommandLine.Parsing
                 {
                     if ((parentCommand = parent.Symbol as Command) is not null)
                     {
-                        foreach (Option option in parentCommand.Options)
+                        options = parentCommand.Options;
+                        for (int childIndex = 0; childIndex < options.Count; childIndex++)
                         {
+                            Option option = options[childIndex];
                             if (option.IsGlobal)
                             {
                                 foreach (var childAlias in option.Aliases)

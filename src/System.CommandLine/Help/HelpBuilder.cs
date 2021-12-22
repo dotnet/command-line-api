@@ -133,9 +133,7 @@ namespace System.CommandLine.Help
                     yield return FormatArgumentUsage(parentCommand.Arguments);
                 }
 
-                var hasCommandWithHelp = command.Children
-                    .OfType<Command>()
-                    .Any(x => !x.IsHidden);
+                var hasCommandWithHelp = command.SubCommands.Any(x => !x.IsHidden);
 
                 if (hasCommandWithHelp)
                 {
@@ -166,7 +164,7 @@ namespace System.CommandLine.Help
 
         private void WriteSubcommands(HelpContext context)
         {
-            var subcommands = context.Command.Children.OfType<Command>().Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
+            var subcommands = context.Command.SubCommands.Where(x => !x.IsHidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
 
             if (subcommands.Length <= 0)
             {

@@ -44,7 +44,7 @@ namespace System.CommandLine.Benchmarks.Helpers
             return pathToAssemblyFile;
         }
 
-        public static Parser CreateParser(this IEnumerable<Symbol> symbols)
+        public static Parser CreateParser(this IEnumerable<Option> symbols)
         {
             var rootCommand = new RootCommand();
 

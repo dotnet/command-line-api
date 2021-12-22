@@ -15,7 +15,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_Bare
     {
-        private IEnumerable<Symbol> _testSymbols;
+        private IEnumerable<Option> _testSymbols;
         private string _testSymbolsAsString;
         private Parser _testParser;
 

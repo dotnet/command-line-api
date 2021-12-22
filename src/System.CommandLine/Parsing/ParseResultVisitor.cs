@@ -372,7 +372,7 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            if (!cmd.Children.HasAnyOfType<Command>())
+            if (cmd.SubCommands.Count == 0)
             {
                 return;
             }
@@ -466,59 +466,66 @@ namespace System.CommandLine.Parsing
             
             while (commandResult is { })
             {
-                for (var symbolIndex = 0; symbolIndex < commandResult.Command.Children.Count; symbolIndex++)
+                foreach (Symbol symbol in commandResult.Command.Options)
                 {
-                    var symbol = commandResult.Command.Children[symbolIndex];
-                    var symbolResult = _rootCommandResult!.FindResultForSymbol(symbol);
+                    Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                }
 
-                    switch (symbolResult)
-                    {
-                        case OptionResult o:
-
-                            if (o.Children.Count == 0 && 
-                                o.Option.Argument.ValueType == typeof(bool))
-                            {
-                                o.AddChild(
-                                    new ArgumentResult(o.Option.Argument, o));
-                            }
-
-                            break;
-
-                        case null:
-                            switch (symbol)
-                            {
-                                case Option option when option.Argument.HasDefaultValue:
-
-                                    var optionResult = new OptionResult(
-                                        option,
-                                        null,
-                                        commandResult);
-
-                                    var childArgumentResult = optionResult.GetOrCreateDefaultArgumentResult(
-                                        option.Argument);
-
-                                    optionResult.AddChild(childArgumentResult);
-                                    commandResult.AddChild(optionResult);
-                                    if (_symbolResults.TryAdd(optionResult.Symbol, optionResult))
-                                    {
-                                        _optionResults.Add(optionResult);
-                                    }
-
-                                    break;
-
-                                case Argument { HasDefaultValue: true } argument:
-
-                                    var argumentResult = commandResult.GetOrCreateDefaultArgumentResult(argument);
-                                    
-                                    AddToResult(argumentResult);
-                                    break;
-                            }
-
-                            break;
-                    }
+                foreach (Symbol symbol in commandResult.Command.Arguments)
+                {
+                    Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
                 }
 
                 commandResult = commandResult.Parent as CommandResult;
+            }
+
+            void Handle(SymbolResult? symbolResult, Symbol symbol)
+            {
+                switch (symbolResult)
+                {
+                    case OptionResult o:
+
+                        if (o.Children.Count == 0 &&
+                            o.Option.Argument.ValueType == typeof(bool))
+                        {
+                            o.AddChild(
+                                new ArgumentResult(o.Option.Argument, o));
+                        }
+
+                        break;
+
+                    case null:
+                        switch (symbol)
+                        {
+                            case Option option when option.Argument.HasDefaultValue:
+
+                                var optionResult = new OptionResult(
+                                    option,
+                                    null,
+                                    commandResult);
+
+                                var childArgumentResult = optionResult.GetOrCreateDefaultArgumentResult(
+                                    option.Argument);
+
+                                optionResult.AddChild(childArgumentResult);
+                                commandResult.AddChild(optionResult);
+                                if (_symbolResults.TryAdd(optionResult.Symbol, optionResult))
+                                {
+                                    _optionResults.Add(optionResult);
+                                }
+
+                                break;
+
+                            case Argument { HasDefaultValue: true } argument:
+
+                                var argumentResult = commandResult.GetOrCreateDefaultArgumentResult(argument);
+
+                                AddToResult(argumentResult);
+                                break;
+                        }
+
+                        break;
+                }
             }
         }
 

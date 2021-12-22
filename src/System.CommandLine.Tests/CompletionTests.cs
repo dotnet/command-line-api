@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_GetCompletions_returns_available_option_aliases()
         {
-            IReadOnlyCollection<Symbol> symbols = new[] {
+            IReadOnlyCollection<Option> symbols = new[] {
                 new Option("--one", "option one"),
                 new Option("--two", "option two"),
                 new Option("--three", "option three")
