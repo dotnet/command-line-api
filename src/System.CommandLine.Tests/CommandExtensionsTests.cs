@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_CommandLineBuilder_is_used_then_Command_Invoke_uses_its_configuration()
+        public void When_CommandLineBuilder_is_used_then_Command_Invoke_does_not_use_its_configuration()
         {
             var command = new RootCommand();
 
@@ -50,7 +50,7 @@ namespace System.CommandLine.Tests
             console.Out
                    .ToString()
                    .Should()
-                   .Contain("hello!");
+                   .NotContain("hello!");
         }
     }
 }

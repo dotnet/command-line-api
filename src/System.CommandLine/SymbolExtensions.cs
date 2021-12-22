@@ -37,19 +37,13 @@ namespace System.CommandLine
         {
             var root = GetOrCreateRootCommand(symbol);
 
-            if (root.ImplicitParser is { } parser)
+            if (root.ImplicitParser is not { } parser)
             {
-                return parser;
-            }
-            else
-            {
-                return BuildParser(root);
+                parser = new Parser(new CommandLineConfiguration(root));
+                root.ImplicitParser = parser;
             }
 
-            static Parser BuildParser(Command cmd)
-            {
-                return new Parser(new CommandLineConfiguration(cmd));
-            }
+            return parser;
         }
 
         internal static Command GetOrCreateRootCommand(Symbol symbol)
