@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.CommandLine.Binding;
-using System.CommandLine.Collections;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 
@@ -60,13 +59,16 @@ namespace System.CommandLine
 
         internal bool IsNonDefault { get;  }
 
+        /// <inheritdoc />
         public bool Equals(ArgumentArity other) => 
             other.MaximumNumberOfValues == MaximumNumberOfValues && 
             other.MinimumNumberOfValues == MinimumNumberOfValues &&
             other.IsNonDefault == IsNonDefault;
 
+        /// <inheritdoc />
         public override bool Equals(object obj) => obj is ArgumentArity arity && Equals(arity);
 
+        /// <inheritdoc />
         public override int GetHashCode()
             => MaximumNumberOfValues ^ MinimumNumberOfValues ^ IsNonDefault.GetHashCode();
 

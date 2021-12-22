@@ -135,6 +135,7 @@ namespace System.CommandLine
             symbol.AddParent(this);
         }
 
+        /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
             if (Children.Count == 0)
