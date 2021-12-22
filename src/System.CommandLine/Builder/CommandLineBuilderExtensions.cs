@@ -95,26 +95,7 @@ namespace System.CommandLine.Builder
 
             return builder;
         }
-
-        /// <summary>
-        /// Configures how console instances will be created.
-        /// </summary>
-        /// <param name="builder">A command line builder.</param>
-        /// <param name="createConsole">A delegate that creates a console instance.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder ConfigureConsole(
-            this CommandLineBuilder builder,
-            Func<BindingContext, IConsole> createConsole)
-        {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                context.BindingContext.ConsoleFactory = new AnonymousConsoleFactory(createConsole);
-                await next(context);
-            }, MiddlewareOrderInternal.ConfigureConsole);
-
-            return builder;
-        }
-
+        
         /// <summary>
         /// Enables the parser to recognize command line directives.
         /// </summary>

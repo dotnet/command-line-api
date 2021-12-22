@@ -5,7 +5,6 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.CommandLine.Tests;
 using System.CommandLine.Tests.Utility;
 using System.Threading.Tasks;
 using FluentAssertions;
