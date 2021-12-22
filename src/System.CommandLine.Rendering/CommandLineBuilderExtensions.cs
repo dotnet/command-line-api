@@ -3,7 +3,6 @@
 
 using System.CommandLine.Binding;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine.Rendering
@@ -13,15 +12,15 @@ namespace System.CommandLine.Rendering
         public static CommandLineBuilder UseAnsiTerminalWhenAvailable(
             this CommandLineBuilder builder)
         {
-            builder.ConfigureConsole(context =>
+            builder.AddMiddleware(context =>
             {
                 var console = context.Console;
 
                 var terminal = console.GetTerminal(
-                    PreferVirtualTerminal(context),
-                    OutputMode(context));
+                    PreferVirtualTerminal(context.BindingContext),
+                    OutputMode(context.BindingContext));
 
-                return terminal ?? console;
+                context.Console = terminal ?? console;
             });
 
             return builder;

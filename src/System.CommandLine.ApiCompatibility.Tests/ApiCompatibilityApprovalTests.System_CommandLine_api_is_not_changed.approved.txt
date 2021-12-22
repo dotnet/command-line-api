@@ -226,9 +226,8 @@ System.CommandLine.Binding
   public abstract class BinderBase<T>, IValueDescriptor<T>, IValueDescriptor, IValueSource
     protected T GetBoundValue(BindingContext bindingContext)
   public class BindingContext, System.IServiceProvider
-    .ctor(System.CommandLine.Parsing.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.IConsole Console { get; }
-    public System.CommandLine.Parsing.ParseResult ParseResult { get; set; }
+    public System.CommandLine.Parsing.ParseResult ParseResult { get; }
     public System.Void AddService(System.Type serviceType, System.Func<System.IServiceProvider,System.Object> factory)
     public System.Void AddService<T>(Func<System.IServiceProvider,T> factory)
     public System.Object GetService(System.Type serviceType)
@@ -259,7 +258,6 @@ System.CommandLine.Builder
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder)
-    public static CommandLineBuilder ConfigureConsole(this CommandLineBuilder builder, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.IConsole> createConsole)
     public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnableLegacyDoubleDashBehavior(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)
@@ -368,7 +366,7 @@ System.CommandLine.Invocation
   public class InvocationContext, System.IDisposable
     .ctor(System.CommandLine.Parsing.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
-    public System.CommandLine.IConsole Console { get; }
+    public System.CommandLine.IConsole Console { get; set; }
     public System.Int32 ExitCode { get; set; }
     public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }
     public IInvocationResult InvocationResult { get; set; }

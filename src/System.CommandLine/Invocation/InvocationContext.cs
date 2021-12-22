@@ -18,7 +18,7 @@ namespace System.CommandLine.Invocation
         private Action<CancellationTokenSource>? _cancellationHandlingAddedEvent;
         private HelpBuilder? _helpBuilder;
         private BindingContext? _bindingContext;
-        private IConsole _console;
+        private IConsole? _console;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
         /// <param name="console">The console to which output is to be written.</param>
@@ -27,7 +27,7 @@ namespace System.CommandLine.Invocation
             IConsole? console = null)
         {
             ParseResult = parseResult;
-            _console = console ?? new SystemConsole();
+            _console = console;
         }
 
         /// <summary>
@@ -37,11 +37,10 @@ namespace System.CommandLine.Invocation
         {
             get
             {
-                if (_bindingContext == null)
+                if (_bindingContext is null)
                 {
-                    _bindingContext = new BindingContext(ParseResult, Console);
-                    _bindingContext.ServiceProvider.AddService(_ => GetCancellationToken());
-                    _bindingContext.ServiceProvider.AddService(_ => this);
+                    _bindingContext = new BindingContext(this);
+                  
                 }
 
                 return _bindingContext;
@@ -51,7 +50,19 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// The console to which output should be written during the current invocation.
         /// </summary>
-        public IConsole Console => _bindingContext?.Console ?? _console;
+        public IConsole Console
+        {
+            get
+            {
+                if (_console is null)
+                {
+                    _console = new SystemConsole();
+                }
+
+                return _console;
+            }
+            set => _console = value;
+        } 
 
         /// <summary>
         /// Enables writing help output.

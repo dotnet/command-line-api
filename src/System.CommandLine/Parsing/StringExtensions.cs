@@ -2,10 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Collections;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -513,8 +511,9 @@ namespace System.CommandLine.Parsing
                 {
                     if ((parentCommand = parent.Symbol as Command) is not null)
                     {
-                        foreach (Option option in parentCommand.Options)
+                        for (var i = 0; i < parentCommand.Options.Count; i++)
                         {
+                            Option option = parentCommand.Options[i];
                             if (option.IsGlobal)
                             {
                                 foreach (var childAlias in option.Aliases)
@@ -526,6 +525,7 @@ namespace System.CommandLine.Parsing
                                 }
                             }
                         }
+
                         break;
                     }
                     parent = parent.Next;

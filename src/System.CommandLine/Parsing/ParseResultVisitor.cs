@@ -316,37 +316,68 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandResult()
         {
-            if (_innermostCommandResult!.Command is Command command)
-            {
-                for (var i = 0; i < command.Validators.Count; i++)
-                {
-                    var validator = command.Validators[i];
-                    var errorMessage = validator(_innermostCommandResult);
+            var command = _innermostCommandResult!.Command;
 
-                    if (!string.IsNullOrWhiteSpace(errorMessage))
+            for (var i = 0; i < command.Validators.Count; i++)
+            {
+                var validator = command.Validators[i];
+                var errorMessage = validator(_innermostCommandResult);
+
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    AddErrorToResult(_innermostCommandResult, new ParseError(errorMessage!, _innermostCommandResult));
+                }
+            }
+
+            var commandToCheckForRequiredOptions = command;
+            ParentNode? currentNode = null;
+            var checkOnlyGlobalOptions = false;
+
+            while (commandToCheckForRequiredOptions is not null)
+            {
+                var options = commandToCheckForRequiredOptions.Options;
+
+                for (var i = 0; i < options.Count; i++)
+                {
+                    var option = options[i];
+
+                    if (option.IsRequired &&
+                        _rootCommandResult!.FindResultFor(option) is null)
                     {
-                        AddErrorToResult(_innermostCommandResult, new ParseError(errorMessage!, _innermostCommandResult));
+                        if (checkOnlyGlobalOptions && !option.IsGlobal)
+                        {
+                            continue;
+                        }
+
+                        AddErrorToResult(
+                            _innermostCommandResult,
+                            new ParseError($"Option '{option.Aliases.First()}' is required.",
+                                           _innermostCommandResult));
                     }
                 }
-            }
 
-            var options = _innermostCommandResult.Command.Options;
-
-            for (var i = 0; i < options.Count; i++)
-            {
-                var option = options[i];
-
-                if (option is Option { IsRequired: true } o &&
-                    _rootCommandResult!.FindResultFor(o) is null)
+                if (currentNode is not null)
                 {
-                    AddErrorToResult(
-                        _innermostCommandResult,
-                        new ParseError($"Option '{o.Aliases.First()}' is required.",
-                                       _innermostCommandResult));
+                    commandToCheckForRequiredOptions = currentNode.Next?.Symbol as Command;
+                    if (commandToCheckForRequiredOptions is null)
+                    {
+                        currentNode = null;
+                    }
+                }
+                else if (commandToCheckForRequiredOptions.FirstParent is not null)
+                {
+                    currentNode = commandToCheckForRequiredOptions.FirstParent;
+                    commandToCheckForRequiredOptions = currentNode.Symbol as Command;
+                    currentNode = currentNode.Next;
+                    checkOnlyGlobalOptions = true;
+                }
+                else
+                {
+                    break;
                 }
             }
 
-            var arguments = _innermostCommandResult.Command.Arguments;
+            var arguments = command.Arguments;
 
             for (var i = 0; i < arguments.Count; i++)
             {
@@ -367,7 +398,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandHandler()
         {
-            if (_innermostCommandResult!.Command is not Command { Handler: null } cmd)
+            if (_innermostCommandResult!.Command is not { Handler: null } cmd)
             {
                 return;
             }
