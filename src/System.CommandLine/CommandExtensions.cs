@@ -26,7 +26,7 @@ namespace System.CommandLine
             string[] args,
             IConsole? console = null)
         {
-            return GetInvocationPipeline(command, args).Invoke(console);
+            return GetDefaultInvocationPipeline(command, args).Invoke(console);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace System.CommandLine
             string[] args,
             IConsole? console = null)
         {
-            return await GetInvocationPipeline(command, args).InvokeAsync(console);
+            return await GetDefaultInvocationPipeline(command, args).InvokeAsync(console);
         }
 
         /// <summary>
@@ -72,14 +72,16 @@ namespace System.CommandLine
             IConsole? console = null) =>
             command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
 
-        private static InvocationPipeline GetInvocationPipeline(Command command, string[] args)
+        private static InvocationPipeline GetDefaultInvocationPipeline(Command command, string[] args)
         {
-            var parser = command.ImplicitParser ??
-                         new CommandLineBuilder(command)
-                             .UseDefaults()
-                             .Build();
+            if (command.ImplicitParser is null)
+            {
+                command.ImplicitParser = new CommandLineBuilder(command)
+                                         .UseDefaults()
+                                         .Build();
+            }
 
-            var parseResult = parser.Parse(args);
+            var parseResult = command.ImplicitParser.Parse(args);
 
             return new InvocationPipeline(parseResult);
         }
