@@ -227,7 +227,7 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc cref="GetValueForArgument"/>
         [return: MaybeNull]
         [Obsolete(
-            "This method got removed. Please use ParseResult.GetValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
+            "This method was removed. Please use ParseResult.GetValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
         public T ValueForArgument<T>(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -275,7 +275,7 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc cref="GetValueForOption"/>
         [Obsolete(
-            "This method got removed. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
+            "This method was removed. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
         [return: MaybeNull]
         public T ValueForOption<T>(string alias)
         {
