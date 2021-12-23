@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -514,9 +513,9 @@ namespace System.CommandLine.Parsing
                     if ((parentCommand = parent.Symbol as Command) is not null)
                     {
                         options = parentCommand.Options;
-                        for (int childIndex = 0; childIndex < options.Count; childIndex++)
+                        for (var i = 0; i < options.Count; i++)
                         {
-                            Option option = options[childIndex];
+                            Option option = options[i];
                             if (option.IsGlobal)
                             {
                                 foreach (var childAlias in option.Aliases)
@@ -528,6 +527,7 @@ namespace System.CommandLine.Parsing
                                 }
                             }
                         }
+
                         break;
                     }
                     parent = parent.Next;

@@ -8,6 +8,7 @@ namespace System.CommandLine
         internal ParentNode(Symbol symbol) => Symbol = symbol;
 
         internal Symbol Symbol { get; }
+
         internal ParentNode? Next { get; set; }
     }
 }

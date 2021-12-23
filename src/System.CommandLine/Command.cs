@@ -166,6 +166,7 @@ namespace System.CommandLine
 
         internal Parser? ImplicitParser { get; set; }
 
+        /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
             List<CompletionItem> completions = new();

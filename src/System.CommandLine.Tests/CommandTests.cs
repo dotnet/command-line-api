@@ -419,7 +419,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void AddGlobalOption_updates_Options_and_GlobalOptions_property()
+        public void AddGlobalOption_updates_Options_property()
         {
             var option = new Option<string>("-x");
             var command = new Command("mycommand");

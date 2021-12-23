@@ -316,9 +316,11 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandResult()
         {
-            for (var i = 0; i < _innermostCommandResult!.Command.Validators.Count; i++)
+            var command = _innermostCommandResult!.Command;
+
+            for (var i = 0; i < command.Validators.Count; i++)
             {
-                var validator = _innermostCommandResult!.Command.Validators[i];
+                var validator = command.Validators[i];
                 var errorMessage = validator(_innermostCommandResult);
 
                 if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -327,22 +329,55 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            var options = _innermostCommandResult.Command.Options;
+            var commandToCheckForRequiredOptions = command;
+            ParentNode? currentNode = null;
+            var checkOnlyGlobalOptions = false;
 
-            for (var i = 0; i < options.Count; i++)
+            while (commandToCheckForRequiredOptions is not null)
             {
-                var option = options[i];
+                var options = commandToCheckForRequiredOptions.Options;
 
-                if (option.IsRequired && _rootCommandResult!.FindResultFor(option) is null)
+                for (var i = 0; i < options.Count; i++)
                 {
-                    AddErrorToResult(
-                        _innermostCommandResult,
-                        new ParseError($"Option '{option.Aliases.First()}' is required.",
-                                       _innermostCommandResult));
+                    var option = options[i];
+
+                    if (option.IsRequired &&
+                        _rootCommandResult!.FindResultFor(option) is null)
+                    {
+                        if (checkOnlyGlobalOptions && !option.IsGlobal)
+                        {
+                            continue;
+                        }
+
+                        AddErrorToResult(
+                            _innermostCommandResult,
+                            new ParseError($"Option '{option.Aliases.First()}' is required.",
+                                           _innermostCommandResult));
+                    }
+                }
+
+                if (currentNode is not null)
+                {
+                    commandToCheckForRequiredOptions = currentNode.Next?.Symbol as Command;
+                    if (commandToCheckForRequiredOptions is null)
+                    {
+                        currentNode = null;
+                    }
+                }
+                else if (commandToCheckForRequiredOptions.FirstParent is not null)
+                {
+                    currentNode = commandToCheckForRequiredOptions.FirstParent;
+                    commandToCheckForRequiredOptions = currentNode.Symbol as Command;
+                    currentNode = currentNode.Next;
+                    checkOnlyGlobalOptions = true;
+                }
+                else
+                {
+                    break;
                 }
             }
 
-            var arguments = _innermostCommandResult.Command.Arguments;
+            var arguments = command.Arguments;
 
             for (var i = 0; i < arguments.Count; i++)
             {
@@ -363,7 +398,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandHandler()
         {
-            if (_innermostCommandResult!.Command is not Command { Handler: null } cmd)
+            if (_innermostCommandResult!.Command is not { Handler: null } cmd)
             {
                 return;
             }

@@ -3,7 +3,6 @@
 
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -17,47 +16,29 @@ namespace System.CommandLine.Binding
     /// </summary>
     public sealed class BindingContext : IServiceProvider
     {
-        private IConsole _console;
         private HelpBuilder? _helpBuilder;
 
-        /// <param name="parseResult">The parse result used for binding to command line input.</param>
-        /// <param name="console">A console instance used for writing output.</param>
-        public BindingContext(
-            ParseResult parseResult,
-            IConsole? console = default)
+        internal BindingContext(InvocationContext invocationContext)
         {
-            _console = console ?? new SystemConsole();
-
-            ParseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
+            InvocationContext = invocationContext;
             ServiceProvider = new ServiceProvider(this);
+            ServiceProvider.AddService(_ => InvocationContext);
+            ServiceProvider.AddService(_ => InvocationContext.GetCancellationToken());
         }
+
+        internal InvocationContext InvocationContext { get; }
 
         /// <summary>
         /// The parse result for the current invocation.
         /// </summary>
-        public ParseResult ParseResult { get; set; }
-
-        internal IConsoleFactory? ConsoleFactory { get; set; }
-
+        public ParseResult ParseResult => InvocationContext.ParseResult;
+        
         internal HelpBuilder HelpBuilder => _helpBuilder ??= (HelpBuilder)ServiceProvider.GetService(typeof(HelpBuilder))!;
 
         /// <summary>
         /// The console to which output should be written during the current invocation.
         /// </summary>
-        public IConsole Console
-        {
-            get
-            {
-                if (ConsoleFactory is not null)
-                {
-                    var consoleFactory = ConsoleFactory;
-                    ConsoleFactory = null;
-                    _console = consoleFactory.CreateConsole(this);
-                }
-
-                return _console;
-            }
-        }
+        public IConsole Console => InvocationContext.Console;
 
         internal ServiceProvider ServiceProvider { get; }
 
