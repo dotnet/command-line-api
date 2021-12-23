@@ -46,21 +46,20 @@ internal static class CommandResultExtensions
 
         for (var i = 0; i < options.Count; i++)
         {
-            if (options[i] is Option option)
+            Option option = options[i];
+
+            var hasMatchingAlias =
+                HasMatchingAlias(valueDescriptor, option);
+
+            if (hasMatchingAlias)
             {
-                var hasMatchingAlias =
-                    HasMatchingAlias(valueDescriptor, option);
+                var optionResult = commandResult.FindResultFor(option);
 
-                if (hasMatchingAlias)
+                if (optionResult is not null)
                 {
-                    var optionResult = commandResult.FindResultFor(option);
+                    value = optionResult.GetValueOrDefault();
 
-                    if (optionResult is not null)
-                    {
-                        value = optionResult.GetValueOrDefault();
-
-                        return true;
-                    }
+                    return true;
                 }
             }
         }

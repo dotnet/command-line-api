@@ -22,10 +22,9 @@ namespace System.CommandLine.Binding
             string value,
             LocalizationResources localizationResources)
         {
-            if (argument is Argument a &&
-                a.FirstParent is not null && a.FirstParent.Next is null)
+            if (argument.FirstParent is not null && argument.FirstParent.Next is null)
             {
-                var firstParent = (IdentifierSymbol) a.FirstParent.Symbol;
+                var firstParent = (IdentifierSymbol) argument.FirstParent.Symbol;
                 var alias = firstParent.Aliases.First();
                 
                 switch(firstParent)

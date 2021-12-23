@@ -16,9 +16,9 @@ namespace System.CommandLine.Parsing
         {
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-            if (configuration.RootCommand is Command { ImplicitParser: null} cmd)
+            if (configuration.RootCommand.ImplicitParser is null)
             {
-                cmd.ImplicitParser = this;
+                configuration.RootCommand.ImplicitParser = this;
             }
         }
 

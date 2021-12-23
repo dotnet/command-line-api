@@ -90,10 +90,8 @@ namespace System.CommandLine.Parsing
 
             if (symbolResult is ArgumentResult argumentResult)
             {
-
                 var includeArgumentName =
-                    argumentResult.Argument is Argument argument &&
-                    argument.FirstParent!.Symbol is Command command &&
+                    argumentResult.Argument.FirstParent!.Symbol is Command command &&
                     command.Arguments.Count > 1;
 
                 if (includeArgumentName)

@@ -104,8 +104,7 @@ namespace System.CommandLine.Hosting
             }
 
             if (builder.Properties[typeof(InvocationContext)] is InvocationContext invocation 
-                && invocation.ParseResult.CommandResult.Command is Command command
-                && command.GetType() == commandType)
+                && invocation.ParseResult.CommandResult.Command.GetType() == commandType)
             {
                 invocation.BindingContext.AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
                 builder.ConfigureServices(services =>
@@ -113,7 +112,7 @@ namespace System.CommandLine.Hosting
                     services.AddTransient(handlerType);
                 });
 
-                command.Handler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+                invocation.ParseResult.CommandResult.Command.Handler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
             }
 
             return builder;

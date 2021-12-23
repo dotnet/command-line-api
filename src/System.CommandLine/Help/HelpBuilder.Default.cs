@@ -64,14 +64,9 @@ public partial class HelpBuilder
             }
 
             string firstColumn;
-            var completions = (argument is Argument a
-                                   ? a.GetCompletions()
-                                   : Array.Empty<CompletionItem>())
-                              .Select(item=>item.Label)
-                              .ToArray();
+            var completions = argument.GetCompletions().Select(item => item.Label).ToArray();
 
-            var arg = argument;
-            var helpName = arg?.HelpName ?? string.Empty;
+            var helpName = argument.HelpName ?? string.Empty;
 
             if (!string.IsNullOrEmpty(helpName))
             {

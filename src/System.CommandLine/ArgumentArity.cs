@@ -143,16 +143,14 @@ namespace System.CommandLine
                 return ZeroOrOne;
             }
 
-            var parent = firstParent?.Symbol;
+            bool parentIsCommand = firstParent is not null && firstParent.Symbol is Command;
 
             if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
             {
-                return parent is Command
-                           ? ZeroOrMore
-                           : OneOrMore;
+                return parentIsCommand ? ZeroOrMore : OneOrMore;
             }
 
-            if (parent is Command &&
+            if (parentIsCommand &&
                 (argument.HasDefaultValue ||
                  type.IsNullable()))
             {

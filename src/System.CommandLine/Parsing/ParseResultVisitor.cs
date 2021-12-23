@@ -316,17 +316,14 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandResult()
         {
-            if (_innermostCommandResult!.Command is Command command)
+            for (var i = 0; i < _innermostCommandResult!.Command.Validators.Count; i++)
             {
-                for (var i = 0; i < command.Validators.Count; i++)
-                {
-                    var validator = command.Validators[i];
-                    var errorMessage = validator(_innermostCommandResult);
+                var validator = _innermostCommandResult!.Command.Validators[i];
+                var errorMessage = validator(_innermostCommandResult);
 
-                    if (!string.IsNullOrWhiteSpace(errorMessage))
-                    {
-                        AddErrorToResult(_innermostCommandResult, new ParseError(errorMessage!, _innermostCommandResult));
-                    }
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    AddErrorToResult(_innermostCommandResult, new ParseError(errorMessage!, _innermostCommandResult));
                 }
             }
 
@@ -336,12 +333,11 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-                if (option is Option { IsRequired: true } o &&
-                    _rootCommandResult!.FindResultFor(o) is null)
+                if (option.IsRequired && _rootCommandResult!.FindResultFor(option) is null)
                 {
                     AddErrorToResult(
                         _innermostCommandResult,
-                        new ParseError($"Option '{o.Aliases.First()}' is required.",
+                        new ParseError($"Option '{option.Aliases.First()}' is required.",
                                        _innermostCommandResult));
                 }
             }
@@ -415,14 +411,11 @@ namespace System.CommandLine.Parsing
 
             if (optionResult.Children.Count == 0)
             {
-                if (optionResult.Option.Argument is Argument { HasCustomParser: true })
+                if (optionResult.Option.Argument.HasCustomParser)
                 {
-                    if (optionResult.Option is Option opt)
-                    {
-                        var argResult = optionResult.GetOrCreateDefaultArgumentResult(opt.Argument);
-                        optionResult.AddChild(argResult);
-                        ValidateAndConvertArgumentResult(argResult);
-                    }
+                    var argResult = optionResult.GetOrCreateDefaultArgumentResult(optionResult.Option.Argument);
+                    optionResult.AddChild(argResult);
+                    ValidateAndConvertArgumentResult(argResult);
                 }
             }
             else
@@ -440,17 +433,14 @@ namespace System.CommandLine.Parsing
 
         private void ValidateAndConvertArgumentResult(ArgumentResult argumentResult)
         {
-            if (argumentResult.Argument is Argument argument)
-            {
-                var parseError =
-                    argumentResult.Parent?.UnrecognizedArgumentError(argument) ??
-                    argumentResult.CustomError(argument);
+            var parseError =
+                argumentResult.Parent?.UnrecognizedArgumentError(argumentResult.Argument) ??
+                argumentResult.CustomError(argumentResult.Argument);
 
-                if (parseError is { })
-                {
-                    AddErrorToResult(argumentResult, parseError);
-                    return;
-                }
+            if (parseError is { })
+            {
+                AddErrorToResult(argumentResult, parseError);
+                return;
             }
 
             if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed 

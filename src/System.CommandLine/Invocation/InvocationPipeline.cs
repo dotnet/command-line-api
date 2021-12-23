@@ -46,17 +46,15 @@ namespace System.CommandLine.Invocation
 
             invocations.Add(async (invocationContext, _) =>
             {
-                if (invocationContext
+                var handler = invocationContext
                     .ParseResult
                     .CommandResult
-                    .Command is Command command)
-                {
-                    var handler = command.Handler;
+                    .Command
+                    .Handler;
 
-                    if (handler is not null)
-                    {
-                        context.ExitCode = await handler.InvokeAsync(invocationContext);
-                    }
+                if (handler is not null)
+                {
+                    context.ExitCode = await handler.InvokeAsync(invocationContext);
                 }
             });
 
