@@ -188,7 +188,7 @@ namespace System.CommandLine.Parsing
         }
 
         /// <inheritdoc cref="HasOption(System.CommandLine.Parsing.ParseResult,System.CommandLine.Option)"/>
-        [Obsolete("This method got removed. Please use ParseResultExtensions.HasOption(ParseResult, Option) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
+        [Obsolete("This method was removed. Please use ParseResultExtensions.HasOption(ParseResult, Option) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
         public static bool HasOption(
             this ParseResult parseResult,
             string alias)
