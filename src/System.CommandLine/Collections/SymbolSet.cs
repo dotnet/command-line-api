@@ -9,14 +9,16 @@ namespace System.CommandLine.Collections
     /// <summary>
     /// A set of symbols, unique and indexed by their aliases.
     /// </summary>
-    public class SymbolSet : IEnumerable<Symbol>
+    public class SymbolSet : IReadOnlyList<Symbol>
     {
-        private readonly List<Symbol> _symbols = new List<Symbol>();
+        private readonly List<Symbol> _symbols = new();
         private List<Argument>? _arguments;
         private List<Option>? _options;
 
+        /// <inheritdoc />
         public int Count => _symbols.Count;
 
+        /// <inheritdoc />
         public Symbol this[int index] => _symbols[index];
 
         private void ResetIndex(Symbol item)
@@ -42,6 +44,7 @@ namespace System.CommandLine.Collections
             }
         }
 
+        /// <inheritdoc />
         public IEnumerator<Symbol> GetEnumerator() => _symbols.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _symbols.GetEnumerator();

@@ -283,7 +283,7 @@ System.CommandLine.Builder
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
 System.CommandLine.Collections
-  public class SymbolSet, System.Collections.Generic.IEnumerable<System.CommandLine.Symbol>, System.Collections.IEnumerable
+  public class SymbolSet, System.Collections.Generic.IEnumerable<System.CommandLine.Symbol>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.Symbol>, System.Collections.Generic.IReadOnlyList<System.CommandLine.Symbol>, System.Collections.IEnumerable
     .ctor()
     public System.Int32 Count { get; }
     public System.CommandLine.Symbol Item { get; }
