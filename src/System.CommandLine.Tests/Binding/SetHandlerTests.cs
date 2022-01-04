@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
+using static System.Environment;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -158,6 +159,62 @@ namespace System.CommandLine.Tests.Binding
 
             wasCalled.Should().BeFalse();
             exitCode.Should().Be(1);
+        }
+
+        [Fact]
+        public void If_no_symbol_was_passed_for_binding_then_the_error_message_suggests_a_fix_for_the_first_missing_symbol()
+        {
+            var boolOption = new Option<bool>("-o");
+            var stringArg = new Argument<string>("value");
+
+            var subcommand = new Command("TheCommand")
+            {
+                boolOption,
+                stringArg
+            };
+
+            var command = new RootCommand
+            {
+                subcommand
+            };
+
+            subcommand.SetHandler((bool boolValue, string stringValue) => { });
+
+            var console = new TestConsole();
+
+            command.Invoke("TheCommand -o hi", console);
+
+            console.Error.ToString().Should()
+                   .Contain(
+                       $"No binding target was provided to the handler for command 'TheCommand' for the parameter at position 0. Did you mean to pass one of these?{NewLine}Option<Boolean> -o");
+        }
+
+        [Fact]
+        public void If_no_symbol_was_passed_for_binding_subsequent_parameter_then_the_error_message_suggests_a_fix_for_the_first_missing_symbol()
+        {
+            var boolOption = new Option<bool>("-o");
+            var stringArg = new Argument<string>("value");
+
+            var subcommand = new Command("TheCommand")
+            {
+                boolOption,
+                stringArg
+            };
+
+            var command = new RootCommand
+            {
+                subcommand
+            };
+
+            subcommand.SetHandler((bool boolValue, string stringValue) => { }, boolOption);
+
+            var console = new TestConsole();
+
+            command.Invoke("TheCommand -o hi", console);
+
+            console.Error.ToString().Should()
+                   .Contain(
+                       $"No binding target was provided to the handler for command 'TheCommand' for the parameter at position 1. Did you mean to pass one of these?{NewLine}Argument<String> value");
         }
 
         [Fact]
