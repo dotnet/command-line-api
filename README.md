@@ -18,6 +18,12 @@ Daily builds are available if you add this feed to your nuget.config: https://pk
 
 ## Documentation
 
+### Breaking changes to the documentation in Beta 2
+
+With the release of Beta 2, many of the examples in the documentation no longer work without changes.
+
+Please see the [Beta 2 announcement](https://github.com/dotnet/command-line-api/issues/1537) for more details.
+
 ### Getting started
 
 [Syntax Concepts and Parser](docs/Syntax-Concepts-and-Parser.md)
