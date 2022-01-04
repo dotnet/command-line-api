@@ -84,6 +84,23 @@ namespace System.CommandLine.Tests
                        .NotBeNull();
         }
 
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1556
+        public void When_FromAmong_is_used_for_multiple_arguments_()
+        {
+            var config = new Command("config")
+            {
+                new Command("set")
+                {
+                    new Argument<string>("key").FromAmong("key1", "key2"),
+                    new Argument<string>("value").FromAmong("value1", "value2")
+                }
+            };
+
+           var result =  config.Parse("config set key1 value1");
+
+           result.Errors.Should().BeEmpty();
+        }
+
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {

@@ -48,7 +48,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The Symbol represented by the token (if any).
         /// </summary>
-        public Symbol? Symbol { get; }
+        internal Symbol? Symbol { get; }
 
         /// <inheritdoc />
         public override bool Equals(object obj) => obj is Token other && Equals(other);

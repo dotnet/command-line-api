@@ -514,7 +514,6 @@ System.CommandLine.Parsing
     public static System.Boolean op_Equality(Token left, Token right)
     public static System.Boolean op_Inequality(Token left, Token right)
     .ctor(System.String value, TokenType type, System.CommandLine.Symbol symbol)
-    public System.CommandLine.Symbol Symbol { get; }
     public TokenType Type { get; }
     public System.String Value { get; }
     public System.Boolean Equals(System.Object obj)

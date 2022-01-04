@@ -29,15 +29,21 @@ namespace System.CommandLine.Parsing
         internal static string RemovePrefix(this string alias)
         {
             int prefixLength = GetPrefixLength(alias);
-            return prefixLength > 0 ? alias.Substring(prefixLength) : alias;
+            return prefixLength > 0 
+                       ? alias.Substring(prefixLength) 
+                       : alias;
         }
 
         internal static int GetPrefixLength(this string alias)
         {
             if (alias[0] == '-')
+            {
                 return alias.Length > 1 && alias[1] == '-' ? 2 : 1;
+            }
             if (alias[0] == '/')
+            {
                 return 1;
+            }
 
             return 0;
         }
@@ -62,7 +68,7 @@ namespace System.CommandLine.Parsing
         {
             var errorList = new List<TokenizeError>();
 
-            Command? currentCommand = null;
+            Command currentCommand = configuration.RootCommand;
             var foundDoubleDash = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
             var argList = NormalizeRootCommand(configuration, args);
@@ -82,7 +88,7 @@ namespace System.CommandLine.Parsing
                     }
                     else
                     {
-                        tokenList.Add(Argument(arg));
+                        tokenList.Add(CommandArgument(arg, currentCommand!));
                     }
                     continue;
                 }
@@ -122,9 +128,9 @@ namespace System.CommandLine.Parsing
 
                 if (knownTokens.TryGetValue(arg, out var token))
                 {
-                    if (PreviousTokenIsAnOptionExpectingAnArgument())
+                    if (PreviousTokenIsAnOptionExpectingAnArgument(out var option))
                     {
-                        tokenList.Add(Argument(arg));
+                        tokenList.Add(OptionArgument(arg, option!));
                     }
                     else
                     {
@@ -138,7 +144,7 @@ namespace System.CommandLine.Parsing
                                 Command cmd = (Command)token.Symbol!;
                                 if (cmd != currentCommand)
                                 {
-                                    if (!(currentCommand is null && cmd == configuration.RootCommand))
+                                    if (cmd != configuration.RootCommand)
                                     {
                                         knownTokens = cmd.ValidTokens();
                                     }
@@ -154,19 +160,21 @@ namespace System.CommandLine.Parsing
                         }
                     }
                 }
-                else if (arg.TrySplitIntoSubtokens(out var first, out var rest) 
-                    && knownTokens.TryGetValue(first, out var subtoken) && subtoken.Type == TokenType.Option)
+                else if (arg.TrySplitIntoSubtokens(out var first, out var rest) && 
+                         knownTokens.TryGetValue(first, out var subtoken) && 
+                         subtoken.Type == TokenType.Option)
                 {
                     tokenList.Add(Option(first, (Option)subtoken.Symbol!));
 
-                    if (rest is { })
+                    if (rest is not null)
                     {
                         tokenList.Add(Argument(rest));
                     }
                 }
-                else if (configuration.EnablePosixBundling && CanBeUnbundled(arg) && TryUnbundle(arg.AsSpan(1), i))
+                else if (configuration.EnablePosixBundling &&
+                         CanBeUnbundled(arg) && 
+                         TryUnbundle(arg.AsSpan(1), i))
                 {
-                    continue;
                 }
                 else if (arg.Length > 0)
                 {
@@ -174,6 +182,10 @@ namespace System.CommandLine.Parsing
                 }
 
                 Token Argument(string value) => new(value, TokenType.Argument, default, i);
+
+                Token CommandArgument(string value, Command command) => new(value, TokenType.Argument, command, i);
+                
+                Token OptionArgument(string value, Option option) => new(value, TokenType.Argument, option, i);
 
                 Token Command(string value, Command cmd) => new(value, TokenType.Command, cmd, i);
 
@@ -189,11 +201,11 @@ namespace System.CommandLine.Parsing
             return new TokenizeResult(tokenList, errorList);
 
             bool CanBeUnbundled(string arg)
-                => arg.Length > 2
+                => arg.Length > 2 
                     && arg[0] == '-'
                     && char.IsLetter(arg[1]) // don't check for "--" prefixed args
                     && arg[2] != ':' && arg[2] != '=' // handled by TrySplitIntoSubtokens
-                    && !PreviousTokenIsAnOptionExpectingAnArgument();
+                    && !PreviousTokenIsAnOptionExpectingAnArgument(out _);
 
             bool TryUnbundle(ReadOnlySpan<char> alias, int argumentIndex)
             {
@@ -258,25 +270,23 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            bool PreviousTokenIsAnOptionExpectingAnArgument()
+            bool PreviousTokenIsAnOptionExpectingAnArgument(out Option? option)
             {
-                if (tokenList.Count <= 1)
+                if (tokenList.Count > 1)
                 {
-                    return false;
+                    var token = tokenList[tokenList.Count - 1];
+
+                    if (token.Type == TokenType.Option)
+                    {
+                        if (token.Symbol is Option { IsGreedy: true } opt)
+                        {
+                            option = opt;
+                            return true;
+                        }
+                    }
                 }
 
-                var token = tokenList[tokenList.Count - 1];
-
-                if (token.Type != TokenType.Option)
-                {
-                    return false;
-                }
-
-                if (((Option)token.Symbol!).IsGreedy)
-                {
-                    return true;
-                }
-
+                option = null;
                 return false;
             }
 
