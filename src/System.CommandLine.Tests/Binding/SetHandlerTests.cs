@@ -186,7 +186,7 @@ namespace System.CommandLine.Tests.Binding
 
             console.Error.ToString().Should()
                    .Contain(
-                       $"No binding target was provided to the handler for command 'TheCommand' for the parameter at position 0. Did you mean to pass one of these?{NewLine}Option<Boolean> -o");
+                       $"The SetHandler call for command 'TheCommand' is missing an Argument or Option for the parameter at position 0. Did you mean to pass one of these?{NewLine}Option<Boolean> -o");
         }
 
         [Fact]
@@ -214,7 +214,7 @@ namespace System.CommandLine.Tests.Binding
 
             console.Error.ToString().Should()
                    .Contain(
-                       $"No binding target was provided to the handler for command 'TheCommand' for the parameter at position 1. Did you mean to pass one of these?{NewLine}Argument<String> value");
+                       $"The SetHandler call for command 'TheCommand' is missing an Argument or Option for the parameter at position 1. Did you mean to pass one of these?{NewLine}Argument<String> value");
         }
 
         [Fact]

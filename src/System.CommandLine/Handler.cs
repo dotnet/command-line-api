@@ -61,7 +61,7 @@ public static partial class Handler
                         }));
 
                 throw new ArgumentException(
-                    $"No binding target was provided to the handler for command '{context.ParseResult.CommandResult.Command.Name}' for the parameter at position {index}. Did you mean to pass one of these?{NewLine}{candidatesDescription}");
+                    $"The {nameof(SetHandler)} call for command '{context.ParseResult.CommandResult.Command.Name}' is missing an {nameof(Argument)} or {nameof(Option)} for the parameter at position {index}. Did you mean to pass one of these?{NewLine}{candidatesDescription}");
             }
 
             throw new ArgumentException($"Service not found for type {typeof(T)}.");
