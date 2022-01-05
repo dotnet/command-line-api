@@ -169,8 +169,13 @@ namespace System.CommandLine.Parsing
                 AddToResult(argumentResult);
             }
 
-            argumentResult.AddToken(argumentNode.Token);
-            _innermostCommandResult?.AddToken(argumentNode.Token);
+            var token = argumentNode.Token.Symbol is null
+                            ? new Token(argumentNode.Token.Value, TokenType.Argument, argumentResult.Argument)
+                            : argumentNode.Token;
+
+            argumentResult.AddToken(token);
+
+            _innermostCommandResult?.AddToken(token);
         }
 
         private void VisitOptionNode(OptionNode optionNode)
@@ -446,9 +451,9 @@ namespace System.CommandLine.Parsing
 
             if (optionResult.Children.Count == 0)
             {
-                if (optionResult.Option.Argument is Argument { HasCustomParser: true })
+                if (optionResult.Option.Argument is { HasCustomParser: true })
                 {
-                    if (optionResult.Option is Option opt)
+                    if (optionResult.Option is { } opt)
                     {
                         var argResult = optionResult.GetOrCreateDefaultArgumentResult(opt.Argument);
                         optionResult.AddChild(argResult);
@@ -471,7 +476,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateAndConvertArgumentResult(ArgumentResult argumentResult)
         {
-            if (argumentResult.Argument is Argument argument)
+            if (argumentResult.Argument is { } argument)
             {
                 var parseError =
                     argumentResult.Parent?.UnrecognizedArgumentError(argument) ??

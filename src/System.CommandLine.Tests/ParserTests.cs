@@ -1419,12 +1419,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_argument_arity_can_be_a_fixed_value_greater_than_1()
         {
+            var argument = new Argument
+            {
+                Arity = new ArgumentArity(3, 3)
+            };
             var command = new Command("the-command")
             {
-                new Argument
-                {
-                    Arity = new ArgumentArity(3, 3)
-                }
+                argument
             };
 
             command.Parse("1 2 3")
@@ -1432,20 +1433,21 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default));
+                       new Token("1", TokenType.Argument, argument),
+                       new Token("2", TokenType.Argument, argument),
+                       new Token("3", TokenType.Argument, argument));
         }
 
         [Fact]
         public void Command_argument_arity_can_be_a_range_with_a_lower_bound_greater_than_1()
         {
+            var argument = new Argument
+            {
+                Arity = new ArgumentArity(3, 5)
+            };
             var command = new Command("the-command")
             {
-                new Argument
-                {
-                    Arity = new ArgumentArity(3, 5)
-                }
+                argument
             };
 
             command.Parse("1 2 3")
@@ -1453,19 +1455,19 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default));
+                       new Token("1", TokenType.Argument, argument),
+                       new Token("2", TokenType.Argument, argument),
+                       new Token("3", TokenType.Argument, argument));
             command.Parse("1 2 3 4 5")
                    .CommandResult
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default),
-                       new Token("4", TokenType.Argument, default),
-                       new Token("5", TokenType.Argument, default));
+                       new Token("1", TokenType.Argument, argument),
+                       new Token("2", TokenType.Argument, argument),
+                       new Token("3", TokenType.Argument, argument),
+                       new Token("4", TokenType.Argument, argument),
+                       new Token("5", TokenType.Argument, argument));
         }
 
         [Fact]

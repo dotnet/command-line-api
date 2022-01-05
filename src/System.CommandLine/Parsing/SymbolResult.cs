@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Collections;
-using System.CommandLine.Completions;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -13,7 +11,7 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public abstract class SymbolResult
     {
-        private readonly List<SymbolResult> _children = new List<SymbolResult>();
+        private readonly List<SymbolResult> _children = new();
         private protected readonly List<Token> _tokens = new();
         private LocalizationResources? _resources;
         private readonly Dictionary<Argument, ArgumentResult> _defaultArgumentValues = new();
@@ -25,7 +23,7 @@ namespace System.CommandLine.Parsing
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
             Parent = parent;
-
+            
             Root = parent?.Root;
         }
 
@@ -147,12 +145,15 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < Tokens.Count; i++)
                 {
                     var token = Tokens[i];
-                    if (!argument.AllowedValues.Contains(token.Value))
+
+                    if (token.Symbol is null || token.Symbol == argument)
                     {
-                        return new ParseError(
-                            LocalizationResources
-                                .UnrecognizedArgument(token.Value, argument.AllowedValues),
-                            this);
+                        if (!argument.AllowedValues.Contains(token.Value))
+                        {
+                            return new ParseError(
+                                LocalizationResources.UnrecognizedArgument(token.Value, argument.AllowedValues),
+                                this);
+                        }
                     }
                 }
             }
