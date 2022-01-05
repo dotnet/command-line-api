@@ -39,24 +39,38 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_GetCompletions_returns_available_option_aliases()
         {
-            IReadOnlyCollection<Symbol> symbols = new[] {
+            var command = new Command("command")
+            {
                 new Option("--one", "option one"),
                 new Option("--two", "option two"),
                 new Option("--three", "option three")
             };
-            var command1 = new Command(
-                "command",
-                "a command"
-            );
-
-            foreach (var symbol in symbols)
-            {
-                command1.Add(symbol);
-            }
-
-            var command = command1;
 
             var completions = command.GetCompletions();
+
+            completions
+                .Select(item => item.Label)
+                .Should()
+                .BeEquivalentTo("--one", "--two", "--three");
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1563
+        public void Command_GetCompletions_returns_available_option_aliases_for_global_options()
+        {
+            var subcommand = new Command("command")
+            {
+                new Option("--one", "option one"),
+                new Option("--two", "option two")
+            };
+
+            var rootCommand = new RootCommand
+            {
+                subcommand
+            };
+
+            rootCommand.AddGlobalOption(new Option("--three", "option three"));
+
+            var completions = subcommand.GetCompletions();
 
             completions
                 .Select(item => item.Label)

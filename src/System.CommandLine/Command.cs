@@ -138,11 +138,6 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            if (Children.Count == 0)
-            {
-                return Array.Empty<CompletionItem>();
-            }
-
             var completions = new List<CompletionItem>();
 
             if (context.WordToComplete is { } textToMatch)
@@ -151,30 +146,22 @@ namespace System.CommandLine
                 {
                     var child = Children[i];
 
-                    switch (child)
+                    AddCompletionsFor(child);
+                }
+
+                foreach (var parent in Parents.FlattenBreadthFirst(p => p.Parents))
+                {
+                    if (parent is Command parentCommand)
                     {
-                        case IdentifierSymbol identifier when !child.IsHidden:
-                            foreach (var alias in identifier.Aliases)
+                        for (var i = 0; i < parentCommand.Options.Count; i++)
+                        {
+                            var option = parentCommand.Options[i];
+
+                            if (option.IsGlobal)
                             {
-                                if (alias is { } &&
-                                    alias.ContainsCaseInsensitive(textToMatch))
-                                {
-                                    completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: child.Description));
-                                }
+                                AddCompletionsFor(option);
                             }
-
-                            break;
-
-                        case Argument argument:
-                            foreach (var completion in argument.GetCompletions(context))
-                            {
-                                if (completion.Label.ContainsCaseInsensitive(textToMatch))
-                                {
-                                    completions.Add(completion);
-                                }
-                            }
-
-                            break;
+                        }
                     }
                 }
             }
@@ -182,6 +169,35 @@ namespace System.CommandLine
             return completions
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
+
+            void AddCompletionsFor(Symbol child)
+            {
+                switch (child)
+                {
+                    case IdentifierSymbol identifier when !child.IsHidden:
+                        foreach (var alias in identifier.Aliases)
+                        {
+                            if (alias is { } &&
+                                alias.ContainsCaseInsensitive(textToMatch))
+                            {
+                                completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: child.Description));
+                            }
+                        }
+
+                        break;
+
+                    case Argument argument:
+                        foreach (var completion in argument.GetCompletions(context))
+                        {
+                            if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                            {
+                                completions.Add(completion);
+                            }
+                        }
+
+                        break;
+                }
+            }
         }
     }
 }
