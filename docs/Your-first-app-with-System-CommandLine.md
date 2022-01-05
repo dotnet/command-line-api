@@ -4,7 +4,7 @@ This walkthrough will show you how to get started using System.CommandLine to bu
 
 ## Create a new console app
 
-Open a new console and run the following commands:
+Open a new console and run the following commands in an empty directory:
 
 ```console
 > dotnet new console -o myApp
@@ -13,14 +13,11 @@ Open a new console and run the following commands:
 
 ## Install the System.CommandLine package
 
-Use `dotnet` to add the package to your project. From the project directory, run:
+Use `dotnet` to add the package to your project. In the project directory, run:
 
 ```console
 > dotnet add package System.CommandLine --prerelease
 ```
-
-Or see more options on Nuget
-[![Nuget](https://img.shields.io/nuget/v/System.CommandLine.svg)](https://nuget.org/packages/System.CommandLine)
 
 ## Add some code
 
@@ -30,59 +27,55 @@ Open `Program.cs`. At the top, add a `using` directive:
 using System.CommandLine;
 ```
 
-Your `Main` method looks like this:
+`Program.cs` contains the following code:
 
 ```csharp
-static void Main(string[] args)
-{
-    Console.WriteLine("Hello World!");
-}
+Console.WriteLine("Hello World!");
 ```
 
-Now, let's add a parser.
+This isn't doing anything with the `args` parameter. For that, we'll use System.CommandLine.
 
-You'll need a few more `using` directives:
+At the top of the file, add the following `using` directives:
 
 ```csharp
-using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO;
 ```
 
 Now change your `Main` method to this:
 
 ```csharp
-static int Main(string[] args)
+// Create some options:
+var intOption = new Option<int>(
+        "--int-option",
+        getDefaultValue: () => 42,
+        description: "An option whose argument is parsed as an int");
+var boolOption = new Option<bool>(
+        "--bool-option",
+        "An option whose argument is parsed as a bool");
+var fileOption = new Option<FileInfo>(
+        "--file-option",
+        "An option whose argument is parsed as a FileInfo");
+
+// Add the options to a root command:
+var rootCommand = new RootCommand
 {
-    // Create a root command with some options
-    var rootCommand = new RootCommand
-    {
-        new Option<int>(
-            "--int-option",
-            getDefaultValue: () => 42,
-            description: "An option whose argument is parsed as an int"),
-        new Option<bool>(
-            "--bool-option",
-            "An option whose argument is parsed as a bool"),
-        new Option<FileInfo>(
-            "--file-option",
-            "An option whose argument is parsed as a FileInfo")
-    };
+    intOption,
+    boolOption,
+    fileOption
+};
 
-    rootCommand.Description = "My sample app";
+rootCommand.Description = "My sample app";
 
-   // Note that the parameters of the handler method are matched according to the names of the options
-   rootCommand.Handler = CommandHandler.Create<int, bool, FileInfo>((intOption, boolOption, fileOption) =>
-    {
-        Console.WriteLine($"The value for --int-option is: {intOption}");
-        Console.WriteLine($"The value for --bool-option is: {boolOption}");
-        Console.WriteLine($"The value for --file-option is: {fileOption?.FullName ?? "null"}");
-    });
+rootCommand.SetHandler((int i, bool b, FileInfo f) =>
+{
+    Console.WriteLine($"The value for --int-option is: {i}");
+    Console.WriteLine($"The value for --bool-option is: {b}");
+    Console.WriteLine($"The value for --file-option is: {f?.FullName ?? "null"}");
+}, intOption, boolOption, fileOption);
 
-    // Parse the incoming args and invoke the handler
-    return rootCommand.InvokeAsync(args).Result;
-}
+// Parse the incoming args and invoke the handler
+return rootCommand.Invoke(args);
 ```
 
 You're ready to run your program.
