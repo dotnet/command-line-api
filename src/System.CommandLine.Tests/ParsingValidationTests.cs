@@ -85,20 +85,53 @@ namespace System.CommandLine.Tests
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1556
-        public void When_FromAmong_is_used_for_multiple_arguments_()
+        public void When_FromAmong_is_used_for_multiple_arguments_and_valid_input_is_provided_then_there_are_no_errors()
         {
-            var config = new Command("config")
+            var command = new Command("set")
             {
-                new Command("set")
-                {
-                    new Argument<string>("key").FromAmong("key1", "key2"),
-                    new Argument<string>("value").FromAmong("value1", "value2")
-                }
+                new Argument<string>("key").FromAmong("key1", "key2"),
+                new Argument<string>("value").FromAmong("value1", "value2")
             };
 
-           var result =  config.Parse("config set key1 value1");
+            var result = command.Parse("set key1 value1");
 
-           result.Errors.Should().BeEmpty();
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_first_one_then_the_error_is_informative()
+        {
+            var command = new Command("set")
+            {
+                new Argument<string>("key").FromAmong("key1", "key2"),
+                new Argument<string>("value").FromAmong("value1", "value2")
+            };
+
+            var result = command.Parse("set not-key1 value1");
+
+            result.Errors.Should().ContainSingle()
+                  .Which
+                  .Message
+                  .Should()
+                  .Be(LocalizationResources.Instance.UnrecognizedArgument("not-key1", new[] { "key1", "key2" }));
+        }
+
+        [Fact]
+        public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_second_one_then_the_error_is_informative()
+        {
+            var command = new Command("set")
+            {
+                new Argument<string>("key").FromAmong("key1", "key2"),
+                new Argument<string>("value").FromAmong("value1", "value2")
+            };
+
+            var result = command.Parse("set key1 not-value1");
+
+            result.Errors.Should().ContainSingle()
+                  .Which
+                  .Message
+                  .Should()
+                  .Be(LocalizationResources.Instance.UnrecognizedArgument("not-value1", new[] { "value1", "value2" }));
         }
 
         [Fact]
