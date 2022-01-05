@@ -224,7 +224,7 @@ var command = new RootCommand
 command.Handler = CommandHandler.Create(
     (ParseResult parseResult, IConsole console) =>
     {
-        console.Out.WriteLine($"{parseResult}");
+        Console.Out.WriteLine($"{parseResult}");
     });
 
 await command.InvokeAsync("--an-int 123 --a-string \"Hello world!\" --an-enum compressed");
