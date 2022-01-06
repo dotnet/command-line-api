@@ -33,7 +33,7 @@ namespace System.CommandLine.Builder
         /// <summary>
         /// Determines whether the parser recognizes command line directives.
         /// </summary>
-        /// <seealso cref="IDirectiveCollection"/>
+        /// <seealso cref="DirectiveCollection"/>
         public bool EnableDirectives { get; set; } = true;
 
         /// <summary>

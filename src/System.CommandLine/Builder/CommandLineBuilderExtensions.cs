@@ -102,7 +102,7 @@ namespace System.CommandLine.Builder
         /// <param name="builder">A command line builder.</param>
         /// <param name="value">If set to <see langword="true"/>, then directives are enabled. Otherwise, they are parsed like any other token.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        /// <seealso cref="IDirectiveCollection"/>
+        /// <seealso cref="DirectiveCollection"/>
         public static CommandLineBuilder EnableDirectives(
             this CommandLineBuilder builder,
             bool value = true)
@@ -279,11 +279,11 @@ ERR:
         {
             builder.AddMiddleware((context, next) =>
             {
-                if (context.ParseResult.Directives.TryGetValues("env", out var directives))
+                if (context.ParseResult.Directives.TryGetValues("env", out var keyValuePairs))
                 {
-                    for (var i = 0; i < directives.Count; i++)
+                    for (var i = 0; i < keyValuePairs.Count; i++)
                     {
-                        var envDirective = directives[i];
+                        var envDirective = keyValuePairs[i];
                         var components = envDirective.Split(new[] { '=' }, count: 2);
                         var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
                         if (string.IsNullOrEmpty(variable) || components.Length < 2)

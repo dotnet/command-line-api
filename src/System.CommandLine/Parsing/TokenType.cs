@@ -41,7 +41,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// A directive token.
         /// </summary>
-        /// <see cref="IDirectiveCollection"/>
+        /// <see cref="DirectiveCollection"/>
         Directive
     }
 }
