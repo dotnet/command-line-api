@@ -535,5 +535,5 @@ System.CommandLine.Parsing
   public delegate ValidateSymbolResult<in T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(T symbolResult, System.AsyncCallback callback, System.Object object)
-    public System.String EndInvoke(System.IAsyncResult result)
-    public System.String Invoke(T symbolResult)
+    public System.Void EndInvoke(System.IAsyncResult result)
+    public System.Void Invoke(T symbolResult)
