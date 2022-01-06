@@ -92,6 +92,11 @@
   public static class ConsoleExtensions
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)
+  public class DirectiveCollection, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
+    .ctor()
+    public System.Boolean Contains(System.String name)
+    public System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>> GetEnumerator()
+    public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
   public static class Handler
     public static System.Void SetHandler(this Command command, System.Action handle)
     public static System.Void SetHandler(this Command command, System.Func<System.Threading.Tasks.Task> handle)
@@ -133,9 +138,6 @@
     public System.String Name { get; set; }
     public System.Void AddAlias(System.String alias)
     public System.Boolean HasAlias(System.String alias)
-  public interface IDirectiveCollection : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
-    public System.Boolean Contains(System.String name)
-    public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
   public class LocalizationResources
     public static LocalizationResources Instance { get; }
     public System.String ArgumentConversionCannotParse(System.String value, System.Type expectedType)
@@ -455,7 +457,7 @@ System.CommandLine.Parsing
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> arguments, System.String rawInput = null)
   public class ParseResult
     public CommandResult CommandResult { get; }
-    public System.CommandLine.IDirectiveCollection Directives { get; }
+    public System.CommandLine.DirectiveCollection Directives { get; }
     public System.Collections.Generic.IReadOnlyList<ParseError> Errors { get; }
     public Parser Parser { get; }
     public CommandResult RootCommandResult { get; }

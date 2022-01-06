@@ -44,7 +44,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestInputs))]
-        public IDirectiveCollection ParseResult_Directives(string input)
+        public DirectiveCollection ParseResult_Directives(string input)
             => _testParser.Parse(input).Directives;
 
         [Benchmark]
