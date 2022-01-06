@@ -90,12 +90,12 @@ namespace System.CommandLine.Parsing
 
             for (var i = 0; i < argument.Validators.Count; i++)
             {
-                var symbolValidator = argument.Validators[i];
-                var errorMessage = symbolValidator(this);
+                var validateSymbolResult = argument.Validators[i];
+                validateSymbolResult(this);
 
-                if (!string.IsNullOrWhiteSpace(errorMessage))
+                if (!string.IsNullOrWhiteSpace(ErrorMessage))
                 {
-                    return new ParseError(errorMessage!, this);
+                    return new ParseError(ErrorMessage!, this);
                 }
             }
 

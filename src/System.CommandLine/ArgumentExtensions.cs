@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.CommandLine.Completions;
-using System.Linq;
 using System.IO;
 
 namespace System.CommandLine
@@ -90,12 +89,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<FileInfo> ExistingOnly(this Argument<FileInfo> argument)
         {
-            argument.AddValidator(symbol =>
-                                      symbol.Tokens
-                                            .Select(t => t.Value)
-                                            .Where(filePath => !File.Exists(filePath))
-                                            .Select(symbol.LocalizationResources.FileDoesNotExist)
-                                            .FirstOrDefault());
+            argument.AddValidator(Validate.FileExists);
             return argument;
         }
 
@@ -106,12 +100,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<DirectoryInfo> ExistingOnly(this Argument<DirectoryInfo> argument)
         {
-            argument.AddValidator(symbol =>
-                                      symbol.Tokens
-                                            .Select(t => t.Value)
-                                            .Where(filePath => !Directory.Exists(filePath))
-                                            .Select(symbol.LocalizationResources.DirectoryDoesNotExist)
-                                            .FirstOrDefault());
+            argument.AddValidator(Validate.DirectoryExists);
             return argument;
         }
 
@@ -122,12 +111,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<FileSystemInfo> ExistingOnly(this Argument<FileSystemInfo> argument)
         {
-            argument.AddValidator(symbol =>
-                                      symbol.Tokens
-                                            .Select(t => t.Value)
-                                            .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                                            .Select(symbol.LocalizationResources.FileOrDirectoryDoesNotExist)
-                                            .FirstOrDefault());
+            argument.AddValidator(Validate.FileOrDirectoryExists);
             return argument;
         }
 
@@ -141,30 +125,15 @@ namespace System.CommandLine
         {
             if (typeof(IEnumerable<FileInfo>).IsAssignableFrom(typeof(T)))
             {
-                argument.AddValidator(
-                    a => a.Tokens
-                          .Select(t => t.Value)
-                          .Where(filePath => !File.Exists(filePath))
-                          .Select(a.LocalizationResources.FileDoesNotExist)
-                          .FirstOrDefault());
+                argument.AddValidator(Validate.FileExists);
             }
             else if (typeof(IEnumerable<DirectoryInfo>).IsAssignableFrom(typeof(T)))
             {
-                argument.AddValidator(
-                    a => a.Tokens
-                          .Select(t => t.Value)
-                          .Where(filePath => !Directory.Exists(filePath))
-                          .Select(a.LocalizationResources.DirectoryDoesNotExist)
-                          .FirstOrDefault());
+                argument.AddValidator(Validate.DirectoryExists);
             }
             else
             {
-                argument.AddValidator(
-                    a => a.Tokens
-                          .Select(t => t.Value)
-                          .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                          .Select(a.LocalizationResources.FileOrDirectoryDoesNotExist)
-                          .FirstOrDefault());
+                argument.AddValidator(Validate.FileOrDirectoryExists);
             }
 
             return argument;
@@ -181,11 +150,11 @@ namespace System.CommandLine
         {
             var invalidPathChars = Path.GetInvalidPathChars();
 
-            argument.AddValidator(symbol =>
+            argument.AddValidator(result =>
             {
-                for (var i = 0; i < symbol.Tokens.Count; i++)
+                for (var i = 0; i < result.Tokens.Count; i++)
                 {
-                    var token = symbol.Tokens[i];
+                    var token = result.Tokens[i];
 
                     // File class no longer check invalid character
                     // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
@@ -193,11 +162,9 @@ namespace System.CommandLine
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        return symbol.LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
+                        result.ErrorMessage = result.LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
                     }
                 }
-
-                return null;
             });
 
             return argument;
@@ -215,20 +182,18 @@ namespace System.CommandLine
         {
             var invalidFileNameChars = Path.GetInvalidFileNameChars();
 
-            argument.AddValidator(symbol =>
+            argument.AddValidator(result =>
             {
-                for (var i = 0; i < symbol.Tokens.Count; i++)
+                for (var i = 0; i < result.Tokens.Count; i++)
                 {
-                    var token = symbol.Tokens[i];
+                    var token = result.Tokens[i];
                     var invalidCharactersIndex = token.Value.IndexOfAny(invalidFileNameChars);
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        return symbol.LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]);
+                        result.ErrorMessage =  result.LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]);
                     }
                 }
-
-                return null;
             });
 
             return argument;

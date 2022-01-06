@@ -242,10 +242,8 @@ namespace System.CommandLine.Tests
                 if (commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--one")) &&
                     commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--two")))
                 {
-                    return "Options '--one' and '--two' cannot be used together.";
+                    commandResult.ErrorMessage = "Options '--one' and '--two' cannot be used together.";
                 }
-
-                return null;
             });
 
             var result = command.Parse("the-command --one --two");
@@ -266,7 +264,7 @@ namespace System.CommandLine.Tests
             {
                 var value = r.GetValueOrDefault<int>();
 
-                return $"Option {r.Token.Value} cannot be set to {value}";
+                r.ErrorMessage = $"Option {r.Token.Value} cannot be set to {value}";
             });
 
             var command = new RootCommand { option };
@@ -291,7 +289,7 @@ namespace System.CommandLine.Tests
             {
                 var value = r.GetValueOrDefault<int>();
 
-                return $"Argument {r.Argument.Name} cannot be set to {value}";
+                r.ErrorMessage = $"Argument {r.Argument.Name} cannot be set to {value}";
             });
 
             var command = new RootCommand { argument };
@@ -320,14 +318,12 @@ namespace System.CommandLine.Tests
             option.AddValidator(_ =>
             {
                 optionValidatorWasCalled = true;
-                return null;
             });
 
             var argument = new Argument<string>("the-arg");
             argument.AddValidator(_ =>
             {
                 argumentValidatorWasCalled = true;
-                return null;
             });
 
             var rootCommand = new RootCommand
@@ -338,7 +334,6 @@ namespace System.CommandLine.Tests
             rootCommand.AddValidator(_ =>
             {
                 commandValidatorWasCalled = true;
-                return null;
             });
 
             rootCommand.Invoke(commandLine);
@@ -356,7 +351,7 @@ namespace System.CommandLine.Tests
             var option = new Option<FileInfo>("--file");
             option.AddValidator(r =>
             {
-                return "Invoked validator";
+                r.ErrorMessage = "Invoked validator";
             });
 
             var subCommand = new Command("subcommand");
@@ -389,7 +384,7 @@ namespace System.CommandLine.Tests
             var handlerWasCalled = false;
 
             var globalOption = new Option<int>("--value");
-            globalOption.AddValidator(_ => "oops!");
+            globalOption.AddValidator(r => r.ErrorMessage = "oops!");
 
             var grandchildCommand = new Command("grandchild");
 
@@ -419,7 +414,7 @@ namespace System.CommandLine.Tests
         {
             var errorMessage = "that's not right...";
             var argument = new Argument<string>();
-            argument.AddValidator(o => errorMessage);
+            argument.AddValidator(r => r.ErrorMessage = errorMessage);
 
             var cmd = new Command("get")
             {

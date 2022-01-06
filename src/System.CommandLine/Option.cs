@@ -298,6 +298,7 @@ namespace System.CommandLine
             return max.RemovePrefix();
         }
 
+        /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
             if (_argument is null)
