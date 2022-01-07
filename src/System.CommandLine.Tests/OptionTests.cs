@@ -304,13 +304,12 @@ namespace System.CommandLine.Tests
         public void Option_T_default_value_is_validated()
         {
             var option = new Option<int>("-x", () => 123);
-            option.AddValidator( symbol =>
-                    symbol.Tokens
-                    .Select(t => t.Value)
-                    .Where(v => v == "123")
-                    .Select(x => "ERR")
-                    .FirstOrDefault());
-
+            option.AddValidator(symbol =>
+                                    symbol.ErrorMessage = symbol.Tokens
+                                                                .Select(t => t.Value)
+                                                                .Where(v => v == "123")
+                                                                .Select(_ => "ERR")
+                                                                .FirstOrDefault());
 
             option
                 .Parse("-x 123")

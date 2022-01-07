@@ -325,12 +325,12 @@ namespace System.CommandLine.Parsing
 
             for (var i = 0; i < command.Validators.Count; i++)
             {
-                var validator = command.Validators[i];
-                var errorMessage = validator(_innermostCommandResult);
+                var validateSymbolResult = command.Validators[i];
+                validateSymbolResult(_innermostCommandResult);
 
-                if (!string.IsNullOrWhiteSpace(errorMessage))
+                if (!string.IsNullOrWhiteSpace(_innermostCommandResult.ErrorMessage))
                 {
-                    AddErrorToResult(_innermostCommandResult, new ParseError(errorMessage!, _innermostCommandResult));
+                    AddErrorToResult(_innermostCommandResult, new ParseError(_innermostCommandResult.ErrorMessage!, _innermostCommandResult));
                 }
             }
 
@@ -440,11 +440,11 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < optionResult.Option.Validators.Count; i++)
                 {
                     var validate = optionResult.Option.Validators[i];
-                    var message = validate(optionResult);
+                    validate(optionResult);
 
-                    if (!string.IsNullOrWhiteSpace(message))
+                    if (!string.IsNullOrWhiteSpace(optionResult.ErrorMessage))
                     {
-                        AddErrorToResult(optionResult, new ParseError(message!, optionResult));
+                        AddErrorToResult(optionResult, new ParseError(optionResult.ErrorMessage!, optionResult));
                     }
                 }
             }

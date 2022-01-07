@@ -90,14 +90,7 @@ namespace System.CommandLine
         /// <returns>The option being extended.</returns>
         public static Option<FileInfo> ExistingOnly(this Option<FileInfo> option)
         {
-            option.Argument.AddValidator(
-                a =>
-                    a.Tokens
-                     .Select(t => t.Value)
-                     .Where(filePath => !File.Exists(filePath))
-                     .Select(a.LocalizationResources.FileDoesNotExist)
-                     .FirstOrDefault());
-
+            option.Argument.AddValidator(Validate.FileExists);
             return option;
         }
 
@@ -108,14 +101,7 @@ namespace System.CommandLine
         /// <returns>The option being extended.</returns>
         public static Option<DirectoryInfo> ExistingOnly(this Option<DirectoryInfo> option)
         {
-            option.Argument.AddValidator(
-                a =>
-                    a.Tokens
-                     .Select(t => t.Value)
-                     .Where(filePath => !Directory.Exists(filePath))
-                     .Select(a.LocalizationResources.DirectoryDoesNotExist)
-                     .FirstOrDefault());
-
+            option.Argument.AddValidator(Validate.DirectoryExists);
             return option;
         }
 
@@ -126,14 +112,7 @@ namespace System.CommandLine
         /// <returns>The option being extended.</returns>
         public static Option<FileSystemInfo> ExistingOnly(this Option<FileSystemInfo> option)
         {
-            option.Argument.AddValidator(
-                a =>
-                    a.Tokens
-                     .Select(t => t.Value)
-                     .Where(filePath => !Directory.Exists(filePath) && !File.Exists(filePath))
-                     .Select(a.LocalizationResources.FileOrDirectoryDoesNotExist)
-                     .FirstOrDefault());
-
+            option.Argument.AddValidator(Validate.FileOrDirectoryExists);
             return option;
         }
 
