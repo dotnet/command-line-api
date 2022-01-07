@@ -3,13 +3,14 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Builder;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -159,62 +160,6 @@ namespace System.CommandLine.Tests.Binding
 
             wasCalled.Should().BeFalse();
             exitCode.Should().Be(1);
-        }
-
-        [Fact]
-        public void If_no_symbol_was_passed_for_binding_then_the_error_message_suggests_a_fix_for_the_first_missing_symbol()
-        {
-            var boolOption = new Option<bool>("-o");
-            var stringArg = new Argument<string>("value");
-
-            var subcommand = new Command("TheCommand")
-            {
-                boolOption,
-                stringArg
-            };
-
-            var command = new RootCommand
-            {
-                subcommand
-            };
-
-            subcommand.SetHandler((bool boolValue, string stringValue) => { });
-
-            var console = new TestConsole();
-
-            command.Invoke("TheCommand -o hi", console);
-
-            console.Error.ToString().Should()
-                   .Contain(
-                       $"The SetHandler call for command 'TheCommand' is missing an Argument or Option for the parameter at position 0. Did you mean to pass one of these?{NewLine}Option<Boolean> -o");
-        }
-
-        [Fact]
-        public void If_no_symbol_was_passed_for_binding_subsequent_parameter_then_the_error_message_suggests_a_fix_for_the_first_missing_symbol()
-        {
-            var boolOption = new Option<bool>("-o");
-            var stringArg = new Argument<string>("value");
-
-            var subcommand = new Command("TheCommand")
-            {
-                boolOption,
-                stringArg
-            };
-
-            var command = new RootCommand
-            {
-                subcommand
-            };
-
-            subcommand.SetHandler((bool boolValue, string stringValue) => { }, boolOption);
-
-            var console = new TestConsole();
-
-            command.Invoke("TheCommand -o hi", console);
-
-            console.Error.ToString().Should()
-                   .Contain(
-                       $"The SetHandler call for command 'TheCommand' is missing an Argument or Option for the parameter at position 1. Did you mean to pass one of these?{NewLine}Argument<String> value");
         }
 
         [Fact]
@@ -535,6 +480,148 @@ namespace System.CommandLine.Tests.Binding
             var exitCode = await command.InvokeAsync("");
             wasCalled.Should().BeTrue();
             exitCode.Should().Be(0);
+        }
+
+        public interface IBindingContextTestInterface { }
+
+        public interface IBindingContextTestInterface2 { }
+
+        public class BindingContextServiceTestInterfaceImpl : IBindingContextTestInterface { }
+
+        public class ExternalContextServiceTestInterfaceImpl : IBindingContextTestInterface { }
+
+        public class ExternalContextServiceTestInterface2Impl : IBindingContextTestInterface2 { }
+
+        public class ExternalContextServiceProvider : IServiceProvider
+        {
+            private readonly IDictionary<Type, object> _values;
+
+            public ExternalContextServiceProvider(IDictionary<Type, object> values)
+                => _values = values ?? throw new ArgumentNullException(nameof(values));
+
+            public object GetService(Type serviceType)
+                => _values.ContainsKey(serviceType) ? _values[serviceType] : null;
+        }
+
+        [Fact]
+        public void BindingContext_services_take_precedence()
+        {
+            var external = new ExternalContextServiceProvider(
+                new Dictionary<Type, object>()
+                {
+                    { typeof(IBindingContextTestInterface), new ExternalContextServiceTestInterfaceImpl() }
+                });
+
+            var command = new Command("wat");
+
+            command.SetHandler<IBindingContextTestInterface>((test) =>
+            {
+                Assert.IsType<BindingContextServiceTestInterfaceImpl>(test);
+            });
+
+            var builder = new CommandLineBuilder(command);
+            builder.AddMiddleware(async (invocation, next) =>
+            {
+                invocation.BindingContext.AddService<IBindingContextTestInterface>((sp) => new BindingContextServiceTestInterfaceImpl());
+                invocation.BindingContext.AddServiceProvider(external);
+
+                await next(invocation);
+            });
+
+            var parser = builder.Build();
+            var result = parser.Invoke(new[] { "wat" });
+
+            Assert.Equal(0, result);
+        }
+
+        [Fact]
+        public void BindingContext_external_services_are_resolved()
+        {
+            var external = new ExternalContextServiceProvider(
+                new Dictionary<Type, object>()
+                {
+                    { typeof(IBindingContextTestInterface), new ExternalContextServiceTestInterfaceImpl() }
+                });
+
+            var command = new Command("wat");
+
+            command.SetHandler<IBindingContextTestInterface>((test) =>
+            {
+                Assert.IsType<ExternalContextServiceTestInterfaceImpl>(test);
+            });
+
+            var builder = new CommandLineBuilder(command);
+            builder.AddMiddleware(async (invocation, next) =>
+            {
+                invocation.BindingContext.AddServiceProvider(external);
+
+                await next(invocation);
+            });
+
+            var parser = builder.Build();
+            var result = parser.Invoke(new[] { "wat" });
+
+            Assert.Equal(0, result);
+        }
+
+
+        [Fact]
+        public void BindingContext_multiple_external_services_are_resolved()
+        {
+            var external1 = new ExternalContextServiceProvider(
+                new Dictionary<Type, object>()
+                {
+                    { typeof(IBindingContextTestInterface), new ExternalContextServiceTestInterfaceImpl() }
+                });
+
+            var external2 = new ExternalContextServiceProvider(
+                new Dictionary<Type, object>()
+                {
+                    { typeof(IBindingContextTestInterface2), new ExternalContextServiceTestInterface2Impl() }
+                });
+
+            var command = new Command("wat");
+
+            command.SetHandler<IBindingContextTestInterface, IBindingContextTestInterface2>((svc1, svc2) =>
+            {
+                Assert.IsType<ExternalContextServiceTestInterfaceImpl>(svc1);
+                Assert.IsType<ExternalContextServiceTestInterface2Impl>(svc2);
+            });
+
+            var builder = new CommandLineBuilder(command);
+            builder.AddMiddleware(async (invocation, next) =>
+            {
+                invocation.BindingContext.AddServiceProvider(external1);
+                invocation.BindingContext.AddServiceProvider(external2);
+
+                await next(invocation);
+            });
+
+            var parser = builder.Build();
+            var result = parser.Invoke(new[] { "wat" });
+
+            Assert.Equal(0, result);
+        }
+
+        [Fact]
+        public void BindingContext_throws_on_null_external_service_provider()
+        {
+            var command = new Command("wat");
+
+            var builder = new CommandLineBuilder(command);
+            builder.AddMiddleware(async (invocation, next) =>
+            {
+                Assert.Throws<ArgumentNullException>(
+                    () => invocation.BindingContext.AddServiceProvider(null)
+                );
+
+                await next(invocation);
+            });
+
+            var parser = builder.Build();
+            var result = parser.Invoke(new[] { "wat" });
+
+            Assert.Equal(0, result);
         }
     }
 }

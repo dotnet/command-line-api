@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
+using System.Collections.Generic;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -17,6 +19,7 @@ namespace System.CommandLine.Binding
     public sealed class BindingContext : IServiceProvider
     {
         private HelpBuilder? _helpBuilder;
+        private IList<IServiceProvider> _externalProviders = new List<IServiceProvider>();
 
         internal BindingContext(InvocationContext invocationContext)
         {
@@ -43,7 +46,23 @@ namespace System.CommandLine.Binding
         internal ServiceProvider ServiceProvider { get; }
 
         /// <inheritdoc />
-        public object? GetService(Type serviceType) => ServiceProvider.GetService(serviceType);
+        public object? GetService(Type serviceType)
+        {
+            var result = ServiceProvider.GetService(serviceType);
+
+            if (result == null)
+            {
+                foreach (var externalProvider in _externalProviders)
+                {
+                    result = externalProvider.GetService(serviceType);
+
+                    if (result != null)
+                        break;
+                }
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Adds the specified service factory to the binding context.
@@ -68,6 +87,13 @@ namespace System.CommandLine.Binding
             }
 
             ServiceProvider.AddService(typeof(T), s => factory(s));
+        }
+
+        public void AddServiceProvider(IServiceProvider provider)
+        {
+            _ = provider ?? throw new ArgumentNullException(nameof(provider));
+
+            _externalProviders.Add(provider);
         }
 
         internal bool TryGetValueSource(
