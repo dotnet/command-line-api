@@ -494,6 +494,16 @@ namespace System.CommandLine.Tests.Binding
         }
       
         [Fact]
+        public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+
+            var value = option.Parse("-x 123.456").GetValueForOption<decimal>(option);
+
+            value.Should().Be(123.456m);
+        }
+    
+        [Fact]
         public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
@@ -504,13 +514,13 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
+        public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
 
-            var value = option.Parse("-x 123.456").GetValueForOption<float>(option);
+            var value = option.Parse("-x http://example.com").GetValueForOption<Uri>(option);
 
-            value.Should().Be(123.456f);
+            value.Should().BeEquivalentTo(new Uri("http://example.com"));
         }
 
         [Fact]
@@ -520,7 +530,7 @@ namespace System.CommandLine.Tests.Binding
 
             option.Parse("-x").GetValueForOption<bool>(option).Should().BeTrue();
         }
-
+        
         [Fact]
         public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
         {

@@ -1593,7 +1593,7 @@ namespace System.CommandLine.Tests
         }
 
 
-        [Fact]
+        [Fact(Skip = "Can we support both type converters and trimming?")]
         public void Argument_with_custom_type_converter_can_be_bound()
         {
             var option = new Option<ClassWithCustomTypeConverter>("--value");
@@ -1605,7 +1605,7 @@ namespace System.CommandLine.Tests
             instance.Values.Should().BeEquivalentTo("a", "b", "c");
         }
 
-        [Fact]
+        [Fact(Skip = "Can we support both type converters and trimming?")]
         public void Argument_with_custom_collection_type_converter_can_be_bound()
         {
             var option = new Option<CollectionWithCustomTypeConverter>("--value") { Arity = ArgumentArity.ExactlyOne };

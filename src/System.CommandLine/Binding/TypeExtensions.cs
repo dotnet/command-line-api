@@ -15,25 +15,19 @@ namespace System.CommandLine.Binding
                 return type.GetElementType();
             }
 
-            Type enumerableInterface;
+            if (type == typeof(string))
+            {
+                return null;
+            }
+
+            Type? enumerableInterface = null;
 
             if (type.IsEnumerable())
             {
                 enumerableInterface = type;
             }
-            else
-            {
-                enumerableInterface = type
-                                      .GetInterfaces()
-                                      .FirstOrDefault(IsEnumerable);
-            }
 
-            if (enumerableInterface is null)
-            {
-                return null;
-            }
-
-            return enumerableInterface.GenericTypeArguments switch
+            return enumerableInterface?.GenericTypeArguments switch
             {
                 { Length: 1 } genericTypeArguments => genericTypeArguments[0],
                 _ => null

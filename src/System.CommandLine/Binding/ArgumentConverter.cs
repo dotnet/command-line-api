@@ -4,109 +4,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using static System.CommandLine.Binding.ArgumentConversionResult;
 
 namespace System.CommandLine.Binding
 {
-    internal static class ArgumentConverter
+    internal static partial class ArgumentConverter
     {
-        private static Lazy<MethodInfo> EnumerableEmptyMethod { get; } = new
-             (() => typeof(Enumerable).GetMethod(nameof(Array.Empty)), LazyThreadSafetyMode.None);
-
-        private static readonly Dictionary<Type, TryConvertString> _stringConverters = new()
-        {
-            [typeof(DirectoryInfo)] = (string path, out object? value) =>
-            {
-                value = new DirectoryInfo(path);
-                return true;
-            },
-
-            [typeof(int)] = (string token, out object? value) =>
-            {
-                if (int.TryParse(token, out var intValue))
-                {
-                    value = intValue;
-                    return true;
-                }
-
-                value = default;
-                return false;
-            },
-
-            [typeof(int?)] = (string token, out object? value) =>
-            {
-                if (int.TryParse(token, out var intValue))
-                {
-                    value = intValue;
-                    return true;
-                }
-
-                value = default;
-                return false;
-            },
-
-            [typeof(bool)] = (string token, out object? value) =>
-            {
-                if (bool.TryParse(token, out var parsed))
-                {
-                    value = parsed;
-                    return true;
-                }
-
-                value = default;
-                return false;
-            },
-            
-            [typeof(bool?)] = (string token, out object? value) =>
-            {
-                if (bool.TryParse(token, out var parsed))
-                {
-                    value = parsed;
-                    return true;
-                }
-
-                value = default;
-                return false;
-            },
-
-            [typeof(FileSystemInfo)] = (string path, out object? value) =>
-            {
-                if (Directory.Exists(path))
-                {
-                    value = new DirectoryInfo(path);
-                }
-                else if (path.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
-                         path.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal))
-                {
-                    value = new DirectoryInfo(path);
-                }
-                else
-                {
-                    value = new FileInfo(path);
-                }
-
-                return true;
-            },
-
-            [typeof(FileInfo)] = (string path, out object? value) =>
-            {
-                value = new FileInfo(path);
-                return true;
-            },
-
-            [typeof(string)] = (string input, out object? value) =>
-            {
-                value = input;
-                return true;
-            },
-        };
-
         private delegate bool TryConvertString(string token, out object? value);
 
         internal static ArgumentConversionResult ConvertObject(
@@ -118,7 +23,7 @@ namespace System.CommandLine.Binding
             switch (value)
             {
                 case string singleValue:
-                    if (type.IsEnumerable() && !type.HasStringTypeConverter())
+                    if (type.IsEnumerable())
                     {
                         return ConvertStrings(argument, type, new[] { singleValue }, localizationResources);
                     }
@@ -152,32 +57,16 @@ namespace System.CommandLine.Binding
                 }
             }
 
-            if (TypeDescriptor.GetConverter(type) is { } typeConverter)
+            if (type.IsEnum)
             {
-                if (typeConverter.CanConvertFrom(typeof(string)))
+                try
                 {
-                    try
-                    {
-                        return Success(
-                            argument,
-                            typeConverter.ConvertFromInvariantString(value));
-                    }
-                    catch (Exception)
-                    {
-                        return Failure(argument, type, value, localizationResources);
-                    }
+                    return Success(argument, Enum.Parse(type, value, true));
                 }
-            }
-
-            if (type.TryFindConstructorWithSingleParameterOfType(
-                typeof(string), out ConstructorInfo? ctor))
-            {
-                var instance = ctor.Invoke(new object[]
+                catch (ArgumentException)
                 {
-                    value
-                });
-
-                return Success(argument, instance);
+                    // TODO: (ConvertString) find a way to do this without the try..catch
+                }
             }
 
             return Failure(argument, type, value, localizationResources);
@@ -326,33 +215,6 @@ namespace System.CommandLine.Binding
             }
         }
 
-        private static bool TryFindConstructorWithSingleParameterOfType(
-            this Type type,
-            Type parameterType,
-            [NotNullWhen(true)] out ConstructorInfo? ctor)
-        {
-            var (x, _) = type.GetConstructors()
-                             .Select(c => (ctor: c, parameters: c.GetParameters()))
-                             .SingleOrDefault(tuple => tuple.ctor.IsPublic &&
-                                                       tuple.parameters.Length == 1 &&
-                                                       tuple.parameters[0].ParameterType == parameterType);
-
-            if (x is not null)
-            {
-                ctor = x;
-                return true;
-            }
-            else
-            {
-                ctor = null;
-                return false;
-            }
-        }
-
-        private static bool HasStringTypeConverter(this Type type) =>
-            TypeDescriptor.GetConverter(type) is { } typeConverter &&
-            typeConverter.CanConvertFrom(typeof(string));
-
         private static FailedArgumentConversionResult Failure(
             Argument argument,
             Type expectedType,
@@ -457,10 +319,10 @@ namespace System.CommandLine.Binding
                 {
                     return type.GetGenericTypeDefinition() switch
                     {
-                        { } enumerable when enumerable == typeof(IEnumerable<>) => CreateEmptyEnumerable(itemType),
-                        { } list when list == typeof(List<>) => CreateEmptyList(itemType),
-                        { } array when array == typeof(IList<>) || 
-                                       array == typeof(ICollection<>) => CreateEmptyArray(itemType),
+                        { } enumerable when typeof(IEnumerable<>).IsAssignableFrom(enumerable) => CreateEmptyArray(itemType),
+                        { } array when typeof(IList<>).IsAssignableFrom(array) ||
+                                       typeof(ICollection<>).IsAssignableFrom(array) => CreateEmptyArray(itemType),
+                        { } list when list == typeof(List<>) => CreateEmptyList(type),
                         _ => null
                     };
                 }
@@ -468,28 +330,15 @@ namespace System.CommandLine.Binding
 
             return type switch
             {
-                { } nonGeneric 
+                { } nonGeneric
                     when nonGeneric == typeof(IList) ||
                          nonGeneric == typeof(ICollection) ||
                          nonGeneric == typeof(IEnumerable)
                     => CreateEmptyArray(typeof(object)),
-                _ when type.IsValueType => Activator.CreateInstance(type),
+                _ when type.IsValueType => CreateDefaultValueType(type),
                 _ => null
             };
-            
-            static object CreateEmptyList(Type itemType)
-            {
-                return Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
-            }
-
-            static IEnumerable CreateEmptyEnumerable(Type itemType)
-            {
-                var genericMethod = EnumerableEmptyMethod.Value.MakeGenericMethod(itemType);
-                return (IEnumerable)genericMethod.Invoke(null, new object[0]);
-            }
-
-            static Array CreateEmptyArray(Type itemType)
-                => Array.CreateInstance(itemType, 0);
         }
+
     }
 }
