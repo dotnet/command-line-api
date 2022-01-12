@@ -114,7 +114,7 @@ namespace System.CommandLine.Parsing
                 return failedResult;
             }
 
-            if (argument is Argument arg)
+            if (argument is { } arg)
             {
                 if (Parent!.UseDefaultValueFor(argument))
                 {

@@ -92,9 +92,7 @@ namespace System.CommandLine.Parsing
                 return _argumentConversionResult;
             }
         }
-
-        internal bool IsMinimumArgumentAritySatisfied => Tokens.Count >= Option.Argument.Arity.MinimumNumberOfValues;
-
+        
         internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
     }
 }
