@@ -31,8 +31,9 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Select(e => e.Message)
-                  .Single()
                   .Should()
+                  .HaveCount(1)
+                  .And
                   .Contain("Argument 'none-of-those' not recognized. Must be one of:\n\t'this'\n\t'that'\n\t'the-other-thing'");
         }
 
@@ -109,7 +110,9 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("set not-key1 value1");
 
-            result.Errors.Should().ContainSingle()
+            result.Errors
+                  .Should()
+                  .ContainSingle()
                   .Which
                   .Message
                   .Should()
@@ -127,7 +130,9 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("set key1 not-value1");
 
-            result.Errors.Should().ContainSingle()
+            result.Errors
+                  .Should()
+                  .ContainSingle()
                   .Which
                   .Message
                   .Should()
@@ -143,6 +148,8 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
+                  .HaveCount(1)
+                  .And
                   .Contain(e => e.Message == "Required argument missing for option: '-x'.");
         }
 
@@ -161,7 +168,9 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .ContainSingle(e => e.SymbolResult.Symbol == command)
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.SymbolResult.Symbol == command)
                   .Which
                   .Message
                   .Should()
@@ -225,7 +234,9 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .ContainSingle(e => e == "Unrecognized command or argument 'some-arg'.");
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e == "Unrecognized command or argument 'some-arg'.");
         }
 
         [Fact]
@@ -252,7 +263,9 @@ namespace System.CommandLine.Tests
                 .Errors
                 .Select(e => e.Message)
                 .Should()
-                .ContainSingle("Options '--one' and '--two' cannot be used together.");
+                .HaveCount(1)
+                .And
+                .Contain("Options '--one' and '--two' cannot be used together.");
         }
 
         [Fact]
@@ -273,7 +286,9 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .ContainSingle(e => e.SymbolResult.Symbol == option)
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.SymbolResult.Symbol == option)
                   .Which
                   .Message
                   .Should()
@@ -298,7 +313,9 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.SymbolResult.Symbol == argument)
                   .Which
                   .Message
                   .Should()
@@ -365,7 +382,9 @@ namespace System.CommandLine.Tests
 
             result.Errors
                   .Should()
-                  .ContainSingle(e => e.SymbolResult.Symbol == option)
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.SymbolResult.Symbol == option)
                   .Which
                   .Message
                   .Should()
@@ -421,11 +440,13 @@ namespace System.CommandLine.Tests
                 argument
             };
 
-            var result =  cmd.Parse("get something");
+            var result = cmd.Parse("get something");
 
             result.Errors
                   .Should()
-                  .ContainSingle(errorMessage);
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.Message == errorMessage);
         }
 
         public class PathValidity
@@ -444,6 +465,8 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
+                      .HaveCount(1)
+                      .And
                       .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
                                     e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }   
@@ -462,6 +485,8 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
+                      .HaveCount(1)
+                      .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
                                     e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }
@@ -515,6 +540,8 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
+                      .HaveCount(1)
+                      .And
                       .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
                                     e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
@@ -533,6 +560,8 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
+                      .HaveCount(1)
+                      .And
                       .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
                                     e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
@@ -739,8 +768,8 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: '{path}'.");
+                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                                          e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -758,8 +787,8 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"Directory does not exist: '{path}'.");
+                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                                          e.Message == $"Directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -779,8 +808,8 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
-                                    e.Message == $"File or directory does not exist: '{path}'.");
+                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                                          e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -798,8 +827,8 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: '{path}'.");
+                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                                          e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -817,8 +846,8 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: '{path}'.");
+                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                                          e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -836,8 +865,8 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
-                                    e.Message == $"File or directory does not exist: '{path}'.");
+                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                                          e.Message == $"File or directory does not exist: '{path}'.");
             }
 
             [Fact]
@@ -999,7 +1028,7 @@ namespace System.CommandLine.Tests
         {
             var newCommand = new Command("test")
             {
-                new Option<string>("--opt", ParseMe)
+                new Option<string>("--opt")
             };
 
             var parseResult = newCommand.Parse("test --opt");
@@ -1010,36 +1039,71 @@ namespace System.CommandLine.Tests
                        .Which
                        .Message
                        .Should()
-                       .Be(
-"Required argument missing for option: '--opt'.");
+                       .Be("Required argument missing for option: '--opt'.");
         }
 
-        private static string ParseMe(ArgumentResult argumentResult)
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1573
+        public void Multiple_validators_on_the_same_command_do_not_report_duplicate_errors()
         {
-            if (argumentResult.Parent is not OptionResult or)
-            {
-                throw new NotSupportedException("The method should be only used with option.");
-            }
+            var command = new RootCommand();
+            command.AddValidator(result => result.ErrorMessage = "Wrong");
+            command.AddValidator(_ => { });
 
-            if (argumentResult.Tokens.Count == 0)
+            var parseResult = command.Parse("");
+
+            parseResult.Errors
+                       .Should()
+                       .ContainSingle()
+                       .Which
+                       .Message
+                       .Should()
+                       .Be("Wrong");
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1573
+        public void Multiple_validators_on_the_same_option_do_not_report_duplicate_errors()
+        {
+            var option = new Option<string>("-x");
+            option.AddValidator(result => result.ErrorMessage = "Wrong");
+            option.AddValidator(_ => { });
+
+            var command = new RootCommand
             {
-                if (or.IsImplicit)
-                {
-                    return "default";
-                }
-                //no arg is not allowed
-                argumentResult.ErrorMessage = $"(CUSTOM) Required argument missing for option: {or.Token.Value}.";
-                return default!;
-            }
-            else if (argumentResult.Tokens.Count == 1)
+                option
+            };
+
+            var parseResult = command.Parse("-x b");
+
+            parseResult.Errors
+                       .Should()
+                       .ContainSingle()
+                       .Which
+                       .Message
+                       .Should()
+                       .Be("Wrong");
+        }   
+        
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1573
+        public void Multiple_validators_on_the_same_argument_do_not_report_duplicate_errors()
+        {
+            var argument = new Argument<string>();
+            argument.AddValidator(result => result.ErrorMessage = "Wrong");
+            argument.AddValidator(_ => { });
+
+            var command = new RootCommand
             {
-                return "value";
-            }
-            else
-            {
-                argumentResult.ErrorMessage = $"Using more than 1 argument is not allowed for '{or.Token.Value}', used: {argumentResult.Tokens.Count}.";
-                return default!;
-            }
+                argument
+            };
+
+            var parseResult = command.Parse("b");
+
+            parseResult.Errors
+                       .Should()
+                       .ContainSingle()
+                       .Which
+                       .Message
+                       .Should()
+                       .Be("Wrong");
         }
     }
 }
