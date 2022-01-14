@@ -8,6 +8,7 @@ using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Linq;
 
 namespace System.CommandLine
 {
@@ -53,7 +54,7 @@ namespace System.CommandLine
 
         internal static HelpBuilder DefaultHelpBuilderFactory(BindingContext context, int? requestedMaxWidth = null)
         {
-            int maxWidth = requestedMaxWidth ?? int.MaxValue;           
+            int maxWidth = requestedMaxWidth ?? int.MaxValue;
             if (context.Console is SystemConsole systemConsole)
             {
                 maxWidth = systemConsole.GetWindowWidth();
@@ -102,55 +103,44 @@ namespace System.CommandLine
         internal ResponseFileHandling ResponseFileHandling { get; }
 
         /// <summary>
-        /// Validates all symbols including the child hierarchy.
+        /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.
         /// </summary>
-        /// <remarks>Due to the performance impact of this method, it's recommended to create
-        /// a Unit Test that calls this method to verify the RootCommand of every application.</remarks>
-        internal void ThrowIfInvalid()
+        /// <remarks>Due to the performance cost of this method, it is recommended to be used in unit testing or in scenarios where the parser is configured dynamically at runtime.</remarks>
+        /// <exception cref="CommandLineConfigurationException">Thrown if the configuration is found to be invalid.</exception>
+        public void ThrowIfInvalid()
         {
             ThrowIfInvalid(RootCommand);
 
             static void ThrowIfInvalid(Command command)
             {
-                for (int i = 0; i < command.Children.Count; i++)
+                if (command.Parents.FlattenBreadthFirst(c => c.Parents).Any(ancestor => ancestor == command))
                 {
-                    for (int j = 1; j < command.Children.Count; j++)
+                    throw new CommandLineConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
+                }
+
+                for (var i = 0; i < command.Children.Count; i++)
+                {
+                    if (command.Children[i] is IdentifierSymbol symbol1AsIdentifier)
                     {
-                        if (command.Children[j] is IdentifierSymbol identifierSymbol)
+                        for (var j = i + 1; j < command.Children.Count; j++)
                         {
-                            foreach (string alias in identifierSymbol.Aliases)
+                            if (command.Children[j] is IdentifierSymbol symbol2AsIdentifier)
                             {
-                                if (command.Children[i].Matches(alias))
+                                foreach (var symbol2Alias in symbol2AsIdentifier.Aliases)
                                 {
-                                    throw new ArgumentException($"Alias '{alias}' is already in use.");
+                                    if (symbol1AsIdentifier.Name.Equals(symbol2Alias, StringComparison.Ordinal) ||
+                                        symbol1AsIdentifier.Aliases.Contains(symbol2Alias))
+                                    {
+                                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
+                                    }
                                 }
                             }
-
-                            if (identifierSymbol is Command childCommand)
-                            {
-                                if (ReferenceEquals(command, childCommand))
-                                {
-                                    throw new ArgumentException("Parent can't be it's own child.");
-                                }
-
-                                ThrowIfInvalid(childCommand);
-                            }
                         }
 
-                        if (command.Children[i].Matches(command.Children[j].Name))
+                        if (symbol1AsIdentifier is Command childCommand)
                         {
-                            throw new ArgumentException($"Alias '{command.Children[j].Name}' is already in use.");
+                            ThrowIfInvalid(childCommand);
                         }
-                    }
-
-                    if (command.Children.Count == 1 && command.Children[0] is Command singleChild)
-                    {
-                        if (ReferenceEquals(command, singleChild))
-                        {
-                            throw new ArgumentException("Parent can't be it's own child.");
-                        }
-
-                        ThrowIfInvalid(singleChild);
                     }
                 }
             }

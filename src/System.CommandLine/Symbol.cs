@@ -41,9 +41,7 @@ namespace System.CommandLine
         /// Represents the first parent node.
         /// </summary>
         internal ParentNode? FirstParent => _firstParent;
-
-        internal virtual bool Matches(string name) => string.Equals(name, _name, StringComparison.Ordinal);
-
+        
         internal void AddParent(Symbol symbol)
         {
             if (_firstParent == null)
