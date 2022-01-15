@@ -225,26 +225,6 @@ namespace System.CommandLine
             => GetResourceString(Properties.Resources.ExceptionHandlerHeader);
 
         /// <summary>
-        ///   Interpolates values into a localized string similar to Debug directive specified, but no process names are listed as allowed for debug.
-        ///Add your process name to the &apos;{0}&apos; environment variable.
-        ///The value of the variable should be the name of the processes, separated by a semi-colon &apos;;&apos;, for example &apos;{0}={1}&apos;.
-        /// </summary>
-        public virtual string DebugDirectiveExecutableNotSpecified(string environmentVariableName, string processName)
-            => GetResourceString(Properties.Resources.DebugDirectiveExecutableNotSpecified, environmentVariableName, processName);
-
-        /// <summary>
-        ///   Interpolates values into a localized string similar to Attach your debugger to process {0} ({1})..
-        /// </summary>
-        public virtual string DebugDirectiveAttachToProcess(int processId, string processName)
-            => GetResourceString(Properties.Resources.DebugDirectiveAttachToProcess, processId, processName);
-
-        /// <summary>
-        ///   Interpolates values into a localized string similar to Process name &apos;{0}&apos; is not included in the list of debuggable process names in the {1} environment variable (&apos;{2}&apos;).
-        /// </summary>
-        public virtual string DebugDirectiveProcessNotIncludedInEnvironmentVariable(string processName, string environmentVariableName, string processNames)
-            => GetResourceString(Properties.Resources.DebugDirectiveProcessNotIncludedInEnvironmentVariable, processName, environmentVariableName, processNames);
-
-        /// <summary>
         ///   Interpolates values into a localized string similar to Cannot parse argument &apos;{0}&apos; as expected type {1}..
         /// </summary>
         public virtual string ArgumentConversionCannotParse(string value, Type expectedType)

@@ -82,7 +82,6 @@ namespace System.CommandLine.Suggest
                      .UseVersionOption()
                      .UseHelp()
                      .UseParseDirective()
-                     .UseDebugDirective()
                      .UseSuggestDirective()
                      .UseParseErrorReporting()
                      .UseExceptionHandler()
