@@ -37,25 +37,6 @@
         <target state="new">Required argument missing for command: '{0}'.</target>
         <note />
       </trans-unit>
-      <trans-unit id="DebugDirectiveAttachToProcess">
-        <source>Attach your debugger to process {0} ({1}).</source>
-        <target state="new">Attach your debugger to process {0} ({1}).</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="DebugDirectiveExecutableNotSpecified">
-        <source>Debug directive specified, but no process names are listed as allowed for debug.
-Add your process name to the '{0}' environment variable.
-The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{0}={1}'</source>
-        <target state="new">Debug directive specified, but no process names are listed as allowed for debug.
-Add your process name to the '{0}' environment variable.
-The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{0}={1}'</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="DebugDirectiveProcessNotIncludedInEnvironmentVariable">
-        <source>Process name '{0}' is not included in the list of debuggable process names in the {1} environment variable ('{2}')</source>
-        <target state="new">Process name '{0}' is not included in the list of debuggable process names in the {1} environment variable ('{2}')</target>
-        <note />
-      </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">
         <source>Directory does not exist: '{0}'.</source>
         <target state="new">Directory does not exist: '{0}'.</target>
