@@ -210,17 +210,6 @@
   <data name="HelpCommandsTitle" xml:space="preserve">
     <value>Commands:</value>
   </data>
-  <data name="DebugDirectiveAttachToProcess" xml:space="preserve">
-    <value>Attach your debugger to process {0} ({1}).</value>
-  </data>
-  <data name="DebugDirectiveExecutableNotSpecified" xml:space="preserve">
-    <value>Debug directive specified, but no process names are listed as allowed for debug.
-Add your process name to the '{0}' environment variable.
-The value of the variable should be the name of the processes, separated by a semi-colon ';', for example '{0}={1}'</value>
-  </data>
-  <data name="DebugDirectiveProcessNotIncludedInEnvironmentVariable" xml:space="preserve">
-    <value>Process name '{0}' is not included in the list of debuggable process names in the {1} environment variable ('{2}')</value>
-  </data>
   <data name="ExceptionHandlerHeader" xml:space="preserve">
     <value>Unhandled exception: </value>
   </data>

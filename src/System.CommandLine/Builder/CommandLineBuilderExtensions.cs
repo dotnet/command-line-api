@@ -7,12 +7,10 @@ using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using static System.Environment;
 using Process = System.CommandLine.Invocation.Process;
 
@@ -221,55 +219,6 @@ ERR:
         }
 
         /// <summary>
-        /// Enables the use of the <c>[debug]</c> directive, which will pause invocation prior to invoking any command handler so that developers can attach a debugger.
-        /// </summary>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseDebugDirective(
-            this CommandLineBuilder builder)
-        {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Directives.Contains("debug"))
-                {
-                    const string environmentVariableName = "DOTNET_COMMANDLINE_DEBUG_PROCESSES";
-
-                    var process = Diagnostics.Process.GetCurrentProcess();
-                    var debuggableProcessNames = GetEnvironmentVariable(environmentVariableName);
-                    if (string.IsNullOrWhiteSpace(debuggableProcessNames))
-                    {
-                        context.Console.Error.WriteLine(context.LocalizationResources.DebugDirectiveExecutableNotSpecified(environmentVariableName, process.ProcessName));
-                        context.ExitCode = 1;
-                        return;
-                    }
-                    else
-                    {
-                        string[] processNames = debuggableProcessNames.Split(';');
-                        if (processNames.Contains(process.ProcessName, StringComparer.Ordinal))
-                        {
-                            var processId = process.Id;
-                            context.Console.Out.WriteLine(context.LocalizationResources.DebugDirectiveAttachToProcess(processId, process.ProcessName));
-                            while (!Debugger.IsAttached)
-                            {
-                                await Task.Delay(500);
-                            }
-                        }
-                        else
-                        {
-                            context.Console.Error.WriteLine(context.LocalizationResources.DebugDirectiveProcessNotIncludedInEnvironmentVariable(process.ProcessName, environmentVariableName, debuggableProcessNames));
-                            context.ExitCode = 1;
-                            return;
-                        }
-                    }
-                }
-
-                await next(context);
-            }, MiddlewareOrderInternal.DebugDirective);
-
-            return builder;
-        }
-
-        /// <summary>
         /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
@@ -312,7 +261,6 @@ ERR:
         ///     .UseHelp()
         ///     .UseEnvironmentVariableDirective()
         ///     .UseParseDirective()
-        ///     .UseDebugDirective()
         ///     .UseSuggestDirective()
         ///     .RegisterWithDotnetSuggest()
         ///     .UseTypoCorrections()
@@ -330,7 +278,6 @@ ERR:
                    .UseHelp()
                    .UseEnvironmentVariableDirective()
                    .UseParseDirective()
-                   .UseDebugDirective()
                    .UseSuggestDirective()
                    .RegisterWithDotnetSuggest()
                    .UseTypoCorrections()
