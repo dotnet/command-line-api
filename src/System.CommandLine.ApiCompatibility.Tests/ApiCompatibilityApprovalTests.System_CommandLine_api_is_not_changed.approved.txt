@@ -78,6 +78,11 @@
     public LocalizationResources LocalizationResources { get; }
     public Command RootCommand { get; }
     public System.CommandLine.Collections.SymbolSet Symbols { get; }
+    public System.Void ThrowIfInvalid()
+  public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
+    .ctor(System.String message)
+    .ctor()
+    .ctor(System.String message, System.Exception innerException)
   public static class CompletionSourceExtensions
     public static System.Void Add(this CompletionSourceList completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
     public static System.Void Add(this CompletionSourceList completionSources, System.CommandLine.Completions.CompletionDelegate complete)

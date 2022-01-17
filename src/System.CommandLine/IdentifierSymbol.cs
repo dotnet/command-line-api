@@ -59,8 +59,6 @@ namespace System.CommandLine
             }
         }
 
-        internal override bool Matches(string name) => string.Equals(name, Name, StringComparison.Ordinal) || _aliases.Contains(name);
-
         /// <summary>
         /// Adds an alias. Multiple aliases can be added, most often used to provide a shorthand alternative.
         /// </summary>
