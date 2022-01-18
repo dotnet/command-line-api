@@ -1,7 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 
 namespace System.CommandLine.Binding;
 
@@ -25,6 +26,9 @@ internal static partial class ArgumentConverter
         throw new NotSupportedException($"You must register a custom binder for type {type}");
     }
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2067:UnrecognizedReflectionPattern",
+                                  Justification = "CreateValueType is only called on a ValueType. You can always create an instance of a ValueType.")]
+ //   [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     private static object? CreateDefaultValueType(Type type)
     {
         if (type.IsNullable())
@@ -32,14 +36,6 @@ internal static partial class ArgumentConverter
             return null;
         }
 
-        if (type == typeof(bool)) return false;
-        if (type == typeof(int)) return 0;
-        if (type == typeof(double)) return 0d;
-        if (type == typeof(ulong)) return 0ul;
-        if (type == typeof(byte)) return (byte)0;
-        if (type == typeof(decimal)) return 0m;
-        if (type == typeof(float)) return 0f;
-
-        throw new NotSupportedException($"You must register a custom binder for type {type}");
+        return FormatterServices.GetUninitializedObject(type);
     }
 }
