@@ -6,7 +6,6 @@
 using System.CommandLine.Suggest;
 using System.CommandLine.Tests.Utility;
 using System.IO;
-using System.Linq;
 using System.Text;
 using FluentAssertions;
 using Xunit.Abstractions;
@@ -31,6 +30,8 @@ public class TrimmingTests
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
         
+        // FIX: (App_referencing_system_commandline_can_be_trimmed) trim warnings seem to require a project reference
+
         var exitCode = Process.RunToCompletion(
             DotnetMuxer.Path.FullName,
             $"publish -c Release -r win-x64 --self-contained /p:PublishTrimmed=true /p:SystemCommandLineDllPath=\"{_systemCommandLineDllPath}\" /p:TreatWarningsAsErrors=true -t:rebuild",
