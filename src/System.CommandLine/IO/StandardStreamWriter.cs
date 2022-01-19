@@ -63,8 +63,7 @@ namespace System.CommandLine.IO
                 throw new ArgumentNullException(nameof(writer));
             }
 
-            writer.Write(value);
-            writer.Write(Environment.NewLine);
+            writer.Write(value + Environment.NewLine);
         }
 
         private class TextWriterThatWritesToStandardStreamWriter : TextWriter
