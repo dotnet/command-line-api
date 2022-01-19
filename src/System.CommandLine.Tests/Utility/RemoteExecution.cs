@@ -12,7 +12,7 @@ namespace System.CommandLine.Tests.Utility
         private const int FailWaitTimeoutMilliseconds = 60 * 1000;
         private readonly string _exceptionFile;
 
-        public RemoteExecution(Process process, string className, string methodName, string exceptionFile)
+        public RemoteExecution(Diagnostics.Process process, string className, string methodName, string exceptionFile)
         {
             Process = process;
             ClassName = className;
@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests.Utility
             _exceptionFile = exceptionFile;
         }
 
-        public Process Process { get; private set; }
+        public Diagnostics.Process Process { get; private set; }
         public string ClassName { get; }
         public string MethodName { get; }
 

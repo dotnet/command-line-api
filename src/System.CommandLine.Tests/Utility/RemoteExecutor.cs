@@ -96,7 +96,7 @@ namespace System.CommandLine.Tests.Utility
             string methodName = methodInfo.Name;
             string exceptionFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-            string dotnetExecutable = Process.GetCurrentProcess().MainModule.FileName;
+            string dotnetExecutable = Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
             string thisAssembly = typeof(RemoteExecutor).Assembly.Location;
             var assembly = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
             string entryAssemblyWithoutExtension = Path.Combine(Path.GetDirectoryName(assembly.Location),
@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests.Utility
             }
 
             psi.Arguments = string.Join(" ", argumentList);
-            Process process = Process.Start(psi);
+            Diagnostics.Process process = Diagnostics.Process.Start(psi);
 
             return new RemoteExecution(process, className, methodName, exceptionFile);
         }
@@ -159,7 +159,7 @@ namespace System.CommandLine.Tests.Utility
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                s_arguments = File.ReadAllText($"/proc/{Process.GetCurrentProcess().Id}/cmdline").Split(new[] { '\0' });
+                s_arguments = File.ReadAllText($"/proc/{Diagnostics.Process.GetCurrentProcess().Id}/cmdline").Split(new[] { '\0' });
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

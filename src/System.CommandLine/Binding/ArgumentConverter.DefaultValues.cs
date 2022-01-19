@@ -13,22 +13,14 @@ internal static partial class ArgumentConverter
 
     private static object CreateEmptyList(Type type)
     {
-        if (type == typeof(List<string>))
-        {
-            return new List<string>();
-        }
+        // FIX: (CreateEmptyList) 
 
-        if (type == typeof(List<int>))
-        {
-            return new List<string>();
-        }
 
         throw new NotSupportedException($"You must register a custom binder for type {type}");
     }
 
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2067:UnrecognizedReflectionPattern",
                                   Justification = "CreateValueType is only called on a ValueType. You can always create an instance of a ValueType.")]
- //   [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     private static object? CreateDefaultValueType(Type type)
     {
         if (type.IsNullable())

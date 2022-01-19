@@ -1,54 +1,55 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+#if NET5_0_OR_GREATER
+
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace System.CommandLine.Suggest
+namespace System.CommandLine.Suggest;
+
+internal static class DotnetMuxer
 {
-    internal static class DotnetMuxer
+    public static FileInfo Path { get; }
+
+    static DotnetMuxer()
     {
-        public static FileInfo Path { get; }
+        var muxerFileName = ExecutableName("dotnet");
+        var fxDepsFile = GetDataFromAppDomain("FX_DEPS_FILE");
 
-        static DotnetMuxer()
+        if (string.IsNullOrEmpty(fxDepsFile))
         {
-            var muxerFileName = ExecutableName("dotnet");
-            var fxDepsFile = GetDataFromAppDomain("FX_DEPS_FILE");
-
-            if (string.IsNullOrEmpty(fxDepsFile))
-
-            {
-                return;
-            }
-
-            var muxerDir = new FileInfo(fxDepsFile).Directory?.Parent?.Parent?.Parent;
-
-            if (muxerDir == null)
-            {
-                return;
-
-            }
-
-            var muxerCandidate = new FileInfo(System.IO.Path.Combine(muxerDir.FullName, muxerFileName));
-
-            if (muxerCandidate.Exists)
-            {
-                Path = muxerCandidate;
-            }
-            else
-            {
-                throw new InvalidOperationException("no muxer!");
-            }
+            return;
         }
 
-        public static string GetDataFromAppDomain(string propertyName)
+        var muxerDir = new FileInfo(fxDepsFile).Directory?.Parent?.Parent?.Parent;
+
+        if (muxerDir is null)
         {
-            return AppContext.GetData(propertyName) as string;
+            return;
         }
 
-        public static string ExecutableName(this string withoutExtension) =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? withoutExtension + ".exe"
-                : withoutExtension;
+        var muxerCandidate = new FileInfo(System.IO.Path.Combine(muxerDir.FullName, muxerFileName));
+
+        if (muxerCandidate.Exists)
+        {
+            Path = muxerCandidate;
+        }
+        else
+        {
+            throw new InvalidOperationException("no muxer!");
+        }
     }
+
+    public static string GetDataFromAppDomain(string propertyName)
+    {
+        return AppContext.GetData(propertyName) as string;
+    }
+
+    public static string ExecutableName(this string withoutExtension) =>
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? withoutExtension + ".exe"
+            : withoutExtension;
 }
+
+#endif
