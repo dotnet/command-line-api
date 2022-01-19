@@ -48,8 +48,8 @@ public class TrimmingTests
             workingDirectory: Path.Combine(Directory.GetCurrentDirectory(), "TrimmingTestApp"));
 
         stdOut.ToString().Should().NotContain("IL2104");
-        exitCode.Should().Be(0);
         stdErr.ToString().Should().BeEmpty();
+        exitCode.Should().Be(0);
     }
 }
 

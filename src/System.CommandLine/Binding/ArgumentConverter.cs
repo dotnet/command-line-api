@@ -322,7 +322,7 @@ namespace System.CommandLine.Binding
                         { } enumerable when typeof(IEnumerable<>).IsAssignableFrom(enumerable) => CreateEmptyArray(itemType),
                         { } array when typeof(IList<>).IsAssignableFrom(array) ||
                                        typeof(ICollection<>).IsAssignableFrom(array) => CreateEmptyArray(itemType),
-                        { } list when list == typeof(List<>) => CreateEmptyList(itemType),
+                        { } list when list == typeof(List<>) => CreateEmptyList(type),
                         _ => null
                     };
                 }
