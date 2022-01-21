@@ -243,9 +243,8 @@ namespace System.CommandLine.Binding
                                   typeof(IEnumerable<string>),
                                   successful.Value,
                                   symbolResult.LocalizationResources),
-                NoArgumentConversionResult _ when toType == typeof(bool) =>
-                    Success(conversionResult.Argument,
-                            true),
+                NoArgumentConversionResult _ when toType == typeof(bool) || toType == typeof(bool?) =>
+                    Success(conversionResult.Argument, true),
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
                     new MissingArgumentConversionResult(conversionResult.Argument,
                                                         symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult)),
