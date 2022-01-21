@@ -277,148 +277,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Command_argument_of_string_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<string>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeNull();
-        }
-
-        [Fact]
-        public void Command_argument_of_IEnumerable_of_T_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<IEnumerable<string>>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
-        public void Command_argument_of_Array_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<string[]>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
-        public void Command_argument_of_List_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<List<string>>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
-        public void Command_argument_of_IList_of_T_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<IList<string>>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
-        public void Command_argument_of_IList_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<System.Collections.IList>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
-        public void Command_argument_of_ICollection_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<System.Collections.ICollection>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
-        public void Command_argument_of_IEnumerable_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<System.Collections.IEnumerable>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
-        public void Command_argument_of_ICollection_of_T_defaults_to_empty_when_not_specified()
-        {
-            var argument = new Argument<ICollection<string>>();
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-
-            result.GetValueForArgument(argument)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
         public void AddGlobalOption_updates_Options_property()
         {
             var option = new Option<string>("-x");
@@ -426,8 +284,8 @@ namespace System.CommandLine.Tests
             command.AddGlobalOption(option);
 
             command.Options
-                .Should()
-                .Contain(option);
+                   .Should()
+                   .Contain(option);
         }
 
         // https://github.com/dotnet/command-line-api/issues/1437

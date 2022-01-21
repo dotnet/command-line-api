@@ -45,6 +45,7 @@ internal static partial class ArgumentConverter
             value = default;
             return false;
         },
+
         [typeof(DirectoryInfo)] = (string path, out object? value) =>
         {
             value = new DirectoryInfo(path);

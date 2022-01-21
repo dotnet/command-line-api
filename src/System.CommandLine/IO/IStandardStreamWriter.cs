@@ -12,6 +12,6 @@ namespace System.CommandLine.IO
         /// Writes the specified string to the stream.
         /// </summary>
         /// <param name="value">The value to write.</param>
-        void Write(string value);
+        void Write(string? value);
     }
 }

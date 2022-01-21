@@ -328,7 +328,6 @@ namespace System.CommandLine.Parsing
                 _ => throw new ArgumentOutOfRangeException(nameof(symbol))
             };
 
-
         /// <summary>
         /// Gets completions based on a given parse result.
         /// </summary>
@@ -368,8 +367,6 @@ namespace System.CommandLine.Parsing
                     .OfType<IdentifierSymbol>()
                     .SelectMany(c => c.Aliases);
         }
-
-
 
         private SymbolResult SymbolToComplete(int? position = null)
         {

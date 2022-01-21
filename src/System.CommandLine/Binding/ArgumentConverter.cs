@@ -306,8 +306,13 @@ namespace System.CommandLine.Binding
             return value is SuccessfulArgumentConversionResult;
         }
 
-        internal static object? GetDefaultValue(Type type)
+        internal static object? GetDefaultValue([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type type)
         {
+            if (type.IsNullable())
+            {
+                return null;
+            }
+
             if (type.GetElementTypeIfEnumerable() is { } itemType)
             {
                 if (type.IsArray)
@@ -339,6 +344,5 @@ namespace System.CommandLine.Binding
                 _ => null
             };
         }
-
     }
 }

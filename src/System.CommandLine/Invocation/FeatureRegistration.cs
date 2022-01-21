@@ -8,6 +8,7 @@ namespace System.CommandLine.Invocation
 {
     internal class FeatureRegistration
     {
+        // FIX: (FeatureRegistration) is RootCommand.ExecutableName equivalent?
         private static readonly string _assemblyName = RootCommand.GetAssembly().FullName;
 
         private readonly FileInfo _sentinelFile;
