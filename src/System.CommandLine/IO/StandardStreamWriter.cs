@@ -91,9 +91,9 @@ namespace System.CommandLine.IO
 
         private class AnonymousStandardStreamWriter : IStandardStreamWriter
         {
-            private readonly Action<string> _write;
+            private readonly Action<string?> _write;
 
-            public AnonymousStandardStreamWriter(Action<string> write)
+            public AnonymousStandardStreamWriter(Action<string?> write)
             {
                 _write = write;
             }

@@ -49,7 +49,7 @@ namespace System.CommandLine
         {
         }
 
-        internal static Assembly GetAssembly() => _assembly.Value;
+        internal static Assembly GetAssembly() => _assembly.Value!;
 
         /// <summary>
         /// The name of the currently running executable.
