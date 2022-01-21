@@ -6,20 +6,18 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PublishTrimmed>true</PublishTrimmed>
+  		<TrimmerSingleWarn>false</TrimmerSingleWarn>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<SystemCommandLineDllPath Condition="'$(SystemCommandLineDllPath)'==''">..\..\System.CommandLine\bin\Release\netstandard2.0\System.CommandLine.dll</SystemCommandLineDllPath>
+		<SystemCommandLineDllPath Condition="'$(SystemCommandLineDllPath)'==''">..\..\System.CommandLine\bin\Release\net6.0\System.CommandLine.dll</SystemCommandLineDllPath>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<TrimmableAssembly Include="System.CommandLine" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<Reference Include="SystemCommandLineDll">
 			<HintPath>$(SystemCommandLineDllPath)</HintPath>
 		</Reference>
+		 <TrimmerRootAssembly Include="System.CommandLine" />
 	</ItemGroup>
 
 </Project>

@@ -14,7 +14,7 @@ internal static partial class ArgumentConverter
 {
 #if NET6_0_OR_GREATER
     private static readonly Lazy<ConstructorInfo> _listCtor =
-        new(() => typeof(List<string>)
+        new(() => typeof(List<>)
                   .GetConstructors()
                   .SingleOrDefault(c => c.GetParameters().Length == 0)!);
 #endif

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
 
 using System.CommandLine.Suggest;
 using System.CommandLine.Tests.Utility;
@@ -30,11 +30,9 @@ public class TrimmingTests
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
         
-        // FIX: (App_referencing_system_commandline_can_be_trimmed) trim warnings seem to require a project reference
-
         var exitCode = Process.RunToCompletion(
             DotnetMuxer.Path.FullName,
-            $"publish -c Release -r win-x64 --self-contained /p:PublishTrimmed=true /p:SystemCommandLineDllPath=\"{_systemCommandLineDllPath}\" /p:TreatWarningsAsErrors=true -t:rebuild",
+            $"publish -c Release -r win-x64 --self-contained /p:PublishTrimmed=true /p:SystemCommandLineDllPath=\"{_systemCommandLineDllPath}\" /p:TreatWarningsAsErrors=true",
             s =>
             {
                 _output.WriteLine(s);
@@ -47,7 +45,7 @@ public class TrimmingTests
             },
             workingDirectory: Path.Combine(Directory.GetCurrentDirectory(), "TrimmingTestApp"));
 
-        stdOut.ToString().Should().NotContain("IL2104");
+        stdOut.ToString().Should().NotContain("warning IL");
         stdErr.ToString().Should().BeEmpty();
         exitCode.Should().Be(0);
     }
