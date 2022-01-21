@@ -83,20 +83,16 @@ namespace System.CommandLine.Binding
 
             if (type == typeof(string))
             {
+                type = typeof(string[]);
                 itemType = typeof(string);
-            }
-            else if (type == typeof(bool))
-            {
-                itemType = typeof(bool);
             }
             else
             {
                 itemType = type.GetElementTypeIfEnumerable() ?? typeof(string);
             }
 
-            var (values, isArray) = type.IsArray
-                                        ? (CreateArray(itemType, tokens.Count), true)
-                                        : (CreateList(itemType, tokens.Count), false);
+            var values = CreateEnumerable(type, itemType, tokens.Count);
+            var isArray = values is Array;
 
             for (var i = 0; i < tokens.Count; i++)
             {
@@ -112,7 +108,6 @@ namespace System.CommandLine.Binding
                         {
                             argumentResult.OnlyTake(i);
 
-                            // exit the for loop
                             i = tokens.Count;
                             break;
                         }
@@ -134,32 +129,6 @@ namespace System.CommandLine.Binding
             }
 
             return Success(argument, values);
-
-            static IList CreateList(Type itemType, int capacity)
-            {
-                if (itemType == typeof(string))
-                {
-                    return new List<string>(capacity);
-                }
-                else
-                {
-                    return (IList)Activator.CreateInstance(
-                        typeof(List<>).MakeGenericType(itemType),
-                        capacity);
-                }
-            }
-
-            static IList CreateArray(Type itemType, int capacity)
-            {
-                if (itemType == typeof(string))
-                {
-                    return new string[capacity];
-                }
-                else
-                {
-                    return Array.CreateInstance(itemType, capacity);
-                }
-            }
         }
 
         internal static TryConvertArgument? GetConverter(Argument argument)
@@ -249,8 +218,7 @@ namespace System.CommandLine.Binding
                     new MissingArgumentConversionResult(conversionResult.Argument,
                                                         symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult)),
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1 =>
-                    Success(conversionResult.Argument,
-                            Array.Empty<string>()),
+                    Success(conversionResult.Argument, Array.Empty<string>()),
                 _ => conversionResult
             };
         }
@@ -305,7 +273,7 @@ namespace System.CommandLine.Binding
             return value is SuccessfulArgumentConversionResult;
         }
 
-        internal static object? GetDefaultValue([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type type)
+        internal static object? GetDefaultValue(Type type)
         {
             if (type.IsNullable())
             {
@@ -314,22 +282,7 @@ namespace System.CommandLine.Binding
 
             if (type.GetElementTypeIfEnumerable() is { } itemType)
             {
-                if (type.IsArray)
-                {
-                    return CreateEmptyArray(itemType);
-                }
-
-                if (type.IsGenericType)
-                {
-                    return type.GetGenericTypeDefinition() switch
-                    {
-                        { } enumerable when typeof(IEnumerable<>).IsAssignableFrom(enumerable) => CreateEmptyArray(itemType),
-                        { } array when typeof(IList<>).IsAssignableFrom(array) ||
-                                       typeof(ICollection<>).IsAssignableFrom(array) => CreateEmptyArray(itemType),
-                        { } list when list == typeof(List<>) => CreateEmptyList(type),
-                        _ => null
-                    };
-                }
+                return CreateEnumerable(type, itemType);
             }
 
             return type switch

@@ -38,14 +38,14 @@ namespace System.CommandLine.IO
         {
             public static readonly StandardErrorStreamWriter Instance = new();
 
-            public void Write(string value) => Console.Error.Write(value);
+            public void Write(string? value) => Console.Error.Write(value);
         }
 
         private struct StandardOutStreamWriter : IStandardStreamWriter
         {
             public static readonly StandardOutStreamWriter Instance = new();
 
-            public void Write(string value) => Console.Out.Write(value);
+            public void Write(string? value) => Console.Out.Write(value);
         }
     }
 }
