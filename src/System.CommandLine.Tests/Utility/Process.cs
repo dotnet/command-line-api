@@ -28,7 +28,7 @@ public static class Process
             }
         };
 
-        if (workingDirectory is {})
+        if (!string.IsNullOrWhiteSpace(workingDirectory))
         {
             process.StartInfo.WorkingDirectory = workingDirectory;
         }

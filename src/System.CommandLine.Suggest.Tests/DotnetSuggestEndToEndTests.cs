@@ -96,7 +96,7 @@ namespace System.CommandLine.Suggest.Tests
                 "-h",
                 stdOut: s => _output.WriteLine(s),
                 stdErr: s => _output.WriteLine(s),
-                environmentVariables: _environmentVariables);
+                environmentVariables: _environmentVariables).Should().Be(0);
 
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
@@ -131,7 +131,7 @@ namespace System.CommandLine.Suggest.Tests
                 "-h",
                 stdOut: s => _output.WriteLine(s),
                 stdErr: s => _output.WriteLine(s),
-                environmentVariables: _environmentVariables);
+                environmentVariables: _environmentVariables).Should().Be(0);
 
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
