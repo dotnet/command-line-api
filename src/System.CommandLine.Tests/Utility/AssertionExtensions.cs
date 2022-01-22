@@ -49,7 +49,6 @@ namespace System.CommandLine.Tests.Utility
         public static AndConstraint<ConsoleAssertions> ShowHelp(this ConsoleAssertions assertions)
         {
             assertions.Subject.Out.ToString().Should().Contain("Usage:");
-            assertions.Subject.Error.ToString().Should().BeEmpty();
 
             return new AndConstraint<ConsoleAssertions>(assertions);
         }

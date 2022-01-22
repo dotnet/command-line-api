@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Parse_extension_method_reuses_parser_instance()
+        public void Parse_extension_method_reuses_implicit_parser_instance()
         {
             var symbol = CreateSymbol("x");
 

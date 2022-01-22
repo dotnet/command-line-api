@@ -171,7 +171,7 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Option option,
             string commandLine) =>
-            option.GetOrCreateDefaultParser().Parse(commandLine);
+            option.GetOrCreateDefaultSimpleParser().Parse(commandLine);
 
         /// <summary>
         /// Parses a command line string value using an option.
@@ -182,6 +182,6 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Option option,
             string[] args) =>
-            option.GetOrCreateDefaultParser().Parse(args);
+            option.GetOrCreateDefaultSimpleParser().Parse(args);
     }
 }
