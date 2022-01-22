@@ -209,7 +209,7 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Argument argument,
             string commandLine) =>
-            argument.GetOrCreateDefaultParser().Parse(commandLine);
+            argument.GetOrCreateDefaultSimpleParser().Parse(commandLine);
 
         /// <summary>
         /// Parses a command line string value using an argument.
@@ -220,6 +220,6 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Argument argument,
             string[] args) =>
-            argument.GetOrCreateDefaultParser().Parse(args);
+            argument.GetOrCreateDefaultSimpleParser().Parse(args);
     }
 }

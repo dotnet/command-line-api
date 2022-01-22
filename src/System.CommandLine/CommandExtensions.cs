@@ -74,14 +74,7 @@ namespace System.CommandLine
 
         private static InvocationPipeline GetDefaultInvocationPipeline(Command command, string[] args)
         {
-            if (command.ImplicitParser is null)
-            {
-                command.ImplicitParser = new CommandLineBuilder(command)
-                                         .UseDefaults()
-                                         .Build();
-            }
-
-            var parseResult = command.ImplicitParser.Parse(args);
+            var parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
 
             return new InvocationPipeline(parseResult);
         }
@@ -95,7 +88,7 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Command command,
             params string[] args) =>
-            command.GetOrCreateDefaultParser().Parse(args);
+            command.GetOrCreateDefaultSimpleParser().Parse(args);
 
         /// <summary>
         /// Parses a command line string value using the specified command.
@@ -107,6 +100,6 @@ namespace System.CommandLine
         public static ParseResult Parse(
             this Command command,
             string commandLine) =>
-            command.GetOrCreateDefaultParser().Parse(commandLine);
+            command.GetOrCreateDefaultSimpleParser().Parse(commandLine);
     }
 }

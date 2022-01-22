@@ -127,7 +127,9 @@ namespace System.CommandLine
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        internal Parser? ImplicitParser { get; set; }
+        internal Parser? ImplicitInvocationParser { get; set; }
+
+        internal Parser? ImplicitSimpleParser { get; set; }
 
         private protected void AddSymbol(Symbol symbol)
         {

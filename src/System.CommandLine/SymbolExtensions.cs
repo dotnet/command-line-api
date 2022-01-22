@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -33,14 +34,27 @@ namespace System.CommandLine
             }
         }
 
-        internal static Parser GetOrCreateDefaultParser(this Symbol symbol)
+        internal static Parser GetOrCreateDefaultSimpleParser(this Symbol symbol)
         {
             var root = GetOrCreateRootCommand(symbol);
 
-            if (root.ImplicitParser is not { } parser)
+            if (root.ImplicitSimpleParser is not { } parser)
             {
                 parser = new Parser(new CommandLineConfiguration(root));
-                root.ImplicitParser = parser;
+                root.ImplicitSimpleParser = parser;
+            }
+
+            return parser;
+        }
+        
+        internal static Parser GetOrCreateDefaultInvocationParser(this Symbol symbol)
+        {
+            var root = GetOrCreateRootCommand(symbol);
+
+            if (root.ImplicitInvocationParser is not { } parser)
+            {
+                parser = new CommandLineBuilder(root).UseDefaults().Build();
+                root.ImplicitInvocationParser = parser;
             }
 
             return parser;
