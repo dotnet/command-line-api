@@ -8,7 +8,7 @@ namespace System.CommandLine.Invocation
 {
     internal class FeatureRegistration
     {
-        private static readonly string _assemblyName = RootCommand.GetAssembly().FullName;
+        private static readonly string? _assemblyName = RootCommand.GetAssembly().FullName;
 
         private readonly FileInfo _sentinelFile;
 
@@ -25,7 +25,7 @@ namespace System.CommandLine.Invocation
         {
             if (!_sentinelFile.Exists)
             {
-                if (!_sentinelFile.Directory.Exists)
+                if (_sentinelFile.Directory is { Exists: false })
                 {
                     _sentinelFile.Directory.Create();
                 }

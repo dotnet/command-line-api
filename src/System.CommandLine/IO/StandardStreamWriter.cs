@@ -82,7 +82,7 @@ namespace System.CommandLine.IO
                 _writer.Write(value.ToString());
             }
             
-            public override void Write(string value)
+            public override void Write(string? value)
             {
                 _writer.Write(value);
             }
@@ -90,14 +90,14 @@ namespace System.CommandLine.IO
 
         private class AnonymousStandardStreamWriter : IStandardStreamWriter
         {
-            private readonly Action<string> _write;
+            private readonly Action<string?> _write;
 
-            public AnonymousStandardStreamWriter(Action<string> write)
+            public AnonymousStandardStreamWriter(Action<string?> write)
             {
                 _write = write;
             }
 
-            public void Write(string value)
+            public void Write(string? value)
             {
                 _write(value);
             }

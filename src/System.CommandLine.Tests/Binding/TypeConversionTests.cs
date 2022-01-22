@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
@@ -12,7 +13,7 @@ namespace System.CommandLine.Tests.Binding
     public class TypeConversionTests
     {
         [Fact]
-        public void Option_argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
+        public void Option_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
         {
             var option = new Option<FileInfo>("--file");
 
@@ -26,7 +27,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Command_argument_with_arity_of_one_can_be_bound_without_custom_conversion_logic_if_the_type_has_a_constructor_that_takes_a_single_string()
+        public void Command_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
         {
             var argument = new Argument<FileInfo>("the-arg");
 
@@ -45,7 +46,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Command_argument_with_arity_of_zero_or_one_when_type_has_a_constructor_that_takes_a_single_string_returns_null_when_argument_is_not_provided()
+        public void Command_argument_of_FileInfo_returns_null_when_argument_is_not_provided()
         {
             var argument = new Argument<FileInfo>("the-arg")
             {
@@ -64,7 +65,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Argument_with_arity_of_many_can_be_called_without_custom_conversion_logic_if_the_item_type_has_a_constructor_that_takes_a_single_string()
+        public void Argument_of_array_of_FileInfo_can_be_called_without_custom_conversion_logic()
         {
             var option = new Option<FileInfo[]>("--file");
 
@@ -162,7 +163,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData("the-command -x true")]
         [InlineData("the-command -x:true")]
         [InlineData("the-command -x=true")]
-        public void Bool_does_not_parse_as_the_default_value_when_the_option_has_been_applied(string commandLine)
+        public void Bool_parses_as_true_when_the_option_has_been_applied(string commandLine)
         {
             var option = new Option<bool>("-x");
 
@@ -175,7 +176,40 @@ namespace System.CommandLine.Tests.Binding
                 .Parse(commandLine)
                 .GetValueForOption(option)
                 .Should()
-                .Be(true);
+                .BeTrue();
+        }
+
+        [Theory]
+        [InlineData("the-command -x")]
+        [InlineData("the-command -x true")]
+        [InlineData("the-command -x:true")]
+        [InlineData("the-command -x=true")]
+        public void Nullable_bool_parses_as_true_when_the_option_has_been_applied(string commandLine)
+        {
+            var option = new Option<bool?>("-x");
+
+            var command = new Command("the-command")
+            {
+                option
+            };
+
+            command
+                .Parse(commandLine)
+                .GetValueForOption(option)
+                .Should()
+                .BeTrue();
+        }
+
+        [Fact]
+        public void Nullable_bool_parses_as_null_when_the_option_has_not_been_applied()
+        {
+            var option = new Option<bool?>("-x");
+            
+            option
+                .Parse("")
+                .GetValueForOption(option)
+                .Should()
+                .Be(null);
         }
 
         [Fact]
@@ -494,6 +528,16 @@ namespace System.CommandLine.Tests.Binding
         }
       
         [Fact]
+        public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+
+            var value = option.Parse("-x 123.456").GetValueForOption<decimal>(option);
+
+            value.Should().Be(123.456m);
+        }
+    
+        [Fact]
         public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
@@ -504,13 +548,13 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
+        public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
 
-            var value = option.Parse("-x 123.456").GetValueForOption<float>(option);
+            var value = option.Parse("-x http://example.com").GetValueForOption<Uri>(option);
 
-            value.Should().Be(123.456f);
+            value.Should().BeEquivalentTo(new Uri("http://example.com"));
         }
 
         [Fact]
@@ -520,7 +564,7 @@ namespace System.CommandLine.Tests.Binding
 
             option.Parse("-x").GetValueForOption<bool>(option).Should().BeTrue();
         }
-
+        
         [Fact]
         public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
         {
@@ -657,6 +701,56 @@ namespace System.CommandLine.Tests.Binding
                     .Message
                     .Should()
                     .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type 'System.Int32'.");
+        }
+
+        [Fact]
+        public void String_defaults_to_null_when_not_specified()
+        {
+            var argument = new Argument<string>();
+            var command = new Command("mycommand")
+            {
+                argument
+            };
+
+            var result = command.Parse("mycommand");
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeNull();
+        }
+
+        [Theory]
+        [InlineData(typeof(List<string>))]
+        [InlineData(typeof(List<int>))]
+        [InlineData(typeof(List<FileAccess>))]
+        [InlineData(typeof(IEnumerable<string>))]
+        [InlineData(typeof(IEnumerable<int>))]
+        [InlineData(typeof(IEnumerable<FileAccess>))]
+        [InlineData(typeof(ICollection<string>))]
+        [InlineData(typeof(ICollection<int>))]
+        [InlineData(typeof(ICollection<FileAccess>))]
+        [InlineData(typeof(IList<string>))]
+        [InlineData(typeof(IList<int>))]
+        [InlineData(typeof(IList<FileAccess>))]
+        [InlineData(typeof(string[]))]
+        [InlineData(typeof(int[]))]
+        [InlineData(typeof(FileAccess[]))]
+        [InlineData(typeof(IEnumerable))]
+        [InlineData(typeof(ICollection))]
+        [InlineData(typeof(IList))]
+        public void Sequence_type_defaults_to_empty_when_not_specified(Type sequenceType)
+        {
+            var argument = Activator.CreateInstance(typeof(Argument<>).MakeGenericType(sequenceType));
+
+            AssertParsedValueIsEmpty((dynamic)argument);
+        }
+
+        private void AssertParsedValueIsEmpty<T>(Argument<T> argument) where T : IEnumerable
+        {
+            var result = argument.Parse("");
+
+            result.GetValueForArgument(argument)
+                  .Should()
+                  .BeEmpty();
         }
     }
 }

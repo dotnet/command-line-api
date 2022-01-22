@@ -6,9 +6,9 @@ using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 using static System.Environment;
+using Process = System.CommandLine.Tests.Utility.Process;
 
 namespace System.CommandLine.Suggest.Tests
 {
@@ -72,11 +72,11 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [ReleaseBuildOnlyFact]
-        public async Task Test_app_supplies_suggestions()
+        public void Test_app_supplies_suggestions()
         {
             var stdOut = new StringBuilder();
 
-            await ExecuteAsync(
+            Process.RunToCompletion(
                 _endToEndTestApp.FullName,
                 "[suggest:1] \"a\"",
                 stdOut: value => stdOut.AppendLine(value),
@@ -88,22 +88,22 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [ReleaseBuildOnlyFact]
-        public async Task Dotnet_suggest_provides_suggestions_for_app()
+        public void Dotnet_suggest_provides_suggestions_for_app()
         {
             // run once to trigger a call to dotnet-suggest register
-            await ExecuteAsync(
+            Process.RunToCompletion(
                 _endToEndTestApp.FullName,
                 "-h",
                 stdOut: s => _output.WriteLine(s),
                 stdErr: s => _output.WriteLine(s),
-                environmentVariables: _environmentVariables);
+                environmentVariables: _environmentVariables).Should().Be(0);
 
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
 
             var commandLineToComplete = "a";
 
-            await ExecuteAsync(
+            Process.RunToCompletion(
                 _dotnetSuggest.FullName,
                 $"get -e \"{_endToEndTestApp.FullName}\" --position {commandLineToComplete.Length} -- \"{commandLineToComplete}\"",
                 stdOut: value => stdOut.AppendLine(value),
@@ -123,22 +123,22 @@ namespace System.CommandLine.Suggest.Tests
         }
 
         [ReleaseBuildOnlyFact]
-        public async Task Dotnet_suggest_provides_suggestions_for_app_with_only_commandname()
+        public void Dotnet_suggest_provides_suggestions_for_app_with_only_commandname()
         {
             // run once to trigger a call to dotnet-suggest register
-            await ExecuteAsync(
+            Process.RunToCompletion(
                 _endToEndTestApp.FullName,
                 "-h",
                 stdOut: s => _output.WriteLine(s),
                 stdErr: s => _output.WriteLine(s),
-                environmentVariables: _environmentVariables);
+                environmentVariables: _environmentVariables).Should().Be(0);
 
             var stdOut = new StringBuilder();
             var stdErr = new StringBuilder();
 
             var commandLineToComplete = "a ";
 
-            await ExecuteAsync(
+            Process.RunToCompletion(
                 _dotnetSuggest.FullName,
                 $"get -e \"{_endToEndTestApp.FullName}\" --position {commandLineToComplete.Length} -- \"{commandLineToComplete}\"",
                 stdOut: value => stdOut.AppendLine(value),
@@ -149,73 +149,12 @@ namespace System.CommandLine.Suggest.Tests
             _output.WriteLine($"stdErr:{NewLine}{stdErr}{NewLine}");
 
             stdErr.ToString()
-                .Should()
-                .BeEmpty();
+                  .Should()
+                  .BeEmpty();
 
             stdOut.ToString()
-                .Should()
-                .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
-        }
-
-        private static async Task ExecuteAsync(
-            string command,
-            string args,
-            Action<string> stdOut = null,
-            Action<string> stdErr = null,
-            params (string key, string value)[] environmentVariables)
-        {
-            args ??= "";
-
-            var process = new Diagnostics.Process
-            {
-                StartInfo =
-                {
-                    Arguments = args,
-                    FileName = command,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardInput = true,
-                    UseShellExecute = false
-                }
-            };
-
-            if (environmentVariables.Length > 0)
-            {
-                for (var i = 0; i < environmentVariables.Length; i++)
-                {
-                    var (key, value) = environmentVariables[i];
-                    process.StartInfo.Environment.Add(key, value);
-                }
-            }
-
-            if (stdOut != null)
-            {
-                process.OutputDataReceived += (sender, eventArgs) =>
-                {
-                    if (eventArgs.Data != null)
-                    {
-                        stdOut(eventArgs.Data);
-                    }
-                };
-            }
-
-            if (stdErr != null)
-            {
-                process.ErrorDataReceived += (sender, eventArgs) =>
-                {
-                    if (eventArgs.Data != null)
-                    {
-                        stdErr(eventArgs.Data);
-                    }
-                };
-            }
-
-            process.Start();
-
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-
-            await process.WaitForExitAsync();
+                  .Should()
+                  .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
         }
     }
 }

@@ -495,7 +495,7 @@ namespace System.CommandLine.Help
 
             if (_customizationsBySymbol is not null)
             {
-                if (_customizationsBySymbol.TryGetValue(parent, out Customization customization) &&
+                if (_customizationsBySymbol.TryGetValue(parent, out var customization) &&
                     customization.GetDefaultValue?.Invoke(context) is { } parentDefaultValue)
                 {
                     displayedDefaultValue = parentDefaultValue;

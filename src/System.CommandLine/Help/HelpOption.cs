@@ -36,7 +36,7 @@ namespace System.CommandLine.Help
 
         internal override bool IsGreedy => false;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is HelpOption;
         }

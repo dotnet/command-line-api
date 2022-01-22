@@ -17,7 +17,9 @@ namespace System.CommandLine
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
+
         private Type _valueType = typeof(string);
+        
         private CompletionSourceList? _completions = null;
         private List<ValidateSymbolResult<ArgumentResult>>? _validators = null;
 
@@ -87,6 +89,7 @@ namespace System.CommandLine
         public virtual Type ValueType
         {
             get => _valueType;
+
             set => _valueType = value ?? throw new ArgumentNullException(nameof(value));
         }
 

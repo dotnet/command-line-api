@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
+using Process = System.Diagnostics.Process;
 
 namespace System.CommandLine.Tests.Invocation
 {

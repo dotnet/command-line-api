@@ -51,7 +51,7 @@ namespace System.CommandLine.Parsing
         internal Symbol? Symbol { get; }
 
         /// <inheritdoc />
-        public override bool Equals(object obj) => obj is Token other && Equals(other);
+        public override bool Equals(object? obj) => obj is Token other && Equals(other);
 
         /// <inheritdoc />
         public bool Equals(Token other) => Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);

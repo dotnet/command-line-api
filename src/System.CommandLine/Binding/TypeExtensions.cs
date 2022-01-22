@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
-using System.Linq;
 
 namespace System.CommandLine.Binding
 {
@@ -15,25 +14,19 @@ namespace System.CommandLine.Binding
                 return type.GetElementType();
             }
 
-            Type enumerableInterface;
+            if (type == typeof(string))
+            {
+                return null;
+            }
+
+            Type? enumerableInterface = null;
 
             if (type.IsEnumerable())
             {
                 enumerableInterface = type;
             }
-            else
-            {
-                enumerableInterface = type
-                                      .GetInterfaces()
-                                      .FirstOrDefault(IsEnumerable);
-            }
 
-            if (enumerableInterface is null)
-            {
-                return null;
-            }
-
-            return enumerableInterface.GenericTypeArguments switch
+            return enumerableInterface?.GenericTypeArguments switch
             {
                 { Length: 1 } genericTypeArguments => genericTypeArguments[0],
                 _ => null

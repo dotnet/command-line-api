@@ -32,7 +32,7 @@ public partial class HelpBuilder
                     }
                     else
                     {
-                        return defaultValue.ToString();
+                        return defaultValue.ToString() ?? "";
                     }
                 }
             }

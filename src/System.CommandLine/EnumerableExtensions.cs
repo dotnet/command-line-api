@@ -36,15 +36,15 @@ namespace System.CommandLine
         }
 
         internal static IEnumerable<T> RecurseWhileNotNull<T>(
-            this T source,
-            Func<T, T> next)
+            this T? source,
+            Func<T, T?> next)
             where T : class
         {
-            yield return source;
-
-            while ((source = next(source!)) is not null)
+            while (source is not null)
             {
                 yield return source;
+
+                source = next(source);
             }
         }
     }

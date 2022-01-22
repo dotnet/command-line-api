@@ -66,7 +66,7 @@ namespace System.CommandLine
             other.IsNonDefault == IsNonDefault;
 
         /// <inheritdoc />
-        public override bool Equals(object obj) => obj is ArgumentArity arity && Equals(arity);
+        public override bool Equals(object? obj) => obj is ArgumentArity arity && Equals(arity);
 
         /// <inheritdoc />
         public override int GetHashCode()
@@ -117,31 +117,31 @@ namespace System.CommandLine
         /// <summary>
         /// An arity that does not allow any values.
         /// </summary>
-        public static ArgumentArity Zero => new ArgumentArity(0, 0);
+        public static ArgumentArity Zero => new(0, 0);
 
         /// <summary>
         /// An arity that may have one value, but no more than one.
         /// </summary>
-        public static ArgumentArity ZeroOrOne => new ArgumentArity(0, 1);
+        public static ArgumentArity ZeroOrOne => new(0, 1);
 
         /// <summary>
         /// An arity that must have exactly one value.
         /// </summary>
-        public static ArgumentArity ExactlyOne => new ArgumentArity(1, 1);
+        public static ArgumentArity ExactlyOne => new(1, 1);
 
         /// <summary>
         /// An arity that may have multiple values.
         /// </summary>
-        public static ArgumentArity ZeroOrMore => new ArgumentArity(0, MaximumArity);
+        public static ArgumentArity ZeroOrMore => new(0, MaximumArity);
 
         /// <summary>
         /// An arity that must have at least one value.
         /// </summary>
-        public static ArgumentArity OneOrMore => new ArgumentArity(1, MaximumArity);
+        public static ArgumentArity OneOrMore => new(1, MaximumArity);
 
         internal static ArgumentArity Default(Type type, Argument argument, ParentNode? firstParent)
         {
-            if (type == typeof(bool))
+            if (type == typeof(bool) || type == typeof(bool?))
             {
                 return ZeroOrOne;
             }

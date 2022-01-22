@@ -9,7 +9,7 @@ namespace System.CommandLine
             TKey key,
             Func<TKey, TValue> create)
         {
-            if (source.TryGetValue(key, out TValue value))
+            if (source.TryGetValue(key, out TValue? value))
             {
                 return value;
             }
