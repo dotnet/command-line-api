@@ -65,7 +65,7 @@ namespace System.CommandLine
         public override ArgumentArity Arity
         {
             get => base.Arity;
-            init => Argument.Arity = value;
+            set => Argument.Arity = value;
         }
     }
 }

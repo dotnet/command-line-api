@@ -169,7 +169,7 @@ namespace System.CommandLine
         public virtual ArgumentArity Arity
         {
             get => Argument.Arity;
-            init
+            set
             {
                 if (value.MaximumNumberOfValues > 0)
                 {
