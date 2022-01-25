@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace System.CommandLine.Tests
 {
     public class UseExceptionHandlerTests
     {
-        private readonly TestConsole _console = new TestConsole();
+        private readonly TestConsole _console = new();
 
         [Fact]
         public async Task Declaration_of_UseExceptionHandler_can_come_after_other_middleware()
@@ -22,7 +21,7 @@ namespace System.CommandLine.Tests
                   {
                       new Command("the-command")
                   })
-                  .UseMiddleware(_ => throw new Exception("oops!"))
+                  .AddMiddleware(_ => throw new Exception("oops!"))
                   .UseExceptionHandler()
                   .Build()
                   .InvokeAsync("the-command", _console);
@@ -40,7 +39,7 @@ namespace System.CommandLine.Tests
                          {
                              new Command("the-command")
                          })
-                         .UseMiddleware(_ => throw new Exception("oops!"))
+                         .AddMiddleware(_ => throw new Exception("oops!"))
                          .UseExceptionHandler()
                          .Build();
 
@@ -127,7 +126,7 @@ namespace System.CommandLine.Tests
                                        new Command("the-command")
                                    })
                                    .UseExceptionHandler()
-                                   .UseMiddleware(_ => throw new OperationCanceledException())
+                                   .AddMiddleware(_ => throw new OperationCanceledException())
                                    .Build()
                                    .InvokeAsync("the-command", _console);
 
@@ -147,7 +146,7 @@ namespace System.CommandLine.Tests
                                        context.Console.Out.Write("Well that's awkward.");
                                        context.ExitCode = 22;
                                    })
-                                   .UseMiddleware(_ => throw new Exception("oops!"))
+                                   .AddMiddleware(_ => throw new Exception("oops!"))
                                    .Build()
                                    .InvokeAsync("the-command", _console);
 
@@ -163,7 +162,7 @@ namespace System.CommandLine.Tests
                                        new Command("the-command")
                                    })
                                    .UseExceptionHandler(errorExitCode: 42)
-                                   .UseMiddleware(_ => throw new Exception("oops!"))
+                                   .AddMiddleware(_ => throw new Exception("oops!"))
                                    .Build()
                                    .InvokeAsync("the-command", _console);
 

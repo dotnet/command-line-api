@@ -8,7 +8,6 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -26,7 +25,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var parser =
                 new CommandLineBuilder(new RootCommand { new Command("command") })
-                    .UseMiddleware(_ => wasCalled = true)
+                    .AddMiddleware(_ => wasCalled = true)
                     .Build();
 
             await parser.InvokeAsync("command", _console);
@@ -91,7 +90,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                              new Command("the-command")
                          })
-                         .UseMiddleware(_ => throw new Exception("oops!"))
+                         .AddMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 
             Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
@@ -108,7 +107,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                              new Command("the-command")
                          })
-                         .UseMiddleware(_ => throw new Exception("oops!"))
+                         .AddMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 
             Func<int> invoke = () => parser.Invoke("the-command", _console);

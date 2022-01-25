@@ -162,7 +162,7 @@ namespace System.CommandLine.Parsing
         /// <param name="option">The option for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
         public object? GetValueForOption(Option option) =>
-            GetValueForOption<object?>(option);
+            RootCommandResult.GetValueForOption(option);
 
         /// <inheritdoc cref="GetValueForArgument"/>
         [Obsolete(
@@ -182,7 +182,7 @@ namespace System.CommandLine.Parsing
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
         public object? GetValueForArgument(Argument argument) =>
-            GetValueForArgument<object?>(argument);
+            RootCommandResult.GetValueForArgument(argument);
 
         /// <inheritdoc cref="GetValueForArgument"/>
         [Obsolete(
@@ -192,17 +192,8 @@ namespace System.CommandLine.Parsing
             GetValueForArgument(argument);
 
         /// <inheritdoc cref="GetValueForArgument"/>
-        [return: MaybeNull]
         public T GetValueForArgument<T>(Argument<T> argument)
-        {
-            if (FindResultFor(argument) is { } result &&
-                result.GetValueOrDefault<T>() is { } t)
-            {
-                return t;
-            }
-
-            return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
-        }
+            => RootCommandResult.GetValueForArgument(argument);
 
         /// <inheritdoc cref="GetValueForArgument"/>
         [Obsolete(
@@ -212,17 +203,8 @@ namespace System.CommandLine.Parsing
             GetValueForArgument<T>(argument);
 
         /// <inheritdoc cref="GetValueForArgument"/>
-        [return: MaybeNull]
         public T GetValueForArgument<T>(Argument argument)
-        {
-            if (FindResultFor(argument) is { } result &&
-                result.GetValueOrDefault<T>() is { } t)
-            {
-                return t;
-            }
-
-            return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
-        }
+            => RootCommandResult.GetValueForArgument<T>(argument);
 
         /// <inheritdoc cref="GetValueForArgument"/>
         [return: MaybeNull]
@@ -246,33 +228,13 @@ namespace System.CommandLine.Parsing
             GetValueForOption(option);
 
         /// <inheritdoc cref="GetValueForOption"/>
-        [return: MaybeNull]
         public T GetValueForOption<T>(Option<T> option)
-        {
-            if (FindResultFor(option) is { } result &&
-                result.GetValueOrDefault<T>() is { } t)
-            {
-                return t;
-            }
-
-            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
-        }
+            => RootCommandResult.GetValueForOption(option);
 
         /// <inheritdoc cref="GetValueForOption"/>
-        [return: MaybeNull]
-        public T GetValueForOption<T>(Option option)
-        {
-            if (FindResultFor(option) is { } result)
-            {
-                if (result.GetValueOrDefault<T>() is { } t)
-                {
-                    return t;
-                }
-            }
-
-            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
-        }
-
+        public T GetValueForOption<T>(Option option) =>
+            RootCommandResult.GetValueForOption<T>(option);
+        
         /// <inheritdoc cref="GetValueForOption"/>
         [Obsolete(
             "This method was removed. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]

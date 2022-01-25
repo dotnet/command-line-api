@@ -531,7 +531,7 @@ namespace System.CommandLine.Tests
                     opt
                 };
 
-                rootCommand.Parse(commandLine).ValueForOption(opt).Should().Be(expectedValue);
+                rootCommand.Parse(commandLine).GetValueForOption(opt).Should().Be(expectedValue);
             }
 
             [Theory]
