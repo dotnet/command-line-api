@@ -449,6 +449,54 @@ namespace System.CommandLine.Tests
                   .Contain(e => e.Message == errorMessage);
         }
 
+        [Fact]
+        public void The_parsed_value_of_an_argument_is_available_within_a_validator()
+        {
+            var argument = new Argument<int>();
+            var errorMessage = "The value of option '-x' must be between 1 and 100.";
+            argument.AddValidator(result =>
+            {
+                var value = result.GetValueForArgument(argument);
+
+                if (value < 0 || value > 100)
+                {
+                    result.ErrorMessage = errorMessage;
+                }
+            });
+
+            var result = argument.Parse("-1");
+
+            result.Errors
+                  .Should()
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.Message == errorMessage);
+        }
+
+        [Fact]
+        public void The_parsed_value_of_an_option_is_available_within_a_validator()
+        {
+            var option = new Option<int>("-x");
+            var errorMessage = "The value of option '-x' must be between 1 and 100.";
+            option.AddValidator(result =>
+            {
+                var value = result.GetValueForOption(option);
+
+                if (value < 0 || value > 100)
+                {
+                    result.ErrorMessage = errorMessage;
+                }
+            });
+
+            var result = option.Parse("-x -1");
+
+            result.Errors
+                  .Should()
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.Message == errorMessage);
+        }
+
         public class PathValidity
         {
             [Fact]

@@ -507,6 +507,12 @@ System.CommandLine.Parsing
     public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
     public CommandResult FindResultFor(System.CommandLine.Command command)
     public OptionResult FindResultFor(System.CommandLine.Option option)
+    public T GetValueForArgument<T>(Argument<T> argument)
+    public T GetValueForArgument<T>(System.CommandLine.Argument argument)
+    public System.Object GetValueForArgument(System.CommandLine.Argument argument)
+    public T GetValueForOption<T>(Option<T> option)
+    public T GetValueForOption<T>(System.CommandLine.Option option)
+    public System.Object GetValueForOption(System.CommandLine.Option option)
     public System.String ToString()
   public struct Token : System.ValueType, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)

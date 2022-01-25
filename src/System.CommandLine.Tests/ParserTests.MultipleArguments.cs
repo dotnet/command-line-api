@@ -256,8 +256,8 @@ namespace System.CommandLine.Tests
 
                 var result = rootCommand.Parse("value-1");
 
-                result.ValueForArgument(arg1).Should().Be("value-1");
-                result.ValueForArgument(arg2).Should().Be("the-default");
+                result.GetValueForArgument(arg1).Should().Be("value-1");
+                result.GetValueForArgument(arg2).Should().Be("the-default");
             }
 
             [Fact] // https://github.com/dotnet/command-line-api/issues/1403

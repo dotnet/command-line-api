@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -126,6 +127,64 @@ namespace System.CommandLine.Parsing
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public virtual OptionResult? FindResultFor(Option option) =>
             Root?.FindResultFor(option);
+
+        /// <inheritdoc cref="ParseResult.GetValueForArgument"/>
+        public T GetValueForArgument<T>(Argument<T> argument)
+        {
+            if (FindResultFor(argument) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
+            {
+                return t;
+            }
+
+            return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
+        }
+
+        /// <inheritdoc cref="ParseResult.GetValueForArgument"/>
+        public T GetValueForArgument<T>(Argument argument)
+        {
+            if (FindResultFor(argument) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
+            {
+                return t;
+            }
+
+            return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
+        }
+
+        /// <inheritdoc cref="ParseResult.GetValueForArgument"/>
+        public object? GetValueForArgument(Argument argument) =>
+            GetValueForArgument<object?>(argument);
+
+        /// <inheritdoc cref="ParseResult.GetValueForOption"/>
+        public T GetValueForOption<T>(Option<T> option)
+        {
+            if (FindResultFor(option) is { } result &&
+                result.GetValueOrDefault<T>() is { } t)
+            {
+                return t;
+            }
+
+            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
+        }
+
+        /// <inheritdoc cref="ParseResult.GetValueForOption"/>
+        public T GetValueForOption<T>(Option option)
+        {
+            if (FindResultFor(option) is { } result)
+            {
+                if (result.GetValueOrDefault<T>() is { } t)
+                {
+                    return t;
+                }
+            }
+
+            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
+        }
+
+        /// <inheritdoc cref="ParseResult.GetValueForOption"/>
+        public object? GetValueForOption(Option option) =>
+            GetValueForOption<object?>(option);
 
         internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
             _defaultArgumentValues.GetOrAdd(
