@@ -17,7 +17,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(UseBetaVersion)' == 'true'">
     <VersionPrefix>2.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>beta2</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>beta3</PreReleaseVersionLabel>
     <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(UseAlphaVersion)' == 'true'">
@@ -30,9 +30,4 @@
     <UsingToolSymbolUploader>true</UsingToolSymbolUploader>
     <PublishWindowsPdb>true</PublishWindowsPdb>
   </PropertyGroup>
-  <!--   <PropertyGroup>
-    <FluentAssertionsVersion>4.18.0</FluentAssertionsVersion>
-    <NewtonsoftJsonVersion>9.0.1</NewtonsoftJsonVersion>
-    <SystemNetHttpVersion>4.3.1</SystemNetHttpVersion>
-  </PropertyGroup>  -->
 </Project>
