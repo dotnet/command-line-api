@@ -54,17 +54,17 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the arguments for the command.
         /// </summary>
-        public IReadOnlyList<Argument> Arguments => _arguments ?? Array.Empty<Argument>();
+        public IReadOnlyList<Argument> Arguments => _arguments is not null ? _arguments : Array.Empty<Argument>();
 
         /// <summary>
         /// Represents all of the options for the command, including global options.
         /// </summary>
-        public IReadOnlyList<Option> Options => _options ?? Array.Empty<Option>();
+        public IReadOnlyList<Option> Options => _options is not null ? _options : Array.Empty<Option>();
 
         /// <summary>
         /// Represents all of the subcommands for the command.
         /// </summary>
-        public IReadOnlyList<Command> Subcommands => _subcommands ?? Array.Empty<Command>();
+        public IReadOnlyList<Command> Subcommands => _subcommands is not null ? _subcommands : Array.Empty<Command>();
 
         /// <summary>
         /// Adds an <see cref="Argument"/> to the command.
