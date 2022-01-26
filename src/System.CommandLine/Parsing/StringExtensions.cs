@@ -483,32 +483,33 @@ namespace System.CommandLine.Parsing
         {
             Dictionary<string, Token> tokens = new (StringComparer.Ordinal);
 
-            foreach (var commandAlias in command.Aliases)
+            foreach (string commandAlias in command.Aliases)
             {
                 tokens.Add(
                     commandAlias,
                     new Token(commandAlias, TokenType.Command, command, Token.ImplicitPosition));
             }
 
-            for (int childIndex = 0; childIndex < command.Children.Count; childIndex++)
+            var subCommands = command.Subcommands;
+            for (int childIndex = 0; childIndex < subCommands.Count; childIndex++)
             {
-                switch (command.Children[childIndex])
+                Command cmd = subCommands[childIndex];
+                foreach (string childAlias in cmd.Aliases)
                 {
-                    case Command cmd:
-                        foreach (var childAlias in cmd.Aliases)
-                        {
-                            tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
-                        }
-                        break;
-                    case Option option:
-                        foreach (var childAlias in option.Aliases)
-                        {
-                            if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
-                            {
-                                tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
-                            }
-                        }
-                        break;
+                    tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                }
+            }
+
+            var options = command.Options;
+            for (int childIndex = 0; childIndex < options.Count; childIndex++)
+            {
+                Option option = options[childIndex];
+                foreach (string childAlias in option.Aliases)
+                {
+                    if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
+                    {
+                        tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                    }
                 }
             }
 

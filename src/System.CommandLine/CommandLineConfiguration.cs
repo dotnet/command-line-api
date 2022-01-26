@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Collections;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -64,11 +63,6 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Represents all of the symbols to parse.
-        /// </summary>
-        public SymbolSet Symbols => RootCommand.Children;
-
-        /// <summary>
         /// Gets whether directives are enabled.
         /// </summary>
         public bool EnableDirectives { get; }
@@ -118,32 +112,35 @@ namespace System.CommandLine
                     throw new CommandLineConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
                 }
 
-                for (var i = 0; i < command.Children.Count; i++)
+                int count = command.Subcommands.Count + command.Options.Count;
+                for (var i = 0; i < count; i++)
                 {
-                    if (command.Children[i] is IdentifierSymbol symbol1AsIdentifier)
+                    IdentifierSymbol symbol1AsIdentifier = GetChild(i, command);
+                    for (var j = i + 1; j < count; j++)
                     {
-                        for (var j = i + 1; j < command.Children.Count; j++)
+                        IdentifierSymbol symbol2AsIdentifier = GetChild(j, command);
+
+                        foreach (var symbol2Alias in symbol2AsIdentifier.Aliases)
                         {
-                            if (command.Children[j] is IdentifierSymbol symbol2AsIdentifier)
+                            if (symbol1AsIdentifier.Name.Equals(symbol2Alias, StringComparison.Ordinal) ||
+                                symbol1AsIdentifier.Aliases.Contains(symbol2Alias))
                             {
-                                foreach (var symbol2Alias in symbol2AsIdentifier.Aliases)
-                                {
-                                    if (symbol1AsIdentifier.Name.Equals(symbol2Alias, StringComparison.Ordinal) ||
-                                        symbol1AsIdentifier.Aliases.Contains(symbol2Alias))
-                                    {
-                                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
-                                    }
-                                }
+                                throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
                             }
                         }
+                    }
 
-                        if (symbol1AsIdentifier is Command childCommand)
-                        {
-                            ThrowIfInvalid(childCommand);
-                        }
+                    if (symbol1AsIdentifier is Command childCommand)
+                    {
+                        ThrowIfInvalid(childCommand);
                     }
                 }
             }
+
+            static IdentifierSymbol GetChild(int index, Command command)
+                => index < command.Subcommands.Count
+                    ? command.Subcommands[index]
+                    : command.Options[index - command.Subcommands.Count];
         }
     }
 }

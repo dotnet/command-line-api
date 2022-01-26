@@ -69,7 +69,7 @@ namespace System.CommandLine
 
             if (symbol.FirstParent is null)
             {
-                return new RootCommand { symbol };
+                return Create(symbol);
             }
 
             ParentNode? current = symbol.FirstParent;
@@ -82,8 +82,14 @@ namespace System.CommandLine
 
                 current = current.Next;
             }
-            
-            return new RootCommand { symbol };
+
+            return Create(symbol);
+
+            static RootCommand Create(Symbol notCommand)
+                => notCommand is Option option
+                    ? new RootCommand { option }
+                    // we know it's not a Command and not an Option, so it can only be an Argument
+                    : new RootCommand { (Argument)notCommand };
         }
     }
 }

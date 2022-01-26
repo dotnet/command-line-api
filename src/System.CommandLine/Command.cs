@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Collections;
 using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -21,6 +20,10 @@ namespace System.CommandLine
     /// </remarks>
     public class Command : IdentifierSymbol, IEnumerable<Symbol>
     {
+        private List<Argument>? _arguments;
+        private List<Option>? _options;
+        private List<Command>? _subcommands;
+
         /// <summary>
         /// Initializes a new instance of the Command class.
         /// </summary>
@@ -33,17 +36,35 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
-        public SymbolSet Children { get; } = new();
+        public IEnumerable<Symbol> Children
+        {
+            get
+            {
+                foreach (var command in Subcommands)
+                    yield return command;
+
+                foreach (var option in Options)
+                    yield return option;
+
+                foreach (var argument in Arguments)
+                    yield return argument;
+            }
+        }
 
         /// <summary>
         /// Represents all of the arguments for the command.
         /// </summary>
-        public IReadOnlyList<Argument> Arguments => Children.Arguments;
+        public IReadOnlyList<Argument> Arguments => _arguments is not null ? _arguments : Array.Empty<Argument>();
 
         /// <summary>
         /// Represents all of the options for the command, including global options.
         /// </summary>
-        public IReadOnlyList<Option> Options => Children.Options;
+        public IReadOnlyList<Option> Options => _options is not null ? _options : Array.Empty<Option>();
+
+        /// <summary>
+        /// Represents all of the subcommands for the command.
+        /// </summary>
+        public IReadOnlyList<Command> Subcommands => _subcommands is not null ? _subcommands : Array.Empty<Command>();
 
         /// <summary>
         /// Adds an <see cref="Argument"/> to the command.
@@ -52,7 +73,7 @@ namespace System.CommandLine
         public void AddArgument(Argument argument)
         {
             argument.AddParent(this);
-            Children.AddWithoutAliasCollisionCheck(argument);
+            (_arguments ??= new()).Add(argument);
         }
 
         /// <summary>
@@ -60,13 +81,21 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The subcommand to add to the command.</param>
         /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
-        public void AddCommand(Command command) => AddSymbol(command);
+        public void AddCommand(Command command)
+        {
+            command.AddParent(this);
+            (_subcommands ??= new()).Add(command);
+        }
 
         /// <summary>
         /// Adds an <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
-        public void AddOption(Option option) => AddSymbol(option);
+        public void AddOption(Option option)
+        {
+            option.AddParent(this);
+            (_options ??= new()).Add(option);
+        }
 
         /// <summary>
         /// Adds a global <see cref="Option"/> to the command.
@@ -79,18 +108,24 @@ namespace System.CommandLine
             option.IsGlobal = true;
             AddOption(option);
         }
-
         /// <summary>
-        /// Adds a <see cref="Symbol"/> to the command.
+        /// Adds an <see cref="Option"/> to the command.
         /// </summary>
-        /// <param name="symbol">The symbol to add to the command.</param>
-        public void Add(Symbol symbol) => AddSymbol(symbol);
+        /// <param name="option">The option to add to the command.</param>
+        public void Add(Option option) => AddOption(option);
 
         /// <summary>
         /// Adds an <see cref="Argument"/> to the command.
         /// </summary>
         /// <param name="argument">The argument to add to the command.</param>
         public void Add(Argument argument) => AddArgument(argument);
+
+        /// <summary>
+        /// Adds a subcommand to the command.
+        /// </summary>
+        /// <param name="command">The subcommand to add to the command.</param>
+        /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
+        public void Add(Command command) => AddCommand(command);
 
         private protected override string DefaultName => throw new NotImplementedException();
 
@@ -131,12 +166,6 @@ namespace System.CommandLine
 
         internal Parser? ImplicitSimpleParser { get; set; }
 
-        private protected void AddSymbol(Symbol symbol)
-        {
-            Children.AddWithoutAliasCollisionCheck(symbol);
-            symbol.AddParent(this);
-        }
-
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
@@ -144,11 +173,29 @@ namespace System.CommandLine
 
             if (context.WordToComplete is { } textToMatch)
             {
-                for (var i = 0; i < Children.Count; i++)
+                var commands = Subcommands;
+                for (int i = 0; i < commands.Count; i++)
                 {
-                    var child = Children[i];
+                    AddCompletionsFor(commands[i]);
+                }
 
-                    AddCompletionsFor(child);
+                var options = Options;
+                for (int i = 0; i < options.Count; i++)
+                {
+                    AddCompletionsFor(options[i]);
+                }
+
+                var arguments = Arguments;
+                for (int i = 0; i < arguments.Count; i++)
+                {
+                    var argument = arguments[i];
+                    foreach (var completion in argument.GetCompletions(context))
+                    {
+                        if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                        {
+                            completions.Add(completion);
+                        }
+                    }
                 }
 
                 foreach (var parent in Parents.FlattenBreadthFirst(p => p.Parents))
@@ -172,32 +219,18 @@ namespace System.CommandLine
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
 
-            void AddCompletionsFor(Symbol child)
+            void AddCompletionsFor(IdentifierSymbol identifier)
             {
-                switch (child)
+                if (!identifier.IsHidden)
                 {
-                    case IdentifierSymbol identifier when !child.IsHidden:
-                        foreach (var alias in identifier.Aliases)
+                    foreach (var alias in identifier.Aliases)
+                    {
+                        if (alias is { } &&
+                            alias.ContainsCaseInsensitive(textToMatch))
                         {
-                            if (alias is { } &&
-                                alias.ContainsCaseInsensitive(textToMatch))
-                            {
-                                completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: child.Description));
-                            }
+                            completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: identifier.Description));
                         }
-
-                        break;
-
-                    case Argument argument:
-                        foreach (var completion in argument.GetCompletions(context))
-                        {
-                            if (completion.Label.ContainsCaseInsensitive(textToMatch))
-                            {
-                                completions.Add(completion);
-                            }
-                        }
-
-                        break;
+                    }
                 }
             }
         }
