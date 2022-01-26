@@ -50,12 +50,14 @@
   public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
-    public System.CommandLine.Collections.SymbolSet Children { get; }
+    public System.Collections.Generic.IEnumerable<Symbol> Children { get; }
     public System.CommandLine.Invocation.ICommandHandler Handler { get; set; }
     public System.Collections.Generic.IReadOnlyList<Option> Options { get; }
+    public System.Collections.Generic.IReadOnlyList<Command> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
-    public System.Void Add(Symbol symbol)
+    public System.Void Add(Option option)
     public System.Void Add(Argument argument)
+    public System.Void Add(Command command)
     public System.Void AddArgument(Argument argument)
     public System.Void AddCommand(Command command)
     public System.Void AddGlobalOption(Option option)
@@ -77,7 +79,6 @@
     public System.Boolean EnablePosixBundling { get; }
     public LocalizationResources LocalizationResources { get; }
     public Command RootCommand { get; }
-    public System.CommandLine.Collections.SymbolSet Symbols { get; }
     public System.Void ThrowIfInvalid()
   public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
     .ctor(System.String message)
@@ -283,12 +284,6 @@ System.CommandLine.Builder
     public static CommandLineBuilder UseTypoCorrections(this CommandLineBuilder builder, System.Int32 maxLevenshteinDistance = 3)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
-System.CommandLine.Collections
-  public class SymbolSet, System.Collections.Generic.IEnumerable<System.CommandLine.Symbol>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.Symbol>, System.Collections.Generic.IReadOnlyList<System.CommandLine.Symbol>, System.Collections.IEnumerable
-    .ctor()
-    public System.Int32 Count { get; }
-    public System.CommandLine.Symbol Item { get; }
-    public System.Collections.Generic.IEnumerator<System.CommandLine.Symbol> GetEnumerator()
 System.CommandLine.Completions
   public abstract class CompletionContext
     public System.CommandLine.Parsing.ParseResult ParseResult { get; }
