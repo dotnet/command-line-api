@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Tests.Utility;
+using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
@@ -276,6 +277,26 @@ namespace System.CommandLine.Tests
 
                 result.FindResultFor(arg1).Should().BeNull();
                 result.GetValueForArgument(arg2).Should().Be("the-default");
+            }
+
+            [Fact] // https://github.com/dotnet/command-line-api/issues/1395
+            public async Task When_subsequent_argument_with_ZeroOrOne_arity_is_not_provided_then_parse_is_correct()
+            {
+                var argument1 = new Argument<string>();
+                var rootCommand = new RootCommand
+                {
+                    argument1,
+                    new Argument<string>
+                    {
+                        Arity = ArgumentArity.ZeroOrOne
+                    },
+                };
+
+                var result = rootCommand.Parse("one");
+
+                result.Errors.Should().BeEmpty();
+
+                result.GetValueForArgument(argument1).Should().Be("one");
             }
         }
     }
