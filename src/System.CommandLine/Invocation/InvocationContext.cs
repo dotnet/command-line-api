@@ -12,7 +12,7 @@ namespace System.CommandLine.Invocation
     /// <summary>
     /// Supports command invocation by providing access to parse results and other services.
     /// </summary>
-    public sealed class InvocationContext : IDisposable
+    public sealed class InvocationContext
     {
         private CancellationTokenSource? _cts;
         private Action<CancellationTokenSource>? _cancellationHandlingAddedEvent;
@@ -40,7 +40,6 @@ namespace System.CommandLine.Invocation
                 if (_bindingContext is null)
                 {
                     _bindingContext = new BindingContext(this);
-                  
                 }
 
                 return _bindingContext;
@@ -122,12 +121,6 @@ namespace System.CommandLine.Invocation
             }
 
             return _cts.Token;
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            (Console as IDisposable)?.Dispose();
         }
     }
 }
