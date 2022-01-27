@@ -280,7 +280,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact] // https://github.com/dotnet/command-line-api/issues/1395
-            public async Task When_subsequent_argument_with_ZeroOrOne_arity_is_not_provided_then_parse_is_correct()
+            public void When_subsequent_argument_with_ZeroOrOne_arity_is_not_provided_then_parse_is_correct()
             {
                 var argument1 = new Argument<string>();
                 var rootCommand = new RootCommand
