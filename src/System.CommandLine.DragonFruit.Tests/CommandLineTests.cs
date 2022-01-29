@@ -109,9 +109,6 @@ namespace System.CommandLine.DragonFruit.Tests
             var stdOut = _terminal.Out.ToString();
 
             stdOut.Should()
-                .ContainAll("ReSharperTestRunner","[options]")
-                .And.Contain("Usage:");
-            stdOut.Should()
                 .ContainAll("--name <name>","name [default: Bruce]")
                 .And.Contain("Options:");
         }
