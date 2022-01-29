@@ -97,7 +97,7 @@ namespace System.CommandLine.DragonFruit
                             var val = string.Join(string.Empty,
                                 element.Elements().Select(e =>
                                     e.Value + (e.Name.ToString().ToLower() == "para" ? Environment.NewLine : string.Empty)));
-                            commandHelpMetadata.Description = val.TrimEnd(Convert.ToChar("\n"));
+                            commandHelpMetadata.Description = val.TrimEnd(Environment.NewLine.ToCharArray());
                         }
                         else
                         {

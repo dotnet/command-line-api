@@ -47,7 +47,7 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Fact]
-        public async Task It_shows_help_text_based_on_XML_documentation_comments_without_para()
+        public async Task It_shows_help_text_based_on_XML_documentation_comments()
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--help" },
@@ -67,11 +67,11 @@ namespace System.CommandLine.DragonFruit.Tests
                 .ContainAll("--name <name>", "Specifies the name option")
                 .And.Contain("Options:");
             stdOut.Should()
-                .Contain("Description:\n  Normal summary");
+                .Contain($"Description:{Environment.NewLine}  Normal summary");
         }
         
         [Fact]
-        public async Task It_shows_help_text_based_on_XML_documentation_comments_with_para()
+        public async Task When_XML_documentation_comment_contains_a_para_tag_then_help_is_written_with_a_newline()
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                 new[] { "--help" },
@@ -91,7 +91,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 .ContainAll("--name <name>", "Specifies the name option")
                 .And.Contain("Options:");
             stdOut.Should()
-                .Contain("Description:\n  Help for the test program\n  More help for the test program\n");
+                .Contain($"Description:{Environment.NewLine}  Help for the test program{Environment.NewLine}  More help for the test program{Environment.NewLine}");
         }
 
         [Fact]
