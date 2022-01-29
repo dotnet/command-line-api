@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -24,7 +25,7 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--name", "Wayne" },
-                               TestProgram.TestMainMethodInfo,
+                               TestProgram.TestMainMethodInfoWithoutPara,
                                null,
                                _testProgram,
                                _terminal);
@@ -37,7 +38,7 @@ namespace System.CommandLine.DragonFruit.Tests
         {
             int exitCode = CommandLine.InvokeMethod(
                 new[] { "--name", "Wayne" },
-                TestProgram.TestMainMethodInfo,
+                TestProgram.TestMainMethodInfoWithoutPara,
                 null,
                 _testProgram,
                 _terminal);
@@ -46,11 +47,11 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Fact]
-        public async Task It_shows_help_text_based_on_XML_documentation_comments()
+        public async Task It_shows_help_text_based_on_XML_documentation_comments_without_para()
         {
             int exitCode = await CommandLine.InvokeMethodAsync(
                                new[] { "--help" },
-                               TestProgram.TestMainMethodInfo,
+                               TestProgram.TestMainMethodInfoWithoutPara,
                                null,
                                _testProgram, 
                                _terminal);
@@ -60,23 +61,23 @@ namespace System.CommandLine.DragonFruit.Tests
             var stdOut = _terminal.Out.ToString();
 
             stdOut.Should()
-                  .Contain("<args>  These are arguments")
-                  .And.Contain("Arguments:");
+                .Contain("<args>  These are arguments")
+                .And.Contain("Arguments:");
             stdOut.Should()
-                  .ContainAll("--name <name>", "Specifies the name option")
-                  .And.Contain("Options:");
+                .ContainAll("--name <name>", "Specifies the name option")
+                .And.Contain("Options:");
             stdOut.Should()
-                  .Contain("Help for the test program");
+                .Contain("Description:\n  Normal summary");
         }
-
+        
         [Fact]
-        public void It_synchronously_shows_help_text_based_on_XML_documentation_comments()
+        public async Task It_shows_help_text_based_on_XML_documentation_comments_with_para()
         {
-            int exitCode = CommandLine.InvokeMethod(
+            int exitCode = await CommandLine.InvokeMethodAsync(
                 new[] { "--help" },
-                TestProgram.TestMainMethodInfo,
+                TestProgram.TestMainMethodInfoWithPara,
                 null,
-                _testProgram,
+                _testProgram, 
                 _terminal);
 
             exitCode.Should().Be(0);
@@ -87,10 +88,32 @@ namespace System.CommandLine.DragonFruit.Tests
                 .Contain("<args>  These are arguments")
                 .And.Contain("Arguments:");
             stdOut.Should()
-                .ContainAll("--name <name>","Specifies the name option")
+                .ContainAll("--name <name>", "Specifies the name option")
                 .And.Contain("Options:");
             stdOut.Should()
-                .Contain("Help for the test program");
+                .Contain("Description:\n  Help for the test program\n  More help for the test program\n");
+        }
+
+        [Fact]
+        public void It_synchronously_shows_help_text_based_on_XML_documentation_comments()
+        {
+            int exitCode = CommandLine.InvokeMethod(
+                new[] { "--help" },
+                TestProgram.TestMainMethodInfoWithDefault,
+                null,
+                _testProgram,
+                _terminal);
+
+            exitCode.Should().Be(0);
+
+            var stdOut = _terminal.Out.ToString();
+
+            stdOut.Should()
+                .ContainAll("ReSharperTestRunner","[options]")
+                .And.Contain("Usage:");
+            stdOut.Should()
+                .ContainAll("--name <name>","name [default: Bruce]")
+                .And.Contain("Options:");
         }
 
         [Fact]

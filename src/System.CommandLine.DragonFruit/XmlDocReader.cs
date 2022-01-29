@@ -92,10 +92,23 @@ namespace System.CommandLine.DragonFruit
                 switch (element.Name.ToString())
                 {
                     case "summary":
-                        commandHelpMetadata.Description = element.Value?.Trim();
+                        if (element.HasElements)
+                        {
+                            var val = string.Join(string.Empty,
+                                element.Elements().Select(e =>
+                                    e.Value + (e.Name.ToString().ToLower() == "para" ? Environment.NewLine : string.Empty)));
+                            commandHelpMetadata.Description = val.TrimEnd(Convert.ToChar("\n"));
+                        }
+                        else
+                        {
+                            commandHelpMetadata.Description = element.Value.Trim();
+                        }
                         break;
                     case "param":
-                        commandHelpMetadata.ParameterDescriptions.Add(element.Attribute("name")?.Value, element.Value?.Trim());
+                        var value = element.Attribute("name")?.Value;
+                        if (value != null)
+                            commandHelpMetadata.ParameterDescriptions.Add(value,
+                                element.Value.Trim());
                         break;
                 }
             }
