@@ -23,17 +23,7 @@ namespace System.CommandLine
                 LazyThreadSafetyMode.PublicationOnly);
 
         private static readonly Lazy<string> _executablePath =
-            new(() =>
-                {
-#if NET6_0_OR_GREATER
-                    var al = Environment.ProcessPath ?? "";
-#else
-#pragma warning disable IL3000 // Avoid accessing Assembly file path when publishing as a single file
-                    var al = GetAssembly().Location ?? "";
-#pragma warning restore IL3000 // Avoid accessing Assembly file path when publishing as a single file
-#endif
-                    return al;
-                },
+            new(() => Environment.GetCommandLineArgs()[0],
                 LazyThreadSafetyMode.PublicationOnly);
 
         private static readonly Lazy<string> _executableName =
