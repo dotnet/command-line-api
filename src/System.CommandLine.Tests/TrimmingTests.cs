@@ -8,6 +8,7 @@ using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Text;
 using FluentAssertions;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests;
@@ -24,15 +25,29 @@ public class TrimmingTests
         _systemCommandLineDllPath = typeof(Command).Assembly.Location;
     }
 
-    [ReleaseBuildOnlyFact]
-    public void App_referencing_system_commandline_can_be_trimmed()
+    [ReleaseBuildOnlyTheory]
+    [InlineData("")]
+    [InlineData("-p:PublishSingleFile=true")]
+    public void App_referencing_system_commandline_can_be_trimmed(string additionalArgs)
     {
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
+
+        var workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TrimmingTestApp");
         
+        Process.RunToCompletion(
+            DotnetMuxer.Path.FullName,
+            "clean -c Release -r win-x64",
+            workingDirectory: workingDirectory);
+
+        var commandLine = string.Format(
+            "publish -c Release -r win-x64 --self-contained -p:SystemCommandLineDllPath=\"{0}\" -p:TreatWarningsAsErrors=true -p:PublishTrimmed=true {1}",
+            _systemCommandLineDllPath,
+            additionalArgs);
+
         var exitCode = Process.RunToCompletion(
             DotnetMuxer.Path.FullName,
-            $"publish -c Release -r win-x64 --self-contained /p:PublishTrimmed=true /p:SystemCommandLineDllPath=\"{_systemCommandLineDllPath}\" /p:TreatWarningsAsErrors=true",
+            commandLine,
             s =>
             {
                 _output.WriteLine(s);
@@ -43,7 +58,7 @@ public class TrimmingTests
                 _output.WriteLine(s);
                 stdErr.Append(s);
             },
-            workingDirectory: Path.Combine(Directory.GetCurrentDirectory(), "TrimmingTestApp"));
+            workingDirectory);
 
         stdOut.ToString().Should().NotContain("warning IL");
         stdErr.ToString().Should().BeEmpty();
