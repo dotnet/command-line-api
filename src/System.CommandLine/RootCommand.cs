@@ -23,7 +23,7 @@ namespace System.CommandLine
                 LazyThreadSafetyMode.PublicationOnly);
 
         private static readonly Lazy<string> _executablePath =
-            new(() => GetAssembly().Location,
+            new(() => Environment.GetCommandLineArgs()[0],
                 LazyThreadSafetyMode.PublicationOnly);
 
         private static readonly Lazy<string> _executableName =
@@ -49,7 +49,7 @@ namespace System.CommandLine
         {
         }
 
-        internal static Assembly GetAssembly() => _assembly.Value!;
+        internal static Assembly GetAssembly() => _assembly.Value;
 
         /// <summary>
         /// The name of the currently running executable.

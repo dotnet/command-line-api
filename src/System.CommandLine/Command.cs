@@ -57,7 +57,7 @@ namespace System.CommandLine
         public IReadOnlyList<Argument> Arguments => _arguments is not null ? _arguments : Array.Empty<Argument>();
 
         /// <summary>
-        /// Represents all of the options for the command, including global options.
+        /// Represents all of the options for the command, including global options that have been applied to any of the command's ancestors.
         /// </summary>
         public IReadOnlyList<Option> Options => _options is not null ? _options : Array.Empty<Option>();
 
