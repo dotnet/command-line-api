@@ -13,6 +13,7 @@ using FluentAssertions.Common;
 using Xunit;
 using System.ComponentModel;
 using System.Globalization;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
@@ -1591,32 +1592,7 @@ namespace System.CommandLine.Tests
                    .Should()
                    .Contain(LocalizationResources.Instance.UnrecognizedCommandOrArgument("4"));
         }
-
-
-        [Fact(Skip = "Can we support both type converters and trimming?")]
-        public void Argument_with_custom_type_converter_can_be_bound()
-        {
-            var option = new Option<ClassWithCustomTypeConverter>("--value");
-
-            var parseResult = option.Parse("--value a;b;c");
-
-            var instance = parseResult.GetValueForOption(option);
-
-            instance.Values.Should().BeEquivalentTo("a", "b", "c");
-        }
-
-        [Fact(Skip = "Can we support both type converters and trimming?")]
-        public void Argument_with_custom_collection_type_converter_can_be_bound()
-        {
-            var option = new Option<CollectionWithCustomTypeConverter>("--value") { Arity = ArgumentArity.ExactlyOne };
-
-            var parseResult = option.Parse("--value a;b;c");
-
-            CollectionWithCustomTypeConverter instance = parseResult.GetValueForOption(option);
-
-            instance.Should().BeEquivalentTo("a", "b", "c");
-        }
-
+        
         [Fact]
         public void Tokens_are_not_split_if_the_part_before_the_delimiter_is_not_an_option()
         {
@@ -1685,59 +1661,6 @@ namespace System.CommandLine.Tests
 
             result.CommandResult.Command.Should().BeSameAs(subcommand);
             result.FindResultFor(option).Should().NotBeNull();
-        }
-
-        [TypeConverter(typeof(CustomTypeConverter))]
-        public class ClassWithCustomTypeConverter
-        {
-            public string[] Values { get; set; }
-        }
-
-        public class CustomTypeConverter : TypeConverter
-        {
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-            {
-                return sourceType == typeof(string) ||
-                    base.CanConvertFrom(context, sourceType);
-            }
-
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            {
-                if (value is string stringValue)
-                {
-                    return new ClassWithCustomTypeConverter
-                    {
-                        Values = stringValue.Split(';')
-                    };
-                }
-                return base.ConvertFrom(context, culture, value);
-            }
-        }
-
-        [TypeConverter(typeof(CustomCollectionTypeConverter))]
-        public class CollectionWithCustomTypeConverter : List<string>
-        {
-            public CollectionWithCustomTypeConverter(IEnumerable<string> values)
-                : base(values)
-            { }
-        }
-
-        public class CustomCollectionTypeConverter : TypeConverter
-        {
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-            {
-                return sourceType == typeof(string) ||
-                    base.CanConvertFrom(context, sourceType);
-            }
-
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            {
-                if (value is string stringValue)
-                {
-                    return new CollectionWithCustomTypeConverter(stringValue.Split(';'));
-                }
-                return base.ConvertFrom(context, culture, value);
-            }
         }
     }
 }

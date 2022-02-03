@@ -350,10 +350,7 @@ namespace System.CommandLine.Parsing
                     }
                     else if (item is OptionResult option)
                     {
-                        var willAcceptAnArgument =
-                            WillAcceptAnArgument(this, position, option);
-
-                        if (willAcceptAnArgument)
+                        if (WillAcceptAnArgument(this, position, option))
                         {
                             yield return option;
                         }
@@ -387,12 +384,9 @@ namespace System.CommandLine.Parsing
 
                     if (textCompletionContext.WordToComplete.Length > 0)
                     {
-                        var tokenToComplete = parseResult.Tokens.LastOrDefault(t => t.Value == textCompletionContext.WordToComplete);
+                        var tokenToComplete = parseResult.Tokens.Last(t => t.Value == textCompletionContext.WordToComplete);
 
-                        if (tokenToComplete is { })
-                        {
-                            return optionResult.Tokens.Contains(tokenToComplete);
-                        }
+                        return optionResult.Tokens.Contains(tokenToComplete);
                     }
                 }
 

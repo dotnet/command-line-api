@@ -133,23 +133,21 @@ namespace System.CommandLine.Binding
 
         internal static TryConvertArgument? GetConverter(Argument argument)
         {
-            if (argument.ValueType == typeof(bool))
+            switch (argument.Arity)
             {
-                return TryConvertBoolArgument;
-            }
+                case { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 }:
 
-            if (_stringConverters.TryGetValue(argument.ValueType, out var converter))
-            {
-                switch (argument.Arity.MaximumNumberOfValues)
-                {
-                    case 1:
+                    if (_stringConverters.TryGetValue(argument.ValueType, out var converter))
+                    {
                         return ConvertSingleString;
 
                         bool ConvertSingleString(ArgumentResult result, out object? value)
                         {
                             return converter(result.Tokens[result.Tokens.Count - 1].Value, out value);
                         }
-                }
+                    }
+
+                    break;
             }
 
             if (argument.ValueType.CanBeBoundFromScalarValue())

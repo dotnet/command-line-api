@@ -361,7 +361,7 @@ System.CommandLine.Invocation
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(InvocationContext context)
   public interface IInvocationResult
     public System.Void Apply(InvocationContext context)
-  public class InvocationContext, System.IDisposable
+  public class InvocationContext
     .ctor(System.CommandLine.Parsing.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; set; }
@@ -371,7 +371,6 @@ System.CommandLine.Invocation
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.Parsing.ParseResult ParseResult { get; set; }
-    public System.Void Dispose()
     public System.Threading.CancellationToken GetCancellationToken()
   public delegate InvocationMiddleware : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
