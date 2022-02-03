@@ -69,7 +69,7 @@ static async Task Main(string[] args)
 {
     var rootCommand = new RootCommand();
 
-    rootCommand.Handler = CommandHandler.Create(() =>
+    rootCommand.SetHandler(() =>
     {
         /* do something */
     });
@@ -103,7 +103,7 @@ static async Task Main(string[] args)
     rootCommand.Add(new Option<int>("--an-int"));
     rootCommand.Add(new Option<string>("--a-string"));
 
-    rootCommand.Handler = CommandHandler.Create<int, string>(DoSomething);
+    rootCommand.SetHandler((int i, string s) => DoSomething(i, s));
 
     await rootCommand.InvokeAsync(args);
 }
