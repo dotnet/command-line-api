@@ -1,5 +1,7 @@
 # Model Binding
 
+_**This document describes System.CommandLine Beta 1. Some of the functionality described here now requires a separate package, [System.CommandLine.NamingConventionBinder](https://www.nuget.org/packages/System.CommandLine.NamingConventionBinder). For more details, please see [the Beta 2 announcement](https://github.com/dotnet/command-line-api/issues/1537).**_
+
 Parsing command line arguments is a means to an end. You probably don't really want to think about parsing the command line. You just want some arguments passed to a method, based on some command line arguments.
 
 In C#, the application entry point method has always looked something like this:
