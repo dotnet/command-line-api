@@ -437,6 +437,7 @@ namespace System.CommandLine.Parsing
             if (arityFailure is { })
             {
                 AddErrorToResult(optionResult, new ParseError(arityFailure.ErrorMessage!, optionResult));
+                return;
             }
 
             if (optionResult.Option.HasValidators)

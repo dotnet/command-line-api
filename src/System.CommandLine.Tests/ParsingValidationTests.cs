@@ -1153,5 +1153,30 @@ namespace System.CommandLine.Tests
                        .Should()
                        .Be("Wrong");
         }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1609
+        internal void When_there_is_an_arity_error_then_further_errors_are_not_reported()
+        {
+            var option = new Option<string>("-o");
+            option.AddValidator(result =>
+            {
+                result.ErrorMessage = "OOPS";
+            }); //all good;
+
+            var command = new Command("comm")
+            {
+                option
+            };
+
+            var parseResult = command.Parse("comm -o");
+
+            parseResult.Errors
+                       .Should()
+                       .ContainSingle()
+                       .Which
+                       .Message
+                       .Should()
+                       .Be("Required argument missing for option: '-o'.");
+        }
     }
 }
