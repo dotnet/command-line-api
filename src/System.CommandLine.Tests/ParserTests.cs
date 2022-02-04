@@ -1642,25 +1642,21 @@ namespace System.CommandLine.Tests
             act.Should().NotThrow();
         }
 
-        [Fact] // https://github.com/dotnet/command-line-api/issues/1533
-        public void Empty_strings_in_parsed_args_array_are_ignored()
+        [Theory] // https://github.com/dotnet/command-line-api/issues/1551, https://github.com/dotnet/command-line-api/issues/1533
+        [InlineData("--exec-prefix", "")]
+        [InlineData("--exec-prefix:", "")]
+        [InlineData("--exec-prefix=", "")]
+        public void Parsed_value_of_empty_string_arg_is_an_empty_string(string arg1, string arg2)
         {
-            var option = new Option<int>("-x");
-            var subcommand = new Command("sub")
+            var option = new Option<string>("--exec-prefix", getDefaultValue: () => "/usr/local");
+            var rootCommand = new RootCommand
             {
                 option
             };
-            var command = new RootCommand
-            {
-                subcommand
-            };
 
-            var result = command.Parse("", "sub", "", "-x", "123");
+            var result = rootCommand.Parse(new[] { arg1, arg2 });
 
-            result.Errors.Should().BeEmpty();
-
-            result.CommandResult.Command.Should().BeSameAs(subcommand);
-            result.FindResultFor(option).Should().NotBeNull();
+            result.GetValueForOption(option).Should().BeEmpty();
         }
     }
 }

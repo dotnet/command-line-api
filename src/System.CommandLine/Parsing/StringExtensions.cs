@@ -171,16 +171,13 @@ namespace System.CommandLine.Parsing
                         tokenList.Add(Argument(rest));
                     }
                 }
-                else if (configuration.EnablePosixBundling &&
-                         CanBeUnbundled(arg) && 
-                         TryUnbundle(arg.AsSpan(1), i))
-                {
-                }
-                else if (arg.Length > 0)
+                else if (!configuration.EnablePosixBundling ||
+                         !CanBeUnbundled(arg) ||
+                         !TryUnbundle(arg.AsSpan(1), i))
                 {
                     tokenList.Add(Argument(arg));
                 }
-
+              
                 Token Argument(string value) => new(value, TokenType.Argument, default, i);
 
                 Token CommandArgument(string value, Command command) => new(value, TokenType.Argument, command, i);
@@ -203,7 +200,7 @@ namespace System.CommandLine.Parsing
             bool CanBeUnbundled(string arg)
                 => arg.Length > 2 
                     && arg[0] == '-'
-                    && char.IsLetter(arg[1]) // don't check for "--" prefixed args
+                    && arg[1]  != '-'// don't check for "--" prefixed args
                     && arg[2] != ':' && arg[2] != '=' // handled by TrySplitIntoSubtokens
                     && !PreviousTokenIsAnOptionExpectingAnArgument(out _);
 
