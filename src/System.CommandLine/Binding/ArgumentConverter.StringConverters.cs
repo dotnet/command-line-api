@@ -34,7 +34,68 @@ internal static partial class ArgumentConverter
             return false;
         },
 
+        [typeof(DateTime)] = (string input, out object? value) =>
+        {
+            if (DateTime.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(DateTime?)] = (string input, out object? value) =>
+        {
+            if (DateTime.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(DateTimeOffset)] = (string input, out object? value) =>
+        {
+            if (DateTimeOffset.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(DateTimeOffset?)] = (string input, out object? value) =>
+        {
+            if (DateTimeOffset.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+
         [typeof(decimal)] = (string input, out object? value) =>
+        {
+            if (decimal.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(decimal?)] = (string input, out object? value) =>
         {
             if (decimal.TryParse(input, out var parsed))
             {
@@ -53,6 +114,18 @@ internal static partial class ArgumentConverter
         },
 
         [typeof(double)] = (string input, out object? value) =>
+        {
+            if (double.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(double?)] = (string input, out object? value) =>
         {
             if (double.TryParse(input, out var parsed))
             {
@@ -100,6 +173,18 @@ internal static partial class ArgumentConverter
             value = default;
             return false;
         },
+        
+        [typeof(float?)] = (string input, out object? value) =>
+        {
+            if (float.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
 
         [typeof(int)] = (string token, out object? value) =>
         {
@@ -118,6 +203,30 @@ internal static partial class ArgumentConverter
             if (int.TryParse(token, out var intValue))
             {
                 value = intValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+        
+        [typeof(long)] = (string token, out object? value) =>
+        {
+            if (long.TryParse(token, out var longValue))
+            {
+                value = longValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(long?)] = (string token, out object? value) =>
+        {
+            if (long.TryParse(token, out var longValue))
+            {
+                value = longValue;
                 return true;
             }
 

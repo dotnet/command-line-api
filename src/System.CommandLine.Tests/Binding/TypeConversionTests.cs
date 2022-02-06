@@ -526,13 +526,69 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(456);
         }
-      
+
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_DateTime_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<DateTime>("-x");
+
+            var dateString = "2022-02-06T01:46:03.0000000-08:00";
+            var value = option.Parse($"-x {dateString}").GetValueForOption(option);
+
+            value.Should().Be(DateTime.Parse(dateString));
+        }
+
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_DateTime_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<DateTime?>("-x");
+
+            var dateString = "2022-02-06T01:46:03.0000000-08:00";
+            var value = option.Parse($"-x {dateString}").GetValueForOption(option);
+
+            value.Should().Be(DateTime.Parse(dateString));
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_DateTimeOffset_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<DateTimeOffset>("-x");
+
+            var dateString = "2022-02-06T09:52:54.5275055-08:00";
+            var value = option.Parse($"-x {dateString}").GetValueForOption(option);
+
+            value.Should().Be(DateTime.Parse(dateString));
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_DateTimeOffset_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<DateTimeOffset?>("-x");
+
+            var dateString = "2022-02-06T09:52:54.5275055-08:00";
+            var value = option.Parse($"-x {dateString}").GetValueForOption(option);
+
+            value.Should().Be(DateTime.Parse(dateString));
+        }
+
         [Fact]
         public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
 
             var value = option.Parse("-x 123.456").GetValueForOption<decimal>(option);
+
+            value.Should().Be(123.456m);
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_decimal_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+
+            var value = option.Parse("-x 123.456").GetValueForOption<decimal?>(option);
 
             value.Should().Be(123.456m);
         }
@@ -545,6 +601,36 @@ namespace System.CommandLine.Tests.Binding
             var value = option.Parse("-x 123.456").GetValueForOption<double>(option);
 
             value.Should().Be(123.456d);
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_double_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+
+            var value = option.Parse("-x 123.456").GetValueForOption<double?>(option);
+
+            value.Should().Be(123.456d);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<float>("-x");
+
+            var value = option.Parse("-x 123.456").GetValueForOption(option);
+
+            value.Should().Be(123.456f);
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_float_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<float?>("-x");
+
+            var value = option.Parse("-x 123.456").GetValueForOption(option);
+
+            value.Should().Be(123.456f);
         }
 
         [Fact]
@@ -573,6 +659,28 @@ namespace System.CommandLine.Tests.Binding
             option.Parse("-x false").GetValueForOption<bool>(option).Should().BeFalse();
             option.Parse("-x true").GetValueForOption<bool>(option).Should().BeTrue();
         }
+
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_long_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<long>("-x");
+
+            var value = option.Parse("-x 123456790").GetValueForOption(option);
+
+            value.Should().Be(123456790L);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_long_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<long?>("-x");
+
+            var value = option.Parse("-x 1234567890").GetValueForOption(option);
+
+            value.Should().Be(1234567890L);
+        }
+
 
         [Fact]
         public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
