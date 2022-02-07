@@ -234,6 +234,54 @@ internal static partial class ArgumentConverter
             return false;
         },
 
+        [typeof(short)] = (string token, out object? value) =>
+        {
+            if (short.TryParse(token, out var shortValue))
+            {
+                value = shortValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(short?)] = (string token, out object? value) =>
+        {
+            if (short.TryParse(token, out var shortValue))
+            {
+                value = shortValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(ushort)] = (string token, out object? value) =>
+        {
+            if (ushort.TryParse(token, out var ushortValue))
+            {
+                value = ushortValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(ushort?)] = (string token, out object? value) =>
+        {
+            if (ushort.TryParse(token, out var ushortValue))
+            {
+                value = ushortValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
         [typeof(string)] = (string input, out object? value) =>
         {
             value = input;

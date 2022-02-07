@@ -681,6 +681,45 @@ namespace System.CommandLine.Tests.Binding
             value.Should().Be(1234567890L);
         }
 
+        [Fact]
+        public void Values_can_be_correctly_converted_to_short_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<ushort>("-s");
+
+            var value = option.Parse("-s 1234").GetValueForOption(option);
+
+            value.Should().Be(1234);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_short_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<short?>("-s");
+
+            var value = option.Parse("-s 1234").GetValueForOption(option);
+
+            value.Should().Be(1234);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_ushort_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<ushort>("-us");
+
+            var value = option.Parse("-us 1234").GetValueForOption(option);
+
+            value.Should().Be(1234);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_ushort_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<ushort?>("-us");
+
+            var value = option.Parse("-us 1234").GetValueForOption(option);
+
+            value.Should().Be(1234);
+        }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
