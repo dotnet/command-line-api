@@ -47,9 +47,10 @@ namespace System.CommandLine.Completions
 
             private static ICompletionSource CreateForType(Type t)
             {
-                if (t.IsNullable())
+                // FIX: (CreateForType) use Try
+                if (t.TryGetNullableType(out var nullableType))
                 {
-                    t = t.GetGenericArguments().Single();
+                    return CreateForType(nullableType);
                 }
 
                 if (t.IsEnum)

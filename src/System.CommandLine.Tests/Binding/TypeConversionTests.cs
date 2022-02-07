@@ -702,11 +702,31 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Values_can_be_correctly_converted_to_ulong_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<ulong>("-x");
+
+            var value = option.Parse("-x 1234").GetValueForOption(option);
+
+            value.Should().Be(1234);
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_ulong_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<ulong?>("-x");
+
+            var value = option.Parse("-x 1234").GetValueForOption(option);
+
+            value.Should().Be(1234);
+        }
+
+        [Fact]
         public void Values_can_be_correctly_converted_to_ushort_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option<ushort>("-us");
+            var option = new Option<ushort>("-x");
 
-            var value = option.Parse("-us 1234").GetValueForOption(option);
+            var value = option.Parse("-x 1234").GetValueForOption(option);
 
             value.Should().Be(1234);
         }
@@ -714,9 +734,9 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_ushort_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option<ushort?>("-us");
+            var option = new Option<ushort?>("-x");
 
-            var value = option.Parse("-us 1234").GetValueForOption(option);
+            var value = option.Parse("-x 1234").GetValueForOption(option);
 
             value.Should().Be(1234);
         }
@@ -795,6 +815,18 @@ namespace System.CommandLine.Tests.Binding
         public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option<DayOfWeek>("-x");
+
+            var parseResult = option.Parse("-x Monday");
+
+            var value = parseResult.GetValueForOption(option);
+
+            value.Should().Be(DayOfWeek.Monday);
+        }
+
+        [Fact]
+        public void Nullable_enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<DayOfWeek?>("-x");
 
             var parseResult = option.Parse("-x Monday");
 

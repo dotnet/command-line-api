@@ -45,6 +45,11 @@ namespace System.CommandLine.Binding
             string value,
             LocalizationResources localizationResources)
         {
+            if (type.TryGetNullableType(out var nullableType))
+            {
+                return ConvertString(argument, nullableType, value, localizationResources);
+            }
+
             if (_stringConverters.TryGetValue(type, out var tryConvert))
             {
                 if (tryConvert(value, out var converted))
@@ -231,21 +236,6 @@ namespace System.CommandLine.Binding
                 NoArgumentConversionResult _ => default!,
                 _ => default!,
             };
-        }
-
-        public static bool TryConvertBoolArgument(ArgumentResult argumentResult, out object? value)
-        {
-            if (argumentResult.Tokens.Count == 0)
-            {
-                value = true;
-                return true;
-            }
-            else
-            {
-                var success = bool.TryParse(argumentResult.Tokens[0].Value, out var parsed);
-                value = parsed;
-                return success;
-            }
         }
 
         public static bool TryConvertArgument(ArgumentResult argumentResult, out object? value)
