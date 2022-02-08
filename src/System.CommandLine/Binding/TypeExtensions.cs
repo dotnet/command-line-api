@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Binding
 {
@@ -50,6 +51,25 @@ namespace System.CommandLine.Binding
         {
             return t.IsGenericType &&
                    t.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        internal static bool TryGetNullableType(
+            this Type type,
+            [NotNullWhen(true)] out Type? nullableType)
+        {
+            if (type.IsGenericType)
+            {
+                var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+                if (genericTypeDefinition == typeof(Nullable<>))
+                {
+                    nullableType = type.GetGenericArguments()[0];
+                    return true;
+                }
+            }
+
+            nullableType = null;
+            return false;
         }
     }
 }

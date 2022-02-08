@@ -22,31 +22,7 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-        [typeof(bool?)] = (string token, out object? value) =>
-        {
-            if (bool.TryParse(token, out var parsed))
-            {
-                value = parsed;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
         [typeof(DateTime)] = (string input, out object? value) =>
-        {
-            if (DateTime.TryParse(input, out var parsed))
-            {
-                value = parsed;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
-        [typeof(DateTime?)] = (string input, out object? value) =>
         {
             if (DateTime.TryParse(input, out var parsed))
             {
@@ -70,32 +46,7 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-        [typeof(DateTimeOffset?)] = (string input, out object? value) =>
-        {
-            if (DateTimeOffset.TryParse(input, out var parsed))
-            {
-                value = parsed;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
-
         [typeof(decimal)] = (string input, out object? value) =>
-        {
-            if (decimal.TryParse(input, out var parsed))
-            {
-                value = parsed;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
-        [typeof(decimal?)] = (string input, out object? value) =>
         {
             if (decimal.TryParse(input, out var parsed))
             {
@@ -114,18 +65,6 @@ internal static partial class ArgumentConverter
         },
 
         [typeof(double)] = (string input, out object? value) =>
-        {
-            if (double.TryParse(input, out var parsed))
-            {
-                value = parsed;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
-        [typeof(double?)] = (string input, out object? value) =>
         {
             if (double.TryParse(input, out var parsed))
             {
@@ -173,18 +112,6 @@ internal static partial class ArgumentConverter
             value = default;
             return false;
         },
-        
-        [typeof(float?)] = (string input, out object? value) =>
-        {
-            if (float.TryParse(input, out var parsed))
-            {
-                value = parsed;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
 
         [typeof(int)] = (string token, out object? value) =>
         {
@@ -198,31 +125,7 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-        [typeof(int?)] = (string token, out object? value) =>
-        {
-            if (int.TryParse(token, out var intValue))
-            {
-                value = intValue;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-        
         [typeof(long)] = (string token, out object? value) =>
-        {
-            if (long.TryParse(token, out var longValue))
-            {
-                value = longValue;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
-        [typeof(long?)] = (string token, out object? value) =>
         {
             if (long.TryParse(token, out var longValue))
             {
@@ -246,11 +149,17 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-        [typeof(short?)] = (string token, out object? value) =>
+        [typeof(string)] = (string input, out object? value) =>
         {
-            if (short.TryParse(token, out var shortValue))
+            value = input;
+            return true;
+        },
+
+        [typeof(ulong)] = (string token, out object? value) =>
+        {
+            if (ulong.TryParse(token, out var ushortValue))
             {
-                value = shortValue;
+                value = ushortValue;
                 return true;
             }
 
@@ -268,24 +177,6 @@ internal static partial class ArgumentConverter
 
             value = default;
             return false;
-        },
-
-        [typeof(ushort?)] = (string token, out object? value) =>
-        {
-            if (ushort.TryParse(token, out var ushortValue))
-            {
-                value = ushortValue;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
-        [typeof(string)] = (string input, out object? value) =>
-        {
-            value = input;
-            return true;
         },
 
         [typeof(Uri)] = (string input, out object? value) =>
