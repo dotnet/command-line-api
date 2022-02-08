@@ -45,22 +45,21 @@ namespace System.CommandLine.Completions
                 return _innerCompletionSource.GetCompletions(context);
             }
 
-            private static ICompletionSource CreateForType(Type t)
+            private static ICompletionSource CreateForType(Type type)
             {
-                // FIX: (CreateForType) use Try
-                if (t.TryGetNullableType(out var nullableType))
+                if (type.TryGetNullableType(out var nullableType))
                 {
                     return CreateForType(nullableType);
                 }
 
-                if (t.IsEnum)
+                if (type.IsEnum)
                 {
                     return new AnonymousCompletionSource(_ => GetEnumNames());
 
-                    IEnumerable<CompletionItem> GetEnumNames() => Enum.GetNames(t).Select(n => new CompletionItem(n));
+                    IEnumerable<CompletionItem> GetEnumNames() => Enum.GetNames(type).Select(n => new CompletionItem(n));
                 }
 
-                if (t == typeof(bool))
+                if (type == typeof(bool))
                 {
                     return new AnonymousCompletionSource(static  _ => new CompletionItem[]
                     {

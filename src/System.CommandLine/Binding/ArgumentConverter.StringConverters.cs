@@ -149,16 +149,10 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-        [typeof(ushort)] = (string token, out object? value) =>
+        [typeof(string)] = (string input, out object? value) =>
         {
-            if (ushort.TryParse(token, out var ushortValue))
-            {
-                value = ushortValue;
-                return true;
-            }
-
-            value = default;
-            return false;
+            value = input;
+            return true;
         },
 
         [typeof(ulong)] = (string token, out object? value) =>
@@ -173,10 +167,16 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-        [typeof(string)] = (string input, out object? value) =>
+        [typeof(ushort)] = (string token, out object? value) =>
         {
-            value = input;
-            return true;
+            if (ushort.TryParse(token, out var ushortValue))
+            {
+                value = ushortValue;
+                return true;
+            }
+
+            value = default;
+            return false;
         },
 
         [typeof(Uri)] = (string input, out object? value) =>

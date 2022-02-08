@@ -660,7 +660,6 @@ namespace System.CommandLine.Tests.Binding
             option.Parse("-x true").GetValueForOption<bool>(option).Should().BeTrue();
         }
 
-
         [Fact]
         public void Values_can_be_correctly_converted_to_long_without_the_parser_specifying_a_custom_converter()
         {
@@ -684,7 +683,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_short_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option<ushort>("-s");
+            var option = new Option<short>("-s");
 
             var value = option.Parse("-s 1234").GetValueForOption(option);
 
