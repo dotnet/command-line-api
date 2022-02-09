@@ -634,6 +634,28 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Values_can_be_correctly_converted_to_Guid_without_the_parser_specifying_a_custom_converter()
+        {
+            var guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
+            var option = new Option<Guid>("-x");
+
+            var value = option.Parse($"-x {guidString}").GetValueForOption(option);
+
+            value.Should().Be(Guid.Parse(guidString));
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_Guid_without_the_parser_specifying_a_custom_converter()
+        {
+            var guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
+            var option = new Option<Guid?>("-x");
+
+            var value = option.Parse($"-x {guidString}").GetValueForOption(option);
+
+            value.Should().Be(Guid.Parse(guidString));
+        }
+
+        [Fact]
         public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);

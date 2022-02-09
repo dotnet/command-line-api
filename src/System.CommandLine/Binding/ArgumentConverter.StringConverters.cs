@@ -112,6 +112,18 @@ internal static partial class ArgumentConverter
             value = default;
             return false;
         },
+        
+        [typeof(Guid)] = (string input, out object? value) =>
+        {
+            if (Guid.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
 
         [typeof(int)] = (string token, out object? value) =>
         {
