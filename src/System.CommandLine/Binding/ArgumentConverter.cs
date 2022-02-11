@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using static System.CommandLine.Binding.ArgumentConversionResult;
 
@@ -226,7 +225,6 @@ namespace System.CommandLine.Binding
             };
         }
 
-        [return: MaybeNull]
         internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
         {
             return result switch

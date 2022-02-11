@@ -231,13 +231,6 @@ namespace System.CommandLine.Parsing
                                     return true;
                                 }
 
-                                RevertTokens(tokensBefore);
-                                return false;
-                            }
-
-                            if (found.Type != TokenType.Option)
-                            {
-                                RevertTokens(tokensBefore);
                                 return false;
                             }
 
@@ -257,14 +250,6 @@ namespace System.CommandLine.Parsing
                 }
 
                 return true;
-
-                void RevertTokens(int lastValidIndex)
-                {
-                    for (int i = tokenList.Count - 1; i > lastValidIndex; i--)
-                    {
-                        tokenList.RemoveAt(i);
-                    }
-                }
             }
 
             bool PreviousTokenIsAnOptionExpectingAnArgument(out Option? option)

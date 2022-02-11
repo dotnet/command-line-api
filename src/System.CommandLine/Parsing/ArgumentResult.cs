@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -42,7 +41,6 @@ namespace System.CommandLine.Parsing
         /// Gets the parsed value or the default value for <see cref="Argument"/>.
         /// </summary>
         /// <returns>The parsed value or the default value for <see cref="Argument"/></returns>
-        [return: MaybeNull]
         public T GetValueOrDefault<T>() =>
             GetArgumentConversionResult()
                 .ConvertIfNeeded(this, typeof(T))
