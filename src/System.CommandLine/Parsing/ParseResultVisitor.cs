@@ -483,22 +483,31 @@ namespace System.CommandLine.Parsing
 
         private void ValidateAndConvertArgumentResult(ArgumentResult argumentResult)
         {
-            if (argumentResult.Argument is { } argument)
-            {
-                var parseError =
-                    argumentResult.Parent?.UnrecognizedArgumentError(argument) ??
-                    argumentResult.CustomError(argument);
+            var argument = argumentResult.Argument;
 
-                if (parseError is { })
-                {
-                    AddErrorToResult(argumentResult, parseError);
-                    return;
-                }
+            var parseError =
+                argumentResult.Parent?.UnrecognizedArgumentError(argument) ??
+                argumentResult.CustomError(argument);
+
+            if (parseError is { })
+            {
+                AddErrorToResult(argumentResult, parseError);
+                return;
             }
 
-            if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed 
+            if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed
                 and not FailedArgumentConversionArityResult)
             {
+                if (argument.Parents.FirstOrDefault() is Option option)
+                {
+                    var completions = option.GetCompletions().ToArray();
+
+                    if (completions.Length > 0)
+                    {
+                        failed.ErrorMessage += " Did you mean one of the following?" + Environment.NewLine + string.Join(Environment.NewLine, completions.Select(c => c.Label));
+                    }
+                }
+
                 AddErrorToResult(argumentResult, new ParseError(failed.ErrorMessage!, argumentResult));
             }
         }
