@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 
 namespace System.CommandLine.Parsing
 {
@@ -245,7 +244,15 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void AddCurrentTokenToUnmatched() => (UnmatchedTokens ??= new()).Add(CurrentToken);
+        private void AddCurrentTokenToUnmatched()
+        {
+            if (CurrentToken.Type == TokenType.DoubleDash)
+            {
+                return;
+            }
+
+            (UnmatchedTokens ??= new()).Add(CurrentToken);
+        }
 
         private void AddCurrentTokenToUnparsed() => (UnparsedTokens ??= new()).Add(CurrentToken);
     }
