@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
@@ -10,6 +9,7 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
+using static System.Environment;
 
 namespace System.CommandLine.Tests
 {
@@ -973,6 +973,23 @@ namespace System.CommandLine.Tests
                        .Detail
                        .Should()
                        .Be(description);
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1629
+        public void When_option_completions_are_available_then_they_are_suggested_when_a_validation_error_occurs()
+        {
+            var option = new Option<DayOfWeek>("--day");
+
+            var result = option.Parse("--day SleepyDay");
+
+            result.Errors
+                  .Should()
+                  .ContainSingle()
+                  .Which
+                  .Message
+                  .Should()
+                  .Be(
+                      $"Cannot parse argument 'SleepyDay' for option '--day' as expected type 'System.DayOfWeek'. Did you mean one of the following?{NewLine}Friday{NewLine}Monday{NewLine}Saturday{NewLine}Sunday{NewLine}Thursday{NewLine}Tuesday{NewLine}Wednesday");
         }
     }
 }
