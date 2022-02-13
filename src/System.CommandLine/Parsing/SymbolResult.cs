@@ -141,23 +141,19 @@ namespace System.CommandLine.Parsing
         }
 
         /// <inheritdoc cref="ParseResult.GetValueForArgument"/>
-        public T GetValueForArgument<T>(Argument argument)
+        public object? GetValueForArgument(Argument argument)
         {
             if (FindResultFor(argument) is { } result &&
-                result.GetValueOrDefault<T>() is { } t)
+                result.GetValueOrDefault<object?>() is { } t)
             {
                 return t;
             }
 
-            return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
+            return ArgumentConverter.GetDefaultValue(argument.ValueType);
         }
 
-        /// <inheritdoc cref="ParseResult.GetValueForArgument"/>
-        public object? GetValueForArgument(Argument argument) =>
-            GetValueForArgument<object?>(argument);
-
         /// <inheritdoc cref="ParseResult.GetValueForOption"/>
-        public T GetValueForOption<T>(Option<T> option)
+        public T? GetValueForOption<T>(Option<T> option)
         {
             if (FindResultFor(option) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -169,22 +165,16 @@ namespace System.CommandLine.Parsing
         }
 
         /// <inheritdoc cref="ParseResult.GetValueForOption"/>
-        public T GetValueForOption<T>(Option option)
+        public object? GetValueForOption(Option option)
         {
-            if (FindResultFor(option) is { } result)
+            if (FindResultFor(option) is { } result && 
+                result.GetValueOrDefault<object?>() is { } t)
             {
-                if (result.GetValueOrDefault<T>() is { } t)
-                {
-                    return t;
-                }
+                return t;
             }
 
-            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
+            return ArgumentConverter.GetDefaultValue(option.Argument.ValueType);
         }
-
-        /// <inheritdoc cref="ParseResult.GetValueForOption"/>
-        public object? GetValueForOption(Option option) =>
-            GetValueForOption<object?>(option);
 
         internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
             _defaultArgumentValues.GetOrAdd(

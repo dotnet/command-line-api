@@ -118,17 +118,6 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Argument_bool_will_default_to_true_when_no_argument_is_passed()
-        {
-            var option = new Option<bool>("-x");
-
-            var result = option.Parse("-x");
-
-            result.Errors.Should().BeEmpty();
-            result.GetValueForOption(option).Should().Be(true);
-        }
-
-        [Fact]
         public void Argument_parses_as_the_default_value_when_the_option_has_not_been_applied()
         {
             var option = new Option<int>("-x", () => 123);
@@ -144,7 +133,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Argument_does_not_parse_as_the_default_value_when_the_option_has_been_applied()
+        public void Option_does_not_parse_as_the_default_value_when_the_option_has_been_applied()
         {
             var option = new Option<int>("-x", () => 123);
 
@@ -198,6 +187,26 @@ namespace System.CommandLine.Tests.Binding
                 .GetValueForOption(option)
                 .Should()
                 .BeTrue();
+        }
+
+        [Theory]
+        [InlineData("the-command -x false")]
+        [InlineData("the-command -x:false")]
+        [InlineData("the-command -x=false")]
+        public void Nullable_bool_parses_as_false_when_the_option_has_been_applied(string commandLine)
+        {
+            var option = new Option<bool?>("-x");
+
+            var command = new Command("the-command")
+            {
+                option
+            };
+
+            command
+                .Parse(commandLine)
+                .GetValueForOption(option)
+                .Should()
+                .BeFalse();
         }
 
         [Fact]
@@ -286,27 +295,6 @@ namespace System.CommandLine.Tests.Binding
                   .Which
                   .Should()
                   .BeEmpty();
-        }
-
-        [Fact]
-        public void
-            When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_and_there_is_a_default_then_getting_value_returns_default_in_an_empty_sequence_of_strings()
-        {
-            var option = new Option("-x", getDefaultValue: () => "the-default", arity: ArgumentArity.ZeroOrMore);
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            var result = command.Parse("the-command");
-
-            result.GetValueForOption(option)
-                  .Should()
-                  .BeAssignableTo<IReadOnlyCollection<string>>()
-                  .Which
-                  .Should()
-                  .BeEquivalentTo("the-default");
         }
 
         [Fact]
@@ -576,9 +564,11 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+            var option = new Option<decimal>("-x");
 
-            var value = option.Parse("-x 123.456").GetValueForOption<decimal>(option);
+            var result = option.Parse("-x 123.456");
+
+            var value = result.GetValueForOption(option);
 
             value.Should().Be(123.456m);
         }
@@ -586,9 +576,9 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_decimal_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+            var option = new Option<decimal?>("-x");
 
-            var value = option.Parse("-x 123.456").GetValueForOption<decimal?>(option);
+            var value = option.Parse("-x 123.456").GetValueForOption(option);
 
             value.Should().Be(123.456m);
         }
@@ -596,9 +586,9 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+            var option = new Option<double>("-x");
 
-            var value = option.Parse("-x 123.456").GetValueForOption<double>(option);
+            var value = option.Parse("-x 123.456").GetValueForOption(option);
 
             value.Should().Be(123.456d);
         }
@@ -606,9 +596,9 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_double_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+            var option = new Option<double?>("-x");
 
-            var value = option.Parse("-x 123.456").GetValueForOption<double?>(option);
+            var value = option.Parse("-x 123.456").GetValueForOption(option);
 
             value.Should().Be(123.456d);
         }
@@ -658,28 +648,20 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+            var option = new Option<Uri>("-x");
 
-            var value = option.Parse("-x http://example.com").GetValueForOption<Uri>(option);
+            var value = option.Parse("-x http://example.com").GetValueForOption(option);
 
             value.Should().BeEquivalentTo(new Uri("http://example.com"));
         }
 
         [Fact]
-        public void Options_with_no_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_it()
-        {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
-
-            option.Parse("-x").GetValueForOption<bool>(option).Should().BeTrue();
-        }
-        
-        [Fact]
         public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
+            var option = new Option<bool>("-x");
 
-            option.Parse("-x false").GetValueForOption<bool>(option).Should().BeFalse();
-            option.Parse("-x true").GetValueForOption<bool>(option).Should().BeTrue();
+            option.Parse("-x false").GetValueForOption(option).Should().BeFalse();
+            option.Parse("-x true").GetValueForOption(option).Should().BeTrue();
         }
 
         [Fact]
@@ -765,9 +747,9 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
+            var option = new Option<int[]>("-x");
 
-            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption<int[]>(option);
+            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption(option);
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
@@ -815,9 +797,9 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
+            var option = new Option<List<int>>("-x");
 
-            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption<List<int>>(option);
+            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption(option);
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
@@ -825,9 +807,9 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_IEnumerable_of_int_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
+            var option = new Option<IEnumerable<int>>("-x");
 
-            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption<IEnumerable<int>>(option);
+            var value = option.Parse("-x 1 -x 2 -x 3").GetValueForOption(option);
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }

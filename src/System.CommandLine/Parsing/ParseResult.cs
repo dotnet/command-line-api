@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -135,7 +135,7 @@ namespace System.CommandLine.Parsing
                     ? new TokenCompletionContext(this)
                     : new TextCompletionContext(this, CommandLineText);
 
-        internal T GetValueFor<T>(IValueDescriptor<T> symbol) =>
+        internal T? GetValueFor<T>(IValueDescriptor<T> symbol) =>
             symbol switch
             {
                 Argument<T> argument => GetValueForArgument(argument),
@@ -164,7 +164,7 @@ namespace System.CommandLine.Parsing
             => RootCommandResult.GetValueForArgument(argument);
         
         /// <inheritdoc cref="GetValueForOption"/>
-        public T GetValueForOption<T>(Option<T> option)
+        public T? GetValueForOption<T>(Option<T> option)
             => RootCommandResult.GetValueForOption(option);
 
         /// <inheritdoc />

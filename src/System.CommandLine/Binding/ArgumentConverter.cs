@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Linq;
 using static System.CommandLine.Binding.ArgumentConversionResult;
 
 namespace System.CommandLine.Binding
@@ -21,32 +20,30 @@ namespace System.CommandLine.Binding
         {
             switch (value)
             {
-                case string singleValue:
-                    if (type.IsEnumerable())
-                    {
-                        return ConvertStrings(argument, type, new[] { singleValue }, localizationResources);
-                    }
-                    else
-                    {
-                        return ConvertString(argument, type, singleValue, localizationResources);
-                    }
+                case Token singleValue:
+                    return ConvertToken(argument, type, singleValue, localizationResources);
 
-                case IReadOnlyList<string> manyValues:
-                    return ConvertStrings(argument, type, manyValues, localizationResources);
+                case IReadOnlyList<Token> manyValues:
+                    return ConvertTokens(argument, type, manyValues, localizationResources);
+
+                default:
+                    return None(argument);
             }
-
-            return None(argument);
         }
 
-        private static ArgumentConversionResult ConvertString(
+        private static ArgumentConversionResult ConvertToken(
             Argument argument,
             Type type,
-            string value,
+            Token token,
             LocalizationResources localizationResources)
         {
+            // FIX: (ConvertString) 
+
+            var value = token.Value;
+
             if (type.TryGetNullableType(out var nullableType))
             {
-                return ConvertString(argument, nullableType, value, localizationResources);
+                return ConvertToken(argument, nullableType, token, localizationResources);
             }
 
             if (_stringConverters.TryGetValue(type, out var tryConvert))
@@ -76,10 +73,10 @@ namespace System.CommandLine.Binding
             return Failure(argument, type, value, localizationResources);
         }
 
-        public static ArgumentConversionResult ConvertStrings(
+        private static ArgumentConversionResult ConvertTokens(
             Argument argument,
             Type type,
-            IReadOnlyList<string> tokens,
+            IReadOnlyList<Token> tokens,
             LocalizationResources localizationResources,
             ArgumentResult? argumentResult = null)
         {
@@ -102,7 +99,7 @@ namespace System.CommandLine.Binding
             {
                 var token = tokens[i];
 
-                var result = ConvertString(argument, itemType, token, localizationResources);
+                var result = ConvertToken(argument, itemType, token, localizationResources);
 
                 switch (result)
                 {
@@ -140,6 +137,19 @@ namespace System.CommandLine.Binding
             switch (argument.Arity)
             {
                 case { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 }:
+
+                    if (argument.ValueType.TryGetNullableType(out var nullableType) &&
+                        _stringConverters.TryGetValue(nullableType, out var convert))
+                    {
+                        return ConvertSingleString;
+
+                        // FIX: (GetConverter) duplication
+
+                        bool ConvertSingleString(ArgumentResult result, out object? value)
+                        {
+                            return convert(result.Tokens[result.Tokens.Count - 1].Value, out value);
+                        }
+                    }
 
                     if (_stringConverters.TryGetValue(argument.ValueType, out var converter))
                     {
@@ -214,13 +224,17 @@ namespace System.CommandLine.Binding
                                   typeof(IEnumerable<string>),
                                   successful.Value,
                                   symbolResult.LocalizationResources),
+
                 NoArgumentConversionResult _ when toType == typeof(bool) || toType == typeof(bool?) =>
                     Success(conversionResult.Argument, true),
+                
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
                     new MissingArgumentConversionResult(conversionResult.Argument,
                                                         symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult)),
+
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1 =>
                     Success(conversionResult.Argument, Array.Empty<string>()),
+
                 _ => conversionResult
             };
         }
@@ -247,11 +261,12 @@ namespace System.CommandLine.Binding
                 1 => ConvertObject(argument,
                                    argument.ValueType,
                                    argumentResult.Tokens.Count > 0
-                                       ? argumentResult.Tokens[argumentResult.Tokens.Count - 1].Value
-                                       : null, argumentResult.LocalizationResources),
-                _ => ConvertStrings(argument,
+                                       ? argumentResult.Tokens[argumentResult.Tokens.Count - 1]
+                                       : null, 
+                                   argumentResult.LocalizationResources),
+                _ => ConvertTokens(argument,
                                     argument.ValueType,
-                                    argumentResult.Tokens.Select(t => t.Value).ToArray(),
+                                    argumentResult.Tokens,
                                     argumentResult.LocalizationResources,
                                     argumentResult)
             };

@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
@@ -88,10 +88,8 @@ namespace System.CommandLine.Parsing
 
             if (symbolResult is ArgumentResult argumentResult)
             {
-
                 var includeArgumentName =
-                    argumentResult.Argument is Argument argument &&
-                    argument.FirstParent!.Symbol is Command command &&
+                    argumentResult.Argument.FirstParent!.Symbol is Command command &&
                     command.Arguments.Count > 1;
 
                 if (includeArgumentName)
@@ -112,7 +110,7 @@ namespace System.CommandLine.Parsing
                                 case string s:
                                     builder.Append($"<{s}>");
                                     break;
-
+                                
                                 case IEnumerable items:
                                     builder.Append("<");
                                     builder.Append(
