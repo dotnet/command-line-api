@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
@@ -444,21 +443,7 @@ ERR:
 
             return builder;
         }
-
-        /// <inheritdoc cref="AddMiddleware(System.CommandLine.Builder.CommandLineBuilder,System.CommandLine.Invocation.InvocationMiddleware,System.CommandLine.Invocation.MiddlewareOrder)"/>
-        [Obsolete("This method is obsolete and will be removed in a future version. Please use AddMiddleware instead.")]
-        public static CommandLineBuilder UseMiddleware(
-            this CommandLineBuilder builder,
-            InvocationMiddleware middleware,
-            MiddlewareOrder order = MiddlewareOrder.Default)
-        {
-            builder.AddMiddleware(
-                middleware,
-                order);
-
-            return builder;
-        }
-
+        
         /// <summary>
         /// Adds a middleware delegate to the invocation pipeline called before a command handler is invoked.
         /// </summary>
@@ -467,22 +452,6 @@ ERR:
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder AddMiddleware(
-            this CommandLineBuilder builder,
-            Action<InvocationContext> onInvoke,
-            MiddlewareOrder order = MiddlewareOrder.Default)
-        {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                onInvoke(context);
-                await next(context);
-            }, order);
-
-            return builder;
-        }
-
-        /// <inheritdoc cref="AddMiddleware(System.CommandLine.Builder.CommandLineBuilder,System.CommandLine.Invocation.InvocationMiddleware,System.CommandLine.Invocation.MiddlewareOrder)"/>
-        [Obsolete("This method is obsolete and will be removed in a future version. Please use AddMiddleware instead.")]
-        public static CommandLineBuilder UseMiddleware(
             this CommandLineBuilder builder,
             Action<InvocationContext> onInvoke,
             MiddlewareOrder order = MiddlewareOrder.Default)

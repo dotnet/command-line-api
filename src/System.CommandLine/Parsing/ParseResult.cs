@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -135,7 +135,6 @@ namespace System.CommandLine.Parsing
                     ? new TokenCompletionContext(this)
                     : new TextCompletionContext(this, CommandLineText);
 
-        [return: MaybeNull]
         internal T GetValueFor<T>(IValueDescriptor<T> symbol) =>
             symbol switch
             {
@@ -144,18 +143,6 @@ namespace System.CommandLine.Parsing
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-        /// <inheritdoc cref="GetValueForOption"/>
-        [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
-        public object? ValueForOption(string alias) =>
-            ValueForOption<object?>(alias);
-
-        /// <inheritdoc cref="GetValueForOption"/>
-        [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(Option) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
-        public object? ValueForOption(Option option) =>
-            GetValueForOption<object?>(option);
-
         /// <summary>
         /// Gets the parsed or default value for the specified option.
         /// </summary>
@@ -163,18 +150,6 @@ namespace System.CommandLine.Parsing
         /// <returns>The parsed value or a configured default.</returns>
         public object? GetValueForOption(Option option) =>
             RootCommandResult.GetValueForOption(option);
-
-        /// <inheritdoc cref="GetValueForArgument"/>
-        [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(Argument<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
-        public object? ValueForArgument(string alias) =>
-            ValueForArgument<object?>(alias);
-
-        /// <inheritdoc cref="GetValueForArgument"/>
-        [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(Argument) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
-        public object? ValueForArgument(Argument argument) =>
-            GetValueForArgument<object?>(argument);
 
         /// <summary>
         /// Gets the parsed or default value for the specified argument.
@@ -185,69 +160,12 @@ namespace System.CommandLine.Parsing
             RootCommandResult.GetValueForArgument(argument);
 
         /// <inheritdoc cref="GetValueForArgument"/>
-        [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(Argument<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
-        [return: MaybeNull]
-        public T ValueForArgument<T>(Argument<T> argument) =>
-            GetValueForArgument(argument);
-
-        /// <inheritdoc cref="GetValueForArgument"/>
         public T GetValueForArgument<T>(Argument<T> argument)
             => RootCommandResult.GetValueForArgument(argument);
-
-        /// <inheritdoc cref="GetValueForArgument"/>
-        [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForArgument<T>(Argument) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
-        [return: MaybeNull]
-        internal T ValueForArgument<T>(Argument argument) =>
-            GetValueForArgument<T>(argument);
-
-        /// <inheritdoc cref="GetValueForArgument"/>
-        public T GetValueForArgument<T>(Argument argument)
-            => RootCommandResult.GetValueForArgument<T>(argument);
-
-        /// <inheritdoc cref="GetValueForArgument"/>
-        [return: MaybeNull]
-        [Obsolete(
-            "This method was removed. Please use ParseResult.GetValueForArgument<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
-        public T ValueForArgument<T>(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
-            }
-
-            return default;
-        }
-
-        /// <inheritdoc cref="GetValueForOption"/>
-        [Obsolete(
-            "This method is obsolete and will be removed in a future version. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127")]
-        [return: MaybeNull]
-        public T ValueForOption<T>(Option<T> option) =>
-            GetValueForOption(option);
-
+        
         /// <inheritdoc cref="GetValueForOption"/>
         public T GetValueForOption<T>(Option<T> option)
             => RootCommandResult.GetValueForOption(option);
-
-        /// <inheritdoc cref="GetValueForOption"/>
-        public T GetValueForOption<T>(Option option) =>
-            RootCommandResult.GetValueForOption<T>(option);
-        
-        /// <inheritdoc cref="GetValueForOption"/>
-        [Obsolete(
-            "This method was removed. Please use ParseResult.GetValueForOption<T>(Option<T>) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
-        [return: MaybeNull]
-        public T ValueForOption<T>(string alias)
-        {
-            if (string.IsNullOrWhiteSpace(alias))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(alias));
-            }
-
-            return default;
-        }
 
         /// <inheritdoc />
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
