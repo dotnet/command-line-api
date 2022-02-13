@@ -10,8 +10,6 @@ namespace System.CommandLine.Binding
 {
     internal static partial class ArgumentConverter
     {
-        private delegate bool TryConvertString(string token, out object? value);
-
         internal static ArgumentConversionResult ConvertObject(
             Argument argument,
             Type type,
@@ -37,8 +35,6 @@ namespace System.CommandLine.Binding
             Token token,
             LocalizationResources localizationResources)
         {
-            // FIX: (ConvertString) 
-
             var value = token.Value;
 
             if (type.TryGetNullableType(out var nullableType))
@@ -66,7 +62,7 @@ namespace System.CommandLine.Binding
                 }
                 catch (ArgumentException)
                 {
-                    // TODO: (ConvertString) find a way to do this without the try..catch
+                    // TODO: find a way to do this without the try..catch
                 }
             }
 
@@ -139,27 +135,18 @@ namespace System.CommandLine.Binding
                 case { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 }:
 
                     if (argument.ValueType.TryGetNullableType(out var nullableType) &&
-                        _stringConverters.TryGetValue(nullableType, out var convert))
+                        _stringConverters.TryGetValue(nullableType, out var convertNullable))
                     {
-                        return ConvertSingleString;
-
-                        // FIX: (GetConverter) duplication
-
-                        bool ConvertSingleString(ArgumentResult result, out object? value)
-                        {
-                            return convert(result.Tokens[result.Tokens.Count - 1].Value, out value);
-                        }
+                        return (ArgumentResult result, out object? value) => ConvertSingleString(result, convertNullable, out value);
                     }
 
-                    if (_stringConverters.TryGetValue(argument.ValueType, out var converter))
+                    if (_stringConverters.TryGetValue(argument.ValueType, out var convert))
                     {
-                        return ConvertSingleString;
-
-                        bool ConvertSingleString(ArgumentResult result, out object? value)
-                        {
-                            return converter(result.Tokens[result.Tokens.Count - 1].Value, out value);
-                        }
+                        return (ArgumentResult result, out object? value) => ConvertSingleString(result, convert, out value);
                     }
+
+                    static bool ConvertSingleString(ArgumentResult result, TryConvertString convert, out object? value) =>
+                        convert(result.Tokens[result.Tokens.Count - 1].Value, out value);
 
                     break;
             }
@@ -217,14 +204,7 @@ namespace System.CommandLine.Binding
                                   toType,
                                   successful.Value,
                                   symbolResult.LocalizationResources),
-                SuccessfulArgumentConversionResult successful when toType == typeof(object) &&
-                                                                   conversionResult.Argument.Arity.MaximumNumberOfValues > 1 &&
-                                                                   successful.Value is string =>
-                    ConvertObject(conversionResult.Argument,
-                                  typeof(IEnumerable<string>),
-                                  successful.Value,
-                                  symbolResult.LocalizationResources),
-
+             
                 NoArgumentConversionResult _ when toType == typeof(bool) || toType == typeof(bool?) =>
                     Success(conversionResult.Argument, true),
                 

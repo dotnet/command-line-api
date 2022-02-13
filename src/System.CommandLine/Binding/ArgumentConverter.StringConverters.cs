@@ -8,6 +8,8 @@ namespace System.CommandLine.Binding;
 
 internal static partial class ArgumentConverter
 {
+    private delegate bool TryConvertString(string token, out object? value);
+
     private static readonly Dictionary<Type, TryConvertString> _stringConverters = new()
     {
         [typeof(bool)] = (string token, out object? value) =>

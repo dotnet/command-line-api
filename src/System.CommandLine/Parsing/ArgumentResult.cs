@@ -134,7 +134,6 @@ namespace System.CommandLine.Parsing
 
             if (argument.ConvertArguments is null)
             {
-                // FIX: (Convert) defer?
                 return argument.Arity.MaximumNumberOfValues switch
                 {
                     1 => ArgumentConversionResult.Success(argument, Tokens.SingleOrDefault()),
