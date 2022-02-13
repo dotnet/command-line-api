@@ -60,7 +60,7 @@ namespace System.CommandLine.Parsing
         public override int GetHashCode() => Value.GetHashCode() ^ (int)Type;
 
         /// <inheritdoc />
-        public override string ToString() => IsDefault ? "default" : $"{Type}: {Value} {Symbol}";
+        public override string ToString() => Value;
 
         /// <summary>
         /// Checks if two specified <see cref="Token"/> instances have the same value.
