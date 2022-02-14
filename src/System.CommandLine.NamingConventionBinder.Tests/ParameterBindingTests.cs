@@ -38,30 +38,7 @@ public class ParameterBindingTests
         boundName.Should().Be("Gandalf");
         boundAge.Should().Be(425);
     }
-
-    [Fact]
-    public async Task Method_parameters_on_the_invoked_method_are_bound_to_matching_option_aliases()
-    {
-        string boundName = default;
-        int boundAge = default;
-
-        void Execute(string n, int a)
-        {
-            boundName = n;
-            boundAge = a;
-        }
-
-        var command = new Command("command");
-        command.AddOption(new Option<string>(new[] { "-n", "--name" }));
-        command.AddOption(new Option<string>(new[] { "-a", "--age" }));
-        command.Handler = CommandHandler.Create<string, int>(Execute);
-
-        await command.InvokeAsync("command --age 425 --name Gandalf", _console);
-
-        boundName.Should().Be("Gandalf");
-        boundAge.Should().Be(425);
-    }
-
+    
     [Fact]
     public async Task Method_parameters_on_the_invoked_method_can_be_bound_to_hyphenated_option_names()
     {

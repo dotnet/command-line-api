@@ -67,25 +67,7 @@ public partial class ModelBindingCommandHandlerTests
 
         received.Should().BeTrue();
     }
-
-    [Fact]
-    public async Task When_argument_type_is_not_known_until_binding_then_int_parameter_is_bound_correctly()
-    {
-        int received = 0;
-
-        var handler = CommandHandler.Create((int x) => received = x);
-
-        var root = new RootCommand
-        {
-            new Option("-x", arity: new ArgumentArity(1, 1))
-        };
-        root.Handler = handler;
-
-        await root.InvokeAsync("-x 123");
-
-        received.Should().Be(123);
-    }
-
+    
     [Theory]
     [InlineData(typeof(ClassWithCtorParameter<int>), false)]
     [InlineData(typeof(ClassWithCtorParameter<int>), true)]

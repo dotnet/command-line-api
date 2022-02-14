@@ -1085,24 +1085,47 @@ namespace System.CommandLine.Tests.Help
         public void Options_section_properly_wraps_description()
         {
             var longOptionText =
-                $"The option\t" +
-                $"with some tabs that is long enough to wrap to a\t" +
-                $"new line";
+                "The option whose description is long enough that it wraps to a new line";
 
             var command = new Command("test-command", "Help text for the command")
             {
-                new Option(
-                    new[] { "-a", "--aaa" },
-                    longOptionText)
+                new Option("-x", "Option with a short description"),
+                new Option(new[] { "-a", "--aaa" }, longOptionText),
+                new Option("-y", "Option with a short description"),
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
             helpBuilder.Write(command, _console);
 
             var expected =
-                $"Options:{NewLine}" +
-                $"{_indentation}-a, --aaa{_columnPadding}The option\twith some tabs that is long enough to wrap to {NewLine}" +
-                $"{_indentation}         {_columnPadding}a\tnew line{NewLine}{NewLine}";
+                $"{_indentation}-a, --aaa{_columnPadding}The option whose description is long enough that it {NewLine}" +
+                $"{_indentation}         {_columnPadding}wraps to a new line{NewLine}";
+
+            Console.WriteLine(_console.ToString());
+
+            _console.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Options_section_properly_wraps_description_when_long_default_value_is_specified()
+        {
+            var longOptionText =
+                "The option whose description is long enough that it wraps to a new line";
+
+            var command = new Command("test-command", "Help text for the command")
+            {
+                new Option("-x", "Option with a short description"),
+                new Option(new[] { "-a", "--aaa" }, longOptionText, getDefaultValue: () => "the quick brown fox jumps over the lazy dog"),
+                new Option("-y", "Option with a short description"),
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+            helpBuilder.Write(command, _console);
+
+            var expected =
+                $"{_indentation}-a, --aaa <aaa>{_columnPadding}The option whose description is long enough that {NewLine}" +
+                $"{_indentation}               {_columnPadding}it wraps to a new line [default: the quick brown {NewLine}" +
+                $"{_indentation}               {_columnPadding}fox jumps over the lazy dog]{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }

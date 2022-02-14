@@ -22,13 +22,12 @@ namespace System.CommandLine.Binding
             string value,
             LocalizationResources localizationResources)
         {
-            if (argument is Argument a &&
-                a.FirstParent is not null && a.FirstParent.Next is null)
+            if (argument.FirstParent?.Symbol is IdentifierSymbol identifierSymbol &&
+                argument.FirstParent.Next is null)
             {
-                var firstParent = (IdentifierSymbol) a.FirstParent.Symbol;
-                var alias = firstParent.Aliases.First();
-                
-                switch(firstParent)
+                var alias = identifierSymbol.Aliases.First();
+
+                switch (identifierSymbol)
                 {
                     case Command _:
                         return localizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);

@@ -64,10 +64,10 @@ public partial class HelpBuilder
             }
 
             string firstColumn;
-            var completions = (argument is Argument a
+            var completions = (argument is { } a
                                    ? a.GetCompletions()
                                    : Array.Empty<CompletionItem>())
-                              .Select(item=>item.Label)
+                              .Select(item => item.Label)
                               .ToArray();
 
             var arg = argument;
@@ -121,7 +121,7 @@ public partial class HelpBuilder
             {
                 if (!argument.IsHidden)
                 {
-                    var argumentFirstColumnText = Default.GetArgumentUsageLabel(argument);
+                    var argumentFirstColumnText = GetArgumentUsageLabel(argument);
 
                     if (!string.IsNullOrWhiteSpace(argumentFirstColumnText))
                     {

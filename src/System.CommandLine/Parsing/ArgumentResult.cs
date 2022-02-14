@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -112,73 +112,64 @@ namespace System.CommandLine.Parsing
                 return failedResult;
             }
 
-            if (argument is { } arg)
+            if (Parent!.UseDefaultValueFor(argument))
             {
-                if (Parent!.UseDefaultValueFor(argument))
-                {
-                    var argumentResult = new ArgumentResult(arg, Parent);
+                var argumentResult = new ArgumentResult(argument, Parent);
 
-                    var defaultValue = arg.GetDefaultValue(argumentResult);
+                var defaultValue = argument.GetDefaultValue(argumentResult);
 
-                    if (string.IsNullOrEmpty(argumentResult.ErrorMessage))
-                    {
-                        return ArgumentConversionResult.Success(
-                            arg,
-                            defaultValue);
-                    }
-                    else
-                    {
-                        return ArgumentConversionResult.Failure(
-                            arg,
-                            argumentResult.ErrorMessage!);
-                    }
-                }
-
-                if (arg.ConvertArguments is null)
-                {
-                    return argument.Arity.MaximumNumberOfValues switch
-                    {
-                        1 => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).SingleOrDefault()),
-                        _ => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).ToArray())
-                    };
-                }
-
-                if (_conversionResult is not null)
-                {
-                    return _conversionResult;
-                }
-
-                var success = arg.ConvertArguments(this, out var value);
-
-                if (value is ArgumentConversionResult conversionResult)
-                {
-                    return conversionResult;
-                }
-
-                if (success)
+                if (string.IsNullOrEmpty(argumentResult.ErrorMessage))
                 {
                     return ArgumentConversionResult.Success(
-                        arg,
-                        value);
+                        argument,
+                        defaultValue);
                 }
-
-                if (ErrorMessage is not null)
+                else
                 {
-                    return new FailedArgumentConversionResult(arg, ErrorMessage);
+                    return ArgumentConversionResult.Failure(
+                        argument,
+                        argumentResult.ErrorMessage!);
                 }
-
-                return new FailedArgumentTypeConversionResult(
-                    argument,
-                    argument.ValueType,
-                    Tokens[0].Value,
-                    LocalizationResources);
             }
 
-            return argument.Arity.MaximumNumberOfValues switch
+            if (argument.ConvertArguments is null)
             {
-                1 => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).SingleOrDefault()),
-                _ => ArgumentConversionResult.Success(argument, Tokens.Select(t => t.Value).ToArray())
-            };
+                return argument.Arity.MaximumNumberOfValues switch
+                {
+                    1 => ArgumentConversionResult.Success(argument, Tokens.SingleOrDefault()),
+                    _ => ArgumentConversionResult.Success(argument, Tokens)
+                };
+            }
+
+            if (_conversionResult is not null)
+            {
+                return _conversionResult;
+            }
+
+            var success = argument.ConvertArguments(this, out var value);
+
+            if (value is ArgumentConversionResult conversionResult)
+            {
+                return conversionResult;
+            }
+
+            if (success)
+            {
+                return ArgumentConversionResult.Success(
+                    argument,
+                    value);
+            }
+
+            if (ErrorMessage is not null)
+            {
+                return new FailedArgumentConversionResult(argument, ErrorMessage);
+            }
+
+            return new FailedArgumentTypeConversionResult(
+                argument,
+                argument.ValueType,
+                Tokens[0].Value,
+                LocalizationResources);
 
             bool ShouldCheckArity() => 
                 Parent is not OptionResult { IsImplicit: true };

@@ -88,10 +88,8 @@ namespace System.CommandLine.Parsing
 
             if (symbolResult is ArgumentResult argumentResult)
             {
-
                 var includeArgumentName =
-                    argumentResult.Argument is Argument argument &&
-                    argument.FirstParent!.Symbol is Command command &&
+                    argumentResult.Argument.FirstParent!.Symbol is Command command &&
                     command.Arguments.Count > 1;
 
                 if (includeArgumentName)
@@ -112,7 +110,7 @@ namespace System.CommandLine.Parsing
                                 case string s:
                                     builder.Append($"<{s}>");
                                     break;
-
+                                
                                 case IEnumerable items:
                                     builder.Append("<");
                                     builder.Append(
@@ -185,20 +183,6 @@ namespace System.CommandLine.Parsing
             }
 
             return parseResult.FindResultFor(option) is { };
-        }
-
-        /// <inheritdoc cref="HasOption(System.CommandLine.Parsing.ParseResult,System.CommandLine.Option)"/>
-        [Obsolete("This method was removed. Please use ParseResultExtensions.HasOption(ParseResult, Option) instead. For details see https://github.com/dotnet/command-line-api/issues/1127", error: true)]
-        public static bool HasOption(
-            this ParseResult parseResult,
-            string alias)
-        {
-            if (parseResult is null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-
-            return false;
         }
     }
 }
