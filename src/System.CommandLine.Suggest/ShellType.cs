@@ -6,6 +6,7 @@ namespace System.CommandLine.Suggest
     public enum ShellType
     {
         Bash,
-        PowerShell
+        PowerShell,
+        Zsh
     }
 }

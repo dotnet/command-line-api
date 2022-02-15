@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
@@ -52,6 +51,16 @@ namespace System.CommandLine.Suggest.Tests
                 _console);
 
             _console.Out.ToString().Should().Contain("Register-ArgumentCompleter");
+        }
+
+        [Fact]
+        public async Task It_should_print_zsh_shell_script()
+        {
+            await _parser.InvokeAsync(
+                "script zsh",
+                _console);
+            
+            _console.Out.ToString().Should().Contain("_dotnet_zsh_complete()");
         }
     }
 }

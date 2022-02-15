@@ -18,6 +18,9 @@ namespace System.CommandLine.Suggest
                 case ShellType.PowerShell:
                     PrintToConsoleFrom(console, "dotnet-suggest-shim.ps1");
                     break;
+                case ShellType.Zsh:
+                    PrintToConsoleFrom(console, "dotnet-suggest-shim.zsh");
+                    break;
                 default:
                     throw new SuggestionShellScriptException($"Shell '{shellType}' is not supported.");
             }
