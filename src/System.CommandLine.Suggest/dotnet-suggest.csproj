@@ -37,6 +37,10 @@
     <Content Include="dotnet-suggest-shim.bash">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Remove="dotnet-suggest-shim.zsh" />
+    <Content Include="dotnet-suggest-shim.zsh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <!-- Workaround https://github.com/dotnet/arcade/issues/2233 -->
