@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
@@ -204,8 +204,8 @@ namespace System.CommandLine.Binding
                                   toType,
                                   successful.Value,
                                   symbolResult.LocalizationResources),
-             
-                NoArgumentConversionResult _ when toType == typeof(bool) || toType == typeof(bool?) =>
+                    
+                NoArgumentConversionResult _ when conversionResult.Argument.ValueType == typeof(bool) || conversionResult.Argument.ValueType == typeof(bool?) => 
                     Success(conversionResult.Argument, true),
                 
                 NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
