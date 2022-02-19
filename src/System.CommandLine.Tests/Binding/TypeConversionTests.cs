@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
@@ -219,6 +219,21 @@ namespace System.CommandLine.Tests.Binding
                 .GetValueForOption(option)
                 .Should()
                 .Be(null);
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1647
+        public void Generic_option_bool_parses_when_passed_to_non_generic_GetValueForOption()
+        {
+            var option = new Option<bool>("-b");
+
+            var cmd = new RootCommand
+            {
+                option
+            };
+
+            var parseResult = cmd.Parse("-b");
+
+            parseResult.GetValueForOption((Option)option).Should().Be(true);
         }
 
         [Fact]
