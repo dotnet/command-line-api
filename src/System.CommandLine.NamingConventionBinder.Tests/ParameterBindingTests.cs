@@ -446,6 +446,8 @@ public class ParameterBindingTests
     {
         public abstract Task<int> DoJobAsync();
 
+        public int Invoke(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
+
         public Task<int> InvokeAsync(InvocationContext context)
             => DoJobAsync();
     }
@@ -458,6 +460,8 @@ public class ParameterBindingTests
 
     public class VirtualTestCommandHandler : ICommandHandler
     {
+        public int Invoke(InvocationContext context) => 42;
+
         public virtual Task<int> InvokeAsync(InvocationContext context)
             => Task.FromResult(42);
     }

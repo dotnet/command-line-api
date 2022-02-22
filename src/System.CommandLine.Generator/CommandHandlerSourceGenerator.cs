@@ -115,6 +115,9 @@ namespace System.CommandLine
             }
 
             builder.Append($@"
+            public int Invoke(global::System.CommandLine.Invocation.InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();");
+
+            builder.Append($@"
             public async global::System.Threading.Tasks.Task<int> InvokeAsync(global::System.CommandLine.Invocation.InvocationContext context)
             {{");
             builder.Append($@"

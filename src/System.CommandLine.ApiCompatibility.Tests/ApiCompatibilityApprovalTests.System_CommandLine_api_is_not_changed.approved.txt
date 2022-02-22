@@ -356,6 +356,7 @@ System.CommandLine.Help
     public System.Int32 GetHashCode()
 System.CommandLine.Invocation
   public interface ICommandHandler
+    public System.Int32 Invoke(InvocationContext context)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(InvocationContext context)
   public interface IInvocationResult
     public System.Void Apply(InvocationContext context)
