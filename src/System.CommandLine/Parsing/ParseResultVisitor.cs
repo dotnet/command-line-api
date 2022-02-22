@@ -323,84 +323,75 @@ namespace System.CommandLine.Parsing
         {
             var command = _innermostCommandResult!.Command;
 
-            for (var i = 0; i < command.Validators.Count; i++)
+            if (command.HasValidators && UseValidators(command, _innermostCommandResult))
             {
-                var validateSymbolResult = command.Validators[i];
-                validateSymbolResult(_innermostCommandResult);
-
-                if (!string.IsNullOrWhiteSpace(_innermostCommandResult.ErrorMessage))
-                {
-                    AddErrorToResult(
-                        _innermostCommandResult, 
-                        new ParseError(_innermostCommandResult.ErrorMessage!, _innermostCommandResult));
-
-                    return;
-                }
+                return;
             }
 
-            var commandToCheckForRequiredOptions = command;
-            ParentNode? currentNode = null;
-            var checkOnlyGlobalOptions = false;
-
-            while (commandToCheckForRequiredOptions is not null)
+            bool checkOnlyGlobalOptions = false;
+            Command? currentCommand = command;
+            while (currentCommand is not null)
             {
-                var options = commandToCheckForRequiredOptions.Options;
-
+                var options = currentCommand.Options;
                 for (var i = 0; i < options.Count; i++)
                 {
                     var option = options[i];
-
-                    if (option.IsRequired &&
-                        _rootCommandResult!.FindResultFor(option) is null)
+                    if (option.IsRequired && (!checkOnlyGlobalOptions || (checkOnlyGlobalOptions && option.IsGlobal)))
                     {
-                        if (checkOnlyGlobalOptions && !option.IsGlobal)
+                        if (_rootCommandResult!.FindResultFor(option) is null)
                         {
-                            continue;
+                            AddErrorToResult(
+                                _innermostCommandResult,
+                                new ParseError($"Option '{option.Aliases.First()}' is required.",
+                                               _innermostCommandResult));
                         }
-
-                        AddErrorToResult(
-                            _innermostCommandResult,
-                            new ParseError($"Option '{option.Aliases.First()}' is required.",
-                                           _innermostCommandResult));
                     }
                 }
 
-                if (currentNode is not null)
-                {
-                    commandToCheckForRequiredOptions = currentNode.Next?.Symbol as Command;
-                    if (commandToCheckForRequiredOptions is null)
-                    {
-                        currentNode = null;
-                    }
-                }
-                else if (commandToCheckForRequiredOptions.FirstParent is not null)
-                {
-                    currentNode = commandToCheckForRequiredOptions.FirstParent;
-                    commandToCheckForRequiredOptions = currentNode.Symbol as Command;
-                    currentNode = currentNode.Next;
-                    checkOnlyGlobalOptions = true;
-                }
-                else
-                {
-                    break;
-                }
+                currentCommand = currentCommand.FirstParent?.Symbol as Command;
+                checkOnlyGlobalOptions = true;
             }
 
-            var arguments = command.Arguments;
+            if (command.HasArguments)
+            {
+                ValidateArguments(command.Arguments, _innermostCommandResult);
+            }
+        }
 
+        private bool UseValidators(Command command, CommandResult innermostCommandResult)
+        {
+            for (var i = 0; i < command.Validators.Count; i++)
+            {
+                var validateSymbolResult = command.Validators[i];
+                validateSymbolResult(innermostCommandResult);
+
+                if (!string.IsNullOrWhiteSpace(innermostCommandResult.ErrorMessage))
+                {
+                    AddErrorToResult(
+                        innermostCommandResult,
+                        new ParseError(innermostCommandResult.ErrorMessage!, _innermostCommandResult));
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void ValidateArguments(IReadOnlyList<Argument> arguments, CommandResult innermostCommandResult)
+        {
             for (var i = 0; i < arguments.Count; i++)
             {
                 var symbol = arguments[i];
 
                 var arityFailure = ArgumentArity.Validate(
-                    _innermostCommandResult,
+                    innermostCommandResult,
                     symbol,
                     symbol.Arity.MinimumNumberOfValues,
                     symbol.Arity.MaximumNumberOfValues);
 
                 if (arityFailure is not null)
                 {
-                    AddErrorToResult(_innermostCommandResult, new ParseError(arityFailure.ErrorMessage!, _innermostCommandResult));
+                    AddErrorToResult(innermostCommandResult, new ParseError(arityFailure.ErrorMessage!, innermostCommandResult));
                 }
             }
         }
