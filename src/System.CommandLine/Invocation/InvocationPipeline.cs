@@ -17,29 +17,51 @@ namespace System.CommandLine.Invocation
             this.parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
         }
 
-        public async Task<int> InvokeAsync(IConsole? console = null)
+        public Task<int> InvokeAsync(IConsole? console = null)
         {
             var context = new InvocationContext(parseResult, console);
 
-            InvocationMiddleware invocationChain = BuildInvocationChain(context);
+            if (context.Parser.Configuration.Middleware.Count == 0
+                && context.ParseResult.CommandResult.Command.Handler is ICommandHandler handler)
+            {
+                return handler.InvokeAsync(context);
+            }
 
-            await invocationChain(context, _ => Task.CompletedTask);
+            return FullInvocationChainAsync(context);
 
-            return GetExitCode(context);
+            static async Task<int> FullInvocationChainAsync(InvocationContext context)
+            {
+                InvocationMiddleware invocationChain = BuildInvocationChain(context, true);
+
+                await invocationChain(context, _ => Task.CompletedTask);
+
+                return GetExitCode(context);
+            }
         }
 
         public int Invoke(IConsole? console = null)
         {
             var context = new InvocationContext(parseResult, console);
 
-            InvocationMiddleware invocationChain = BuildInvocationChain(context);
+            if (context.Parser.Configuration.Middleware.Count == 0
+                && context.ParseResult.CommandResult.Command.Handler is ICommandHandler handler)
+            {
+                return handler.Invoke(context);
+            }
 
-            invocationChain(context, static _ => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
+            return FullInvocationChain(context); // kept in a separate method to avoid JITting
 
-            return GetExitCode(context);
+            static int FullInvocationChain(InvocationContext context)
+            {
+                InvocationMiddleware invocationChain = BuildInvocationChain(context, false);
+
+                invocationChain(context, static _ => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                return GetExitCode(context);
+            }
         }
 
-        private static InvocationMiddleware BuildInvocationChain(InvocationContext context)
+        private static InvocationMiddleware BuildInvocationChain(InvocationContext context, bool invokeAsync)
         {
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware.Count + 1);
             invocations.AddRange(context.Parser.Configuration.Middleware);
@@ -55,7 +77,9 @@ namespace System.CommandLine.Invocation
 
                     if (handler is not null)
                     {
-                        context.ExitCode = await handler.InvokeAsync(invocationContext);
+                        context.ExitCode = invokeAsync
+                            ? await handler.InvokeAsync(invocationContext)
+                            : handler.Invoke(invocationContext);
                     }
                 }
             });
