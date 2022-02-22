@@ -251,69 +251,70 @@ namespace System.CommandLine.Parsing
 
             if (_argumentResults.Count > 0)
             {
-                var arguments = _innermostCommandResult!.Command.Arguments;
+                ValidateAndConvertArgumentResults(_innermostCommandResult!.Command.Arguments, _argumentResults.Count);
+            }
+        }
 
-                var commandArgumentResultCount = _argumentResults.Count;
-
-                for (var i = 0; i < arguments.Count; i++)
+        private void ValidateAndConvertArgumentResults(IReadOnlyList<Argument> arguments, int commandArgumentResultCount)
+        {
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                // If this is the current last result but there are more arguments, see if we can shift tokens to the next argument
+                if (commandArgumentResultCount == i)
                 {
-                    // If this is the current last result but there are more arguments, see if we can shift tokens to the next argument
-                    if (commandArgumentResultCount == i)
+                    var nextArgument = arguments[i];
+                    var nextArgumentResult = new ArgumentResult(
+                        nextArgument,
+                        _innermostCommandResult);
+
+                    var previousArgumentResult = _argumentResults[i - 1];
+
+                    var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
+
+                    for (var j = previousArgumentResult.Tokens.Count; j < passedOnTokensCount; j++)
                     {
-                        var nextArgument = arguments[i];
-                        var nextArgumentResult = new ArgumentResult(
-                            nextArgument,
-                            _innermostCommandResult);
-
-                        var previousArgumentResult = _argumentResults[i - 1];
-
-                        var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
-
-                        for (var j = previousArgumentResult.Tokens.Count; j < passedOnTokensCount; j++)
+                        if (nextArgumentResult.IsArgumentLimitReached)
                         {
-                            if (nextArgumentResult.IsArgumentLimitReached)
-                            {
-                                break;
-                            }
-
-                            if (_innermostCommandResult is not null)
-                            {
-                                nextArgumentResult.AddToken(_innermostCommandResult.Tokens[j]);
-                            }
+                            break;
                         }
 
-                        _argumentResults.Add(nextArgumentResult);
-
-                        if (previousArgumentResult.Parent is CommandResult)
+                        if (_innermostCommandResult is not null)
                         {
-                            AddToResult(nextArgumentResult);
+                            nextArgumentResult.AddToken(_innermostCommandResult.Tokens[j]);
                         }
-
-                        _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                     }
 
-                    var argumentResult = _argumentResults[i];
+                    _argumentResults.Add(nextArgumentResult);
 
-                    ValidateAndConvertArgumentResult(argumentResult);
-
-                    if (argumentResult.PassedOnTokens is { } &&
-                        i == arguments.Count - 1)
+                    if (previousArgumentResult.Parent is CommandResult)
                     {
-                        _unparsedTokens ??= new List<Token>();
-                        _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
+                        AddToResult(nextArgumentResult);
                     }
+
+                    _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                 }
 
-                if (_argumentResults.Count > arguments.Count)
-                {
-                    for (var i = arguments.Count; i < _argumentResults.Count; i++)
-                    {
-                        var result = _argumentResults[i];
+                var argumentResult = _argumentResults[i];
 
-                        if (result.Parent is CommandResult)
-                        {
-                            ValidateAndConvertArgumentResult(result);
-                        }
+                ValidateAndConvertArgumentResult(argumentResult);
+
+                if (argumentResult.PassedOnTokens is { } &&
+                    i == arguments.Count - 1)
+                {
+                    _unparsedTokens ??= new List<Token>();
+                    _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
+                }
+            }
+
+            if (_argumentResults.Count > arguments.Count)
+            {
+                for (var i = arguments.Count; i < _argumentResults.Count; i++)
+                {
+                    var result = _argumentResults[i];
+
+                    if (result.Parent is CommandResult)
+                    {
+                        ValidateAndConvertArgumentResult(result);
                     }
                 }
             }
