@@ -21,7 +21,7 @@ public static partial class Handler
         {
             index++;
 
-            if (symbol is IValueSource valueSource && 
+            if (symbol is IValueSource valueSource &&
                 valueSource.TryGetValue(symbol, context.BindingContext, out var boundValue) &&
                 boundValue is T value)
             {
@@ -33,6 +33,11 @@ public static partial class Handler
             }
         }
 
+        return GetService<T>(ref index, context); // kept in separate method to avoid jitting rare code path
+    }
+
+    private static T? GetService<T>(ref int index, InvocationContext context)
+    {
         var service = context.BindingContext.GetService(typeof(T));
 
         if (service is null)
