@@ -205,6 +205,11 @@ namespace System.CommandLine.Parsing
         {
             while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Directive)
             {
+                ParseDirective(parent); // kept in separate method to avoid JIT
+            }
+
+            void ParseDirective(RootCommandNode parent)
+            {
                 var token = CurrentToken;
                 var withoutBrackets = token.Value.Substring(1, token.Value.Length - 2);
                 var keyAndValue = withoutBrackets.Split(new[]
