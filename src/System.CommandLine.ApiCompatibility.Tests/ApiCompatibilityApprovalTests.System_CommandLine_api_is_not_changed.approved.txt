@@ -499,7 +499,7 @@ System.CommandLine.Parsing
     public T GetValueForOption<T>(Option<T> option)
     public System.Object GetValueForOption(System.CommandLine.Option option)
     public System.String ToString()
-  public struct Token : System.ValueType, System.IEquatable<Token>
+  public class Token, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)
     public static System.Boolean op_Inequality(Token left, Token right)
     .ctor(System.String value, TokenType type, System.CommandLine.Symbol symbol)

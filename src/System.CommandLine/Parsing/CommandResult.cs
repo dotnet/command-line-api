@@ -15,13 +15,8 @@ namespace System.CommandLine.Parsing
             base(command ?? throw new ArgumentNullException(nameof(command)),
                  parent)
         {
-            if (token.IsDefault)
-            {
-                throw new ArgumentNullException(nameof(token));
-            }
-
             Command = command;
-            Token = token;
+            Token = token ?? throw new ArgumentNullException(nameof(token));
         }
 
         /// <summary>

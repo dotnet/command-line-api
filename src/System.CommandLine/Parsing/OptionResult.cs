@@ -21,7 +21,7 @@ namespace System.CommandLine.Parsing
                  parent)
         {
             Option = option;
-            Token = token.GetValueOrDefault();
+            Token = token;
         }
 
         /// <summary>
@@ -33,12 +33,12 @@ namespace System.CommandLine.Parsing
         /// Indicates whether the result was created implicitly and not due to the option being specified on the command line.
         /// </summary>
         /// <remarks>Implicit results commonly result from options having a default value.</remarks>
-        public bool IsImplicit => Token.IsImplicit || Token.IsDefault;
+        public bool IsImplicit => Token is null || Token.IsImplicit;
 
         /// <summary>
         /// The token that was parsed to specify the option.
         /// </summary>
-        public Token Token { get; }
+        public Token? Token { get; }
 
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>

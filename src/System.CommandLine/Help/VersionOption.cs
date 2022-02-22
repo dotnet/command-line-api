@@ -38,7 +38,7 @@ namespace System.CommandLine.Help
                     parent.Children.Where(r => r.Symbol is not VersionOption)
                           .Any(IsNotImplicit))
                 {
-                    result.ErrorMessage =  result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token.Value ?? result.Symbol.Name);
+                    result.ErrorMessage =  result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Symbol.Name);
                 }
             });
         }

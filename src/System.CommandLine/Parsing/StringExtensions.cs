@@ -222,7 +222,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             pCandidate[1] = alias[i];
-                            if (!knownTokens.TryGetValue(candidate, out Token found))
+                            if (!knownTokens.TryGetValue(candidate, out Token? found))
                             {
                                 if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == TokenType.Option)
                                 {

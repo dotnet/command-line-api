@@ -25,7 +25,7 @@ namespace System.CommandLine.Parsing
             return symbolResult switch
             {
                 CommandResult commandResult => commandResult.Token,
-                OptionResult optionResult => optionResult.Token.IsDefault ? CreateImplicitToken(optionResult.Option) : optionResult.Token,
+                OptionResult optionResult => optionResult.Token is null ? CreateImplicitToken(optionResult.Option) : optionResult.Token,
                 _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
             };
 
