@@ -30,16 +30,6 @@ namespace System.CommandLine
             new(() =>
                 {
                     var location = _executablePath.Value;
-                    if (string.IsNullOrEmpty(location))
-                    {
-                        var commandLineArgs = Environment.GetCommandLineArgs();
-
-                        if (commandLineArgs.Length > 0)
-                        {
-                            location = commandLineArgs[0];
-                        }
-                    }
-
                     return Path.GetFileNameWithoutExtension(location).Replace(" ", "");
                 },
                 LazyThreadSafetyMode.PublicationOnly);
