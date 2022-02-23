@@ -3,7 +3,6 @@
 
 using System.IO;
 using System.Reflection;
-using System.Threading;
 
 namespace System.CommandLine
 {
@@ -17,39 +16,28 @@ namespace System.CommandLine
     /// </remarks>
     public class RootCommand : Command
     {
-        private static readonly Lazy<Assembly> _assembly =
-            new(() => Assembly.GetEntryAssembly() ??
-                      Assembly.GetExecutingAssembly(),
-                LazyThreadSafetyMode.PublicationOnly);
-
-        private static readonly Lazy<string> _executablePath =
-            new(() => Environment.GetCommandLineArgs()[0],
-                LazyThreadSafetyMode.PublicationOnly);
-
-        private static readonly Lazy<string> _executableName =
-            new(() =>
-                {
-                    var location = _executablePath.Value;
-                    return Path.GetFileNameWithoutExtension(location).Replace(" ", "");
-                },
-                LazyThreadSafetyMode.PublicationOnly);
+        private static Assembly? _assembly;
+        private static string? _executablePath;
+        private static string? _executableName;
 
         /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
         {
         }
 
-        internal static Assembly GetAssembly() => _assembly.Value;
+        internal static Assembly GetAssembly()
+            => _assembly ??= (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
 
         /// <summary>
         /// The name of the currently running executable.
         /// </summary>
-        public static string ExecutableName => _executableName.Value;
+        public static string ExecutableName
+            => _executableName ??= Path.GetFileNameWithoutExtension(ExecutablePath).Replace(" ", "");
 
         /// <summary>
         /// The path to the currently running executable.
         /// </summary>
-        public static string ExecutablePath => _executablePath.Value;
+        public static string ExecutablePath => _executablePath ??= Environment.GetCommandLineArgs()[0];
 
         private protected override void RemoveAlias(string alias)
         {
