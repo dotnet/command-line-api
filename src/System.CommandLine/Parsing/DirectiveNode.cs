@@ -7,7 +7,7 @@ namespace System.CommandLine.Parsing
     {
         public DirectiveNode(
             Token token,
-            RootCommandNode parent,
+            CommandNode parent,
             string name,
             string? value) : base(token, parent)
         {

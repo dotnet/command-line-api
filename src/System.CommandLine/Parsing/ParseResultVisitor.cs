@@ -65,18 +65,15 @@ namespace System.CommandLine.Parsing
 
                     break;
 
-                case RootCommandNode rootCommandNode:
-                    VisitRootCommandNode(rootCommandNode);
-
-                    for (var i = 0; i < rootCommandNode.Children.Count; i++)
-                    {
-                        VisitInternal(rootCommandNode.Children[i]);
-                    }
-
-                    break;
-
                 case CommandNode commandNode:
-                    VisitCommandNode(commandNode);
+                    if (commandNode.Parent is null)
+                    {
+                        VisitRootCommandNode(commandNode);
+                    }
+                    else
+                    {
+                        VisitCommandNode(commandNode);
+                    }
 
                     for (var i = 0; i < commandNode.Children.Count; i++)
                     {
@@ -131,7 +128,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void VisitRootCommandNode(RootCommandNode rootCommandNode)
+        private void VisitRootCommandNode(CommandNode rootCommandNode)
         {
             _rootCommandResult = new RootCommandResult(
                 rootCommandNode.Command,

@@ -23,7 +23,7 @@ namespace System.CommandLine.Parsing
 
         public List<ParseError> Errors { get; } = new();
 
-        public RootCommandNode? RootCommandNode { get; private set; }
+        public CommandNode? RootCommandNode { get; private set; }
 
         public List<Token>? UnmatchedTokens { get; private set; }
 
@@ -43,11 +43,12 @@ namespace System.CommandLine.Parsing
             RootCommandNode = ParseRootCommand();
         }
 
-        private RootCommandNode ParseRootCommand()
+        private CommandNode ParseRootCommand()
         {
-            var rootCommandNode = new RootCommandNode(
+            var rootCommandNode = new CommandNode(
                 CurrentToken,
-                _configuration.RootCommand);
+                _configuration.RootCommand,
+                null);
 
             Advance();
 
@@ -201,14 +202,14 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void ParseDirectives(RootCommandNode parent)
+        private void ParseDirectives(CommandNode rootCommandNode)
         {
             while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Directive)
             {
-                ParseDirective(parent); // kept in separate method to avoid JIT
+                ParseDirective(rootCommandNode); // kept in separate method to avoid JIT
             }
 
-            void ParseDirective(RootCommandNode parent)
+            void ParseDirective(CommandNode parent)
             {
                 var token = CurrentToken;
                 var withoutBrackets = token.Value.Substring(1, token.Value.Length - 2);
