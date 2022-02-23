@@ -101,11 +101,13 @@ namespace System.CommandLine.Parsing
 
                 if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
                 {
-                    switch (argumentResult.GetArgumentConversionResult())
+                    ArgumentConversionResult conversionResult = argumentResult.GetArgumentConversionResult();
+                    switch (conversionResult.Result)
                     {
-                        case SuccessfulArgumentConversionResult successful:
-
-                            switch (successful.Value)
+                        case ArgumentConversionResultType.NoArgument:
+                            break;
+                        case ArgumentConversionResultType.Successful:
+                            switch (conversionResult.Value)
                             {
                                 case string s:
                                     builder.Append($"<{s}>");
@@ -121,15 +123,14 @@ namespace System.CommandLine.Parsing
 
                                 default:
                                     builder.Append("<");
-                                    builder.Append(successful.Value);
+                                    builder.Append(conversionResult.Value);
                                     builder.Append(">");
                                     break;
                             }
 
                             break;
 
-                        case FailedArgumentConversionResult _:
-
+                        default: // failures
                             builder.Append("<");
                             builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
                             builder.Append(">");

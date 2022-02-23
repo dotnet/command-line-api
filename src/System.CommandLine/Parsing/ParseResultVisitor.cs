@@ -487,20 +487,24 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed
-                and not FailedArgumentConversionArityResult)
+            ArgumentConversionResult argumentConversionResult = argumentResult.GetArgumentConversionResult();
+            if (argumentConversionResult.Result >= ArgumentConversionResultType.Failed
+                && argumentConversionResult.Result !=  ArgumentConversionResultType.FailedArity)
             {
-                if (argument.Parents.FirstOrDefault() is Option option)
+                if (argument.FirstParent?.Symbol is Option option)
                 {
                     var completions = option.GetCompletions().ToArray();
 
                     if (completions.Length > 0)
                     {
-                        failed.ErrorMessage += " Did you mean one of the following?" + Environment.NewLine + string.Join(Environment.NewLine, completions.Select(c => c.Label));
+                        argumentConversionResult = ArgumentConversionResult.Failure(
+                            argumentConversionResult.Argument,
+                            argumentConversionResult.ErrorMessage + " Did you mean one of the following?" + Environment.NewLine + string.Join(Environment.NewLine, completions.Select(c => c.Label)),
+                            argumentConversionResult.Result);
                     }
                 }
 
-                AddErrorToResult(argumentResult, new ParseError(failed.ErrorMessage!, argumentResult));
+                AddErrorToResult(argumentResult, new ParseError(argumentConversionResult.ErrorMessage!, argumentResult));
             }
         }
 
