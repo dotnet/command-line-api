@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -26,17 +25,15 @@ internal static partial class ArgumentConverter
 
         if (listCtor is null)
         {
-            _listCtor = listCtor = typeof(List<>).GetConstructors().Single(c => c.GetParameters().Length == 0);
+            _listCtor = listCtor = typeof(List<>).GetConstructor(Type.EmptyTypes)!;
         }
 
         var ctor = (ConstructorInfo)listType.GetMemberWithSameMetadataDefinitionAs(listCtor);
 #else
-        var ctor = listType
-                   .GetConstructors()
-                   .SingleOrDefault(c => c.GetParameters().Length == 0);
+        var ctor = listType.GetConstructor(Type.EmptyTypes);
 #endif
 
-        return (IList)ctor.Invoke(Array.Empty<object>());
+        return (IList)ctor.Invoke(null);
     }
 
     private static IList CreateEnumerable(Type type, Type itemType, int capacity = 0)
