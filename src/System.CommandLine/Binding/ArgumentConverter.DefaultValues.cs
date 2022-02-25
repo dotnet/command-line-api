@@ -20,7 +20,7 @@ internal static partial class ArgumentConverter
 #endif
 
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]
-    private static Array CreateArray(Type itemType, int capacity = 0)
+    private static Array CreateArray(Type itemType, int capacity)
         => Array.CreateInstance(itemType, capacity);
 
     private static IList CreateEmptyList(Type listType)
