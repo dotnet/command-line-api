@@ -19,7 +19,7 @@ internal static partial class ArgumentConverter
                   .SingleOrDefault(c => c.GetParameters().Length == 0)!);
 #endif
 
-    private static Array CreateEmptyArray(Type itemType, int capacity = 0)
+    private static Array CreateArray(Type itemType, int capacity = 0)
         => Array.CreateInstance(itemType, capacity);
 
     private static IList CreateEmptyList(Type listType)
@@ -39,7 +39,7 @@ internal static partial class ArgumentConverter
     {
         if (type.IsArray)
         {
-            return CreateEmptyArray(itemType, capacity);
+            return CreateArray(itemType, capacity);
         }
 
         if (type.IsGenericType)
@@ -47,10 +47,10 @@ internal static partial class ArgumentConverter
             var x = type.GetGenericTypeDefinition() switch
             {
                 { } enumerable when typeof(IEnumerable<>).IsAssignableFrom(enumerable) =>
-                    CreateEmptyArray(itemType, capacity),
+                    CreateArray(itemType, capacity),
                 { } array when typeof(IList<>).IsAssignableFrom(array) ||
                                typeof(ICollection<>).IsAssignableFrom(array) =>
-                    CreateEmptyArray(itemType, capacity),
+                    CreateArray(itemType, capacity),
                 { } list when list == typeof(List<>) =>
                     CreateEmptyList(type),
                 _ => null
