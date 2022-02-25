@@ -64,11 +64,6 @@ namespace System.CommandLine.Parsing
                 throw new InvalidOperationException($"{nameof(OnlyTake)} can only be called once.");
             }
 
-            if (numberOfTokens == 0)
-            {
-                return;
-            }
-
             var passedOnTokensCount = _tokens.Count - numberOfTokens;
 
             PassedOnTokens = new List<Token>(_tokens.GetRange(numberOfTokens, passedOnTokensCount));
