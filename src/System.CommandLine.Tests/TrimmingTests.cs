@@ -33,7 +33,7 @@ public class TrimmingTests
         var stdOut = new StringBuilder();
         var stdErr = new StringBuilder();
 
-        var workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TrimmingTestApp");
+        var workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestApps", "Trimming");
         
         Process.RunToCompletion(
             DotnetMuxer.Path.FullName,
