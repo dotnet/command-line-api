@@ -19,6 +19,7 @@ internal static partial class ArgumentConverter
                   .SingleOrDefault(c => c.GetParameters().Length == 0)!);
 #endif
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = "We are working on it")]
     private static Array CreateArray(Type itemType, int capacity = 0)
         => Array.CreateInstance(itemType, capacity);
 
