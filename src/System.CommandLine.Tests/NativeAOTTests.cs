@@ -8,6 +8,7 @@ using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Text;
 using FluentAssertions;
+using Microsoft.DotNet.PlatformAbstractions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -34,14 +35,17 @@ public class NativeAOTTests
         var stdErr = new StringBuilder();
 
         var workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "TestApps", "NativeAOT");
-        
+
+        string rId = GetPortableRuntimeIdentifier();
+
         Process.RunToCompletion(
             DotnetMuxer.Path.FullName,
-            "clean -c Release -r win-x64",
+            $"clean -c Release -r {rId}",
             workingDirectory: workingDirectory);
 
         var commandLine = string.Format(
-            "publish -c Release -r win-x64 --self-contained -p:SystemCommandLineDllPath=\"{0}\" -p:TreatWarningsAsErrors=true {1}",
+            "publish -c Release -r {0} --self-contained -p:SystemCommandLineDllPath=\"{1}\" -p:TreatWarningsAsErrors=true {2}",
+            rId,
             _systemCommandLineDllPath,
             additionalArgs);
 
@@ -63,6 +67,12 @@ public class NativeAOTTests
         stdOut.ToString().Should().NotContain("AOT analysis warning");
         stdErr.ToString().Should().BeEmpty();
         exitCode.Should().Be(0);
+    }
+
+    private static string GetPortableRuntimeIdentifier()
+    {
+        string osPart = OperatingSystem.IsWindows() ? "win" : (OperatingSystem.IsMacOS() ? "osx" : "linux");
+        return $"{osPart}-{RuntimeEnvironment.RuntimeArchitecture}";
     }
 }
 
