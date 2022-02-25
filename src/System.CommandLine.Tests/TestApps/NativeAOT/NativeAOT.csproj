@@ -15,7 +15,7 @@
 		<Reference Include="SystemCommandLineDll">
 			<HintPath>$(SystemCommandLineDllPath)</HintPath>
 		</Reference>
-		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-*" />
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-preview.3.22123.2" />
 	</ItemGroup>
 
 </Project>
