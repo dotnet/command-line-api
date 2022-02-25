@@ -60,7 +60,7 @@ public class NativeAOTTests
             },
             workingDirectory);
 
-        stdOut.ToString().Should().NotContain("warning IL");
+        stdOut.ToString().Should().NotContain("AOT analysis warning");
         stdErr.ToString().Should().BeEmpty();
         exitCode.Should().Be(0);
     }
