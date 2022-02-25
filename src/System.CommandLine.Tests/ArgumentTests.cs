@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
+using System.CommandLine.Tests.Utility;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -691,6 +692,28 @@ namespace System.CommandLine.Tests
                          .Message
                          .Should()
                          .Be("OnlyTake can only be called once.");
+            }
+
+            [Fact]
+            public void OnlyTake_can_pass_on_all_tokens()
+            {
+                var argument1 = new Argument<int[]>(result =>
+                {
+                    result.OnlyTake(0);
+                    return null;
+                });
+                var argument2 = new Argument<int[]>();
+                var command = new RootCommand
+                {
+                    argument1,
+                    argument2
+                };
+
+                var result = command.Parse("1 2 3");
+
+                result.GetValueForArgument(argument1).Should().BeEmpty();
+
+                result.GetValueForArgument(argument2).Should().BeEquivalentSequenceTo(1, 2, 3);
             }
         }
 
