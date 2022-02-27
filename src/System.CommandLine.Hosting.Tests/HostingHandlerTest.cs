@@ -1,16 +1,15 @@
 ﻿using System.CommandLine.Binding;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Linq;
 using System.Threading.Tasks;
+
 using FluentAssertions;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+
 using Xunit;
 
 
@@ -18,44 +17,51 @@ namespace System.CommandLine.Hosting.Tests
 {
     public static class HostingHandlerTest
     {
-
         [Fact]
         public static async Task Constructor_Injection_Injects_Service()
         {
             var service = new MyService();
 
             var parser = new CommandLineBuilder(
-                new MyCommand()
+                new MyCommand { Handler = HostedCommandHandler.CreateFromHost<MyCommand.MyHandler>() }
                 )
-                .UseHost((builder) => {
-                    builder.ConfigureServices(services =>
+                .UseHost((builder) =>
+                {
+                    builder.ConfigureServices((context, services) =>
                     {
+                        services.AddTransient<MyCommand.MyHandler>();
+                        services.AddOptions<MyCommand.MyOptions>()
+                            .BindCommandLine();
                         services.AddTransient(x => service);
-                    })
-                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>();
+                    });
                 })
                 .Build();
 
-            var result = await parser.InvokeAsync(new string[] { "--int-option", "54"});
+            var result = await parser.InvokeAsync(new string[] { "--int-option", "54" });
 
             service.Value.Should().Be(54);
+            result.Should().Be(54);
         }
 
         [Fact]
         public static async Task Parameter_is_available_in_property()
         {
-            var parser = new CommandLineBuilder(new MyCommand())
+            var parser = new CommandLineBuilder(
+                new MyCommand { Handler = HostedCommandHandler.CreateFromHost<MyCommand.MyHandler>() }
+                )
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
                     {
+                        services.AddTransient<MyCommand.MyHandler>();
+                        services.AddOptions<MyCommand.MyOptions>()
+                            .BindCommandLine();
                         services.AddTransient<MyService>();
-                    })
-                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>();
+                    });
                 })
                 .Build();
 
-            var result = await parser.InvokeAsync(new string[] { "--int-option", "54"});
+            var result = await parser.InvokeAsync(new string[] { "--int-option", "54" });
 
             result.Should().Be(54);
         }
@@ -65,20 +71,30 @@ namespace System.CommandLine.Hosting.Tests
         {
             var root = new RootCommand();
 
-            root.AddCommand(new MyCommand());
-            root.AddCommand(new MyOtherCommand());
+            root.AddCommand(new MyCommand
+            { 
+                Handler = HostedCommandHandler.CreateFromHost<MyCommand.MyHandler>() 
+            });
+            root.AddCommand(new MyOtherCommand
+            {
+                Handler = HostedCommandHandler.CreateFromHost<MyOtherCommand.MyHandler>() 
+            });
             var parser = new CommandLineBuilder(root)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
                     {
+                        services.AddTransient<MyCommand.MyHandler>();
+                        services.AddOptions<MyCommand.MyOptions>()
+                            .BindCommandLine();
+                        services.AddTransient<MyOtherCommand.MyHandler>();
+                        services.AddOptions<MyOtherCommand.MyOptions>()
+                            .BindCommandLine();
                         services.AddTransient<MyService>(_ => new MyService()
                         {
                             Action = () => 100
                         });
-                    })
-                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>()
-                    .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyHandler>();
+                    });
                 })
                 .Build();
 
@@ -96,21 +112,47 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
             var cmd = new RootCommand();
-            cmd.AddCommand(new MyOtherCommand());
+            cmd.AddCommand(new MyOtherCommand
+            {
+                Handler = HostedCommandHandler.CreateFromHost<MyOtherCommand.MyHandler>() 
+            });
             var parser = new CommandLineBuilder(cmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
                     {
+                        services.AddTransient<MyOtherCommand.MyHandler>();
+                        services.AddOptions<MyOtherCommand.MyOptions>()
+                            .BindCommandLine();
                         services.AddSingleton<MyService>(service);
-                    })
-                    .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyHandler>();
+                    });
                 })
                 .Build();
 
             var result = await parser.InvokeAsync(new string[] { "myothercommand", "TEST" });
 
             service.StringValue.Should().Be("TEST");
+        }
+
+        [Fact]
+        public static void Throws_When_Injected_HandlerType_is_not_ICommandHandler()
+        {
+            new object().Invoking(_ =>
+            {
+                var handlerWrapper = HostedCommandHandler.CreateFromHost(
+                    typeof(MyNonCommandHandler));
+            }).Should().ThrowExactly<ArgumentException>(
+                because: $"{typeof(MyNonCommandHandler)} does not implement {typeof(ICommandHandler)}"
+            );
+        }
+
+        [Fact]
+        public static void Throws_When_Injected_HandlerType_is_null()
+        {
+            new object().Invoking(_ =>
+            {
+                var handlerWrapper = HostedCommandHandler.CreateFromHost(null);
+            }).Should().ThrowExactly<ArgumentNullException>();
         }
 
         public class MyCommand : Command
@@ -120,22 +162,27 @@ namespace System.CommandLine.Hosting.Tests
                 AddOption(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
 
+            public class MyOptions
+            {
+                public int IntOption { get; set; } // bound from option
+                public IConsole Console { get; set; } // bound from DI
+            }
+
             public class MyHandler : ICommandHandler
             {
                 private readonly MyService service;
+                private readonly MyOptions options;
 
-                public MyHandler(MyService service)
+                public MyHandler(MyService service, IOptions<MyOptions> options)
                 {
                     this.service = service;
+                    this.options = options.Value;
                 }
-
-                public int IntOption { get; set; } // bound from option
-                public IConsole Console { get; set; } // bound from DI
 
                 public Task<int> InvokeAsync(InvocationContext context)
                 {
-                    service.Value = IntOption;
-                    return Task.FromResult(IntOption);
+                    service.Value = options.IntOption;
+                    return Task.FromResult(options.IntOption);
                 }
             }
         }
@@ -148,24 +195,29 @@ namespace System.CommandLine.Hosting.Tests
                 AddArgument(new Argument<string>("One"));
             }
 
+            public class MyOptions
+            {
+                public int IntOption { get; set; } // bound from option
+                public IConsole Console { get; set; } // bound from DI
+                public string One { get; set; }
+            }
+
             public class MyHandler : ICommandHandler
             {
                 private readonly MyService service;
+                private readonly MyOptions options;
 
-                public MyHandler(MyService service)
+                public MyHandler(MyService service, IOptions<MyOptions> options)
                 {
                     this.service = service;
+                    this.options = options.Value;
                 }
 
-                public int IntOption { get; set; } // bound from option
-                public IConsole Console { get; set; } // bound from DI
-
-                public string One { get; set; }
 
                 public Task<int> InvokeAsync(InvocationContext context)
                 {
-                    service.Value = IntOption;
-                    service.StringValue = One;
+                    service.Value = options.IntOption;
+                    service.StringValue = options.One;
                     return Task.FromResult(service.Action?.Invoke() ?? 0);
                 }
             }
@@ -178,6 +230,11 @@ namespace System.CommandLine.Hosting.Tests
             public int Value { get; set; }
 
             public string StringValue { get; set; }
+        }
+
+        public class MyNonCommandHandler
+        {
+            public static int DoSomething() => 0;
         }
     }
 }
