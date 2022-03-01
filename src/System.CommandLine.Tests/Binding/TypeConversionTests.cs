@@ -758,6 +758,66 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(1234);
         }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_sbyte_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<sbyte>("-us");
+
+            var value = option.Parse("-us 123").GetValueForOption(option);
+
+            value.Should().Be(123);
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_sbyte_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<sbyte?>("-x");
+
+            var value = option.Parse("-x 123").GetValueForOption(option);
+
+            value.Should().Be(123);
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_byte_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<byte>("-us");
+
+            var value = option.Parse("-us 123").GetValueForOption(option);
+
+            value.Should().Be(123);
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_byte_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<byte?>("-x");
+
+            var value = option.Parse("-x 123").GetValueForOption(option);
+
+            value.Should().Be(123);
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_uint_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<uint>("-us");
+
+            var value = option.Parse("-us 1234").GetValueForOption(option);
+
+            value.Should().Be(1234);
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_uint_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<uint?>("-x");
+
+            var value = option.Parse("-x 1234").GetValueForOption(option);
+
+            value.Should().Be(1234);
+        }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
