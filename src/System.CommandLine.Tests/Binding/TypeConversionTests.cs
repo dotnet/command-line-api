@@ -784,7 +784,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option<byte>("-us");
 
-            var value = option.Parse("-us 1234").GetValueForOption(option);
+            var value = option.Parse("-us 123").GetValueForOption(option);
 
             value.Should().Be(123);
         }
@@ -794,7 +794,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option<byte?>("-x");
 
-            var value = option.Parse("-x 1234").GetValueForOption(option);
+            var value = option.Parse("-x 123").GetValueForOption(option);
 
             value.Should().Be(123);
         }
