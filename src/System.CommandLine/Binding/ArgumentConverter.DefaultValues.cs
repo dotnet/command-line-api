@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -13,10 +12,7 @@ namespace System.CommandLine.Binding;
 internal static partial class ArgumentConverter
 {
 #if NET6_0_OR_GREATER
-    private static readonly Lazy<ConstructorInfo> _listCtor =
-        new(() => typeof(List<>)
-                  .GetConstructors()
-                  .SingleOrDefault(c => c.GetParameters().Length == 0)!);
+    private static ConstructorInfo? _listCtor;
 #endif
 
     private static Array CreateEmptyArray(Type itemType, int capacity = 0)
@@ -25,14 +21,19 @@ internal static partial class ArgumentConverter
     private static IList CreateEmptyList(Type listType)
     {
 #if NET6_0_OR_GREATER
-        var ctor = (ConstructorInfo)listType.GetMemberWithSameMetadataDefinitionAs(_listCtor.Value);
+        ConstructorInfo? listCtor = _listCtor;
+
+        if (listCtor is null)
+        {
+            _listCtor = listCtor = typeof(List<>).GetConstructor(Type.EmptyTypes)!;
+        }
+
+        var ctor = (ConstructorInfo)listType.GetMemberWithSameMetadataDefinitionAs(listCtor);
 #else
-        var ctor = listType
-                   .GetConstructors()
-                   .SingleOrDefault(c => c.GetParameters().Length == 0);
+        var ctor = listType.GetConstructor(Type.EmptyTypes);
 #endif
 
-        return (IList)ctor.Invoke(new object[] { });
+        return (IList)ctor.Invoke(null);
     }
 
     private static IList CreateEnumerable(Type type, Type itemType, int capacity = 0)

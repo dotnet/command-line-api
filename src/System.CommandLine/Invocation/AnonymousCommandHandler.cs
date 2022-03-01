@@ -7,32 +7,36 @@ namespace System.CommandLine.Invocation
 {
     internal class AnonymousCommandHandler : ICommandHandler
     {
-        private readonly Func<InvocationContext, Task> _handle;
+        private readonly Func<InvocationContext, Task>? _asyncHandle;
+        private readonly Action<InvocationContext>? _syncHandle;
 
         public AnonymousCommandHandler(Func<InvocationContext, Task> handle)
-        {
-            _handle = handle ?? throw new ArgumentNullException(nameof(handle));
-        }
+            => _asyncHandle = handle ?? throw new ArgumentNullException(nameof(handle));
 
         public AnonymousCommandHandler(Action<InvocationContext> handle)
+            => _syncHandle = handle ?? throw new ArgumentNullException(nameof(handle));
+
+        public int Invoke(InvocationContext context)
         {
-            if (handle == null)
+            if (_syncHandle is not null)
             {
-                throw new ArgumentNullException(nameof(handle));
+                _syncHandle(context);
+                return context.ExitCode;
             }
 
-            _handle = Handle;
-
-            Task Handle(InvocationContext context)
-            {
-                handle(context);
-                return Task.FromResult(context.ExitCode);
-            }
+            return SyncUsingAsync(context); // kept in a separate method to avoid JITting
         }
+
+        private int SyncUsingAsync(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
 
         public async Task<int> InvokeAsync(InvocationContext context)
         {
-            object returnValue = _handle(context);
+            if (_syncHandle is not null)
+            {
+                return Invoke(context);
+            }
+
+            object returnValue = _asyncHandle!(context);
 
             int ret;
 

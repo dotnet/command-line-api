@@ -132,6 +132,12 @@ namespace System.CommandLine.Hosting.Tests
                 public int IntOption { get; set; } // bound from option
                 public IConsole Console { get; set; } // bound from DI
 
+                public int Invoke(InvocationContext context)
+                {
+                    service.Value = IntOption;
+                    return IntOption;
+                }
+
                 public Task<int> InvokeAsync(InvocationContext context)
                 {
                     service.Value = IntOption;
@@ -161,6 +167,8 @@ namespace System.CommandLine.Hosting.Tests
                 public IConsole Console { get; set; } // bound from DI
 
                 public string One { get; set; }
+
+                public int Invoke(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
 
                 public Task<int> InvokeAsync(InvocationContext context)
                 {

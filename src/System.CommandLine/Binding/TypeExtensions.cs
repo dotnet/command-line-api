@@ -47,29 +47,14 @@ namespace System.CommandLine.Binding
                 typeof(IEnumerable).IsAssignableFrom(type);
         }
 
-        internal static bool IsNullable(this Type t)
-        {
-            return t.IsGenericType &&
-                   t.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
+        internal static bool IsNullable(this Type t) => Nullable.GetUnderlyingType(t) is not null;
 
         internal static bool TryGetNullableType(
             this Type type,
             [NotNullWhen(true)] out Type? nullableType)
         {
-            if (type.IsGenericType)
-            {
-                var genericTypeDefinition = type.GetGenericTypeDefinition();
-
-                if (genericTypeDefinition == typeof(Nullable<>))
-                {
-                    nullableType = type.GetGenericArguments()[0];
-                    return true;
-                }
-            }
-
-            nullableType = null;
-            return false;
+            nullableType = Nullable.GetUnderlyingType(type);
+            return nullableType is not null;
         }
     }
 }

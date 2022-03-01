@@ -6,7 +6,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A unit of significant text on the command line.
     /// </summary>
-    public readonly struct Token : IEquatable<Token>
+    public class Token : IEquatable<Token>
     {
         internal const int ImplicitPosition = -1;
 
@@ -38,8 +38,6 @@ namespace System.CommandLine.Parsing
 
         internal bool IsImplicit => Position == ImplicitPosition;
 
-        internal bool IsDefault => Value is null && Position == default && Type == default && Symbol is null;
-
         /// <summary>
         /// The type of the token.
         /// </summary>
@@ -54,7 +52,7 @@ namespace System.CommandLine.Parsing
         public override bool Equals(object? obj) => obj is Token other && Equals(other);
 
         /// <inheritdoc />
-        public bool Equals(Token other) => Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);
+        public bool Equals(Token? other) => other is not null && Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);
 
         /// <inheritdoc />
         public override int GetHashCode() => Value.GetHashCode() ^ (int)Type;

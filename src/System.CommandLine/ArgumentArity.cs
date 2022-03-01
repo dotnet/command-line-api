@@ -72,7 +72,7 @@ namespace System.CommandLine
         public override int GetHashCode()
             => MaximumNumberOfValues ^ MinimumNumberOfValues ^ IsNonDefault.GetHashCode();
 
-        internal static FailedArgumentConversionArityResult? Validate(
+        internal static ArgumentConversionResult? Validate(
             SymbolResult symbolResult,
             Argument argument,
             int minimumNumberOfValues,
@@ -93,9 +93,10 @@ namespace System.CommandLine
                     return null;
                 }
 
-                return new MissingArgumentConversionResult(
+                return ArgumentConversionResult.Failure(
                     argument,
-                    symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult));
+                    symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult),
+                    ArgumentConversionResultType.FailedMissingArgument);
             }
 
             if (tokenCount > maximumNumberOfValues)
@@ -104,9 +105,10 @@ namespace System.CommandLine
                 {
                     if (!optionResult.Option.AllowMultipleArgumentsPerToken)
                     {
-                        return new TooManyArgumentsConversionResult(
+                        return ArgumentConversionResult.Failure(
                             argument,
-                            symbolResult!.LocalizationResources.ExpectsOneArgument(symbolResult));
+                            symbolResult!.LocalizationResources.ExpectsOneArgument(symbolResult),
+                            ArgumentConversionResultType.FailedTooManyArguments);
                     }
                 }
             }

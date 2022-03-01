@@ -100,11 +100,12 @@ namespace System.CommandLine.Parsing
             if (ShouldCheckArity() &&
                 Parent is { } &&
                 ArgumentArity.Validate(Parent,
-                                       argument,
-                                       argument.Arity.MinimumNumberOfValues,
-                                       argument.Arity.MaximumNumberOfValues) is FailedArgumentConversionResult failedResult)
+                    argument,
+                    argument.Arity.MinimumNumberOfValues,
+                    argument.Arity.MaximumNumberOfValues) is ArgumentConversionResult failed &&
+                    failed is not null) // returns null on success
             {
-                return failedResult;
+                return failed;
             }
 
             if (Parent!.UseDefaultValueFor(argument))
@@ -123,7 +124,8 @@ namespace System.CommandLine.Parsing
                 {
                     return ArgumentConversionResult.Failure(
                         argument,
-                        argumentResult.ErrorMessage!);
+                        argumentResult.ErrorMessage!,
+                        ArgumentConversionResultType.Failed);
                 }
             }
 
@@ -150,17 +152,15 @@ namespace System.CommandLine.Parsing
 
             if (success)
             {
-                return ArgumentConversionResult.Success(
-                    argument,
-                    value);
+                return ArgumentConversionResult.Success(argument, value);
             }
 
             if (ErrorMessage is not null)
             {
-                return new FailedArgumentConversionResult(argument, ErrorMessage);
+                return ArgumentConversionResult.Failure(argument, ErrorMessage, ArgumentConversionResultType.Failed);
             }
 
-            return new FailedArgumentTypeConversionResult(
+            return new ArgumentConversionResult(
                 argument,
                 argument.ValueType,
                 Tokens[0].Value,

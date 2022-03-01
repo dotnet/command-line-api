@@ -128,4 +128,6 @@ public class ModelBindingCommandHandler : ICommandHandler
                : _methodDescriptor.ParameterDescriptors
                                   .FirstOrDefault(x => x.ValueName == param.Name &&
                                                        x.ValueType == param.ParameterType);
+
+    public int Invoke(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
 }
