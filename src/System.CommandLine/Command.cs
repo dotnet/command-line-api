@@ -78,10 +78,11 @@ namespace System.CommandLine
         /// Adds an <see cref="Argument"/> to the command.
         /// </summary>
         /// <param name="argument">The argument to add to the command.</param>
-        public void AddArgument(Argument argument)
+        public Command AddArgument(Argument argument)
         {
             argument.AddParent(this);
             (_arguments ??= new()).Add(argument);
+            return this;
         }
 
         /// <summary>
@@ -89,20 +90,22 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The subcommand to add to the command.</param>
         /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
-        public void AddCommand(Command command)
+        public Command AddCommand(Command command)
         {
             command.AddParent(this);
             (_subcommands ??= new()).Add(command);
+            return this;
         }
 
         /// <summary>
         /// Adds an <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
-        public void AddOption(Option option)
+        public Command AddOption(Option option)
         {
             option.AddParent(this);
             (_options ??= new()).Add(option);
+            return this;
         }
 
         /// <summary>
@@ -120,20 +123,20 @@ namespace System.CommandLine
         /// Adds an <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
-        public void Add(Option option) => AddOption(option);
+        public Command Add(Option option) => AddOption(option);
 
         /// <summary>
         /// Adds an <see cref="Argument"/> to the command.
         /// </summary>
         /// <param name="argument">The argument to add to the command.</param>
-        public void Add(Argument argument) => AddArgument(argument);
+        public Command Add(Argument argument) => AddArgument(argument);
 
         /// <summary>
         /// Adds a subcommand to the command.
         /// </summary>
         /// <param name="command">The subcommand to add to the command.</param>
         /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
-        public void Add(Command command) => AddCommand(command);
+        public Command Add(Command command) => AddCommand(command);
 
         private protected override string DefaultName => throw new NotImplementedException();
 
