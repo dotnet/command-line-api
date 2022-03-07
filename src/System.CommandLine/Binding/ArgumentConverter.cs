@@ -97,10 +97,24 @@ namespace System.CommandLine.Binding
 
                 var result = ConvertToken(argument, itemType, token, localizationResources);
 
-                switch (result)
+                switch (result.Result)
                 {
-                    case FailedArgumentTypeConversionResult _:
-                    case FailedArgumentConversionResult _:
+                    case ArgumentConversionResultType.NoArgument:
+                        break;
+
+                    case ArgumentConversionResultType.Successful:
+                        if (isArray)
+                        {
+                            values[i] = result.Value;
+                        }
+                        else
+                        {
+                            values.Add(result.Value);
+                        }
+
+                        break;
+
+                    default: // failures
                         if (argumentResult is { Parent: CommandResult })
                         {
                             argumentResult.OnlyTake(i);
@@ -110,18 +124,6 @@ namespace System.CommandLine.Binding
                         }
 
                         return result;
-
-                    case SuccessfulArgumentConversionResult success:
-                        if (isArray)
-                        {
-                            values[i] = success.Value;
-                        }
-                        else
-                        {
-                            values.Add(success.Value);
-                        }
-
-                        break;
                 }
             }
 
@@ -183,13 +185,13 @@ namespace System.CommandLine.Binding
             }
         }
 
-        private static FailedArgumentConversionResult Failure(
+        private static ArgumentConversionResult Failure(
             Argument argument,
             Type expectedType,
             string value,
             LocalizationResources localizationResources)
         {
-            return new FailedArgumentTypeConversionResult(argument, expectedType, value, localizationResources);
+            return new ArgumentConversionResult(argument, expectedType, value, localizationResources);
         }
 
         internal static ArgumentConversionResult ConvertIfNeeded(
@@ -197,22 +199,24 @@ namespace System.CommandLine.Binding
             SymbolResult symbolResult,
             Type toType)
         {
-            return conversionResult switch
+            return conversionResult.Result switch
             {
-                SuccessfulArgumentConversionResult successful when !toType.IsInstanceOfType(successful.Value) =>
+                ArgumentConversionResultType.Successful when !toType.IsInstanceOfType(conversionResult.Value) =>
                     ConvertObject(conversionResult.Argument,
                                   toType,
-                                  successful.Value,
+                                  conversionResult.Value,
                                   symbolResult.LocalizationResources),
-                    
-                NoArgumentConversionResult _ when conversionResult.Argument.ValueType == typeof(bool) || conversionResult.Argument.ValueType == typeof(bool?) => 
-                    Success(conversionResult.Argument, true),
-                
-                NoArgumentConversionResult _ when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
-                    new MissingArgumentConversionResult(conversionResult.Argument,
-                                                        symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult)),
 
-                NoArgumentConversionResult _ when conversionResult.Argument.Arity.MaximumNumberOfValues > 1 =>
+                ArgumentConversionResultType.NoArgument when conversionResult.Argument.ValueType == typeof(bool) || conversionResult.Argument.ValueType == typeof(bool?) =>
+                    Success(conversionResult.Argument, true),
+
+                ArgumentConversionResultType.NoArgument when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
+                    ArgumentConversionResult.Failure(
+                        conversionResult.Argument,
+                        symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult),
+                        ArgumentConversionResultType.FailedMissingArgument),
+
+                ArgumentConversionResultType.NoArgument when conversionResult.Argument.Arity.MaximumNumberOfValues > 1 =>
                     Success(conversionResult.Argument, Array.Empty<string>()),
 
                 _ => conversionResult
@@ -221,12 +225,11 @@ namespace System.CommandLine.Binding
 
         internal static T GetValueOrDefault<T>(this ArgumentConversionResult result)
         {
-            return result switch
+            return result.Result switch
             {
-                SuccessfulArgumentConversionResult successful => (T)successful.Value!,
-                FailedArgumentConversionResult failed => throw new InvalidOperationException(failed.ErrorMessage),
-                NoArgumentConversionResult _ => default!,
-                _ => default!,
+                ArgumentConversionResultType.Successful => (T)result.Value!,
+                ArgumentConversionResultType.NoArgument => default!,
+                _ => throw new InvalidOperationException(result.ErrorMessage),
             };
         }
 
@@ -234,7 +237,7 @@ namespace System.CommandLine.Binding
         {
             var argument = argumentResult.Argument;
 
-            value = argument.Arity.MaximumNumberOfValues switch
+            ArgumentConversionResult result = argument.Arity.MaximumNumberOfValues switch
             {
                 // 0 is an implicit bool, i.e. a "flag"
                 0 => Success(argumentResult.Argument, true),
@@ -251,7 +254,8 @@ namespace System.CommandLine.Binding
                                     argumentResult)
             };
 
-            return value is SuccessfulArgumentConversionResult;
+            value = result;
+            return result.Result == ArgumentConversionResultType.Successful;
         }
 
         internal static object? GetDefaultValue(Type type)

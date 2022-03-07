@@ -105,9 +105,9 @@ namespace System.CommandLine.Binding
                         value,
                         localizationResources);
 
-                    if (parsed is SuccessfulArgumentConversionResult successful)
+                    if (parsed.Result == ArgumentConversionResultType.Successful)
                     {
-                        boundValue = new BoundValue(successful.Value, valueDescriptor, valueSource);
+                        boundValue = new BoundValue(parsed.Value, valueDescriptor, valueSource);
                         return true;
                     }
                 }

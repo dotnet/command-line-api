@@ -14,7 +14,10 @@ namespace System.CommandLine.Builder
     /// </summary>
     public class CommandLineBuilder 
     {
-        private readonly List<(InvocationMiddleware middleware, int order)> _middlewareList = new();
+        // for every generic type with type argument being struct JIT needs to compile a dedicated version
+        // (because each struct is of a different size)
+        // that is why we don't use List<ValueTuple> for middleware
+        private List<Tuple<InvocationMiddleware, int>>? _middlewareList;
         private LocalizationResources? _localizationResources;
         private Action<HelpContext>? _customizeHelpBuilder;
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
@@ -99,7 +102,7 @@ namespace System.CommandLine.Builder
                     enableLegacyDoubleDashBehavior: EnableLegacyDoubleDashBehavior,
                     resources: LocalizationResources,
                     responseFileHandling: ResponseFileHandling,
-                    middlewarePipeline: GetMiddleware(),
+                    middlewarePipeline: _middlewareList is null ? Array.Empty<InvocationMiddleware>() : GetMiddleware(),
                     helpBuilderFactory: GetHelpBuilderFactory()));
             
             return parser;
@@ -107,27 +110,22 @@ namespace System.CommandLine.Builder
 
         private IReadOnlyList<InvocationMiddleware> GetMiddleware()
         {
-            _middlewareList.Sort(static (m1, m2) => m1.order.CompareTo(m2.order));
+            _middlewareList!.Sort(static (m1, m2) => m1.Item2.CompareTo(m2.Item2));
             InvocationMiddleware[] result = new InvocationMiddleware[_middlewareList.Count];
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = _middlewareList[i].middleware;
+                result[i] = _middlewareList[i].Item1;
             }
             return result;
         }
 
-        internal void AddMiddleware(
-            InvocationMiddleware middleware,
-            MiddlewareOrder order)
-        {
-            _middlewareList.Add((middleware, (int) order));
-        }
+        internal void AddMiddleware(InvocationMiddleware middleware, MiddlewareOrder order)
+            => AddMiddleware(middleware, (int)order);
 
-        internal void AddMiddleware(
-            InvocationMiddleware middleware,
-            MiddlewareOrderInternal order)
-        {
-            _middlewareList.Add((middleware, (int) order));
-        }
+        internal void AddMiddleware(InvocationMiddleware middleware, MiddlewareOrderInternal order)
+            => AddMiddleware(middleware, (int)order);
+
+        private void AddMiddleware(InvocationMiddleware middleware, int order)
+            => (_middlewareList ??= new()).Add(new Tuple<InvocationMiddleware, int>(middleware, order));
     }
 }

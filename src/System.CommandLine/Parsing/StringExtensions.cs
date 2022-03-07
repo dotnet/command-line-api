@@ -9,9 +9,6 @@ namespace System.CommandLine.Parsing
 {
     internal static class StringExtensions
     {
-        private static readonly string[] _optionPrefixStrings = { "--", "-", "/" };
-        private static readonly char[] _argumentDelimiters = { ':', '=' };
-
         internal static bool ContainsCaseInsensitive(
             this string source,
             string value) =>
@@ -50,13 +47,18 @@ namespace System.CommandLine.Parsing
 
         internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
         {
-            for (var i = 0; i < _optionPrefixStrings.Length; i++)
+            if (rawAlias[0] == '/')
             {
-                var prefix = _optionPrefixStrings[i];
-                if (rawAlias.StartsWith(prefix, StringComparison.Ordinal))
+                return ("/", rawAlias.Substring(1));
+            }
+            else if (rawAlias[0] == '-')
+            {
+                if (rawAlias.Length > 1 && rawAlias[1] == '-')
                 {
-                    return (prefix, rawAlias.Substring(prefix.Length));
+                    return ("--", rawAlias.Substring(2));
                 }
+
+                return ("-", rawAlias.Substring(1));
             }
 
             return (null, rawAlias);
@@ -222,7 +224,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             pCandidate[1] = alias[i];
-                            if (!knownTokens.TryGetValue(candidate, out Token found))
+                            if (!knownTokens.TryGetValue(candidate, out Token? found))
                             {
                                 if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == TokenType.Option)
                                 {
@@ -386,7 +388,7 @@ namespace System.CommandLine.Parsing
             out string first,
             out string? rest)
         {
-            var i = arg.IndexOfAny(_argumentDelimiters);
+            var i = arg.AsSpan().IndexOfAny(':', '=');
 
             if (i >= 0)
             {

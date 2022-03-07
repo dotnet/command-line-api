@@ -65,18 +65,15 @@ namespace System.CommandLine.Parsing
 
                     break;
 
-                case RootCommandNode rootCommandNode:
-                    VisitRootCommandNode(rootCommandNode);
-
-                    for (var i = 0; i < rootCommandNode.Children.Count; i++)
-                    {
-                        VisitInternal(rootCommandNode.Children[i]);
-                    }
-
-                    break;
-
                 case CommandNode commandNode:
-                    VisitCommandNode(commandNode);
+                    if (commandNode.Parent is null)
+                    {
+                        VisitRootCommandNode(commandNode);
+                    }
+                    else
+                    {
+                        VisitCommandNode(commandNode);
+                    }
 
                     for (var i = 0; i < commandNode.Children.Count; i++)
                     {
@@ -131,7 +128,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void VisitRootCommandNode(RootCommandNode rootCommandNode)
+        private void VisitRootCommandNode(CommandNode rootCommandNode)
         {
             _rootCommandResult = new RootCommandResult(
                 rootCommandNode.Command,
@@ -251,69 +248,70 @@ namespace System.CommandLine.Parsing
 
             if (_argumentResults.Count > 0)
             {
-                var arguments = _innermostCommandResult!.Command.Arguments;
+                ValidateAndConvertArgumentResults(_innermostCommandResult!.Command.Arguments, _argumentResults.Count);
+            }
+        }
 
-                var commandArgumentResultCount = _argumentResults.Count;
-
-                for (var i = 0; i < arguments.Count; i++)
+        private void ValidateAndConvertArgumentResults(IReadOnlyList<Argument> arguments, int commandArgumentResultCount)
+        {
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                // If this is the current last result but there are more arguments, see if we can shift tokens to the next argument
+                if (commandArgumentResultCount == i)
                 {
-                    // If this is the current last result but there are more arguments, see if we can shift tokens to the next argument
-                    if (commandArgumentResultCount == i)
+                    var nextArgument = arguments[i];
+                    var nextArgumentResult = new ArgumentResult(
+                        nextArgument,
+                        _innermostCommandResult);
+
+                    var previousArgumentResult = _argumentResults[i - 1];
+
+                    var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
+
+                    for (var j = previousArgumentResult.Tokens.Count; j < passedOnTokensCount; j++)
                     {
-                        var nextArgument = arguments[i];
-                        var nextArgumentResult = new ArgumentResult(
-                            nextArgument,
-                            _innermostCommandResult);
-
-                        var previousArgumentResult = _argumentResults[i - 1];
-
-                        var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
-
-                        for (var j = previousArgumentResult.Tokens.Count; j < passedOnTokensCount; j++)
+                        if (nextArgumentResult.IsArgumentLimitReached)
                         {
-                            if (nextArgumentResult.IsArgumentLimitReached)
-                            {
-                                break;
-                            }
-
-                            if (_innermostCommandResult is not null)
-                            {
-                                nextArgumentResult.AddToken(_innermostCommandResult.Tokens[j]);
-                            }
+                            break;
                         }
 
-                        _argumentResults.Add(nextArgumentResult);
-
-                        if (previousArgumentResult.Parent is CommandResult)
+                        if (_innermostCommandResult is not null)
                         {
-                            AddToResult(nextArgumentResult);
+                            nextArgumentResult.AddToken(_innermostCommandResult.Tokens[j]);
                         }
-
-                        _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                     }
 
-                    var argumentResult = _argumentResults[i];
+                    _argumentResults.Add(nextArgumentResult);
 
-                    ValidateAndConvertArgumentResult(argumentResult);
-
-                    if (argumentResult.PassedOnTokens is { } &&
-                        i == arguments.Count - 1)
+                    if (previousArgumentResult.Parent is CommandResult)
                     {
-                        _unparsedTokens ??= new List<Token>();
-                        _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
+                        AddToResult(nextArgumentResult);
                     }
+
+                    _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                 }
 
-                if (_argumentResults.Count > arguments.Count)
-                {
-                    for (var i = arguments.Count; i < _argumentResults.Count; i++)
-                    {
-                        var result = _argumentResults[i];
+                var argumentResult = _argumentResults[i];
 
-                        if (result.Parent is CommandResult)
-                        {
-                            ValidateAndConvertArgumentResult(result);
-                        }
+                ValidateAndConvertArgumentResult(argumentResult);
+
+                if (argumentResult.PassedOnTokens is { } &&
+                    i == arguments.Count - 1)
+                {
+                    _unparsedTokens ??= new List<Token>();
+                    _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
+                }
+            }
+
+            if (_argumentResults.Count > arguments.Count)
+            {
+                for (var i = arguments.Count; i < _argumentResults.Count; i++)
+                {
+                    var result = _argumentResults[i];
+
+                    if (result.Parent is CommandResult)
+                    {
+                        ValidateAndConvertArgumentResult(result);
                     }
                 }
             }
@@ -323,84 +321,75 @@ namespace System.CommandLine.Parsing
         {
             var command = _innermostCommandResult!.Command;
 
-            for (var i = 0; i < command.Validators.Count; i++)
+            if (command.HasValidators && UseValidators(command, _innermostCommandResult))
             {
-                var validateSymbolResult = command.Validators[i];
-                validateSymbolResult(_innermostCommandResult);
-
-                if (!string.IsNullOrWhiteSpace(_innermostCommandResult.ErrorMessage))
-                {
-                    AddErrorToResult(
-                        _innermostCommandResult, 
-                        new ParseError(_innermostCommandResult.ErrorMessage!, _innermostCommandResult));
-
-                    return;
-                }
+                return;
             }
 
-            var commandToCheckForRequiredOptions = command;
-            ParentNode? currentNode = null;
-            var checkOnlyGlobalOptions = false;
-
-            while (commandToCheckForRequiredOptions is not null)
+            bool checkOnlyGlobalOptions = false;
+            Command? currentCommand = command;
+            while (currentCommand is not null)
             {
-                var options = commandToCheckForRequiredOptions.Options;
-
+                var options = currentCommand.Options;
                 for (var i = 0; i < options.Count; i++)
                 {
                     var option = options[i];
-
-                    if (option.IsRequired &&
-                        _rootCommandResult!.FindResultFor(option) is null)
+                    if (option.IsRequired && (!checkOnlyGlobalOptions || (checkOnlyGlobalOptions && option.IsGlobal)))
                     {
-                        if (checkOnlyGlobalOptions && !option.IsGlobal)
+                        if (_rootCommandResult!.FindResultFor(option) is null)
                         {
-                            continue;
+                            AddErrorToResult(
+                                _innermostCommandResult,
+                                new ParseError($"Option '{option.Aliases.First()}' is required.",
+                                               _innermostCommandResult));
                         }
-
-                        AddErrorToResult(
-                            _innermostCommandResult,
-                            new ParseError($"Option '{option.Aliases.First()}' is required.",
-                                           _innermostCommandResult));
                     }
                 }
 
-                if (currentNode is not null)
-                {
-                    commandToCheckForRequiredOptions = currentNode.Next?.Symbol as Command;
-                    if (commandToCheckForRequiredOptions is null)
-                    {
-                        currentNode = null;
-                    }
-                }
-                else if (commandToCheckForRequiredOptions.FirstParent is not null)
-                {
-                    currentNode = commandToCheckForRequiredOptions.FirstParent;
-                    commandToCheckForRequiredOptions = currentNode.Symbol as Command;
-                    currentNode = currentNode.Next;
-                    checkOnlyGlobalOptions = true;
-                }
-                else
-                {
-                    break;
-                }
+                currentCommand = currentCommand.FirstParent?.Symbol as Command;
+                checkOnlyGlobalOptions = true;
             }
 
-            var arguments = command.Arguments;
+            if (command.HasArguments)
+            {
+                ValidateArguments(command.Arguments, _innermostCommandResult);
+            }
+        }
 
+        private bool UseValidators(Command command, CommandResult innermostCommandResult)
+        {
+            for (var i = 0; i < command.Validators.Count; i++)
+            {
+                var validateSymbolResult = command.Validators[i];
+                validateSymbolResult(innermostCommandResult);
+
+                if (!string.IsNullOrWhiteSpace(innermostCommandResult.ErrorMessage))
+                {
+                    AddErrorToResult(
+                        innermostCommandResult,
+                        new ParseError(innermostCommandResult.ErrorMessage!, _innermostCommandResult));
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void ValidateArguments(IReadOnlyList<Argument> arguments, CommandResult innermostCommandResult)
+        {
             for (var i = 0; i < arguments.Count; i++)
             {
                 var symbol = arguments[i];
 
                 var arityFailure = ArgumentArity.Validate(
-                    _innermostCommandResult,
+                    innermostCommandResult,
                     symbol,
                     symbol.Arity.MinimumNumberOfValues,
                     symbol.Arity.MaximumNumberOfValues);
 
                 if (arityFailure is not null)
                 {
-                    AddErrorToResult(_innermostCommandResult, new ParseError(arityFailure.ErrorMessage!, _innermostCommandResult));
+                    AddErrorToResult(innermostCommandResult, new ParseError(arityFailure.ErrorMessage!, innermostCommandResult));
                 }
             }
         }
@@ -495,20 +484,24 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            if (argumentResult.GetArgumentConversionResult() is FailedArgumentConversionResult failed
-                and not FailedArgumentConversionArityResult)
+            ArgumentConversionResult argumentConversionResult = argumentResult.GetArgumentConversionResult();
+            if (argumentConversionResult.Result >= ArgumentConversionResultType.Failed
+                && argumentConversionResult.Result !=  ArgumentConversionResultType.FailedArity)
             {
-                if (argument.Parents.FirstOrDefault() is Option option)
+                if (argument.FirstParent?.Symbol is Option option)
                 {
                     var completions = option.GetCompletions().ToArray();
 
                     if (completions.Length > 0)
                     {
-                        failed.ErrorMessage += " Did you mean one of the following?" + Environment.NewLine + string.Join(Environment.NewLine, completions.Select(c => c.Label));
+                        argumentConversionResult = ArgumentConversionResult.Failure(
+                            argumentConversionResult.Argument,
+                            argumentConversionResult.ErrorMessage + " Did you mean one of the following?" + Environment.NewLine + string.Join(Environment.NewLine, completions.Select(c => c.Label)),
+                            argumentConversionResult.Result);
                     }
                 }
 
-                AddErrorToResult(argumentResult, new ParseError(failed.ErrorMessage!, argumentResult));
+                AddErrorToResult(argumentResult, new ParseError(argumentConversionResult.ErrorMessage!, argumentResult));
             }
         }
 

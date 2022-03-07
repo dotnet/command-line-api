@@ -163,6 +163,42 @@ internal static partial class ArgumentConverter
             return false;
         },
 
+        [typeof(uint)] = (string token, out object? value) =>
+        {
+            if (uint.TryParse(token, out var uintValue))
+            {
+                value = uintValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(sbyte)] = (string token, out object? value) =>
+        {
+            if (sbyte.TryParse(token, out var sbyteValue))
+            {
+                value = sbyteValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(byte)] = (string token, out object? value) =>
+        {
+            if (byte.TryParse(token, out var byteValue))
+            {
+                value = byteValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
         [typeof(string)] = (string input, out object? value) =>
         {
             value = input;
@@ -171,9 +207,9 @@ internal static partial class ArgumentConverter
 
         [typeof(ulong)] = (string token, out object? value) =>
         {
-            if (ulong.TryParse(token, out var ushortValue))
+            if (ulong.TryParse(token, out var ulongValue))
             {
-                value = ushortValue;
+                value = ulongValue;
                 return true;
             }
 
