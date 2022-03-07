@@ -44,7 +44,9 @@ namespace System.CommandLine.Parsing
             IReadOnlyList<string> arguments,
             string? rawInput = null)
         {
-            var tokenizeResult = arguments.Tokenize(Configuration);
+            var tokenizeResult = arguments.Tokenize(
+                Configuration,
+                inferRootCommand: rawInput is not null);
 
             var operation = new ParseOperation(
                 tokenizeResult,
