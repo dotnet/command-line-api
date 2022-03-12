@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Directives_should_not_be_considered_as_unmatched_tokens()
         {
-            var option = new Option("-y");
+            var option = new Option<bool>("-y");
 
             var result = option.Parse($"{RootCommand.ExecutableName} [parse] -y");
 
@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Raw_tokens_still_hold_directives()
         {
-            var option = new Option("-y");
+            var option = new Option<bool>("-y");
 
             var result = option.Parse("[parse] -y");
 
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Directives_should_parse_into_the_directives_collection()
         {
-            var option = new Option("-y");
+            var option = new Option<bool>("-y");
 
             var result = option.Parse("[parse] -y");
 
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Multiple_directives_are_allowed()
         {
-            var option = new Option("-y");
+            var option = new Option<bool>("-y");
 
             var result = option.Parse("[parse] [suggest] -y");
 
@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Directives_must_be_the_first_argument()
         {
-            var option = new Option("-y");
+            var option = new Option<bool>("-y");
 
             var result = option.Parse("-y [suggest]");
 
@@ -72,7 +72,7 @@ namespace System.CommandLine.Tests
             string expectedKey,
             string expectedValue)
         {
-            var option = new Option("-y");
+            var option = new Option<bool>("-y");
 
             var result = option.Parse($"{directive} -y");
 
@@ -83,7 +83,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Directives_without_a_value_specified_have_a_value_of_empty_string()
         {
-            var option = new Option("-y");
+            var option = new Option<bool>("-y");
 
             var result = option.Parse("[parse] -y");
 
@@ -96,7 +96,7 @@ namespace System.CommandLine.Tests
         [InlineData("[:value]")]
         public void Directives_must_have_a_non_empty_key(string directive)
         {
-            var option = new Option("-a");
+            var option = new Option<bool>("-a");
 
             var result = option.Parse($"{directive} -a");
 
@@ -110,7 +110,7 @@ namespace System.CommandLine.Tests
         [InlineData("[parse ]")]
         public void Directives_cannot_contain_spaces(object value)
         {
-            var option = new Option("-a");
+            var option = new Option<bool>("-a");
 
             var result = option.Parse($"{value} -a");
 
@@ -120,7 +120,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_directive_is_specified_more_than_once_then_its_values_are_aggregated()
         {
-            var option = new Option("-a");
+            var option = new Option<bool>("-a");
 
             var result = option.Parse("[directive:one] [directive:two] -a");
 

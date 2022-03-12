@@ -11,9 +11,6 @@ using FluentAssertions.Equivalency;
 using System.Linq;
 using FluentAssertions.Common;
 using Xunit;
-using System.ComponentModel;
-using System.Globalization;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
@@ -30,8 +27,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_can_be_checked_by_object_instance()
         {
-            var option = new Option("--flag");
-            var option2 = new Option("--flag2");
+            var option = new Option<bool>("--flag");
+            var option2 = new Option<bool>("--flag2");
             var result = new Parser(new RootCommand { option, option2 })
                 .Parse("--flag");
 
@@ -42,9 +39,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Two_options_are_parsed_correctly()
         {
-            var optionOne = new Option(new[] { "-o", "--one" });
+            var optionOne = new Option<bool>(new[] { "-o", "--one" });
 
-            var optionTwo = new Option(new[] { "-t", "--two" });
+            var optionTwo = new Option<bool>(new[] { "-t", "--two" });
 
             var result = new Parser(
                     new RootCommand
@@ -101,7 +98,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Short_form_options_can_be_specified_using_colon_delimiter()
         {
-            var option = new Option("-x") { Arity = ArgumentArity.ExactlyOne };
+            var option = new Option<string>("-x");
 
             var result = option.Parse("-x:some-value");
 
@@ -126,9 +123,9 @@ namespace System.CommandLine.Tests
         public void Option_short_forms_can_be_bundled()
         {
             var command = new Command("the-command");
-            command.AddOption(new Option("-x"));
-            command.AddOption(new Option("-y"));
-            command.AddOption(new Option("-z"));
+            command.AddOption(new Option<bool>("-x"));
+            command.AddOption(new Option<bool>("-y"));
+            command.AddOption(new Option<bool>("-z"));
 
             var result = command.Parse("the-command -xyz");
 
@@ -146,9 +143,9 @@ namespace System.CommandLine.Tests
                          {
                              new Command("the-command")
                              {
-                                 new Option("-x"),
-                                 new Option("-y"),
-                                 new Option("-z")
+                                 new Option<bool>("-x"),
+                                 new Option<bool>("-y"),
+                                 new Option<bool>("-z")
                              }
                          })
                          .EnablePosixBundling(false)
@@ -167,10 +164,10 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Command("the-command")
                 {
-                    new Option("--xyz"),
-                    new Option("-x"),
-                    new Option("-y"),
-                    new Option("-z")
+                    new Option<bool>("--xyz"),
+                    new Option<bool>("-x"),
+                    new Option<bool>("-y"),
+                    new Option<bool>("-z")
                 });
 
             var result = parser.Parse("the-command --xyz");
@@ -186,7 +183,7 @@ namespace System.CommandLine.Tests
         public void Options_do_not_get_unbundled_unless_all_resulting_options_would_be_valid_for_the_current_command()
         {
             var outer = new Command("outer");
-            outer.AddOption(new Option("-a"));
+            outer.AddOption(new Option<bool>("-a"));
             var inner = new Command("inner")
             {
                 new Argument
@@ -194,8 +191,8 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrMore
                 }
             };
-            inner.AddOption(new Option("-b"));
-            inner.AddOption(new Option("-c"));
+            inner.AddOption(new Option<bool>("-b"));
+            inner.AddOption(new Option<bool>("-c"));
             outer.AddCommand(inner);
 
             var parser = new Parser(outer);
@@ -213,8 +210,8 @@ namespace System.CommandLine.Tests
         public void Required_option_arguments_are_not_unbundled()
         {
             var optionA = new Option<string>("-a");
-            var optionB = new Option("-b");
-            var optionC = new Option("-c");
+            var optionB = new Option<bool>("-b");
+            var optionC = new Option<bool>("-c");
 
             var command = new RootCommand
             {
@@ -795,7 +792,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("inner")
                 {
-                    new Option("-x") { Arity = ArgumentArity.ExactlyOne }
+                    new Option<string>("-x")
                 }
             };
 
@@ -812,7 +809,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("inner")
                 {
-                    new Option("-x") { Arity = ArgumentArity.ExactlyOne }
+                    new Option<string>("-x")
                 }
             };
 
@@ -830,7 +827,7 @@ namespace System.CommandLine.Tests
                               {
                                   new Command("inner")
                                   {
-                                      new Option("-x") { Arity = ArgumentArity.ExactlyOne }
+                                      new Option<string>("-x")
                                   }
                               };
             rootCommand.Name = "outer";
@@ -1395,7 +1392,7 @@ namespace System.CommandLine.Tests
             {
                 TreatUnmatchedTokensAsErrors = false
             };
-            var optionX = new Option("-x") { Arity = ArgumentArity.ExactlyOne };
+            var optionX = new Option<string>("-x");
             command.AddOption(optionX);
             var optionY = new Option("-y") { Arity = ArgumentArity.ExactlyOne };
             command.AddOption(optionY);

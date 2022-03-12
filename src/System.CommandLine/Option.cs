@@ -19,6 +19,10 @@ namespace System.CommandLine
         private List<ValidateSymbolResult<OptionResult>>? _validators;
         private Argument? _argument;
 
+        public Option(string name) : this(name, description: null){}
+        
+        public Option(string name, string description) : this(name, description, argumentType: null){}
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
         /// </summary>

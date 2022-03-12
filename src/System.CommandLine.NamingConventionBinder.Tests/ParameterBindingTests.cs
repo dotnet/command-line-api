@@ -51,7 +51,7 @@ public class ParameterBindingTests
 
         var command = new Command("command")
         {
-            new Option("--first-name", arity: ArgumentArity.ExactlyOne)
+            new Option<string>("--first-name")
         };
         command.Handler = CommandHandler.Create<string>(Execute);
 
