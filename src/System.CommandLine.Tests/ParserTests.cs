@@ -792,7 +792,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void A_root_command_can_match_a_full_path_to_an_executable()
+        public void When_parsing_an_unsplit_string_then_input_a_full_path_to_an_executable_is_matched_by_the_root_command()
         {
             var command = new RootCommand
             {
@@ -802,15 +802,15 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            ParseResult result1 = command.Parse("inner -x hello");
+            var result1 = command.Parse("inner -x hello");
 
-            ParseResult result2 = command.Parse($"{RootCommand.ExecutablePath} inner -x hello");
+            var result2 = command.Parse($"{RootCommand.ExecutablePath} inner -x hello");
 
             result1.Diagram().Should().Be(result2.Diagram());
         }
 
         [Fact]
-        public void A_renamed_RootCommand_can_be_omitted_from_the_parsed_args()
+        public void When_parsing_an_unsplit_string_then_a_renamed_RootCommand_can_be_omitted_from_the_parsed_args()
         {
             var rootCommand = new RootCommand
                               {
@@ -827,6 +827,27 @@ namespace System.CommandLine.Tests
 
             result2.RootCommandResult.Command.Should().BeSameAs(result1.RootCommandResult.Command);
             result3.RootCommandResult.Command.Should().BeSameAs(result1.RootCommandResult.Command);
+        }
+        
+        [Fact]
+        public void When_parsing_a_string_array_input_then_a_full_path_to_an_executable_is_not_matched_by_the_root_command()
+        {
+            var command = new RootCommand
+            {
+                new Command("inner")
+                {
+                    new Option("-x") { Arity = ArgumentArity.ExactlyOne }
+                }
+            };
+
+            command.Parse(Split("inner -x hello")).Errors.Should().BeEmpty();
+
+            command.Parse(Split($"{RootCommand.ExecutablePath} inner -x hello"))
+                   .Errors
+                   .Should()
+                   .ContainSingle(e => e.Message == $"{LocalizationResources.Instance.UnrecognizedCommandOrArgument(RootCommand.ExecutablePath)}");
+            
+            string[] Split(string value) => CommandLineStringSplitter.Instance.Split(value).ToArray(); 
         }
 
         [Fact]
