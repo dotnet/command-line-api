@@ -182,6 +182,7 @@
     public System.String VersionOptionCannotBeCombinedWithOtherArguments(System.String optionAlias)
     public System.String VersionOptionDescription()
   public class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
+    .ctor(System.String name)
     .ctor(System.String name, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, ArgumentArity arity = null)
     .ctor(System.String[] aliases, System.String description = null, System.Type argumentType = null, System.Func<System.Object> getDefaultValue = null, ArgumentArity arity = null)
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }

@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
 using Xunit;
@@ -20,7 +19,7 @@ namespace System.CommandLine.Tests
                 {
                     new Command("inner")
                     {
-                        new Option("--option", arity: ArgumentArity.ExactlyOne)
+                        new Option<string>("--option")
                     }
                 });
         }

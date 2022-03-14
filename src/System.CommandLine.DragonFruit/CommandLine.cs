@@ -296,11 +296,14 @@ namespace System.CommandLine.DragonFruit
             {
                 getDefaultValue = parameter.GetDefaultValue;
             }
-            return new Option(
+
+            var option = new Option(
                 parameter.BuildAlias(),
                 parameter.ValueName,
                 parameter.ValueType,
                 getDefaultValue);
+
+            return option;
         }
 
         private static string GetDefaultXmlDocsFileLocation(Assembly assembly)

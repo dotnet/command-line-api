@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_GetCompletions_returns_argument_completions_if_configured()
         {
-            var option = new Option("--hello", arity: ArgumentArity.ExactlyOne)
+            var option = new Option<string>("--hello")
                 .AddCompletions("one", "two", "three");
 
             var completions = option.GetCompletions();

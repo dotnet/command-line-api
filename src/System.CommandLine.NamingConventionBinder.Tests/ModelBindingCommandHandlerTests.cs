@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Tests.Binding;
+using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -283,7 +284,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var handler = CommandHandler.Create(captureMethod);
 
-        var option = new Option("--value", argumentType: testCase.ParameterType);
+        var option = OptionBuilder.CreateOption("--value", testCase.ParameterType);
 
         var command = new Command("command")
         {

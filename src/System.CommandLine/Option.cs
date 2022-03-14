@@ -25,14 +25,6 @@ namespace System.CommandLine
         {
         }
 
-        public Option(string name, ArgumentArity arity) : this(name, description: null, arity: arity)
-        {
-        }
-
-        public Option(string name, Func<object?>? getDefaultValue) : this(name,null, getDefaultValue: getDefaultValue)
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
         /// </summary>

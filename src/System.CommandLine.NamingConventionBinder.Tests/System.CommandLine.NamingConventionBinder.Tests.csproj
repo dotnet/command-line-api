@@ -12,10 +12,12 @@
     <EmbeddedResource Remove="TestResults\**" />
     <None Remove="TestResults\**" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="..\System.CommandLine.Tests\Binding\TestModels.cs" Link="TestModels.cs" />
     <Compile Include="..\System.CommandLine.Tests\Utility\AssertionExtensions.cs" Link="Utility\AssertionExtensions.cs" />
     <Compile Include="..\System.CommandLine.Tests\Utility\ConsoleAssertions.cs" Link="Utility\ConsoleAssertions.cs" />
+    <Compile Include="..\System.CommandLine.Tests\Utility\OptionBuilder.cs" Link="Utility\OptionBuilder.cs" />
   </ItemGroup>
   
   <ItemGroup>

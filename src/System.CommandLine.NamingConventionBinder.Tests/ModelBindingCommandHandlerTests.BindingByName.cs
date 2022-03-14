@@ -1,10 +1,10 @@
 ﻿// // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Tests.Binding;
+using System.CommandLine.Utility;
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -35,7 +35,7 @@ public partial class ModelBindingCommandHandlerTests
 
             var command = new Command("the-command")
             {
-                new Option("--value", argumentType: type)
+                OptionBuilder.CreateOption("--value", type)
             };
 
             var console = new TestConsole();
@@ -99,7 +99,7 @@ public partial class ModelBindingCommandHandlerTests
 
             var command = new Command("the-command")
             {
-                new Option("--value", argumentType: type)
+                OptionBuilder.CreateOption("--value", type)
             };
 
             var console = new TestConsole();

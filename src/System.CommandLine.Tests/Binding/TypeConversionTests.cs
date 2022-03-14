@@ -239,7 +239,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne);
+            var option = new Option<string>("-x");
 
             var command = new Command("the-command")
             {
