@@ -8,6 +8,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.CommandLine.Rendering;
+using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -297,11 +298,14 @@ namespace System.CommandLine.DragonFruit
                 getDefaultValue = parameter.GetDefaultValue;
             }
 
-            var option = new Option(
-                parameter.BuildAlias(),
-                parameter.ValueName,
-                parameter.ValueType,
-                getDefaultValue);
+            var option = OptionBuilder.CreateOption(parameter.BuildAlias(), parameter.ValueType);
+            
+            option.Description = parameter.ValueName;
+
+            if (getDefaultValue is not null)
+            {
+                option.SetDefaultValueFactory(getDefaultValue);
+            }
 
             return option;
         }
