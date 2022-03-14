@@ -19,9 +19,19 @@ namespace System.CommandLine
         private List<ValidateSymbolResult<OptionResult>>? _validators;
         private Argument? _argument;
 
-        public Option(string name) : this(name, description: null){}
-        
-        public Option(string name, string description) : this(name, description, argumentType: null){}
+        // FIX: (Option) delete temp constructors
+
+        public Option(string name) : this(name, description: null)
+        {
+        }
+
+        public Option(string name, ArgumentArity arity) : this(name, description: null, arity: arity)
+        {
+        }
+
+        public Option(string name, Func<object?>? getDefaultValue) : this(name,null, getDefaultValue: getDefaultValue)
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.

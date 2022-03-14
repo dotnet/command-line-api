@@ -28,6 +28,7 @@ namespace System.CommandLine
         /// </summary>
         public Argument()
         {
+            // FIX: (Argument) make this protected
         }
 
         /// <summary>

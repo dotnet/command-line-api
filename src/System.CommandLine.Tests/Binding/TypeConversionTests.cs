@@ -235,41 +235,7 @@ namespace System.CommandLine.Tests.Binding
 
             parseResult.GetValueForOption((Option)option).Should().Be(true);
         }
-
-        [Fact]
-        public void By_default_an_option_with_zero_or_one_argument_parses_as_the_argument_string_value()
-        {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrOne);
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            var result = command.Parse("the-command -x the-argument");
-
-            result.GetValueForOption(option)
-                  .Should()
-                  .Be("the-argument");
-        }
-
-        [Fact]
-        public void By_default_an_option_with_exactly_one_argument_parses_as_the_argument_string_value()
-        {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne);
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            var result = command.Parse("the-command -x the-argument");
-
-            result.GetValueForOption(option)
-                  .Should()
-                  .Be("the-argument");
-        }
-
+        
         [Fact]
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
@@ -291,81 +257,7 @@ namespace System.CommandLine.Tests.Binding
                     .Should()
                     .Be("Required argument missing for option: '-x'.");
         }
-
-        [Fact]
-        public void When_zero_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_returns_an_empty_sequence_of_strings()
-        {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            var result = command.Parse("the-command -x");
-
-            result.GetValueForOption(option)
-                  .Should()
-                  .BeAssignableTo<IReadOnlyCollection<string>>()
-                  .Which
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Fact]
-        public void When_one_or_more_arguments_of_unspecified_type_are_expected_and_none_are_provided_then_getting_value_throws()
-        {
-            var option = new Option("-x", arity: ArgumentArity.OneOrMore);
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            var result = command.Parse("the-command -x");
-
-            Action getValue = () => result.GetValueForOption(option);
-
-            getValue.Should()
-                    .Throw<InvalidOperationException>()
-                    .Which
-                    .Message
-                    .Should()
-                    .Be("Required argument missing for option: '-x'.");
-        }
-
-        [Fact]
-        public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_multiple_arguments_parses_as_a_sequence_of_strings()
-        {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            command.Parse("the-command -x arg1 -x arg2")
-                   .GetValueForOption(option)
-                   .Should()
-                   .BeEquivalentTo(new[] { "arg1", "arg2" });
-        }
-
-        [Fact]
-        public void By_default_an_option_that_allows_multiple_arguments_and_is_passed_one_argument_parses_as_a_sequence_of_strings()
-        {
-            var option = new Option("-x", arity: ArgumentArity.ZeroOrMore);
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            command.Parse("the-command -x arg1")
-                   .GetValueForOption(option)
-                   .Should()
-                   .BeEquivalentTo(new[] { "arg1" });
-        }
-
+        
         [Theory]
         [InlineData("c -a o c c")]
         [InlineData("c c -a o c")]
@@ -856,7 +748,8 @@ namespace System.CommandLine.Tests.Binding
             int maxArity,
             Type argumentType)
         {
-            var option = new Option("--items", argumentType: argumentType, arity: new ArgumentArity(minArity, maxArity));
+            var arity = new ArgumentArity(minArity, maxArity);
+            var option = new Option("--items", argumentType: argumentType, arity: arity);
 
             var command = new RootCommand
             {

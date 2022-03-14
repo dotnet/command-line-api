@@ -41,9 +41,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Option("--one", "option one"),
-                new Option("--two", "option two"),
-                new Option("--three", "option three")
+                new Option<string>("--one", "option one"),
+                new Option<string>("--two", "option two"),
+                new Option<string>("--three", "option three")
             };
 
             var completions = command.GetCompletions();
@@ -59,8 +59,8 @@ namespace System.CommandLine.Tests
         {
             var subcommand = new Command("command")
             {
-                new Option("--one", "option one"),
-                new Option("--two", "option two")
+                new Option<string>("--one", "option one"),
+                new Option<string>("--two", "option two")
             };
 
             var rootCommand = new RootCommand
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
                 subcommand
             };
 
-            rootCommand.AddGlobalOption(new Option("--three", "option three"));
+            rootCommand.AddGlobalOption(new Option<string>("--three", "option three"));
 
             var completions = subcommand.GetCompletions();
 
@@ -118,7 +118,7 @@ namespace System.CommandLine.Tests
             var command = new Command("command")
             {
                 new Command("subcommand", "subcommand"),
-                new Option("--option", "option"),
+                new Option<bool>("--option", "option"),
                 new Argument
                 {
                     Arity = ArgumentArity.OneOrMore,
@@ -426,7 +426,7 @@ namespace System.CommandLine.Tests
                 {
                     IsHidden = true
                 },
-                new Option("-n", "Not hidden")
+                new Option<string>("-n", "Not hidden")
             };
 
             var completions = command.Parse("the-command ").GetCompletions();

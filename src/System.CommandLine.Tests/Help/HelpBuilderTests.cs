@@ -208,7 +208,7 @@ namespace System.CommandLine.Tests.Help
             outer.AddCommand(inner);
             var innerEr = new Command("inner-er", "the inner-er command");
             inner.AddCommand(innerEr);
-            innerEr.AddOption(new Option("--some-option", "some option"));
+            innerEr.AddOption(new Option<string>("--some-option", "some option"));
             var rootCommand = new RootCommand();
             rootCommand.Add(outer);
 
@@ -226,7 +226,7 @@ namespace System.CommandLine.Tests.Help
         {
             var inner = new Command("inner", "command help")
             {
-                new Option("-v", "Sets the verbosity"),
+                new Option<string>("-v", "Sets the verbosity"),
                 new Argument<string[]>
                 {
                     Name = "inner-args"
@@ -257,7 +257,7 @@ namespace System.CommandLine.Tests.Help
                 "some-command",
                 "Does something");
             command.AddOption(
-                new Option("-x", "Indicates whether x"));
+                new Option<string>("-x", "Indicates whether x"));
 
             _helpBuilder.Write(command, _console);
 
@@ -270,7 +270,7 @@ namespace System.CommandLine.Tests.Help
             var command = new RootCommand();
             var subcommand = new Command("some-command", "Does something");
             command.AddCommand(subcommand);
-            subcommand.AddOption(new Option("-x", "Indicates whether x"));
+            subcommand.AddOption(new Option<string>("-x", "Indicates whether x"));
             subcommand.TreatUnmatchedTokensAsErrors = true;
 
             _helpBuilder.Write(subcommand, _console);
@@ -284,7 +284,7 @@ namespace System.CommandLine.Tests.Help
             var command = new RootCommand();
             var subcommand = new Command("some-command", "Does something");
             command.AddCommand(subcommand);
-            subcommand.AddOption(new Option("-x", "Indicates whether x"));
+            subcommand.AddOption(new Option<string>("-x", "Indicates whether x"));
             subcommand.TreatUnmatchedTokensAsErrors = false;
 
             _helpBuilder.Write(subcommand, _console);
@@ -449,7 +449,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("command")
             {
-                new Option("-v", "Sets the verbosity.", arity: ArgumentArity.ExactlyOne)
+                new Option<string>("-v", "Sets the verbosity.")
                 {
                     ArgumentHelpName = "argument for options"
                 }
@@ -755,17 +755,21 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Theory]
-        [InlineData(typeof(bool))]
-        [InlineData(typeof(bool?))]
-        public void Option_argument_usage_is_empty_for_boolean_values(Type type)
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Option_argument_usage_is_empty_for_boolean_values(bool nullable)
         {
             var description = "This is the option description";
 
+            Option option = nullable
+                                ? new Option<bool?>("--opt", description)
+                                : new Option<bool>("--opt", description);
+
             var command = new Command(
                 "outer", "Help text for the outer command")
-                          {
-                              new Option("--opt", description, argumentType: type)
-                          };
+            {
+                option
+            };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
@@ -796,17 +800,21 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Theory]
-        [InlineData(typeof(FileAccess))]
-        [InlineData(typeof(FileAccess?))]
-        public void Option_argument_first_column_indicates_enums_values(Type type)
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Option_argument_first_column_indicates_enums_values(bool nullable)
         {
             var description = "This is the argument description";
 
+            Option option = nullable
+                                ? new Option<FileAccess?>("--opt", description)
+                                : new Option<FileAccess>("--opt", description);
+
             var command = new Command(
-                              "outer", "Help text for the outer command")
-                          {
-                              new Option("--opt", description, argumentType: type)
-                          };
+                "outer", "Help text for the outer command")
+            {
+                option
+            };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
@@ -860,7 +868,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_does_not_show_default_value_for_option_when_default_value_is_empty()
         {
-            var option = new Option("-x", description: "The option description");
+            var option = new Option<string>("-x", description: "The option description");
             option.SetDefaultValue("");
 
             var command = new Command("the-command", "The command description")
@@ -964,8 +972,8 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "Does things.")
                           {
-                              new Option("-x"),
-                              new Option("-n")
+                              new Option<string>("-x"),
+                              new Option<string>("-n")
                           };
 
             _helpBuilder.Write(command, _console);
@@ -979,11 +987,11 @@ namespace System.CommandLine.Tests.Help
         public void Options_section_does_not_contain_option_with_HelpDefinition_that_IsHidden()
         {
             var command = new Command("the-command");
-            command.AddOption(new Option("-x", "Is Hidden")
+            command.AddOption(new Option<string>("-x", "Is Hidden")
             {
                 IsHidden = true
             });
-            command.AddOption(new Option("-n", "Not Hidden")
+            command.AddOption(new Option<string>("-n", "Not Hidden")
             {
                 IsHidden = false
             });
@@ -1089,9 +1097,9 @@ namespace System.CommandLine.Tests.Help
 
             var command = new Command("test-command", "Help text for the command")
             {
-                new Option("-x", "Option with a short description"),
+                new Option<string>("-x", "Option with a short description"),
                 new Option(new[] { "-a", "--aaa" }, longOptionText),
-                new Option("-y", "Option with a short description"),
+                new Option<string>("-y", "Option with a short description"),
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1114,9 +1122,9 @@ namespace System.CommandLine.Tests.Help
 
             var command = new Command("test-command", "Help text for the command")
             {
-                new Option("-x", "Option with a short description"),
+                new Option<string>("-x", "Option with a short description"),
                 new Option(new[] { "-a", "--aaa" }, longOptionText, getDefaultValue: () => "the quick brown fox jumps over the lazy dog"),
-                new Option("-y", "Option with a short description"),
+                new Option<string>("-y", "Option with a short description"),
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1138,7 +1146,7 @@ namespace System.CommandLine.Tests.Help
 
             var command = new RootCommand
             {
-                new Option(alias, description)
+                new Option<bool>(alias, description)
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1158,7 +1166,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new RootCommand
             {
-                new Option("--required")
+                new Option<bool>("--required")
                 {
                     IsRequired = true
                 }
@@ -1346,7 +1354,7 @@ namespace System.CommandLine.Tests.Help
                             new Command(
                                 "inner-er", "inner-er description")
                             {
-                                new Option("some-option",
+                                new Option<string>("some-option",
                                            "some-option description")
                             }
                         };
