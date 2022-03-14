@@ -283,9 +283,9 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void The_default_value_of_an_option_with_no_arguments_is_true()
+        public void The_default_value_of_a_bool_option_with_no_arguments_is_true()
         {
-            var option = new Option("-x");
+            var option = new Option<bool>("-x");
 
             var command =
                 new Command("the-command")
@@ -301,9 +301,9 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void By_default_an_option_without_arguments_parses_as_false_when_it_is_not_applied()
+        public void By_default_a_bool_option_without_arguments_parses_as_false_when_it_is_not_applied()
         {
-            var option = new Option("-x");
+            var option = new Option<bool>("-x");
 
             var command = new Command("something")
             {

@@ -155,7 +155,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Contain($"Command alias cannot contain whitespace: \"{alias}\"");
+                  .Contain($"Alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -175,7 +175,7 @@ namespace System.CommandLine.Tests
                 .Which
                 .Message
                 .Should()
-                .Contain($"Command alias cannot contain whitespace: \"{alias}\"");
+                .Contain($"Alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]

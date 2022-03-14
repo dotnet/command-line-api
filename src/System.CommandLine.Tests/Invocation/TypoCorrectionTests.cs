@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_option_is_mistyped_it_is_suggested()
         {
-            var option = new Option("info");
+            var option = new Option<string>("info");
 
             var parser =
                 new CommandLineBuilder(new RootCommand
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_there_are_no_matches_then_nothing_is_suggested()
         {
-            var option = new Option("info");
+            var option = new Option<bool>("info");
 
             var parser =
                 new CommandLineBuilder(new RootCommand
@@ -77,8 +77,8 @@ namespace System.CommandLine.Tests.Invocation
         {
             var fromCommand = new Command("from");
             var seenCommand = new Command("seen");
-            var aOption = new Option("a");
-            var beenOption = new Option("been");
+            var aOption = new Option<bool>("a");
+            var beenOption = new Option<bool>("been");
             var parser =
                 new CommandLineBuilder(new RootCommand
                     {
@@ -146,9 +146,9 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Hidden_options_are_not_suggested()
         {
-            var fromOption = new Option("from");
-            var seenOption = new Option("seen") { IsHidden = true };
-            var beenOption = new Option("been");
+            var fromOption = new Option<string>("from");
+            var seenOption = new Option<string>("seen") { IsHidden = true };
+            var beenOption = new Option<string>("been");
 
             var parser =
                 new CommandLineBuilder(new RootCommand
@@ -172,8 +172,8 @@ namespace System.CommandLine.Tests.Invocation
             var parser =
                 new CommandLineBuilder(new RootCommand
                     {
-                        new Option(new[] { "/call", "-call", "--call" }),
-                        new Option(new[] { "/email", "-email", "--email" })
+                        new Option<string>(new[] { "/call", "-call", "--call" }),
+                        new Option<string>(new[] { "/email", "-email", "--email" })
                     })
                     .UseTypoCorrections()
                     .Build();

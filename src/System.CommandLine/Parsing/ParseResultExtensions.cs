@@ -80,90 +80,99 @@ namespace System.CommandLine.Parsing
                 builder.Append("!");
             }
 
-            if (symbolResult is OptionResult optionResult &&
-                optionResult.IsImplicit)
+
+            switch (symbolResult)
             {
-                builder.Append("*");
-            }
-
-            if (symbolResult is ArgumentResult argumentResult)
-            {
-                var includeArgumentName =
-                    argumentResult.Argument.FirstParent!.Symbol is Command command &&
-                    command.Arguments.Count > 1;
-
-                if (includeArgumentName)
+                case ArgumentResult argumentResult:
                 {
-                    builder.Append("[ ");
-                    builder.Append(argumentResult.Argument.Name);
-                    builder.Append(" ");
-                }
+                    var includeArgumentName =
+                        argumentResult.Argument.FirstParent!.Symbol is Command command &&
+                        command.Arguments.Count > 1;
 
-                if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
-                {
-                    ArgumentConversionResult conversionResult = argumentResult.GetArgumentConversionResult();
-                    switch (conversionResult.Result)
+                    if (includeArgumentName)
                     {
-                        case ArgumentConversionResultType.NoArgument:
-                            break;
-                        case ArgumentConversionResultType.Successful:
-                            switch (conversionResult.Value)
-                            {
-                                case string s:
-                                    builder.Append($"<{s}>");
-                                    break;
+                        builder.Append("[ ");
+                        builder.Append(argumentResult.Argument.Name);
+                        builder.Append(" ");
+                    }
+
+                    if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
+                    {
+                        ArgumentConversionResult conversionResult = argumentResult.GetArgumentConversionResult();
+                        switch (conversionResult.Result)
+                        {
+                            case ArgumentConversionResultType.NoArgument:
+                                break;
+                            case ArgumentConversionResultType.Successful:
+                                switch (conversionResult.Value)
+                                {
+                                    case string s:
+                                        builder.Append($"<{s}>");
+                                        break;
                                 
-                                case IEnumerable items:
-                                    builder.Append("<");
-                                    builder.Append(
-                                        string.Join("> <",
-                                                    items.Cast<object>().ToArray()));
-                                    builder.Append(">");
-                                    break;
+                                    case IEnumerable items:
+                                        builder.Append("<");
+                                        builder.Append(
+                                            string.Join("> <",
+                                                        items.Cast<object>().ToArray()));
+                                        builder.Append(">");
+                                        break;
 
-                                default:
-                                    builder.Append("<");
-                                    builder.Append(conversionResult.Value);
-                                    builder.Append(">");
-                                    break;
-                            }
+                                    default:
+                                        builder.Append("<");
+                                        builder.Append(conversionResult.Value);
+                                        builder.Append(">");
+                                        break;
+                                }
 
-                            break;
+                                break;
 
-                        default: // failures
-                            builder.Append("<");
-                            builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
-                            builder.Append(">");
+                            default: // failures
+                                builder.Append("<");
+                                builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
+                                builder.Append(">");
 
-                            break;
+                                break;
+                        }
                     }
-                }
 
-                if (includeArgumentName)
-                {
-                    builder.Append(" ]");
-                }
-            }
-            else
-            {
-                builder.Append("[ ");
-                builder.Append(symbolResult.Token().Value);
-
-                for (var i = 0; i < symbolResult.Children.Count; i++)
-                {
-                    var child = symbolResult.Children[i];
-
-                    if (child is ArgumentResult arg && 
-                        arg.Argument.Arity.MaximumNumberOfValues == 0)
+                    if (includeArgumentName)
                     {
-                        continue;
+                        builder.Append(" ]");
                     }
 
-                    builder.Append(" ");
-                    builder.Diagram(child, parseResult);
+                    break;
                 }
 
-                builder.Append(" ]");
+                default:
+                {
+                    if (symbolResult is OptionResult { IsImplicit: true })
+                    {
+                        builder.Append("*");
+                    }
+
+                    builder.Append("[ ");
+                    builder.Append(symbolResult.Token().Value);
+
+                    for (var i = 0; i < symbolResult.Children.Count; i++)
+                    {
+                        var child = symbolResult.Children[i];
+
+                        if (child is ArgumentResult arg &&
+                            (arg.Argument.ValueType == typeof(bool) ||
+                             arg.Argument.Arity.MaximumNumberOfValues == 0))
+                        {
+                            continue;
+                        }
+
+                        builder.Append(" ");
+
+                        builder.Diagram(child, parseResult);
+                    }
+
+                    builder.Append(" ]");
+                    break;
+                }
             }
         }
 

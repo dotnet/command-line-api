@@ -117,7 +117,7 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_sibling_command_and_option_aliases_collide_on_the_root_command()
     {
-        var option = new Option("dupe");
+        var option = new Option<string>("dupe");
         var command = new Command("not-a-dupe");
         command.AddAlias("dupe");
 
@@ -142,7 +142,7 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_sibling_command_and_option_aliases_collide_on_a_subcommand()
     {
-        var option = new Option("dupe");
+        var option = new Option<string>("dupe");
         var command = new Command("not-a-dupe");
         command.AddAlias("dupe");
 

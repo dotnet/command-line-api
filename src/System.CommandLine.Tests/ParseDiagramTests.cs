@@ -16,14 +16,11 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Command(
                     "the-command")
-                  {
-                        new Option("-x", arity: ArgumentArity.ExactlyOne),
-                        new Option("-y"),
-                        new Argument
-                        {
-                            Arity = ArgumentArity.ZeroOrMore
-                        }
-                    });
+                {
+                    new Option<string>("-x"),
+                    new Option<bool>("-y"),
+                    new Argument<string[]>()
+                });
 
             var result = parser.Parse("the-command -x one -y two three");
 

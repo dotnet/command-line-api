@@ -20,8 +20,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
-                         .Select(i => new Option($"-option{i}", arity: arity)
+                         .Select(i => new Option<string>($"-option{i}")
                              {
+                                 Arity = arity,
                                  Description = $"Description for -option {i} ...."
                              }
                          );

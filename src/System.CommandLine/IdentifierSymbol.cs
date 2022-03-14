@@ -91,7 +91,7 @@ namespace System.CommandLine
             {
                 if (char.IsWhiteSpace(alias[i]))
                 {
-                    throw new ArgumentException($"{GetType().Name} alias cannot contain whitespace: \"{alias}\"", nameof(alias));
+                    throw new ArgumentException($"Alias cannot contain whitespace: \"{alias}\"", nameof(alias));
                 }
             }
         }

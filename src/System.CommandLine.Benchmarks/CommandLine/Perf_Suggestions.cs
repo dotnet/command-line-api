@@ -29,7 +29,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         private IEnumerable<Option> GenerateOptionsArray(int count)
             => Enumerable.Range(0, count)
-                         .Select(i => new Option($"suggestion{i}"));
+                         .Select(i => new Option<string>($"suggestion{i}"));
 
         [Params(1, 5, 20, 100)]
         public int TestSuggestionsCount;
@@ -37,7 +37,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup(Target = nameof(SuggestionsFromSymbol))]
         public void Setup_FromSymbol()
         {
-            _testSymbol = new Option("--hello", arity: ArgumentArity.ExactlyOne)
+            _testSymbol = new Option<string>("--hello")
                 .AddCompletions(GenerateSuggestionsArray(TestSuggestionsCount));
         }
 
