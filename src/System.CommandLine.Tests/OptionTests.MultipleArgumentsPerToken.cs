@@ -26,12 +26,11 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void When_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_used_as_value()
                 {
-                    var animalsOption = new Option(new[] { "-a", "--animals" })
+                    var animalsOption = new Option<string[]>(new[] { "-a", "--animals" })
                     {
                         AllowMultipleArgumentsPerToken = true,
-                        Arity = ArgumentArity.ZeroOrMore
                     };
-                    var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
+                    var vegetablesOption = new Option<string>(new[] { "-v", "--vegetables" });
 
                     var command = new RootCommand
                     {
@@ -64,12 +63,11 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void When_option_is_not_respecified_and_limit_is_reached_then_the_following_token_is_unmatched()
                 {
-                    var animalsOption = new Option(new[] { "-a", "--animals" })
+                    var animalsOption = new Option<string>(new[] { "-a", "--animals" })
                     {
-                        AllowMultipleArgumentsPerToken = true,
-                        Arity = ArgumentArity.ZeroOrOne
+                        AllowMultipleArgumentsPerToken = true
                     };
-                    var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
+                    var vegetablesOption = new Option<string[]>(new[] { "-v", "--vegetables" });
 
                     var command = new RootCommand
                     {

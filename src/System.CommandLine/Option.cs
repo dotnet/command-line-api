@@ -12,53 +12,12 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    /// <seealso cref="System.CommandLine.IdentifierSymbol" />
-    public class Option : IdentifierSymbol, IValueDescriptor
+    /// <seealso cref="IdentifierSymbol" />
+    public abstract class Option : IdentifierSymbol, IValueDescriptor
     {
         private string? _name;
         private List<ValidateSymbolResult<OptionResult>>? _validators;
         private Argument? _argument;
-
-        // FIX: (Option) delete temp constructors
-
-        public Option(string[] aliases) : this(aliases, description: null)
-        {
-        }
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Option"/> class.
-        /// </summary>
-        /// <param name="name">The name of the option, which can be used to specify it on the command line.</param>
-        /// <param name="description">The description of the option shown in help.</param>
-        /// <param name="argumentType">The type that the option's argument(s) can be parsed to.</param>
-        /// <param name="getDefaultValue">A delegate used to get a default value for the option when it is not specified on the command line.</param>
-        /// <param name="arity">The arity of the option.</param>
-        public Option(
-            string name,
-            string? description = null,
-            Type? argumentType = null,
-            Func<object?>? getDefaultValue = null,
-            ArgumentArity arity = default)
-            : this(name, description, CreateArgument(argumentType, getDefaultValue, arity))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Option"/> class.
-        /// </summary>
-        /// <param name="aliases">The set of strings that can be used on the command line to specify the option.</param>
-        /// <param name="description">The description of the option shown in help.</param>
-        /// <param name="argumentType">The type that the option's argument(s) can be parsed to.</param>
-        /// <param name="getDefaultValue">A delegate used to get a default value for the option when it is not specified on the command line.</param>
-        /// <param name="arity">The arity of the option.</param>
-        public Option(
-            string[] aliases,
-            string? description = null,
-            Type? argumentType = null,
-            Func<object?>? getDefaultValue = null,
-            ArgumentArity arity = default)
-            : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity))
-        { }
 
         internal Option(
             string name,

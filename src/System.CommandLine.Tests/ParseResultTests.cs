@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasOption_can_be_used_to_check_the_presence_of_an_option()
         {
-            var option = new Option(new[] { "-h", "--help" });
+            var option = new Option<bool>(new[] { "-h", "--help" });
 
             var command = new Command("the-command")
             {

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
 using FluentAssertions;
@@ -14,7 +13,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_only_one_alias_then_that_alias_is_its_name()
         {
-            var option = new Option(new[] { "myname" });
+            var option = new Option<string>(new[] { "myname" });
 
             option.Name.Should().Be("myname");
         }

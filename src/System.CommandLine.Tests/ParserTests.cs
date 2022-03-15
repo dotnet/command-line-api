@@ -328,8 +328,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore };
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
+            var animalsOption = new Option<string[]>(new[] { "-a", "--animals" });
+            var vegetablesOption = new Option<string[]>(new[] { "-v", "--vegetables" });
             var parser = new RootCommand
             {
                 animalsOption,
@@ -354,9 +354,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrMore}
+            var animalsOption = new Option<string[]>(new[] { "-a", "--animals" })
                 .FromAmong("dog", "cat", "sheep");
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrMore };
+            var vegetablesOption = new Option<string[]>(new[] { "-v", "--vegetables" });
             var parser = new Parser(
                 new Command("the-command") {
                     animalsOption,
@@ -381,9 +381,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
         {
-            var animalsOption = new Option(new[] { "-a", "--animals" }) { Arity = ArgumentArity.ZeroOrOne };
+            var animalsOption = new Option<string[]>(new[] { "-a", "--animals" });
 
-            var vegetablesOption = new Option(new[] { "-v", "--vegetables" }) { Arity = ArgumentArity.ZeroOrOne };
+            var vegetablesOption = new Option<string[]>(new[] { "-v", "--vegetables" });
             
             var parser = new Parser(
                 new Command("the-command")
