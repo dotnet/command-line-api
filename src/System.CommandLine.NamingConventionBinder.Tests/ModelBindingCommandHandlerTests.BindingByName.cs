@@ -67,7 +67,7 @@ public partial class ModelBindingCommandHandlerTests
 
             var command = new Command("the-command")
             {
-                new Option("--value", argumentType: type)
+                OptionBuilder.CreateOption("--value", type)
             };
 
             var console = new TestConsole();

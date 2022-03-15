@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests.Help
                 {
                     Description = "the-root-arg-enum-default-description"
                 },
-                new Option(aliases: new string[] {"--the-root-option-no-arg", "-trna"}) {
+                new Option<bool>(aliases: new string[] {"--the-root-option-no-arg", "-trna"}) {
                     Description = "the-root-option-no-arg-description",
                     IsRequired = true
                 },
@@ -60,7 +60,7 @@ namespace System.CommandLine.Tests.Help
                     Description = "the-root-option-description",
                     IsRequired = true
                 },
-                new Option(aliases: new string[] {"--the-root-option-multi-line-description", "-tromld"}) {
+                new Option<bool>(aliases: new string[] {"--the-root-option-multi-line-description", "-tromld"}) {
                     Description = "the-root-option\r\nmulti-line\ndescription"
                 }
             };

@@ -101,7 +101,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void The_portion_of_the_command_line_following_a_double_is_treated_as_unparsed_tokens()
             {
-                var result = new CommandLineBuilder(new RootCommand { new Option("-o") })
+                var result = new CommandLineBuilder(new RootCommand { new Option<string>("-o") })
                              .EnableLegacyDoubleDashBehavior()
                              .Build()
                              .Parse("-o \"some stuff\" -- x y z");

@@ -158,7 +158,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Option("-x")
+                new Option<string>("-x")
                 {
                     IsRequired = true
                 }
@@ -224,7 +224,10 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Command("the-command")
                 {
-                    new Option("-x")
+                    new Option<bool>("-x")
+                    {
+                        Arity = ArgumentArity.Zero
+                    }
                 });
 
             var result = parser.Parse("the-command -x some-arg");
@@ -244,8 +247,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--one"),
-                new Option("--two")
+                new Option<bool>("--one"),
+                new Option<bool>("--two")
             };
 
             command.AddValidator(commandResult =>

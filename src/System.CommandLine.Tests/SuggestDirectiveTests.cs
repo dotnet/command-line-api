@@ -228,8 +228,8 @@ namespace System.CommandLine.Tests
             var parser = new CommandLineBuilder(new Command("parent")
                           {
                               new Command("child"),
-                              new Option("--option1"),
-                              new Option("--option2"),
+                              new Option<bool>("--option1"),
+                              new Option<bool>("--option2"),
                               new Argument<string>()
                           })
                           .UseSuggestDirective()

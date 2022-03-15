@@ -35,7 +35,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var command = new Command("command")
         {
-            new Option("-x", argumentType: parameterType)
+            OptionBuilder.CreateOption("-x", parameterType)
         };
 
         command.Handler = handler;
@@ -114,7 +114,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var command = new Command("command")
         {
-            new Option("--value", argumentType: testCase.ParameterType)
+            OptionBuilder.CreateOption("--value", testCase.ParameterType)
         };
         command.Handler = handler;
 

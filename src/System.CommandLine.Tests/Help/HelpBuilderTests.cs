@@ -135,7 +135,7 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("the-command", "command help")
             {
                 argument,
-                new Option(new[]
+                new Option<string>(new[]
                 {
                     "-v",
                     "--verbosity"
@@ -1235,7 +1235,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new RootCommand
             {
-                new Option(new[] { "--long", "/long" })
+                new Option<string>(new[] { "--long", "/long" })
             };
 
             _helpBuilder.Write(command, _console);
@@ -1424,7 +1424,7 @@ namespace System.CommandLine.Tests.Help
                     {
                         Name = "inner-args"
                     },
-                    new Option(new[]
+                    new Option<string>(new[]
                     {
                         "-v",
                         "--verbosity"

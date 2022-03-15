@@ -21,10 +21,10 @@ namespace System.CommandLine
 
         // FIX: (Option) delete temp constructors
 
-        public Option(string name) : this(name, description: null)
+        public Option(string[] aliases) : this(aliases, description: null)
         {
         }
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
         /// </summary>

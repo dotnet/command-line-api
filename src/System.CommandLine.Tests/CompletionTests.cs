@@ -102,7 +102,7 @@ namespace System.CommandLine.Tests
             var command = new Command("command")
             {
                 new Command("subcommand"),
-                new Option("--option")
+                new Option<string>("--option")
             };
 
             var completions = command.GetCompletions();
@@ -239,9 +239,9 @@ namespace System.CommandLine.Tests
         {
             var parser = new Command("command")
                          {
-                             new Option("--apple"),
-                             new Option("--banana"),
-                             new Option("--cherry")
+                             new Option<string>("--apple"),
+                             new Option<string>("--banana"),
+                             new Option<string>("--cherry")
                          };
 
             var commandLine = "--apple grannysmith";
@@ -261,15 +261,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("apple")
                 {
-                    new Option("--cortland")
+                    new Option<string>("--cortland")
                 },
                 new Command("banana")
                 {
-                    new Option("--cavendish")
+                    new Option<string>("--cavendish")
                 },
                 new Command("cherry")
                 {
-                    new Option("--rainier")
+                    new Option<string>("--rainier")
                 }
             };
 
@@ -285,13 +285,13 @@ namespace System.CommandLine.Tests
         {
             var apple = new Command("apple")
             {
-                new Option("--cortland")
+                new Option<string>("--cortland")
             };
             apple.AddAlias("apl");
 
             var banana = new Command("banana")
             {
-                new Option("--cavendish")
+                new Option<string>("--cavendish")
             };
             banana.AddAlias("bnn");
 
@@ -315,7 +315,7 @@ namespace System.CommandLine.Tests
             var command = new RootCommand("parent")
             {
                 new Command("child"), 
-                new Option("--parent-option")
+                new Option<string>("--parent-option")
             };
 
             var commandLine = "child";
@@ -402,9 +402,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--apple"),
-                new Option("--banana"),
-                new Option("--cherry")
+                new Option<string>("--apple"),
+                new Option<string>("--banana"),
+                new Option<string>("--cherry")
             };
 
             var input = "a";
@@ -487,7 +487,7 @@ namespace System.CommandLine.Tests
             var command = new Command("test")
             {
                 new Command("one"),
-                new Option("--one"),
+                new Option<string>("--one"),
                 new Argument
                 {
                     Arity = ArgumentArity.ExactlyOne
@@ -510,9 +510,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("outer")
             {
-                new Option("--one"),
-                new Option("--two"),
-                new Option("--three")
+                new Option<string>("--one"),
+                new Option<string>("--two"),
+                new Option<string>("--three")
             };
 
             var parser = new Parser(command);

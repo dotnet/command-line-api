@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Utility;
 using System.IO;
 using FluentAssertions;
 using System.Linq;
@@ -748,8 +749,8 @@ namespace System.CommandLine.Tests.Binding
             int maxArity,
             Type argumentType)
         {
-            var arity = new ArgumentArity(minArity, maxArity);
-            var option = new Option("--items", argumentType: argumentType, arity: arity);
+            var option = OptionBuilder.CreateOption("--items", valueType: argumentType);
+            option.Arity = new ArgumentArity(minArity, maxArity);
 
             var command = new RootCommand
             {

@@ -172,7 +172,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_is_created_with_an_alias_that_contains_whitespace_then_an_informative_error_is_returned(
             string alias)
         {
-            Action create = () => new Option(alias);
+            Action create = () => new Option<string>(alias);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -372,6 +372,6 @@ namespace System.CommandLine.Tests
                 .BeFalse();
         }
         
-        protected override Symbol CreateSymbol(string name) => new Option(name);
+        protected override Symbol CreateSymbol(string name) => new Option<string>(name);
     }
 }
