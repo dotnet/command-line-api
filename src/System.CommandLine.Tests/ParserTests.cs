@@ -185,10 +185,7 @@ namespace System.CommandLine.Tests
             outer.AddOption(new Option<bool>("-a"));
             var inner = new Command("inner")
             {
-                new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrMore
-                }
+                new Argument<string[]>()
             };
             inner.AddOption(new Option<bool>("-b"));
             inner.AddOption(new Option<bool>("-c"));
@@ -390,10 +387,8 @@ namespace System.CommandLine.Tests
                 {
                     animalsOption,
                     vegetablesOption,
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }});
+                    new Argument<string[]>()
+                });
 
             var result = parser.Parse("the-command -a cat some-arg -v carrot");
 
@@ -541,16 +536,10 @@ namespace System.CommandLine.Tests
             var command = new Command(
                 "outer")
             {
-                new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrMore
-                },
+                new Argument<string[]>(),
                 new Command("inner")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }
+                    new Argument<string[]>()
                 }
             };
 
@@ -848,10 +837,7 @@ namespace System.CommandLine.Tests
 
             var parser = new Parser(new Command("rm")
             {
-                new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrMore
-                }
+                new Argument<string[]>()
             });
 
             var result = parser.Parse(command);
@@ -871,10 +857,7 @@ namespace System.CommandLine.Tests
 
             var parser = new Parser(new Command("rm")
             {
-                new Argument
-                {
-                    Arity = ArgumentArity.ZeroOrMore
-                }
+                new Argument<string[]>()
             });
 
             ParseResult result = parser.Parse(command);
@@ -1021,10 +1004,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                new Argument<string>()
             };
             command.TreatUnmatchedTokensAsErrors = false;
 
@@ -1410,7 +1390,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_argument_arity_can_be_a_fixed_value_greater_than_1()
         {
-            var argument = new Argument
+            var argument = new Argument<string[]>
             {
                 Arity = new ArgumentArity(3, 3)
             };
@@ -1432,7 +1412,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_argument_arity_can_be_a_range_with_a_lower_bound_greater_than_1()
         {
-            var argument = new Argument
+            var argument = new Argument<string[]>
             {
                 Arity = new ArgumentArity(3, 5)
             };
@@ -1466,7 +1446,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Argument
+                new Argument<string[]>
                 {
                     Arity = new ArgumentArity(2, 3)
                 }
@@ -1485,7 +1465,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Argument
+                new Argument<string[]>
                 {
                     Arity = new ArgumentArity(2, 3)
                 }
@@ -1605,15 +1585,9 @@ namespace System.CommandLine.Tests
         {
             // Tests bug identified in https://github.com/dotnet/command-line-api/issues/997
 
-            var argument1 = new Argument("arg1")
-            {
-                Arity = ArgumentArity.ExactlyOne
-            };
+            var argument1 = new Argument<string>("arg1");
 
-            var argument2 = new Argument<string[]>("arg2")
-            {
-                Arity = ArgumentArity.OneOrMore
-            };
+            var argument2 = new Argument<string[]>("arg2");
 
             var command = new Command("subcommand")
             {

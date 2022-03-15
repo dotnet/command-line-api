@@ -204,10 +204,7 @@ namespace System.CommandLine.Tests
             var command =
                 new Command("the-command")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }
+                    new Argument<string[]>()
                 };
 
             var position = commandLine.IndexOf("$", StringComparison.Ordinal);

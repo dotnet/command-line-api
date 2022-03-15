@@ -19,10 +19,7 @@ namespace System.CommandLine.Tests
 
             var command = new Command("the-command")
             {
-                new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                new Argument<string>()
             };
             var parser = new Parser(new CommandLineConfiguration(command, resources: messages));
             var result = parser.Parse("the-command");
@@ -40,10 +37,7 @@ namespace System.CommandLine.Tests
 
             var parser = new CommandLineBuilder(new Command("the-command")
                          {
-                             new Argument
-                             {
-                                 Arity = ArgumentArity.ExactlyOne
-                             }
+                             new Argument<string>()
                          })
                          .UseLocalizationResources(messages)
                          .Build();

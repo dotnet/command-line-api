@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests.Help
             int maxArity,
             string expectedArgsUsage)
         {
-            var argument = new Argument
+            var argument = new Argument<string>
             {
                 Name = "the-args",
                 Arity = new ArgumentArity(minArity, maxArity)
@@ -167,14 +167,14 @@ namespace System.CommandLine.Tests.Help
             int maxArityForArg2,
             string expectedArgsUsage)
         {
-            var arg1 = new Argument
+            var arg1 = new Argument<string>
             {
                 Name = "arg1",
                 Arity = new ArgumentArity(
                     minArityForArg1,
                     maxArityForArg1)
             };
-            var arg2 = new Argument
+            var arg2 = new Argument<string>
             {
                 Name = "arg2",
                 Arity = new ArgumentArity(
@@ -418,7 +418,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "command help")
             {
-                new Argument
+                new Argument<string>
                 {
                     Name = "arg command name",
                     Description = "test"
@@ -822,7 +822,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_describes_default_value_for_argument()
         {
-            var argument = new Argument
+            var argument = new Argument<string>
             {
                 Name = "the-arg",
                 Description = "Help text from HelpDetail",
@@ -1529,11 +1529,11 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_describes_default_value_for_subcommand_with_arguments_and_only_defaultable_is_shown()
         {
-            var argument = new Argument
+            var argument = new Argument<string>
             {
                 Name = "the-arg",
             };
-            var otherArgumentHidden = new Argument
+            var otherArgumentHidden = new Argument<string>
             {
                 Name = "the-other-hidden-arg",
                 IsHidden = true
@@ -1570,11 +1570,11 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_describes_default_values_for_subcommand_with_multiple_defaultable_arguments()
         {
-            var argument = new Argument
+            var argument = new Argument<string>
             {
                 Name = "the-arg",
             };
-            var otherArgument = new Argument
+            var otherArgument = new Argument<string>
             {
                 Name = "the-other-arg"
             };

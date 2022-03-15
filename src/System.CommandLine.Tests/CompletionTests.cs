@@ -119,7 +119,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("subcommand", "subcommand"),
                 new Option<bool>("--option", "option"),
-                new Argument
+                new Argument<string[]>
                 {
                     Arity = ArgumentArity.OneOrMore,
                     Completions = { "command-argument" }
@@ -156,7 +156,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Argument("the-argument")
+                new Argument<string>("the-argument")
             };
 
             var completions = command.GetCompletions();
@@ -467,10 +467,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("one", "Command one"),
                 new Command("two", "Command two"),
-                new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                new Argument<string>()
             };
 
             var commandLine = "test";
@@ -488,10 +485,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("one"),
                 new Option<string>("--one"),
-                new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                new Argument<string>()
             };
 
             var commandLine = "test";

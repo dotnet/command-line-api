@@ -123,14 +123,8 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Multiple_arguments_of_unspecified_type_are_parsed_correctly()
             {
-                var sourceArg = new Argument("source")
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                };
-                var destinationArg = new Argument("destination")
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                };
+                var sourceArg = new Argument<string>("source");
+                var destinationArg = new Argument<string>("destination");
                 var root = new RootCommand
                 {
                     sourceArg,

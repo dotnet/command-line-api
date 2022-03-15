@@ -59,14 +59,14 @@ namespace System.CommandLine.Tests
             {
                 new Command("inner-one")
                 {
-                    new Argument
+                    new Argument<bool>
                     {
                         Arity = ArgumentArity.Zero
                     }
                 },
                 new Command("inner-two")
                 {
-                    new Argument
+                    new Argument<bool>
                     {
                         Arity = ArgumentArity.Zero
                     }

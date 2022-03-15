@@ -96,18 +96,12 @@ namespace System.CommandLine.Tests
         {
             var outer = new Command("outer")
             {
-                new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                new Argument<string>()
             };
             outer.AddCommand(
                 new Command("inner")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }
+                    new Argument<string[]>()
                 });
 
             var parser = new Parser(outer);
@@ -254,9 +248,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("-alias")
             {
-                new Argument
+                new Argument<bool>
                 {
-                    Name = "arg", Arity = ArgumentArity.ZeroOrOne
+                    Name = "arg"
                 }
             };
 

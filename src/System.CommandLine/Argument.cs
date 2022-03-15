@@ -12,23 +12,19 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a value that can be passed on the command line to a <see cref="Command">command</see> or <see cref="Option">option</see>.
     /// </summary>
-    public class Argument : Symbol, IValueDescriptor
+    public abstract class Argument : Symbol, IValueDescriptor
     {
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
-
-        private Type _valueType = typeof(string);
-        
         private CompletionSourceList? _completions = null;
         private List<ValidateSymbolResult<ArgumentResult>>? _validators = null;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        public Argument()
+        protected Argument()
         {
-            // FIX: (Argument) make this protected
         }
 
         /// <summary>
@@ -36,7 +32,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the argument.</param>
         /// <param name="description">The description of the argument, shown in help.</param>
-        public Argument(string? name = null, string? description = null)
+        protected Argument(string? name = null, string? description = null)
         {
             Name = name!;
             Description = description;
@@ -87,11 +83,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
-        public virtual Type ValueType
-        {
-            // FIX: (ValueType) make abstract
-            get => _valueType;
-        }
+        public abstract Type ValueType { get; }
 
         private protected override string DefaultName
         {

@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Arguments_are_not_suggested()
         {
-            var argument = new Argument("the-argument");
+            var argument = new Argument<string>("the-argument");
             var command = new Command("been");
 
             var parser =
