@@ -127,11 +127,7 @@ public partial class ModelBindingCommandHandlerTests
 
             var command = new Command("the-command")
             {
-                new Argument
-                {
-                    Name = "value",
-                    ValueType = type
-                }
+                ArgumentBuilder.CreateArgument(type)
             };
 
             var console = new TestConsole();

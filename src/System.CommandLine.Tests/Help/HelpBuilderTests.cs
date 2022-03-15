@@ -508,9 +508,8 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "Help text from description")
             {
-                new Argument
+                new Argument<string>
                 {
-                    Arity = ArgumentArity.ExactlyOne,
                     Name = "the-arg",
                     Description = "Help text from HelpDetail"
                 }
@@ -563,7 +562,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_does_not_repeat_arguments_that_appear_on_parent_command()
         {
-            var reused = new Argument
+            var reused = new Argument<string>
             {
                 Name = "reused",
                 Description = "This argument is valid on both outer and inner commands"
@@ -621,11 +620,10 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("outer", "Help text for the outer command")
             {
-                new Argument
+                new Argument<string>
                 {
                     Name = "outer-command-arg",
-                    Description = $"The argument\r\nfor the\ninner command",
-                    Arity = ArgumentArity.ExactlyOne
+                    Description = $"The argument\r\nfor the\ninner command"
                 }
             };
 
@@ -645,11 +643,10 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("outer", "Help text for the outer command")
             {
-                new Argument
+                new Argument<string>
                 {
                     Name = "outer-command-arg",
                     Description = $"The argument\r\nfor the\ninner command",
-                    Arity = ArgumentArity.ExactlyOne
                 }
             };
 
@@ -678,9 +675,8 @@ namespace System.CommandLine.Tests.Help
 
             var command = new Command("outer", "Help text for the outer command")
             {
-                new Argument
+                new Argument<string>
                 {
-                    Arity = ArgumentArity.ExactlyOne,
                     Name = "outer-command-arg",
                     Description = longCmdText
                 }
@@ -706,7 +702,7 @@ namespace System.CommandLine.Tests.Help
 
             var command = new RootCommand
             {
-                new Argument
+                new Argument<string>
                 {
                     Name = name,
                     Description = description
@@ -727,19 +723,20 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Theory]
-        [InlineData(typeof(FileAccess))]
-        [InlineData(typeof(FileAccess?))]
-        public void Command_argument_usage_indicates_enums_values(Type type)
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Command_argument_usage_indicates_enums_values(bool nullable)
         {
             var description = "This is the argument description";
 
+            Argument argument = nullable
+                               ? new Argument<FileAccess?>()
+                               : new Argument<FileAccess>();
+            argument.Description = description;
+
             var command = new Command("outer", "Help text for the outer command")
             {
-                new Argument
-                {
-                    Description = description,
-                    ValueType = type
-                }
+                argument
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -847,7 +844,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_does_not_show_default_value_for_argument_when_default_value_is_empty()
         {
-            var argument = new Argument("the-arg", "The argument description");
+            var argument = new Argument<string>("the-arg", "The argument description");
             argument.SetDefaultValue("");
             
             var command = new Command("the-command", "The command description")
@@ -887,12 +884,12 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Command_arguments_default_value_provided()
         {
-            var argument = new Argument
+            var argument = new Argument<string>
             {
                 Name = "the-arg",
             };
 
-            var otherArgument = new Argument
+            var otherArgument = new Argument<string>
             {
                 Name = "the-other-arg",
             };

@@ -72,32 +72,7 @@ namespace System.CommandLine
             argument.AddParent(this);
             _argument = argument;
         }
-
-        private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, ArgumentArity arity)
-        {
-            if (argumentType is null &&
-                getDefaultValue is null &&
-                !arity.IsNonDefault)
-            {
-                return null;
-            }
-
-            var rv = new Argument();
-            if (argumentType is not null)
-            {
-                rv.ValueType = argumentType;
-            }
-            if (getDefaultValue is not null)
-            {
-                rv.SetDefaultValueFactory(getDefaultValue);
-            }
-            if (arity.IsNonDefault)
-            {
-                rv.Arity = arity;
-            }
-            return rv;
-        }
-
+        
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
@@ -134,15 +109,7 @@ namespace System.CommandLine
         public virtual ArgumentArity Arity
         {
             get => Argument.Arity;
-            set
-            {
-                if (value.MaximumNumberOfValues > 0)
-                {
-                    Argument.ValueType = typeof(string);
-                }
-
-                Argument.Arity = value;
-            }
+            set => Argument.Arity = value;
         }
 
         /// <summary>

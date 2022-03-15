@@ -238,14 +238,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Unsatisfied_subsequent_argument_with_min_arity_0_parses_as_default_value()
             {
-                var arg1 = new Argument("arg1")
+                var arg1 = new Argument<string>("arg1")
                 {
-                    ValueType = typeof(string),
                     Arity = ArgumentArity.ExactlyOne
                 };
-                var arg2 = new Argument("arg2")
+                var arg2 = new Argument<string>("arg2")
                 {
-                    ValueType = typeof(string),
                     Arity = ArgumentArity.ZeroOrOne,
                 };
                 arg2.SetDefaultValue("the-default");

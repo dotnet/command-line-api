@@ -113,7 +113,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(List<int>))]
         public void Argument_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
         {
-            var argument = new Argument { ValueType = type };
+            var argument = ArgumentBuilder.CreateArgument(type);
 
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.OneOrMore);
         }

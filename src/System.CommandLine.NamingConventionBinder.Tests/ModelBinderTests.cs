@@ -58,11 +58,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            new Argument
-            {
-                Name = "value",
-                ValueType = type
-            }
+            ArgumentBuilder.CreateArgument(type)
         };
 
         var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
@@ -85,11 +81,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            new Argument
-            {
-                Name = "value",
-                ValueType = type
-            }
+            ArgumentBuilder.CreateArgument(type)
         };
 
         var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
@@ -164,11 +156,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            new Argument
-            {
-                Name = "value",
-                ValueType = type
-            }
+            ArgumentBuilder.CreateArgument(type)
         };
         var parser = new Parser(command);
 

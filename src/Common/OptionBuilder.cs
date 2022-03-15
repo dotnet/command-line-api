@@ -3,30 +3,29 @@
 
 using System.Reflection;
 
-namespace System.CommandLine.Utility
+namespace System.CommandLine.Utility;
+
+internal static class OptionBuilder
 {
-    internal static class OptionBuilder
+    private static readonly ConstructorInfo _ctor;
+
+    static OptionBuilder()
     {
-        private static readonly ConstructorInfo _ctor;
+        _ctor = typeof(Option<string>).GetConstructor(new[] { typeof(string), typeof(string) });
+    }
 
-        static OptionBuilder()
-        {
-            _ctor = typeof(Option<string>).GetConstructor(new[] { typeof(string), typeof(string) });
-        }
-
-        public static Option CreateOption(string name, Type valueType)
-        {
-            var optionType = typeof(Option<>).MakeGenericType(valueType);
+    public static Option CreateOption(string name, Type valueType)
+    {
+        var optionType = typeof(Option<>).MakeGenericType(valueType);
 
 #if NET6_0_OR_GREATER
             var ctor = (ConstructorInfo)optionType.GetMemberWithSameMetadataDefinitionAs(_ctor);
 #else
-            var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(string) });
+        var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(string) });
 #endif
 
-            var option = (Option)ctor.Invoke(new object[] { name, null });
+        var option = (Option)ctor.Invoke(new object[] { name, null });
 
-            return option;
-        }
+        return option;
     }
 }

@@ -164,18 +164,13 @@ namespace System.CommandLine.DragonFruit
                 command.AddOption(option);
             }
 
-            if (method.GetParameters()
-                      .FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is ParameterInfo argsParam)
+            if (method.GetParameters().FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is { } argsParam)
             {
-                var argument = new Argument
-                {
-                    ValueType = argsParam.ParameterType,
-                    Name = argsParam.Name
-                };
+                var argument = ArgumentBuilder.CreateArgument(argsParam.ParameterType, argsParam.Name);
 
                 if (argsParam.HasDefaultValue)
                 {
-                    if (argsParam.DefaultValue != null)
+                    if (argsParam.DefaultValue is not null)
                     {
                         argument.SetDefaultValue(argsParam.DefaultValue);
                     }

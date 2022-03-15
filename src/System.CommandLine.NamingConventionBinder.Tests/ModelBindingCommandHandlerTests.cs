@@ -165,8 +165,7 @@ public partial class ModelBindingCommandHandlerTests
     [InlineData(typeof(List<string>))]
     [InlineData(typeof(int[]))]
     [InlineData(typeof(List<int>))]
-    public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(
-        Type type)
+    public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(Type type)
     {
         var testCase = BindingCases[type];
 
@@ -176,14 +175,9 @@ public partial class ModelBindingCommandHandlerTests
 
         var handler = CommandHandler.Create(captureMethod);
 
-        var command = new Command(
-            "command")
+        var command = new Command("command")
         {
-            new Argument
-            {
-                Name = "value",
-                ValueType = testCase.ParameterType
-            }
+            ArgumentBuilder.CreateArgument(type)
         };
         command.Handler = handler;
 
@@ -226,14 +220,9 @@ public partial class ModelBindingCommandHandlerTests
 
         var handler = CommandHandler.Create(captureMethod);
 
-        var argument = new Argument
-        {
-            Name = "value",
-            ValueType = testCase.ParameterType
-        };
+        var argument = ArgumentBuilder.CreateArgument(testCase.ParameterType, "value");
 
-        var command = new Command(
-            "command")
+        var command = new Command("command")
         {
             argument
         };

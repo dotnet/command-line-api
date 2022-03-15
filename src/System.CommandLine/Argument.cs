@@ -89,9 +89,8 @@ namespace System.CommandLine
         /// </summary>
         public virtual Type ValueType
         {
+            // FIX: (ValueType) make abstract
             get => _valueType;
-
-            set => _valueType = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         private protected override string DefaultName
@@ -182,10 +181,9 @@ namespace System.CommandLine
 
         internal virtual bool HasCustomParser => false;
 
-        internal static Argument None() => new()
+        internal static Argument None() => new Argument<bool>
         {
-            Arity = ArgumentArity.Zero,
-            ValueType = typeof(bool)
+            Arity = ArgumentArity.Zero
         };
 
         internal void AddAllowedValues(IReadOnlyList<string> values)

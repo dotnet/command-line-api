@@ -56,26 +56,6 @@ namespace System.CommandLine.Tests
                     .Be("Argument \"the-arg\" does not have a default value");
         }
 
-        [Fact]
-        public void When_argument_type_is_set_to_null_then_it_throws()
-        {
-            var argument = new Argument();
-
-            argument.Invoking(a => a.ValueType = null)
-                    .Should()
-                    .Throw<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void By_default_the_argument_type_is_string()
-        {
-            var argument = new Argument();
-
-            argument.ValueType
-                    .Should()
-                    .Be(typeof(string));
-        }
-
         public class CustomParsing
         {
             [Fact]
