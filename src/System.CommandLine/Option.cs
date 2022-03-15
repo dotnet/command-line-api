@@ -17,12 +17,12 @@ namespace System.CommandLine
     {
         private string? _name;
         private List<ValidateSymbolResult<OptionResult>>? _validators;
-        private Argument? _argument;
+        private readonly Argument _argument;
 
         internal Option(
             string name,
             string? description,
-            Argument? argument)
+            Argument argument)
             : base(description)
         {
             if (name is null)
@@ -34,16 +34,14 @@ namespace System.CommandLine
 
             AddAlias(name);
 
-            if (argument is not null)
-            {
-                AddArgumentInner(argument);
-            }
+            argument.AddParent(this);
+            _argument = argument;
         }
 
         internal Option(
             string[] aliases,
             string? description,
-            Argument? argument)
+            Argument argument)
             : base(description)
         {
             if (aliases is null)
@@ -61,35 +59,14 @@ namespace System.CommandLine
                 AddAlias(aliases[i]);
             }
 
-            if (argument is not null)
-            {
-                AddArgumentInner(argument);
-            }
-        }
-
-        private void AddArgumentInner(Argument argument)
-        {
             argument.AddParent(this);
             _argument = argument;
         }
-        
+
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
-        internal virtual Argument Argument
-        {
-            get
-            {
-                if (_argument is null)
-                {
-                    var none = Argument.None();
-                    none.AddParent(this);
-                    _argument = none;
-                }
-
-                return _argument;
-            }
-        }
+        internal virtual Argument Argument => _argument;
 
         /// <summary>
         /// Gets or sets the name of the argument when displayed in help.
