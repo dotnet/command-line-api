@@ -143,7 +143,7 @@ stages:
         - script: eng/common/cibuild.sh
             --configuration $(_BuildConfig)
             --prepareMachine
-            displayName: Build
+          displayName: Build
 
       - job: MacOS
         displayName: MacOS
