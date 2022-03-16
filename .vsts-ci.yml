@@ -134,6 +134,12 @@ stages:
         steps:
         - checkout: self
           clean: true
+        - bash: |
+            wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+            sudo apt-add-repository "deb https://apt.llvm.org/focal/ llvm-toolchain-focal-9 main"
+            sudo apt-get update
+        - bash: |
+            sudo apt-get install cmake clang-9 libicu66 uuid-dev libcurl4-openssl-dev zlib1g-dev libkrb5-dev
         - script: eng/common/cibuild.sh
             --configuration $(_BuildConfig)
             --prepareMachine
