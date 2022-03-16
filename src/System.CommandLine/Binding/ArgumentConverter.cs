@@ -276,7 +276,7 @@ namespace System.CommandLine.Binding
                     when nonGeneric == typeof(IList) ||
                          nonGeneric == typeof(ICollection) ||
                          nonGeneric == typeof(IEnumerable)
-                    => CreateEmptyArray(typeof(object)),
+                    => Array.Empty<object>(),
                 _ when type.IsValueType => CreateDefaultValueType(type),
                 _ => null
             };
