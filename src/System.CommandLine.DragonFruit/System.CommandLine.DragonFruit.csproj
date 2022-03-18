@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
     <Description>This package includes the experimental DragonFruit app model for System.CommandLine, which allows you to create a command line application using only a Main method while getting support for complex type binding, error reporting, help, shell completions, and more.
     </Description>
   </PropertyGroup>
