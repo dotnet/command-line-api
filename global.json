@@ -1,9 +1,11 @@
 {
   "tools": {
-    "dotnet": "6.0.100",
+    "dotnet": "7.0.100-preview.2.22153.17",
     "runtimes": {
       "dotnet": [
-        "5.0.10"
+        "5.0.10",
+        "6.0.3",
+        "7.0.0"
       ]
     },
     "xcopy-msbuild": "16.10.0-preview2"
