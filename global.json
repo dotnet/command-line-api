@@ -4,8 +4,7 @@
     "runtimes": {
       "dotnet": [
         "5.0.10",
-        "6.0.3",
-        "7.0.0"
+        "6.0.3"
       ]
     },
     "xcopy-msbuild": "16.10.0-preview2"
