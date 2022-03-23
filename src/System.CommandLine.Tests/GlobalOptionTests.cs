@@ -1,10 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -12,20 +8,6 @@ namespace System.CommandLine.Tests
 {
     public class GlobalOptionTests
     {
-        [Fact]
-        public void Global_options_may_be_added_with_aliases_that_conflict_with_local_options()
-        {
-            var command = new Command("the-command")
-            {
-                new Option("--same")
-            };
-
-            command
-                .Invoking(c => c.AddGlobalOption(new Option("--same")))
-                .Should()
-                .NotThrow<ArgumentException>();
-        }
-
         [Fact]
         public void Global_options_appear_in_options_list()
         {

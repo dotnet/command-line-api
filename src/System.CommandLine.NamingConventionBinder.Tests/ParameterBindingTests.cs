@@ -51,7 +51,7 @@ public class ParameterBindingTests
 
         var command = new Command("command")
         {
-            new Option("--first-name", arity: ArgumentArity.ExactlyOne)
+            new Option<string>("--first-name")
         };
         command.Handler = CommandHandler.Create<string>(Execute);
 
@@ -73,7 +73,7 @@ public class ParameterBindingTests
         }
 
         var command = new Command("command");
-        command.AddOption(new Option("--NAME", arity: ArgumentArity.ExactlyOne));
+        command.AddOption(new Option<string>("--NAME"));
         command.AddOption(new Option<int>("--age"));
         command.Handler = CommandHandler.Create<string, int>(Execute);
 

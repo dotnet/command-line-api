@@ -115,10 +115,6 @@ namespace System.CommandLine
         internal override bool HasCustomParser => _hasCustomParser;
 
         /// <inheritdoc />
-        public override Type ValueType
-        {
-            get => typeof(T);
-            set => throw new NotImplementedException();
-        }
+        public override Type ValueType => typeof(T);
     }
 }

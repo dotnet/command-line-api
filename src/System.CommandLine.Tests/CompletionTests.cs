@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_GetCompletions_returns_argument_completions_if_configured()
         {
-            var option = new Option("--hello", arity: ArgumentArity.ExactlyOne)
+            var option = new Option<string>("--hello")
                 .AddCompletions("one", "two", "three");
 
             var completions = option.GetCompletions();
@@ -41,9 +41,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Option("--one", "option one"),
-                new Option("--two", "option two"),
-                new Option("--three", "option three")
+                new Option<string>("--one", "option one"),
+                new Option<string>("--two", "option two"),
+                new Option<string>("--three", "option three")
             };
 
             var completions = command.GetCompletions();
@@ -59,8 +59,8 @@ namespace System.CommandLine.Tests
         {
             var subcommand = new Command("command")
             {
-                new Option("--one", "option one"),
-                new Option("--two", "option two")
+                new Option<string>("--one", "option one"),
+                new Option<string>("--two", "option two")
             };
 
             var rootCommand = new RootCommand
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
                 subcommand
             };
 
-            rootCommand.AddGlobalOption(new Option("--three", "option three"));
+            rootCommand.AddGlobalOption(new Option<string>("--three", "option three"));
 
             var completions = subcommand.GetCompletions();
 
@@ -102,7 +102,7 @@ namespace System.CommandLine.Tests
             var command = new Command("command")
             {
                 new Command("subcommand"),
-                new Option("--option")
+                new Option<string>("--option")
             };
 
             var completions = command.GetCompletions();
@@ -118,8 +118,8 @@ namespace System.CommandLine.Tests
             var command = new Command("command")
             {
                 new Command("subcommand", "subcommand"),
-                new Option("--option", "option"),
-                new Argument
+                new Option<bool>("--option", "option"),
+                new Argument<string[]>
                 {
                     Arity = ArgumentArity.OneOrMore,
                     Completions = { "command-argument" }
@@ -156,7 +156,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Argument("the-argument")
+                new Argument<string>("the-argument")
             };
 
             var completions = command.GetCompletions();
@@ -239,9 +239,9 @@ namespace System.CommandLine.Tests
         {
             var parser = new Command("command")
                          {
-                             new Option("--apple"),
-                             new Option("--banana"),
-                             new Option("--cherry")
+                             new Option<string>("--apple"),
+                             new Option<string>("--banana"),
+                             new Option<string>("--cherry")
                          };
 
             var commandLine = "--apple grannysmith";
@@ -261,15 +261,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("apple")
                 {
-                    new Option("--cortland")
+                    new Option<string>("--cortland")
                 },
                 new Command("banana")
                 {
-                    new Option("--cavendish")
+                    new Option<string>("--cavendish")
                 },
                 new Command("cherry")
                 {
-                    new Option("--rainier")
+                    new Option<string>("--rainier")
                 }
             };
 
@@ -285,13 +285,13 @@ namespace System.CommandLine.Tests
         {
             var apple = new Command("apple")
             {
-                new Option("--cortland")
+                new Option<string>("--cortland")
             };
             apple.AddAlias("apl");
 
             var banana = new Command("banana")
             {
-                new Option("--cavendish")
+                new Option<string>("--cavendish")
             };
             banana.AddAlias("bnn");
 
@@ -315,7 +315,7 @@ namespace System.CommandLine.Tests
             var command = new RootCommand("parent")
             {
                 new Command("child"), 
-                new Option("--parent-option")
+                new Option<string>("--parent-option")
             };
 
             var commandLine = "child";
@@ -402,9 +402,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--apple"),
-                new Option("--banana"),
-                new Option("--cherry")
+                new Option<string>("--apple"),
+                new Option<string>("--banana"),
+                new Option<string>("--cherry")
             };
 
             var input = "a";
@@ -422,11 +422,11 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--hide-me")
+                new Option<string>("--hide-me")
                 {
                     IsHidden = true
                 },
-                new Option("-n", "Not hidden")
+                new Option<string>("-n", "Not hidden")
             };
 
             var completions = command.Parse("the-command ").GetCompletions();
@@ -439,10 +439,8 @@ namespace System.CommandLine.Tests
         {
             var parser = new RootCommand
             {
-                new Option("--bread", arity: ArgumentArity.ExactlyOne)
-                    .FromAmong("wheat", "sourdough", "rye"),
-                new Option("--cheese", arity: ArgumentArity.ExactlyOne)
-                    .FromAmong("provolone", "cheddar", "cream cheese")
+                new Option<string>("--bread").FromAmong("wheat", "sourdough", "rye"),
+                new Option<string>("--cheese").FromAmong("provolone", "cheddar", "cream cheese")
             };
 
             var commandLine = "--bread";
@@ -469,10 +467,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("one", "Command one"),
                 new Command("two", "Command two"),
-                new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                new Argument<string>()
             };
 
             var commandLine = "test";
@@ -489,11 +484,8 @@ namespace System.CommandLine.Tests
             var command = new Command("test")
             {
                 new Command("one"),
-                new Option("--one"),
-                new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                new Option<string>("--one"),
+                new Argument<string>()
             };
 
             var commandLine = "test";
@@ -512,9 +504,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("outer")
             {
-                new Option("--one"),
-                new Option("--two"),
-                new Option("--three")
+                new Option<string>("--one"),
+                new Option<string>("--two"),
+                new Option<string>("--three")
             };
 
             var parser = new Parser(command);
@@ -532,9 +524,9 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Command("outer")
                 {
-                    new Option("--one"),
-                    new Option("--two"),
-                    new Option("--three")
+                    new Option<string>("--one"),
+                    new Option<string>("--two"),
+                    new Option<string>("--three")
                 });
 
             var commandLine = "outer";
@@ -552,10 +544,8 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Command("outer")
                 {
-                    new Option("--one", arity: ArgumentArity.ExactlyOne)
-                        .FromAmong("one-a", "one-b"),
-                    new Option("--two", arity: ArgumentArity.ExactlyOne)
-                        .FromAmong("two-a", "two-b")
+                    new Option<string>("--one").FromAmong("one-a", "one-b"),
+                    new Option<string>("--two").FromAmong("two-a", "two-b")
                 });
 
             var commandLine = "outer --two";
@@ -591,7 +581,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
                 {
-                    new Option("-t", arity: ArgumentArity.ExactlyOne)
+                    new Option<string>("-t")
                         .AddCompletions("vegetable", "mineral", "animal")
                 };
 
@@ -615,9 +605,8 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument
+                    new Argument<string>
                         {
-                            Arity = ArgumentArity.ExactlyOne,
                             Completions = { _ => new[] { "vegetable", "mineral", "animal" } }
                         }
                 }
@@ -653,11 +642,11 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("outer")
             {
-                new Option("one", arity: ArgumentArity.ExactlyOne)
+                new Option<string>("one")
                     .FromAmong("one-a", "one-b", "one-c"),
-                new Option("two", arity: ArgumentArity.ExactlyOne)
+                new Option<string>("two")
                     .FromAmong("two-a", "two-b", "two-c"),
-                new Option("three", arity: ArgumentArity.ExactlyOne)
+                new Option<string>("three")
                     .FromAmong("three-a", "three-b", "three-c")
             };
 
@@ -680,11 +669,11 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("outer")
             {
-                new Option("one", arity: ArgumentArity.ExactlyOne)
+                new Option<string>("one")
                     .FromAmong("one-a", "one-b", "one-c"),
-                new Option("two", arity: ArgumentArity.ExactlyOne)
+                new Option<string>("two")
                     .FromAmong("two-a", "two-b", "two-c"),
-                new Option("three", arity: ArgumentArity.ExactlyOne)
+                new Option<string>("three")
                     .FromAmong("three-a", "three-b", "three-c")
             };
 
@@ -703,24 +692,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("one-a", "one-b", "one-c")
+                    new Argument<string>().FromAmong("one-a", "one-b", "one-c")
                 },
                 new Command("two")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("two-a", "two-b", "two-c")
+                    new Argument<string>().FromAmong("two-a", "two-b", "two-c")
                 },
                 new Command("three")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("three-a", "three-b", "three-c")
+                    new Argument<string>().FromAmong("three-a", "three-b", "three-c")
                 }
             };
 
@@ -739,24 +719,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("one-a", "one-b", "one-c")
+                    new Argument<string>().FromAmong("one-a", "one-b", "one-c")
                 },
                 new Command("two")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("two-a", "two-b", "two-c")
+                    new Argument<string>().FromAmong("two-a", "two-b", "two-c")
                 },
                 new Command("three")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }.FromAmong("three-a", "three-b", "three-c")
+                    new Argument<string>().FromAmong("three-a", "three-b", "three-c")
                 }
             };
 

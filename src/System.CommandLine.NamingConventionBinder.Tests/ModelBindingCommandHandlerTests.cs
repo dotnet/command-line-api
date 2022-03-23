@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Tests.Binding;
+using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -34,7 +35,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var command = new Command("command")
         {
-            new Option("-x", argumentType: parameterType)
+            OptionBuilder.CreateOption("-x", parameterType)
         };
 
         command.Handler = handler;
@@ -48,24 +49,6 @@ public partial class ModelBindingCommandHandlerTests
         var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
 
         boundValue.Should().Be(expectedValue);
-    }
-
-    [Fact]
-    public async Task When_argument_type_is_not_known_until_binding_then_bool_parameter_is_bound_correctly()
-    {
-        bool? received = null;
-
-        var handler = CommandHandler.Create((bool x) => received = x);
-
-        var root = new RootCommand
-        {
-            new Option("-x")
-        };
-        root.Handler = handler;
-
-        await root.InvokeAsync("-x");
-
-        received.Should().BeTrue();
     }
     
     [Theory]
@@ -131,7 +114,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var command = new Command("command")
         {
-            new Option("--value", argumentType: testCase.ParameterType)
+            OptionBuilder.CreateOption("--value", testCase.ParameterType)
         };
         command.Handler = handler;
 
@@ -182,8 +165,7 @@ public partial class ModelBindingCommandHandlerTests
     [InlineData(typeof(List<string>))]
     [InlineData(typeof(int[]))]
     [InlineData(typeof(List<int>))]
-    public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(
-        Type type)
+    public async Task Handler_method_receives_command_arguments_bound_to_the_specified_type(Type type)
     {
         var testCase = BindingCases[type];
 
@@ -193,14 +175,9 @@ public partial class ModelBindingCommandHandlerTests
 
         var handler = CommandHandler.Create(captureMethod);
 
-        var command = new Command(
-            "command")
+        var command = new Command("command")
         {
-            new Argument
-            {
-                Name = "value",
-                ValueType = testCase.ParameterType
-            }
+            ArgumentBuilder.CreateArgument(type)
         };
         command.Handler = handler;
 
@@ -243,14 +220,9 @@ public partial class ModelBindingCommandHandlerTests
 
         var handler = CommandHandler.Create(captureMethod);
 
-        var argument = new Argument
-        {
-            Name = "value",
-            ValueType = testCase.ParameterType
-        };
+        var argument = ArgumentBuilder.CreateArgument(testCase.ParameterType, "value");
 
-        var command = new Command(
-            "command")
+        var command = new Command("command")
         {
             argument
         };
@@ -301,7 +273,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var handler = CommandHandler.Create(captureMethod);
 
-        var option = new Option("--value", argumentType: testCase.ParameterType);
+        var option = OptionBuilder.CreateOption("--value", testCase.ParameterType);
 
         var command = new Command("command")
         {

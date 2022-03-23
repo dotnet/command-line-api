@@ -76,8 +76,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--option1"),
-                new Option("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             string textToMatch = command.Parse("the-command t")
@@ -92,8 +92,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--option1"),
-                new Option("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             var commandLine = "the-command t";
@@ -130,8 +130,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--option1"),
-                new Option("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             string textToMatch = command.Parse("the-command", "opt")
@@ -146,8 +146,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--option1"),
-                new Option("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             string textToMatch = command.Parse(new[] { "the-command" })
@@ -162,8 +162,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--option1"),
-                new Option("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             string textToMatch = command.Parse("the-command", "--option1")
@@ -204,10 +204,7 @@ namespace System.CommandLine.Tests
             var command =
                 new Command("the-command")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }
+                    new Argument<string[]>()
                 };
 
             var position = commandLine.IndexOf("$", StringComparison.Ordinal);

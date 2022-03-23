@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne)
+            var option = new Option<string>("-x")
                 .FromAmong("this", "that", "the-other-thing");
 
             var result = option.Parse("-x none-of-those");
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne)
+            var option = new Option<string>("-x")
                 .FromAmong("this", "that");
 
             var result = option.Parse("-x something_else");
@@ -142,7 +142,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var option = new Option("-x", arity: ArgumentArity.ExactlyOne);
+            var option = new Option<string>("-x");
 
             var result = option.Parse("-x");
 
@@ -158,7 +158,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Option("-x")
+                new Option<string>("-x")
                 {
                     IsRequired = true
                 }
@@ -224,7 +224,10 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Command("the-command")
                 {
-                    new Option("-x")
+                    new Option<bool>("-x")
+                    {
+                        Arity = ArgumentArity.Zero
+                    }
                 });
 
             var result = parser.Parse("the-command -x some-arg");
@@ -244,8 +247,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option("--one"),
-                new Option("--two")
+                new Option<bool>("--one"),
+                new Option<bool>("--two")
             };
 
             command.AddValidator(commandResult =>
@@ -848,7 +851,7 @@ namespace System.CommandLine.Tests
                     {
                         Arity = ArgumentArity.ZeroOrMore
                     }.ExistingOnly(),
-                    new Option("--to", arity: ArgumentArity.ExactlyOne)
+                    new Option<string>("--to")
                 };
 
                 var path = NonexistentPath();

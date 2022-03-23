@@ -100,7 +100,7 @@ namespace System.CommandLine.Binding
                 else
                 {
                     var parsed = ArgumentConverter.ConvertObject(
-                        valueDescriptor as Argument ?? new Argument(valueDescriptor.ValueName),
+                        valueDescriptor as Argument ?? new Argument<string>(valueDescriptor.ValueName),
                         valueDescriptor.ValueType,
                         value,
                         localizationResources);

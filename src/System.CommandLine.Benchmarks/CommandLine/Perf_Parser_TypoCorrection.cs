@@ -22,7 +22,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         public Perf_Parser_TypoCorrection()
         {
-            var option = new Option("--0123456789");
+            var option = new Option<bool>("--0123456789");
 
             _testParser = new CommandLineBuilder(new RootCommand { option })
                           .UseTypoCorrections()

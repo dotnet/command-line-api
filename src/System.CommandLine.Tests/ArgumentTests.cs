@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_there_is_no_default_value()
         {
-            var argument = new Argument();
+            var argument = new Argument<string>();
 
             argument.HasDefaultValue.Should().BeFalse();
         }
@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_default_value_is_set_to_null_then_HasDefaultValue_is_true()
         {
-            var argument = new Argument();
+            var argument = new Argument<string>();
 
             argument.SetDefaultValue(null);
 
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_default_value_factory_is_set_then_HasDefaultValue_is_true()
         {
-            var argument = new Argument();
+            var argument = new Argument<string[]>();
 
             argument.SetDefaultValueFactory(() => null);
 
@@ -54,26 +54,6 @@ namespace System.CommandLine.Tests
                     .Message
                     .Should()
                     .Be("Argument \"the-arg\" does not have a default value");
-        }
-
-        [Fact]
-        public void When_argument_type_is_set_to_null_then_it_throws()
-        {
-            var argument = new Argument();
-
-            argument.Invoking(a => a.ValueType = null)
-                    .Should()
-                    .Throw<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void By_default_the_argument_type_is_string()
-        {
-            var argument = new Argument();
-
-            argument.ValueType
-                    .Should()
-                    .Be(typeof(string));
         }
 
         public class CustomParsing
@@ -719,7 +699,7 @@ namespace System.CommandLine.Tests
 
         protected override Symbol CreateSymbol(string name)
         {
-            return new Argument(name);
+            return new Argument<string>(name);
         }
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
 using Xunit;
@@ -20,7 +19,7 @@ namespace System.CommandLine.Tests
                 {
                     new Command("inner")
                     {
-                        new Option("--option", arity: ArgumentArity.ExactlyOne)
+                        new Option<string>("--option")
                     }
                 });
         }
@@ -97,18 +96,12 @@ namespace System.CommandLine.Tests
         {
             var outer = new Command("outer")
             {
-                new Argument
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                }
+                new Argument<string>()
             };
             outer.AddCommand(
                 new Command("inner")
                 {
-                    new Argument
-                    {
-                        Arity = ArgumentArity.ZeroOrMore
-                    }
+                    new Argument<string[]>()
                 });
 
             var parser = new Parser(outer);
@@ -155,7 +148,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Contain($"Command alias cannot contain whitespace: \"{alias}\"");
+                  .Contain($"Alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -175,7 +168,7 @@ namespace System.CommandLine.Tests
                 .Which
                 .Message
                 .Should()
-                .Contain($"Command alias cannot contain whitespace: \"{alias}\"");
+                .Contain($"Alias cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -255,9 +248,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("-alias")
             {
-                new Argument
+                new Argument<bool>
                 {
-                    Name = "arg", Arity = ArgumentArity.ZeroOrOne
+                    Name = "arg"
                 }
             };
 

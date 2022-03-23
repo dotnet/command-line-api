@@ -12,4 +12,9 @@
     <ProjectReference Include="..\System.CommandLine.NamingConventionBinder\System.CommandLine.NamingConventionBinder.csproj" />
     <Content Include="targets/*" PackagePath="build/$(TargetFramework)/" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Common\ArgumentBuilder.cs" Link="Utility\ArgumentBuilder.cs" />
+    <Compile Include="..\Common\OptionBuilder.cs" Link="Utility\OptionBuilder.cs" />
+  </ItemGroup>
 </Project>

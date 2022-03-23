@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Help
 {
-    internal class HelpOption : Option
+    internal class HelpOption : Option<bool>
     {
         private readonly Func<LocalizationResources> _localizationResources;
         private string? _description;

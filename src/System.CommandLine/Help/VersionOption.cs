@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace System.CommandLine.Help
 {
-    internal class VersionOption : Option
+    internal class VersionOption : Option<bool>
     {
         private readonly CommandLineBuilder _builder;
         private string? _description;
@@ -15,7 +15,7 @@ namespace System.CommandLine.Help
         public VersionOption(CommandLineBuilder builder) : base("--version")
         {
             _builder = builder;
-
+            
             DisallowBinding = true;
 
             AddValidators();

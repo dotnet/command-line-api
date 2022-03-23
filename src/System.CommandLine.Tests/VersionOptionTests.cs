@@ -75,7 +75,7 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Option("-x", getDefaultValue: () => true)
+                new Option<bool>("-x")
             };
             rootCommand.SetHandler(() => { });
 
@@ -120,7 +120,7 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand
             {
                 subcommand,
-                new Option("-x")
+                new Option<bool>("-x")
             };
             rootCommand.SetHandler(() => { });
 

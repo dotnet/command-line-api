@@ -129,5 +129,6 @@ public class ModelBindingCommandHandler : ICommandHandler
                                   .FirstOrDefault(x => x.ValueName == param.Name &&
                                                        x.ValueType == param.ParameterType);
 
+    /// <inheritdoc />
     public int Invoke(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
 }

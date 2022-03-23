@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_specified_it_loads_options_from_response_file()
         {
-            var option = new Option("--flag");
+            var option = new Option<bool>("--flag");
 
             var result = option.Parse($"@{ResponseFile("--flag")}");
 
@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests
                 "--flag2",
                 "123");
 
-            var optionOne = new Option("--flag");
+            var optionOne = new Option<bool>("--flag");
 
             var optionTwo = new Option<int>("--flag2");
             var result = new RootCommand
@@ -187,8 +187,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Response_file_can_contain_comments_which_are_ignored_when_loaded()
         {
-            var optionOne = new Option("--flag");
-            var optionTwo = new Option("--flag2");
+            var optionOne = new Option<bool>("--flag");
+            var optionTwo = new Option<bool>("--flag2");
 
             var responseFile = ResponseFile(
                 "# comment one",
@@ -212,8 +212,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_does_not_exist_then_error_is_returned()
         {
-            var optionOne = new Option("--flag");
-            var optionTwo = new Option("--flag2");
+            var optionOne = new Option<bool>("--flag");
+            var optionTwo = new Option<bool>("--flag2");
 
             var result = new RootCommand
                          {
@@ -230,8 +230,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_filepath_is_not_specified_then_error_is_returned()
         {
-            var optionOne = new Option("--flag");
-            var optionTwo = new Option("--flag2");
+            var optionOne = new Option<bool>("--flag");
+            var optionTwo = new Option<bool>("--flag2");
 
             var result = new RootCommand
                          {
@@ -254,8 +254,8 @@ namespace System.CommandLine.Tests
         public void When_response_file_cannot_be_read_then_specified_error_is_returned()
         {
             var nonexistent = Path.GetTempFileName();
-            var optionOne = new Option("--flag");
-            var optionTwo = new Option("--flag2");
+            var optionOne = new Option<bool>("--flag");
+            var optionTwo = new Option<bool>("--flag2");
 
             using (File.Open(nonexistent, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
             {

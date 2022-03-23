@@ -101,7 +101,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void The_portion_of_the_command_line_following_a_double_is_treated_as_unparsed_tokens()
             {
-                var result = new CommandLineBuilder(new RootCommand { new Option("-o") })
+                var result = new CommandLineBuilder(new RootCommand { new Option<string>("-o") })
                              .EnableLegacyDoubleDashBehavior()
                              .Build()
                              .Parse("-o \"some stuff\" -- x y z");
@@ -114,10 +114,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Subsequent_tokens_matching_options_will_be_treated_as_unparsed_tokens()
             {
-                var optionO = new Option(new[] { "-o" });
-                var optionX = new Option(new[] { "-x" });
-                var optionY = new Option(new[] { "-y" });
-                var optionZ = new Option(new[] { "-z" });
+                var optionO = new Option<string>(new[] { "-o" });
+                var optionX = new Option<bool>(new[] { "-x" });
+                var optionY = new Option<bool>(new[] { "-y" });
+                var optionZ = new Option<bool>(new[] { "-z" });
                 var rootCommand = new RootCommand
                 {
                     optionO,

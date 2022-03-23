@@ -20,7 +20,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         public Perf_Parser_ParseResult()
         {
-            var option = new Option("-opt");
+            var option = new Option<bool>("-opt");
 
             _testParser =
                 new CommandLineBuilder(new RootCommand { option })

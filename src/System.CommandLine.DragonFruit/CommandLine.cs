@@ -8,6 +8,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.CommandLine.Rendering;
+using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -163,18 +164,13 @@ namespace System.CommandLine.DragonFruit
                 command.AddOption(option);
             }
 
-            if (method.GetParameters()
-                      .FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is ParameterInfo argsParam)
+            if (method.GetParameters().FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is { } argsParam)
             {
-                var argument = new Argument
-                {
-                    ValueType = argsParam.ParameterType,
-                    Name = argsParam.Name
-                };
+                var argument = ArgumentBuilder.CreateArgument(argsParam.ParameterType, argsParam.Name);
 
                 if (argsParam.HasDefaultValue)
                 {
-                    if (argsParam.DefaultValue != null)
+                    if (argsParam.DefaultValue is not null)
                     {
                         argument.SetDefaultValue(argsParam.DefaultValue);
                     }
@@ -296,11 +292,17 @@ namespace System.CommandLine.DragonFruit
             {
                 getDefaultValue = parameter.GetDefaultValue;
             }
-            return new Option(
-                parameter.BuildAlias(),
-                parameter.ValueName,
-                parameter.ValueType,
-                getDefaultValue);
+
+            var option = OptionBuilder.CreateOption(parameter.BuildAlias(), parameter.ValueType);
+            
+            option.Description = parameter.ValueName;
+
+            if (getDefaultValue is not null)
+            {
+                option.SetDefaultValueFactory(getDefaultValue);
+            }
+
+            return option;
         }
 
         private static string GetDefaultXmlDocsFileLocation(Assembly assembly)

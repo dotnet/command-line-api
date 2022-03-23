@@ -12,52 +12,17 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    /// <seealso cref="System.CommandLine.IdentifierSymbol" />
-    public class Option : IdentifierSymbol, IValueDescriptor
+    /// <seealso cref="IdentifierSymbol" />
+    public abstract class Option : IdentifierSymbol, IValueDescriptor
     {
         private string? _name;
         private List<ValidateSymbolResult<OptionResult>>? _validators;
-        private Argument? _argument;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Option"/> class.
-        /// </summary>
-        /// <param name="name">The name of the option, which can be used to specify it on the command line.</param>
-        /// <param name="description">The description of the option shown in help.</param>
-        /// <param name="argumentType">The type that the option's argument(s) can be parsed to.</param>
-        /// <param name="getDefaultValue">A delegate used to get a default value for the option when it is not specified on the command line.</param>
-        /// <param name="arity">The arity of the option.</param>
-        public Option(
-            string name,
-            string? description = null,
-            Type? argumentType = null,
-            Func<object?>? getDefaultValue = null,
-            ArgumentArity arity = default)
-            : this(name, description, CreateArgument(argumentType, getDefaultValue, arity))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Option"/> class.
-        /// </summary>
-        /// <param name="aliases">The set of strings that can be used on the command line to specify the option.</param>
-        /// <param name="description">The description of the option shown in help.</param>
-        /// <param name="argumentType">The type that the option's argument(s) can be parsed to.</param>
-        /// <param name="getDefaultValue">A delegate used to get a default value for the option when it is not specified on the command line.</param>
-        /// <param name="arity">The arity of the option.</param>
-        public Option(
-            string[] aliases,
-            string? description = null,
-            Type? argumentType = null,
-            Func<object?>? getDefaultValue = null,
-            ArgumentArity arity = default)
-            : this(aliases, description, CreateArgument(argumentType, getDefaultValue, arity))
-        { }
+        private readonly Argument _argument;
 
         internal Option(
             string name,
             string? description,
-            Argument? argument)
+            Argument argument)
             : base(description)
         {
             if (name is null)
@@ -69,16 +34,14 @@ namespace System.CommandLine
 
             AddAlias(name);
 
-            if (argument is not null)
-            {
-                AddArgumentInner(argument);
-            }
+            argument.AddParent(this);
+            _argument = argument;
         }
 
         internal Option(
             string[] aliases,
             string? description,
-            Argument? argument)
+            Argument argument)
             : base(description)
         {
             if (aliases is null)
@@ -96,60 +59,14 @@ namespace System.CommandLine
                 AddAlias(aliases[i]);
             }
 
-            if (argument is not null)
-            {
-                AddArgumentInner(argument);
-            }
-        }
-
-        private void AddArgumentInner(Argument argument)
-        {
             argument.AddParent(this);
             _argument = argument;
-        }
-
-        private static Argument? CreateArgument(Type? argumentType, Func<object?>? getDefaultValue, ArgumentArity arity)
-        {
-            if (argumentType is null &&
-                getDefaultValue is null &&
-                !arity.IsNonDefault)
-            {
-                return null;
-            }
-
-            var rv = new Argument();
-            if (argumentType is not null)
-            {
-                rv.ValueType = argumentType;
-            }
-            if (getDefaultValue is not null)
-            {
-                rv.SetDefaultValueFactory(getDefaultValue);
-            }
-            if (arity.IsNonDefault)
-            {
-                rv.Arity = arity;
-            }
-            return rv;
         }
 
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
-        internal virtual Argument Argument
-        {
-            get
-            {
-                if (_argument is null)
-                {
-                    var none = Argument.None();
-                    none.AddParent(this);
-                    _argument = none;
-                }
-
-                return _argument;
-            }
-        }
+        internal virtual Argument Argument => _argument;
 
         /// <summary>
         /// Gets or sets the name of the argument when displayed in help.
@@ -169,15 +86,7 @@ namespace System.CommandLine
         public virtual ArgumentArity Arity
         {
             get => Argument.Arity;
-            set
-            {
-                if (value.MaximumNumberOfValues > 0)
-                {
-                    Argument.ValueType = typeof(string);
-                }
-
-                Argument.Arity = value;
-            }
+            set => Argument.Arity = value;
         }
 
         /// <summary>

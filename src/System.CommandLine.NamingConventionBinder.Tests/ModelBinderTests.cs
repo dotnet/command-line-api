@@ -6,6 +6,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Binding;
+using System.CommandLine.Utility;
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -30,7 +31,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            new Option("--value", argumentType: type)
+            OptionBuilder.CreateOption("--value", type)
         };
 
         var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
@@ -57,11 +58,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            new Argument
-            {
-                Name = "value",
-                ValueType = type
-            }
+            ArgumentBuilder.CreateArgument(type)
         };
 
         var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
@@ -84,11 +81,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            new Argument
-            {
-                Name = "value",
-                ValueType = type
-            }
+            ArgumentBuilder.CreateArgument(type)
         };
 
         var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
@@ -135,7 +128,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            new Option("--value", argumentType: type)
+            OptionBuilder.CreateOption("--value", type)
         };
         var parser = new Parser(command);
 
@@ -163,11 +156,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            new Argument
-            {
-                Name = "value",
-                ValueType = type
-            }
+            ArgumentBuilder.CreateArgument(type)
         };
         var parser = new Parser(command);
 

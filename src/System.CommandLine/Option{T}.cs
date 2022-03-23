@@ -6,7 +6,7 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
-    /// <inheritdoc/>
+    /// <inheritdoc cref="Option" />
     /// <typeparam name="T">The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.</typeparam>
     public class Option<T> : Option, IValueDescriptor<T>
     {

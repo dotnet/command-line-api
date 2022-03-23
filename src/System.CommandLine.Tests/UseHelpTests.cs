@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
         public async Task UseHelp_does_not_display_when_option_defined_with_same_alias()
         {
             var command = new Command("command");
-            command.AddOption(new Option("-h"));
+            command.AddOption(new Option<bool>("-h"));
             
             var parser =
                 new CommandLineBuilder(new RootCommand

@@ -76,18 +76,7 @@ namespace System.CommandLine.Binding
             LocalizationResources localizationResources,
             ArgumentResult? argumentResult = null)
         {
-            Type itemType;
-
-            if (type == typeof(string))
-            {
-                type = typeof(string[]);
-                itemType = typeof(string);
-            }
-            else
-            {
-                itemType = type.GetElementTypeIfEnumerable() ?? typeof(string);
-            }
-
+            var itemType = type.GetElementTypeIfEnumerable() ?? typeof(string);
             var values = CreateEnumerable(type, itemType, tokens.Count);
             var isArray = values is Array;
 
@@ -99,9 +88,6 @@ namespace System.CommandLine.Binding
 
                 switch (result.Result)
                 {
-                    case ArgumentConversionResultType.NoArgument:
-                        break;
-
                     case ArgumentConversionResultType.Successful:
                         if (isArray)
                         {
@@ -132,25 +118,21 @@ namespace System.CommandLine.Binding
 
         internal static TryConvertArgument? GetConverter(Argument argument)
         {
-            switch (argument.Arity)
+            if (argument.Arity is { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 })
             {
-                case { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 }:
+                if (argument.ValueType.TryGetNullableType(out var nullableType) &&
+                    _stringConverters.TryGetValue(nullableType, out var convertNullable))
+                {
+                    return (ArgumentResult result, out object? value) => ConvertSingleString(result, convertNullable, out value);
+                }
 
-                    if (argument.ValueType.TryGetNullableType(out var nullableType) &&
-                        _stringConverters.TryGetValue(nullableType, out var convertNullable))
-                    {
-                        return (ArgumentResult result, out object? value) => ConvertSingleString(result, convertNullable, out value);
-                    }
+                if (_stringConverters.TryGetValue(argument.ValueType, out var convert1))
+                {
+                    return (ArgumentResult result, out object? value) => ConvertSingleString(result, convert1, out value);
+                }
 
-                    if (_stringConverters.TryGetValue(argument.ValueType, out var convert))
-                    {
-                        return (ArgumentResult result, out object? value) => ConvertSingleString(result, convert, out value);
-                    }
-
-                    static bool ConvertSingleString(ArgumentResult result, TryConvertString convert, out object? value) =>
-                        convert(result.Tokens[result.Tokens.Count - 1].Value, out value);
-
-                    break;
+                static bool ConvertSingleString(ArgumentResult result, TryConvertString convert, out object? value) =>
+                    convert(result.Tokens[result.Tokens.Count - 1].Value, out value);
             }
 
             if (argument.ValueType.CanBeBoundFromScalarValue())
@@ -215,10 +197,7 @@ namespace System.CommandLine.Binding
                         conversionResult.Argument,
                         symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult),
                         ArgumentConversionResultType.FailedMissingArgument),
-
-                ArgumentConversionResultType.NoArgument when conversionResult.Argument.Arity.MaximumNumberOfValues > 1 =>
-                    Success(conversionResult.Argument, Array.Empty<string>()),
-
+                        
                 _ => conversionResult
             };
         }
