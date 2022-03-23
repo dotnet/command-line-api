@@ -113,6 +113,28 @@ namespace System.CommandLine.Hosting.Tests
             service.StringValue.Should().Be("TEST");
         }
 
+        [Fact]
+        public static async Task Invokes_DerivedClass()
+        {
+            var service = new MyService();
+
+            var parser = new CommandLineBuilder(
+                                                new MyCommand()
+                                               )
+                         .UseHost((builder) => {
+                                      builder.ConfigureServices(services =>
+                                                                {
+                                                                    services.AddTransient(x => service);
+                                                                })
+                                             .UseCommandHandler<MyCommand, MyCommand.MyDerivedHandler>();
+                                  })
+                         .Build();
+
+            var result = await parser.InvokeAsync(new string[] { "--int-option", "54" });
+
+            service.Value.Should().Be(54);
+        }
+
         public class MyCommand : Command
         {
             public MyCommand() : base(name: "mycommand")
@@ -142,6 +164,40 @@ namespace System.CommandLine.Hosting.Tests
                 {
                     service.Value = IntOption;
                     return Task.FromResult(IntOption);
+                }
+            }
+
+            public abstract class MyBaseHandler : ICommandHandler
+            {
+                public int      IntOption { get; set; } // bound from option
+                public IConsole Console   { get; set; } // bound from DI
+
+                public int Invoke(InvocationContext context)
+                {
+                    return Act();
+                }
+
+                public Task<int> InvokeAsync(InvocationContext context)
+                {
+                    return Task.FromResult(Act());
+                }
+
+                protected abstract int Act();
+            }
+
+            public class MyDerivedHandler : MyBaseHandler
+            {
+                private readonly MyService service;
+
+                public MyDerivedHandler(MyService service)
+                {
+                    this.service = service;
+                }
+
+                protected override int Act()
+                {
+                    service.Value = IntOption;
+                    return IntOption;
                 }
             }
         }

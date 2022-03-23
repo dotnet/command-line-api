@@ -108,6 +108,12 @@ namespace System.CommandLine.Hosting
                 && command.GetType() == commandType)
             {
                 invocation.BindingContext.AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
+                var baseType = handlerType.BaseType;
+                while (baseType != null && baseType != typeof(object))
+                {
+                    invocation.BindingContext.AddService(baseType, c => c.GetService<IHost>().Services.GetService(handlerType));
+                    baseType = baseType.BaseType;
+                }
                 builder.ConfigureServices(services =>
                 {
                     services.AddTransient(handlerType);
