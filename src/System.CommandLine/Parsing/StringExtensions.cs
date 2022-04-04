@@ -337,11 +337,19 @@ namespace System.CommandLine.Parsing
                     // possible exception for illegal characters in path on .NET Framework
                 }
 
-                if (potentialRootCommand is not null &&
-                    rootCommand.HasAlias(potentialRootCommand))
+                if (potentialRootCommand is not null)
                 {
-                    list.AddRange(args);
-                    return list;
+                    if (rootCommand.HasAlias(potentialRootCommand))
+                    {
+                        list.AddRange(args);
+                        return list;
+                    }
+
+                    if (args[0] == RootCommand.ExecutablePath)
+                    {
+                        list.AddRange(args);
+                        return list;
+                    }
                 }
             }
 
@@ -357,10 +365,6 @@ namespace System.CommandLine.Parsing
                 {
                     // startAt = 1;
                 }
-            }
-            else
-            {
-                // FIX: (NormalizeRootCommand) 
             }
 
             for (var i = startAt; i < args.Count; i++)

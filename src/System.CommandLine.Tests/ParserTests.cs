@@ -806,19 +806,21 @@ namespace System.CommandLine.Tests
 
             var result2 = command.Parse($"{RootCommand.ExecutablePath} inner -x hello");
 
+            result2.RootCommandResult.Token.Value.Should().Be(RootCommand.ExecutablePath);
             result1.Diagram().Should().Be(result2.Diagram());
+
         }
 
         [Fact]
         public void When_parsing_an_unsplit_string_then_a_renamed_RootCommand_can_be_omitted_from_the_parsed_args()
         {
             var rootCommand = new RootCommand
-                              {
-                                  new Command("inner")
-                                  {
-                                      new Option<string>("-x")
-                                  }
-                              };
+            {
+                new Command("inner")
+                {
+                    new Option<string>("-x")
+                }
+            };
             rootCommand.Name = "outer";
 
             var result1 = rootCommand.Parse("inner -x hello");
@@ -836,7 +838,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("inner")
                 {
-                    new Option("-x") { Arity = ArgumentArity.ExactlyOne }
+                    new Option<string>("-x")
                 }
             };
 
