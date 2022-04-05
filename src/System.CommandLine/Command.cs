@@ -182,13 +182,13 @@ namespace System.CommandLine
                 var commands = Subcommands;
                 for (int i = 0; i < commands.Count; i++)
                 {
-                    AddCompletionsFor(commands[i]);
+                    AddCompletionFor(commands[i], textToMatch);
                 }
 
                 var options = Options;
                 for (int i = 0; i < options.Count; i++)
                 {
-                    AddCompletionsFor(options[i]);
+                    AddCompletionFor(options[i], textToMatch);
                 }
 
                 var arguments = Arguments;
@@ -214,7 +214,7 @@ namespace System.CommandLine
 
                             if (option.IsGlobal)
                             {
-                                AddCompletionsFor(option);
+                                AddCompletionFor(option, textToMatch);
                             }
                         }
                     }
@@ -225,17 +225,31 @@ namespace System.CommandLine
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
 
-            void AddCompletionsFor(IdentifierSymbol identifier)
+            // 'best' is a bit of a misnomer here. We want to return one and only one completion itme for each option,
+            // but depending on what has already been entered by the user the algorithm changes.
+            // For empty input, we return the longest alias of the set of aliases (this matches the DefaultName logic in Option.cs, but does not remove
+            // any prefixes (--, etc)).
+            // For nonempty input, we find all tokens that contain the input and then return the first one sorted by:
+            // * shortest Levenstein distance, then by
+            // * longest common startswith substring
+            string? FindBestCompletionFor(string textToMatch, IReadOnlyCollection<string> aliases) => textToMatch switch
+            {
+#if NET6_0_OR_GREATER
+                "" => aliases.MaxBy(a => a.Length), // find the longest alias
+                (string stem) => aliases.Where(a => a.Contains(stem, StringComparison.OrdinalIgnoreCase)).OrderByDescending(a => TokenDistances.GetLevensteinDistance(stem, a)).ThenByDescending(a => TokenDistances.GetStartsWithDistance(stem, a)).FirstOrDefault()
+#else
+                    "" => aliases.OrderByDescending(a => a.Length).FirstOrDefault(), // find the longest alias
+                    (string stem) => aliases.Where(a => a.Contains(stem)).OrderByDescending(a => TokenDistances.GetLevensteinDistance(stem, a)).ThenByDescending(a => TokenDistances.GetStartsWithDistance(stem, a)).FirstOrDefault()
+#endif
+            };
+
+            void AddCompletionFor(IdentifierSymbol identifier, string textToMatch)
             {
                 if (!identifier.IsHidden)
-                {
-                    foreach (var alias in identifier.Aliases)
-                    {
-                        if (alias is { } &&
-                            alias.ContainsCaseInsensitive(textToMatch))
-                        {
-                            completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: identifier.Description));
-                        }
+                {   
+                    var bestAlias = FindBestCompletionFor(textToMatch, identifier.Aliases);
+                    if (bestAlias is not null) {
+                        completions.Add(new CompletionItem(bestAlias, CompletionItemKind.Keyword, detail: identifier.Description));
                     }
                 }
             }
