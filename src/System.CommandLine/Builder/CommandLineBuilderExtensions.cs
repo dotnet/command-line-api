@@ -100,8 +100,9 @@ namespace System.CommandLine.Builder
         /// Enables the parser to recognize command line directives.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
-        /// <param name="value">If set to <see langword="true"/>, then directives are enabled. Otherwise, they are parsed like any other token.</param>
+        /// <param name="value"><see langword="true" /> to enable directives. <see langword="false" /> to parse directive-like tokens in the same way as any other token.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line directives</seealso> 
         /// <seealso cref="DirectiveCollection"/>
         public static CommandLineBuilder EnableDirectives(
             this CommandLineBuilder builder,
@@ -114,7 +115,7 @@ namespace System.CommandLine.Builder
         /// <summary>
         /// Determines the behavior when parsing a double dash (<c>--</c>) in a command line.
         /// </summary>
-        /// <remarks>When set to <see langword="true"/>, all tokens following <c>--</c> will be placed into the <see cref="ParseResult.UnparsedTokens"/> collection. When set to <see langword="false"/>, all tokens following <c>--</c> will be treated as command arguments, even if they match an existing option.</remarks>
+        /// <param name="value"><see langword="true" /> to place all tokens following <c>--</c> into the <see cref="ParseResult.UnparsedTokens"/> collection. <see langword="false" /> to treat all tokens following <c>--</c> as command arguments, even if they match an existing option.</param>
         public static CommandLineBuilder EnableLegacyDoubleDashBehavior(
             this CommandLineBuilder builder,
             bool value = true)
@@ -127,7 +128,7 @@ namespace System.CommandLine.Builder
         /// Enables the parser to recognize and expand POSIX-style bundled options.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
-        /// <param name="value">If set to <see langword="true"/>, then POSIX bundles are parsed. ; otherwise, <see langword="false"/>.</param>
+        /// <param name="value"><see langword="true"/> to parse POSIX bundles; otherwise, <see langword="false"/>.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         /// <remarks>
         /// POSIX conventions recommend that single-character options be allowed to be specified together after a single <c>-</c> prefix. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, the following command lines are equivalent:
