@@ -23,7 +23,7 @@ namespace System.CommandLine.Parsing
         }
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:System.CommandLine.Parsing.Parser" /> class using the default <see cref="T:System.CommandLine.RootCommand" />.
+        /// Initializes a new instance of the <see cref="Parser" /> class using the default <see cref="RootCommand" />.
         /// </summary>
         public Parser() : this(new RootCommand())
         {
