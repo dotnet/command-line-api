@@ -345,6 +345,7 @@ namespace System.CommandLine.Parsing
                         return list;
                     }
 
+                    // FIX: (NormalizeRootCommand) 
                     if (args[0] == RootCommand.ExecutablePath)
                     {
                         list.AddRange(args);
@@ -363,7 +364,7 @@ namespace System.CommandLine.Parsing
             {
                 if (FirstArgMatchesRootCommand())
                 {
-                    // startAt = 1;
+                    startAt = 1;
                 }
             }
 
@@ -373,7 +374,7 @@ namespace System.CommandLine.Parsing
             }
 
             return list;
-
+           
             bool FirstArgMatchesRootCommand()
             {
                 if (potentialRootCommand is null)
