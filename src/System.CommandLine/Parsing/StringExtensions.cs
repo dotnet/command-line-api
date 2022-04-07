@@ -328,28 +328,27 @@ namespace System.CommandLine.Parsing
 
             if (args.Count > 0)
             {
-                try
+                if (inferRootCommand &&
+                    args[0] == RootCommand.ExecutablePath)
                 {
-                    potentialRootCommand = Path.GetFileName(args[0]);
+                    list.AddRange(args);
+                    return list;
                 }
-                catch (ArgumentException)
+                else
                 {
-                    // possible exception for illegal characters in path on .NET Framework
-                }
-
-                if (potentialRootCommand is not null)
-                {
-                    if (rootCommand.HasAlias(potentialRootCommand))
+                    try
                     {
-                        list.AddRange(args);
-                        return list;
+                        potentialRootCommand = Path.GetFileName(args[0]);
+
+                        if (rootCommand.HasAlias(potentialRootCommand))
+                        {
+                            list.AddRange(args);
+                            return list;
+                        }
                     }
-
-                    // FIX: (NormalizeRootCommand) 
-                    if (args[0] == RootCommand.ExecutablePath)
+                    catch (ArgumentException)
                     {
-                        list.AddRange(args);
-                        return list;
+                        // possible exception for illegal characters in path on .NET Framework
                     }
                 }
             }
@@ -360,9 +359,11 @@ namespace System.CommandLine.Parsing
 
             int startAt = 0;
 
+            var firstArgMatchesRootCommand = FirstArgMatchesRootCommand();
+
             if (inferRootCommand)
             {
-                if (FirstArgMatchesRootCommand())
+                if (firstArgMatchesRootCommand)
                 {
                     startAt = 1;
                 }
