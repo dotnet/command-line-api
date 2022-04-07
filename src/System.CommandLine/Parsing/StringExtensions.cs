@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -66,14 +67,18 @@ namespace System.CommandLine.Parsing
 
         internal static TokenizeResult Tokenize(
             this IReadOnlyList<string> args,
-            CommandLineConfiguration configuration)
+            CommandLineConfiguration configuration,
+            bool inferRootCommand = true)
         {
             var errorList = new List<TokenizeError>();
 
             Command currentCommand = configuration.RootCommand;
             var foundDoubleDash = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
-            var argList = NormalizeRootCommand(configuration, args);
+            
+            List<string> argList;
+            argList = NormalizeRootCommand(args, configuration.RootCommand, inferRootCommand);
+            
             var tokenList = new List<Token>(argList.Count);
 
             var knownTokens = configuration.RootCommand.ValidTokens();
@@ -308,8 +313,9 @@ namespace System.CommandLine.Parsing
         }
 
         private static List<string> NormalizeRootCommand(
-            CommandLineConfiguration commandLineConfiguration,
-            IReadOnlyList<string>? args)
+            IReadOnlyList<string>? args,
+            Command rootCommand,
+            bool inferRootCommand = true)
         {
             if (args is null)
             {
@@ -318,64 +324,41 @@ namespace System.CommandLine.Parsing
 
             var list = new List<string>();
 
-            string? potentialRootCommand = null;
-
             if (args.Count > 0)
             {
-                try
-                {
-                    potentialRootCommand = Path.GetFileName(args[0]);
-                }
-                catch (ArgumentException)
-                {
-                    // possible exception for illegal characters in path on .NET Framework
-                }
-
-                if (potentialRootCommand != null &&
-                    commandLineConfiguration.RootCommand.HasAlias(potentialRootCommand))
+                if (inferRootCommand &&
+                    args[0] == RootCommand.ExecutablePath)
                 {
                     list.AddRange(args);
                     return list;
                 }
+                else
+                {
+                    try
+                    {
+                        var potentialRootCommand = Path.GetFileName(args[0]);
+
+                        if (rootCommand.HasAlias(potentialRootCommand))
+                        {
+                            list.AddRange(args);
+                            return list;
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        // possible exception for illegal characters in path on .NET Framework
+                    }
+                }
             }
 
-            var commandName = commandLineConfiguration.RootCommand.Name;
+            list.Add(rootCommand.Name);
 
-            list.Add(commandName);
-
-            int startAt = 0;
-
-            if (FirstArgMatchesRootCommand())
-            {
-                startAt = 1;
-            }
-
-            for (var i = startAt; i < args.Count; i++)
+            for (var i = 0; i < args.Count; i++)
             {
                 list.Add(args[i]);
             }
 
             return list;
-
-            bool FirstArgMatchesRootCommand()
-            {
-                if (potentialRootCommand is null)
-                {
-                    return false;
-                }
-
-                if (potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                if (potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                return false;
-            }
         }
 
         private static string? GetResponseFileReference(this string arg) =>
