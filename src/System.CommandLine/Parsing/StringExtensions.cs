@@ -324,8 +324,6 @@ namespace System.CommandLine.Parsing
 
             var list = new List<string>();
 
-            string? potentialRootCommand = null;
-
             if (args.Count > 0)
             {
                 if (inferRootCommand &&
@@ -338,7 +336,7 @@ namespace System.CommandLine.Parsing
                 {
                     try
                     {
-                        potentialRootCommand = Path.GetFileName(args[0]);
+                        var potentialRootCommand = Path.GetFileName(args[0]);
 
                         if (rootCommand.HasAlias(potentialRootCommand))
                         {
@@ -353,48 +351,14 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            var commandName = rootCommand.Name;
+            list.Add(rootCommand.Name);
 
-            list.Add(commandName);
-
-            int startAt = 0;
-
-            var firstArgMatchesRootCommand = FirstArgMatchesRootCommand();
-
-            if (inferRootCommand)
-            {
-                if (firstArgMatchesRootCommand)
-                {
-                    startAt = 1;
-                }
-            }
-
-            for (var i = startAt; i < args.Count; i++)
+            for (var i = 0; i < args.Count; i++)
             {
                 list.Add(args[i]);
             }
 
             return list;
-           
-            bool FirstArgMatchesRootCommand()
-            {
-                if (potentialRootCommand is null)
-                {
-                    return false;
-                }
-
-                if (potentialRootCommand.Equals($"{commandName}.dll", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                if (potentialRootCommand.Equals($"{commandName}.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                return false;
-            }
         }
 
         private static string? GetResponseFileReference(this string arg) =>
