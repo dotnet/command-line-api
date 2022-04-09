@@ -5,8 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Utility;
 using System.IO;
-using FluentAssertions;
 using System.Linq;
+using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
@@ -63,6 +63,21 @@ namespace System.CommandLine.Tests.Binding
             result.GetValueForArgument(argument)
                   .Should()
                   .BeNull();
+        }
+
+        [Fact]
+        public void Argument_of_FileInfo_that_is_empty_results_in_an_informative_error()
+        {
+            var option = new Option<FileInfo>("--file");
+            var result = option.Parse(new string[] { "--file", "" });
+
+            result.Errors
+                  .Should()
+                  .ContainSingle()
+                  .Which
+                  .Message
+                  .Should()
+                  .Contain("Cannot parse argument '' for option '--file'");
         }
 
         [Fact]
