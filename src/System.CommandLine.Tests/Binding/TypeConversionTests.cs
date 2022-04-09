@@ -5,8 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Utility;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
+using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
