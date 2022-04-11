@@ -73,7 +73,7 @@ public class ModelBindingCommandHandler : ICommandHandler
         if (_handlerDelegate is null)
         {
             var invocationTarget = _invocationTarget ?? 
-                                   bindingContext.GetService(_handlerMethodInfo!.DeclaringType);
+                                   bindingContext.GetService(_handlerMethodInfo!.ReflectedType);
             if(invocationTarget is { })
             {
                 _invocationTargetBinder?.UpdateInstance(invocationTarget, bindingContext);

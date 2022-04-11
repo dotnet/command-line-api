@@ -113,6 +113,50 @@ namespace System.CommandLine.Hosting.Tests
             service.StringValue.Should().Be("TEST");
         }
 
+        [Fact]
+        public static async Task Invokes_DerivedClass()
+        {
+            var service = new MyService();
+
+            var cmd = new RootCommand();
+            cmd.AddCommand(new MyCommand());
+            cmd.AddCommand(new MyOtherCommand());
+            var parser = new CommandLineBuilder(cmd)
+                         .UseHost((builder) => {
+                             builder.ConfigureServices(services =>
+                             {
+                                 services.AddTransient(x => service);
+                             })
+                                    .UseCommandHandler<MyCommand, MyCommand.MyDerivedHandler>()
+                                    .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyDerivedHandler>();
+                         })
+                         .Build();
+
+            await parser.InvokeAsync(new string[] { "mycommand", "--int-option", "54" });
+            service.Value.Should().Be(54);
+
+            await parser.InvokeAsync(new string[] { "myothercommand", "TEST" });
+            service.StringValue.Should().Be("TEST");
+        }
+
+        public abstract class MyBaseHandler : ICommandHandler
+        {
+            public int IntOption { get; set; } // bound from option
+            public IConsole Console { get; set; } // bound from DI
+
+            public int Invoke(InvocationContext context)
+            {
+                return Act();
+            }
+
+            public Task<int> InvokeAsync(InvocationContext context)
+            {
+                return Task.FromResult(Act());
+            }
+
+            protected abstract int Act();
+        }
+
         public class MyCommand : Command
         {
             public MyCommand() : base(name: "mycommand")
@@ -142,6 +186,22 @@ namespace System.CommandLine.Hosting.Tests
                 {
                     service.Value = IntOption;
                     return Task.FromResult(IntOption);
+                }
+            }
+
+            public class MyDerivedHandler : MyBaseHandler
+            {
+                private readonly MyService service;
+
+                public MyDerivedHandler(MyService service)
+                {
+                    this.service = service;
+                }
+
+                protected override int Act()
+                {
+                    service.Value = IntOption;
+                    return IntOption;
                 }
             }
         }
@@ -175,6 +235,25 @@ namespace System.CommandLine.Hosting.Tests
                     service.Value = IntOption;
                     service.StringValue = One;
                     return Task.FromResult(service.Action?.Invoke() ?? 0);
+                }
+            }
+
+            public class MyDerivedHandler : MyBaseHandler
+            {
+                private readonly MyService service;
+
+                public MyDerivedHandler(MyService service)
+                {
+                    this.service = service;
+                }
+
+                public string One { get; set; }
+
+                protected override int Act()
+                {
+                    service.Value = IntOption;
+                    service.StringValue = One;
+                    return service.Action?.Invoke() ?? 0;
                 }
             }
         }
