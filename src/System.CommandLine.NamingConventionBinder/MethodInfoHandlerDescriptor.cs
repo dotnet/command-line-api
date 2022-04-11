@@ -40,7 +40,7 @@ internal class MethodInfoHandlerDescriptor : HandlerDescriptor
         }
     }
 
-    public override ModelDescriptor Parent => ModelDescriptor.FromType(_handlerMethodInfo.DeclaringType);
+    public override ModelDescriptor Parent => ModelDescriptor.FromType(_handlerMethodInfo.ReflectedType);
 
     private protected override IEnumerable<ParameterDescriptor> InitializeParameterDescriptors() =>
         _handlerMethodInfo.GetParameters()
