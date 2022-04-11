@@ -9,5 +9,6 @@ namespace System.CommandLine.Parsing;
 /// <typeparam name="T">The type of the <see cref="SymbolResult"/>.</typeparam>
 /// <param name="symbolResult">The symbol result</param>
 /// <remarks>To display an error, set <see cref="SymbolResult.ErrorMessage"/>.</remarks>
+/// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
 public delegate void ValidateSymbolResult<in T>(T symbolResult) 
     where T : SymbolResult;

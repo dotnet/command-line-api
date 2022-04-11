@@ -10,5 +10,6 @@ namespace System.CommandLine.Parsing
     /// <param name="result">The argument result.</param>
     /// <returns>The parsed value.</returns>
     /// <remarks>Validation errors can be returned by setting <see cref="SymbolResult.ErrorMessage"/>.</remarks>
+    /// <seealso href="/dotnet/standard/commandline/model-binding#custom-validation-and-binding">Custom validation and binding</seealso>
     public delegate T ParseArgument<out T>(ArgumentResult result);
 }

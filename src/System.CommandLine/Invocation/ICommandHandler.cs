@@ -8,6 +8,7 @@ namespace System.CommandLine.Invocation
     /// <summary>
     /// Defines the behavior of a command.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
     public interface ICommandHandler
     {
         /// <summary>

@@ -15,6 +15,7 @@ namespace System.CommandLine.Help
         /// <param name="command">The command for which help is being formatted.</param>
         /// <param name="output">A text writer to write output to.</param>
         /// <param name="parseResult">The result of the current parse operation.</param>
+        /// <seealso href="/dotnet/standard/commandline/customize-help">Customize help</seealso>
         public HelpContext(
             HelpBuilder helpBuilder,
             Command command,

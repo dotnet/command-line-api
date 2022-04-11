@@ -6,6 +6,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// Describes an error that occurs while parsing command line input.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public class ParseError
     {
         internal ParseError(

@@ -6,6 +6,7 @@ namespace System.CommandLine.Invocation
     /// <summary>
     /// Designates ordering of middleware in the invocation pipeline.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/use-middleware">How to use middleware</seealso>
     public enum MiddlewareOrder
     {
         /// <summary>

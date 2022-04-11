@@ -6,6 +6,7 @@ namespace System.CommandLine.Invocation
     /// <summary>
     /// The result of a command handler invocation.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
     public interface IInvocationResult
     {
         /// <summary>

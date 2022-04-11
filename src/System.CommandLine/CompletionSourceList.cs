@@ -10,6 +10,7 @@ namespace System.CommandLine
     /// <summary>
     /// A list of completion sources to be used when providing completions for completion.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
     public class CompletionSourceList : IReadOnlyList<ICompletionSource>
     {
         private readonly List<ICompletionSource> _sources = new();
@@ -18,6 +19,7 @@ namespace System.CommandLine
         /// Adds a completion source to the list.
         /// </summary>
         /// <param name="source">The source to add.</param>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public void Add(ICompletionSource source)
         {
             _sources.Add(source);

@@ -12,6 +12,7 @@ namespace System.CommandLine.Invocation
     /// <summary>
     /// Supports command invocation by providing access to parse results and other services.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
     public sealed class InvocationContext
     {
         private CancellationTokenSource? _cts;

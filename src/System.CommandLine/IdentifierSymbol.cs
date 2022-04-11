@@ -9,6 +9,7 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol, such as an option or command, having one or more fixed names in a command line interface.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
     public abstract class IdentifierSymbol : Symbol
     {
         private protected readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
@@ -28,6 +29,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the symbol.</param>
         /// <param name="description">The description of the symbol, which is displayed in command line help.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         protected IdentifierSymbol(string name, string? description = null) 
         {
             Name = name;
@@ -60,9 +62,11 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds an alias. Multiple aliases can be added, most often used to provide a shorthand alternative.
+        /// Adds an <see href="/dotnet/standard/commandline/syntax#aliases">alias</see>.
         /// </summary>
         /// <param name="alias">The alias to add.</param>
+        /// <remarks>Multiple aliases can be added.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void AddAlias(string alias)
         {
             ThrowIfAliasIsInvalid(alias);
@@ -73,7 +77,7 @@ namespace System.CommandLine
         private protected virtual void RemoveAlias(string alias) => _aliases.Remove(alias);
 
         /// <summary>
-        /// Determines whether the alias has already been defined.
+        /// Determines whether the <see href="/dotnet/standard/commandline/syntax#aliases">alias</see> has already been defined.
         /// </summary>
         /// <param name="alias">The alias to search for.</param>
         /// <returns><see langword="true">true</see> if the alias has already been defined; otherwise <see langkeyword="true">false</see>.</returns>

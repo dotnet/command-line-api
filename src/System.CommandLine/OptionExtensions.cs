@@ -12,6 +12,7 @@ namespace System.CommandLine
     /// <summary>
     /// Provides extension methods for <see cref="Option" />.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
     public static class OptionExtensions
     {
         /// <summary>
@@ -21,6 +22,7 @@ namespace System.CommandLine
         /// <param name="values">The values that are allowed for the option.</param>
         /// <typeparam name="TOption">The type of the option's parsed value.</typeparam>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/define-commands#list-valid-argument-values">How to define commands, options, and arguments - List valid argument values</seealso>
         public static TOption FromAmong<TOption>(
             this TOption option,
             params string[] values)
@@ -39,6 +41,7 @@ namespace System.CommandLine
         /// <param name="option">The option for which to add completions.</param>
         /// <param name="values">The completions to add.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static TOption AddCompletions<TOption>(
             this TOption option,
             params string[] values)
@@ -56,6 +59,7 @@ namespace System.CommandLine
         /// <param name="option">The option for which to add completions.</param>
         /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static TOption AddCompletions<TOption>(
             this TOption option,
             Func<CompletionContext, IEnumerable<string>> complete)
@@ -73,6 +77,7 @@ namespace System.CommandLine
         /// <param name="option">The option for which to add completions.</param>
         /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static TOption AddCompletions<TOption>(
             this TOption option,
             CompletionDelegate complete)
@@ -88,6 +93,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Option<FileInfo> ExistingOnly(this Option<FileInfo> option)
         {
             option.Argument.AddValidator(Validate.FileExists);
@@ -99,6 +105,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Option<DirectoryInfo> ExistingOnly(this Option<DirectoryInfo> option)
         {
             option.Argument.AddValidator(Validate.DirectoryExists);
@@ -110,6 +117,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Option<FileSystemInfo> ExistingOnly(this Option<FileSystemInfo> option)
         {
             option.Argument.AddValidator(Validate.FileOrDirectoryExists);
@@ -117,10 +125,11 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Configures an option to accept only values corresponding to a existing files or directories.
+        /// Configures an option to accept only values corresponding to existing files or directories.
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Option<T> ExistingOnly<T>(this Option<T> option)
             where T : IEnumerable<FileSystemInfo>
         {
@@ -137,6 +146,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static TOption LegalFilePathsOnly<TOption>(
             this TOption option)
             where TOption : Option
@@ -152,6 +162,19 @@ namespace System.CommandLine
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
+        /// Configures an option to accept only values representing legal file paths.
+        /// </summary>
+        /// <param name="option">The option to configure.</param>
+        /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
+        public static TOption LegalFilePathsOnly<TOption>(
+            this TOption option)
+            where TOption : Option
+        {
+            option.Argument.LegalFilePathsOnly();
+
+            return option;
+        }
         public static TOption LegalFileNamesOnly<TOption>(
             this TOption option)
             where TOption : Option
@@ -168,6 +191,7 @@ namespace System.CommandLine
         /// <param name="option">The option to use to parse the command line input.</param>
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ParseResult Parse(
             this Option option,
             string commandLine) =>
@@ -179,6 +203,7 @@ namespace System.CommandLine
         /// <param name="option">The option to use to parse the command line input.</param>
         /// <param name="args">The string options to parse.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ParseResult Parse(
             this Option option,
             string[] args) =>

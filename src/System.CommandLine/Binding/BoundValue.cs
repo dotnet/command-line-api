@@ -6,6 +6,7 @@ namespace System.CommandLine.Binding
     /// <summary>
     /// A value created by binding command line input.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
     public readonly struct BoundValue
     {
         internal BoundValue(

@@ -6,6 +6,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// Identifies the type of a <see cref="Token"/>.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public enum TokenType
     {
         /// <summary>

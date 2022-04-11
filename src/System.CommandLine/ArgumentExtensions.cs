@@ -11,6 +11,8 @@ namespace System.CommandLine
     /// <summary>
     /// Provides extension methods for <see cref="Argument" />.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
+    /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
     public static class ArgumentExtensions
     {
         /// <summary>
@@ -20,6 +22,7 @@ namespace System.CommandLine
         /// <param name="argument">The argument for which to add completions.</param>
         /// <param name="values">The completions to add.</param>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static TArgument AddCompletions<TArgument>(
             this TArgument argument,
             params string[] values)
@@ -37,6 +40,7 @@ namespace System.CommandLine
         /// <param name="argument">The argument for which to add completions.</param>
         /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static TArgument AddCompletions<TArgument>(
             this TArgument argument,
             Func<CompletionContext, IEnumerable<string>> complete)
@@ -54,6 +58,7 @@ namespace System.CommandLine
         /// <param name="argument">The argument for which to add completions.</param>
         /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static TArgument AddCompletions<TArgument>(
             this TArgument argument,
             CompletionDelegate complete)
@@ -71,6 +76,8 @@ namespace System.CommandLine
         /// <param name="values">The values that are allowed for the argument.</param>
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static TArgument FromAmong<TArgument>(
             this TArgument argument,
             params string[] values)
@@ -87,6 +94,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Argument<FileInfo> ExistingOnly(this Argument<FileInfo> argument)
         {
             argument.AddValidator(Validate.FileExists);
@@ -98,6 +106,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Argument<DirectoryInfo> ExistingOnly(this Argument<DirectoryInfo> argument)
         {
             argument.AddValidator(Validate.DirectoryExists);
@@ -109,6 +118,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Argument<FileSystemInfo> ExistingOnly(this Argument<FileSystemInfo> argument)
         {
             argument.AddValidator(Validate.FileOrDirectoryExists);
@@ -120,6 +130,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Argument<T> ExistingOnly<T>(this Argument<T> argument)
             where T : IEnumerable<FileSystemInfo>
         {
@@ -144,6 +155,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static TArgument LegalFilePathsOnly<TArgument>(
             this TArgument argument)
             where TArgument : Argument
@@ -176,6 +188,7 @@ namespace System.CommandLine
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static TArgument LegalFileNamesOnly<TArgument>(
             this TArgument argument)
             where TArgument : Argument
@@ -206,6 +219,7 @@ namespace System.CommandLine
         /// <param name="argument">The argument to use to parse the command line input.</param>
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line syntax overview - Directives</seealso>
         public static ParseResult Parse(
             this Argument argument,
             string commandLine) =>
@@ -217,6 +231,7 @@ namespace System.CommandLine
         /// <param name="argument">The argument to use to parse the command line input.</param>
         /// <param name="args">The string arguments to parse.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line syntax overview - Directives</seealso>
         public static ParseResult Parse(
             this Argument argument,
             string[] args) =>

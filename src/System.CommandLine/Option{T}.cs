@@ -8,6 +8,7 @@ namespace System.CommandLine
 {
     /// <inheritdoc cref="Option" />
     /// <typeparam name="T">The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.</typeparam>
+    /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
     public class Option<T> : Option, IValueDescriptor<T>
     {
         /// <inheritdoc/>

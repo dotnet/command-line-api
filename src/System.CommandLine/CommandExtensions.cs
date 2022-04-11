@@ -20,6 +20,7 @@ namespace System.CommandLine
         /// <param name="args">The arguments to parse.</param>
         /// <param name="console">The console to which output is written during invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static int Invoke(
             this Command command,
             string[] args,
@@ -36,6 +37,7 @@ namespace System.CommandLine
         /// <param name="commandLine">The command line to parse.</param>
         /// <param name="console">The console to which output is written during invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static int Invoke(
             this Command command,
             string commandLine,
@@ -49,6 +51,7 @@ namespace System.CommandLine
         /// <param name="args">The arguments to parse.</param>
         /// <param name="console">The console to which output is written during invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static async Task<int> InvokeAsync(
             this Command command,
             string[] args,
@@ -65,6 +68,7 @@ namespace System.CommandLine
         /// <param name="commandLine">The command line to parse.</param>
         /// <param name="console">The console to which output is written during invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Task<int> InvokeAsync(
             this Command command,
             string commandLine,
@@ -84,6 +88,7 @@ namespace System.CommandLine
         /// <param name="command">The command to use to parse the command line input.</param>
         /// <param name="args">The string arguments to parse.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ParseResult Parse(
             this Command command,
             params string[] args) =>
@@ -96,6 +101,7 @@ namespace System.CommandLine
         /// <param name="command">The command to use to parse the command line input.</param>
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ParseResult Parse(
             this Command command,
             string commandLine) =>

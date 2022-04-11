@@ -10,6 +10,7 @@ namespace System.CommandLine
     /// <summary>
     /// Provides extension methods for working with completion sources.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
     public static class CompletionSourceExtensions
     {
         /// <summary>
@@ -17,6 +18,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="completionSources">The list of completion sources to add to.</param>
         /// <param name="complete">The delegate to be called when calculating completions.</param>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static void Add(
             this CompletionSourceList completionSources,
             Func<CompletionContext, IEnumerable<string>> complete)
@@ -39,7 +41,8 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="completionSources">The list of completion sources to add to.</param>
         /// <param name="complete">The delegate to be called when calculating completions.</param>
-        public static void Add(
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
+    public static void Add(
             this CompletionSourceList completionSources,
             CompletionDelegate complete)
         {
@@ -61,6 +64,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="completionSources">The list of completion sources to add to.</param>
         /// <param name="completions">A list of strings to be suggested for command line completions.</param>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public static void Add(
             this CompletionSourceList completionSources,
             params string[] completions)

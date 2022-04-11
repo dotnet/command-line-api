@@ -10,6 +10,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing an <see cref="Argument"/>.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;

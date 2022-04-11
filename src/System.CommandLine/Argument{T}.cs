@@ -14,6 +14,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public Argument()
         {
         }
@@ -32,6 +33,7 @@ namespace System.CommandLine
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <param name="description">The description of the argument, shown in help.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public Argument(
             string name, 
             Func<T> getDefaultValue, 
@@ -50,6 +52,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public Argument(Func<T> getDefaultValue) : this()
         {
             if (getDefaultValue is null)
@@ -68,6 +71,7 @@ namespace System.CommandLine
         /// <param name="isDefault"><see langword="true"/> to use the <paramref name="parse"/> result as default value.</param>
         /// <param name="description">The description of the argument, shown in help.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="parse"/> is null.</exception>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public Argument(
             string? name,
             ParseArgument<T> parse, 
@@ -108,6 +112,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="parse">A custom argument parser.</param>
         /// <param name="isDefault"><see langword="true"/> to use the <paramref name="parse"/> result as default value.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public Argument(ParseArgument<T> parse, bool isDefault = false) : this(null!, parse, isDefault)
         {
         }

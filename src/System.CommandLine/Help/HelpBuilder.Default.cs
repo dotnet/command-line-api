@@ -14,6 +14,7 @@ public partial class HelpBuilder
     /// <summary>
     /// Provides default formatting for help output.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/customize-help">Customize help</seealso>
     public static class Default
     {
         /// <summary>

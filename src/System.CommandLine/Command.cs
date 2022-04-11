@@ -18,6 +18,7 @@ namespace System.CommandLine
     /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public class Command : IdentifierSymbol, IEnumerable<Symbol>
     {
         private List<Argument>? _arguments;
@@ -30,6 +31,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command, shown in help.</param>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public Command(string name, string? description = null) : base(name, description)
         {
         }
@@ -37,6 +39,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public IEnumerable<Symbol> Children
         {
             get
@@ -55,6 +58,7 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the arguments for the command.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public IReadOnlyList<Argument> Arguments => _arguments is not null ? _arguments : Array.Empty<Argument>();
 
         internal bool HasArguments => _arguments is not null;
@@ -62,11 +66,13 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the options for the command, including global options that have been applied to any of the command's ancestors.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public IReadOnlyList<Option> Options => _options is not null ? _options : Array.Empty<Option>();
 
         /// <summary>
         /// Represents all of the subcommands for the command.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public IReadOnlyList<Command> Subcommands => _subcommands is not null ? _subcommands : Array.Empty<Command>();
 
         internal IReadOnlyList<ValidateSymbolResult<CommandResult>> Validators
@@ -78,6 +84,7 @@ namespace System.CommandLine
         /// Adds an <see cref="Argument"/> to the command.
         /// </summary>
         /// <param name="argument">The argument to add to the command.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void AddArgument(Argument argument)
         {
             argument.AddParent(this);
@@ -89,6 +96,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The subcommand to add to the command.</param>
         /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void AddCommand(Command command)
         {
             command.AddParent(this);
@@ -99,6 +107,7 @@ namespace System.CommandLine
         /// Adds an <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void AddOption(Option option)
         {
             option.AddParent(this);
@@ -111,6 +120,7 @@ namespace System.CommandLine
         /// <param name="option">The global option to add to the command.</param>
         /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
         /// parent commands.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void AddGlobalOption(Option option)
         {
             option.IsGlobal = true;
@@ -120,12 +130,14 @@ namespace System.CommandLine
         /// Adds an <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void Add(Option option) => AddOption(option);
 
         /// <summary>
         /// Adds an <see cref="Argument"/> to the command.
         /// </summary>
         /// <param name="argument">The argument to add to the command.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void Add(Argument argument) => AddArgument(argument);
 
         /// <summary>
@@ -133,6 +145,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The subcommand to add to the command.</param>
         /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void Add(Command command) => AddCommand(command);
 
         private protected override string DefaultName => throw new NotImplementedException();
@@ -142,6 +155,7 @@ namespace System.CommandLine
         /// to create custom validation logic.
         /// </summary>
         /// <param name="validate">The delegate to validate the symbols during parsing.</param>
+        /// <seealso href="/dotnet/standard/commandline/model-binding#custom-validation-and-binding">How to bind arguments to handlers - Custom validation and binding</seealso>
         public void AddValidator(ValidateSymbolResult<CommandResult> validate) => (_validators ??= new()).Add(validate);
 
         /// <summary>
@@ -149,6 +163,7 @@ namespace System.CommandLine
         /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
         /// </summary>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
 
         /// <summary>
         /// Gets or sets the <see cref="ICommandHandler"/> for the command. The handler represents the action
@@ -158,11 +173,13 @@ namespace System.CommandLine
         /// <para>Use one of the <see cref="Handler.SetHandler(Command, Action)" /> overloads to construct a handler.</para>
         /// <para>If the handler is not specified, parser errors will be generated for command line input that
         /// invokes this command.</para></remarks>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public ICommandHandler? Handler { get; set; }
 
         /// <summary>
         /// Represents all of the symbols for the command.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public IEnumerator<Symbol> GetEnumerator() => Children.GetEnumerator();
 
         /// <inheritdoc />

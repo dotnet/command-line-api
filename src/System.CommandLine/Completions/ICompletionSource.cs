@@ -8,6 +8,7 @@ namespace System.CommandLine.Completions
     /// <summary>
     /// Provides completions and example values for help.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
     public interface ICompletionSource
     {
         /// <summary>
