@@ -162,19 +162,7 @@ namespace System.CommandLine
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        /// Configures an option to accept only values representing legal file paths.
-        /// </summary>
-        /// <param name="option">The option to configure.</param>
-        /// <returns>The option being extended.</returns>
         /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
-        public static TOption LegalFilePathsOnly<TOption>(
-            this TOption option)
-            where TOption : Option
-        {
-            option.Argument.LegalFilePathsOnly();
-
-            return option;
-        }
         public static TOption LegalFileNamesOnly<TOption>(
             this TOption option)
             where TOption : Option
