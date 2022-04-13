@@ -12,6 +12,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// Describes the results of parsing a command line input based on a specific parser configuration.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public class ParseResult
     {
         private readonly List<ParseError> _errors;

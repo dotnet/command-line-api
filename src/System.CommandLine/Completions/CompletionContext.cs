@@ -9,7 +9,8 @@ namespace System.CommandLine.Completions
     /// <summary>
     /// Supports command line completion operations.
     /// </summary>
-    public abstract class CompletionContext
+    /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
+   public abstract class CompletionContext
     {
         internal CompletionContext(ParseResult parseResult, string wordToComplete)
         {

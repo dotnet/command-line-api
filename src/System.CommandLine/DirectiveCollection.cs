@@ -15,6 +15,7 @@ namespace System.CommandLine
     /// <code>    > myapp [directive-one] [directive-two:value] arg1 arg2</code>
     /// The second has a value specified as well, <c>value</c>. Directive values can be read by calling using <see cref="TryGetValues"/>.
     /// </remarks>
+    /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line syntax overview - Directives</seealso>
     public class DirectiveCollection  : IEnumerable<KeyValuePair<string, IEnumerable<string>>>
     {
         private Dictionary<string, List<string>>? _directives;
@@ -41,6 +42,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the directive.</param>
         /// <returns><see langword="true"/> if a directive with the specified name was parsed; otherwise, <see langword="false"/>.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line syntax overview - Directives</seealso>
         public bool Contains(string name)
         {
             return _directives is not null && _directives.ContainsKey(name);
@@ -52,6 +54,7 @@ namespace System.CommandLine
         /// <param name="name">The name of the directive.</param>
         /// <param name="values">The values provided for the specified directive.</param>
         /// <returns><see langword="true"/> if a directive with the specified name was parsed; otherwise, <see langword="false"/>.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line syntax overview - Directives</seealso>
         public bool TryGetValues(string name, [NotNullWhen(true)] out IReadOnlyList<string>? values)
         {
             if (_directives is not null &&

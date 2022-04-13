@@ -9,6 +9,7 @@ namespace System.CommandLine
     /// <summary>
     /// Defines a named symbol that resides in a hierarchy with parent and child symbols.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
     public abstract class Symbol : ICompletionSource
     {
         private string? _name;
@@ -21,11 +22,13 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the description of the symbol.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public virtual string? Description { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the symbol.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public virtual string Name
         {
             get => _name ??= DefaultName;
@@ -59,6 +62,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets a value indicating whether the symbol is hidden.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public bool IsHidden { get; set; }
 
         /// <summary>
@@ -80,6 +84,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets completions for the symbol.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public IEnumerable<CompletionItem> GetCompletions() => 
             GetCompletions(CompletionContext.Empty());
 

@@ -6,6 +6,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing a <see cref="Command" />.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public class CommandResult : SymbolResult
     {
         internal CommandResult(

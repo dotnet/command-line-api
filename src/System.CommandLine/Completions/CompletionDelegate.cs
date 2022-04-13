@@ -9,5 +9,6 @@ namespace System.CommandLine.Completions
     /// Provides command line completion.
     /// </summary>
     /// <returns>A list of completions.</returns>
+    /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
     public delegate IEnumerable<CompletionItem> CompletionDelegate(CompletionContext context);
 }

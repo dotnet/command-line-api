@@ -12,6 +12,8 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a value that can be passed on the command line to a <see cref="Command">command</see> or <see cref="Option">option</see>.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
+    /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
     public abstract class Argument : Symbol, IValueDescriptor
     {
         private Func<ArgumentResult, object?>? _defaultValueFactory;
@@ -23,6 +25,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         protected Argument()
         {
         }
@@ -32,6 +35,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the argument.</param>
         /// <param name="description">The description of the argument, shown in help.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         protected Argument(string? name = null, string? description = null)
         {
             Name = name!;
@@ -41,8 +45,9 @@ namespace System.CommandLine
         internal HashSet<string>? AllowedValues { get; private set; }
 
         /// <summary>
-        /// Gets or sets the arity of the argument.
+        /// Gets or sets the <see href="/dotnet/standard/commandline/syntax#argument-arity">arity</see> of the argument.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public ArgumentArity Arity
         {
             get
@@ -63,6 +68,7 @@ namespace System.CommandLine
         /// <summary>
         /// The name used in help output to describe the argument. 
         /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/customize-help">How to customize help</seealso>
         public string? HelpName { get; set; }
 
         internal TryConvertArgument? ConvertArguments
@@ -83,6 +89,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public abstract Type ValueType { get; }
 
         private protected override string DefaultName
@@ -111,13 +118,15 @@ namespace System.CommandLine
         /// to provide custom errors based on user input.
         /// </summary>
         /// <param name="validate">The delegate to validate the parsed argument.</param>
+        /// <seealso href="/dotnet/standard/commandline/model-binding#custom-validation-and-binding">How to bind arguments to handlers - Custom validation and binding</seealso>
         public void AddValidator(ValidateSymbolResult<ArgumentResult> validate) => Validators.Add(validate);
 
         /// <summary>
         /// Gets the default value for the argument.
         /// </summary>
         /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
-        public object? GetDefaultValue()
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
+       public object? GetDefaultValue()
         {
             return GetDefaultValue(new ArgumentResult(this, null));
         }
@@ -136,6 +145,7 @@ namespace System.CommandLine
         /// Sets the default value for the argument.
         /// </summary>
         /// <param name="value">The default value for the argument.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void SetDefaultValue(object? value)
         {
             SetDefaultValueFactory(() => value);
@@ -146,6 +156,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void SetDefaultValueFactory(Func<object?> getDefaultValue)
         {
             if (getDefaultValue is null)
@@ -161,6 +172,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <remarks>In this overload, the <see cref="ArgumentResult"/> is provided to the delegate.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void SetDefaultValueFactory(Func<ArgumentResult, object?> getDefaultValue)
         {
             _defaultValueFactory = getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue));
@@ -169,6 +181,7 @@ namespace System.CommandLine
         /// <summary>
         /// Specifies if a default value is defined for the argument.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public bool HasDefaultValue => _defaultValueFactory is not null;
 
         internal virtual bool HasCustomParser => false;

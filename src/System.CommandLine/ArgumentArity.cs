@@ -9,10 +9,11 @@ using System.Diagnostics;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Defines the arity of an option or argument.
+    /// Defines the <see href="/dotnet/standard/commandline/syntax#argument-arity">arity</see> of an option or argument.
     /// </summary>
     /// <remarks>The arity refers to the number of values that can be passed on the command line.
     /// </remarks>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     [DebuggerDisplay("\\{{" + nameof(MinimumNumberOfValues) + "},{" + nameof(MaximumNumberOfValues) + "}\\}")]
     public readonly struct ArgumentArity : IEquatable<ArgumentArity>
     {
@@ -25,6 +26,7 @@ namespace System.CommandLine
         /// <param name="maximumNumberOfValues">The maximum number of values allowed for the argument.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="minimumNumberOfValues"/> is negative.</exception>
         /// <exception cref="ArgumentException">Thrown when the maximum number is less than the minimum number or the maximum number is greater than MaximumArity.</exception>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public ArgumentArity(int minimumNumberOfValues, int maximumNumberOfValues)
         {
             if (minimumNumberOfValues < 0)
@@ -50,11 +52,13 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the minimum number of values required for an <see cref="Argument">argument</see>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public int MinimumNumberOfValues { get; }
 
         /// <summary>
         /// Gets the maximum number of values allowed for an <see cref="Argument">argument</see>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public int MaximumNumberOfValues { get; }
 
         internal bool IsNonDefault { get;  }
@@ -119,26 +123,31 @@ namespace System.CommandLine
         /// <summary>
         /// An arity that does not allow any values.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ArgumentArity Zero => new(0, 0);
 
         /// <summary>
         /// An arity that may have one value, but no more than one.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ArgumentArity ZeroOrOne => new(0, 1);
 
         /// <summary>
         /// An arity that must have exactly one value.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ArgumentArity ExactlyOne => new(1, 1);
 
         /// <summary>
         /// An arity that may have multiple values.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ArgumentArity ZeroOrMore => new(0, MaximumArity);
 
         /// <summary>
         /// An arity that must have at least one value.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ArgumentArity OneOrMore => new(1, MaximumArity);
 
         internal static ArgumentArity Default(Type type, Argument argument, ParentNode? firstParent)

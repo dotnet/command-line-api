@@ -14,6 +14,8 @@ namespace System.CommandLine.Binding
     /// <summary>
     /// Creates object instances based on command line parser results, injected services, and other value sources.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
+
     public sealed class BindingContext : IServiceProvider
     {
         private HelpBuilder? _helpBuilder;

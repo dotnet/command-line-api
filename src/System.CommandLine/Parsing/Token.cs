@@ -6,6 +6,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A unit of significant text on the command line.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax#tokens">Tokens</seealso>
     public class Token : IEquatable<Token>
     {
         internal const int ImplicitPosition = -1;
@@ -13,6 +14,7 @@ namespace System.CommandLine.Parsing
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
         /// <param name="symbol">The symbol represented by the token</param>
+        /// <seealso href="/dotnet/standard/commandline/syntax#tokens">Tokens</seealso>
         public Token(string? value, TokenType type, Symbol symbol)
         {
             Value = value ?? "";

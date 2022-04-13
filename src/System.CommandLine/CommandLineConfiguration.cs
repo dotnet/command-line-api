@@ -65,11 +65,13 @@ namespace System.CommandLine
         /// <summary>
         /// Gets whether directives are enabled.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line syntax overview - Directives</seealso>
         public bool EnableDirectives { get; }
 
         /// <summary>
         /// Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public bool EnableLegacyDoubleDashBehavior { get; }
 
         /// <summary>

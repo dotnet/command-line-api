@@ -14,6 +14,7 @@ namespace System.CommandLine
     /// to the root for applications that require actions identified by specific strings. For example, `dir` does not 
     /// use any subcommands. See <see cref="Command"/> for applications with multiple actions.
     /// </remarks>
+    /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
     public class RootCommand : Command
     {
         private static Assembly? _assembly;

@@ -8,6 +8,7 @@ namespace System.CommandLine.Completions;
 /// <summary>
 /// Provides details for getting completions when the complete text of the original command line is not available.
 /// </summary>
+/// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
 public class TokenCompletionContext : CompletionContext
 {
     internal TokenCompletionContext(ParseResult parseResult) : base(parseResult, GetWordToComplete(parseResult))

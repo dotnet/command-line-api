@@ -40,6 +40,7 @@ namespace System.CommandLine.Parsing
         /// <param name="arguments">The string array typically passed to a program's <c>Main</c> method.</param>
         /// <param name="rawInput">Holds the value of a complete command line input prior to splitting and tokenization, when provided. This will typically not be available when the parser is called from <c>Program.Main</c>. It is primarily used when calculating completions via the <c>dotnet-suggest</c> tool.</param>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public ParseResult Parse(
             IReadOnlyList<string> arguments,
             string? rawInput = null)

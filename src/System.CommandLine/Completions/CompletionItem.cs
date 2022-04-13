@@ -14,6 +14,7 @@ namespace System.CommandLine.Completions
         /// <param name="insertText">The text to be inserted by this completion item. If this is not provided, then <paramref name="label"/>  is used.</param>
         /// <param name="documentation">Documentation about the completion item.</param>
         /// <param name="detail">Additional details regarding the completion item.</param>
+        /// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
         public CompletionItem(
             string label,
             string kind = CompletionItemKind.Value,

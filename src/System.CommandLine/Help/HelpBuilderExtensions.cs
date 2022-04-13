@@ -18,6 +18,7 @@ namespace System.CommandLine.Help
         /// <param name="firstColumnText">A delegate to display the first help column (typically name and usage information).</param>
         /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
         /// <param name="defaultValue">The displayed default value for the symbol.</param>
+        /// <seealso href="/dotnet/standard/commandline/customize-help">Customize help</seealso>
         public static void CustomizeSymbol(
             this HelpBuilder builder,
             Symbol symbol,

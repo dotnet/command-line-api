@@ -21,6 +21,7 @@ namespace System.CommandLine.Parsing
         /// <param name="parseResult">A parse result on which the invocation is based.</param>
         /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
         /// <returns>A task whose result can be used as a process exit code.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static async Task<int> InvokeAsync(
             this ParseResult parseResult,
             IConsole? console = null) =>
@@ -32,6 +33,7 @@ namespace System.CommandLine.Parsing
         /// <param name="parseResult">A parse result on which the invocation is based.</param>
         /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
         /// <returns>A value that can be used as a process exit code.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static int Invoke(
             this ParseResult parseResult,
             IConsole? console = null) =>
@@ -42,6 +44,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="parseResult">The parse result to be diagrammed.</param>
         /// <returns>A string containing a diagram of the parse result.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static string Diagram(this ParseResult parseResult)
         {
             var builder = StringBuilderPool.Default.Rent();
@@ -183,6 +186,7 @@ namespace System.CommandLine.Parsing
         /// <param name="parseResult">The parse result to check for the presence of the option.</param>
         /// <param name="option">The option to check for the presence of.</param>
         /// <returns><see langword="true"/> if the option is present; otherwise,  <see langword="false"/>.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static bool HasOption(
             this ParseResult parseResult,
             Option option)

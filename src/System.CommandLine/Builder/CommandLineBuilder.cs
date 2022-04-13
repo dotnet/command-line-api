@@ -12,6 +12,7 @@ namespace System.CommandLine.Builder
     /// <summary>
     /// Enables composition of command line configurations.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/customize-help">How to customize help</seealso>
     public class CommandLineBuilder 
     {
         // for every generic type with type argument being struct JIT needs to compile a dedicated version

@@ -16,6 +16,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static int Invoke(
             this Parser parser,
             string commandLine,
@@ -26,6 +27,7 @@ namespace System.CommandLine.Parsing
         /// Parses a command line string array and invokes the handler for the indicated command.
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static int Invoke(
             this Parser parser,
             string[] args,
@@ -37,6 +39,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static Task<int> InvokeAsync(
             this Parser parser,
             string commandLine,
@@ -47,6 +50,7 @@ namespace System.CommandLine.Parsing
         /// Parses a command line string array and invokes the handler for the indicated command.
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static async Task<int> InvokeAsync(
             this Parser parser,
             string[] args,
@@ -57,6 +61,7 @@ namespace System.CommandLine.Parsing
         /// Parses a command line string.
         /// </summary>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
         public static ParseResult Parse(
             this Parser parser,
             string commandLine)

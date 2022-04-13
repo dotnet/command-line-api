@@ -10,11 +10,13 @@ namespace System.CommandLine
     /// <summary>
     /// Provides methods for creating and working with command handlers.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
     public static partial class Handler
     {
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler(
             this Command command,
             Func<Task> handle) =>
@@ -23,6 +25,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T>(
             this Command command,
             Func<T, Task> handle,
@@ -40,6 +43,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2>(
             this Command command,
             Func<T1, T2, Task> handle,
@@ -58,6 +62,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3>(
             this Command command,
             Func<T1, T2, T3, Task> handle,
@@ -77,6 +82,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4>(
             this Command command,
             Func<T1, T2, T3, T4, Task> handle,
@@ -97,6 +103,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5>(
             this Command command,
             Func<T1, T2, T3, T4, T5, Task> handle,
@@ -118,6 +125,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, Task> handle,
@@ -140,6 +148,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, Task> handle,
@@ -163,6 +172,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, T8, Task> handle,
@@ -187,6 +197,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, Task> handle,
@@ -212,6 +223,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, Task> handle,
@@ -238,6 +250,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, Task> handle,
@@ -265,6 +278,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, Task> handle,
@@ -293,6 +307,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, Task> handle,
@@ -322,6 +337,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, Task> handle,
@@ -383,6 +399,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on a <see cref="Func{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,Task}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
             this Command command,
             Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task> handle,

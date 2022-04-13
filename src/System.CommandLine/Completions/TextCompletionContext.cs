@@ -8,6 +8,7 @@ namespace System.CommandLine.Completions;
 /// <summary>
 /// Provides details for calculating completions in the context of complete, unsplit command line text.
 /// </summary>
+/// <seealso href="/dotnet/standard/commandline/tab-completion">Tab completion</seealso>
 public class TextCompletionContext : CompletionContext
 {
     private TextCompletionContext(

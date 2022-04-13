@@ -9,6 +9,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing an <see cref="Option" />.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public class OptionResult : SymbolResult
     {
         private ArgumentConversionResult? _argumentConversionResult;

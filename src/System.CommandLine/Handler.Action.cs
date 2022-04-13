@@ -9,11 +9,13 @@ namespace System.CommandLine
     /// <summary>
     /// Provides methods for creating and working with command handlers.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
     public static partial class Handler
     {
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler(
             this Command command,
             Action handle) =>
@@ -22,6 +24,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T>(
             this Command command,
             Action<T> handle,
@@ -39,6 +42,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2>(
             this Command command,
             Action<T1, T2> handle,
@@ -57,6 +61,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3>(
             this Command command,
             Action<T1, T2, T3> handle,
@@ -76,6 +81,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4>(
             this Command command,
             Action<T1, T2, T3, T4> handle,
@@ -96,6 +102,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5>(
             this Command command,
             Action<T1, T2, T3, T4, T5> handle,
@@ -117,6 +124,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6> handle,
@@ -139,6 +147,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7> handle,
@@ -162,6 +171,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8> handle,
@@ -185,6 +195,7 @@ namespace System.CommandLine
 
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9}"/>.
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         /// </summary>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
             this Command command,
@@ -211,6 +222,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> handle,
@@ -237,6 +249,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> handle,
@@ -264,6 +277,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> handle,
@@ -292,6 +306,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> handle,
@@ -321,6 +336,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> handle,
@@ -351,6 +367,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> handle,
@@ -382,6 +399,7 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16}"/>.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/model-binding">How to bind arguments to handlers</seealso>
         public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
             this Command command,
             Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> handle,

@@ -6,6 +6,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// Specifies settings for response file parsing.
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public enum ResponseFileHandling
     {
 

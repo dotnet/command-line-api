@@ -13,6 +13,7 @@ namespace System.CommandLine
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
     /// <seealso cref="IdentifierSymbol" />
+    /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
     public abstract class Option : IdentifierSymbol, IValueDescriptor
     {
         private string? _name;
@@ -66,6 +67,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         internal virtual Argument Argument => _argument;
 
         /// <summary>
@@ -74,6 +76,7 @@ namespace System.CommandLine
         /// <value>
         /// The name of the argument when displayed in help.
         /// </value>
+        /// <seealso href="/dotnet/standard/commandline/customize-help">How to customize help</seealso>
         public string? ArgumentHelpName
         {
             get => Argument.HelpName;
@@ -81,8 +84,9 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets or sets the arity of the option.
+        /// Gets or sets the <see href="/dotnet/standard/commandline/syntax#argument-arity">arity</see> of the option.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public virtual ArgumentArity Arity
         {
             get => Argument.Arity;
@@ -93,6 +97,8 @@ namespace System.CommandLine
         /// Global options are applied to the command and recursively to subcommands.
         /// They do not apply to parent commands.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
+        /// <seealso href="/dotnet/standard/commandline/get-started-tutorial">Tutorial: Get started with System.CommandLine</seealso>
         internal bool IsGlobal { get; set; }
 
         internal bool DisallowBinding { get; init; }
@@ -120,6 +126,7 @@ namespace System.CommandLine
         /// Adds a validator that will be called when the option is matched by the parser.
         /// </summary>
         /// <param name="validate">A <see cref="ValidateSymbolResult{OptionResult}"/> delegate used to validate the <see cref="OptionResult"/> produced during parsing.</param>
+        /// <seealso href="/dotnet/standard/commandline/model-binding#custom-validation-and-binding">How to bind arguments to handlers - Custom validation and binding</seealso>
         public void AddValidator(ValidateSymbolResult<OptionResult> validate) => Validators.Add(validate);
 
         /// <summary>
@@ -127,6 +134,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="alias">The alias, which can include a prefix.</param>
         /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
+        /// <seealso href="/dotnet/standard/commandline/syntax#aliases">Command-line syntax overview - Aliases</seealso>
         public bool HasAliasIgnoringPrefix(string alias)
         {
             ReadOnlySpan<char> rawAlias = alias.AsSpan(alias.GetPrefixLength());
@@ -146,6 +154,7 @@ namespace System.CommandLine
         /// Sets the default value for the option.
         /// </summary>
         /// <param name="value">The default value for the option.</param>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void SetDefaultValue(object? value) =>
             Argument.SetDefaultValue(value);
 
@@ -154,6 +163,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public void SetDefaultValueFactory(Func<object?> getDefaultValue) =>
             Argument.SetDefaultValueFactory(getDefaultValue);
 
@@ -170,6 +180,7 @@ namespace System.CommandLine
         /// > --opt 1 --opt 2 --opt 3
         /// </code>
         /// </example>
+        /// <seealso href="/dotnet/standard/commandline/define-commands#multiple-arguments">How to define commands, options, and arguments - Multiple arguments</seealso>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
         internal virtual bool IsGreedy
@@ -179,13 +190,16 @@ namespace System.CommandLine
         /// Indicates whether the option is required when its parent command is invoked.
         /// </summary>
         /// <remarks>When an option is required and its parent command is invoked without it, an error results.</remarks>
+        /// <seealso href="/dotnet/standard/commandline/define-commands#required-options">How to define commands, options, and arguments - Required options</seealso>
         public bool IsRequired { get; set; }
+
 
         string IValueDescriptor.ValueName => Name;
 
         /// <summary>
         /// The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.
         /// </summary>
+        /// <seealso href="/dotnet/standard/commandline/define-commands">How to define commands, options, and arguments</seealso>
         public Type ValueType => Argument.ValueType;
 
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;

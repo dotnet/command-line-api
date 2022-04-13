@@ -8,6 +8,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// Splits a string based on whitespace and quotation marks
     /// </summary>
+    /// <seealso href="/dotnet/standard/commandline/syntax">Command-line syntax overview</seealso>
     public class CommandLineStringSplitter
     {
         /// <summary>
