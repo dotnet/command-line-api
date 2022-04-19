@@ -62,6 +62,11 @@ internal static partial class ArgumentConverter
 
         [typeof(DirectoryInfo)] = (string path, out object? value) =>
         {
+            if (String.IsNullOrEmpty(path))
+            {
+                value = default;
+                return false;
+            }
             value = new DirectoryInfo(path);
             return true;
         },
@@ -80,12 +85,22 @@ internal static partial class ArgumentConverter
 
         [typeof(FileInfo)] = (string path, out object? value) =>
         {
+            if (String.IsNullOrEmpty(path))
+            {
+                value = default;
+                return false;
+            }
             value = new FileInfo(path);
             return true;
         },
 
         [typeof(FileSystemInfo)] = (string path, out object? value) =>
         {
+            if (String.IsNullOrEmpty(path))
+            {
+                value = default;
+                return false;
+            }
             if (Directory.Exists(path))
             {
                 value = new DirectoryInfo(path);

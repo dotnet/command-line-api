@@ -66,6 +66,21 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Argument_of_FileInfo_that_is_empty_results_in_an_informative_error()
+        {
+            var option = new Option<FileInfo>("--file");
+            var result = option.Parse(new string[] { "--file", "" });
+
+            result.Errors
+                  .Should()
+                  .ContainSingle()
+                  .Which
+                  .Message
+                  .Should()
+                  .Contain("Cannot parse argument '' for option '--file'");
+        }
+
+        [Fact]
         public void Argument_of_array_of_FileInfo_can_be_called_without_custom_conversion_logic()
         {
             var option = new Option<FileInfo[]>("--file");
