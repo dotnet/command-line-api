@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -129,7 +128,7 @@ namespace System.CommandLine.Parsing
                 if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
                     arg.GetResponseFileReference() is { } filePath)
                 {
-                    ReadResponseFile(filePath, i);
+                    ReadResponseFile(filePath, i, configuration, argList, errorList);
                     continue;
                 }
 
@@ -279,37 +278,7 @@ namespace System.CommandLine.Parsing
                 return false;
             }
 
-            void ReadResponseFile(string filePath, int i)
-            {
-                try
-                {
-                    var next = i + 1;
-
-                    foreach (var newArg in ExpandResponseFile(
-                        filePath,
-                        configuration.ResponseFileHandling))
-                    {
-                        argList.Insert(next, newArg);
-                        next += 1;
-                    }
-                }
-                catch (FileNotFoundException)
-                {
-                    var message = configuration.LocalizationResources
-                                               .ResponseFileNotFound(filePath);
-
-                    errorList.Add(
-                        new TokenizeError(message));
-                }
-                catch (IOException e)
-                {
-                    var message = configuration.LocalizationResources
-                                               .ErrorReadingResponseFile(filePath, e);
-
-                    errorList.Add(
-                        new TokenizeError(message));
-                }
-            }
+         
         }
 
         private static List<string> NormalizeRootCommand(
@@ -390,9 +359,40 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        private static IEnumerable<string> ExpandResponseFile(
+        static void ReadResponseFile(
             string filePath,
-            ResponseFileHandling responseFileHandling)
+            int startAtIndex, 
+            CommandLineConfiguration configuration, 
+            List<string> argList, 
+            List<TokenizeError> errorList)
+        {
+            try
+            {
+                var next = startAtIndex + 1;
+
+                foreach (var newArg in ExpandResponseFile(filePath))
+                {
+                    argList.Insert(next, newArg);
+                    next += 1;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                var message = configuration.LocalizationResources
+                                           .ResponseFileNotFound(filePath);
+
+                errorList.Add(new TokenizeError(message));
+            }
+            catch (IOException e)
+            {
+                var message = configuration.LocalizationResources
+                                           .ErrorReadingResponseFile(filePath, e);
+
+                errorList.Add(new TokenizeError(message));
+            }
+        }
+
+        private static IEnumerable<string> ExpandResponseFile(string filePath)
         {
             var lines = File.ReadAllLines(filePath);
 
@@ -404,9 +404,7 @@ namespace System.CommandLine.Parsing
                 {
                     if (p.GetResponseFileReference() is { } path)
                     {
-                        foreach (var q in ExpandResponseFile(
-                            path,
-                            responseFileHandling))
+                        foreach (var q in ExpandResponseFile(path))
                         {
                             yield return q;
                         }
@@ -427,21 +425,9 @@ namespace System.CommandLine.Parsing
                     yield break;
                 }
 
-                switch (responseFileHandling)
+                foreach (var word in CommandLineStringSplitter.Instance.Split(arg))
                 {
-                    case ResponseFileHandling.ParseArgsAsLineSeparated:
-
-                        yield return arg;
-
-                        break;
-                    case ResponseFileHandling.ParseArgsAsSpaceSeparated:
-
-                        foreach (var word in CommandLineStringSplitter.Instance.Split(arg))
-                        {
-                            yield return word;
-                        }
-
-                        break;
+                    yield return word;
                 }
             }
         }
