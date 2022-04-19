@@ -60,9 +60,12 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds an alias. Multiple aliases can be added, most often used to provide a shorthand alternative.
+        /// Adds an <see href="/dotnet/standard/commandline/syntax#aliases">alias</see>.
         /// </summary>
         /// <param name="alias">The alias to add.</param>
+        /// <remarks>
+        /// You can add multiple aliases for a symbol.
+        /// </remarks>
         public void AddAlias(string alias)
         {
             ThrowIfAliasIsInvalid(alias);
@@ -73,10 +76,10 @@ namespace System.CommandLine
         private protected virtual void RemoveAlias(string alias) => _aliases.Remove(alias);
 
         /// <summary>
-        /// Determines whether the alias has already been defined.
+        /// Determines whether the specified alias has already been defined.
         /// </summary>
         /// <param name="alias">The alias to search for.</param>
-        /// <returns><see langword="true">true</see> if the alias has already been defined; otherwise <see langkeyword="true">false</see>.</returns>
+        /// <returns><see langword="true" /> if the alias has already been defined; otherwise <see langword="false" />.</returns>
         public bool HasAlias(string alias) => _aliases.Contains(alias);
 
         [DebuggerStepThrough]
