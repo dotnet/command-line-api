@@ -137,14 +137,14 @@ namespace System.CommandLine.Parsing
                             out var newTokens,
                             out var error))
                     {
-                        argList.InsertRange(i + 1, newTokens!);
+                        argList.InsertRange(i + 1, newTokens ?? Array.Empty<string>());
+                        continue;
                     }
-                    else
+                    else if (!string.IsNullOrWhiteSpace(error))
                     {
                         errorList.Add(error!);
+                        continue;
                     }
-
-                    continue;
                 }
 
                 if (knownTokens.TryGetValue(arg, out var token))
@@ -292,8 +292,6 @@ namespace System.CommandLine.Parsing
                 option = null;
                 return false;
             }
-
-         
         }
 
         private static List<string> NormalizeRootCommand(
