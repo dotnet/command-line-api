@@ -37,24 +37,21 @@ namespace System.CommandLine.Builder
         /// Determines whether the parser recognizes command line directives.
         /// </summary>
         /// <seealso cref="DirectiveCollection"/>
-        public bool EnableDirectives { get; set; } = true;
+        internal bool EnableDirectives { get; set; } = true;
 
         /// <summary>
         /// Determines whether the parser recognize and expands POSIX-style bundled options.
         /// </summary>
-        public bool EnablePosixBundling { get; set; } = true;
+        internal bool EnablePosixBundling { get; set; } = true;
+        
+        internal bool EnableTokenReplacement { get; set; } = true;
 
         /// <summary>
         /// Determines the behavior when parsing a double dash (<c>--</c>) in a command line.
         /// </summary>
         /// <remarks>When set to <see langword="true"/>, all tokens following <c>--</c> will be placed into the <see cref="ParseResult.UnparsedTokens"/> collection. When set to <see langword="false"/>, all tokens following <c>--</c> will be treated as command arguments, even if they match an existing option.</remarks>
-        public bool EnableLegacyDoubleDashBehavior { get; set; }
-
-        /// <summary>
-        /// Configures the parser's handling of response files. When enabled, a command line token beginning with <c>@</c> that is a valid file path will be expanded as though inserted into the command line. 
-        /// </summary>
-        public ResponseFileHandling ResponseFileHandling { get; set; }
-
+        internal bool EnableLegacyDoubleDashBehavior { get; set; }
+        
         internal void CustomizeHelpLayout(Action<HelpContext> customize) => 
             _customizeHelpBuilder = customize;
 
@@ -89,24 +86,25 @@ namespace System.CommandLine.Builder
             set => _localizationResources = value;
         }
 
+        internal TryReplaceToken? TokenReplacer { get; set; }
+
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
-        public Parser Build()
-        {
-            var parser = new Parser(
+        public Parser Build() =>
+            new(
                 new CommandLineConfiguration(
                     Command,
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
                     enableLegacyDoubleDashBehavior: EnableLegacyDoubleDashBehavior,
+                    enableTokenReplacement: EnableTokenReplacement,
                     resources: LocalizationResources,
-                    responseFileHandling: ResponseFileHandling,
-                    middlewarePipeline: _middlewareList is null ? Array.Empty<InvocationMiddleware>() : GetMiddleware(),
-                    helpBuilderFactory: GetHelpBuilderFactory()));
-            
-            return parser;
-        }
+                    middlewarePipeline: _middlewareList is null
+                                            ? Array.Empty<InvocationMiddleware>()
+                                            : GetMiddleware(),
+                    helpBuilderFactory: GetHelpBuilderFactory(),
+                    tokenReplacer: TokenReplacer));
 
         private IReadOnlyList<InvocationMiddleware> GetMiddleware()
         {

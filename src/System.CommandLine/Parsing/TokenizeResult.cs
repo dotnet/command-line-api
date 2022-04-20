@@ -3,20 +3,19 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine.Parsing
+namespace System.CommandLine.Parsing;
+
+internal class TokenizeResult
 {
-    internal class TokenizeResult
+    internal TokenizeResult(
+        List<Token> tokens,
+        List<string> errors)
     {
-        internal TokenizeResult(
-            List<Token> tokens,
-            List<TokenizeError> errors)
-        {
-            Tokens = tokens;
-            Errors = errors;
-        }
-
-        public List<Token> Tokens { get; }
-
-        public List<TokenizeError> Errors { get; }
+        Tokens = tokens;
+        Errors = errors;
     }
+
+    public List<Token> Tokens { get; }
+
+    public List<string> Errors { get; }
 }

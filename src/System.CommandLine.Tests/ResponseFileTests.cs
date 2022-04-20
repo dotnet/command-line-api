@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
             }
         }
 
-        private string ResponseFile(params string[] lines)
+        private string CreateResponseFile(params string[] lines)
         {
             var responseFile = new FileInfo(Path.GetTempFileName());
 
@@ -46,7 +46,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("--flag");
 
-            var result = option.Parse($"@{ResponseFile("--flag")}");
+            var result = option.Parse($"@{CreateResponseFile("--flag")}");
 
             result.HasOption(option).Should().BeTrue();
         }
@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_is_specified_it_loads_options_with_arguments_from_response_file()
         {
-            var responseFile = ResponseFile(
+            var responseFile = CreateResponseFile(
                 "--flag",
                 "--flag2",
                 "123");
@@ -77,7 +77,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_is_specified_it_loads_command_arguments_from_response_file()
         {
-            var responseFile = ResponseFile(
+            var responseFile = CreateResponseFile(
                 "one",
                 "two",
                 "three");
@@ -98,7 +98,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Response_file_can_provide_subcommand_arguments()
         {
-            var responseFile = ResponseFile(
+            var responseFile = CreateResponseFile(
                 "one",
                 "two",
                 "three");
@@ -122,7 +122,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Response_file_can_provide_subcommand()
         {
-            var responseFile = ResponseFile("subcommand");
+            var responseFile = CreateResponseFile("subcommand");
 
             var result = new RootCommand
                          {
@@ -143,7 +143,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_is_specified_it_loads_subcommand_arguments_from_response_file()
         {
-            var responseFile = ResponseFile(
+            var responseFile = CreateResponseFile(
                 "one",
                 "two",
                 "three");
@@ -167,7 +167,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Response_file_can_contain_blank_lines()
         {
-            var responseFile = ResponseFile(
+            var responseFile = CreateResponseFile(
                 "--flag",
                 "",
                 "123");
@@ -190,7 +190,7 @@ namespace System.CommandLine.Tests
             var optionOne = new Option<bool>("--flag");
             var optionTwo = new Option<bool>("--flag2");
 
-            var responseFile = ResponseFile(
+            var responseFile = CreateResponseFile(
                 "# comment one",
                 "--flag",
                 "# comment two",
@@ -278,7 +278,7 @@ namespace System.CommandLine.Tests
         [InlineData("--flag=\"first value\" --flag2=123")]
         public void When_response_file_parse_as_space_separated_returns_expected_values(string input)
         {
-            var responseFile = ResponseFile(input);
+            var responseFile = CreateResponseFile(input);
 
             var optionOne = new Option<string>("--flag");
             var optionTwo = new Option<int>("--flag2");
@@ -289,7 +289,6 @@ namespace System.CommandLine.Tests
                 optionTwo
             };
             var parser = new CommandLineBuilder(rootCommand)
-                         .ParseResponseFileAs(ResponseFileHandling.ParseArgsAsSpaceSeparated)
                          .Build();
 
             var result = parser.Parse($"@{responseFile}");
@@ -307,7 +306,8 @@ namespace System.CommandLine.Tests
             };
             var configuration = new CommandLineConfiguration(
                 command,
-                responseFileHandling: ResponseFileHandling.Disabled);
+                enableTokenReplacement: false);
+            
             var parser = new Parser(configuration);
 
             var result = parser.Parse("@file.rsp");
@@ -322,9 +322,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Response_files_can_refer_to_other_response_files()
         {
-            var file3 = ResponseFile("--three", "3");
-            var file2 = ResponseFile($"@{file3}", "--two", "2");
-            var file1 = ResponseFile("--one", "1", $"@{file2}");
+            var file3 = CreateResponseFile("--three", "3");
+            var file2 = CreateResponseFile($"@{file3}", "--two", "2");
+            var file1 = CreateResponseFile("--one", "1", $"@{file2}");
 
             var option1 = new Option<int>("--one");
             var option2 = new Option<int>("--two");
@@ -339,17 +339,17 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse($"@{file1}");
 
-            result.FindResultFor(option1).GetValueOrDefault().Should().Be(1);
-            result.FindResultFor(option1).GetValueOrDefault().Should().Be(1);
-            result.FindResultFor(option2).GetValueOrDefault().Should().Be(2);
-            result.FindResultFor(option3).GetValueOrDefault().Should().Be(3);
+            result.GetValueForOption(option1).Should().Be(1);
+            result.GetValueForOption(option1).Should().Be(1);
+            result.GetValueForOption(option2).Should().Be(2);
+            result.GetValueForOption(option3).Should().Be(3);
             result.Errors.Should().BeEmpty();
         }
 
         [Fact]
         public void When_response_file_options_or_arguments_contain_trailing_spaces_they_are_ignored()
         {
-            var responseFile = ResponseFile("--option1 ", "value1 ", "--option2\t", "2\t");
+            var responseFile = CreateResponseFile("--option1 ", "value1 ", "--option2\t", "2\t");
 
             var option1 = new Option<string>("--option1");
             var option2 = new Option<int>("--option2");
@@ -362,7 +362,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_options_or_arguments_contain_leading_spaces_they_are_ignored()
         {
-            var responseFile = ResponseFile(" --option1", " value1", "\t--option2", "\t2");
+            var responseFile = CreateResponseFile(" --option1", " value1", "\t--option2", "\t2");
 
             var option1 = new Option<string>("--option1");
             var option2 = new Option<int>("--option2");
@@ -376,7 +376,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_options_or_arguments_contain_trailing_and_leading_spaces_they_are_ignored()
         {
-            var responseFile = ResponseFile(" --option1 ", " value1 ", "\t--option2\t", "\t2\t");
+            var responseFile = CreateResponseFile(" --option1 ", " value1 ", "\t--option2\t", "\t2\t");
 
             var option1 = new Option<string>("--option1");
             var option2 = new Option<int>("--option2");

@@ -17,6 +17,7 @@ namespace System.CommandLine
     public class CommandLineConfiguration
     {
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
+        private TryReplaceToken? _tokenReplacer;
 
         /// <summary>
         /// Initializes a new instance of the CommandLineConfiguration class.
@@ -25,30 +26,34 @@ namespace System.CommandLine
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
         /// <param name="enableLegacyDoubleDashBehavior">Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.</param>
+        /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
         /// <param name="resources">Provide custom validation messages.</param>
-        /// <param name="responseFileHandling">One of the enumeration values that specifies how response files (.rsp) are handled.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
+        /// <param name="tokenReplacer">Replaces the specified token with any number of other tokens.</param>
         public CommandLineConfiguration(
             Command command,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
             bool enableLegacyDoubleDashBehavior = false,
+            bool enableTokenReplacement = true,
             LocalizationResources? resources = null,
-            ResponseFileHandling responseFileHandling = ResponseFileHandling.ParseArgsAsLineSeparated,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
-            Func<BindingContext, HelpBuilder>? helpBuilderFactory = null)
+            Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
+            TryReplaceToken? tokenReplacer = null)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
 
             EnableLegacyDoubleDashBehavior = enableLegacyDoubleDashBehavior;
+            EnableTokenReplacement = enableTokenReplacement;
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
+
             LocalizationResources = resources ?? LocalizationResources.Instance;
-            ResponseFileHandling = responseFileHandling;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;
+            _tokenReplacer = tokenReplacer;
         }
 
         internal static HelpBuilder DefaultHelpBuilderFactory(BindingContext context, int? requestedMaxWidth = null)
@@ -73,7 +78,7 @@ namespace System.CommandLine
         public bool EnableLegacyDoubleDashBehavior { get; }
 
         /// <summary>
-        /// Gets whether POSIX bundling is enabled.
+        /// Gets a value indicating whether POSIX bundling is enabled.
         /// </summary>
         /// <remarks>
         /// POSIX recommends that single-character options be allowed to be specified together after a single <c>-</c> prefix.
@@ -81,20 +86,41 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; }
 
         /// <summary>
+        /// Gets a value indicating whether token replacement is enabled.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
+        /// </remarks>
+        public bool EnableTokenReplacement { get; }
+
+        /// <summary>
         /// Gets the localizable resources.
         /// </summary>
         public LocalizationResources LocalizationResources { get; }
 
-        internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= (context) => DefaultHelpBuilderFactory(context);
+        internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= context => DefaultHelpBuilderFactory(context);
 
         internal IReadOnlyList<InvocationMiddleware> Middleware { get; }
+
+        internal TryReplaceToken? TokenReplacer =>
+            EnableTokenReplacement
+                ? _tokenReplacer ??= DefaultTokenReplacer
+                : null;
+
+        private bool DefaultTokenReplacer(
+            string tokenToReplace, 
+            out IReadOnlyList<string>? replacementTokens, 
+            out string? errorMessage) =>
+            StringExtensions.TryReadResponseFile(
+                tokenToReplace,
+                LocalizationResources,
+                out replacementTokens,
+                out errorMessage);
 
         /// <summary>
         /// Gets the root command.
         /// </summary>
         public Command RootCommand { get; }
-
-        internal ResponseFileHandling ResponseFileHandling { get; }
 
         /// <summary>
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.

@@ -71,10 +71,11 @@
     public static System.CommandLine.Parsing.ParseResult Parse(this Command command, System.String[] args)
     public static System.CommandLine.Parsing.ParseResult Parse(this Command command, System.String commandLine)
   public class CommandLineConfiguration
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableLegacyDoubleDashBehavior = False, LocalizationResources resources = null, System.CommandLine.Parsing.ResponseFileHandling responseFileHandling = ParseArgsAsLineSeparated, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null)
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableLegacyDoubleDashBehavior = False, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Boolean EnableDirectives { get; }
     public System.Boolean EnableLegacyDoubleDashBehavior { get; }
     public System.Boolean EnablePosixBundling { get; }
+    public System.Boolean EnableTokenReplacement { get; }
     public LocalizationResources LocalizationResources { get; }
     public Command RootCommand { get; }
     public System.Void ThrowIfInvalid()
@@ -250,10 +251,6 @@ System.CommandLine.Builder
   public class CommandLineBuilder
     .ctor(System.CommandLine.Command rootCommand = null)
     public System.CommandLine.Command Command { get; }
-    public System.Boolean EnableDirectives { get; set; }
-    public System.Boolean EnableLegacyDoubleDashBehavior { get; set; }
-    public System.Boolean EnablePosixBundling { get; set; }
-    public System.CommandLine.Parsing.ResponseFileHandling ResponseFileHandling { get; set; }
     public System.CommandLine.Parsing.Parser Build()
   public static class CommandLineBuilderExtensions
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
@@ -262,7 +259,6 @@ System.CommandLine.Builder
     public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnableLegacyDoubleDashBehavior(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)
-    public static CommandLineBuilder ParseResponseFileAs(this CommandLineBuilder builder, System.CommandLine.Parsing.ResponseFileHandling responseFileHandling)
     public static CommandLineBuilder RegisterWithDotnetSuggest(this CommandLineBuilder builder)
     public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
     public static CommandLineBuilder UseEnvironmentVariableDirective(this CommandLineBuilder builder)
@@ -275,6 +271,7 @@ System.CommandLine.Builder
     public static CommandLineBuilder UseParseDirective(this CommandLineBuilder builder, System.Nullable<System.Int32> errorExitCode = null)
     public static CommandLineBuilder UseParseErrorReporting(this CommandLineBuilder builder, System.Nullable<System.Int32> errorExitCode = null)
     public static CommandLineBuilder UseSuggestDirective(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseTokenReplacer(this CommandLineBuilder builder, System.CommandLine.Parsing.TryReplaceToken replaceToken)
     public static CommandLineBuilder UseTypoCorrections(this CommandLineBuilder builder, System.Int32 maxLevenshteinDistance = 3)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
@@ -476,10 +473,6 @@ System.CommandLine.Parsing
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
     public static ParseResult Parse(this Parser parser, System.String commandLine)
-  public enum ResponseFileHandling : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
-    ParseArgsAsLineSeparated=0
-    ParseArgsAsSpaceSeparated=1
-    Disabled=2
   public abstract class SymbolResult
     public System.Collections.Generic.IReadOnlyList<SymbolResult> Children { get; }
     public System.String ErrorMessage { get; set; }
@@ -505,9 +498,6 @@ System.CommandLine.Parsing
     public System.Boolean Equals(Token other)
     public System.Int32 GetHashCode()
     public System.String ToString()
-  public class TokenizeError
-    public System.String Message { get; }
-    public System.String ToString()
   public enum TokenType : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
     Argument=0
     Command=1
@@ -515,6 +505,11 @@ System.CommandLine.Parsing
     DoubleDash=3
     Unparsed=4
     Directive=5
+  public delegate TryReplaceToken : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
+    .ctor(System.Object object, System.IntPtr method)
+    public System.IAsyncResult BeginInvoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.AsyncCallback callback, System.Object object)
+    public System.Boolean EndInvoke(ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.IAsyncResult result)
+    public System.Boolean Invoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage)
   public delegate ValidateSymbolResult<in T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(T symbolResult, System.AsyncCallback callback, System.Object object)

@@ -36,8 +36,11 @@ namespace System.CommandLine.Parsing
         {
             if (alias[0] == '-')
             {
-                return alias.Length > 1 && alias[1] == '-' ? 2 : 1;
+                return alias.Length > 1 && alias[1] == '-' 
+                           ? 2 
+                           : 1;
             }
+
             if (alias[0] == '/')
             {
                 return 1;
@@ -70,14 +73,13 @@ namespace System.CommandLine.Parsing
             CommandLineConfiguration configuration,
             bool inferRootCommand = true)
         {
-            var errorList = new List<TokenizeError>();
+            var errorList = new List<string>();
 
-            Command currentCommand = configuration.RootCommand;
+            var currentCommand = configuration.RootCommand;
             var foundDoubleDash = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
-            
-            List<string> argList;
-            argList = NormalizeRootCommand(args, configuration.RootCommand, inferRootCommand);
+
+            var argList = NormalizeRootCommand(args, configuration.RootCommand, inferRootCommand);
             
             var tokenList = new List<Token>(argList.Count);
 
@@ -126,11 +128,23 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (configuration.ResponseFileHandling != ResponseFileHandling.Disabled &&
-                    arg.GetResponseFileReference() is { } filePath)
+                if (configuration.EnableTokenReplacement &&
+                    configuration.TokenReplacer is { } replacer &&
+                    arg.GetReplaceableTokenValue() is { } value)
                 {
-                    ReadResponseFile(filePath, i);
-                    continue;
+                    if (replacer(
+                            value,
+                            out var newTokens,
+                            out var error))
+                    {
+                        argList.InsertRange(i + 1, newTokens ?? Array.Empty<string>());
+                        continue;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        errorList.Add(error!);
+                        continue;
+                    }
                 }
 
                 if (knownTokens.TryGetValue(arg, out var token))
@@ -278,38 +292,6 @@ namespace System.CommandLine.Parsing
                 option = null;
                 return false;
             }
-
-            void ReadResponseFile(string filePath, int i)
-            {
-                try
-                {
-                    var next = i + 1;
-
-                    foreach (var newArg in ExpandResponseFile(
-                        filePath,
-                        configuration.ResponseFileHandling))
-                    {
-                        argList.Insert(next, newArg);
-                        next += 1;
-                    }
-                }
-                catch (FileNotFoundException)
-                {
-                    var message = configuration.LocalizationResources
-                                               .ResponseFileNotFound(filePath);
-
-                    errorList.Add(
-                        new TokenizeError(message));
-                }
-                catch (IOException e)
-                {
-                    var message = configuration.LocalizationResources
-                                               .ErrorReadingResponseFile(filePath, e);
-
-                    errorList.Add(
-                        new TokenizeError(message));
-                }
-            }
         }
 
         private static List<string> NormalizeRootCommand(
@@ -361,7 +343,7 @@ namespace System.CommandLine.Parsing
             return list;
         }
 
-        private static string? GetResponseFileReference(this string arg) =>
+        private static string? GetReplaceableTokenValue(this string arg) =>
             arg.Length > 1 && arg[0] == '@'
                 ? arg.Substring(1)
                 : null;
@@ -390,35 +372,56 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        private static IEnumerable<string> ExpandResponseFile(
+        internal static bool TryReadResponseFile(
             string filePath,
-            ResponseFileHandling responseFileHandling)
+            LocalizationResources localizationResources,
+            out IReadOnlyList<string>? newTokens,
+            out string? error)
         {
-            var lines = File.ReadAllLines(filePath);
-
-            for (var i = 0; i < lines.Length; i++)
+            try
             {
-                var line = lines[i];
+                newTokens = ExpandResponseFile(filePath).ToArray();
+                error = null;
+                return true;
+            }
+            catch (FileNotFoundException)
+            {
+                error = localizationResources.ResponseFileNotFound(filePath);
+            }
+            catch (IOException e)
+            {
+                error = localizationResources.ErrorReadingResponseFile(filePath, e);
+            }
 
-                foreach (var p in SplitLine(line))
+            newTokens = null;
+            return false;
+
+            static IEnumerable<string> ExpandResponseFile(string filePath)
+            {
+                var lines = File.ReadAllLines(filePath);
+
+                for (var i = 0; i < lines.Length; i++)
                 {
-                    if (p.GetResponseFileReference() is { } path)
+                    var line = lines[i];
+
+                    foreach (var p in SplitLine(line))
                     {
-                        foreach (var q in ExpandResponseFile(
-                            path,
-                            responseFileHandling))
+                        if (p.GetReplaceableTokenValue() is { } path)
                         {
-                            yield return q;
+                            foreach (var q in ExpandResponseFile(path))
+                            {
+                                yield return q;
+                            }
                         }
-                    }
-                    else
-                    {
-                        yield return p;
+                        else
+                        {
+                            yield return p;
+                        }
                     }
                 }
             }
 
-            IEnumerable<string> SplitLine(string line)
+            static IEnumerable<string> SplitLine(string line)
             {
                 var arg = line.Trim();
 
@@ -427,21 +430,9 @@ namespace System.CommandLine.Parsing
                     yield break;
                 }
 
-                switch (responseFileHandling)
+                foreach (var word in CommandLineStringSplitter.Instance.Split(arg))
                 {
-                    case ResponseFileHandling.ParseArgsAsLineSeparated:
-
-                        yield return arg;
-
-                        break;
-                    case ResponseFileHandling.ParseArgsAsSpaceSeparated:
-
-                        foreach (var word in CommandLineStringSplitter.Instance.Split(arg))
-                        {
-                            yield return word;
-                        }
-
-                        break;
+                    yield return word;
                 }
             }
         }
