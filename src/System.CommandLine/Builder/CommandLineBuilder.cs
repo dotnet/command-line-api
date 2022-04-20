@@ -86,7 +86,7 @@ namespace System.CommandLine.Builder
             set => _localizationResources = value;
         }
 
-        internal TryReplaceToken TokenReplacer { get; set; }
+        internal TryReplaceToken? TokenReplacer { get; set; }
 
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.

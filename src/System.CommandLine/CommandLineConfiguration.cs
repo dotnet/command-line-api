@@ -26,9 +26,11 @@ namespace System.CommandLine
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
         /// <param name="enableLegacyDoubleDashBehavior">Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.</param>
+        /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
         /// <param name="resources">Provide custom validation messages.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
+        /// <param name="tokenReplacer">Replaces the specified token with any number of other tokens.</param>
         public CommandLineConfiguration(
             Command command,
             bool enablePosixBundling = true,
@@ -82,7 +84,13 @@ namespace System.CommandLine
         /// POSIX recommends that single-character options be allowed to be specified together after a single <c>-</c> prefix.
         /// </remarks>
         public bool EnablePosixBundling { get; }
-        
+
+        /// <summary>
+        /// Gets a value indicating whether token replacement is enabled.
+        /// </summary>
+        /// <remarks>
+        /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
+        /// </remarks>
         public bool EnableTokenReplacement { get; }
 
         /// <summary>
@@ -94,7 +102,7 @@ namespace System.CommandLine
 
         internal IReadOnlyList<InvocationMiddleware> Middleware { get; }
 
-        public TryReplaceToken? TokenReplacer =>
+        internal TryReplaceToken? TokenReplacer =>
             EnableTokenReplacement
                 ? _tokenReplacer ??= DefaultTokenReplacer
                 : null;

@@ -577,6 +577,12 @@ ERR:
             return builder;
         }
 
+        /// <summary>
+        /// Specifies a delegate used to replace any token prefixed with <code>@</code> with zero or more other tokens, prior to parsing. 
+        /// </summary>
+        /// <param name="builder">A command line builder.</param>
+        /// <param name="replaceToken">Replaces the specified token with any number of other tokens.</param>
+        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseTokenReplacer(
             this CommandLineBuilder builder,
             TryReplaceToken? replaceToken)

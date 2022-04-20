@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing;
 
+/// <summary>
+/// Replaces a token with one or more other tokens prior to parsing.
+/// </summary>
 public delegate bool TryReplaceToken(
     string tokenToReplace,
     out IReadOnlyList<string>? replacementTokens, 
