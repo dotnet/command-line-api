@@ -152,19 +152,7 @@ namespace System.CommandLine.Builder
             builder.EnablePosixBundling = value;
             return builder;
         }
-
-        /// <inheritdoc cref="CommandLineBuilder.ResponseFileHandling"/>
-        /// <param name="responseFileHandling">Specifies whether or how response files are parsed.</param>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder ParseResponseFileAs(
-            this CommandLineBuilder builder,
-            ResponseFileHandling responseFileHandling)
-        {
-            builder.ResponseFileHandling = responseFileHandling;
-            return builder;
-        }
-
+        
         /// <summary>
         /// Ensures that the application is registered with the <c>dotnet-suggest</c> tool to enable command line completions.
         /// </summary>
@@ -586,6 +574,15 @@ ERR:
             LocalizationResources validationMessages)
         {
             builder.LocalizationResources = validationMessages;
+            return builder;
+        }
+
+        public static CommandLineBuilder UseTokenReplacer(
+            this CommandLineBuilder builder,
+            TryReplaceToken? replaceToken)
+        {
+            builder.TokenReplacer = replaceToken;
+
             return builder;
         }
 

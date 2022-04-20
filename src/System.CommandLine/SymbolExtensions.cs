@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine
 {

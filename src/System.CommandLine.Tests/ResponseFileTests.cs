@@ -306,7 +306,8 @@ namespace System.CommandLine.Tests
             };
             var configuration = new CommandLineConfiguration(
                 command,
-                responseFileHandling: ResponseFileHandling.Disabled);
+                enableTokenReplacement: false);
+            
             var parser = new Parser(configuration);
 
             var result = parser.Parse("@file.rsp");

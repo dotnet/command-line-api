@@ -45,7 +45,7 @@ namespace System.CommandLine.Parsing
             for (var i = 0; i < _tokenizeResult.Errors.Count; i++)
             {
                 var error = _tokenizeResult.Errors[i];
-                _errors.Add(new ParseError(error.Message));
+                _errors.Add(new ParseError(error));
             }
         }
 
