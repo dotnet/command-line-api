@@ -311,7 +311,7 @@ namespace System.CommandLine.Tests
 
                 numberOfMissingArgs
                     .Should()
-                    .Be(4 - providedArgs.Split(" ", StringSplitOptions.RemoveEmptyEntries).Length);
+                    .Be(4 - providedArgs.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length);
             }
         }
     }
