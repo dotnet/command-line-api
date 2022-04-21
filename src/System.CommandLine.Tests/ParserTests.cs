@@ -16,9 +16,7 @@ using Xunit.Abstractions;
 namespace System.CommandLine.Tests
 {
     public partial class ParserTests
-    {public partial class RootCommandAndArg0
-        {
-        }
+    {
         private readonly ITestOutputHelper _output;
 
         public ParserTests(ITestOutputHelper output)
