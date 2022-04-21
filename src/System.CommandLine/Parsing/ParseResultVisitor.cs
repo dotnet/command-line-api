@@ -291,21 +291,24 @@ namespace System.CommandLine.Parsing
                     _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                 }
 
-                var argumentResult = _argumentResults[i];
-
-                ValidateAndConvertArgumentResult(argumentResult);
-
-                if (argumentResult.PassedOnTokens is { } &&
-                    i == arguments.Count - 1)
+                if (commandArgumentResultCount >= _argumentResults.Count)
                 {
-                    _unparsedTokens ??= new List<Token>();
-                    _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
+                    var argumentResult = _argumentResults[i];
+
+                    ValidateAndConvertArgumentResult(argumentResult);
+
+                    if (argumentResult.PassedOnTokens is { } &&
+                        i == arguments.Count - 1)
+                    {
+                        _unparsedTokens ??= new List<Token>();
+                        _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
+                    }
                 }
             }
 
             if (_argumentResults.Count > arguments.Count)
             {
-                for (var i = arguments.Count; i < _argumentResults.Count; i++)
+                for (var i = arguments.Count; i < _argumentResults.Count - 1; i++)
                 {
                     var result = _argumentResults[i];
 

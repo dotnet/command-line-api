@@ -2,8 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
-using System.Threading.Tasks;
+using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
@@ -149,17 +150,12 @@ namespace System.CommandLine.Tests
             public void When_multiple_arguments_are_defined_but_not_provided_then_option_parses_correctly()
             {
                 var option = new Option<string>("-e");
-                var command = new Command("the-command") { option };
-
-                command.AddArgument(new Argument<string>
+                var command = new Command("the-command")
                 {
-                    Name = "arg1",
-                });
-
-                command.AddArgument(new Argument<string>
-                {
-                    Name = "arg2",
-                });
+                    option,
+                    new Argument<string>(),
+                    new Argument<string>()
+                };
 
                 var result = command.Parse("-e foo");
 
@@ -168,9 +164,8 @@ namespace System.CommandLine.Tests
                 optionResult.Should().Be("foo");
             }
 
-
             [Fact]
-            public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
+            public void Tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
             {
                 var ints = new Argument<int[]>();
                 var strings = new Argument<string[]>();
@@ -197,7 +192,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_single_arity_argument()
+            public void Tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_single_arity_argument()
             {
                 var ints = new Argument<int[]>();
                 var strings = new Argument<string>();
@@ -232,11 +227,11 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Unsatisfied_subsequent_argument_with_min_arity_0_parses_as_default_value()
             {
-                var arg1 = new Argument<string>("arg1")
+                var arg1 = new Argument<string>
                 {
                     Arity = ArgumentArity.ExactlyOne
                 };
-                var arg2 = new Argument<string>("arg2")
+                var arg2 = new Argument<string>
                 {
                     Arity = ArgumentArity.ZeroOrOne,
                 };
@@ -289,6 +284,34 @@ namespace System.CommandLine.Tests
                 result.Errors.Should().BeEmpty();
 
                 result.GetValueForArgument(argument1).Should().Be("one");
+            }
+
+            [Theory] // https://github.com/dotnet/command-line-api/issues/1711
+            [InlineData("")]
+            [InlineData("a")]
+            [InlineData("a b")]
+            [InlineData("a b c")]
+            public void When_there_are_not_enough_tokens_for_all_arguments_then_the_correct_number_of_errors_is_reported(
+                string providedArgs)
+            {
+                var command = new Command("command")
+                {
+                    new Argument<string>(),
+                    new Argument<string>(),
+                    new Argument<string>(),
+                    new Argument<string>()
+                };
+
+                var result = new Parser(command).Parse(providedArgs);
+
+                var numberOfMissingArgs =
+                    result
+                        .Errors
+                        .Count(e => e.Message == LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult));
+
+                numberOfMissingArgs
+                    .Should()
+                    .Be(4 - providedArgs.Split(" ", StringSplitOptions.RemoveEmptyEntries).Length);
             }
         }
     }
