@@ -569,6 +569,28 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Values_can_be_correctly_converted_to_TimeSpan_without_the_parser_specifying_a_custom_converter()
+        {
+            var timeSpanString = "30";
+            var option = new Option<TimeSpan>("-x");
+
+            var value = option.Parse($"-x {timeSpanString}").GetValueForOption(option);
+
+            value.Should().Be(TimeSpan.Parse(timeSpanString));
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_TimeSpan_without_the_parser_specifying_a_custom_converter()
+        {
+            var timeSpanString = "30";
+            var option = new Option<TimeSpan?>("-x");
+
+            var value = option.Parse($"-x {timeSpanString}").GetValueForOption(option);
+
+            value.Should().Be(TimeSpan.Parse(timeSpanString));
+        }
+
+        [Fact]
         public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option<Uri>("-x");

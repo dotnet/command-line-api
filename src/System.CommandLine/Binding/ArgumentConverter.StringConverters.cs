@@ -255,5 +255,17 @@ internal static partial class ArgumentConverter
             value = default;
             return false;
         },
+
+        [typeof(TimeSpan)] = (string input, out object? value) =>
+        {
+            if (TimeSpan.TryParse(input, out var timeSpan))
+            {
+                value = timeSpan;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
     };
 }
