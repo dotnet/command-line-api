@@ -56,6 +56,14 @@ namespace System.CommandLine.Hosting
             Action<IHostBuilder> configureHost = null
             ) => UseHost(builder, null, configureHost);
 
+        public static CommandLineBuilder UseHostServices(this CommandLineBuilder builder)
+            => builder.AddMiddleware(async (invocation, next) => {
+                var host = invocation.GetHost();
+                invocation.BindingContext.AddServiceProvider(host?.Services);
+
+                await next(invocation);
+            });
+
         public static IHostBuilder UseInvocationLifetime(this IHostBuilder host,
             InvocationContext invocation, Action<InvocationLifetimeOptions> configureOptions = null)
         {
