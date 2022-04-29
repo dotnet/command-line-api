@@ -184,7 +184,7 @@ public partial class HelpBuilder
                 }
 
                 ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
+                ctx.HelpBuilder.WriteColumns(commandArguments, ctx.Output);
             };
 
         ///  <summary>
@@ -242,7 +242,7 @@ public partial class HelpBuilder
                 }
 
                 ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(options, ctx);
+                ctx.HelpBuilder.WriteColumns(options, ctx.Output);
                 ctx.Output.WriteLine();
             };
 

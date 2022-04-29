@@ -312,7 +312,7 @@ System.CommandLine.Help
     public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.Symbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
-    public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
+    public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, System.IO.TextWriter output)
    static class Default
     public static HelpSectionDelegate AdditionalArgumentsSection()
     public static HelpSectionDelegate CommandArgumentsSection()

@@ -173,7 +173,7 @@ namespace System.CommandLine.Help
             }
 
             WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
-            WriteColumns(subcommands, context);
+            WriteColumns(subcommands, context.Output);
         }
 
         private void WriteAdditionalArguments(HelpContext context)
@@ -210,8 +210,8 @@ namespace System.CommandLine.Help
         /// Writes the specified help rows, aligning output in columns.
         /// </summary>
         /// <param name="items">The help items to write out in columns.</param>
-        /// <param name="context">The help context.</param>
-        public void WriteColumns(IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
+        /// <param name="output">The text write to output to.</param>
+        public void WriteColumns(IReadOnlyList<TwoColumnHelpRow> items, TextWriter output)
         {
             if (items.Count == 0)
             {
@@ -241,7 +241,7 @@ namespace System.CommandLine.Help
 
                 foreach (var (first, second) in ZipWithEmpty(firstColumnParts, secondColumnParts))
                 {
-                    context.Output.Write($"{Indent}{first}");
+                    output.Write($"{Indent}{first}");
                     if (!string.IsNullOrWhiteSpace(second))
                     {
                         int padSize = firstColumnWidth - first.Length;
@@ -251,10 +251,10 @@ namespace System.CommandLine.Help
                             padding = new string(' ', padSize);
                         }
 
-                        context.Output.Write($"{padding}{Indent}{second}");
+                        output.Write($"{padding}{Indent}{second}");
                     }
 
-                    context.Output.WriteLine();
+                    output.WriteLine();
                 }
             }
 

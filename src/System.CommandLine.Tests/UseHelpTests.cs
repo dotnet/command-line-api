@@ -418,9 +418,9 @@ namespace System.CommandLine.Tests
             string result = console.Out.ToString();
             result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}{NewLine}");
 
-            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
+            static IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
             {
-                yield return ctx => ctx.HelpBuilder.WriteColumns(new[] { new TwoColumnHelpRow("12345678", "1234567890") }, ctx);
+                yield return ctx => ctx.HelpBuilder.WriteColumns(new[] { new TwoColumnHelpRow("12345678", "1234567890") }, ctx.Output);
             }
         }
 
