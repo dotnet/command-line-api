@@ -282,14 +282,6 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(6)]
         [InlineData(7)]
         [InlineData(8)]
-        [InlineData(9)]
-        [InlineData(10)]
-        [InlineData(11)]
-        [InlineData(12)]
-        [InlineData(13)]
-        [InlineData(14)]
-        [InlineData(15)]
-        [InlineData(16)]
         public void Binding_is_correct_for_Action_overload_having_arity_(int arity)
         {
             var command = new RootCommand();
@@ -329,31 +321,7 @@ namespace System.CommandLine.Tests.Binding
                 8 => new Action<int, int, int, int, int, int, int, int>(
                     (i1, i2, i3, i4, i5, i6, i7, i8) =>
                         Received(i1, i2, i3, i4, i5, i6, i7, i8)),
-                9 => new Action<int, int, int, int, int, int, int, int, int>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9)),
-                10 => new Action<int, int, int, int, int, int, int, int, int, int>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10)),
-                11 => new Action<int, int, int, int, int, int, int, int, int, int, int>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11)),
-                12 => new Action<int, int, int, int, int, int, int, int, int, int, int, int>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12)),
-                13 => new Action<int, int, int, int, int, int, int, int, int, int, int, int, int>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13)),
-                14 => new Action<int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14)),
-                15 => new Action<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15)),
-                16 => new Action<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, i16) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, i16)),
-
+              
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -404,14 +372,6 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(6)]
         [InlineData(7)]
         [InlineData(8)]
-        [InlineData(9)]
-        [InlineData(10)]
-        [InlineData(11)]
-        [InlineData(12)]
-        [InlineData(13)]
-        [InlineData(14)]
-        [InlineData(15)]
-        [InlineData(16)]
         public void Binding_is_correct_for_Func_overload_having_arity_(int arity)
         {
             var command = new RootCommand();
@@ -451,31 +411,7 @@ namespace System.CommandLine.Tests.Binding
                 8 => new Func<int, int, int, int, int, int, int, int, Task>(
                     (i1, i2, i3, i4, i5, i6, i7, i8) =>
                         Received(i1, i2, i3, i4, i5, i6, i7, i8)),
-                9 => new Func<int, int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9)),
-                10 => new Func<int, int, int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10)),
-                11 => new Func<int, int, int, int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11)),
-                12 => new Func<int, int, int, int, int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12)),
-                13 => new Func<int, int, int, int, int, int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13)),
-                14 => new Func<int, int, int, int, int, int, int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14)),
-                15 => new Func<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15)),
-                16 => new Func<int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, i16) =>
-                        Received(i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, i16)),
-
+             
                 _ => throw new ArgumentOutOfRangeException()
             };
 
