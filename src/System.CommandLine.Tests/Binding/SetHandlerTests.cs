@@ -9,214 +9,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using static System.Environment;
 
 namespace System.CommandLine.Tests.Binding
 {
     public class SetHandlerTests
     {
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        public void Instances_from_service_provider_can_be_injected_at_any_position_relative_to_symbol_parameters_with_Action_overloads(int @case)
-        {
-            var option = new Option<bool>("-o");
-            var argument = new Argument<string>("value");
-
-            var command = new RootCommand
-            {
-                option,
-                argument
-            };
-
-            ParseResult boundParseResult = default;
-            bool boundBoolValue = default;
-            string boundStringValue = default;
-            switch (@case)
-            {
-                case 1:
-                    command.SetHandler((ParseResult parseResult, bool boolValue, string stringValue) =>
-                    {
-                        boundParseResult = parseResult;
-                        boundBoolValue = boolValue;
-                        boundStringValue = stringValue;
-                    }, option, argument);
-                    break;
-                case 2:
-                    command.SetHandler((bool boolValue, ParseResult parseResult, string stringValue) =>
-                    {
-                        boundParseResult = parseResult;
-                        boundBoolValue = boolValue;
-                        boundStringValue = stringValue;
-                    }, option, argument);
-                    break;
-                case 3:
-                    command.SetHandler((bool boolValue, string stringValue, ParseResult parseResult) =>
-                    {
-                        boundParseResult = parseResult;
-                        boundBoolValue = boolValue;
-                        boundStringValue = stringValue;
-                    }, option, argument);
-                    break;
-            }
-
-            command.Invoke("-o hi");
-
-            boundParseResult.Should().NotBeNull();
-            boundBoolValue.Should().BeTrue();
-            boundStringValue.Should().Be("hi");
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        public void Instances_from_service_provider_can_be_injected_at_any_position_relative_to_symbol_parameters_with_Func_overloads(int @case)
-        {
-            var option = new Option<bool>("-o");
-            var argument = new Argument<string>("value");
-
-            var command = new RootCommand
-            {
-                option,
-                argument
-            };
-
-            ParseResult boundParseResult = default;
-            bool boundBoolValue = default;
-            string boundStringValue = default;
-            switch (@case)
-            {
-                case 1:
-                    command.SetHandler((ParseResult parseResult, bool boolValue, string stringValue) =>
-                    {
-                        boundParseResult = parseResult;
-                        boundBoolValue = boolValue;
-                        boundStringValue = stringValue;
-                        return Task.FromResult(123);
-                    }, option, argument);
-                    break;
-                case 2:
-                    command.SetHandler((bool boolValue, ParseResult parseResult, string stringValue) =>
-                    {
-                        boundParseResult = parseResult;
-                        boundBoolValue = boolValue;
-                        boundStringValue = stringValue;
-                        return Task.FromResult(123);
-                    }, option, argument);
-                    break;
-                case 3:
-                    command.SetHandler((bool boolValue, string stringValue, ParseResult parseResult) =>
-                    {
-                        boundParseResult = parseResult;
-                        boundBoolValue = boolValue;
-                        boundStringValue = stringValue;
-                        return Task.FromResult(123);
-                    }, option, argument);
-                    break;
-            }
-
-            command.Invoke("-o hi");
-
-            boundParseResult.Should().NotBeNull();
-            boundBoolValue.Should().BeTrue();
-            boundStringValue.Should().Be("hi");
-        }
-
-        [Fact]
-        public void If_parameter_order_does_not_match_symbol_order_then_an_error_results()
-        {
-            var boolOption = new Option<bool>("-o");
-            var stringArg = new Argument<string>("value");
-
-            var command = new RootCommand
-            {
-                boolOption,
-                stringArg
-            };
-
-            var wasCalled = false;
-
-            command.SetHandler((bool boolValue, string stringValue) => wasCalled = true, 
-                                                    stringArg, boolOption);
-
-            var exitCode = command.Invoke("-o hi");
-
-            wasCalled.Should().BeFalse();
-            exitCode.Should().Be(1);
-        }
-
-        [Fact]
-        public void If_service_is_not_found_then_an_error_results()
-        {
-            var command = new RootCommand();
-
-            var wasCalled = false;
-            command.SetHandler((ClassWithMultipleCtor instance) => wasCalled = true);
-
-            var exitCode = command.Invoke("");
-
-            wasCalled.Should().BeFalse();
-            exitCode.Should().Be(1);
-        }
-
-        [Fact]
-        public void If_no_symbol_was_passed_for_binding_then_the_error_message_suggests_a_fix_for_the_first_missing_symbol()
-        {
-            var boolOption = new Option<bool>("-o");
-            var stringArg = new Argument<string>("value");
-
-            var subcommand = new Command("TheCommand")
-            {
-                boolOption,
-                stringArg
-            };
-
-            var command = new RootCommand
-            {
-                subcommand
-            };
-
-            subcommand.SetHandler((bool boolValue, string stringValue) => { });
-
-            var console = new TestConsole();
-
-            command.Invoke("TheCommand -o hi", console);
-
-            console.Error.ToString().Should()
-                   .Contain(
-                       $"The SetHandler call for command 'TheCommand' is missing an Argument or Option for the parameter at position 0. Did you mean to pass one of these?{NewLine}Option<Boolean> -o");
-        }
-
-        [Fact]
-        public void If_no_symbol_was_passed_for_binding_subsequent_parameter_then_the_error_message_suggests_a_fix_for_the_first_missing_symbol()
-        {
-            var boolOption = new Option<bool>("-o");
-            var stringArg = new Argument<string>("value");
-
-            var subcommand = new Command("TheCommand")
-            {
-                boolOption,
-                stringArg
-            };
-
-            var command = new RootCommand
-            {
-                subcommand
-            };
-
-            subcommand.SetHandler((bool boolValue, string stringValue) => { }, boolOption);
-
-            var console = new TestConsole();
-
-            command.Invoke("TheCommand -o hi", console);
-
-            console.Error.ToString().Should()
-                   .Contain(
-                       $"The SetHandler call for command 'TheCommand' is missing an Argument or Option for the parameter at position 1. Did you mean to pass one of these?{NewLine}Argument<String> value");
-        }
-
         [Fact]
         public void Custom_types_can_be_bound()
         {
@@ -342,9 +139,10 @@ namespace System.CommandLine.Tests.Binding
             var parameters = new List<object>
             {
                 command,
-                handlerFunc,
-                command.Arguments.ToArray()
+                handlerFunc
             };
+
+            parameters.AddRange(command.Arguments);
 
             setHandler.Invoke(null, parameters.ToArray());
 
@@ -433,8 +231,8 @@ namespace System.CommandLine.Tests.Binding
             {
                 command,
                 handlerFunc,
-                command.Arguments.ToArray()
             };
+            parameters.AddRange(command.Arguments);
 
             setHandler.Invoke(null, parameters.ToArray());
             
@@ -460,7 +258,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("wat");
 
-            var handle = (ParseResult _) =>
+            var handle = () =>
             {
                 wasCalled = true;
                 return Task.FromResult(new { NovelType = true });

@@ -35,7 +35,6 @@ namespace System.CommandLine.Suggest
             CompleteScriptCommand.SetHandler((InvocationContext context) =>
             {
                 SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValueForArgument(shellTypeArgument));
-                return Task.FromResult(0);
             });
 
             ListCommand = new Command("list")

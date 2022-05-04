@@ -249,10 +249,10 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.SetHandler((ParseResult parseResult) =>
+            command.SetHandler(context =>
             {
                 handlerWasCalled = true;
-                parseResult.Errors.Should().BeEmpty();
+                context.ParseResult.Errors.Should().BeEmpty();
                 return Task.FromResult(0);
             });
 

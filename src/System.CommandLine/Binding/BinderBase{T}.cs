@@ -23,14 +23,8 @@ public abstract class BinderBase<T> :
 
     object? IValueDescriptor.GetDefaultValue() => default(T);
 
-    bool IValueSource.TryGetValue(IValueDescriptor valueDescriptor, BindingContext? bindingContext, out object? boundValue)
+    bool IValueSource.TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, out object? boundValue)
     {
-        if (bindingContext is null)
-        {
-            boundValue = default;
-            return false;
-        }
-
         boundValue = GetBoundValue(bindingContext);
         return true;
     }

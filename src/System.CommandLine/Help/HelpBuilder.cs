@@ -121,7 +121,7 @@ namespace System.CommandLine.Help
                         .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                         .Reverse();
 
-                foreach (Command parentCommand in parentCommands)
+                foreach (var parentCommand in parentCommands)
                 {
                     if (!displayOptionTitle)
                     {

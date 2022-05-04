@@ -3,75 +3,24 @@
 
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
-using System.Linq;
-using static System.Environment;
 
 namespace System.CommandLine;
 
 public static partial class Handler
 {
     private static T? GetValueForHandlerParameter<T>(
-        IValueDescriptor[] symbols,
-        ref int index,
+        IValueDescriptor<T> symbol,
         InvocationContext context)
     {
-        if (symbols.Length > index &&
-            symbols[index] is IValueDescriptor<T> symbol)
+        if (symbol is IValueSource valueSource &&
+            valueSource.TryGetValue(symbol, context.BindingContext, out var boundValue) &&
+            boundValue is T value)
         {
-            index++;
-
-            if (symbol is IValueSource valueSource &&
-                valueSource.TryGetValue(symbol, context.BindingContext, out var boundValue) &&
-                boundValue is T value)
-            {
-                return value;
-            }
-            else
-            {
-                return context.ParseResult.GetValueFor(symbol);
-            }
+            return value;
         }
-
-        return GetService<T>(ref index, context); // kept in separate method to avoid jitting rare code path
-    }
-
-    private static T? GetService<T>(ref int index, InvocationContext context)
-    {
-        var service = context.BindingContext.GetService(typeof(T));
-
-        if (service is null)
+        else
         {
-            var candidates = context.ParseResult
-                                    .RootCommandResult
-                                    .AllSymbolResults()
-                                    .Where(r => r.Symbol.Parents.All(p => p is not Option))
-                                    .Select(r => r.Symbol)
-                                    .OfType<IValueDescriptor>()
-                                    .ToArray();
-
-            if (candidates.Any())
-            {
-                var candidatesDescription = string.Join(
-                    NewLine,
-                    candidates
-                        .Where(c => typeof(T).IsAssignableFrom(c.ValueType))
-                        .Select(c => c switch
-                        {
-                            Argument<T> argument => $"{nameof(Argument)}<{argument.ValueType.Name}> {argument.Name}",
-                            Argument argument => $"{nameof(Argument)} {argument.Name}",
-                            Option<T> option => $"{nameof(Option)}<{option.ValueType.Name}> {option.Aliases.First()}",
-                            Option option => $"{nameof(Option)} {option.Aliases.First()}",
-                            _ => throw new ArgumentOutOfRangeException(nameof(c))
-                        }));
-
-                throw new ArgumentException(
-                    $"The {nameof(SetHandler)} call for command '{context.ParseResult.CommandResult.Command.Name}' is missing an {nameof(Argument)} or {nameof(Option)} for the parameter at position {index}. Did you mean to pass one of these?{NewLine}{candidatesDescription}");
-            }
-
-            throw new ArgumentException($"Service not found for type {typeof(T)}.");
+            return context.ParseResult.GetValueFor(symbol);
         }
-
-        return (T)service;
     }
 }
