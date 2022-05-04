@@ -3,7 +3,6 @@
 
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 
 namespace System.CommandLine;

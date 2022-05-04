@@ -182,7 +182,7 @@ namespace System.CommandLine.Tests.Invocation
             var command = new Command("the-command");
             var implicitInnerCommand = new Command("implicit-inner-command");
             command.AddCommand(implicitInnerCommand);
-            implicitInnerCommand.SetHandler((InvocationContext context) =>
+            implicitInnerCommand.SetHandler(context =>
             {
                 wasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -218,7 +218,7 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.SetHandler((InvocationContext context) =>
+            command.SetHandler(context =>
             {
                 handlerWasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -279,7 +279,7 @@ namespace System.CommandLine.Tests.Invocation
             bool handlerWasCalled = false;
 
             var command = new Command("help-command");
-            command.SetHandler((InvocationContext context) =>
+            command.SetHandler(context =>
             {
                 handlerWasCalled = true;
                 context.HelpBuilder.Should().NotBeNull();
@@ -306,7 +306,7 @@ namespace System.CommandLine.Tests.Invocation
             HelpBuilder createdHelpBuilder = null;
 
             var command = new Command("help-command");
-            command.SetHandler((InvocationContext context) =>
+            command.SetHandler(context =>
             {
                 handlerWasCalled = true;
                 context.HelpBuilder.Should().Be(createdHelpBuilder);

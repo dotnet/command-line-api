@@ -104,13 +104,9 @@
     public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
   public static class Handler
     public static System.Void SetHandler(this Command command, System.Action<System.CommandLine.Invocation.InvocationContext> handle)
-    public static System.Void SetHandler(this Command command, System.Action<System.CommandLine.Parsing.ParseResult> handle)
     public static System.Void SetHandler(this Command command, System.Action handle)
     public static System.Void SetHandler(this Command command, System.Func<System.Threading.Tasks.Task> handle)
     public static System.Void SetHandler(this Command command, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.Tasks.Task> handle)
-    public static System.Void SetHandler(this Command command, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.Tasks.Task<System.Int32>> handle)
-    public static System.Void SetHandler(this Command command, System.Func<System.CommandLine.Parsing.ParseResult,System.Threading.Tasks.Task> handle)
-    public static System.Void SetHandler(this Command command, System.Func<System.CommandLine.Parsing.ParseResult,System.Threading.Tasks.Task<System.Int32>> handle)
     public static System.Void SetHandler<T>(this Command command, Action<T> handle, IValueDescriptor<T> symbol)
     public static System.Void SetHandler<T>(this Command command, Func<T,System.Threading.Tasks.Task> handle, IValueDescriptor<T> symbol)
     public static System.Void SetHandler<T1, T2>(this Command command, Action<T1,T2> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2)
