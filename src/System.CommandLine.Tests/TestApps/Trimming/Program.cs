@@ -1,16 +1,16 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 
-var fileOption = new Argument<FileInfo>().LegalFileNamesOnly();
+var fileArgument = new Argument<FileInfo>().LegalFileNamesOnly();
 
 var command = new RootCommand
 {
-    fileOption
+    fileArgument
 };
 
-command.SetHandler((FileInfo file, InvocationContext ctx) =>
+command.SetHandler(context =>
 {
-    ctx.Console.Write($"The file you chose was: {file}");
-}, fileOption);
+    context.Console.Write($"The file you chose was: {context.ParseResult.GetValueForArgument(fileArgument)}");
+});
 
 command.Invoke(args);
