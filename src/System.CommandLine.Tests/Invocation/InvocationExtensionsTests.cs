@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -124,7 +123,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler((InvocationContext context) =>
+            rootCommand.SetHandler(context =>
             {
                 context.ExitCode = 123;
                 return Task.CompletedTask;
@@ -140,7 +139,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler((InvocationContext context) =>
+            rootCommand.SetHandler(context =>
             {
                 context.ExitCode = 123;
                 return Task.CompletedTask;

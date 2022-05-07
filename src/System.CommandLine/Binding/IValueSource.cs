@@ -17,7 +17,7 @@ namespace System.CommandLine.Binding
         /// <returns><see langword="true"/> if a matching value was found; otherwise, <see langword="false"/>.</returns>
         bool TryGetValue(
             IValueDescriptor valueDescriptor,
-            BindingContext? bindingContext,
+            BindingContext bindingContext,
             out object? boundValue);
     }
 }

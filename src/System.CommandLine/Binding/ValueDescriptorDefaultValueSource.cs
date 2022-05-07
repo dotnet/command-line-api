@@ -11,7 +11,10 @@ namespace System.CommandLine.Binding
         {
         }
 
-        public bool TryGetValue(IValueDescriptor valueDescriptor, BindingContext? bindingContext, out object? boundValue)
+        public bool TryGetValue(
+            IValueDescriptor valueDescriptor, 
+            BindingContext bindingContext, 
+            out object? boundValue)
         {
             boundValue = valueDescriptor.GetDefaultValue();
             return true;

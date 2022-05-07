@@ -287,7 +287,7 @@ public class ModelBinder
         {
             if (valueDescriptor.HasDefaultValue)
             {
-                return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
+                return (DefaultForValueDescriptor(valueDescriptor, bindingContext), false);
             }
 
             if (valueDescriptor.ValueType != parentType) // Recursive models aren't allowed
@@ -312,10 +312,24 @@ public class ModelBinder
                 return (new BoundValue(parameterDescriptor.GetDefaultValue(), valueDescriptor, valueSource), false);
             }
 
-            return (BoundValue.DefaultForValueDescriptor(valueDescriptor), false);
+            return (DefaultForValueDescriptor(valueDescriptor, bindingContext), false);
         }
 
         return (null, false);
+    }
+
+    private static BoundValue DefaultForValueDescriptor(
+        IValueDescriptor valueDescriptor,
+        BindingContext context)
+    {
+        var valueSource = ValueDescriptorDefaultValueSource.Instance;
+
+        valueSource.TryGetValue(valueDescriptor, context, out var value);
+
+        return new BoundValue(
+            value,
+            valueDescriptor,
+            valueSource);
     }
 
     private protected IValueDescriptor FindModelPropertyDescriptor(Type propertyType, string propertyName)

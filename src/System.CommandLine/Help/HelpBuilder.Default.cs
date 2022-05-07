@@ -219,7 +219,7 @@ public partial class HelpBuilder
                     {
                         if ((parentCommand = parent.Symbol as Command) is not null)
                         {
-                            foreach (Option option in parentCommand.Options)
+                            foreach (var option in parentCommand.Options)
                             {
                                 // global help aliases may be duplicated, we just ignore them
                                 if (option.IsGlobal && !option.IsHidden && uniqueOptions.Add(option))

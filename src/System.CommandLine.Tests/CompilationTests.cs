@@ -71,6 +71,7 @@ public class CompilationTests
             },
             workingDirectory);
 
+        stdOut.ToString().Should().NotContain(": error CS");
         stdOut.ToString().Should().NotContain(warningText);
         stdErr.ToString().Should().BeEmpty();
         exitCode.Should().Be(0);

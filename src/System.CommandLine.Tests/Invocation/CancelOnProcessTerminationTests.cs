@@ -7,7 +7,6 @@ using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -32,7 +31,7 @@ namespace System.CommandLine.Tests.Invocation
             {
                 var command = new Command("the-command");
             
-                command.SetHandler(async (InvocationContext context) =>
+                command.SetHandler(async context =>
                 {
                     var cancellationToken = context.GetCancellationToken();
 

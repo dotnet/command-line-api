@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
@@ -87,7 +88,7 @@ namespace System.CommandLine.Tests
             List<Parser> parsers = new();
             var command = new Command("x");
 
-            command.SetHandler((ParseResult result) => parsers.Add(result.Parser));
+            command.SetHandler(context => parsers.Add(context.ParseResult.Parser));
 
             command.Invoke("");
             command.Invoke("");
@@ -106,7 +107,7 @@ namespace System.CommandLine.Tests
             Parser implicitParserForInvoking = null;
             Parser implicitParserForParsing = null;
 
-            command.SetHandler((ParseResult result) => implicitParserForInvoking = result.Parser);
+            command.SetHandler(context => implicitParserForInvoking = context.ParseResult.Parser);
 
             command.Invoke("");
 

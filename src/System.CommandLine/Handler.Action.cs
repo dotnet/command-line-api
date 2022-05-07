@@ -4,411 +4,202 @@
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 
-namespace System.CommandLine
+namespace System.CommandLine;
+
+/// <summary>
+/// Provides methods for creating and working with command handlers.
+/// </summary>
+public static partial class Handler
 {
     /// <summary>
-    /// Provides methods for creating and working with command handlers.
+    /// Sets a command's handler based on an <see cref="Action{InvocationContext}"/>.
     /// </summary>
-    public static partial class Handler
-    {
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action"/>.
-        /// </summary>
-        public static void SetHandler(
-            this Command command,
-            Action handle) =>
-            command.Handler = new AnonymousCommandHandler(_ => handle());
+    public static void SetHandler(
+        this Command command,
+        Action<InvocationContext> handle) =>
+        command.Handler = new AnonymousCommandHandler(handle);
 
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T}"/>.
-        /// </summary>
-        public static void SetHandler<T>(
-            this Command command,
-            Action<T> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action"/>.
+    /// </summary>
+    public static void SetHandler(
+        this Command command,
+        Action handle) =>
+        command.Handler = new AnonymousCommandHandler(_ => handle());
 
-                    var value1 = GetValueForHandlerParameter<T>(symbols, ref index, context);
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action{T}"/>.
+    /// </summary>
+    public static void SetHandler<T>(
+        this Command command,
+        Action<T> handle,
+        IValueDescriptor<T> symbol) =>
+        command.Handler = new AnonymousCommandHandler(
+            context =>
+            {
+                var value1 = GetValueForHandlerParameter(symbol, context);
 
-                    handle(value1!);
-                });
+                handle(value1!);
+            });
 
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2>(
-            this Command command,
-            Action<T1, T2> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action{T1,T2}"/>.
+    /// </summary>
+    public static void SetHandler<T1, T2>(
+        this Command command,
+        Action<T1, T2> handle,
+        IValueDescriptor<T1> symbol1,
+        IValueDescriptor<T2> symbol2) =>
+        command.Handler = new AnonymousCommandHandler(
+            context =>
+            {
+                var value1 = GetValueForHandlerParameter(symbol1, context);
+                var value2 = GetValueForHandlerParameter(symbol2, context);
 
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
+                handle(value1!, value2!);
+            });
 
-                    handle(value1!, value2!);
-                });
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action{T1,T2,T3}"/>.
+    /// </summary>
+    public static void SetHandler<T1, T2, T3>(
+        this Command command,
+        Action<T1, T2, T3> handle,
+        IValueDescriptor<T1> symbol1,
+        IValueDescriptor<T2> symbol2,
+        IValueDescriptor<T3> symbol3) =>
+        command.Handler = new AnonymousCommandHandler(
+            context =>
+            {
+                var value1 = GetValueForHandlerParameter(symbol1, context);
+                var value2 = GetValueForHandlerParameter(symbol2, context);
+                var value3 = GetValueForHandlerParameter(symbol3, context);
 
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3>(
-            this Command command,
-            Action<T1, T2, T3> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
+                handle(value1!, value2!, value3!);
+            });
 
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4}"/>.
+    /// </summary>
+    public static void SetHandler<T1, T2, T3, T4>(
+        this Command command,
+        Action<T1, T2, T3, T4> handle,
+        IValueDescriptor<T1> symbol1,
+        IValueDescriptor<T2> symbol2,
+        IValueDescriptor<T3> symbol3,
+        IValueDescriptor<T4> symbol4) =>
+        command.Handler = new AnonymousCommandHandler(
+            context =>
+            {
+                var value1 = GetValueForHandlerParameter(symbol1, context);
+                var value2 = GetValueForHandlerParameter(symbol2, context);
+                var value3 = GetValueForHandlerParameter(symbol3, context);
+                var value4 = GetValueForHandlerParameter(symbol4, context);
 
-                    handle(value1!, value2!, value3!);
-                });
+                handle(value1!, value2!, value3!, value4!);
+            });
 
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4>(
-            this Command command,
-            Action<T1, T2, T3, T4> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5}"/>.
+    /// </summary>
+    public static void SetHandler<T1, T2, T3, T4, T5>(
+        this Command command,
+        Action<T1, T2, T3, T4, T5> handle,
+        IValueDescriptor<T1> symbol1,
+        IValueDescriptor<T2> symbol2,
+        IValueDescriptor<T3> symbol3,
+        IValueDescriptor<T4> symbol4,
+        IValueDescriptor<T5> symbol5) =>
+        command.Handler = new AnonymousCommandHandler(
+            context =>
+            {
+                var value1 = GetValueForHandlerParameter(symbol1, context);
+                var value2 = GetValueForHandlerParameter(symbol2, context);
+                var value3 = GetValueForHandlerParameter(symbol3, context);
+                var value4 = GetValueForHandlerParameter(symbol4, context);
+                var value5 = GetValueForHandlerParameter(symbol5, context);
 
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
+                handle(value1!, value2!, value3!, value4!, value5!);
+            });
 
-                    handle(value1!, value2!, value3!, value4!);
-                });
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6}"/>.
+    /// </summary>
+    public static void SetHandler<T1, T2, T3, T4, T5, T6>(
+        this Command command,
+        Action<T1, T2, T3, T4, T5, T6> handle,
+        IValueDescriptor<T1> symbol1,
+        IValueDescriptor<T2> symbol2,
+        IValueDescriptor<T3> symbol3,
+        IValueDescriptor<T4> symbol4,
+        IValueDescriptor<T5> symbol5,
+        IValueDescriptor<T6> symbol6) =>
+        command.Handler = new AnonymousCommandHandler(
+            context =>
+            {
+                var value1 = GetValueForHandlerParameter(symbol1, context);
+                var value2 = GetValueForHandlerParameter(symbol2, context);
+                var value3 = GetValueForHandlerParameter(symbol3, context);
+                var value4 = GetValueForHandlerParameter(symbol4, context);
+                var value5 = GetValueForHandlerParameter(symbol5, context);
+                var value6 = GetValueForHandlerParameter(symbol6, context);
 
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
+                handle(value1!, value2!, value3!, value4!, value5!, value6!);
+            });
 
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7}"/>.
+    /// </summary>
+    public static void SetHandler<T1, T2, T3, T4, T5, T6, T7>(
+        this Command command,
+        Action<T1, T2, T3, T4, T5, T6, T7> handle,
+        IValueDescriptor<T1> symbol1,
+        IValueDescriptor<T2> symbol2,
+        IValueDescriptor<T3> symbol3,
+        IValueDescriptor<T4> symbol4,
+        IValueDescriptor<T5> symbol5,
+        IValueDescriptor<T6> symbol6,
+        IValueDescriptor<T7> symbol7) =>
+        command.Handler = new AnonymousCommandHandler(
+            context =>
+            {
+                var value1 = GetValueForHandlerParameter(symbol1, context);
+                var value2 = GetValueForHandlerParameter(symbol2, context);
+                var value3 = GetValueForHandlerParameter(symbol3, context);
+                var value4 = GetValueForHandlerParameter(symbol4, context);
+                var value5 = GetValueForHandlerParameter(symbol5, context);
+                var value6 = GetValueForHandlerParameter(symbol6, context);
+                var value7 = GetValueForHandlerParameter(symbol7, context);
 
-                    handle(value1!, value2!, value3!, value4!, value5!);
-                });
+                handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!);
+            });
 
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
+    /// <summary>
+    /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8}"/>.
+    /// </summary>
+    public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
+        this Command command,
+        Action<T1, T2, T3, T4, T5, T6, T7, T8> handle,
+        IValueDescriptor<T1> symbol1,
+        IValueDescriptor<T2> symbol2,
+        IValueDescriptor<T3> symbol3,
+        IValueDescriptor<T4> symbol4,
+        IValueDescriptor<T5> symbol5,
+        IValueDescriptor<T6> symbol6,
+        IValueDescriptor<T7> symbol7,
+        IValueDescriptor<T8> symbol8) =>
+        command.Handler = new AnonymousCommandHandler(
+            context =>
+            {
+                var value1 = GetValueForHandlerParameter(symbol1, context);
+                var value2 = GetValueForHandlerParameter(symbol2, context);
+                var value3 = GetValueForHandlerParameter(symbol3, context);
+                var value4 = GetValueForHandlerParameter(symbol4, context);
+                var value5 = GetValueForHandlerParameter(symbol5, context);
+                var value6 = GetValueForHandlerParameter(symbol6, context);
+                var value7 = GetValueForHandlerParameter(symbol7, context);
+                var value8 = GetValueForHandlerParameter(symbol8, context);
 
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-                    var value9 = GetValueForHandlerParameter<T9>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-                    var value9 = GetValueForHandlerParameter<T9>(symbols, ref index, context);
-                    var value10 = GetValueForHandlerParameter<T10>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-                    var value9 = GetValueForHandlerParameter<T9>(symbols, ref index, context);
-                    var value10 = GetValueForHandlerParameter<T10>(symbols, ref index, context);
-                    var value11 = GetValueForHandlerParameter<T11>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-                    var value9 = GetValueForHandlerParameter<T9>(symbols, ref index, context);
-                    var value10 = GetValueForHandlerParameter<T10>(symbols, ref index, context);
-                    var value11 = GetValueForHandlerParameter<T11>(symbols, ref index, context);
-                    var value12 = GetValueForHandlerParameter<T12>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-                    var value9 = GetValueForHandlerParameter<T9>(symbols, ref index, context);
-                    var value10 = GetValueForHandlerParameter<T10>(symbols, ref index, context);
-                    var value11 = GetValueForHandlerParameter<T11>(symbols, ref index, context);
-                    var value12 = GetValueForHandlerParameter<T12>(symbols, ref index, context);
-                    var value13 = GetValueForHandlerParameter<T13>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!, value13!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-                    var value9 = GetValueForHandlerParameter<T9>(symbols, ref index, context);
-                    var value10 = GetValueForHandlerParameter<T10>(symbols, ref index, context);
-                    var value11 = GetValueForHandlerParameter<T11>(symbols, ref index, context);
-                    var value12 = GetValueForHandlerParameter<T12>(symbols, ref index, context);
-                    var value13 = GetValueForHandlerParameter<T13>(symbols, ref index, context);
-                    var value14 = GetValueForHandlerParameter<T14>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!, value13!, value14!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-                    var value9 = GetValueForHandlerParameter<T9>(symbols, ref index, context);
-                    var value10 = GetValueForHandlerParameter<T10>(symbols, ref index, context);
-                    var value11 = GetValueForHandlerParameter<T11>(symbols, ref index, context);
-                    var value12 = GetValueForHandlerParameter<T12>(symbols, ref index, context);
-                    var value13 = GetValueForHandlerParameter<T13>(symbols, ref index, context);
-                    var value14 = GetValueForHandlerParameter<T14>(symbols, ref index, context);
-                    var value15 = GetValueForHandlerParameter<T15>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!, value13!, value14!, value15!);
-                });
-
-        /// <summary>
-        /// Sets a command's handler based on an <see cref="Action{T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16}"/>.
-        /// </summary>
-        public static void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(
-            this Command command,
-            Action<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16> handle,
-            params IValueDescriptor[] symbols) =>
-            command.Handler = new AnonymousCommandHandler(
-                context =>
-                {
-                    var index = 0;
-
-                    var value1 = GetValueForHandlerParameter<T1>(symbols, ref index, context);
-                    var value2 = GetValueForHandlerParameter<T2>(symbols, ref index, context);
-                    var value3 = GetValueForHandlerParameter<T3>(symbols, ref index, context);
-                    var value4 = GetValueForHandlerParameter<T4>(symbols, ref index, context);
-                    var value5 = GetValueForHandlerParameter<T5>(symbols, ref index, context);
-                    var value6 = GetValueForHandlerParameter<T6>(symbols, ref index, context);
-                    var value7 = GetValueForHandlerParameter<T7>(symbols, ref index, context);
-                    var value8 = GetValueForHandlerParameter<T8>(symbols, ref index, context);
-                    var value9 = GetValueForHandlerParameter<T9>(symbols, ref index, context);
-                    var value10 = GetValueForHandlerParameter<T10>(symbols, ref index, context);
-                    var value11 = GetValueForHandlerParameter<T11>(symbols, ref index, context);
-                    var value12 = GetValueForHandlerParameter<T12>(symbols, ref index, context);
-                    var value13 = GetValueForHandlerParameter<T13>(symbols, ref index, context);
-                    var value14 = GetValueForHandlerParameter<T14>(symbols, ref index, context);
-                    var value15 = GetValueForHandlerParameter<T15>(symbols, ref index, context);
-                    var value16 = GetValueForHandlerParameter<T16>(symbols, ref index, context);
-
-                    handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!, value9!, value10!, value11!, value12!, value13!, value14!, value15!, value16!);
-                });
-    }
+                handle(value1!, value2!, value3!, value4!, value5!, value6!, value7!, value8!);
+            });
 }

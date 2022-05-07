@@ -44,7 +44,7 @@ namespace System.CommandLine.Rendering.Tests
             OutputMode detectedOutputMode = OutputMode.Auto;
 
             var command = new Command("hello");
-            command.SetHandler((InvocationContext ctx) =>
+            command.SetHandler(ctx =>
             {
                 detectedOutputMode = ctx.Console.DetectOutputMode();
                 return Task.FromResult(0);
