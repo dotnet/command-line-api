@@ -8,6 +8,7 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using System.Net;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -707,6 +708,44 @@ namespace System.CommandLine.Tests.Binding
             var value = option.Parse("-x 123").GetValueForOption(option);
 
             value.Should().Be(123);
+        }
+
+        public void Values_can_be_correctly_converted_to_ipaddress_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<IPAddress>("-us");
+
+            var value = option.Parse("-us 1.2.3.4").GetValueForOption(option);
+
+            value.Should().Be(IPAddress.Parse("1.2.3.4"));
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_ipaddress_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<IPAddress?>("-x");
+
+            var value = option.Parse("-x 192.168.1.7").GetValueForOption(option);
+
+            value.Should().Be(IPAddress.Parse("192.168.1.7"));
+        }
+
+        public void Values_can_be_correctly_converted_to_ipendpoint_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<IPEndPoint>("-us");
+
+            var value = option.Parse("-us 1.2.3.4:56").GetValueForOption(option);
+
+            value.Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
+        }
+        
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_ipendpoint_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<IPEndPoint?>("-x");
+
+            var value = option.Parse("-x 192.168.1.7:8080").GetValueForOption(option);
+
+            value.Should().Be(IPEndPoint.Parse("192.168.1.7:8080"));
         }
         
         [Fact]

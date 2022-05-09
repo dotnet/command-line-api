@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 
 namespace System.CommandLine.Binding;
 
@@ -147,6 +148,30 @@ internal static partial class ArgumentConverter
             if (int.TryParse(token, out var intValue))
             {
                 value = intValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(IPAddress)] = (string token, out object? value) =>
+        {
+            if (IPAddress.TryParse(token, out var ip))
+            {
+                value = ip;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(IPEndPoint)] = (string token, out object? value) =>
+        {
+            if (IPEndPoint.TryParse(token, out var ipendpoint))
+            {
+                value = ipendpoint;
                 return true;
             }
 
