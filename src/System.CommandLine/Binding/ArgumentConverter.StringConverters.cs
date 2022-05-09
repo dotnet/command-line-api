@@ -169,14 +169,15 @@ internal static partial class ArgumentConverter
 
         [typeof(IPEndPoint)] = (string token, out object? value) =>
         {
-            if (IPEndPoint.TryParse(token, out var ipendpoint))
-            {
-                value = ipendpoint;
+            try {
+                value = IPEndPoint.Parse(token);
                 return true;
             }
-
-            value = default;
-            return false;
+            catch (FormatException)
+            {
+                value = default;
+                return false;
+            }
         },
 
         [typeof(long)] = (string token, out object? value) =>
