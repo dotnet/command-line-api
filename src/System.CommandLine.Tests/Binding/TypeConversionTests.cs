@@ -1,11 +1,11 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using FluentAssertions;
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Utility;
 using System.IO;
-using FluentAssertions;
 using System.Linq;
 using Xunit;
 
@@ -229,7 +229,7 @@ namespace System.CommandLine.Tests.Binding
         public void Nullable_bool_parses_as_null_when_the_option_has_not_been_applied()
         {
             var option = new Option<bool?>("-x");
-            
+
             option
                 .Parse("")
                 .GetValueForOption(option)
@@ -251,7 +251,7 @@ namespace System.CommandLine.Tests.Binding
 
             parseResult.GetValueForOption((Option)option).Should().Be(true);
         }
-        
+
         [Fact]
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
@@ -273,7 +273,7 @@ namespace System.CommandLine.Tests.Binding
                     .Should()
                     .Be("Required argument missing for option: '-x'.");
         }
-        
+
         [Theory]
         [InlineData("c -a o c c")]
         [InlineData("c c -a o c")]
@@ -495,7 +495,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123.456m);
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_decimal_without_the_parser_specifying_a_custom_converter()
         {
@@ -505,7 +505,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123.456m);
         }
-    
+
         [Fact]
         public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
         {
@@ -515,7 +515,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123.456d);
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_double_without_the_parser_specifying_a_custom_converter()
         {
@@ -535,7 +535,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123.456f);
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_float_without_the_parser_specifying_a_custom_converter()
         {
@@ -556,7 +556,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(Guid.Parse(guidString));
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_Guid_without_the_parser_specifying_a_custom_converter()
         {
@@ -688,7 +688,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(1234);
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_sbyte_without_the_parser_specifying_a_custom_converter()
         {
@@ -698,7 +698,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123);
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_sbyte_without_the_parser_specifying_a_custom_converter()
         {
@@ -708,7 +708,49 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123);
         }
-        
+
+#if NET6_0_OR_GREATER
+        [Fact]
+        public void Values_can_be_correctly_converted_to_dateonly_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<DateOnly>("-us");
+
+            var value = option.Parse("-us 2022-03-02").GetValueForOption(option);
+
+            value.Should().Be(DateOnly.Parse("2022-03-02"));
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_dateonly_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<DateOnly?>("-x");
+
+            var value = option.Parse("-x 2022-03-02").GetValueForOption(option);
+
+            value.Should().Be(DateOnly.Parse("2022-03-02"));
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_timeonly_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<TimeOnly>("-us");
+
+            var value = option.Parse("-us 12:34:56").GetValueForOption(option);
+
+            value.Should().Be(TimeOnly.Parse("12:34:56"));
+        }
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_nullable_timeonly_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<TimeOnly?>("-x");
+
+            var value = option.Parse("-x 12:34:56").GetValueForOption(option);
+
+            value.Should().Be(TimeOnly.Parse("12:34:56"));
+        }
+#endif
+
         [Fact]
         public void Values_can_be_correctly_converted_to_byte_without_the_parser_specifying_a_custom_converter()
         {
@@ -718,7 +760,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123);
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_byte_without_the_parser_specifying_a_custom_converter()
         {
@@ -728,7 +770,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123);
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_uint_without_the_parser_specifying_a_custom_converter()
         {
@@ -738,7 +780,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(1234);
         }
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_uint_without_the_parser_specifying_a_custom_converter()
         {
@@ -758,7 +800,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().BeEquivalentTo(1, 2, 3);
         }
-        
+
         [Theory]
         [InlineData(0, 100_000, typeof(string[]))]
         [InlineData(0, 3, typeof(string[]))]
@@ -770,7 +812,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(0, 3, typeof(IList<string>))]
         [InlineData(0, 100_000, typeof(ICollection<string>))]
         [InlineData(0, 3, typeof(ICollection<string>))]
-        
+
         [InlineData(1, 100_000, typeof(string[]))]
         [InlineData(1, 3, typeof(string[]))]
         [InlineData(1, 100_000, typeof(IEnumerable<string>))]

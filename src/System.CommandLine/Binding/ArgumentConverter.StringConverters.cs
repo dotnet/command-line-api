@@ -24,6 +24,20 @@ internal static partial class ArgumentConverter
             return false;
         },
 
+#if NET6_0_OR_GREATER
+        [typeof(DateOnly)] = (string input, out object? value) =>
+        {
+            if (DateOnly.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+#endif
+
         [typeof(DateTime)] = (string input, out object? value) =>
         {
             if (DateTime.TryParse(input, out var parsed))
@@ -62,7 +76,7 @@ internal static partial class ArgumentConverter
 
         [typeof(DirectoryInfo)] = (string path, out object? value) =>
         {
-            if (String.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 value = default;
                 return false;
@@ -85,7 +99,7 @@ internal static partial class ArgumentConverter
 
         [typeof(FileInfo)] = (string path, out object? value) =>
         {
-            if (String.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 value = default;
                 return false;
@@ -96,7 +110,7 @@ internal static partial class ArgumentConverter
 
         [typeof(FileSystemInfo)] = (string path, out object? value) =>
         {
-            if (String.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 value = default;
                 return false;
@@ -129,7 +143,7 @@ internal static partial class ArgumentConverter
             value = default;
             return false;
         },
-        
+
         [typeof(Guid)] = (string input, out object? value) =>
         {
             if (Guid.TryParse(input, out var parsed))
@@ -177,6 +191,20 @@ internal static partial class ArgumentConverter
             value = default;
             return false;
         },
+
+#if NET6_0_OR_GREATER
+        [typeof(TimeOnly)] = (string input, out object? value) =>
+        {
+            if (TimeOnly.TryParse(input, out var parsed))
+            {
+                value = parsed;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+#endif
 
         [typeof(uint)] = (string token, out object? value) =>
         {
