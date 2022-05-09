@@ -8,6 +8,7 @@ using System.IO;
 using FluentAssertions;
 using System.Linq;
 using Xunit;
+using System.Net;
 
 namespace System.CommandLine.Tests.Binding
 {
@@ -708,7 +709,29 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(123);
         }
-        
+
+        [Fact]
+        public void Values_can_be_correctly_converted_to_ipaddress_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<IPAddress>("-us");
+
+            var value = option.Parse("-us 1.2.3.4").GetValueForOption(option);
+
+            value.Should().Be(IPAddress.Parse("1.2.3.4"));
+        }
+
+#if NETCOREAPP3_0_OR_GREATER
+        [Fact]
+        public void Values_can_be_correctly_converted_to_ipendpoint_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<IPEndPoint>("-us");
+
+            var value = option.Parse("-us 1.2.3.4:56").GetValueForOption(option);
+
+            value.Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
+        }
+#endif
+
         [Fact]
         public void Values_can_be_correctly_converted_to_byte_without_the_parser_specifying_a_custom_converter()
         {
