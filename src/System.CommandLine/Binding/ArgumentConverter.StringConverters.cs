@@ -167,18 +167,19 @@ internal static partial class ArgumentConverter
             return false;
         },
 
+#if NETCOREAPP3_0_OR_GREATER
         [typeof(IPEndPoint)] = (string token, out object? value) =>
         {
-            try {
-                value = IPEndPoint.Parse(token);
+            if (IPEndPoint.TryParse(token, out var ipendpoint))
+            {
+                value = ipendpoint;
                 return true;
             }
-            catch (FormatException)
-            {
-                value = default;
-                return false;
-            }
+
+            value = default;
+            return false;
         },
+#endif
 
         [typeof(long)] = (string token, out object? value) =>
         {
