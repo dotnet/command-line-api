@@ -710,6 +710,7 @@ namespace System.CommandLine.Tests.Binding
             value.Should().Be(123);
         }
 
+        [Fact]
         public void Values_can_be_correctly_converted_to_ipaddress_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option<IPAddress>("-us");
@@ -730,6 +731,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
 #if NETCOREAPP3_0_OR_GREATER
+        [Fact]
         public void Values_can_be_correctly_converted_to_ipendpoint_without_the_parser_specifying_a_custom_converter()
         {
             var option = new Option<IPEndPoint>("-us");
@@ -749,7 +751,7 @@ namespace System.CommandLine.Tests.Binding
             value.Should().Be(IPEndPoint.Parse("192.168.1.7:8080"));
         }
 #endif
-        
+
         [Fact]
         public void Values_can_be_correctly_converted_to_byte_without_the_parser_specifying_a_custom_converter()
         {
