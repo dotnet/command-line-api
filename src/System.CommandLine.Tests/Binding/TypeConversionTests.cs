@@ -710,7 +710,6 @@ namespace System.CommandLine.Tests.Binding
             value.Should().Be(123);
         }
 
-<<<<<<< HEAD
         [Fact]
         public void Values_can_be_correctly_converted_to_ipaddress_without_the_parser_specifying_a_custom_converter()
         {
