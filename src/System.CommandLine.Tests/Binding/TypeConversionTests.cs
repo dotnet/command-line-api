@@ -710,6 +710,7 @@ namespace System.CommandLine.Tests.Binding
             value.Should().Be(123);
         }
 
+<<<<<<< HEAD
         [Fact]
         public void Values_can_be_correctly_converted_to_ipaddress_without_the_parser_specifying_a_custom_converter()
         {
@@ -730,6 +731,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
         }
+#endif
 
 #if NET6_0_OR_GREATER
         [Fact]
@@ -771,6 +773,7 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(TimeOnly.Parse("12:34:56"));
         }
+#endif
 
         [Fact]
         public void Values_can_be_correctly_converted_to_byte_without_the_parser_specifying_a_custom_converter()
