@@ -17,7 +17,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(UseBetaVersion)' == 'true'">
     <VersionPrefix>2.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>beta3</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>beta4</PreReleaseVersionLabel>
     <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(UseAlphaVersion)' == 'true'">
