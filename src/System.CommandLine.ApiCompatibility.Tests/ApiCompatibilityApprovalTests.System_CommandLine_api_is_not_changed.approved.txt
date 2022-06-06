@@ -240,7 +240,7 @@ System.CommandLine.Builder
   public static class CommandLineBuilderExtensions
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
-    public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder)
+    public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder, System.Nullable<System.TimeSpan> cancelationProcessingTimeout = null)
     public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnableLegacyDoubleDashBehavior(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)

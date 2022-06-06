@@ -20,7 +20,7 @@ namespace System.CommandLine.Tests.Invocation
         private const int SIGTERM = 15;
 
         [LinuxOnlyTheory]
-        [InlineData(SIGINT, Skip = "https://github.com/dotnet/command-line-api/issues/1206")]  // Console.CancelKeyPress
+        [InlineData(SIGINT/*, Skip = "https://github.com/dotnet/command-line-api/issues/1206"*/)]  // Console.CancelKeyPress
         [InlineData(SIGTERM)] // AppDomain.CurrentDomain.ProcessExit
         public async Task CancelOnProcessTermination_cancels_on_process_termination(int signo)
         {
@@ -89,6 +89,83 @@ namespace System.CommandLine.Tests.Invocation
 
             // Verify the process exit code
             process.ExitCode.Should().Be(CancelledExitCode);
+        }
+
+        [LinuxOnlyTheory]
+        [InlineData(null, SIGINT)]
+        [InlineData(100, SIGINT, Skip = "Doesn't work under RemoteExecutor - process not terminated after Environment.Exit")]
+        [InlineData(null, SIGTERM)]
+        [InlineData(100, SIGTERM, Skip = "Doesn't work under RemoteExecutor - process not terminated after ExitProcess event")]
+        public async Task CancelOnProcessTermination_timeout_on_cancel_processing(int? timeOutMs, int signo)
+        {
+            TimeSpan? timeOut = timeOutMs.HasValue ? TimeSpan.FromMilliseconds(timeOutMs.Value) : null; 
+
+            const string ChildProcessWaiting = "Waiting for the command to be cancelled";
+            const int CancelledExitCode = 42;
+            const int ForceTerminationCode = 130;
+
+            Func<string[], Task<int>> childProgram = (string[] args) =>
+            {
+                var command = new Command("the-command");
+
+                command.SetHandler(async context =>
+                {
+                    var cancellationToken = context.GetCancellationToken();
+
+                    try
+                    {
+                        context.Console.WriteLine(ChildProcessWaiting);
+                        await Task.Delay(int.MaxValue, cancellationToken);
+                        context.ExitCode = 1;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // For Process.Exit handling the event must remain blocked as long as the
+                        // command is executed.
+                        // We are currently blocking that event because CancellationTokenSource.Cancel
+                        // is called from the event handler.
+                        // We'll do an async Task.Delay now. This means the Cancel call will return
+                        // and we're no longer actively blocking the event.
+                        // The event handler is responsible to continue blocking until the command
+                        // has finished executing. If it doesn't we won't get the CancelledExitCode.
+                        await Task.Delay(TimeSpan.FromMilliseconds(2000));
+
+                        context.ExitCode = CancelledExitCode;
+                    }
+
+                });
+
+                return new CommandLineBuilder(new RootCommand
+                       {
+                           command
+                       })
+                       .CancelOnProcessTermination(/*timeOut*/TimeSpan.FromSeconds(100))
+                       .Build()
+                       .InvokeAsync("the-command");
+            };
+
+            using RemoteExecution program = RemoteExecutor.Execute(childProgram, psi: new ProcessStartInfo { RedirectStandardOutput = true });
+
+            Process process = program.Process;
+
+            // Wait for the child to be in the command handler.
+            string childState = await process.StandardOutput.ReadLineAsync();
+            childState.Should().Be(ChildProcessWaiting);
+
+            // Request termination
+            kill(process.Id, signo).Should().Be(0);
+
+            // Verify the process terminates timely
+            bool processExited = process.WaitForExit(10000);
+            if (!processExited)
+            {
+                process.Kill();
+                process.WaitForExit();
+            }
+            processExited.Should().Be(true);
+
+            // Verify the process exit code
+            process.ExitCode.Should().Be(timeOutMs.HasValue ? ForceTerminationCode : CancelledExitCode);
         }
 
         [DllImport("libc", SetLastError = true)]
