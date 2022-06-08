@@ -98,7 +98,6 @@ namespace System.CommandLine.Tests.Invocation
         {
             const string ChildProcessWaiting = "Waiting for the command to be cancelled";
             const int CancelledExitCode = 42;
-            const int ForceTerminationCode = 130;
 
             Func<string[], Task<int>> childProgram = (string[] args) =>
             {
