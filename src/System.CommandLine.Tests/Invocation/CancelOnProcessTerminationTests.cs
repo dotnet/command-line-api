@@ -92,12 +92,10 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [LinuxOnlyTheory]
-        [InlineData(null, SIGINT)]
-        [InlineData(null, SIGTERM)]
-        public async Task CancelOnProcessTermination_null_timeout_on_cancel_processing(int? timeOutMs, int signo)
+        [InlineData(SIGINT)]
+        [InlineData(SIGTERM)]
+        public async Task CancelOnProcessTermination_null_timeout_on_cancel_processing(int signo)
         {
-            TimeSpan? timeOut = timeOutMs.HasValue ? TimeSpan.FromMilliseconds(timeOutMs.Value) : null; 
-
             const string ChildProcessWaiting = "Waiting for the command to be cancelled";
             const int CancelledExitCode = 42;
             const int ForceTerminationCode = 130;
@@ -170,16 +168,14 @@ namespace System.CommandLine.Tests.Invocation
             processExited.Should().Be(true);
 
             // Verify the process exit code
-            process.ExitCode.Should().Be(timeOutMs.HasValue ? ForceTerminationCode : CancelledExitCode);
+            process.ExitCode.Should().Be(CancelledExitCode);
         }
 
         [LinuxOnlyTheory]
-        [InlineData(100, SIGINT)]
-        [InlineData(100, SIGTERM)]
-        public async Task CancelOnProcessTermination_timeout_on_cancel_processing(int? timeOutMs, int signo)
+        [InlineData(SIGINT)]
+        [InlineData(SIGTERM)]
+        public async Task CancelOnProcessTermination_timeout_on_cancel_processing(int signo)
         {
-            TimeSpan? timeOut = timeOutMs.HasValue ? TimeSpan.FromMilliseconds(timeOutMs.Value) : null;
-
             const string ChildProcessWaiting = "Waiting for the command to be cancelled";
             const int CancelledExitCode = 42;
             const int ForceTerminationCode = 130;
@@ -257,7 +253,7 @@ namespace System.CommandLine.Tests.Invocation
             processExited.Should().Be(true);
 
             // Verify the process exit code
-            process.ExitCode.Should().Be(timeOutMs.HasValue ? ForceTerminationCode : CancelledExitCode);
+            process.ExitCode.Should().Be(ForceTerminationCode);
         }
 
         [DllImport("libc", SetLastError = true)]
