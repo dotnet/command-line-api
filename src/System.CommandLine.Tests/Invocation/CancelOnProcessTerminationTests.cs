@@ -211,13 +211,19 @@ namespace System.CommandLine.Tests.Invocation
                         await Task.Yield();
 
                         context.ExitCode = CancelledExitCode;
+
+                        // This is an example of bad pattern and reason why we need a timeout on termination processing
+                        await Task.Delay(TimeSpan.FromMilliseconds(1000));
+
+                        // Execution should newer get here as termination processing has a timeout of 100ms
+                        Environment.Exit(123);
                     }
 
                     // This is an example of bad pattern and reason why we need a timeout on termination processing
-                    await Task.Delay(TimeSpan.FromMilliseconds(2000));
+                    await Task.Delay(TimeSpan.FromMilliseconds(1000));
 
                     // Execution should newer get here as termination processing has a timeout of 100ms
-                    context.ExitCode = 123;
+                    Environment.Exit(123);
                 });
 
                 return new CommandLineBuilder(new RootCommand

@@ -54,9 +54,13 @@ namespace System.CommandLine.Builder
             this CommandLineBuilder builder, 
             TimeSpan? cancelationProcessingTimeout = null)
         {
-            cancelationProcessingTimeout ??= Timeout.InfiniteTimeSpan;
             // https://tldp.org/LDP/abs/html/exitcodes.html - 130 - script terminated by ctrl-c
             const int SIGINT_EXIT_CODE = 130;
+
+            if (cancelationProcessingTimeout == null || cancelationProcessingTimeout.Value < TimeSpan.Zero)
+            {
+                cancelationProcessingTimeout = Timeout.InfiniteTimeSpan;
+            }
 
             builder.AddMiddleware(async (context, next) =>
             {
@@ -73,7 +77,10 @@ namespace System.CommandLine.Builder
                     //  https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-6.0
                     processExitHandler = (_, _) =>
                     {
-                        cts.Cancel();
+                        // Cancel asynchronously not to block the handler (as then the process might possibly run longer then what was the requested timeout)
+                        Task timeoutTask = Task.Delay(cancelationProcessingTimeout.Value);
+                        Task cancelTask = Task.Factory.StartNew(cts.Cancel);
+
                         // The process exits as soon as the event handler returns.
                         // We provide a return value using Environment.ExitCode
                         // because Main will not finish executing.
@@ -84,15 +91,23 @@ namespace System.CommandLine.Builder
                         {
                             context.ExitCode = SIGINT_EXIT_CODE;
                         }
+                        // Let's block here (to prevent process bailing out) for the rest of the timeout (if any), for cancellation to finish (if it hasn't yet)
+                        else if (Task.WaitAny(timeoutTask, cancelTask) == 0)
+                        {
+                            // The async cancellation didn't finish in timely manner
+                            context.ExitCode = SIGINT_EXIT_CODE;
+                        }
                         ExitCode = context.ExitCode;
                     };
                     consoleHandler = (_, args) =>
                     {
-                        cts.Cancel();
                         // Stop the process from terminating.
                         // Since the context was cancelled, the invocation should
                         // finish and Main will return.
                         args.Cancel = true;
+
+                        // If timeout was requested - make sure cancellation processing (or any other activity within the current process)
+                        //  doesn't keep the process running after the timeout
                         if (cancelationProcessingTimeout! > TimeSpan.Zero)
                         {
                             Task
@@ -104,6 +119,11 @@ namespace System.CommandLine.Builder
                                     Environment.Exit(SIGINT_EXIT_CODE);
                                 }, (CancellationToken)default);
                         }
+
+                        // Cancel synchronously here - no need to perform it asynchronously as the timeout is already running (and would kill the process if needed),
+                        //  plus we cannot wait only on the cancellation (e.g. via `Task.Factory.StartNew(cts.Cancel).Wait(cancelationProcessingTimeout.Value)`)
+                        //  as we need to abort any other possible execution within the process - even outside the context of cancellation processing
+                        cts.Cancel();
                     };
                     Console.CancelKeyPress += consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit += processExitHandler;
