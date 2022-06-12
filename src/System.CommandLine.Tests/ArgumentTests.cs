@@ -695,7 +695,30 @@ namespace System.CommandLine.Tests
 
                 result.GetValueForArgument(argument2).Should().BeEquivalentSequenceTo(1, 2, 3);
             }
-        }
+
+            [Fact] // https://github.com/dotnet/command-line-api/issues/1759 
+            public void issue_1759()
+            {
+                var scalar = new Argument<int?>(parse: (ctx) =>
+                {
+                    ctx.OnlyTake(0);
+                    return null;
+                });
+                Argument<int[]> multiple = new();
+                
+                var command = new RootCommand
+                {
+                    scalar,
+                    multiple
+                };
+                
+                var result = command.Parse("1 2 3");
+
+                result.GetValueForArgument(scalar).Should().BeNull();
+
+                result.GetValueForArgument(multiple).Should().BeEquivalentSequenceTo(1,2,3);
+            }
+    }
 
         protected override Symbol CreateSymbol(string name)
         {

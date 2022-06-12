@@ -67,7 +67,7 @@ namespace System.CommandLine.Parsing
             var passedOnTokensCount = _tokens.Count - numberOfTokens;
 
             PassedOnTokens = new List<Token>(_tokens.GetRange(numberOfTokens, passedOnTokensCount));
-
+            
             _tokens.RemoveRange(numberOfTokens, passedOnTokensCount);
         }
 
