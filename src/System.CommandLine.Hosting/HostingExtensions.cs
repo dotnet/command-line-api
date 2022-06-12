@@ -17,8 +17,8 @@ namespace System.CommandLine.Hosting
         private const string ConfigurationDirectiveName = "config";
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
-            Func<string[], IHostBuilder> hostBuilderFactory,
-            Action<IHostBuilder> configureHost = null) =>
+            Func<string[], IHostBuilder>? hostBuilderFactory,
+            Action<IHostBuilder>? configureHost = null) =>
             builder.AddMiddleware(async (invocation, next) =>
             {
                 var argsRemaining = invocation.ParseResult.UnparsedTokens.ToArray();
@@ -35,7 +35,7 @@ namespace System.CommandLine.Hosting
                     services.AddSingleton(invocation);
                     services.AddSingleton(invocation.BindingContext);
                     services.AddSingleton(invocation.Console);
-                    services.AddTransient(_ => invocation.InvocationResult);
+                    services.AddTransient(_ => invocation.InvocationResult!);
                     services.AddTransient(_ => invocation.ParseResult);
                 });
                 hostBuilder.UseInvocationLifetime(invocation);
@@ -53,11 +53,11 @@ namespace System.CommandLine.Hosting
             });
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
-            Action<IHostBuilder> configureHost = null
+            Action<IHostBuilder>? configureHost = null
             ) => UseHost(builder, null, configureHost);
 
         public static IHostBuilder UseInvocationLifetime(this IHostBuilder host,
-            InvocationContext invocation, Action<InvocationLifetimeOptions> configureOptions = null)
+            InvocationContext invocation, Action<InvocationLifetimeOptions>? configureOptions = null)
         {
             return host.ConfigureServices(services =>
             {
@@ -107,7 +107,7 @@ namespace System.CommandLine.Hosting
                 && invocation.ParseResult.CommandResult.Command is Command command
                 && command.GetType() == commandType)
             {
-                invocation.BindingContext.AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
+                invocation.BindingContext.AddService(handlerType, c => c.GetRequiredService<IHost>().Services.GetService(handlerType));
                 builder.ConfigureServices(services =>
                 {
                     services.AddTransient(handlerType);
@@ -141,11 +141,14 @@ namespace System.CommandLine.Hosting
             throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
         }
 
-        public static IHost GetHost(this InvocationContext invocationContext)
+        public static IHost? GetHost(this InvocationContext invocationContext)
         {
             _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
             var hostModelBinder = new ModelBinder<IHost>();
-            return (IHost)hostModelBinder.CreateInstance(invocationContext.BindingContext);
+            var instance = hostModelBinder.CreateInstance(invocationContext.BindingContext);
+            if (instance is IHost host)
+              return host;            
+            return null;
         }
     }
 }

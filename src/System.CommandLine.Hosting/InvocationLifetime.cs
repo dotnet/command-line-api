@@ -17,7 +17,7 @@ using IHostApplicationLifetime = Microsoft.Extensions.Hosting.IApplicationLifeti
 
 namespace System.CommandLine.Hosting
 {
-    public class InvocationLifetime : IHostLifetime
+    public sealed class InvocationLifetime : IHostLifetime
     {
         private readonly CancellationToken invokeCancelToken;
         private CancellationTokenRegistration invokeCancelReg;
@@ -28,8 +28,8 @@ namespace System.CommandLine.Hosting
             IOptions<InvocationLifetimeOptions> options,
             IHostEnvironment environment,
             IHostApplicationLifetime applicationLifetime,
-            InvocationContext context = null,
-            ILoggerFactory loggerFactory = null)
+            InvocationContext? context = null,
+            ILoggerFactory? loggerFactory = null)
         {
             Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             Environment = environment
