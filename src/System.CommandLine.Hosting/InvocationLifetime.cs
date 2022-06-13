@@ -17,7 +17,7 @@ using IHostApplicationLifetime = Microsoft.Extensions.Hosting.IApplicationLifeti
 
 namespace System.CommandLine.Hosting
 {
-    public sealed class InvocationLifetime : IHostLifetime
+    public class InvocationLifetime : IHostLifetime
     {
         private readonly CancellationToken invokeCancelToken;
         private CancellationTokenRegistration invokeCancelReg;

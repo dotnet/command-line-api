@@ -2,7 +2,7 @@
 
 namespace System.CommandLine.Hosting
 {
-    public sealed class InvocationLifetimeOptions : ConsoleLifetimeOptions
+    public class InvocationLifetimeOptions : ConsoleLifetimeOptions
     {
     }
 }
