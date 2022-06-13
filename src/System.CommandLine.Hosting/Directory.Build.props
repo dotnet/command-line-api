@@ -1,8 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <UseAlphaVersion>true</UseAlphaVersion>
-    <Nullable>enable</Nullable>
+    <UseAlphaVersion>true</UseAlphaVersion>    
   </PropertyGroup>
 
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
