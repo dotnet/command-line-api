@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests.Invocation
         [LinuxOnlyTheory]
         [InlineData(SIGINT/*, Skip = "https://github.com/dotnet/command-line-api/issues/1206"*/)]  // Console.CancelKeyPress
         [InlineData(SIGTERM)] // AppDomain.CurrentDomain.ProcessExit
-        public async Task CancelOnProcessTermination_cancels_on_process_termination(int signo)
+        public async Task CancelOnProcessTermination_provides_CancellationToken_that_signals_termination_when_no_timeout_is_specified(int signo)
         {
             const string ChildProcessWaiting = "Waiting for the command to be cancelled";
             const int CancelledExitCode = 42;
@@ -94,7 +94,7 @@ namespace System.CommandLine.Tests.Invocation
         [LinuxOnlyTheory]
         [InlineData(SIGINT)]
         [InlineData(SIGTERM)]
-        public async Task CancelOnProcessTermination_null_timeout_on_cancel_processing(int signo)
+        public async Task CancelOnProcessTermination_provides_CancellationToken_that_signals_termination_when_null_timeout_is_specified(int signo)
         {
             const string ChildProcessWaiting = "Waiting for the command to be cancelled";
             const int CancelledExitCode = 42;
@@ -173,7 +173,7 @@ namespace System.CommandLine.Tests.Invocation
         [LinuxOnlyTheory]
         [InlineData(SIGINT)]
         [InlineData(SIGTERM)]
-        public async Task CancelOnProcessTermination_timeout_on_cancel_processing(int signo)
+        public async Task CancelOnProcessTermination_provides_CancellationToken_that_signals_termination_and_execution_is_terminated_at_the_specified_timeout(int signo)
         {
             const string ChildProcessWaiting = "Waiting for the command to be cancelled";
             const int CancelledExitCode = 42;
