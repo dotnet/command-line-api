@@ -675,7 +675,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void OnlyTake_can_pass_on_all_tokens()
+            public void OnlyTake_can_pass_on_all_tokens_from_one_multiple_arity_argument_to_another()
             {
                 var argument1 = new Argument<int[]>(result =>
                 {
@@ -697,28 +697,28 @@ namespace System.CommandLine.Tests
             }
 
             [Fact] // https://github.com/dotnet/command-line-api/issues/1759 
-            public void issue_1759()
+            public void OnlyTake_can_pass_on_all_tokens_from_a_single_arity_argument_to_another()
             {
-                var scalar = new Argument<int?>(parse: (ctx) =>
+                var scalar = new Argument<int?>(parse: ctx =>
                 {
                     ctx.OnlyTake(0);
                     return null;
                 });
                 Argument<int[]> multiple = new();
-                
+
                 var command = new RootCommand
                 {
                     scalar,
                     multiple
                 };
-                
+
                 var result = command.Parse("1 2 3");
 
                 result.GetValueForArgument(scalar).Should().BeNull();
 
-                result.GetValueForArgument(multiple).Should().BeEquivalentSequenceTo(1,2,3);
+                result.GetValueForArgument(multiple).Should().BeEquivalentSequenceTo(1, 2, 3);
             }
-    }
+        }
 
         protected override Symbol CreateSymbol(string name)
         {

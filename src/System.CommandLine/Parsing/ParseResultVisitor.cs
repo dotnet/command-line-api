@@ -256,6 +256,18 @@ namespace System.CommandLine.Parsing
         {
             for (var i = 0; i < arguments.Count; i++)
             {
+                if (i > 0 && _argumentResults.Count > 1)
+                {
+                    var previousArgumentResult = _argumentResults[i - 1];
+
+                    var passedOnTokensCount = previousArgumentResult.PassedOnTokens?.Count;
+
+                    if (passedOnTokensCount > 0)
+                    {
+                        ShiftPassedOnTokensToNextResult(previousArgumentResult, _argumentResults[i], passedOnTokensCount);
+                    }
+                }
+
                 // If this is the current last result but there are more arguments, see if we can shift tokens to the next argument
                 if (commandArgumentResultCount == i)
                 {
@@ -268,18 +280,7 @@ namespace System.CommandLine.Parsing
 
                     var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
 
-                    for (var j = previousArgumentResult.Tokens.Count; j < passedOnTokensCount; j++)
-                    {
-                        if (nextArgumentResult.IsArgumentLimitReached)
-                        {
-                            break;
-                        }
-
-                        if (_innermostCommandResult is not null)
-                        {
-                            nextArgumentResult.AddToken(_innermostCommandResult.Tokens[j]);
-                        }
-                    }
+                    ShiftPassedOnTokensToNextResult(previousArgumentResult, nextArgumentResult, passedOnTokensCount);
 
                     _argumentResults.Add(nextArgumentResult);
 
@@ -315,6 +316,25 @@ namespace System.CommandLine.Parsing
                     if (result.Parent is CommandResult)
                     {
                         ValidateAndConvertArgumentResult(result);
+                    }
+                }
+            }
+
+            void ShiftPassedOnTokensToNextResult(
+                ArgumentResult previous, 
+                ArgumentResult next, 
+                int? numberOfTokens)
+            {
+                for (var j = previous.Tokens.Count; j < numberOfTokens; j++)
+                {
+                    if (next.IsArgumentLimitReached)
+                    {
+                        break;
+                    }
+
+                    if (_innermostCommandResult is not null)
+                    {
+                        next.AddToken(_innermostCommandResult.Tokens[j]);
                     }
                 }
             }
@@ -487,9 +507,10 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            ArgumentConversionResult argumentConversionResult = argumentResult.GetArgumentConversionResult();
-            if (argumentConversionResult.Result >= ArgumentConversionResultType.Failed
-                && argumentConversionResult.Result !=  ArgumentConversionResultType.FailedArity)
+            var argumentConversionResult = argumentResult.GetArgumentConversionResult();
+
+            if (argumentConversionResult.Result >= ArgumentConversionResultType.Failed && 
+                argumentConversionResult.Result != ArgumentConversionResultType.FailedArity)
             {
                 if (argument.FirstParent?.Symbol is Option option)
                 {
@@ -510,19 +531,19 @@ namespace System.CommandLine.Parsing
 
         private void PopulateDefaultValues()
         {
-            CommandResult? commandResult = _innermostCommandResult;
+            var commandResult = _innermostCommandResult;
             
             while (commandResult is { })
             {
-                IReadOnlyList<Option> options = commandResult.Command.Options;
-                for (int i = 0; i < options.Count; i++)
+                var options = commandResult.Command.Options;
+                for (var i = 0; i < options.Count; i++)
                 {
                     Symbol symbol = options[i];
                     Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
                 }
 
-                IReadOnlyList<Argument> arguments = commandResult.Command.Arguments;
-                for (int i = 0; i < arguments.Count; i++)
+                var arguments = commandResult.Command.Arguments;
+                for (var i = 0; i < arguments.Count; i++)
                 {
                     Symbol symbol = arguments[i];
                     Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);

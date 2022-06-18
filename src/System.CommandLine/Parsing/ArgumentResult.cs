@@ -76,11 +76,6 @@ namespace System.CommandLine.Parsing
 
         internal ParseError? CustomError(Argument argument)
         {
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                return new ParseError(ErrorMessage!, this);
-            }
-
             for (var i = 0; i < argument.Validators.Count; i++)
             {
                 var validateSymbolResult = argument.Validators[i];
@@ -99,11 +94,11 @@ namespace System.CommandLine.Parsing
         {
             if (ShouldCheckArity() &&
                 Parent is { } &&
-                ArgumentArity.Validate(Parent,
+                ArgumentArity.Validate(
+                    Parent,
                     argument,
                     argument.Arity.MinimumNumberOfValues,
-                    argument.Arity.MaximumNumberOfValues) is ArgumentConversionResult failed &&
-                    failed is not null) // returns null on success
+                    argument.Arity.MaximumNumberOfValues) is { } failed) // returns null on success
             {
                 return failed;
             }
@@ -136,11 +131,6 @@ namespace System.CommandLine.Parsing
                     1 => ArgumentConversionResult.Success(argument, Tokens.SingleOrDefault()),
                     _ => ArgumentConversionResult.Success(argument, Tokens)
                 };
-            }
-
-            if (_conversionResult is not null)
-            {
-                return _conversionResult;
             }
 
             var success = argument.ConvertArguments(this, out var value);
