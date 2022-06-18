@@ -10,7 +10,6 @@ Package                          | Version                                      
 ---------------------------------| ------------------------------------------------------------------------------------------------------------------------------------------- | -----------------------------
 `System.CommandLine`             | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.svg)](https://nuget.org/packages/System.CommandLine)                            | Command line parser, model binding, invocation, shell completions
 `System.CommandLine.DragonFruit` | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.DragonFruit.svg)](https://nuget.org/packages/System.CommandLine.DragonFruit)    | Build command-line apps by convention with a strongly-typed `Main` method
-`System.CommandLine.Rendering`   | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Rendering.svg)](https://nuget.org/packages/System.CommandLine.Rendering)        | Structured terminal output rendering and ANSI support
 `System.CommandLine.Hosting`     | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Hosting.svg)](https://nuget.org/packages/System.CommandLine.Hosting)            | support for using System.CommandLine with [Microsoft.Extensions.Hosting](https://www.nuget.org/packages/Microsoft.Extensions.Hosting/)
 `dotnet-suggest`                 | [![Nuget](https://img.shields.io/nuget/v/dotnet-suggest.svg)](https://nuget.org/packages/dotnet-suggest)                                    | A command-line tool to provide shell completions for apps built using `System.CommandLine`.
 
@@ -18,37 +17,7 @@ Daily builds are available if you add this feed to your nuget.config: https://pk
 
 ## Documentation
 
-### Breaking changes to the documentation in Beta 2
-
-With the release of Beta 2, many of the examples in the documentation no longer work without changes.
-
-Please see the [Beta 2 announcement](https://github.com/dotnet/command-line-api/issues/1537) for more details.
-
-### Getting started
-
-[Syntax Concepts and Parser](docs/Syntax-Concepts-and-Parser.md)
-
-#### Features
-* [Suggestions (tab completion)](docs/Features-overview.md#Suggestions)
-* [Help](docs/Features-overview.md#Help)
-* [Version option](docs/Features-overview.md#version-option)
-* [Parse preview](docs/Features-overview.md#parse-preview)
-* [Debugging](docs/Features-overview.md#debugging)
-* [Response files](docs/Features-overview.md#Response-files)
-* [Termination handling](docs/Process-termination-handling.md)
-
-#### Your first app
-* [System.CommandLine](docs/Your-first-app-with-System-CommandLine.md)
-* [System.CommandLine.DragonFruit](docs/Your-first-app-with-System-CommandLine-DragonFruit.md)
-
-#### How to...
-
-* [Add a subcommand (or verb)](docs/How-To.md#Add-a-subcommand)
-* [Add an alias to an option or command](docs/How-To.md#Add-an-alias-to-an-option-or-command)
-* [Call a method](docs/How-To.md#Call-a-method)
-* [Pass parameters to a method](docs/How-To.md#Pass-parameters-to-a-method)
-* [Argument validation and binding](docs/How-To.md#Argument-validation-and-binding)
-* [Middleware Pipeline](docs/How-To.md#Middleware-Pipeline)
+The System.CommandLine documentation can now be found at [Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/standard/commandline/).
 
 ## Code of Conduct
 
