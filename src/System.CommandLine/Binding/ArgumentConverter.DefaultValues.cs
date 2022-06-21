@@ -46,21 +46,18 @@ internal static partial class ArgumentConverter
 
         if (type.IsGenericType)
         {
-            var x = type.GetGenericTypeDefinition() switch
-            {
-                { } enumerable when typeof(IEnumerable<>).IsAssignableFrom(enumerable) =>
-                    CreateArray(itemType, capacity),
-                { } array when typeof(IList<>).IsAssignableFrom(array) ||
-                               typeof(ICollection<>).IsAssignableFrom(array) =>
-                    CreateArray(itemType, capacity),
-                { } list when list == typeof(List<>) =>
-                    CreateEmptyList(type),
-                _ => null
-            };
+            var genericTypeDefinition = type.GetGenericTypeDefinition();
 
-            if (x is { })
+            if (genericTypeDefinition == typeof(IEnumerable<>) ||
+                genericTypeDefinition == typeof(IList<>) ||
+                genericTypeDefinition == typeof(ICollection<>))
             {
-                return x;
+                return CreateArray(itemType, capacity);
+            }
+
+            if (genericTypeDefinition == typeof(List<>))
+            {
+                return CreateEmptyList(type);
             }
         }
 
