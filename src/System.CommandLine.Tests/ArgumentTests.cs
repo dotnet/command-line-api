@@ -718,6 +718,51 @@ namespace System.CommandLine.Tests
 
                 result.GetValueForArgument(multiple).Should().BeEquivalentSequenceTo(1, 2, 3);
             }
+
+
+            [Fact]
+            public void OnlyTake_can_pass_on_all_tokens_from_a_single_arity_argument_to_another_that_also_passes_them_all_on()
+            {
+                var first = new Argument<string>(name: "first", parse: ctx =>
+                {
+                    ctx.OnlyTake(0);
+                    return null;
+                })
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                };
+
+                var second = new Argument<string[]>(name: "second", parse: ctx =>
+                {
+                    ctx.OnlyTake(0);
+                    return null;
+                })
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                };
+
+                var third = new Argument<string[]>(name: "third", parse: ctx =>
+                {
+                    ctx.OnlyTake(3);
+                    return new[] { "1", "2", "3" };
+                })
+                {
+                    Arity = ArgumentArity.ZeroOrMore
+                };
+
+                var command = new RootCommand
+                {
+                    first,
+                    second,
+                    third
+                };
+
+                var result = command.Parse("1 2 3");
+
+                result.GetValueForArgument(first).Should().BeNull();
+                result.GetValueForArgument(second).Should().BeEmpty();
+                result.GetValueForArgument(third).Should().BeEquivalentSequenceTo("1", "2", "3");
+            }
         }
 
         protected override Symbol CreateSymbol(string name)
