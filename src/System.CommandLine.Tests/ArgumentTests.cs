@@ -720,7 +720,7 @@ namespace System.CommandLine.Tests
             }
 
 
-            [Fact]
+            [Fact] //https://github.com/dotnet/command-line-api/issues/1779
             public void OnlyTake_can_pass_on_all_tokens_from_a_single_arity_argument_to_another_that_also_passes_them_all_on()
             {
                 var first = new Argument<string>(name: "first", parse: ctx =>
