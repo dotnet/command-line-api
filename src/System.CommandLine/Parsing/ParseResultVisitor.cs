@@ -256,7 +256,7 @@ namespace System.CommandLine.Parsing
         {
             for (var i = 0; i < arguments.Count; i++)
             {
-                if (i > 0 && _argumentResults.Count > 1)
+                if (i > 0 && _argumentResults.Count > i)
                 {
                     var previousArgumentResult = _argumentResults[i - 1];
 
