@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
+    <Nullable>enable</Nullable>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <Description>This package provides support for using System.CommandLine with Microsoft.Extensions.Hosting.</Description>
   </PropertyGroup>

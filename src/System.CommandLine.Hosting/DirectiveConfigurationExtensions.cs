@@ -9,15 +9,15 @@ namespace System.CommandLine.Hosting
     public static class DirectiveConfigurationExtensions
     {
         public static IConfigurationBuilder AddCommandLineDirectives(
-            this IConfigurationBuilder config, ParseResult commandline,
+            this IConfigurationBuilder config, ParseResult commandLine,
             string name)
         {
-            if (commandline is null)
-                throw new ArgumentNullException(nameof(commandline));
+            if (commandLine is null)
+                throw new ArgumentNullException(nameof(commandLine));
             if (name is null)
                 throw new ArgumentNullException(nameof(name));
 
-            if (!commandline.Directives.TryGetValues(name, out var directives))
+            if (!commandLine.Directives.TryGetValues(name, out var directives))
                 return config;
 
             var kvpSeparator = new[] { '=' };
@@ -26,8 +26,8 @@ namespace System.CommandLine.Hosting
                 var parts = s.Split(kvpSeparator, count: 2);
                 var key = parts[0];
                 var value = parts.Length > 1 ? parts[1] : null;
-                return new KeyValuePair<string, string>(key, value);
-            }).ToList());
+                return new KeyValuePair<string, string?>(key, value);
+            }));
         }
     }
 }

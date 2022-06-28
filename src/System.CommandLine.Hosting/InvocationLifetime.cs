@@ -28,8 +28,8 @@ namespace System.CommandLine.Hosting
             IOptions<InvocationLifetimeOptions> options,
             IHostEnvironment environment,
             IHostApplicationLifetime applicationLifetime,
-            InvocationContext context = null,
-            ILoggerFactory loggerFactory = null)
+            InvocationContext? context = null,
+            ILoggerFactory? loggerFactory = null)
         {
             Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             Environment = environment
