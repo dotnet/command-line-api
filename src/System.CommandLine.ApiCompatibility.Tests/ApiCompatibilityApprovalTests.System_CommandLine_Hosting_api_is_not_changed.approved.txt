@@ -1,6 +1,6 @@
-﻿System.CommandLine.Hosting
+System.CommandLine.Hosting
   public static class DirectiveConfigurationExtensions
-    public static Microsoft.Extensions.Configuration.IConfigurationBuilder AddCommandLineDirectives(this Microsoft.Extensions.Configuration.IConfigurationBuilder config, System.CommandLine.Parsing.ParseResult commandline, System.String name)
+    public static Microsoft.Extensions.Configuration.IConfigurationBuilder AddCommandLineDirectives(this Microsoft.Extensions.Configuration.IConfigurationBuilder config, System.CommandLine.ParseResult commandline, System.String name)
   public static class HostingExtensions
     public static OptionsBuilder<TOptions> BindCommandLine<TOptions>(this OptionsBuilder<TOptions> optionsBuilder)
     public static Microsoft.Extensions.Hosting.IHost GetHost(this System.CommandLine.Invocation.InvocationContext invocationContext)
@@ -8,8 +8,8 @@
     public static System.CommandLine.Invocation.InvocationContext GetInvocationContext(this Microsoft.Extensions.Hosting.HostBuilderContext context)
     public static Microsoft.Extensions.Hosting.IHostBuilder UseCommandHandler<TCommand, THandler>(this Microsoft.Extensions.Hosting.IHostBuilder builder)
     public static Microsoft.Extensions.Hosting.IHostBuilder UseCommandHandler(this Microsoft.Extensions.Hosting.IHostBuilder builder, System.Type commandType, System.Type handlerType)
-    public static System.CommandLine.Builder.CommandLineBuilder UseHost(this System.CommandLine.Builder.CommandLineBuilder builder, System.Action<Microsoft.Extensions.Hosting.IHostBuilder> configureHost = null)
-    public static System.CommandLine.Builder.CommandLineBuilder UseHost(this System.CommandLine.Builder.CommandLineBuilder builder, System.Func<System.String[],Microsoft.Extensions.Hosting.IHostBuilder> hostBuilderFactory, System.Action<Microsoft.Extensions.Hosting.IHostBuilder> configureHost = null)
+    public static System.CommandLine.CommandLineBuilder UseHost(this System.CommandLine.CommandLineBuilder builder, System.Action<Microsoft.Extensions.Hosting.IHostBuilder> configureHost = null)
+    public static System.CommandLine.CommandLineBuilder UseHost(this System.CommandLine.CommandLineBuilder builder, System.Func<System.String[],Microsoft.Extensions.Hosting.IHostBuilder> hostBuilderFactory, System.Action<Microsoft.Extensions.Hosting.IHostBuilder> configureHost = null)
     public static Microsoft.Extensions.Hosting.IHostBuilder UseInvocationLifetime(this Microsoft.Extensions.Hosting.IHostBuilder host, System.CommandLine.Invocation.InvocationContext invocation, System.Action<InvocationLifetimeOptions> configureOptions = null)
   public class InvocationLifetime, Microsoft.Extensions.Hosting.IHostLifetime
     .ctor(Microsoft.Extensions.Options.IOptions<InvocationLifetimeOptions> options, Microsoft.Extensions.Hosting.IHostEnvironment environment, Microsoft.Extensions.Hosting.IHostApplicationLifetime applicationLifetime, System.CommandLine.Invocation.InvocationContext context = null, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory = null)

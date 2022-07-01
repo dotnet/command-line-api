@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.Linq;
 
 namespace System.CommandLine.NamingConventionBinder;

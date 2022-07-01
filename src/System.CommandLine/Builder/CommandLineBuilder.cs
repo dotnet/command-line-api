@@ -7,7 +7,7 @@ using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 
-namespace System.CommandLine.Builder
+namespace System.CommandLine
 {
     /// <summary>
     /// Enables composition of command line configurations.

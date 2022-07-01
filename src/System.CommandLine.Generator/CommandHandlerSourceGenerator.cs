@@ -11,7 +11,7 @@ namespace System.CommandLine.Generator
     [Generator]
     public class CommandHandlerSourceGenerator : ISourceGenerator
     {
-        private const string ICommandHandlerType = "System.CommandLine.Invocation.ICommandHandler";
+        private const string ICommandHandlerType = "System.CommandLine.ICommandHandler";
 
         public void Execute(GeneratorExecutionContext context)
         {

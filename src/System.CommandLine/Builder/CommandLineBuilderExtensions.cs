@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 using static System.Environment;
 using Process = System.CommandLine.Invocation.Process;
 
-namespace System.CommandLine.Builder
+namespace System.CommandLine
 {
     /// <summary>
     /// Provides extension methods for <see cref="CommandLineBuilder"/>.
@@ -685,7 +686,7 @@ ERR:
             return builder;
         }
 
-        /// <inheritdoc cref="UseVersionOption(System.CommandLine.Builder.CommandLineBuilder)"/>
+        /// <inheritdoc cref="UseVersionOption(System.CommandLine.CommandLineBuilder)"/>
         /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
         /// <param name="builder">A command line builder.</param>
         public static CommandLineBuilder UseVersionOption(
