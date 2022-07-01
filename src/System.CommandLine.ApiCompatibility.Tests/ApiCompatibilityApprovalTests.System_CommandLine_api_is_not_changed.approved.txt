@@ -1,4 +1,4 @@
-﻿System.CommandLine
+System.CommandLine
   public abstract class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     public ArgumentArity Arity { get; set; }
     public CompletionSourceList Completions { get; }
@@ -70,6 +70,33 @@
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null)
     public static System.CommandLine.Parsing.ParseResult Parse(this Command command, System.String[] args)
     public static System.CommandLine.Parsing.ParseResult Parse(this Command command, System.String commandLine)
+  public class CommandLineBuilder
+    .ctor(Command rootCommand = null)
+    public Command Command { get; }
+    public System.CommandLine.Parsing.Parser Build()
+  public static class CommandLineBuilderExtensions
+    public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
+    public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
+    public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder, System.Nullable<System.TimeSpan> timeout = null)
+    public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
+    public static CommandLineBuilder EnableLegacyDoubleDashBehavior(this CommandLineBuilder builder, System.Boolean value = True)
+    public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)
+    public static CommandLineBuilder RegisterWithDotnetSuggest(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseEnvironmentVariableDirective(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseExceptionHandler(this CommandLineBuilder builder, System.Action<System.Exception,System.CommandLine.Invocation.InvocationContext> onException = null, System.Nullable<System.Int32> errorExitCode = null)
+    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Nullable<System.Int32> maxWidth = null)
+    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.String[] helpAliases)
+    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
+    public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
+    public static CommandLineBuilder UseLocalizationResources(this CommandLineBuilder builder, LocalizationResources validationMessages)
+    public static CommandLineBuilder UseParseDirective(this CommandLineBuilder builder, System.Nullable<System.Int32> errorExitCode = null)
+    public static CommandLineBuilder UseParseErrorReporting(this CommandLineBuilder builder, System.Nullable<System.Int32> errorExitCode = null)
+    public static CommandLineBuilder UseSuggestDirective(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseTokenReplacer(this CommandLineBuilder builder, System.CommandLine.Parsing.TryReplaceToken replaceToken)
+    public static CommandLineBuilder UseTypoCorrections(this CommandLineBuilder builder, System.Int32 maxLevenshteinDistance = 3)
+    public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
+    public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
   public class CommandLineConfiguration
     .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableLegacyDoubleDashBehavior = False, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Boolean EnableDirectives { get; }
@@ -232,34 +259,6 @@ System.CommandLine.Binding
   public interface IValueDescriptor<out T> : IValueDescriptor
   public interface IValueSource
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
-System.CommandLine.Builder
-  public class CommandLineBuilder
-    .ctor(System.CommandLine.Command rootCommand = null)
-    public System.CommandLine.Command Command { get; }
-    public System.CommandLine.Parsing.Parser Build()
-  public static class CommandLineBuilderExtensions
-    public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
-    public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
-    public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder, System.Nullable<System.TimeSpan> timeout = null)
-    public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
-    public static CommandLineBuilder EnableLegacyDoubleDashBehavior(this CommandLineBuilder builder, System.Boolean value = True)
-    public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)
-    public static CommandLineBuilder RegisterWithDotnetSuggest(this CommandLineBuilder builder)
-    public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
-    public static CommandLineBuilder UseEnvironmentVariableDirective(this CommandLineBuilder builder)
-    public static CommandLineBuilder UseExceptionHandler(this CommandLineBuilder builder, System.Action<System.Exception,System.CommandLine.Invocation.InvocationContext> onException = null, System.Nullable<System.Int32> errorExitCode = null)
-    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Nullable<System.Int32> maxWidth = null)
-    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.String[] helpAliases)
-    public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
-    public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
-    public static CommandLineBuilder UseLocalizationResources(this CommandLineBuilder builder, System.CommandLine.LocalizationResources validationMessages)
-    public static CommandLineBuilder UseParseDirective(this CommandLineBuilder builder, System.Nullable<System.Int32> errorExitCode = null)
-    public static CommandLineBuilder UseParseErrorReporting(this CommandLineBuilder builder, System.Nullable<System.Int32> errorExitCode = null)
-    public static CommandLineBuilder UseSuggestDirective(this CommandLineBuilder builder)
-    public static CommandLineBuilder UseTokenReplacer(this CommandLineBuilder builder, System.CommandLine.Parsing.TryReplaceToken replaceToken)
-    public static CommandLineBuilder UseTypoCorrections(this CommandLineBuilder builder, System.Int32 maxLevenshteinDistance = 3)
-    public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
-    public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
 System.CommandLine.Completions
   public abstract class CompletionContext
     public System.CommandLine.Parsing.ParseResult ParseResult { get; }

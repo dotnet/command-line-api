@@ -3,7 +3,7 @@
 
 using FluentAssertions;
 using System.Collections.Generic;
-using System.CommandLine.Builder;
+
 using System.CommandLine.Help;
 using System.IO;
 using System.Linq;
