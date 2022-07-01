@@ -43,8 +43,8 @@ System.CommandLine
     public static TArgument FromAmong<TArgument>(this TArgument argument, System.String[] values)
     public static TArgument LegalFileNamesOnly<TArgument>(this TArgument argument)
     public static TArgument LegalFilePathsOnly<TArgument>(this TArgument argument)
-    public static System.CommandLine.Parsing.ParseResult Parse(this Argument argument, System.String commandLine)
-    public static System.CommandLine.Parsing.ParseResult Parse(this Argument argument, System.String[] args)
+    public static ParseResult Parse(this Argument argument, System.String commandLine)
+    public static ParseResult Parse(this Argument argument, System.String[] args)
   public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
@@ -68,8 +68,8 @@ System.CommandLine
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null)
-    public static System.CommandLine.Parsing.ParseResult Parse(this Command command, System.String[] args)
-    public static System.CommandLine.Parsing.ParseResult Parse(this Command command, System.String commandLine)
+    public static ParseResult Parse(this Command command, System.String[] args)
+    public static ParseResult Parse(this Command command, System.String commandLine)
   public class CommandLineBuilder
     .ctor(Command rootCommand = null)
     public Command Command { get; }
@@ -223,8 +223,28 @@ System.CommandLine
     public static TOption FromAmong<TOption>(this TOption option, System.String[] values)
     public static TOption LegalFileNamesOnly<TOption>(this TOption option)
     public static TOption LegalFilePathsOnly<TOption>(this TOption option)
-    public static System.CommandLine.Parsing.ParseResult Parse(this Option option, System.String commandLine)
-    public static System.CommandLine.Parsing.ParseResult Parse(this Option option, System.String[] args)
+    public static ParseResult Parse(this Option option, System.String commandLine)
+    public static ParseResult Parse(this Option option, System.String[] args)
+  public class ParseResult
+    public System.CommandLine.Parsing.CommandResult CommandResult { get; }
+    public DirectiveCollection Directives { get; }
+    public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
+    public System.CommandLine.Parsing.Parser Parser { get; }
+    public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
+    public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
+    public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
+    public System.Collections.Generic.IReadOnlyList<System.String> UnparsedTokens { get; }
+    public System.CommandLine.Parsing.ArgumentResult FindResultFor(Argument argument)
+    public System.CommandLine.Parsing.CommandResult FindResultFor(Command command)
+    public System.CommandLine.Parsing.OptionResult FindResultFor(Option option)
+    public System.CommandLine.Parsing.SymbolResult FindResultFor(Symbol symbol)
+    public System.CommandLine.Completions.CompletionContext GetCompletionContext()
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
+    public System.Object GetValueForArgument(Argument argument)
+    public T GetValueForArgument<T>(Argument<T> argument)
+    public System.Object GetValueForOption(Option option)
+    public T GetValueForOption<T>(Option<T> option)
+    public System.String ToString()
   public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
@@ -242,7 +262,7 @@ System.CommandLine.Binding
     protected T GetBoundValue(BindingContext bindingContext)
   public class BindingContext, System.IServiceProvider
     public System.CommandLine.IConsole Console { get; }
-    public System.CommandLine.Parsing.ParseResult ParseResult { get; }
+    public System.CommandLine.ParseResult ParseResult { get; }
     public System.Void AddService(System.Type serviceType, System.Func<System.IServiceProvider,System.Object> factory)
     public System.Void AddService<T>(Func<System.IServiceProvider,T> factory)
     public System.Object GetService(System.Type serviceType)
@@ -261,7 +281,7 @@ System.CommandLine.Binding
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Completions
   public abstract class CompletionContext
-    public System.CommandLine.Parsing.ParseResult ParseResult { get; }
+    public System.CommandLine.ParseResult ParseResult { get; }
     public System.String WordToComplete { get; }
   public delegate CompletionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
@@ -314,11 +334,11 @@ System.CommandLine.Help
     public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.Symbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter writer)
   public class HelpContext
-    .ctor(HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter output, System.CommandLine.Parsing.ParseResult parseResult = null)
+    .ctor(HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter output, System.CommandLine.ParseResult parseResult = null)
     public System.CommandLine.Command Command { get; }
     public HelpBuilder HelpBuilder { get; }
     public System.IO.TextWriter Output { get; }
-    public System.CommandLine.Parsing.ParseResult ParseResult { get; }
+    public System.CommandLine.ParseResult ParseResult { get; }
   public delegate HelpSectionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(HelpContext context, System.AsyncCallback callback, System.Object object)
@@ -338,7 +358,7 @@ System.CommandLine.Invocation
   public interface IInvocationResult
     public System.Void Apply(InvocationContext context)
   public class InvocationContext
-    .ctor(System.CommandLine.Parsing.ParseResult parseResult, System.CommandLine.IConsole console = null)
+    .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; set; }
     public System.Int32 ExitCode { get; set; }
@@ -346,7 +366,7 @@ System.CommandLine.Invocation
     public IInvocationResult InvocationResult { get; set; }
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
-    public System.CommandLine.Parsing.ParseResult ParseResult { get; set; }
+    public System.CommandLine.ParseResult ParseResult { get; set; }
     public System.Threading.CancellationToken GetCancellationToken()
   public delegate InvocationMiddleware : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
@@ -425,38 +445,18 @@ System.CommandLine.Parsing
     .ctor(System.CommandLine.Command command)
     .ctor()
     public System.CommandLine.CommandLineConfiguration Configuration { get; }
-    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> arguments, System.String rawInput = null)
-  public class ParseResult
-    public CommandResult CommandResult { get; }
-    public System.CommandLine.DirectiveCollection Directives { get; }
-    public System.Collections.Generic.IReadOnlyList<ParseError> Errors { get; }
-    public Parser Parser { get; }
-    public CommandResult RootCommandResult { get; }
-    public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
-    public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
-    public System.Collections.Generic.IReadOnlyList<System.String> UnparsedTokens { get; }
-    public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
-    public CommandResult FindResultFor(System.CommandLine.Command command)
-    public OptionResult FindResultFor(System.CommandLine.Option option)
-    public SymbolResult FindResultFor(System.CommandLine.Symbol symbol)
-    public System.CommandLine.Completions.CompletionContext GetCompletionContext()
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
-    public System.Object GetValueForArgument(System.CommandLine.Argument argument)
-    public T GetValueForArgument<T>(Argument<T> argument)
-    public System.Object GetValueForOption(System.CommandLine.Option option)
-    public T GetValueForOption<T>(Option<T> option)
-    public System.String ToString()
+    public System.CommandLine.ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> arguments, System.String rawInput = null)
   public static class ParseResultExtensions
-    public static System.String Diagram(this ParseResult parseResult)
-    public static System.Boolean HasOption(this ParseResult parseResult, System.CommandLine.Option option)
-    public static System.Int32 Invoke(this ParseResult parseResult, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this ParseResult parseResult, System.CommandLine.IConsole console = null)
+    public static System.String Diagram(this System.CommandLine.ParseResult parseResult)
+    public static System.Boolean HasOption(this System.CommandLine.ParseResult parseResult, System.CommandLine.Option option)
+    public static System.Int32 Invoke(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
   public static class ParserExtensions
     public static System.Int32 Invoke(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
     public static System.Int32 Invoke(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
-    public static ParseResult Parse(this Parser parser, System.String commandLine)
+    public static System.CommandLine.ParseResult Parse(this Parser parser, System.String commandLine)
   public abstract class SymbolResult
     public System.Collections.Generic.IReadOnlyList<SymbolResult> Children { get; }
     public System.String ErrorMessage { get; set; }

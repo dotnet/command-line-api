@@ -4,10 +4,11 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Completions;
+using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace System.CommandLine.Parsing
+namespace System.CommandLine
 {
     /// <summary>
     /// Describes the results of parsing a command line input based on a specific parser configuration.
