@@ -65,17 +65,15 @@ namespace System.CommandLine
 
             builder.AddMiddleware(async (context, next) =>
             {
-                bool cancellationHandlingAdded = false;
-                ManualResetEventSlim? blockProcessExit = null;
                 ConsoleCancelEventHandler? consoleHandler = null;
                 EventHandler? processExitHandler = null;
+                ManualResetEventSlim? blockProcessExit = null;
 
-                context.CancellationHandlingAdded += (CancellationTokenSource cts) =>
+                context.AddLinkedCancellationToken(() => 
                 {
+                    //TODO: This CancellationTokenSource is never disposed...
+                    CancellationTokenSource cts = new();
                     blockProcessExit = new ManualResetEventSlim(initialState: false);
-                    cancellationHandlingAdded = true;
-                    // Default limit for ProcesExit handler is 2 seconds
-                    //  https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-6.0
                     processExitHandler = (_, _) =>
                     {
                         // Cancel asynchronously not to block the handler (as then the process might possibly run longer then what was the requested timeout)
@@ -100,8 +98,11 @@ namespace System.CommandLine
                         }
                         ExitCode = context.ExitCode;
                     };
+                    // Default limit for ProcesExit handler is 2 seconds
+                    //  https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-6.0
                     consoleHandler = (_, args) =>
                     {
+                        cts.Cancel();
                         // Stop the process from terminating.
                         // Since the context was cancelled, the invocation should
                         // finish and Main will return.
@@ -128,7 +129,10 @@ namespace System.CommandLine
                     };
                     Console.CancelKeyPress += consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit += processExitHandler;
-                };
+
+                    return cts.Token;
+                });
+
 
                 try
                 {
@@ -136,12 +140,9 @@ namespace System.CommandLine
                 }
                 finally
                 {
-                    if (cancellationHandlingAdded)
-                    {
-                        Console.CancelKeyPress -= consoleHandler;
-                        AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
-                        blockProcessExit!.Set();
-                    }
+                    Console.CancelKeyPress -= consoleHandler;
+                    AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
+                    blockProcessExit?.Set();
                 }
             }, MiddlewareOrderInternal.Startup);
 
@@ -418,7 +419,7 @@ ERR:
             int? maxWidth = null)
         {
             builder.CustomizeHelpLayout(customize);
-            
+
             if (builder.HelpOption is null)
             {
                 builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
@@ -599,7 +600,7 @@ ERR:
         /// <param name="maxLevenshteinDistance">The maximum Levenshtein distance for suggestions based on detected typos in command line input.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseTypoCorrections(
-            this CommandLineBuilder builder, 
+            this CommandLineBuilder builder,
             int maxLevenshteinDistance = 3)
         {
             builder.AddMiddleware(async (context, next) =>

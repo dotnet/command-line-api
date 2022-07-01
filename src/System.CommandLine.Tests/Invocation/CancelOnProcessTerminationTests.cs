@@ -6,7 +6,6 @@ using System.CommandLine.Tests.Utility;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 using Process = System.Diagnostics.Process;
 

@@ -3,22 +3,23 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
     internal class InvocationPipeline
     {
-        private readonly ParseResult parseResult;
+        private readonly ParseResult _parseResult;
 
         public InvocationPipeline(ParseResult parseResult)
         {
-            this.parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
+            _parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
         }
 
-        public Task<int> InvokeAsync(IConsole? console = null)
+        public Task<int> InvokeAsync(IConsole? console = null, CancellationToken cancellationToken = default)
         {
-            var context = new InvocationContext(parseResult, console);
+            var context = new InvocationContext(_parseResult, console, cancellationToken);
 
             if (context.Parser.Configuration.Middleware.Count == 0
                 && context.ParseResult.CommandResult.Command.Handler is ICommandHandler handler)
@@ -40,7 +41,7 @@ namespace System.CommandLine.Invocation
 
         public int Invoke(IConsole? console = null)
         {
-            var context = new InvocationContext(parseResult, console);
+            var context = new InvocationContext(_parseResult, console);
 
             if (context.Parser.Configuration.Middleware.Count == 0
                 && context.ParseResult.CommandResult.Command.Handler is ICommandHandler handler)

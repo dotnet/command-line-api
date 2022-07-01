@@ -5,6 +5,7 @@ using System.CommandLine.Help;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -44,7 +45,7 @@ namespace System.CommandLine.Tests.Invocation
 
             var parser = new CommandLineBuilder(new RootCommand
                          {
-                             first, 
+                             first,
                              second
                          })
                          .Build();
@@ -326,6 +327,40 @@ namespace System.CommandLine.Tests.Invocation
 
             handlerWasCalled.Should().BeTrue();
             factoryWasCalled.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Command_InvokeAsync_can_cancel_from_middleware()
+        {
+            var handlerWasCalled = false;
+            var isCancelRequested = false;
+
+            var command = new Command("the-command");
+            command.SetHandler((InvocationContext context) =>
+            {
+                handlerWasCalled = true;
+                isCancelRequested = context.GetCancellationToken().IsCancellationRequested;
+                return Task.FromResult(0);
+            });
+
+
+            using CancellationTokenSource cts = new();
+            var parser = new CommandLineBuilder(new RootCommand
+                         {
+                             command
+                         })
+                         .AddMiddleware(async (context, next) =>
+                         {
+                             context.AddLinkedCancellationToken(() => cts.Token);
+                             cts.Cancel();
+                             await next(context);
+                         })
+                         .Build();
+
+            await parser.InvokeAsync("the-command");
+
+            handlerWasCalled.Should().BeTrue();
+            isCancelRequested.Should().BeTrue();
         }
     }
 }
