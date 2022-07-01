@@ -68,11 +68,11 @@ namespace System.CommandLine
                 ConsoleCancelEventHandler? consoleHandler = null;
                 EventHandler? processExitHandler = null;
                 ManualResetEventSlim? blockProcessExit = null;
+                CancellationTokenSource? cts = null;
 
                 context.AddLinkedCancellationToken(() => 
                 {
-                    //TODO: This CancellationTokenSource is never disposed...
-                    CancellationTokenSource cts = new();
+                    cts = new CancellationTokenSource();
                     blockProcessExit = new ManualResetEventSlim(initialState: false);
                     processExitHandler = (_, _) =>
                     {
@@ -102,7 +102,6 @@ namespace System.CommandLine
                     //  https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-6.0
                     consoleHandler = (_, args) =>
                     {
-                        cts.Cancel();
                         // Stop the process from terminating.
                         // Since the context was cancelled, the invocation should
                         // finish and Main will return.
@@ -125,14 +124,13 @@ namespace System.CommandLine
                         // Cancel synchronously here - no need to perform it asynchronously as the timeout is already running (and would kill the process if needed),
                         //  plus we cannot wait only on the cancellation (e.g. via `Task.Factory.StartNew(cts.Cancel).Wait(cancelationProcessingTimeout.Value)`)
                         //  as we need to abort any other possible execution within the process - even outside the context of cancellation processing
-                        cts.Cancel();
+                        cts?.Cancel();
                     };
                     Console.CancelKeyPress += consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit += processExitHandler;
 
                     return cts.Token;
                 });
-
 
                 try
                 {
@@ -142,6 +140,7 @@ namespace System.CommandLine
                 {
                     Console.CancelKeyPress -= consoleHandler;
                     AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
+                    Interlocked.Exchange(ref cts, null)?.Dispose();
                     blockProcessExit?.Set();
                 }
             }, MiddlewareOrderInternal.Startup);
