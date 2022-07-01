@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
-
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;

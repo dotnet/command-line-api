@@ -1,6 +1,5 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Binding;
-
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;

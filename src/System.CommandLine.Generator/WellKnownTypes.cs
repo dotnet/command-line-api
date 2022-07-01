@@ -19,7 +19,7 @@ namespace System.CommandLine.Generator
         public WellKnownTypes(Compilation compilation, IEqualityComparer<ISymbol?> comparer)
         {
             Console = GetType("System.CommandLine.IConsole");
-            ParseResult = GetType("System.CommandLine.ParseResult");
+            ParseResult = GetType(nameof(System.CommandLine) + '.' + nameof(ParseResult));
             InvocationContext = GetType("System.CommandLine.Invocation.InvocationContext");
             HelpBuilder = GetType("System.CommandLine.Help.HelpBuilder");
             BindingContext = GetType("System.CommandLine.Binding.BindingContext");
