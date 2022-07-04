@@ -4,6 +4,8 @@
 using BenchmarkDotNet.Running;
 using System.Linq;
 using BenchmarkDotNet.Configs;
+using System.Collections.Immutable;
+using System.IO;
 
 namespace System.CommandLine.Benchmarks
 {
