@@ -145,7 +145,7 @@ namespace System.CommandLine.Parsing
 
         private void ParseOption(CommandNode parent)
         {
-            OptionNode optionNode = new OptionNode(
+            OptionNode optionNode = new(
                 CurrentToken,
                 (Option)CurrentToken.Symbol!,
                 parent);

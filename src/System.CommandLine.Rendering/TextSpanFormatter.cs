@@ -13,7 +13,7 @@ namespace System.CommandLine.Rendering
     {
         private static readonly Regex _formattableStringParser;
 
-        private readonly Dictionary<Type, Func<object, TextSpan>> _formatters = new Dictionary<Type, Func<object, TextSpan>>();
+        private readonly Dictionary<Type, Func<object, TextSpan>> _formatters = new();
 
         static TextSpanFormatter()
         {

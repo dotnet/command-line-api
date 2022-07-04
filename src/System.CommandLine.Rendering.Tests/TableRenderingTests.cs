@@ -118,7 +118,7 @@ namespace System.CommandLine.Rendering.Tests
                     .Be(lines[2].IndexOf("an option"));
         }
 
-        private TextRendered Cell(string text, int left, int top) => new TextRendered(text, new Point(left, top));
+        private TextRendered Cell(string text, int left, int top) => new(text, new Point(left, top));
     }
 
     public class OptionsHelpView : TableView<Option>

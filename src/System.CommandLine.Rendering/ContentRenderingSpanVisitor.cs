@@ -8,7 +8,7 @@ namespace System.CommandLine.Rendering
 {
     internal abstract class ContentRenderingSpanVisitor : TextSpanVisitor
     {
-        private readonly StringBuilder _buffer = new StringBuilder();
+        private readonly StringBuilder _buffer = new();
 
         private int _positionOnLine;
         private bool _lastSpanEndedWithWhitespace;

@@ -76,22 +76,22 @@ namespace System.CommandLine.Rendering.Views
         }
 
         private static ContentView CreateView(string stringContent, TextSpanFormatter _)
-            => new ContentView(stringContent);
+            => new(stringContent);
 
         private static ContentView CreateView(TextSpan span, TextSpanFormatter _) 
-            => new ContentView(span);
+            => new(span);
 
         private static ContentView CreateView<T>(IObservable<T> observable, TextSpanFormatter _)
             => FromObservable(observable);
 
         private static ContentView CreateView(object value, TextSpanFormatter formatter)
-            => new ContentView(formatter.Format(value));
+            => new(formatter.Format(value));
 
         private class Observer<T> : IObserver<T>
         {
             private readonly ContentView _contentView;
             private readonly Func<T, FormattableString> _formatProvider;
-            private readonly TextSpanFormatter _textSpanFormatter = new TextSpanFormatter();
+            private readonly TextSpanFormatter _textSpanFormatter = new();
 
             public Observer(ContentView contentView, Func<T, FormattableString> formatProvider)
             {

@@ -7,7 +7,7 @@ namespace System.CommandLine.Parsing
 {
     internal abstract class NonterminalSyntaxNode : SyntaxNode
     {
-        private readonly List<SyntaxNode> _children = new List<SyntaxNode>();
+        private readonly List<SyntaxNode> _children = new();
 
         protected NonterminalSyntaxNode(Token token, SyntaxNode? parent) : base(token, parent)
         {

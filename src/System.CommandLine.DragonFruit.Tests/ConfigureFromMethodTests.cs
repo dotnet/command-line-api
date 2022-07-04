@@ -20,7 +20,7 @@ namespace System.CommandLine.DragonFruit.Tests
     public class ConfigureFromMethodTests
     {
         private object[] _receivedValues;
-        private readonly TestConsole _testConsole = new TestConsole();
+        private readonly TestConsole _testConsole = new();
 
         [Fact]
         public async Task Generated_boolean_parameters_will_accept_zero_arguments()

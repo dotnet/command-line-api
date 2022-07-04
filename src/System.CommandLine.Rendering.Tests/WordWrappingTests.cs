@@ -11,7 +11,7 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class WordWrappingTests
     {
-        private readonly TestTerminal _terminal = new TestTerminal();
+        private readonly TestTerminal _terminal = new();
 
         [Theory]
         [MemberData(nameof(TestCases))]
@@ -185,6 +185,6 @@ namespace System.CommandLine.Rendering.Tests
         }
 
         private static TextRendered Line(int left, int top, string text) =>
-            new TextRendered(text, new Point(left, top));
+            new(text, new Point(left, top));
     }
 }

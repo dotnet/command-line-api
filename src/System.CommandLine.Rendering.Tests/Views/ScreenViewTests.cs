@@ -161,7 +161,7 @@ namespace System.CommandLine.Rendering.Tests.Views
 
         private class TestSynchronizationContext : SynchronizationContext
         {
-            private readonly List<Action> _postActions = new List<Action>();
+            private readonly List<Action> _postActions = new();
             public void InvokePostCallbacks()
             {
                 while (_postActions.FirstOrDefault() is Action postAction)

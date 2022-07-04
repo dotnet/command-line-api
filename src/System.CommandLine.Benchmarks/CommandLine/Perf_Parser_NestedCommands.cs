@@ -39,7 +39,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             for (int i = 0; i < countPerLevel; i++)
             {
                 string cmdName = $"{parent.Name}_{depth}.{i}";
-                Command cmd = new Command(cmdName);
+                Command cmd = new(cmdName);
                 parent.AddCommand(cmd);
                 GenerateTestNestedCommands(cmd, depth - 1, countPerLevel);
             }
@@ -72,7 +72,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Benchmark]
-        public Parser ParserFromNestedCommands_Ctor() => new Parser(_rootCommand);
+        public Parser ParserFromNestedCommands_Ctor() => new(_rootCommand);
 
         [Benchmark]
         public ParseResult Parser_Parse() => _testParser.Parse(_testSymbolsAsString);

@@ -31,6 +31,6 @@ namespace System.CommandLine.Rendering.Views
             return new RowDefinition(SizeMode.Star, weight);
         }
         
-        public static RowDefinition SizeToContent() => new RowDefinition(SizeMode.SizeToContent, 0);
+        public static RowDefinition SizeToContent() => new(SizeMode.SizeToContent, 0);
     }
 }

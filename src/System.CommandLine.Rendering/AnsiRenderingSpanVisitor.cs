@@ -82,7 +82,7 @@ namespace System.CommandLine.Rendering
         }
 
         private static readonly Dictionary<string, AnsiControlCode> _foregroundColorControlCodeMappings =
-            new Dictionary<string, AnsiControlCode>
+            new()
             {
                 [nameof(ForegroundColorSpan.Reset)] = Color.Foreground.Default,
                 [nameof(ForegroundColorSpan.Black)] = Color.Foreground.Black,
@@ -104,7 +104,7 @@ namespace System.CommandLine.Rendering
             };
 
         private static readonly Dictionary<string, AnsiControlCode> _backgroundColorControlCodeMappings =
-            new Dictionary<string, AnsiControlCode>
+            new()
             {
                 [nameof(BackgroundColorSpan.Reset)] = Color.Background.Default,
                 [nameof(BackgroundColorSpan.Black)] = Color.Background.Black,
@@ -126,7 +126,7 @@ namespace System.CommandLine.Rendering
             };
 
         private static readonly Dictionary<string, AnsiControlCode> _styleControlCodeMappings =
-            new Dictionary<string, AnsiControlCode>
+            new()
             {
                 [nameof(StyleSpan.AttributesOff)] = Ansi.Text.AttributesOff,
                 [nameof(StyleSpan.BlinkOff)] = Ansi.Text.BlinkOff,

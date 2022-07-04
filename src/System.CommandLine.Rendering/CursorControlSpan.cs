@@ -15,8 +15,8 @@ namespace System.CommandLine.Rendering
 
         public override int ContentLength => 0;
 
-        public static CursorControlSpan Hide() => new CursorControlSpan(nameof(Hide), Ansi.Cursor.Hide);
+        public static CursorControlSpan Hide() => new(nameof(Hide), Ansi.Cursor.Hide);
 
-        public static CursorControlSpan Show() => new CursorControlSpan(nameof(Show), Ansi.Cursor.Show);
+        public static CursorControlSpan Show() => new(nameof(Show), Ansi.Cursor.Show);
     }
 }

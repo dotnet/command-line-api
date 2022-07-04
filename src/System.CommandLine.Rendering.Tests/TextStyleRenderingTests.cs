@@ -11,8 +11,8 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class TextStyleRenderingTests
     {
-        private readonly TextSpanFormatter _textSpanFormatter = new TextSpanFormatter();
-        private readonly TestTerminal _terminal = new TestTerminal();
+        private readonly TextSpanFormatter _textSpanFormatter = new();
+        private readonly TestTerminal _terminal = new();
 
         [Fact]
         public void BackgroundColorSpans_are_replaced_with_ANSI_codes_during_ANSI_rendering()
