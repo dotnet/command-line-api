@@ -8,8 +8,8 @@ namespace System.CommandLine.Rendering.Views
 {
     public class GridView : LayoutView<View>
     {
-        private readonly List<ColumnDefinition> _columns = new List<ColumnDefinition>();
-        private readonly List<RowDefinition> _rows = new List<RowDefinition>();
+        private readonly List<ColumnDefinition> _columns = new();
+        private readonly List<RowDefinition> _rows = new();
         private readonly int _columnPaddingRight = 2;
 
         private View[,] ChildLocations { get; set; }

@@ -9,17 +9,17 @@ namespace System.CommandLine.Rendering
         {
         }
 
-        public static StyleSpan AttributesOff() => new StyleSpan(nameof(AttributesOff), Ansi.Text.AttributesOff);
-        public static StyleSpan BlinkOff() => new StyleSpan(nameof(BlinkOff), Ansi.Text.BlinkOn);
-        public static StyleSpan BlinkOn() => new StyleSpan(nameof(BlinkOn), Ansi.Text.BlinkOff);
-        public static StyleSpan BoldOff() => new StyleSpan(nameof(BoldOff), Ansi.Text.BoldOff);
-        public static StyleSpan BoldOn() => new StyleSpan(nameof(BoldOn), Ansi.Text.BoldOn);
-        public static StyleSpan HiddenOn() => new StyleSpan(nameof(HiddenOn), Ansi.Text.HiddenOn);
-        public static StyleSpan ReverseOn() => new StyleSpan(nameof(ReverseOn), Ansi.Text.ReverseOn);
-        public static StyleSpan ReverseOff() => new StyleSpan(nameof(ReverseOff), Ansi.Text.ReverseOff);
-        public static StyleSpan StandoutOff() => new StyleSpan(nameof(StandoutOff), Ansi.Text.StandoutOff);
-        public static StyleSpan StandoutOn() => new StyleSpan(nameof(StandoutOn), Ansi.Text.StandoutOn);
-        public static StyleSpan UnderlinedOff() => new StyleSpan(nameof(UnderlinedOff), Ansi.Text.UnderlinedOff);
-        public static StyleSpan UnderlinedOn() => new StyleSpan(nameof(UnderlinedOn), Ansi.Text.UnderlinedOn);
+        public static StyleSpan AttributesOff() => new(nameof(AttributesOff), Ansi.Text.AttributesOff);
+        public static StyleSpan BlinkOff() => new(nameof(BlinkOff), Ansi.Text.BlinkOn);
+        public static StyleSpan BlinkOn() => new(nameof(BlinkOn), Ansi.Text.BlinkOff);
+        public static StyleSpan BoldOff() => new(nameof(BoldOff), Ansi.Text.BoldOff);
+        public static StyleSpan BoldOn() => new(nameof(BoldOn), Ansi.Text.BoldOn);
+        public static StyleSpan HiddenOn() => new(nameof(HiddenOn), Ansi.Text.HiddenOn);
+        public static StyleSpan ReverseOn() => new(nameof(ReverseOn), Ansi.Text.ReverseOn);
+        public static StyleSpan ReverseOff() => new(nameof(ReverseOff), Ansi.Text.ReverseOff);
+        public static StyleSpan StandoutOff() => new(nameof(StandoutOff), Ansi.Text.StandoutOff);
+        public static StyleSpan StandoutOn() => new(nameof(StandoutOn), Ansi.Text.StandoutOn);
+        public static StyleSpan UnderlinedOff() => new(nameof(UnderlinedOff), Ansi.Text.UnderlinedOff);
+        public static StyleSpan UnderlinedOn() => new(nameof(UnderlinedOn), Ansi.Text.UnderlinedOn);
     }
 }

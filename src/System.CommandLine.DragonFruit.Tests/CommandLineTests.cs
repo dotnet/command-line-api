@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Rendering;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;

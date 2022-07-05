@@ -9,7 +9,7 @@ namespace System.CommandLine.Tests.Invocation
 {
     public class TypoCorrectionTests
     {
-        private readonly TestConsole _console = new TestConsole();
+        private readonly TestConsole _console = new();
 
         [Fact]
         public async Task When_option_is_mistyped_it_is_suggested()

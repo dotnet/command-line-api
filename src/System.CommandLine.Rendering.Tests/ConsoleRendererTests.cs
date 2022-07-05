@@ -17,7 +17,7 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class ConsoleRendererTests
     {
-        private readonly TestTerminal _terminal = new TestTerminal();
+        private readonly TestTerminal _terminal = new();
 
         private readonly ITestOutputHelper _output;
 

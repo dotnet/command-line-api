@@ -1,6 +1,4 @@
 ﻿using FluentAssertions;
-
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +9,7 @@ namespace System.CommandLine.Tests
 {
     public class EnvironmentVariableDirectiveTests
     {
-        private static readonly Random randomizer = new Random(Seed: 456476756);
+        private static readonly Random randomizer = new(Seed: 456476756);
         private readonly string test_variable = $"TEST_ENVIRONMENT_VARIABLE{randomizer.Next()}";
 
         [Fact]

@@ -9,7 +9,7 @@ namespace System.CommandLine.Rendering
 {
     internal class RecordingWriter : TextWriter, IStandardStreamWriter
     {
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
+        private readonly StringBuilder _stringBuilder = new();
 
         public event Action<char> CharWritten;
 

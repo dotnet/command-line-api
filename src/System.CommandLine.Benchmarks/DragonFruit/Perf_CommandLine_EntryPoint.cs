@@ -20,7 +20,7 @@ namespace System.CommandLine.Benchmarks.DragonFruit
     [InvocationCount(3000)]
     public class Perf_CommandLine_EntryPoint
     {
-        private readonly NullConsole _nullConsole = new NullConsole();
+        private readonly NullConsole _nullConsole = new();
         private Assembly _testAssembly;
         private string _testAssemblyFilePath;
         private string _testAssemblyXmlDocsFilePath;

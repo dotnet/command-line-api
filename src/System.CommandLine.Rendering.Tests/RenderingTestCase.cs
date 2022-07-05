@@ -5,7 +5,7 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class RenderingTestCase
     {
-        private static readonly TextSpanFormatter _formatter = new TextSpanFormatter();
+        private static readonly TextSpanFormatter _formatter = new();
 
         public RenderingTestCase(
             string name,

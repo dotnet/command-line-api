@@ -11,7 +11,7 @@ namespace System.CommandLine.Rendering.Tests
 {
     public class TestTerminalTests : TerminalTests
     {
-        protected TestTerminal _terminal = new TestTerminal();
+        protected TestTerminal _terminal = new();
 
         protected override ITerminal GetTerminal() => _terminal;
 

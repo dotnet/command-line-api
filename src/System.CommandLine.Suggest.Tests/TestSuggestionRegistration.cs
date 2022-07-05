@@ -9,7 +9,7 @@ namespace System.CommandLine.Suggest.Tests
 {
     internal class TestSuggestionRegistration : ISuggestionRegistration
     {
-        private readonly List<Registration> _suggestionRegistrations = new List<Registration>();
+        private readonly List<Registration> _suggestionRegistrations = new();
 
         public TestSuggestionRegistration(params Registration[] suggestionRegistrations)
         {

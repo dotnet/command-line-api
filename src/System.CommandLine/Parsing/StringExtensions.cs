@@ -229,7 +229,7 @@ namespace System.CommandLine.Parsing
             {
                 int tokensBefore = tokenList.Count;
 
-                string candidate = new string('-', 2); // mutable string used to avoid allocations
+                string candidate = new('-', 2); // mutable string used to avoid allocations
                 unsafe
                 {
                     fixed (char* pCandidate = candidate)

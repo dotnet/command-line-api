@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Rendering.Views
 {
@@ -11,7 +10,7 @@ namespace System.CommandLine.Rendering.Views
     public abstract class LayoutView<T> : View, IEnumerable<T>
         where T : View
     {
-        private readonly List<T> _children = new List<T>();
+        private readonly List<T> _children = new();
         public IReadOnlyList<T> Children => _children.AsReadOnly();
 
         public virtual void Add(T child)
