@@ -66,8 +66,8 @@ System.CommandLine
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static ParseResult Parse(this Command command, System.String[] args)
     public static ParseResult Parse(this Command command, System.String commandLine)
   public class CommandLineBuilder
@@ -357,8 +357,8 @@ System.CommandLine.Help
 System.CommandLine.Invocation
   public interface IInvocationResult
     public System.Void Apply(InvocationContext context)
-  public class InvocationContext
-    .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
+  public class InvocationContext, System.IDisposable
+    .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; set; }
     public System.Int32 ExitCode { get; set; }
@@ -451,12 +451,12 @@ System.CommandLine.Parsing
     public static System.String Diagram(this System.CommandLine.ParseResult parseResult)
     public static System.Boolean HasOption(this System.CommandLine.ParseResult parseResult, System.CommandLine.Option option)
     public static System.Int32 Invoke(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
   public static class ParserExtensions
     public static System.Int32 Invoke(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
     public static System.Int32 Invoke(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static System.CommandLine.ParseResult Parse(this Parser parser, System.String commandLine)
   public abstract class SymbolResult
     public System.Collections.Generic.IReadOnlyList<SymbolResult> Children { get; }
