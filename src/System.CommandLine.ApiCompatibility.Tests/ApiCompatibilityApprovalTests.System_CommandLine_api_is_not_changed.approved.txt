@@ -368,6 +368,7 @@ System.CommandLine.Invocation
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public System.Threading.CancellationToken GetCancellationToken()
+    public System.Void LinkToken(System.Threading.CancellationToken token)
   public delegate InvocationMiddleware : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(InvocationContext context, System.Func<InvocationContext,System.Threading.Tasks.Task> next, System.AsyncCallback callback, System.Object object)

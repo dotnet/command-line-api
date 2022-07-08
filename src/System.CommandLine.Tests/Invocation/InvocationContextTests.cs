@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests.Invocation
             var parseResult = new CommandLineBuilder(new RootCommand())
                 .Build()
                 .Parse("");
-            using InvocationContext context = new(parseResult, cancellationToken:cts.Token);
+            using InvocationContext context = new(parseResult, cancellationToken: cts.Token);
 
             var token = context.GetCancellationToken();
 
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests.Invocation
                 .Build()
                 .Parse("");
             using InvocationContext context = new(parseResult, cancellationToken: cts1.Token);
-            context.AddLinkedCancellationToken(() => cts2.Token);
+            context.LinkToken(cts2.Token);
 
             var token = context.GetCancellationToken();
 
@@ -53,28 +53,13 @@ namespace System.CommandLine.Tests.Invocation
                 .Build()
                 .Parse("");
             using InvocationContext context = new(parseResult, cancellationToken: cts1.Token);
-            context.AddLinkedCancellationToken(() => cts2.Token);
+            context.LinkToken(cts2.Token);
 
             var token = context.GetCancellationToken();
 
             token.IsCancellationRequested.Should().BeFalse();
             cts2.Cancel();
             token.IsCancellationRequested.Should().BeTrue();
-        }
-
-        [Fact]
-        public void InvocationContext_adding_additional_linked_token_after_token_has_been_built_throws()
-        {
-            using CancellationTokenSource cts = new();
-
-            var parseResult = new CommandLineBuilder(new RootCommand())
-                .Build()
-                .Parse("");
-            using InvocationContext context = new(parseResult, cancellationToken: cts.Token);
-            context.AddLinkedCancellationToken(() => cts.Token);
-            _ = context.GetCancellationToken();
-
-            Assert.Throws<InvalidOperationException>(() => context.AddLinkedCancellationToken(() => cts.Token));
         }
     }
 }

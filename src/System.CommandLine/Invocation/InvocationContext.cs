@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -18,9 +18,9 @@ namespace System.CommandLine.Invocation
         private HelpBuilder? _helpBuilder;
         private BindingContext? _bindingContext;
         private IConsole? _console;
-        private CancellationTokenSource? _linkedTokensSource;
-        private List<Func<CancellationToken>> _cancellationTokens = new(3);
-        private Lazy<CancellationToken> _lazyCancellationToken;
+        private readonly CancellationToken _token; 
+        private readonly LinkedList<CancellationTokenRegistration> _registrations = new();
+        private volatile CancellationTokenSource? _source;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
         /// <param name="console">The console to which output is to be written.</param>
@@ -32,8 +32,13 @@ namespace System.CommandLine.Invocation
         {
             ParseResult = parseResult;
             _console = console;
-            _cancellationTokens.Add(() => cancellationToken);
-            _lazyCancellationToken = new Lazy<CancellationToken>(BuildCancellationToken);
+            
+            _source = new CancellationTokenSource();
+            _token = _source.Token;
+            if (cancellationToken.CanBeCanceled)
+            {
+                LinkToken(cancellationToken);
+            }
         }
 
         /// <summary>
@@ -105,41 +110,27 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// Gets a cancellation token that can be used to check if cancellation has been requested.
         /// </summary>
-        public CancellationToken GetCancellationToken() => _lazyCancellationToken.Value;
+        public CancellationToken GetCancellationToken() => _token;
 
-        private CancellationToken BuildCancellationToken()
+        internal void Cancel()
         {
-            switch(_cancellationTokens.Count)
-            {
-                case 0: return CancellationToken.None;
-                case 1: return _cancellationTokens[0]();
-                default:
-                    CancellationToken[] tokens = new CancellationToken[_cancellationTokens.Count];
-                    for(int i = 0; i < _cancellationTokens.Count; i++)
-                    {
-                        tokens[i] = _cancellationTokens[i]();
-                    }
-                    _linkedTokensSource = CancellationTokenSource.CreateLinkedTokenSource(tokens);
-                    return _linkedTokensSource.Token;
-            };
+            using var source = Interlocked.Exchange(ref _source, null);
+            source?.Cancel();
         }
 
+        public void LinkToken(CancellationToken token)
+        {
+            _registrations.AddLast(token.Register(Cancel));
+        }
 
         /// <inheritdoc />
-        public void Dispose()
+        void IDisposable.Dispose()
         {
-            _linkedTokensSource?.Dispose();
-            _linkedTokensSource = null;
-            (Console as IDisposable)?.Dispose();
-        }
-
-        public void AddLinkedCancellationToken(Func<CancellationToken> token)
-        {
-            if (_lazyCancellationToken.IsValueCreated)
+            Interlocked.Exchange(ref _source, null)?.Dispose();
+            foreach (CancellationTokenRegistration registration in _registrations)
             {
-                throw new InvalidOperationException($"Cannot add additional linked cancellation tokens once {nameof(InvocationContext)}.{nameof(CancellationToken)} has been invoked");
+                registration.Dispose();
             }
-            _cancellationTokens.Add(token);
         }
     }
 }

@@ -351,7 +351,7 @@ namespace System.CommandLine.Tests.Invocation
                          })
                          .AddMiddleware(async (context, next) =>
                          {
-                             context.AddLinkedCancellationToken(() => cts.Token);
+                             context.LinkToken(cts.Token);
                              cts.Cancel();
                              await next(context);
                          })
