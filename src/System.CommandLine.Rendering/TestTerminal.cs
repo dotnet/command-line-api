@@ -78,11 +78,7 @@ namespace System.CommandLine.Rendering
             RecordEvent(new ColorReset());
         }
 
-        public Region GetRegion() =>
-            new(0,
-                       0,
-                       Width,
-                       Height);
+        public Region GetRegion() => new(0, 0, Width, Height);
 
         public void Clear()
         {
