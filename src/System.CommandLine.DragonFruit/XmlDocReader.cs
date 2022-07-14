@@ -55,25 +55,29 @@ namespace System.CommandLine.DragonFruit
             sb.Append("M:");
             AppendTypeName(sb, info.DeclaringType);
             sb.Append(".")
-              .Append(info.Name)
-              .Append("(");
+              .Append(info.Name);
 
-            bool first = true;
-            foreach (ParameterInfo param in info.GetParameters())
+            var parameters = info.GetParameters();
+            if (parameters.Length > 0)
             {
-                if (first)
+                sb.Append("(");
+                bool first = true;
+                foreach (ParameterInfo param in info.GetParameters())
                 {
-                    first = false;
-                }
-                else
-                {
-                    sb.Append(",");
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        sb.Append(",");
+                    }
+
+                    AppendTypeName(sb, param.ParameterType);
                 }
 
-                AppendTypeName(sb, param.ParameterType);
+                sb.Append(")");
             }
-
-            sb.Append(")");
 
             string name = sb.ToString();
 
