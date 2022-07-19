@@ -6,7 +6,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A unit of significant text on the command line.
     /// </summary>
-    public class Token : IEquatable<Token>
+    public sealed class Token : IEquatable<Token>
     {
         internal const int ImplicitPosition = -1;
 
