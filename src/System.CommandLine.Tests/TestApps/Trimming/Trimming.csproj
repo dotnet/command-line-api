@@ -2,7 +2,7 @@
 	
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PublishTrimmed>true</PublishTrimmed>
@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<SystemCommandLineDllPath Condition="'$(SystemCommandLineDllPath)'==''">..\..\..\System.CommandLine\bin\Release\net6.0\System.CommandLine.dll</SystemCommandLineDllPath>
+		<SystemCommandLineDllPath Condition="'$(SystemCommandLineDllPath)'==''">..\..\..\System.CommandLine\bin\Release\$(TargetFrameworkForNETSDK)\System.CommandLine.dll</SystemCommandLineDllPath>
 	</PropertyGroup>
 
 	<ItemGroup>
