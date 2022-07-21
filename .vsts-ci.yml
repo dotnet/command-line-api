@@ -39,10 +39,10 @@ stages:
           # Will eventually change this to two BYOC pools.
           ${{ if ne(variables['System.TeamProject'], 'internal') }}:
             name: NetCore1ESPool-Public
-            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Open
+            demands: ImageOverride -equals windows.vs2022.amd64.open
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
             name: NetCore1ESPool-Internal
-            demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019
+            demands: ImageOverride -equals windows.vs2022.amd64
         variables:
         # Only enable publishing in official builds.
         - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
