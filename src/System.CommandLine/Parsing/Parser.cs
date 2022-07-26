@@ -57,7 +57,6 @@ namespace System.CommandLine.Parsing
             var visitor = new ParseResultVisitor(
                 this,
                 tokenizeResult,
-                operation.UnparsedTokens,
                 operation.UnmatchedTokens,
                 rawInput);
 

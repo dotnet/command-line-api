@@ -216,7 +216,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .Be("four");
 
-                result.UnparsedTokens
+                result.UnmatchedTokens
                       .Should()
                       .ContainSingle()
                       .Which

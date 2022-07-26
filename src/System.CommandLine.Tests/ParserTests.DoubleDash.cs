@@ -24,7 +24,6 @@ namespace System.CommandLine.Tests
                 };
 
                 var result = new CommandLineBuilder(rootCommand)
-                             .EnableLegacyDoubleDashBehavior(false)
                              .Build()
                              .Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo");
 
@@ -34,11 +33,11 @@ namespace System.CommandLine.Tests
 
                 result.GetValueForArgument(argument).Should().BeEquivalentSequenceTo("-o", "--one", "-x", "-y", "-z", "-o:foo");
 
-                result.UnparsedTokens.Should().BeEmpty();
+                result.UnmatchedTokens.Should().BeEmpty();
             }
 
             [Fact]
-            public void Unparsed_tokens_is_empty()
+            public void Unmatched_tokens_is_empty()
             {
                 var option = new Option<string[]>(new[] { "-o", "--one" });
                 var argument = new Argument<string[]>();
@@ -49,11 +48,10 @@ namespace System.CommandLine.Tests
                 };
 
                 var result = new CommandLineBuilder(rootCommand)
-                             .EnableLegacyDoubleDashBehavior(false)
                              .Build()
                              .Parse("-o \"some stuff\" -- --one -x -y -z -o:foo");
 
-                result.UnparsedTokens.Should().BeEmpty();
+                result.UnmatchedTokens.Should().BeEmpty();
             }
 
             [Fact] // https://github.com/dotnet/command-line-api/issues/1631
@@ -68,7 +66,6 @@ namespace System.CommandLine.Tests
                 };
 
                 var result = new CommandLineBuilder(rootCommand)
-                             .EnableLegacyDoubleDashBehavior(false)
                              .Build()
                              .Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo");
 
@@ -85,77 +82,12 @@ namespace System.CommandLine.Tests
                 };
 
                 var result = new CommandLineBuilder(rootCommand)
-                             .EnableLegacyDoubleDashBehavior(false)
                              .Build()
                              .Parse("a b c -- -- d");
 
                 var strings = result.GetValueForArgument(argument);
 
                 strings.Should().BeEquivalentSequenceTo("a", "b", "c", "--", "d");
-            }
-        }
-
-        public class LegacyDoubleDashBehavior
-        {
-            [Fact]
-            public void The_portion_of_the_command_line_following_a_double_is_treated_as_unparsed_tokens()
-            {
-                var result = new CommandLineBuilder(new RootCommand { new Option<string>("-o") })
-                             .EnableLegacyDoubleDashBehavior()
-                             .Build()
-                             .Parse("-o \"some stuff\" -- x y z");
-
-                result.UnparsedTokens
-                      .Should()
-                      .BeEquivalentSequenceTo("x", "y", "z");
-            }
-
-            [Fact]
-            public void Subsequent_tokens_matching_options_will_be_treated_as_unparsed_tokens()
-            {
-                var optionO = new Option<string>(new[] { "-o" });
-                var optionX = new Option<bool>(new[] { "-x" });
-                var optionY = new Option<bool>(new[] { "-y" });
-                var optionZ = new Option<bool>(new[] { "-z" });
-                var rootCommand = new RootCommand
-                {
-                    optionO,
-                    optionX,
-                    optionY,
-                    optionZ
-                };
-                var result = new CommandLineBuilder(rootCommand)
-                             .EnableLegacyDoubleDashBehavior()
-                             .Build()
-                             .Parse("-o \"some stuff\" -- -x -y -z -o:foo");
-
-                result.HasOption(optionO).Should().BeTrue();
-                result.HasOption(optionX).Should().BeFalse();
-                result.HasOption(optionY).Should().BeFalse();
-                result.HasOption(optionZ).Should().BeFalse();
-
-                result.UnparsedTokens
-                      .Should()
-                      .BeEquivalentSequenceTo("-x",
-                                              "-y",
-                                              "-z",
-                                              "-o:foo");
-            }
-
-            [Fact]
-            public void Subsequent_tokens_matching_argument_will_be_treated_as_unparsed_tokens()
-            {
-                var argument = new Argument<int[]>();
-                var rootCommand = new RootCommand
-                {
-                    argument
-                };
-                var result = new CommandLineBuilder(rootCommand)
-                             .EnableLegacyDoubleDashBehavior()
-                             .Build()
-                             .Parse("1 2 3 -- 4 5 6 7");
-
-                result.GetValueForArgument(argument).Should().BeEquivalentSequenceTo(1, 2, 3);
             }
         }
     }

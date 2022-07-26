@@ -29,14 +29,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// A double dash (<c>--</c>) token, which changes the meaning of subsequent tokens.
         /// </summary>
-        /// <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/>
         DoubleDash,
-
-        /// <summary>
-        /// A token following <see cref="DoubleDash"/> when <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/> is set to <see langword="true"/>.
-        /// </summary>
-        /// <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/>
-        Unparsed,
         
         /// <summary>
         /// A directive token.

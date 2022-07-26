@@ -74,9 +74,8 @@ namespace System.CommandLine.Suggest
                 RegisterCommand,
                 CompleteScriptCommand
             };
-
+            root.TreatUnmatchedTokensAsErrors = false;
             Parser = new CommandLineBuilder(root)
-                     .EnableLegacyDoubleDashBehavior()
                      .UseVersionOption()
                      .UseHelp()
                      .UseParseDirective()
@@ -207,7 +206,7 @@ namespace System.CommandLine.Suggest
             int position,
             string targetExeName)
         {
-            var tokens = parseResult.UnparsedTokens;
+            var tokens = parseResult.UnmatchedTokens;
 
             var commandLine = tokens.FirstOrDefault() ?? "";
 

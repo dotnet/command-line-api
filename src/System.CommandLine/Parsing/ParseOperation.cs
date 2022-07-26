@@ -27,8 +27,6 @@ namespace System.CommandLine.Parsing
 
         public List<Token>? UnmatchedTokens { get; private set; }
 
-        public List<Token>? UnparsedTokens { get; private set; } 
-
         private void Advance() => _index++;
 
         private bool More(out TokenType currentTokenType)
@@ -79,12 +77,6 @@ namespace System.CommandLine.Parsing
 
             while (More(out TokenType currentTokenType))
             {
-                if (_configuration.EnableLegacyDoubleDashBehavior &&
-                    currentTokenType == TokenType.DoubleDash)
-                {
-                    return;
-                }
-
                 if (currentTokenType == TokenType.Command)
                 {
                     ParseSubcommand(parent);
@@ -243,7 +235,7 @@ namespace System.CommandLine.Parsing
                 }
                 else if (foundEndOfArguments)
                 {
-                    AddCurrentTokenToUnparsed();
+                    AddCurrentTokenToUnmatched();
                 }
 
                 Advance();
@@ -259,7 +251,5 @@ namespace System.CommandLine.Parsing
 
             (UnmatchedTokens ??= new()).Add(CurrentToken);
         }
-
-        private void AddCurrentTokenToUnparsed() => (UnparsedTokens ??= new()).Add(CurrentToken);
     }
 }

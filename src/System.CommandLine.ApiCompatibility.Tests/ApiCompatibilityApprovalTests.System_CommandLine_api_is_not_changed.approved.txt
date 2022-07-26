@@ -79,7 +79,6 @@ System.CommandLine
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder, System.Nullable<System.TimeSpan> timeout = null)
     public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
-    public static CommandLineBuilder EnableLegacyDoubleDashBehavior(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder RegisterWithDotnetSuggest(this CommandLineBuilder builder)
     public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
@@ -98,9 +97,8 @@ System.CommandLine
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
   public class CommandLineConfiguration
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableLegacyDoubleDashBehavior = False, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Boolean EnableDirectives { get; }
-    public System.Boolean EnableLegacyDoubleDashBehavior { get; }
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
     public LocalizationResources LocalizationResources { get; }
@@ -236,7 +234,6 @@ System.CommandLine
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
-    public System.Collections.Generic.IReadOnlyList<System.String> UnparsedTokens { get; }
     public System.CommandLine.Parsing.ArgumentResult FindResultFor(Argument argument)
     public System.CommandLine.Parsing.CommandResult FindResultFor(Command command)
     public System.CommandLine.Parsing.OptionResult FindResultFor(Option option)
@@ -487,8 +484,7 @@ System.CommandLine.Parsing
     Command=1
     Option=2
     DoubleDash=3
-    Unparsed=4
-    Directive=5
+    Directive=4
   public delegate TryReplaceToken : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.AsyncCallback callback, System.Object object)
