@@ -42,10 +42,11 @@ public partial class ParserTests
 
             command.Parse(Split("inner -x hello")).Errors.Should().BeEmpty();
 
-            command.Parse(Split($"{RootCommand.ExecutablePath} inner -x hello"))
-                   .Errors
-                   .Should()
-                   .ContainSingle(e => e.Message == $"{LocalizationResources.Instance.UnrecognizedCommandOrArgument(RootCommand.ExecutablePath)}");
+            var parserResult = command.Parse(Split($"\"{RootCommand.ExecutablePath}\" inner -x hello"));
+            parserResult
+               .Errors
+               .Should()
+               .ContainSingle(e => e.Message == LocalizationResources.Instance.UnrecognizedCommandOrArgument(RootCommand.ExecutablePath));
         }
 
         [Fact]
@@ -76,7 +77,7 @@ public partial class ParserTests
                 }
             };
 
-            var result2 = command.Parse($"{RootCommand.ExecutablePath} inner -x hello");
+            var result2 = command.Parse($"\"{RootCommand.ExecutablePath}\" inner -x hello");
 
             result2.RootCommandResult.Token.Value.Should().Be(RootCommand.ExecutablePath);
         }

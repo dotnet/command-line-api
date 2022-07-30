@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -148,6 +150,29 @@ namespace System.CommandLine.Tests.Invocation
             int resultCode = rootCommand.Invoke("");
 
             resultCode.Should().Be(123);
+        }
+
+        [Fact]
+        public async Task Command_InvokeAsync_with_cancelation_token_invokes_command_handler()
+        {
+            CancellationTokenSource cts = new();
+            var command = new Command("test");
+            command.SetHandler((InvocationContext context) =>
+            {
+                CancellationToken cancellationToken = context.GetCancellationToken();
+                Assert.True(cancellationToken.CanBeCanceled);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return Task.FromResult(42);
+                }
+
+                return Task.FromResult(0);
+            });
+
+            cts.Cancel();
+            int rv = await command.InvokeAsync("test", cancellationToken: cts.Token);
+
+            rv.Should().Be(42);
         }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Parsing
@@ -40,8 +41,9 @@ namespace System.CommandLine.Parsing
         public static Task<int> InvokeAsync(
             this Parser parser,
             string commandLine,
-            IConsole? console = null) =>
-            parser.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
+            IConsole? console = null,
+            CancellationToken cancellationToken = default) =>
+            parser.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console, cancellationToken);
 
         /// <summary>
         /// Parses a command line string array and invokes the handler for the indicated command.
@@ -50,8 +52,9 @@ namespace System.CommandLine.Parsing
         public static async Task<int> InvokeAsync(
             this Parser parser,
             string[] args,
-            IConsole? console = null) =>
-            await parser.Parse(args).InvokeAsync(console);
+            IConsole? console = null,
+            CancellationToken cancellationToken = default) =>
+            await parser.Parse(args).InvokeAsync(console, cancellationToken);
 
         /// <summary>
         /// Parses a command line string.

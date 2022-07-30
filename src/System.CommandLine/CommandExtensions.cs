@@ -4,6 +4,7 @@
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine
@@ -48,13 +49,15 @@ namespace System.CommandLine
         /// <param name="command">The command to invoke.</param>
         /// <param name="args">The arguments to parse.</param>
         /// <param name="console">The console to which output is written during invocation.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
         public static async Task<int> InvokeAsync(
             this Command command,
             string[] args,
-            IConsole? console = null)
+            IConsole? console = null, 
+            CancellationToken cancellationToken = default)
         {
-            return await GetDefaultInvocationPipeline(command, args).InvokeAsync(console);
+            return await GetDefaultInvocationPipeline(command, args).InvokeAsync(console, cancellationToken);
         }
 
         /// <summary>
@@ -64,12 +67,14 @@ namespace System.CommandLine
         /// <param name="command">The command to invoke.</param>
         /// <param name="commandLine">The command line to parse.</param>
         /// <param name="console">The console to which output is written during invocation.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel the invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
         public static Task<int> InvokeAsync(
             this Command command,
             string commandLine,
-            IConsole? console = null) =>
-            command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console);
+            IConsole? console = null,
+            CancellationToken cancellationToken = default) =>
+            command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console, cancellationToken);
 
         private static InvocationPipeline GetDefaultInvocationPipeline(Command command, string[] args)
         {

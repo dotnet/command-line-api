@@ -6,6 +6,7 @@ using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Parsing
@@ -20,11 +21,13 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="parseResult">A parse result on which the invocation is based.</param>
         /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
         /// <returns>A task whose result can be used as a process exit code.</returns>
         public static async Task<int> InvokeAsync(
             this ParseResult parseResult,
-            IConsole? console = null) =>
-            await new InvocationPipeline(parseResult).InvokeAsync(console);
+            IConsole? console = null,
+            CancellationToken cancellationToken = default) =>
+            await new InvocationPipeline(parseResult).InvokeAsync(console, cancellationToken);
 
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.

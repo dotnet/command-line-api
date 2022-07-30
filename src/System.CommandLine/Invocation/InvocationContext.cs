@@ -1,6 +1,7 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.CommandLine.IO;
@@ -12,22 +13,32 @@ namespace System.CommandLine.Invocation
     /// <summary>
     /// Supports command invocation by providing access to parse results and other services.
     /// </summary>
-    public sealed class InvocationContext
+    public sealed class InvocationContext : IDisposable
     {
-        private CancellationTokenSource? _cts;
-        private Action<CancellationTokenSource>? _cancellationHandlingAddedEvent;
         private HelpBuilder? _helpBuilder;
         private BindingContext? _bindingContext;
         private IConsole? _console;
+        private readonly CancellationToken _token; 
+        private readonly LinkedList<CancellationTokenRegistration> _registrations = new();
+        private volatile CancellationTokenSource? _source;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
         /// <param name="console">The console to which output is to be written.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel and invocation.</param>
         public InvocationContext(
             ParseResult parseResult,
-            IConsole? console = null)
+            IConsole? console = null,
+            CancellationToken cancellationToken = default)
         {
             ParseResult = parseResult;
             _console = console;
+            
+            _source = new CancellationTokenSource();
+            _token = _source.Token;
+            if (cancellationToken.CanBeCanceled)
+            {
+                LinkToken(cancellationToken);
+            }
         }
 
         /// <summary>
@@ -40,6 +51,8 @@ namespace System.CommandLine.Invocation
                 if (_bindingContext is null)
                 {
                     _bindingContext = new BindingContext(this);
+                    _bindingContext.ServiceProvider.AddService(_ => GetCancellationToken());
+                    _bindingContext.ServiceProvider.AddService(_ => this);
                 }
 
                 return _bindingContext;
@@ -94,33 +107,30 @@ namespace System.CommandLine.Invocation
         /// <remarks>As the <see cref="InvocationContext"/> is passed through the invocation pipeline to the <see cref="ICommandHandler"/> associated with the invoked command, only the last value of this property will be the one applied.</remarks>
         public IInvocationResult? InvocationResult { get; set; }
 
-        internal event Action<CancellationTokenSource> CancellationHandlingAdded
-        {
-            add
-            {
-                if (_cts is not null)
-                {
-                    throw new InvalidOperationException("Handlers must be added before adding cancellation handling.");
-                }
+        /// <summary>
+        /// Gets a cancellation token that can be used to check if cancellation has been requested.
+        /// </summary>
+        public CancellationToken GetCancellationToken() => _token;
 
-                _cancellationHandlingAddedEvent += value;
-            }
-            remove => _cancellationHandlingAddedEvent -= value;
+        internal void Cancel()
+        {
+            using var source = Interlocked.Exchange(ref _source, null);
+            source?.Cancel();
         }
 
-        /// <summary>
-        /// Gets token to implement cancellation handling.
-        /// </summary>
-        /// <returns>Token used by the caller to implement cancellation handling.</returns>
-        public CancellationToken GetCancellationToken()
+        public void LinkToken(CancellationToken token)
         {
-            if (_cts is null)
-            {
-                _cts = new CancellationTokenSource();
-                _cancellationHandlingAddedEvent?.Invoke(_cts);
-            }
+            _registrations.AddLast(token.Register(Cancel));
+        }
 
-            return _cts.Token;
+        /// <inheritdoc />
+        void IDisposable.Dispose()
+        {
+            Interlocked.Exchange(ref _source, null)?.Dispose();
+            foreach (CancellationTokenRegistration registration in _registrations)
+            {
+                registration.Dispose();
+            }
         }
     }
 }
