@@ -16,7 +16,6 @@ namespace System.CommandLine
     {
         private readonly List<ParseError> _errors;
         private readonly RootCommandResult _rootCommandResult;
-        private readonly IReadOnlyList<Token> _unparsedTokens;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private CompletionContext? _completionContext;
 
@@ -26,7 +25,6 @@ namespace System.CommandLine
             CommandResult commandResult,
             DirectiveCollection directives,
             TokenizeResult tokenizeResult,
-            IReadOnlyList<Token>? unparsedTokens,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null)
@@ -53,7 +51,6 @@ namespace System.CommandLine
                 Tokens = Array.Empty<Token>();
             }
 
-            _unparsedTokens = unparsedTokens ?? Array.Empty<Token>();
             _errors = errors ?? new List<ParseError>();
             CommandLineText = commandLineText;
 
@@ -119,12 +116,6 @@ namespace System.CommandLine
         /// Gets the list of tokens used on the command line that were not matched by the parser.
         /// </summary>
         public IReadOnlyList<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();
-
-        /// <summary>
-        /// Gets the list of tokens used on the command line that were ignored by the parser.
-        /// </summary>
-        /// <remarks>This list will contain all of the tokens following the first occurrence of a <c>--</c> token if <see cref="CommandLineConfiguration.EnableLegacyDoubleDashBehavior"/> is set to <see langword="true"/>.</remarks>
-        public IReadOnlyList<string> UnparsedTokens => _unparsedTokens.Select(t => t.Value).ToArray();
 
         /// <summary>
         /// Gets the completion context for the parse result.

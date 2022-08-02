@@ -559,7 +559,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unparsed_tokens()
+            public void When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unmatched_tokens()
             {
 
                 var argument1 = new Argument<int[]>(
@@ -583,7 +583,7 @@ namespace System.CommandLine.Tests
 
                 var parseResult = command.Parse("1 2 3 4 5 6 7 8");
 
-                parseResult.UnparsedTokens
+                parseResult.UnmatchedTokens
                            .Should()
                            .BeEquivalentTo(new[] { "4", "5", "6", "7", "8" },
                                            options => options.WithStrictOrdering());

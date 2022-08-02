@@ -27,8 +27,8 @@ namespace System.CommandLine.Parsing
         internal static string RemovePrefix(this string alias)
         {
             int prefixLength = GetPrefixLength(alias);
-            return prefixLength > 0 
-                       ? alias.Substring(prefixLength) 
+            return prefixLength > 0
+                       ? alias.Substring(prefixLength)
                        : alias;
         }
 
@@ -36,8 +36,8 @@ namespace System.CommandLine.Parsing
         {
             if (alias[0] == '-')
             {
-                return alias.Length > 1 && alias[1] == '-' 
-                           ? 2 
+                return alias.Length > 1 && alias[1] == '-'
+                           ? 2
                            : 1;
             }
 
@@ -80,7 +80,7 @@ namespace System.CommandLine.Parsing
             var foundEndOfDirectives = !configuration.EnableDirectives;
 
             var argList = NormalizeRootCommand(args, configuration.RootCommand, inferRootCommand);
-            
+
             var tokenList = new List<Token>(argList.Count);
 
             var knownTokens = configuration.RootCommand.ValidTokens();
@@ -88,21 +88,15 @@ namespace System.CommandLine.Parsing
             for (var i = 0; i < argList.Count; i++)
             {
                 var arg = argList[i];
-                
+
                 if (foundDoubleDash)
                 {
-                    if (configuration.EnableLegacyDoubleDashBehavior)
-                    {
-                        tokenList.Add(Unparsed(arg));
-                    }
-                    else
-                    {
-                        tokenList.Add(CommandArgument(arg, currentCommand!));
-                    }
+                    tokenList.Add(CommandArgument(arg, currentCommand!));
+
                     continue;
                 }
 
-                if (!foundDoubleDash && 
+                if (!foundDoubleDash &&
                     arg == "--")
                 {
                     tokenList.Add(DoubleDash());
@@ -181,8 +175,8 @@ namespace System.CommandLine.Parsing
                         }
                     }
                 }
-                else if (arg.TrySplitIntoSubtokens(out var first, out var rest) && 
-                         knownTokens.TryGetValue(first, out var subtoken) && 
+                else if (arg.TrySplitIntoSubtokens(out var first, out var rest) &&
+                         knownTokens.TryGetValue(first, out var subtoken) &&
                          subtoken.Type == TokenType.Option)
                 {
                     tokenList.Add(Option(first, (Option)subtoken.Symbol!));
@@ -198,11 +192,11 @@ namespace System.CommandLine.Parsing
                 {
                     tokenList.Add(Argument(arg));
                 }
-              
+
                 Token Argument(string value) => new(value, TokenType.Argument, default, i);
 
                 Token CommandArgument(string value, Command command) => new(value, TokenType.Argument, command, i);
-                
+
                 Token OptionArgument(string value, Option option) => new(value, TokenType.Argument, option, i);
 
                 Token Command(string value, Command cmd) => new(value, TokenType.Command, cmd, i);
@@ -211,17 +205,15 @@ namespace System.CommandLine.Parsing
 
                 Token DoubleDash() => new("--", TokenType.DoubleDash, default, i);
 
-                Token Unparsed(string value) => new(value, TokenType.Unparsed, default, i);
-
                 Token Directive(string value) => new(value, TokenType.Directive, default, i);
             }
 
             return new TokenizeResult(tokenList, errorList);
 
             bool CanBeUnbundled(string arg)
-                => arg.Length > 2 
+                => arg.Length > 2
                     && arg[0] == '-'
-                    && arg[1]  != '-'// don't check for "--" prefixed args
+                    && arg[1] != '-'// don't check for "--" prefixed args
                     && arg[2] != ':' && arg[2] != '=' // handled by TrySplitIntoSubtokens
                     && !PreviousTokenIsAnOptionExpectingAnArgument(out _);
 
@@ -439,7 +431,7 @@ namespace System.CommandLine.Parsing
 
         private static Dictionary<string, Token> ValidTokens(this Command command)
         {
-            Dictionary<string, Token> tokens = new (StringComparer.Ordinal);
+            Dictionary<string, Token> tokens = new(StringComparer.Ordinal);
 
             foreach (string commandAlias in command.Aliases)
             {
