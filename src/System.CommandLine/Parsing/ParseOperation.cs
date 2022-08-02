@@ -54,8 +54,6 @@ namespace System.CommandLine.Parsing
 
             ParseCommandChildren(rootCommandNode);
 
-            ParseRemainingTokens();
-
             return rootCommandNode;
         }
 
@@ -218,25 +216,6 @@ namespace System.CommandLine.Parsing
                 var directiveNode = new DirectiveNode(token, parent, key, value);
 
                 parent.AddChildNode(directiveNode);
-
-                Advance();
-            }
-        }
-
-        private void ParseRemainingTokens()
-        {
-            var foundEndOfArguments = false;
-
-            while (More(out TokenType currentTokenType))
-            {
-                if (currentTokenType == TokenType.DoubleDash)
-                {
-                    foundEndOfArguments = true;
-                }
-                else if (foundEndOfArguments)
-                {
-                    AddCurrentTokenToUnmatched();
-                }
 
                 Advance();
             }
