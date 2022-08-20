@@ -87,10 +87,10 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to Required argument missing for command: {0}.
         /// </summary>
-        public virtual string RequiredArgumentMissing(SymbolResult symbolResult) =>
+        public virtual string RequiredArgumentMissing(SymbolResult symbolResult, Argument argument) =>
             symbolResult is CommandResult
-                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, symbolResult.Token().Value)
-                : GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, symbolResult.Token().Value);
+                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, symbolResult.Token().Value, argument.Name)
+                : GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, symbolResult.Token().Value, argument.Name);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to Required command was not provided.

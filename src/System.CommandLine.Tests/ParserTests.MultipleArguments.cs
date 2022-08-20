@@ -307,7 +307,7 @@ namespace System.CommandLine.Tests
                 var numberOfMissingArgs =
                     result
                         .Errors
-                        .Count(e => e.Message == LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult));
+                        .Count(e => e.Message == LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult, command.Arguments.First()));
 
                 numberOfMissingArgs
                     .Should()

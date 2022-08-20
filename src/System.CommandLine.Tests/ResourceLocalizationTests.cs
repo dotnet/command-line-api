@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests
 
             public override string FileDoesNotExist(string filePath) => message;
 
-            public override string RequiredArgumentMissing(SymbolResult symbolResult) => message;
+            public override string RequiredArgumentMissing(SymbolResult symbolResult, Argument argument) => message;
 
             public override string RequiredCommandWasNotProvided() => message;
 

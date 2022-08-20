@@ -33,8 +33,8 @@
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
-        <source>Required argument missing for command: '{0}'.</source>
-        <target state="new">Required argument missing for command: '{0}'.</target>
+        <source>Required argument '{1}' missing for command: '{0}'.</source>
+        <target state="new">Required argument '{1}' missing for command: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">
@@ -153,8 +153,8 @@
         <note />
       </trans-unit>
       <trans-unit id="OptionRequiredArgumentMissing">
-        <source>Required argument missing for option: '{0}'.</source>
-        <target state="new">Required argument missing for option: '{0}'.</target>
+        <source>Required argument '{1}' missing for option: '{0}'.</source>
+        <target state="new">Required argument '{1}' missing for option: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="RequiredCommandWasNotProvided">

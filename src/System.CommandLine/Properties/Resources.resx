@@ -148,10 +148,10 @@
     <value>Character not allowed in a path: '{0}'.</value>
   </data>
   <data name="CommandRequiredArgumentMissing" xml:space="preserve">
-    <value>Required argument missing for command: '{0}'.</value>
+    <value>Required argument '{1}' missing for command: '{0}'.</value>
   </data>
   <data name="OptionRequiredArgumentMissing" xml:space="preserve">
-    <value>Required argument missing for option: '{0}'.</value>
+    <value>Required argument '{1}' missing for option: '{0}'.</value>
   </data>
   <data name="RequiredCommandWasNotProvided" xml:space="preserve">
     <value>Required command was not provided.</value>

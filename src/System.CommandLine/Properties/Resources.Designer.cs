@@ -115,7 +115,7 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Required argument missing for command: &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Required argument &apos;{1}&apos; missing for command: &apos;{0}&apos;..
         /// </summary>
         internal static string CommandRequiredArgumentMissing {
             get {
@@ -331,7 +331,7 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Required argument missing for option: &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Required argument &apos;{1}&apos; missing for option: &apos;{0}&apos;..
         /// </summary>
         internal static string OptionRequiredArgumentMissing {
             get {
