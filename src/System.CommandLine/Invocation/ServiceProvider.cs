@@ -6,8 +6,6 @@ using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.Threading;
 
-#nullable enable
-
 namespace System.CommandLine.Invocation
 {
     internal class ServiceProvider : IServiceProvider

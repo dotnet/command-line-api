@@ -15,8 +15,7 @@ namespace System.CommandLine.Parsing
         private readonly string? _rawInput;
 
         private readonly DirectiveCollection _directives = new();
-        private List<Token>? _unparsedTokens;
-        private readonly List<Token>? _unmatchedTokens;
+        private List<Token>? _unmatchedTokens;
         private readonly List<ParseError> _errors;
 
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults = new();
@@ -31,13 +30,11 @@ namespace System.CommandLine.Parsing
         public ParseResultVisitor(
             Parser parser,
             TokenizeResult tokenizeResult,
-            List<Token>? unparsedTokens,
             List<Token>? unmatchedTokens,
             string? rawInput)
         {
             _parser = parser;
             _tokenizeResult = tokenizeResult;
-            _unparsedTokens = unparsedTokens;
             _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
             _errors = new List<ParseError>(_tokenizeResult.Errors.Count);
@@ -301,8 +298,8 @@ namespace System.CommandLine.Parsing
                     if (argumentResult.PassedOnTokens is { } &&
                         i == arguments.Count - 1)
                     {
-                        _unparsedTokens ??= new List<Token>();
-                        _unparsedTokens.AddRange(argumentResult.PassedOnTokens);
+                        _unmatchedTokens ??= new List<Token>();
+                        _unmatchedTokens.AddRange(argumentResult.PassedOnTokens);
                     }
                 }
             }
@@ -620,7 +617,6 @@ namespace System.CommandLine.Parsing
                 _innermostCommandResult ?? throw new InvalidOperationException("No command was found"),
                 _directives,
                 _tokenizeResult,
-                _unparsedTokens,
                 _unmatchedTokens,
                 _errors,
                 _rawInput);

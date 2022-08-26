@@ -6,8 +6,6 @@ using System.CommandLine.Invocation;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-#nullable enable
-
 namespace System.CommandLine.Binding
 {
     /// <summary>

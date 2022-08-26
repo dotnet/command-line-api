@@ -25,7 +25,6 @@ namespace System.CommandLine
         /// <param name="command">The root command for the parser.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
-        /// <param name="enableLegacyDoubleDashBehavior">Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.</param>
         /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
         /// <param name="resources">Provide custom validation messages.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
@@ -35,7 +34,6 @@ namespace System.CommandLine
             Command command,
             bool enablePosixBundling = true,
             bool enableDirectives = true,
-            bool enableLegacyDoubleDashBehavior = false,
             bool enableTokenReplacement = true,
             LocalizationResources? resources = null,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
@@ -43,8 +41,6 @@ namespace System.CommandLine
             TryReplaceToken? tokenReplacer = null)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
-
-            EnableLegacyDoubleDashBehavior = enableLegacyDoubleDashBehavior;
             EnableTokenReplacement = enableTokenReplacement;
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
@@ -71,11 +67,6 @@ namespace System.CommandLine
         /// Gets whether directives are enabled.
         /// </summary>
         public bool EnableDirectives { get; }
-
-        /// <summary>
-        /// Enables the legacy behavior of the <c>--</c> token, which is to ignore parsing of subsequent tokens and place them in the <see cref="ParseResult.UnparsedTokens"/> list.
-        /// </summary>
-        public bool EnableLegacyDoubleDashBehavior { get; }
 
         /// <summary>
         /// Gets a value indicating whether POSIX bundling is enabled.

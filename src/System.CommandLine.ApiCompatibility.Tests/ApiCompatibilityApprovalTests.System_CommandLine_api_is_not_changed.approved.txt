@@ -66,8 +66,8 @@ System.CommandLine
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static ParseResult Parse(this Command command, System.String[] args)
     public static ParseResult Parse(this Command command, System.String commandLine)
   public class CommandLineBuilder
@@ -79,7 +79,6 @@ System.CommandLine
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder, System.Nullable<System.TimeSpan> timeout = null)
     public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
-    public static CommandLineBuilder EnableLegacyDoubleDashBehavior(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder RegisterWithDotnetSuggest(this CommandLineBuilder builder)
     public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
@@ -98,9 +97,8 @@ System.CommandLine
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
   public class CommandLineConfiguration
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableLegacyDoubleDashBehavior = False, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Boolean EnableDirectives { get; }
-    public System.Boolean EnableLegacyDoubleDashBehavior { get; }
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
     public LocalizationResources LocalizationResources { get; }
@@ -236,7 +234,6 @@ System.CommandLine
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
-    public System.Collections.Generic.IReadOnlyList<System.String> UnparsedTokens { get; }
     public System.CommandLine.Parsing.ArgumentResult FindResultFor(Argument argument)
     public System.CommandLine.Parsing.CommandResult FindResultFor(Command command)
     public System.CommandLine.Parsing.OptionResult FindResultFor(Option option)
@@ -357,8 +354,8 @@ System.CommandLine.Help
 System.CommandLine.Invocation
   public interface IInvocationResult
     public System.Void Apply(InvocationContext context)
-  public class InvocationContext
-    .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
+  public class InvocationContext, System.IDisposable
+    .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; set; }
     public System.Int32 ExitCode { get; set; }
@@ -368,6 +365,7 @@ System.CommandLine.Invocation
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public System.Threading.CancellationToken GetCancellationToken()
+    public System.Void LinkToken(System.Threading.CancellationToken token)
   public delegate InvocationMiddleware : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(InvocationContext context, System.Func<InvocationContext,System.Threading.Tasks.Task> next, System.AsyncCallback callback, System.Object object)
@@ -450,12 +448,12 @@ System.CommandLine.Parsing
     public static System.String Diagram(this System.CommandLine.ParseResult parseResult)
     public static System.Boolean HasOption(this System.CommandLine.ParseResult parseResult, System.CommandLine.Option option)
     public static System.Int32 Invoke(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
   public static class ParserExtensions
     public static System.Int32 Invoke(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
     public static System.Int32 Invoke(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static System.CommandLine.ParseResult Parse(this Parser parser, System.String commandLine)
   public abstract class SymbolResult
     public System.Collections.Generic.IReadOnlyList<SymbolResult> Children { get; }
@@ -487,8 +485,7 @@ System.CommandLine.Parsing
     Command=1
     Option=2
     DoubleDash=3
-    Unparsed=4
-    Directive=5
+    Directive=4
   public delegate TryReplaceToken : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.AsyncCallback callback, System.Object object)
