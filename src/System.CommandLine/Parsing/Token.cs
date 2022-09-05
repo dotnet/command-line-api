@@ -66,7 +66,7 @@ namespace System.CommandLine.Parsing
         /// <param name="left">The first <see cref="Token"/>.</param>
         /// <param name="right">The second <see cref="Token"/>.</param>
         /// <returns><see langword="true" /> if the objects are equal.</returns>
-        public static bool operator ==(Token left, Token right) => left.Equals(right);
+        public static bool operator ==(Token? left, Token? right) => left is null ? right is null : left.Equals(right);
 
         /// <summary>
         /// Checks if two specified <see cref="Token"/> instances have different values.
@@ -74,6 +74,7 @@ namespace System.CommandLine.Parsing
         /// <param name="left">The first <see cref="Token"/>.</param>
         /// <param name="right">The second <see cref="Token"/>.</param>
         /// <returns><see langword="true" /> if the objects are not equal.</returns>
-        public static bool operator !=(Token left, Token right) => !left.Equals(right);
+        public static bool operator !=(Token? left, Token? right) => left is null ? right is not null : !left.Equals(right);
+
     }
 }
