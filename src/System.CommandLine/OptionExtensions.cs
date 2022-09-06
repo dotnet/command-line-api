@@ -25,7 +25,9 @@ namespace System.CommandLine
             params string[] values)
             where TOption : Option
         {
+            option.Argument.AllowedValues?.Clear();
             option.Argument.AddAllowedValues(values);
+            option.Argument.Completions.Clear();
             option.Argument.Completions.Add(values);
 
             return option;
