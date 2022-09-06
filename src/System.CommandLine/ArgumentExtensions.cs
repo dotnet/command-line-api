@@ -76,7 +76,9 @@ namespace System.CommandLine
             params string[] values)
             where TArgument : Argument
         {
+            argument.AllowedValues?.Clear();
             argument.AddAllowedValues(values);
+            argument.Completions.Clear();
             argument.Completions.Add(values);
 
             return argument;

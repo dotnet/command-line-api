@@ -1,9 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using FluentAssertions;
 using System.CommandLine.Parsing;
 using System.Linq;
-using FluentAssertions;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -369,6 +369,20 @@ namespace System.CommandLine.Tests
             result.GetValueForOption(option)
                 .Should()
                 .BeFalse();
+        }
+
+        [Fact]
+        public void Option_of_enum_can_limit_enum_members_as_valid_values()
+        {
+            var option = new Option<ConsoleColor>("--color")
+                .FromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+
+            var result = option.Parse("--color Fuschia");
+
+            result.Errors
+                .Select(e => e.Message)
+                .Should()
+                .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
         }
         
         protected override Symbol CreateSymbol(string name) => new Option<string>(name);
