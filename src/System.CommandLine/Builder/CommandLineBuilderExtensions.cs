@@ -517,7 +517,7 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseSuggestDirective(
             this CommandLineBuilder builder)
-            => AddMiddleware<ErrorReportingPipelineComponent>(builder);
+            => AddMiddleware<SuggestPipelineComponent>(builder);
 
         /// <summary>
         /// Configures the application to provide alternative suggestions when a parse error is detected.

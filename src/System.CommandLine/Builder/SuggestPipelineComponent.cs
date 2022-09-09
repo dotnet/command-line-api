@@ -38,6 +38,8 @@ namespace System.CommandLine.Builder
                 }
 
                 context.InvocationResult = new SuggestDirectiveResult(position);
+
+                context.TerminationRequested = true;
             }
             return context;
         }
