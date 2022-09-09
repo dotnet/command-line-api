@@ -108,6 +108,11 @@ namespace System.CommandLine.Invocation
         public IInvocationResult? InvocationResult { get; set; }
 
         /// <summary>
+        /// When set to true, additional steps in a pipeline are not executed. Most components are terminal, so this should generally be set to true if a component executes.
+        /// </summary>
+        public bool TerminationRequested { get; set; }
+
+        /// <summary>
         /// Gets a cancellation token that can be used to check if cancellation has been requested.
         /// </summary>
         public CancellationToken GetCancellationToken() => _token;
@@ -118,6 +123,10 @@ namespace System.CommandLine.Invocation
             source?.Cancel();
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="token"></param>
         public void LinkToken(CancellationToken token)
         {
             _registrations.AddLast(token.Register(Cancel));

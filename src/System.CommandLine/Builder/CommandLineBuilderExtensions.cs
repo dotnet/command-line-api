@@ -3,6 +3,7 @@
 
 using System.CommandLine;
 using System.CommandLine.Binding;
+using System.CommandLine.Builder;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -309,6 +310,43 @@ ERR:
                    .CancelOnProcessTermination();
         }
 
+        // UseHelpBuilder used this overload, so I am supporting it although I do not see what it provides.
+        /// <summary>
+        /// Adds middleware to the invocation pipeline.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        public static TBuilder AddMiddleware<TBuilder, TComponent>(TBuilder builder, TComponent? component = null)
+            where TComponent : PipelineComponent, new()
+            where TBuilder : CommandLineBuilder
+        {
+            component = component ?? new TComponent();
+            component.Initialize(builder);
+
+            builder.AddMiddleware(async (context, next) =>
+            {
+                context = component.RunIfNeeded(context);
+                if (!context.TerminationRequested)
+                {
+                    await next(context);
+                }
+            }, (MiddlewareOrderInternal)component.MiddlewareOrder);
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds middleware to the invocation pipeline.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        public static CommandLineBuilder AddMiddleware<TComponent>(CommandLineBuilder builder, TComponent? component = null)
+            where TComponent : PipelineComponent, new()
+            => AddMiddleware<CommandLineBuilder, TComponent>(builder, component);
+
+
         /// <summary>
         /// Enables an exception handler to catch any unhandled exceptions thrown by a command handler during invocation.
         /// </summary>
@@ -365,9 +403,7 @@ ERR:
         /// <param name="maxWidth">Maximum output width for default help builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, int? maxWidth = null)
-        {
-            return builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
-        }
+            => AddMiddleware(builder, new HelpPipelineComponent() { MaxHelpWidth = maxWidth });
 
         /// <summary>
         /// Configures the application to show help when one of the specified option aliases are used on the command line.
@@ -379,9 +415,7 @@ ERR:
         public static CommandLineBuilder UseHelp(
             this CommandLineBuilder builder,
             params string[] helpAliases)
-        {
-            return builder.UseHelp(new HelpOption(helpAliases, () => builder.LocalizationResources));
-        }
+            => AddMiddleware(builder, new HelpPipelineComponent() { Aliases = helpAliases });
 
         /// <summary>
         /// Configures the application to show help when one of the specified option aliases are used on the command line.
@@ -395,38 +429,11 @@ ERR:
             this CommandLineBuilder builder,
             Action<HelpContext> customize,
             int? maxWidth = null)
-        {
-            builder.CustomizeHelpLayout(customize);
-
-            if (builder.HelpOption is null)
-            {
-                builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
-            }
-
-            return builder;
-        }
-
-        internal static CommandLineBuilder UseHelp(
-            this CommandLineBuilder builder,
-            HelpOption helpOption,
-            int? maxWidth = null)
-        {
-            if (builder.HelpOption is null)
-            {
-                builder.HelpOption = helpOption;
-                builder.Command.AddGlobalOption(helpOption);
-                builder.MaxHelpWidth = maxWidth;
-
-                builder.AddMiddleware(async (context, next) =>
-                {
-                    if (!ShowHelp(context, builder.HelpOption))
-                    {
-                        await next(context);
-                    }
-                }, MiddlewareOrderInternal.HelpOption);
-            }
-            return builder;
-        }
+             => AddMiddleware(builder, new HelpPipelineComponent()
+             {
+                 MaxHelpWidth = maxWidth,
+                 Customize = customize
+             });
 
         /// <summary>
         /// Specifies an <see cref="HelpBuilder"/> to be used to format help output when help is requested.
@@ -437,14 +444,8 @@ ERR:
         public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder,
             Func<BindingContext, HelpBuilder> getHelpBuilder)
             where TBuilder : CommandLineBuilder
-        {
-            if (builder is null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-            builder.UseHelpBuilderFactory(getHelpBuilder);
-            return builder;
-        }
+            => AddMiddleware(builder, new HelpBuilderPipelineComponent() { GetHelpBuilder = getHelpBuilder });
+
 
         /// <summary>
         /// Adds a middleware delegate to the invocation pipeline called before a command handler is invoked.
@@ -495,21 +496,7 @@ ERR:
         public static CommandLineBuilder UseParseDirective(
             this CommandLineBuilder builder,
             int? errorExitCode = null)
-        {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Directives.Contains("parse"))
-                {
-                    context.InvocationResult = new ParseDirectiveResult(errorExitCode);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.ParseDirective);
-
-            return builder;
-        }
+            => AddMiddleware(builder, new ParseDirectivePipelineComponent() { ErrorExitCode = errorExitCode });
 
         /// <summary>
         /// Configures the command line to write error information to standard error when there are errors parsing command line input.
@@ -520,21 +507,7 @@ ERR:
         public static CommandLineBuilder UseParseErrorReporting(
             this CommandLineBuilder builder,
             int? errorExitCode = null)
-        {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Errors.Count > 0)
-                {
-                    context.InvocationResult = new ParseErrorResult(errorExitCode);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.ParseErrorReporting);
-
-            return builder;
-        }
+            => AddMiddleware(builder, new ErrorReportingPipelineComponent() { ErrorExitCode = errorExitCode });
 
         /// <summary>
         /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
@@ -544,32 +517,7 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseSuggestDirective(
             this CommandLineBuilder builder)
-        {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Directives.TryGetValues("suggest", out var values))
-                {
-                    int position;
-
-                    if (values.FirstOrDefault() is { } positionString)
-                    {
-                        position = int.Parse(positionString);
-                    }
-                    else
-                    {
-                        position = context.ParseResult.CommandLineText?.Length ?? 0;
-                    }
-
-                    context.InvocationResult = new SuggestDirectiveResult(position);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.SuggestDirective);
-
-            return builder;
-        }
+            => AddMiddleware<ErrorReportingPipelineComponent>(builder);
 
         /// <summary>
         /// Configures the application to provide alternative suggestions when a parse error is detected.
@@ -580,21 +528,7 @@ ERR:
         public static CommandLineBuilder UseTypoCorrections(
             this CommandLineBuilder builder,
             int maxLevenshteinDistance = 3)
-        {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors &&
-                    context.ParseResult.UnmatchedTokens.Count > 0)
-                {
-                    var typoCorrection = new TypoCorrection(maxLevenshteinDistance);
-
-                    typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
-                }
-                await next(context);
-            }, MiddlewareOrderInternal.TypoCorrection);
-
-            return builder;
-        }
+            => AddMiddleware(builder, new TypoCorrectionsPipelineComponent() { MaxLevenshteinDistance = maxLevenshteinDistance });
 
         /// <summary>
         /// Specifies localization resources to be used when displaying help, error messages, and other user-facing strings.
@@ -605,10 +539,7 @@ ERR:
         public static CommandLineBuilder UseLocalizationResources(
             this CommandLineBuilder builder,
             LocalizationResources validationMessages)
-        {
-            builder.LocalizationResources = validationMessages;
-            return builder;
-        }
+            => AddMiddleware(builder, new LocalizationResourcesPipelineComponent() { ValidationMessages = validationMessages });
 
         /// <summary>
         /// Specifies a delegate used to replace any token prefixed with <code>@</code> with zero or more other tokens, prior to parsing. 
@@ -625,98 +556,23 @@ ERR:
             return builder;
         }
 
+
         /// <summary>
         /// Enables the use of a option (defaulting to the alias <c>--version</c>) which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseVersionOption(
-            this CommandLineBuilder builder)
-        {
-            if (builder.VersionOption is not null)
-            {
-                return builder;
-            }
-
-            var versionOption = new VersionOption(builder);
-
-            builder.VersionOption = versionOption;
-            builder.Command.AddOption(versionOption);
-
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.FindResultFor(versionOption) is { })
-                {
-                    if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
-                    {
-                        context.InvocationResult = new ParseErrorResult(null);
-                    }
-                    else
-                    {
-                        context.Console.Out.WriteLine(_assemblyVersion.Value);
-                    }
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.VersionOption);
-
-            return builder;
-        }
+                this CommandLineBuilder builder)
+             => AddMiddleware<VersionPipelineComponent>(builder);
 
         /// <inheritdoc cref="UseVersionOption(System.CommandLine.CommandLineBuilder)"/>
         /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
         /// <param name="builder">A command line builder.</param>
         public static CommandLineBuilder UseVersionOption(
-            this CommandLineBuilder builder,
-            params string[] aliases)
-        {
-            var command = builder.Command;
+                this CommandLineBuilder builder,
+                params string[] aliases)
+            => AddMiddleware(builder, new VersionPipelineComponent() { Aliases = aliases });
 
-            if (builder.VersionOption is not null)
-            {
-                return builder;
-            }
-
-            var versionOption = new VersionOption(aliases, builder);
-
-            builder.VersionOption = versionOption;
-            command.AddOption(versionOption);
-
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.FindResultFor(versionOption) is { })
-                {
-                    if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
-                    {
-                        context.InvocationResult = new ParseErrorResult(null);
-                    }
-                    else
-                    {
-                        context.Console.Out.WriteLine(_assemblyVersion.Value);
-                    }
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.VersionOption);
-
-            return builder;
-        }
-
-        private static bool ShowHelp(
-            InvocationContext context,
-            Option helpOption)
-        {
-            if (context.ParseResult.FindResultFor(helpOption) is { })
-            {
-                context.InvocationResult = new HelpResult();
-                return true;
-            }
-
-            return false;
-        }
     }
 }
