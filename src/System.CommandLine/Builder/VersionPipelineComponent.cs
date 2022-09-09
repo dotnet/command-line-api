@@ -35,7 +35,7 @@ namespace System.CommandLine.Builder
             {
                 versionOption = Aliases == null
                         ? new VersionOption(builder)
-                        : new VersionOption(builder);
+                        : new VersionOption(Aliases, builder);
                 builder.VersionOption = versionOption;
                 builder.Command.AddOption(versionOption);
             }
