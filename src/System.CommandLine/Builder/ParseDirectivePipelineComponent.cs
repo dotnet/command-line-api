@@ -27,13 +27,14 @@ namespace System.CommandLine.Builder
         { }
 
         /// <inheritdoc/>
+        public override bool ShouldRun(InvocationContext context)
+            => context.ParseResult.Directives.Contains("parse");
+
+        /// <inheritdoc/>
         public override InvocationContext RunIfNeeded(InvocationContext context)
         {
-            if (context.ParseResult.Directives.Contains("parse"))
-            {
-                context.InvocationResult = new ParseDirectiveResult(ErrorExitCode);
-                context.TerminationRequested = true;
-            }
+            context.InvocationResult = new ParseDirectiveResult(ErrorExitCode);
+            context.TerminationRequested = true;
             return context;
         }
 

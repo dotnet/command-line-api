@@ -32,6 +32,10 @@ namespace System.CommandLine.Builder
         }
 
         /// <inheritdoc/>
+        public override bool ShouldRun(InvocationContext context)
+            => false;
+
+        /// <inheritdoc/>
         public override InvocationContext RunIfNeeded(InvocationContext context)
             => context;
 

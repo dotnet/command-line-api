@@ -53,16 +53,16 @@ namespace System.CommandLine.Builder
         }
 
         /// <inheritdoc/>
+        public override bool ShouldRun(InvocationContext context)
+            => helpOption is not null && context.ParseResult.FindResultFor(helpOption) is { };
+
+        /// <inheritdoc/>
         public override InvocationContext RunIfNeeded(InvocationContext context)
         {
-            // @jonsequitor We could avoid a closure if we allowed lookup on types when they are not a plain option/arg. Lookup on VersionOption.
             if (helpOption is not null && context.ParseResult.FindResultFor(helpOption) is { })
             {
-                if (context.ParseResult.FindResultFor(helpOption) is { })
-                {
-                    context.InvocationResult = new HelpResult();
-                    context.TerminationRequested = true;
-                }
+                context.InvocationResult = new HelpResult();
+                context.TerminationRequested = true;
             }
             return context;
         }

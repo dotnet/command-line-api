@@ -21,6 +21,14 @@ namespace System.CommandLine.Builder
         /// </summary>
         /// <param name="builder">The current CommandLineBuilder, which offers access to the parser and root cmmand</param>
         public abstract void Initialize(CommandLineBuilder builder);
+
+        /// <summary>
+        /// Indicates whether the component should run based on the ParseResult and other InvocationContext details.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns>Returns `true` if the component should run, otherwise, false.</returns>
+        public abstract bool ShouldRun(InvocationContext context);
+
         /// <summary>
         /// When overridden, this method should test whether the component should run, run it if needed, and 
         /// set the InvocationContext parameters TerminationRequested to true if  this should terminate the pipeline.

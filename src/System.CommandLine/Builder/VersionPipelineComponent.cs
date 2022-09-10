@@ -28,6 +28,7 @@ namespace System.CommandLine.Builder
 
 
         /// <inheritdoc/>
+        /// <inheritdoc/>
         public override void Initialize(CommandLineBuilder builder)
         {
             // @jonsequitor This approach to reentrancy does not support new components. Can the builder decide not to rerun, rather than components checking?
@@ -41,22 +42,21 @@ namespace System.CommandLine.Builder
             }
         }
 
+        public override bool ShouldRun(InvocationContext context)
+            => versionOption is not null && context.ParseResult.FindResultFor(versionOption) is { };
+
         /// <inheritdoc/>
         public override InvocationContext RunIfNeeded(InvocationContext context)
         {
-            // @jonsequitor We could avoid a closure if we allowed lookup on types when they are not a plain option/arg. Lookup on VersionOption.
-            if (versionOption is not null && context.ParseResult.FindResultFor(versionOption) is { })
+            if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
             {
-                if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
-                {
-                    context.InvocationResult = new ParseErrorResult(null);
-                }
-                else
-                {
-                    context.Console.Out.WriteLine(_assemblyVersion.Value);
-                }
-                context.TerminationRequested = true;
+                context.InvocationResult = new ParseErrorResult(null);
             }
+            else
+            {
+                context.Console.Out.WriteLine(_assemblyVersion.Value);
+            }
+            context.TerminationRequested = true;
             return context;
         }
 

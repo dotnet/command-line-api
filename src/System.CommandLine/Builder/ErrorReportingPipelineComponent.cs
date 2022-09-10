@@ -28,16 +28,20 @@ namespace System.CommandLine.Builder
         public override void Initialize(CommandLineBuilder builder)
         { }
 
+
+        /// <inheritdoc/>
+        public override bool ShouldRun(InvocationContext context)
+            => context.ParseResult.Errors.Count > 0;
+
         /// <inheritdoc/>
         public override InvocationContext RunIfNeeded(InvocationContext context)
         {
-            if (context.ParseResult.Errors.Count > 0)
-            {
-                context.InvocationResult = new ParseErrorResult(ErrorExitCode);
-                context.TerminationRequested = true;
-            }
+
+            context.InvocationResult = new ParseErrorResult(ErrorExitCode);
+            context.TerminationRequested = true;
             return context;
         }
+
     }
 }
 

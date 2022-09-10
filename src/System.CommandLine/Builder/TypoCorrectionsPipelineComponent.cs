@@ -28,16 +28,15 @@ namespace System.CommandLine.Builder
         { }
 
         /// <inheritdoc/>
+        public override bool ShouldRun(InvocationContext context)
+            => context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors &&
+                        context.ParseResult.UnmatchedTokens.Count > 0;
+
+        /// <inheritdoc/>
         public override InvocationContext RunIfNeeded(InvocationContext context)
         {
-            if (context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors &&
-                        context.ParseResult.UnmatchedTokens.Count > 0)
-            {
-                var typoCorrection = new TypoCorrection(MaxLevenshteinDistance);
-
-                typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
-
-            }
+            var typoCorrection = new TypoCorrection(MaxLevenshteinDistance);
+            typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
             return context;
         }
 

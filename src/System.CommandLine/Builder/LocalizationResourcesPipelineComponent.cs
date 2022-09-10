@@ -25,6 +25,10 @@ namespace System.CommandLine.Builder
         }
 
         /// <inheritdoc/>
+        /// <inheritdoc/>
+        public override bool ShouldRun(InvocationContext context)
+            => false;
+
         public override void Initialize(CommandLineBuilder builder)
         {
             if (ValidationMessages is not null)

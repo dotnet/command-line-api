@@ -9,6 +9,8 @@ namespace System.CommandLine.Builder
     /// </summary>
     public class SuggestPipelineComponent : PipelineComponent
     {
+        private const string directiveName = "suggest";
+
         /// <summary>
         /// Constructor to provide default values
         /// </summary>
@@ -22,21 +24,17 @@ namespace System.CommandLine.Builder
         { }
 
         /// <inheritdoc/>
+        public override bool ShouldRun(InvocationContext context)
+            => context.ParseResult.Directives.Contains(directiveName);
+
+        /// <inheritdoc/>
         public override InvocationContext RunIfNeeded(InvocationContext context)
         {
-            if (context.ParseResult.Directives.TryGetValues("suggest", out var values))
+            if (context.ParseResult.Directives.TryGetValues(directiveName, out var values))
             {
-                int position;
-
-                if (values.FirstOrDefault() is { } positionString)
-                {
-                    position = int.Parse(positionString);
-                }
-                else
-                {
-                    position = context.ParseResult.CommandLineText?.Length ?? 0;
-                }
-
+                int position = values.FirstOrDefault() is { } positionString 
+                    ? int.Parse(positionString) 
+                    : context.ParseResult.CommandLineText?.Length ?? 0;
                 context.InvocationResult = new SuggestDirectiveResult(position);
 
                 context.TerminationRequested = true;

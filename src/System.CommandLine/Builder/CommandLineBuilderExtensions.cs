@@ -326,7 +326,9 @@ ERR:
 
             builder.AddMiddleware(async (context, next) =>
             {
-                context = component.RunIfNeeded(context);
+                if (component.ShouldRun(context)) {
+                    context = component.RunIfNeeded(context);
+                }
                 if (!context.TerminationRequested)
                 {
                     await next(context);
