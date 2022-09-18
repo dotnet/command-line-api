@@ -188,6 +188,7 @@ System.CommandLine
     public System.String NoArgumentProvided(System.CommandLine.Parsing.SymbolResult symbolResult)
     public System.String RequiredArgumentMissing(System.CommandLine.Parsing.SymbolResult symbolResult)
     public System.String RequiredCommandWasNotProvided()
+    public System.String RequiredOptionWasNotProvided(Option option)
     public System.String ResponseFileNotFound(System.String filePath)
     public System.String SuggestionsTokenNotMatched(System.String token)
     public System.String UnrecognizedArgument(System.String unrecognizedArg, System.Collections.Generic.IReadOnlyCollection<System.String> allowedValues)

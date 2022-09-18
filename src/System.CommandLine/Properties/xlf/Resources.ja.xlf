@@ -162,6 +162,11 @@
         <target state="new">Required command was not provided.</target>
         <note />
       </trans-unit>
+      <trans-unit id="RequiredOptionWasNotProvided">
+        <source>Option '{0}' is required.</source>
+        <target state="new">Option '{0}' is required.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ResponseFileNotFound">
         <source>Response file not found '{0}'.</source>
         <target state="new">Response file not found '{0}'.</target>
