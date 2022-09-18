@@ -231,4 +231,7 @@
   <data name="ArgumentConversionCannotParseForOption" xml:space="preserve">
     <value>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</value>
   </data>
+  <data name="RequiredOptionWasNotProvided" xml:space="preserve">
+    <value>Option '{0}' is required.</value>
+  </data>
 </root>

@@ -360,8 +360,9 @@ namespace System.CommandLine.Parsing
                         {
                             AddErrorToResult(
                                 _innermostCommandResult,
-                                new ParseError($"Option '{option.Aliases.First()}' is required.",
-                                               _innermostCommandResult));
+                                new ParseError(
+                                    _rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option),
+                                    _innermostCommandResult));
                         }
                     }
                 }

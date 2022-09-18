@@ -177,6 +177,30 @@ namespace System.CommandLine.Tests
                   .Be("Option '-x' is required.");
         }
 
+        [Fact]
+        public void When_a_required_option_has_multiple_aliases_the_error_message_uses_longest()
+        {
+            var command = new Command("command")
+            {
+                new Option<string>(new[] {"-x", "--xray" })
+                {
+                    IsRequired = true
+                }
+            };
+
+            var result = command.Parse("");
+
+            result.Errors
+                  .Should()
+                  .HaveCount(1)
+                  .And
+                  .Contain(e => e.SymbolResult.Symbol == command)
+                  .Which
+                  .Message
+                  .Should()
+                  .Be("Option '--xray' is required.");
+        }
+
         [Theory]
         [InlineData("subcommand -x arg")]
         [InlineData("-x arg subcommand")]

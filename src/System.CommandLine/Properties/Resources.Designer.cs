@@ -349,6 +349,15 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Option &apos;{0}&apos; is required..
+        /// </summary>
+        internal static string RequiredOptionWasNotProvided {
+            get {
+                return ResourceManager.GetString("RequiredOptionWasNotProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Response file not found &apos;{0}&apos;..
         /// </summary>
         internal static string ResponseFileNotFound {

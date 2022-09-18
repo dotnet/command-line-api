@@ -43,7 +43,25 @@ namespace System.CommandLine.Tests
                   .ContainSingle()
                   .Which.Message.Should().Be("Option '--i-must-be-set' is required.");
         }
-        
+
+        [Fact] 
+        public void When_a_required_global_option_has_multiple_aliases_the_error_message_uses_longest()
+        {
+            var rootCommand = new RootCommand();
+            var requiredOption = new Option<bool>(new[] { "-i", "--i-must-be-set" })
+            {
+                IsRequired = true
+            };
+            rootCommand.AddGlobalOption(requiredOption);
+
+            var result = rootCommand.Parse("");
+
+            result.Errors
+                  .Should()
+                  .ContainSingle()
+                  .Which.Message.Should().Be("Option '--i-must-be-set' is required.");
+        }
+
         [Fact]
         public void When_a_required_global_option_is_present_on_child_of_command_it_was_added_to_it_does_not_result_in_an_error()
         {
