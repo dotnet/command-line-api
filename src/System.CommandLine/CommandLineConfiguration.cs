@@ -55,7 +55,7 @@ namespace System.CommandLine
         internal static HelpBuilder DefaultHelpBuilderFactory(BindingContext context, int? requestedMaxWidth = null)
         {
             int maxWidth = requestedMaxWidth ?? int.MaxValue;
-            if (context.Console is SystemConsole systemConsole)
+            if (requestedMaxWidth is null && context.Console is SystemConsole systemConsole)
             {
                 maxWidth = systemConsole.GetWindowWidth();
             }
