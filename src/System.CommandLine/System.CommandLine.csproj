@@ -3,7 +3,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>System.CommandLine</PackageId>
-    <TargetFrameworks>$(TargetFrameworkForNETSDK);netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net7.0;netstandard2.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>10</LangVersion>
@@ -18,7 +18,7 @@
     <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkForNETSDK)'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <IsTrimmable>true</IsTrimmable>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
