@@ -960,7 +960,38 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().Contain(expected);
         }
 
+        [Fact]
+        public void Command_shared_arguments_with_one_or_more_arity_are_required()
+        {
+            var arg = new Argument<string[]>
+            {
+                Name = "shared-args",
+                Arity = ArgumentArity.OneOrMore
+            };
 
+            var inner = new Command("inner", "command help")
+            {
+                arg
+            };
+            _ = new Command("outer", "command help")
+            {
+                inner,
+                arg
+            };
+            _ = new Command("unused", "command help")
+            {
+                arg
+            };
+
+            _helpBuilder.Write(inner, _console);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}outer <shared-args>... inner <shared-args>...";
+
+            _console.ToString().Should().Contain(expected);
+        }
+        
         #endregion Arguments
 
         #region Options
