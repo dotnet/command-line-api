@@ -325,12 +325,8 @@ namespace System.CommandLine.Help
             {
                 StringBuilderPool.Default.ReturnToPool(sb);
             }
-
-            bool IsMultiParented(Argument a) =>
-                a.FirstParent is not null && a.FirstParent.Next is not null;
-
+            
             bool IsOptional(Argument argument) =>
-                IsMultiParented(argument) ||
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
