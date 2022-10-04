@@ -250,6 +250,34 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        public void Usage_section_for_subcommand_shows_arguments_for_subcommand_and_parent_command_not_optional()
+        {
+            var arg = new Argument<string[]>
+            {
+                Name = "shared-args",
+                Arity = ArgumentArity.OneOrMore
+            };
+
+            var inner = new Command("inner", "command help")
+            {
+                arg
+            };
+            _ = new Command("outer", "command help")
+            {
+                inner,
+                arg
+            };
+
+            _helpBuilder.Write(inner, _console);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}outer <shared-args>... inner <shared-args>...";
+
+            _console.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
         public void Usage_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_not_specified()
         {
             var command = new Command(
