@@ -933,7 +933,7 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
-        public void Command_shared_arguments_with_one_or_more_arity_are_required()
+        public void Command_shared_arguments_with_one_or_more_arity_are_displayed_as_being_required()
         {
             var arg = new Argument<string[]>
             {
