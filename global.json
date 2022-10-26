@@ -1,6 +1,6 @@
 {
   "tools": {
-    "dotnet": "7.0.100-preview.6.22352.1",
+    "dotnet": "7.0.100-rc.1.22431.12",
     "runtimes": {
       "dotnet": [
         "5.0.17",
@@ -10,6 +10,6 @@
     "xcopy-msbuild": "17.1.0"
   },
   "msbuild-sdks": {
-    "Microsoft.DotNet.Arcade.Sdk": "7.0.0-beta.22168.2"
+    "Microsoft.DotNet.Arcade.Sdk": "8.0.0-beta.22520.1"
   }
 }
