@@ -33,7 +33,7 @@ namespace System.CommandLine.Suggest
             };
             CompleteScriptCommand.SetHandler(context =>
             {
-                SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValueForArgument(shellTypeArgument));
+                SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValue(shellTypeArgument));
             });
 
             ListCommand = new Command("list")
@@ -63,7 +63,7 @@ namespace System.CommandLine.Suggest
 
             RegisterCommand.SetHandler(context =>
             {
-                Register(context.ParseResult.GetValueForOption(commandPathOption), context.Console);
+                Register(context.ParseResult.GetValue(commandPathOption), context.Console);
                 return Task.FromResult(0);
             });
 
@@ -130,7 +130,7 @@ namespace System.CommandLine.Suggest
         private Task<int> Get(InvocationContext context)
         {
             var parseResult = context.ParseResult;
-            var commandPath = parseResult.GetValueForOption(ExecutableOption);
+            var commandPath = parseResult.GetValue(ExecutableOption);
 
             Registration suggestionRegistration;
             if (commandPath.FullName == DotnetMuxer.Path.FullName)
@@ -142,7 +142,7 @@ namespace System.CommandLine.Suggest
                 suggestionRegistration = _suggestionRegistration.FindRegistration(commandPath);
             }
 
-            var position = parseResult.GetValueForOption(PositionOption);
+            var position = parseResult.GetValue(PositionOption);
 
             if (suggestionRegistration is null)
             {

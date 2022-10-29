@@ -183,7 +183,7 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<int>(result => int.Parse(result.Tokens.Single().Value));
 
                 argument.Parse("123")
-                        .GetValueForArgument(argument)
+                        .GetValue(argument)
                         .Should()
                         .Be(123);
             }
@@ -194,7 +194,7 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<IEnumerable<int>>(result => result.Tokens.Single().Value.Split(',').Select(int.Parse));
 
                 argument.Parse("1,2,3")
-                        .GetValueForArgument(argument)
+                        .GetValue(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
             }
@@ -208,7 +208,7 @@ namespace System.CommandLine.Tests
                 });
 
                 argument.Parse("1 2 3")
-                        .GetValueForArgument(argument)
+                        .GetValue(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
             }
@@ -222,7 +222,7 @@ namespace System.CommandLine.Tests
                 };
 
                 argument.Parse("1 2 3")
-                        .GetValueForArgument(argument)
+                        .GetValue(argument)
                         .Should()
                         .Be(6);
             }
@@ -367,7 +367,7 @@ namespace System.CommandLine.Tests
 
                 var result = argument.Parse("");
 
-                result.GetValueForArgument(argument)
+                result.GetValue(argument)
                       .Should()
                       .Be(123);
             }
@@ -449,7 +449,7 @@ namespace System.CommandLine.Tests
                 var result = command.Parse("the-command -o not-an-int");
 
                 Action getValue = () => 
-                    result.GetValueForOption(option);
+                    result.GetValue(option);
 
                 getValue.Should()
                         .Throw<InvalidOperationException>()
@@ -511,7 +511,7 @@ namespace System.CommandLine.Tests
                     opt
                 };
 
-                rootCommand.Parse(commandLine).GetValueForOption(opt).Should().Be(expectedValue);
+                rootCommand.Parse(commandLine).GetValue(opt).Should().Be(expectedValue);
             }
 
             [Theory]
@@ -691,9 +691,9 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2 3");
 
-                result.GetValueForArgument(argument1).Should().BeEmpty();
+                result.GetValue(argument1).Should().BeEmpty();
 
-                result.GetValueForArgument(argument2).Should().BeEquivalentSequenceTo(1, 2, 3);
+                result.GetValue(argument2).Should().BeEquivalentSequenceTo(1, 2, 3);
             }
 
             [Fact] // https://github.com/dotnet/command-line-api/issues/1759 
@@ -714,9 +714,9 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2 3");
 
-                result.GetValueForArgument(scalar).Should().BeNull();
+                result.GetValue(scalar).Should().BeNull();
 
-                result.GetValueForArgument(multiple).Should().BeEquivalentSequenceTo(1, 2, 3);
+                result.GetValue(multiple).Should().BeEquivalentSequenceTo(1, 2, 3);
             }
 
 
@@ -759,9 +759,9 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2 3");
 
-                result.GetValueForArgument(first).Should().BeNull();
-                result.GetValueForArgument(second).Should().BeEmpty();
-                result.GetValueForArgument(third).Should().BeEquivalentSequenceTo("1", "2", "3");
+                result.GetValue(first).Should().BeNull();
+                result.GetValue(second).Should().BeEmpty();
+                result.GetValue(third).Should().BeEquivalentSequenceTo("1", "2", "3");
             }
         }
 

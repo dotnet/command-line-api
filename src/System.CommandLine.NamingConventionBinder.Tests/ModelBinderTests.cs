@@ -774,6 +774,70 @@ public class ModelBinderTests
         boundOptions.BundleId.Should().Be("value");
     }
 
+    [Fact]
+    public void InvocationContext_GetValue_with_generic_option_returns_value()
+    {
+        Option<int> option = new("--number");
+        Command command = new("the-command")
+        {
+            option
+        };
+
+        InvocationContext invocationContext = new(command.Parse("the-command --number 42"));
+
+        invocationContext.GetValue(option)
+            .Should()
+            .Be(42);
+    }
+
+    [Fact]
+    public void InvocationContext_GetValue_with_non_generic_option_returns_value()
+    {
+        Option option = new Option<int>("--number");
+        Command command = new("the-command")
+        {
+            option
+        };
+
+        InvocationContext invocationContext = new(command.Parse("the-command --number 42"));
+
+        invocationContext.GetValue(option)
+            .Should()
+            .Be(42);
+    }
+
+    [Fact]
+    public void InvocationContext_GetValue_with_generic_argument_returns_value()
+    {
+        Argument<int> option = new();
+        Command command = new("the-command")
+        {
+            option
+        };
+
+        InvocationContext invocationContext = new(command.Parse("the-command 42"));
+
+        invocationContext.GetValue(option)
+            .Should()
+            .Be(42);
+    }
+
+    [Fact]
+    public void InvocationContext_GetValue_with_non_generic_argument_returns_value()
+    {
+        Argument option = new Argument<int>();
+        Command command = new("the-command")
+        {
+            option
+        };
+
+        InvocationContext invocationContext = new(command.Parse("the-command 42"));
+
+        invocationContext.GetValue(option)
+            .Should()
+            .Be(42);
+    }
+
     class DeployOptions
     {
         public string Bundle { get; set; }

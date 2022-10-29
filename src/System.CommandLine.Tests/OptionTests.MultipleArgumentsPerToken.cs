@@ -114,7 +114,7 @@ namespace System.CommandLine.Tests
 
                     var result = command.Parse(commandLine);
 
-                    var value = result.GetValueForOption(option);
+                    var value = result.GetValue(option);
 
                     value.Should().Be("2");
                 }
@@ -162,8 +162,8 @@ namespace System.CommandLine.Tests
                     _output.WriteLine(result.Diagram());
 
                     result.Errors.Should().BeEmpty();
-                    result.GetValueForOption(optionY).Should().Be("-x");
-                    result.GetValueForOption(optionX).Should().Be("-y");
+                    result.GetValue(optionY).Should().Be("-x");
+                    result.GetValue(optionX).Should().Be("-y");
                 }
             }
 
@@ -177,7 +177,7 @@ namespace System.CommandLine.Tests
 
                     var result = command.Parse("--option 1 2");
 
-                    var value = result.GetValueForOption(option);
+                    var value = result.GetValue(option);
 
                     value.Should().BeEquivalentTo(new[] { "1" });
                 }
@@ -202,7 +202,7 @@ namespace System.CommandLine.Tests
 
                     var result = command.Parse("--option 1 --option 2");
 
-                    var value = result.GetValueForOption(option);
+                    var value = result.GetValue(option);
 
                     value.Should().BeEquivalentTo(new[] { "1", "2" });
                     result.Errors.Should().BeEmpty();

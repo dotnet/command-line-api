@@ -483,7 +483,7 @@ namespace System.CommandLine.Tests
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
             argument.AddValidator(result =>
             {
-                var value = result.GetValueForArgument(argument);
+                var value = result.GetValue(argument);
 
                 if (value < 0 || value > 100)
                 {
@@ -507,7 +507,7 @@ namespace System.CommandLine.Tests
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
             option.AddValidator(result =>
             {
-                var value = result.GetValueForOption(option);
+                var value = result.GetValue(option);
 
                 if (value < 0 || value > 100)
                 {
@@ -1094,8 +1094,8 @@ namespace System.CommandLine.Tests
             var result = parser.Parse("");
 
             result.Errors.Should().BeEmpty();
-            result.GetValueForOption(optionX).Should().Be(123);
-            result.GetValueForOption(optionY).Should().Be(456);
+            result.GetValue(optionX).Should().Be(123);
+            result.GetValue(optionY).Should().Be(456);
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1505

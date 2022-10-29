@@ -29,9 +29,9 @@ namespace System.CommandLine.Tests
 
                 result.HasOption(option).Should().BeTrue();
 
-                result.GetValueForOption(option).Should().BeEquivalentTo("some stuff");
+                result.GetValue(option).Should().BeEquivalentTo("some stuff");
 
-                result.GetValueForArgument(argument).Should().BeEquivalentSequenceTo("-o", "--one", "-x", "-y", "-z", "-o:foo");
+                result.GetValue(argument).Should().BeEquivalentSequenceTo("-o", "--one", "-x", "-y", "-z", "-o:foo");
 
                 result.UnmatchedTokens.Should().BeEmpty();
             }
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
                              .Build()
                              .Parse("a b c -- -- d");
 
-                var strings = result.GetValueForArgument(argument);
+                var strings = result.GetValue(argument);
 
                 strings.Should().BeEquivalentSequenceTo("a", "b", "c", "--", "d");
             }

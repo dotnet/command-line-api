@@ -128,8 +128,8 @@ namespace System.CommandLine.Parsing
         public virtual OptionResult? FindResultFor(Option option) =>
             Root?.FindResultFor(option);
 
-        /// <inheritdoc cref="ParseResult.GetValueForArgument"/>
-        public T GetValueForArgument<T>(Argument<T> argument)
+        /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
+        public T GetValue<T>(Argument<T> argument)
         {
             if (FindResultFor(argument) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -140,8 +140,8 @@ namespace System.CommandLine.Parsing
             return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
         }
 
-        /// <inheritdoc cref="ParseResult.GetValueForArgument"/>
-        public object? GetValueForArgument(Argument argument)
+        /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
+        public object? GetValue(Argument argument)
         {
             if (FindResultFor(argument) is { } result &&
                 result.GetValueOrDefault<object?>() is { } t)
@@ -152,8 +152,8 @@ namespace System.CommandLine.Parsing
             return ArgumentConverter.GetDefaultValue(argument.ValueType);
         }
 
-        /// <inheritdoc cref="ParseResult.GetValueForOption"/>
-        public T? GetValueForOption<T>(Option<T> option)
+        /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
+        public T? GetValue<T>(Option<T> option)
         {
             if (FindResultFor(option) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -164,8 +164,8 @@ namespace System.CommandLine.Parsing
             return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
         }
 
-        /// <inheritdoc cref="ParseResult.GetValueForOption"/>
-        public object? GetValueForOption(Option option)
+        /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
+        public object? GetValue(Option option)
         {
             if (FindResultFor(option) is { } result && 
                 result.GetValueOrDefault<object?>() is { } t)

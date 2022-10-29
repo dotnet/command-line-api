@@ -22,8 +22,8 @@ public class Program
 
         void Run(InvocationContext context)
         {
-            context.Console.WriteLine($"Bool option: {context.ParseResult.GetValueForOption(boolOption)}");
-            context.Console.WriteLine($"String option: {context.ParseResult.GetValueForOption(stringOption)}");
+            context.Console.WriteLine($"Bool option: {context.ParseResult.GetValue(boolOption)}");
+            context.Console.WriteLine($"String option: {context.ParseResult.GetValue(stringOption)}");
         }
     }
 }
