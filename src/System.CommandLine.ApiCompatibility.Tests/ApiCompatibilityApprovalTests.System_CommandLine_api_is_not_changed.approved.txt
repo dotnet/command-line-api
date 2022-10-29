@@ -241,10 +241,10 @@ System.CommandLine
     public System.CommandLine.Parsing.SymbolResult FindResultFor(Symbol symbol)
     public System.CommandLine.Completions.CompletionContext GetCompletionContext()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
-    public System.Object GetValueForArgument(Argument argument)
-    public T GetValueForArgument<T>(Argument<T> argument)
-    public System.Object GetValueForOption(Option option)
-    public T GetValueForOption<T>(Option<T> option)
+    public System.Object GetValue(Option option)
+    public System.Object GetValue(Argument argument)
+    public T GetValue<T>(Argument<T> argument)
+    public T GetValue<T>(Option<T> option)
     public System.String ToString()
   public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
     public static System.String ExecutableName { get; }
@@ -366,6 +366,10 @@ System.CommandLine.Invocation
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public System.Threading.CancellationToken GetCancellationToken()
+    public System.Object GetValue(System.CommandLine.Option option)
+    public T GetValue<T>(Option<T> option)
+    public System.Object GetValue(System.CommandLine.Argument argument)
+    public T GetValue<T>(Argument<T> argument)
     public System.Void LinkToken(System.Threading.CancellationToken token)
   public delegate InvocationMiddleware : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
@@ -466,10 +470,10 @@ System.CommandLine.Parsing
     public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
     public CommandResult FindResultFor(System.CommandLine.Command command)
     public OptionResult FindResultFor(System.CommandLine.Option option)
-    public T GetValueForArgument<T>(Argument<T> argument)
-    public System.Object GetValueForArgument(System.CommandLine.Argument argument)
-    public T GetValueForOption<T>(Option<T> option)
-    public System.Object GetValueForOption(System.CommandLine.Option option)
+    public T GetValue<T>(Argument<T> argument)
+    public System.Object GetValue(System.CommandLine.Argument argument)
+    public T GetValue<T>(Option<T> option)
+    public System.Object GetValue(System.CommandLine.Option option)
     public System.String ToString()
   public class Token, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)

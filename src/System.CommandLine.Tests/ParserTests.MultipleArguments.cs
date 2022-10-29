@@ -38,10 +38,10 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2 3 4");
 
-                result.GetValueForArgument(multipleArityArg)
+                result.GetValue(multipleArityArg)
                       .Should()
                       .BeEquivalentSequenceTo("1", "2", "3");
-                result.GetValueForArgument(singleArityArg)
+                result.GetValue(singleArityArg)
                       .Should()
                       .BeEquivalentSequenceTo("4");
             }
@@ -66,8 +66,8 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("1 2");
 
-                result.GetValueForArgument(stringArg).Should().Be("1");
-                result.GetValueForArgument(intArg).Should().Be(2);
+                result.GetValue(stringArg).Should().Be("1");
+                result.GetValue(intArg).Should().Be(2);
             }
 
             [Theory]
@@ -101,22 +101,22 @@ namespace System.CommandLine.Tests
                 var parseResult = command.Parse(commandLine);
 
                 parseResult
-                    .GetValueForArgument(first)
+                    .GetValue(first)
                     .Should()
                     .Be("one");
 
                 parseResult
-                    .GetValueForArgument(second)
+                    .GetValue(second)
                     .Should()
                     .Be("two");
 
                 parseResult
-                    .GetValueForArgument(third)
+                    .GetValue(third)
                     .Should()
                     .BeEquivalentSequenceTo("three", "four", "five");
 
                 parseResult
-                    .GetValueForOption(verbose)
+                    .GetValue(verbose)
                     .Should()
                     .BeTrue();
             }
@@ -159,7 +159,7 @@ namespace System.CommandLine.Tests
 
                 var result = command.Parse("-e foo");
 
-                var optionResult = result.GetValueForOption(option);
+                var optionResult = result.GetValue(option);
 
                 optionResult.Should().Be("foo");
             }
@@ -180,12 +180,12 @@ namespace System.CommandLine.Tests
 
                 var _ = new AssertionScope();
 
-                result.GetValueForArgument(ints)
+                result.GetValue(ints)
                       .Should()
                       .BeEquivalentTo(new[] { 1, 2, 3 },
                                       options => options.WithStrictOrdering());
 
-                result.GetValueForArgument(strings)
+                result.GetValue(strings)
                       .Should()
                       .BeEquivalentTo(new[] { "one", "two" },
                                       options => options.WithStrictOrdering());
@@ -207,12 +207,12 @@ namespace System.CommandLine.Tests
 
                 var _ = new AssertionScope();
 
-                result.GetValueForArgument(ints)
+                result.GetValue(ints)
                       .Should()
                       .BeEquivalentTo(new[] { 1, 2, 3 },
                                       options => options.WithStrictOrdering());
 
-                result.GetValueForArgument(strings)
+                result.GetValue(strings)
                       .Should()
                       .Be("four");
 
@@ -244,8 +244,8 @@ namespace System.CommandLine.Tests
 
                 var result = rootCommand.Parse("value-1");
 
-                result.GetValueForArgument(arg1).Should().Be("value-1");
-                result.GetValueForArgument(arg2).Should().Be("the-default");
+                result.GetValue(arg1).Should().Be("value-1");
+                result.GetValue(arg2).Should().Be("the-default");
             }
 
             [Fact] // https://github.com/dotnet/command-line-api/issues/1403
@@ -263,7 +263,7 @@ namespace System.CommandLine.Tests
                 var result = rootCommand.Parse("");
 
                 result.FindResultFor(arg1).Should().BeNull();
-                result.GetValueForArgument(arg2).Should().Be("the-default");
+                result.GetValue(arg2).Should().Be("the-default");
             }
 
             [Fact] // https://github.com/dotnet/command-line-api/issues/1395
@@ -283,7 +283,7 @@ namespace System.CommandLine.Tests
 
                 result.Errors.Should().BeEmpty();
 
-                result.GetValueForArgument(argument1).Should().Be("one");
+                result.GetValue(argument1).Should().Be("one");
             }
 
             [Theory] // https://github.com/dotnet/command-line-api/issues/1711

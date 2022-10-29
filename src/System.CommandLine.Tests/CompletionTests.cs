@@ -218,7 +218,7 @@ namespace System.CommandLine.Tests
                     new Option<string>("--clone")
                         .AddCompletions(ctx =>
                         {
-                            var opt1Value = ctx.ParseResult.GetValueForOption(originOption);
+                            var opt1Value = ctx.ParseResult.GetValue(originOption);
                             return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
                         })
                 });

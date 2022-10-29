@@ -63,8 +63,8 @@ namespace System.CommandLine.Tests.Binding
                 return new CustomType
                 {
                     Console = bindingContext.Console,
-                    IntValue = bindingContext.ParseResult.GetValueForOption(_intOption),
-                    StringValue = bindingContext.ParseResult.GetValueForArgument(_stringArg),
+                    IntValue = bindingContext.ParseResult.GetValue(_intOption),
+                    StringValue = bindingContext.ParseResult.GetValue(_stringArg),
                 };
             }
         }

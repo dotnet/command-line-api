@@ -92,9 +92,9 @@ namespace System.CommandLine.Tests
 
             root.AddCommand(child);
 
-            root.Parse("child --global 123").GetValueForOption(option).Should().Be(123);
+            root.Parse("child --global 123").GetValue(option).Should().Be(123);
 
-            child.Parse("--global 123").GetValueForOption(option).Should().Be(123);
+            child.Parse("--global 123").GetValue(option).Should().Be(123);
         }
 
         [Fact]
@@ -114,11 +114,11 @@ namespace System.CommandLine.Tests
             
             firstChild.AddCommand(secondChild);
             
-            root.Parse("first second --global 123").GetValueForOption(option).Should().Be(123);
+            root.Parse("first second --global 123").GetValue(option).Should().Be(123);
             
-            firstChild.Parse("second --global 123").GetValueForOption(option).Should().Be(123);
+            firstChild.Parse("second --global 123").GetValue(option).Should().Be(123);
             
-            secondChild.Parse("--global 123").GetValueForOption(option).Should().Be(123);
+            secondChild.Parse("--global 123").GetValue(option).Should().Be(123);
         }
     }
 }

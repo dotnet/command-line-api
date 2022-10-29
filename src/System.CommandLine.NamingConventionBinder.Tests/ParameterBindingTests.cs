@@ -233,7 +233,7 @@ public class ParameterBindingTests
 
         await command.InvokeAsync("command -x 123", _console);
 
-        boundParseResult.GetValueForOption(option).Should().Be(123);
+        boundParseResult.GetValue(option).Should().Be(123);
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public class ParameterBindingTests
 
         await command.InvokeAsync("command -x 123", _console);
 
-        boundContext.ParseResult.GetValueForOption(option).Should().Be(123);
+        boundContext.ParseResult.GetValue(option).Should().Be(123);
     }
 
     [Fact]
@@ -282,7 +282,7 @@ public class ParameterBindingTests
 
         await command.InvokeAsync("command -x 123", _console);
 
-        boundContext.ParseResult.GetValueForOption(option).Should().Be(123);
+        boundContext.ParseResult.GetValue(option).Should().Be(123);
     }
 
     private class ExecuteTestClass

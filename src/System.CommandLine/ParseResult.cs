@@ -129,8 +129,8 @@ namespace System.CommandLine
         internal T? GetValueFor<T>(IValueDescriptor<T> symbol) =>
             symbol switch
             {
-                Argument<T> argument => GetValueForArgument(argument),
-                Option<T> option => GetValueForOption(option),
+                Argument<T> argument => GetValue(argument),
+                Option<T> option => GetValue(option),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -139,24 +139,24 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public object? GetValueForOption(Option option) =>
-            RootCommandResult.GetValueForOption(option);
+        public object? GetValue(Option option) =>
+            RootCommandResult.GetValue(option);
 
         /// <summary>
         /// Gets the parsed or default value for the specified argument.
         /// </summary>
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public object? GetValueForArgument(Argument argument) =>
-            RootCommandResult.GetValueForArgument(argument);
+        public object? GetValue(Argument argument) =>
+            RootCommandResult.GetValue(argument);
 
-        /// <inheritdoc cref="GetValueForArgument"/>
-        public T GetValueForArgument<T>(Argument<T> argument)
-            => RootCommandResult.GetValueForArgument(argument);
+        /// <inheritdoc cref="GetValue(Argument)"/>
+        public T GetValue<T>(Argument<T> argument)
+            => RootCommandResult.GetValue(argument);
         
-        /// <inheritdoc cref="GetValueForOption"/>
-        public T? GetValueForOption<T>(Option<T> option)
-            => RootCommandResult.GetValueForOption(option);
+        /// <inheritdoc cref="GetValue(Option)"/>
+        public T? GetValue<T>(Option<T> option)
+            => RootCommandResult.GetValue(option);
 
         /// <inheritdoc />
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";

@@ -54,7 +54,7 @@ public class TokenReplacementTests
 
         result.Errors.Should().BeEmpty();
 
-        result.GetValueForArgument(argument).Should().Be(123);
+        result.GetValue(argument).Should().Be(123);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class TokenReplacementTests
 
         result.Errors.Should().BeEmpty();
 
-        result.GetValueForOption(option).Should().Be(123);
+        result.GetValue(option).Should().Be(123);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class TokenReplacementTests
 
         result.Errors.Should().BeEmpty();
 
-        result.GetValueForOption(option).Should().Be(123);
+        result.GetValue(option).Should().Be(123);
     }
 
     [Fact]
@@ -121,7 +121,7 @@ public class TokenReplacementTests
 
         var result = parser.Parse("@replace-me");
 
-        result.GetValueForArgument(argument).Should().Be("one two three");
+        result.GetValue(argument).Should().Be("one two three");
     }
 
     [Fact]
@@ -167,7 +167,7 @@ public class TokenReplacementTests
 
         result.Errors.Should().BeEmpty();
 
-        result.GetValueForArgument(argument).Should().Be("@replace-me");
+        result.GetValue(argument).Should().Be("@replace-me");
     }
 
     [Fact]
@@ -190,7 +190,7 @@ public class TokenReplacementTests
 
         result.Errors.Should().BeEmpty();
 
-        result.GetValueForArgument(argument).Should().BeEmpty();
+        result.GetValue(argument).Should().BeEmpty();
     }
 
     [Fact]
@@ -213,6 +213,6 @@ public class TokenReplacementTests
 
         result.Errors.Should().BeEmpty();
 
-        result.GetValueForArgument(argument).Should().BeEmpty();
+        result.GetValue(argument).Should().BeEmpty();
     }
 }
