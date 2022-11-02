@@ -19,7 +19,7 @@ namespace System.CommandLine
         private List<ValidateSymbolResult<OptionResult>>? _validators;
         private readonly Argument _argument;
 
-        internal Option(
+        protected Option(
             string name,
             string? description,
             Argument argument)
@@ -38,7 +38,7 @@ namespace System.CommandLine
             _argument = argument;
         }
 
-        internal Option(
+        protected Option(
             string[] aliases,
             string? description,
             Argument argument)
