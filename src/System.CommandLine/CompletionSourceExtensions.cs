@@ -38,10 +38,10 @@ namespace System.CommandLine
         /// Adds a completion source using a delegate.
         /// </summary>
         /// <param name="completionSources">The list of completion sources to add to.</param>
-        /// <param name="complete">The delegate to be called when calculating completions.</param>
+        /// <param name="complete">The function to be called when calculating completions.</param>
         public static void Add(
             this ICollection<ICompletionSource> completionSources,
-            CompletionDelegate complete)
+            Func<CompletionContext, IEnumerable<CompletionItem>> complete)
         {
             if (completionSources is null)
             {

@@ -35,7 +35,7 @@ System.CommandLine
   public static class ArgumentExtensions
     public static TArgument AddCompletions<TArgument>(this TArgument argument, System.String[] values)
     public static TArgument AddCompletions<TArgument>(this TArgument argument, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.CommandLine.Completions.CompletionDelegate complete)
+    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
     public static Argument<System.IO.FileInfo> ExistingOnly(this Argument<System.IO.FileInfo> argument)
     public static Argument<System.IO.DirectoryInfo> ExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
     public static Argument<System.IO.FileSystemInfo> ExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
@@ -110,7 +110,7 @@ System.CommandLine
     .ctor(System.String message, System.Exception innerException)
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.CommandLine.Completions.CompletionDelegate complete)
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
     public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.String[] completions)
   public static class ConsoleExtensions
     public static System.Void Write(this IConsole console, System.String value)
@@ -210,7 +210,7 @@ System.CommandLine
   public static class OptionExtensions
     public static TOption AddCompletions<TOption>(this TOption option, System.String[] values)
     public static TOption AddCompletions<TOption>(this TOption option, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static TOption AddCompletions<TOption>(this TOption option, System.CommandLine.Completions.CompletionDelegate complete)
+    public static TOption AddCompletions<TOption>(this TOption option, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
     public static Option<System.IO.FileInfo> ExistingOnly(this Option<System.IO.FileInfo> option)
     public static Option<System.IO.DirectoryInfo> ExistingOnly(this Option<System.IO.DirectoryInfo> option)
     public static Option<System.IO.FileSystemInfo> ExistingOnly(this Option<System.IO.FileSystemInfo> option)
@@ -277,11 +277,6 @@ System.CommandLine.Completions
   public abstract class CompletionContext
     public System.CommandLine.ParseResult ParseResult { get; }
     public System.String WordToComplete { get; }
-  public delegate CompletionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(CompletionContext context, System.AsyncCallback callback, System.Object object)
-    public System.Collections.Generic.IEnumerable<CompletionItem> EndInvoke(System.IAsyncResult result)
-    public System.Collections.Generic.IEnumerable<CompletionItem> Invoke(CompletionContext context)
   public class CompletionItem
     .ctor(System.String label, System.String kind = Value, System.String sortText = null, System.String insertText = null, System.String documentation = null, System.String detail = null)
     public System.String Detail { get; }

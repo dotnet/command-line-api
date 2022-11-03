@@ -55,7 +55,7 @@ namespace System.CommandLine
         /// </summary>
         /// <typeparam name="TOption">The type of the option.</typeparam>
         /// <param name="option">The option for which to add completions.</param>
-        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
+        /// <param name="complete">A function that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
         public static TOption AddCompletions<TOption>(
             this TOption option,
@@ -72,11 +72,11 @@ namespace System.CommandLine
         /// </summary>
         /// <typeparam name="TOption">The type of the option.</typeparam>
         /// <param name="option">The option for which to add completions.</param>
-        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
+        /// <param name="complete">A function that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
         public static TOption AddCompletions<TOption>(
             this TOption option,
-            CompletionDelegate complete)
+            Func<CompletionContext, IEnumerable<CompletionItem>> complete)
             where TOption : Option
         {
             option.Argument.Completions.Add(complete);

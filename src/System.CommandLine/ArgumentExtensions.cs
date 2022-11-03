@@ -35,7 +35,7 @@ namespace System.CommandLine
         /// </summary>
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
         /// <param name="argument">The argument for which to add completions.</param>
-        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
+        /// <param name="complete">A function that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
         public static TArgument AddCompletions<TArgument>(
             this TArgument argument,
@@ -52,11 +52,11 @@ namespace System.CommandLine
         /// </summary>
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
         /// <param name="argument">The argument for which to add completions.</param>
-        /// <param name="complete">A <see cref="CompletionDelegate"/> that will be called to provide completions.</param>
+        /// <param name="complete">A function that will be called to provide completions.</param>
         /// <returns>The configured argument.</returns>
         public static TArgument AddCompletions<TArgument>(
             this TArgument argument,
-            CompletionDelegate complete)
+            Func<CompletionContext, IEnumerable<CompletionItem>> complete)
             where TArgument : Argument
         {
             argument.Completions.Add(complete);
