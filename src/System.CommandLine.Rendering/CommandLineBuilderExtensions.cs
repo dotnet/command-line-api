@@ -28,7 +28,7 @@ namespace System.CommandLine.Rendering
         internal static bool PreferVirtualTerminal(
             this BindingContext context)
         {
-            if (context.ParseResult.Directives.TryGetValues(
+            if (context.ParseResult.Directives.TryGetValue(
                 "enable-vt",
                 out var trueOrFalse))
             {
@@ -45,7 +45,7 @@ namespace System.CommandLine.Rendering
 
         public static OutputMode OutputMode(this BindingContext context)
         {
-            if (context.ParseResult.Directives.TryGetValues(
+            if (context.ParseResult.Directives.TryGetValue(
                     "output",
                     out var modeString) &&
                 Enum.TryParse<OutputMode>(

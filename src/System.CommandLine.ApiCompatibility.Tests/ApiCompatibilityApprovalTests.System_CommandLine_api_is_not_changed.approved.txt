@@ -222,7 +222,7 @@ System.CommandLine
     public static ParseResult Parse(this Option option, System.String[] args)
   public class ParseResult
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
-    public DirectiveCollection Directives { get; }
+    public System.Collections.Generic.IReadOnlyDictionary<System.String,System.Collections.Generic.IReadOnlyList<System.String>> Directives { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }

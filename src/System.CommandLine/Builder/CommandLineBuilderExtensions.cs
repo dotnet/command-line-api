@@ -251,7 +251,7 @@ ERR:
         {
             builder.AddMiddleware((context, next) =>
             {
-                if (context.ParseResult.Directives.TryGetValues("env", out var keyValuePairs))
+                if (context.ParseResult.Directives.TryGetValue("env", out var keyValuePairs))
                 {
                     for (var i = 0; i < keyValuePairs.Count; i++)
                     {
@@ -498,7 +498,7 @@ ERR:
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.Directives.Contains("parse"))
+                if (context.ParseResult.Directives.ContainsKey("parse"))
                 {
                     context.InvocationResult = new ParseDirectiveResult(errorExitCode);
                 }
@@ -547,7 +547,7 @@ ERR:
         {
             builder.AddMiddleware(async (context, next) =>
             {
-                if (context.ParseResult.Directives.TryGetValues("suggest", out var values))
+                if (context.ParseResult.Directives.TryGetValue("suggest", out var values))
                 {
                     int position;
 

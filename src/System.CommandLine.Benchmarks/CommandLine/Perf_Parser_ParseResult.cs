@@ -43,7 +43,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestInputs))]
-        public DirectiveCollection ParseResult_Directives(string input)
+        public IReadOnlyDictionary<string, IReadOnlyList<string>> ParseResult_Directives(string input)
             => _testParser.Parse(input).Directives;
 
         [Benchmark]

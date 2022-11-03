@@ -28,7 +28,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Contains("parse").Should().BeTrue();
+            result.Directives.ContainsKey("parse").Should().BeTrue();
             result.Tokens.Should().Contain(t => t.Value == "[parse]");
         }
 
@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.Contains("parse").Should().BeTrue();
+            result.Directives.ContainsKey("parse").Should().BeTrue();
         }
 
         [Fact]
@@ -49,8 +49,8 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] [suggest] -y");
 
-            result.Directives.Contains("parse").Should().BeTrue();
-            result.Directives.Contains("suggest").Should().BeTrue();
+            result.Directives.ContainsKey("parse").Should().BeTrue();
+            result.Directives.ContainsKey("suggest").Should().BeTrue();
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse($"{directive} -y");
 
-            result.Directives.TryGetValues(expectedKey, out var values).Should().BeTrue();
+            result.Directives.TryGetValue(expectedKey, out var values).Should().BeTrue();
             values.Should().BeEquivalentTo(expectedValue);
         }
 
@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[parse] -y");
 
-            result.Directives.TryGetValues("parse", out var values).Should().BeTrue();
+            result.Directives.TryGetValue("parse", out var values).Should().BeTrue();
             values.Should().BeEmpty();
         }
 
@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse("[directive:one] [directive:two] -a");
 
-            result.Directives.TryGetValues("directive", out var values).Should().BeTrue();
+            result.Directives.TryGetValue("directive", out var values).Should().BeTrue();
             values.Should().BeEquivalentTo("one", "two");
         }
 

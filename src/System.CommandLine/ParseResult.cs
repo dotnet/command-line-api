@@ -23,7 +23,7 @@ namespace System.CommandLine
             Parser parser,
             RootCommandResult rootCommandResult,
             CommandResult commandResult,
-            DirectiveCollection directives,
+            IReadOnlyDictionary<string, IReadOnlyList<string>> directives,
             TokenizeResult tokenizeResult,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
@@ -99,7 +99,7 @@ namespace System.CommandLine
         /// Gets the directives found while parsing command line input.
         /// </summary>
         /// <remarks>If <see cref="CommandLineConfiguration.EnableDirectives"/> is set to <see langword="false"/>, then this collection will be empty.</remarks>
-        public DirectiveCollection Directives { get; }
+        public IReadOnlyDictionary<string, IReadOnlyList<string>> Directives { get; }
 
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
