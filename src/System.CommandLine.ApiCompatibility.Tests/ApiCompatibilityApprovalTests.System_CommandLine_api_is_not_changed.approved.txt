@@ -1,7 +1,7 @@
 System.CommandLine
   public abstract class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     public ArgumentArity Arity { get; set; }
-    public CompletionSourceList Completions { get; }
+    public System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> Completions { get; }
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Type ValueType { get; }
@@ -109,16 +109,9 @@ System.CommandLine
     .ctor()
     .ctor(System.String message, System.Exception innerException)
   public static class CompletionSourceExtensions
-    public static System.Void Add(this CompletionSourceList completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static System.Void Add(this CompletionSourceList completionSources, System.CommandLine.Completions.CompletionDelegate complete)
-    public static System.Void Add(this CompletionSourceList completionSources, System.String[] completions)
-  public class CompletionSourceList, System.Collections.Generic.IEnumerable<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyList<System.CommandLine.Completions.ICompletionSource>, System.Collections.IEnumerable
-    .ctor()
-    public System.Int32 Count { get; }
-    public System.CommandLine.Completions.ICompletionSource Item { get; }
-    public System.Void Add(System.CommandLine.Completions.ICompletionSource source)
-    public System.Void Clear()
-    public System.Collections.Generic.IEnumerator<System.CommandLine.Completions.ICompletionSource> GetEnumerator()
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.CommandLine.Completions.CompletionDelegate complete)
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.String[] completions)
   public static class ConsoleExtensions
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)

@@ -17,7 +17,7 @@ namespace System.CommandLine
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
-        private CompletionSourceList? _completions = null;
+        private List<ICompletionSource>? _completions = null;
         private List<ValidateSymbolResult<ArgumentResult>>? _validators = null;
 
         /// <summary>
@@ -72,10 +72,10 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the list of completion sources for the argument.
+        /// Gets the collection of completion sources for the argument.
         /// </summary>
-        public CompletionSourceList Completions =>
-            _completions ??= new CompletionSourceList
+        public ICollection<ICompletionSource> Completions =>
+            _completions ??= new ()
             {
                 CompletionSource.ForType(ValueType)
             };
