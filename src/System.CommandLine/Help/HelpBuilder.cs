@@ -15,7 +15,7 @@ namespace System.CommandLine.Help
         private const string Indent = "  ";
 
         private Dictionary<Symbol, Customization>? _customizationsBySymbol;
-        private Func<HelpContext, IEnumerable<HelpSectionDelegate>>? _getLayout;
+        private Func<HelpContext, IEnumerable<Action<HelpContext>>>? _getLayout;
 
         /// <param name="localizationResources">Resources used to localize the help output.</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
@@ -103,7 +103,7 @@ namespace System.CommandLine.Help
         /// Customizes the help sections that will be displayed.
         /// </summary>
         /// <param name="getLayout">A delegate that returns the sections in the order in which they should be written.</param>
-        public void CustomizeLayout(Func<HelpContext, IEnumerable<HelpSectionDelegate>> getLayout)
+        public void CustomizeLayout(Func<HelpContext, IEnumerable<Action<HelpContext>>> getLayout)
         {
             _getLayout = getLayout ?? throw new ArgumentNullException(nameof(getLayout));
         }
@@ -330,7 +330,7 @@ namespace System.CommandLine.Help
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
-        private IEnumerable<HelpSectionDelegate> GetLayout(HelpContext context)
+        private IEnumerable<Action<HelpContext>> GetLayout(HelpContext context)
         {
             if (_getLayout is null)
             {

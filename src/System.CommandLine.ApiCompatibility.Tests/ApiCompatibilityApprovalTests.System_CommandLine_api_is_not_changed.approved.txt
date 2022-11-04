@@ -301,24 +301,24 @@ System.CommandLine.Help
     .ctor(System.CommandLine.LocalizationResources localizationResources, System.Int32 maxWidth = 2147483647)
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.Int32 MaxWidth { get; }
-    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<HelpSectionDelegate>> getLayout)
+    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Action<HelpContext>>> getLayout)
     public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.Symbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
    static class Default
-    public static HelpSectionDelegate AdditionalArgumentsSection()
-    public static HelpSectionDelegate CommandArgumentsSection()
-    public static HelpSectionDelegate CommandUsageSection()
+    public static System.Action<HelpContext> AdditionalArgumentsSection()
+    public static System.Action<HelpContext> CommandArgumentsSection()
+    public static System.Action<HelpContext> CommandUsageSection()
     public static System.String GetArgumentDefaultValue(System.CommandLine.Argument argument)
     public static System.String GetArgumentDescription(System.CommandLine.Argument argument)
     public static System.String GetArgumentUsageLabel(System.CommandLine.Argument argument)
     public static System.String GetIdentifierSymbolDescription(System.CommandLine.IdentifierSymbol symbol)
     public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.IdentifierSymbol symbol, HelpContext context)
-    public static System.Collections.Generic.IEnumerable<HelpSectionDelegate> GetLayout()
-    public static HelpSectionDelegate OptionsSection()
-    public static HelpSectionDelegate SubcommandsSection()
-    public static HelpSectionDelegate SynopsisSection()
+    public static System.Collections.Generic.IEnumerable<System.Action<HelpContext>> GetLayout()
+    public static System.Action<HelpContext> OptionsSection()
+    public static System.Action<HelpContext> SubcommandsSection()
+    public static System.Action<HelpContext> SynopsisSection()
   public static class HelpBuilderExtensions
     public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.Symbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter writer)
@@ -328,11 +328,6 @@ System.CommandLine.Help
     public HelpBuilder HelpBuilder { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
-  public delegate HelpSectionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(HelpContext context, System.AsyncCallback callback, System.Object object)
-    public System.Void EndInvoke(System.IAsyncResult result)
-    public System.Void Invoke(HelpContext context)
   public class TwoColumnHelpRow, System.IEquatable<TwoColumnHelpRow>
     .ctor(System.String firstColumnText, System.String secondColumnText)
     public System.String FirstColumnText { get; }
