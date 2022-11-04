@@ -6,10 +6,9 @@ using System.CommandLine.IO;
 
 namespace System.CommandLine.Help
 {
-    internal class HelpResult : IInvocationResult
+    internal static class HelpResult
     {
-        /// <inheritdoc />
-        public void Apply(InvocationContext context)
+        internal static void Apply(InvocationContext context)
         {
             var output = context.Console.Out.CreateTextWriter();
 

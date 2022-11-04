@@ -105,7 +105,7 @@ namespace System.CommandLine.Invocation
         /// The result of the current invocation.
         /// </summary>
         /// <remarks>As the <see cref="InvocationContext"/> is passed through the invocation pipeline to the <see cref="ICommandHandler"/> associated with the invoked command, only the last value of this property will be the one applied.</remarks>
-        public IInvocationResult? InvocationResult { get; set; }
+        public Action<InvocationContext>? InvocationResult { get; set; }
 
         /// <summary>
         /// Gets a cancellation token that can be used to check if cancellation has been requested.
