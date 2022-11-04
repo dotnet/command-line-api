@@ -6,22 +6,15 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Invocation
 {
-    internal class ParseDirectiveResult : IInvocationResult
+    internal static class ParseDirectiveResult
     {
-        private readonly int? _errorExitCode;
-
-        public ParseDirectiveResult(int? errorExitCode)
-        {
-            _errorExitCode = errorExitCode;
-        }
-
-        public void Apply(InvocationContext context)
+        internal static void Apply(InvocationContext context, int? errorExitCode)
         {
             var parseResult = context.ParseResult;
             context.Console.Out.WriteLine(parseResult.Diagram());
             context.ExitCode = parseResult.Errors.Count == 0
                                      ? 0
-                                     : _errorExitCode ?? 1;
+                                     : errorExitCode ?? 1;
         }
     }
 }

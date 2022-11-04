@@ -7,22 +7,15 @@ using System.Linq;
 
 namespace System.CommandLine.Invocation
 {
-    internal class SuggestDirectiveResult : IInvocationResult
+    internal static class SuggestDirectiveResult
     {
-        private readonly int _position;
-
-        public SuggestDirectiveResult(int position)
-        {
-            _position = position;
-        }
-
-        public void Apply(InvocationContext context)
+        internal static void Apply(InvocationContext context, int position)
         {
             var commandLineToComplete = context.ParseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
             var completionParseResult = context.Parser.Parse(commandLineToComplete);
 
-            var completions = completionParseResult.GetCompletions(_position);
+            var completions = completionParseResult.GetCompletions(position);
 
             context.Console.Out.WriteLine(
                 string.Join(

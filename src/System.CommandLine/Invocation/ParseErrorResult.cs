@@ -6,17 +6,9 @@ using System.CommandLine.IO;
 
 namespace System.CommandLine.Invocation
 {
-    internal class ParseErrorResult : IInvocationResult
+    internal static class ParseErrorResult
     {
-        private readonly int? _errorExitCode;
-
-        public ParseErrorResult(int? errorExitCode)
-        {
-            _errorExitCode = errorExitCode;
-        }
-
-        /// <inheritdoc />
-        public void Apply(InvocationContext context)
+        internal static void Apply(InvocationContext context, int? errorExitCode)
         {
             context.Console.ResetTerminalForegroundColor();
             context.Console.SetTerminalForegroundRed();
@@ -28,11 +20,11 @@ namespace System.CommandLine.Invocation
 
             context.Console.Error.WriteLine();
 
-            context.ExitCode = _errorExitCode ?? 1;
+            context.ExitCode = errorExitCode ?? 1;
 
             context.Console.ResetTerminalForegroundColor();
 
-            new HelpResult().Apply(context);
+            HelpResult.Apply(context);
         }
     }
 }

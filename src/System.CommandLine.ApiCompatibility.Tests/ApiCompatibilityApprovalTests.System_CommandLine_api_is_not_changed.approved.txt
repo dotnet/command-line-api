@@ -353,15 +353,13 @@ System.CommandLine.Help
     public System.Boolean Equals(TwoColumnHelpRow other)
     public System.Int32 GetHashCode()
 System.CommandLine.Invocation
-  public interface IInvocationResult
-    public System.Void Apply(InvocationContext context)
   public class InvocationContext, System.IDisposable
     .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; set; }
     public System.Int32 ExitCode { get; set; }
     public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }
-    public IInvocationResult InvocationResult { get; set; }
+    public System.Action<InvocationContext> InvocationResult { get; set; }
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.ParseResult ParseResult { get; set; }

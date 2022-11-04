@@ -46,9 +46,7 @@ public partial class ModelBindingCommandHandlerTests
 
         await handler.InvokeAsync(invocationContext);
 
-        var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
-
-        boundValue.Should().Be(expectedValue);
+        BoundValueCapturer.GetBoundValue(invocationContext).Should().Be(expectedValue);
     }
     
     [Theory]
@@ -125,7 +123,7 @@ public partial class ModelBindingCommandHandlerTests
 
         await handler.InvokeAsync(invocationContext);
 
-        var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+        var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
 
         boundValue.Should().BeAssignableTo(testCase.ParameterType);
 
@@ -188,7 +186,7 @@ public partial class ModelBindingCommandHandlerTests
 
         await handler.InvokeAsync(invocationContext);
 
-        var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+        var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
 
         boundValue.Should().BeOfType(testCase.ParameterType);
 
@@ -240,7 +238,7 @@ public partial class ModelBindingCommandHandlerTests
 
         await handler.InvokeAsync(invocationContext);
 
-        var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+        var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
 
         boundValue.Should().BeOfType(testCase.ParameterType);
 
@@ -293,7 +291,7 @@ public partial class ModelBindingCommandHandlerTests
 
         await handler.InvokeAsync(invocationContext);
 
-        var boundValue = ((BoundValueCapturer)invocationContext.InvocationResult).BoundValue;
+        var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
 
         boundValue.Should().BeOfType(testCase.ParameterType);
 
@@ -323,26 +321,32 @@ public partial class ModelBindingCommandHandlerTests
 
     private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
     {
-        invocationContext.InvocationResult = new BoundValueCapturer(value);
+        BoundValueCapturer.Capture(value, invocationContext);
+
+        invocationContext.InvocationResult = ctx => BoundValueCapturer.Apply(ctx);
     }
 
     private static Action<T, InvocationContext> CaptureDelegate<T>()
-    {
-        return (value, invocationContext) => invocationContext.InvocationResult = new BoundValueCapturer(value);
-    }
-
-    private class BoundValueCapturer : IInvocationResult
-    {
-        public BoundValueCapturer(object boundValue)
+        => (value, invocationContext) =>
         {
-            BoundValue = boundValue;
-        }
+            BoundValueCapturer.Capture(value, invocationContext);
 
-        public object BoundValue { get; }
+            invocationContext.InvocationResult = ctx => BoundValueCapturer.Apply(ctx);
+        };
 
-        public void Apply(InvocationContext context)
+    private static class BoundValueCapturer
+    {
+        private static readonly Dictionary<InvocationContext, object> _boundValues = new ();
+
+        public static void Apply(InvocationContext context)
         {
         }
+
+        public static void Capture(object value, InvocationContext invocationContext)
+            => _boundValues.Add(invocationContext, value);
+
+        public static object GetBoundValue(InvocationContext context)
+            => _boundValues.TryGetValue(context, out var value) ? value : null;
     }
 
     internal static readonly BindingTestSet BindingCases = new()
