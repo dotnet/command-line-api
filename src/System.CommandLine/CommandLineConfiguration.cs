@@ -117,7 +117,7 @@ namespace System.CommandLine
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.
         /// </summary>
         /// <remarks>Due to the performance cost of this method, it is recommended to be used in unit testing or in scenarios where the parser is configured dynamically at runtime.</remarks>
-        /// <exception cref="CommandLineConfigurationException">Thrown if the configuration is found to be invalid.</exception>
+        /// <exception cref="InvalidOperationException ">Thrown if the configuration is found to be invalid.</exception>
         public void Validate()
         {
             ThrowIfInvalid(RootCommand);
@@ -126,7 +126,7 @@ namespace System.CommandLine
             {
                 if (command.Parents.FlattenBreadthFirst(c => c.Parents).Any(ancestor => ancestor == command))
                 {
-                    throw new CommandLineConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
+                    throw new InvalidOperationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
                 }
 
                 int count = command.Subcommands.Count + command.Options.Count;
@@ -142,7 +142,7 @@ namespace System.CommandLine
                             if (symbol1AsIdentifier.Name.Equals(symbol2Alias, StringComparison.Ordinal) ||
                                 symbol1AsIdentifier.Aliases.Contains(symbol2Alias))
                             {
-                                throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
+                                throw new InvalidOperationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
                             }
                         }
                     }

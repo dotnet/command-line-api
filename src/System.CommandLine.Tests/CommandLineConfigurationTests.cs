@@ -26,7 +26,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException>()
                 .Which
                 .Message
                 .Should()
@@ -54,7 +54,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException >()
                 .Which
                 .Message
                 .Should()
@@ -79,7 +79,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException >()
                 .Which
                 .Message
                 .Should()
@@ -107,7 +107,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException >()
                 .Which
                 .Message
                 .Should()
@@ -132,7 +132,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException >()
                 .Which
                 .Message
                 .Should()
@@ -160,7 +160,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException >()
                 .Which
                 .Message
                 .Should()
@@ -183,7 +183,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException >()
                 .Which
                 .Message
                 .Should()
@@ -239,7 +239,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException >()
                 .Which
                 .Message
                 .Should()
@@ -258,7 +258,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.Validate();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<InvalidOperationException >()
                 .Which
                 .Message
                 .Should()
