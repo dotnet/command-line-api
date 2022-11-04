@@ -70,7 +70,7 @@ namespace System.CommandLine
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="parse"/> is null.</exception>
         public Argument(
             string? name,
-            ParseArgument<T> parse, 
+            Func<ArgumentResult, T> parse, 
             bool isDefault = false,
             string? description = null) : this(name, description)
         {
@@ -108,7 +108,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="parse">A custom argument parser.</param>
         /// <param name="isDefault"><see langword="true"/> to use the <paramref name="parse"/> result as default value.</param>
-        public Argument(ParseArgument<T> parse, bool isDefault = false) : this(null!, parse, isDefault)
+        public Argument(Func<ArgumentResult, T> parse, bool isDefault = false) : this(null!, parse, isDefault)
         {
         }
 

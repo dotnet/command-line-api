@@ -27,7 +27,7 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public Option(
             string name,
-            ParseArgument<T> parseArgument,
+            Func<ArgumentResult, T> parseArgument,
             bool isDefault = false,
             string? description = null) 
             : base(name, description, 
@@ -37,7 +37,7 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public Option(
             string[] aliases,
-            ParseArgument<T> parseArgument,
+            Func<ArgumentResult, T> parseArgument,
             bool isDefault = false,
             string? description = null) 
             : base(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
