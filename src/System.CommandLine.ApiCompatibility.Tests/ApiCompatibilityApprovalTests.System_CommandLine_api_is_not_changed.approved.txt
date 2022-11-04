@@ -5,7 +5,7 @@ System.CommandLine
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Type ValueType { get; }
-    public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.ArgumentResult> validate)
+    public System.Void AddValidator(System.Action<System.CommandLine.Parsing.ArgumentResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
     public System.Void SetDefaultValue(System.Object value)
@@ -60,7 +60,7 @@ System.CommandLine
     public System.Void AddCommand(Command command)
     public System.Void AddGlobalOption(Option option)
     public System.Void AddOption(Option option)
-    public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.CommandResult> validate)
+    public System.Void AddValidator(System.Action<System.CommandLine.Parsing.CommandResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
   public static class CommandExtensions
@@ -194,7 +194,7 @@ System.CommandLine
     public ArgumentArity Arity { get; set; }
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
-    public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.OptionResult> validate)
+    public System.Void AddValidator(System.Action<System.CommandLine.Parsing.OptionResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public System.Void SetDefaultValue(System.Object value)
@@ -474,8 +474,3 @@ System.CommandLine.Parsing
     public System.IAsyncResult BeginInvoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.AsyncCallback callback, System.Object object)
     public System.Boolean EndInvoke(ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.IAsyncResult result)
     public System.Boolean Invoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage)
-  public delegate ValidateSymbolResult<in T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(T symbolResult, System.AsyncCallback callback, System.Object object)
-    public System.Void EndInvoke(System.IAsyncResult result)
-    public System.Void Invoke(T symbolResult)

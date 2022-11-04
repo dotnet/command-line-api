@@ -16,7 +16,7 @@ namespace System.CommandLine
     public abstract class Option : IdentifierSymbol, IValueDescriptor
     {
         private string? _name;
-        private List<ValidateSymbolResult<OptionResult>>? _validators;
+        private List<Action<OptionResult>>? _validators;
         private readonly Argument _argument;
 
         internal Option(
@@ -112,15 +112,15 @@ namespace System.CommandLine
             }
         }
 
-        internal List<ValidateSymbolResult<OptionResult>> Validators => _validators ??= new();
+        internal List<Action<OptionResult>> Validators => _validators ??= new();
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
         /// Adds a validator that will be called when the option is matched by the parser.
         /// </summary>
-        /// <param name="validate">A <see cref="ValidateSymbolResult{OptionResult}"/> delegate used to validate the <see cref="OptionResult"/> produced during parsing.</param>
-        public void AddValidator(ValidateSymbolResult<OptionResult> validate) => Validators.Add(validate);
+        /// <param name="validate">An action used to validate the <see cref="OptionResult"/> produced during parsing.</param>
+        public void AddValidator(Action<OptionResult> validate) => Validators.Add(validate);
 
         /// <summary>
         /// Indicates whether a given alias exists on the option, regardless of its prefix.
