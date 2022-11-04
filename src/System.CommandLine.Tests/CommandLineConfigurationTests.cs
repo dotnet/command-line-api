@@ -23,7 +23,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(command);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -51,7 +51,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(command);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -76,7 +76,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(rootCommand);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -104,7 +104,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(command);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -129,7 +129,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(rootCommand);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -157,7 +157,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(rootCommand);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -180,7 +180,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(command);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -204,7 +204,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(rootCommand);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should().NotThrow();
     }
@@ -223,7 +223,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(rootCommand);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should().NotThrow();
     }
@@ -236,7 +236,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(command);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -255,7 +255,7 @@ public class CommandLineConfigurationTests
 
         var config = new CommandLineConfiguration(rootCommand);
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.Validate();
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()

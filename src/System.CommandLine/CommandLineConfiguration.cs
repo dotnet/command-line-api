@@ -118,7 +118,7 @@ namespace System.CommandLine
         /// </summary>
         /// <remarks>Due to the performance cost of this method, it is recommended to be used in unit testing or in scenarios where the parser is configured dynamically at runtime.</remarks>
         /// <exception cref="CommandLineConfigurationException">Thrown if the configuration is found to be invalid.</exception>
-        public void ThrowIfInvalid()
+        public void Validate()
         {
             ThrowIfInvalid(RootCommand);
 
