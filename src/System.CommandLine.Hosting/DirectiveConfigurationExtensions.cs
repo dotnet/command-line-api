@@ -16,7 +16,7 @@ namespace System.CommandLine.Hosting
             if (name is null)
                 throw new ArgumentNullException(nameof(name));
 
-            if (!commandline.Directives.TryGetValues(name, out var directives))
+            if (!commandline.Directives.TryGetValue(name, out var directives))
                 return config;
 
             var kvpSeparator = new[] { '=' };

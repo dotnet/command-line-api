@@ -17,8 +17,8 @@ namespace System.CommandLine
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
-        private CompletionSourceList? _completions = null;
-        private List<ValidateSymbolResult<ArgumentResult>>? _validators = null;
+        private List<ICompletionSource>? _completions = null;
+        private List<Action<ArgumentResult>>? _validators = null;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
@@ -72,10 +72,10 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the list of completion sources for the argument.
+        /// Gets the collection of completion sources for the argument.
         /// </summary>
-        public CompletionSourceList Completions =>
-            _completions ??= new CompletionSourceList
+        public ICollection<ICompletionSource> Completions =>
+            _completions ??= new ()
             {
                 CompletionSource.ForType(ValueType)
             };
@@ -104,14 +104,14 @@ namespace System.CommandLine
             }
         }
 
-        internal List<ValidateSymbolResult<ArgumentResult>> Validators => _validators ??= new ();
+        internal List<Action<ArgumentResult>> Validators => _validators ??= new ();
 
         /// <summary>
-        /// Adds a custom <see cref="ValidateSymbolResult{ArgumentResult}"/> to the argument. Validators can be used
+        /// Adds a custom validator to the argument. Validators can be used
         /// to provide custom errors based on user input.
         /// </summary>
-        /// <param name="validate">The delegate to validate the parsed argument.</param>
-        public void AddValidator(ValidateSymbolResult<ArgumentResult> validate) => Validators.Add(validate);
+        /// <param name="validate">The action to validate the parsed argument.</param>
+        public void AddValidator(Action<ArgumentResult> validate) => Validators.Add(validate);
 
         /// <summary>
         /// Gets the default value for the argument.

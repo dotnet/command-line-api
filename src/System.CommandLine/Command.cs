@@ -22,7 +22,7 @@ namespace System.CommandLine
         private List<Argument>? _arguments;
         private List<Option>? _options;
         private List<Command>? _subcommands;
-        private List<ValidateSymbolResult<CommandResult>>? _validators;
+        private List<Action<CommandResult>>? _validators;
 
         /// <summary>
         /// Initializes a new instance of the Command class.
@@ -68,8 +68,8 @@ namespace System.CommandLine
         /// </summary>
         public IReadOnlyList<Command> Subcommands => _subcommands is not null ? _subcommands : Array.Empty<Command>();
 
-        internal IReadOnlyList<ValidateSymbolResult<CommandResult>> Validators
-            => _validators is not null ? _validators : Array.Empty<ValidateSymbolResult<CommandResult>>();
+        internal IReadOnlyList<Action<CommandResult>> Validators
+            => _validators is not null ? _validators : Array.Empty<Action<CommandResult>>();
 
         internal bool HasValidators => _validators is not null; // initialized by Add method, so when it's not null the Count is always > 0
 
@@ -140,8 +140,8 @@ namespace System.CommandLine
         /// Adds a custom validator to the command. Validators can be used
         /// to create custom validation logic.
         /// </summary>
-        /// <param name="validate">The delegate to validate the symbols during parsing.</param>
-        public void AddValidator(ValidateSymbolResult<CommandResult> validate) => (_validators ??= new()).Add(validate);
+        /// <param name="validate">The action to validate the symbols during parsing.</param>
+        public void AddValidator(Action<CommandResult> validate) => (_validators ??= new()).Add(validate);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,

@@ -8,9 +8,9 @@ namespace System.CommandLine.Completions
 {
     internal class AnonymousCompletionSource : ICompletionSource
     {
-        private readonly CompletionDelegate _complete;
+        private readonly Func<CompletionContext, IEnumerable<CompletionItem>> _complete;
 
-        public AnonymousCompletionSource(CompletionDelegate complete)
+        public AnonymousCompletionSource(Func<CompletionContext, IEnumerable<CompletionItem>> complete)
         {
             _complete = complete ?? throw new ArgumentNullException(nameof(complete));
         }

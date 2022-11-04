@@ -301,7 +301,7 @@ namespace System.CommandLine.Tests
 
             console.Out.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}{NewLine}");
 
-            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
+            IEnumerable<Action<HelpContext>> CustomLayout(HelpContext _)
             {
                 yield return ctx => ctx.Output.WriteLine("one");
                 yield return ctx => ctx.Output.WriteLine("two");
@@ -327,7 +327,7 @@ namespace System.CommandLine.Tests
 
             output.Should().Be(expected);
 
-            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
+            IEnumerable<Action<HelpContext>> CustomLayout(HelpContext _)
             {
                 yield return ctx => ctx.Output.WriteLine("first");
 
@@ -358,7 +358,7 @@ namespace System.CommandLine.Tests
                                     .CustomizeLayout(c =>
                                                          c.Command == commandWithTypicalHelp
                                                              ? HelpBuilder.Default.GetLayout()
-                                                             : new HelpSectionDelegate[]
+                                                             : new Action<HelpContext>[]
                                                                  {
                                                                      c => c.Output.WriteLine("Custom layout!")
                                                                  }
@@ -417,7 +417,7 @@ namespace System.CommandLine.Tests
             string result = console.Out.ToString();
             result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}{NewLine}");
 
-            IEnumerable<HelpSectionDelegate> CustomLayout(HelpContext _)
+            IEnumerable<Action<HelpContext>> CustomLayout(HelpContext _)
             {
                 yield return ctx => ctx.HelpBuilder.WriteColumns(new[] { new TwoColumnHelpRow("12345678", "1234567890") }, ctx);
             }

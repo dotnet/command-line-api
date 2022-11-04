@@ -1,11 +1,11 @@
 System.CommandLine
   public abstract class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     public ArgumentArity Arity { get; set; }
-    public CompletionSourceList Completions { get; }
+    public System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> Completions { get; }
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Type ValueType { get; }
-    public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.ArgumentResult> validate)
+    public System.Void AddValidator(System.Action<System.CommandLine.Parsing.ArgumentResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
     public System.Void SetDefaultValue(System.Object value)
@@ -17,8 +17,8 @@ System.CommandLine
     .ctor(System.String name, System.String description = null)
     .ctor(System.String name, Func<T> getDefaultValue, System.String description = null)
     .ctor(Func<T> getDefaultValue)
-    .ctor(System.String name, ParseArgument<T> parse, System.Boolean isDefault = False, System.String description = null)
-    .ctor(ParseArgument<T> parse, System.Boolean isDefault = False)
+    .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False, System.String description = null)
+    .ctor(Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False)
     public System.Type ValueType { get; }
   public struct ArgumentArity : System.ValueType, System.IEquatable<ArgumentArity>
     public static ArgumentArity ExactlyOne { get; }
@@ -35,7 +35,7 @@ System.CommandLine
   public static class ArgumentExtensions
     public static TArgument AddCompletions<TArgument>(this TArgument argument, System.String[] values)
     public static TArgument AddCompletions<TArgument>(this TArgument argument, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.CommandLine.Completions.CompletionDelegate complete)
+    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
     public static Argument<System.IO.FileInfo> ExistingOnly(this Argument<System.IO.FileInfo> argument)
     public static Argument<System.IO.DirectoryInfo> ExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
     public static Argument<System.IO.FileSystemInfo> ExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
@@ -60,7 +60,7 @@ System.CommandLine
     public System.Void AddCommand(Command command)
     public System.Void AddGlobalOption(Option option)
     public System.Void AddOption(Option option)
-    public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.CommandResult> validate)
+    public System.Void AddValidator(System.Action<System.CommandLine.Parsing.CommandResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
   public static class CommandExtensions
@@ -109,16 +109,9 @@ System.CommandLine
     .ctor()
     .ctor(System.String message, System.Exception innerException)
   public static class CompletionSourceExtensions
-    public static System.Void Add(this CompletionSourceList completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static System.Void Add(this CompletionSourceList completionSources, System.CommandLine.Completions.CompletionDelegate complete)
-    public static System.Void Add(this CompletionSourceList completionSources, System.String[] completions)
-  public class CompletionSourceList, System.Collections.Generic.IEnumerable<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyCollection<System.CommandLine.Completions.ICompletionSource>, System.Collections.Generic.IReadOnlyList<System.CommandLine.Completions.ICompletionSource>, System.Collections.IEnumerable
-    .ctor()
-    public System.Int32 Count { get; }
-    public System.CommandLine.Completions.ICompletionSource Item { get; }
-    public System.Void Add(System.CommandLine.Completions.ICompletionSource source)
-    public System.Void Clear()
-    public System.Collections.Generic.IEnumerator<System.CommandLine.Completions.ICompletionSource> GetEnumerator()
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.String[] completions)
   public static class ConsoleExtensions
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)
@@ -201,7 +194,7 @@ System.CommandLine
     public ArgumentArity Arity { get; set; }
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
-    public System.Void AddValidator(System.CommandLine.Parsing.ValidateSymbolResult<System.CommandLine.Parsing.OptionResult> validate)
+    public System.Void AddValidator(System.Action<System.CommandLine.Parsing.OptionResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public System.Void SetDefaultValue(System.Object value)
@@ -209,15 +202,15 @@ System.CommandLine
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null)
     .ctor(System.String[] aliases, System.String description = null)
-    .ctor(System.String name, ParseArgument<T> parseArgument, System.Boolean isDefault = False, System.String description = null)
-    .ctor(System.String[] aliases, ParseArgument<T> parseArgument, System.Boolean isDefault = False, System.String description = null)
+    .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
+    .ctor(System.String[] aliases, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
     .ctor(System.String name, Func<T> getDefaultValue, System.String description = null)
     .ctor(System.String[] aliases, Func<T> getDefaultValue, System.String description = null)
     public ArgumentArity Arity { get; set; }
   public static class OptionExtensions
     public static TOption AddCompletions<TOption>(this TOption option, System.String[] values)
     public static TOption AddCompletions<TOption>(this TOption option, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static TOption AddCompletions<TOption>(this TOption option, System.CommandLine.Completions.CompletionDelegate complete)
+    public static TOption AddCompletions<TOption>(this TOption option, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
     public static Option<System.IO.FileInfo> ExistingOnly(this Option<System.IO.FileInfo> option)
     public static Option<System.IO.DirectoryInfo> ExistingOnly(this Option<System.IO.DirectoryInfo> option)
     public static Option<System.IO.FileSystemInfo> ExistingOnly(this Option<System.IO.FileSystemInfo> option)
@@ -229,7 +222,7 @@ System.CommandLine
     public static ParseResult Parse(this Option option, System.String[] args)
   public class ParseResult
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
-    public DirectiveCollection Directives { get; }
+    public System.Collections.Generic.IReadOnlyDictionary<System.String,System.Collections.Generic.IReadOnlyList<System.String>> Directives { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
@@ -284,11 +277,6 @@ System.CommandLine.Completions
   public abstract class CompletionContext
     public System.CommandLine.ParseResult ParseResult { get; }
     public System.String WordToComplete { get; }
-  public delegate CompletionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(CompletionContext context, System.AsyncCallback callback, System.Object object)
-    public System.Collections.Generic.IEnumerable<CompletionItem> EndInvoke(System.IAsyncResult result)
-    public System.Collections.Generic.IEnumerable<CompletionItem> Invoke(CompletionContext context)
   public class CompletionItem
     .ctor(System.String label, System.String kind = Value, System.String sortText = null, System.String insertText = null, System.String documentation = null, System.String detail = null)
     public System.String Detail { get; }
@@ -313,24 +301,24 @@ System.CommandLine.Help
     .ctor(System.CommandLine.LocalizationResources localizationResources, System.Int32 maxWidth = 2147483647)
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.Int32 MaxWidth { get; }
-    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<HelpSectionDelegate>> getLayout)
+    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Action<HelpContext>>> getLayout)
     public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.Symbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
    static class Default
-    public static HelpSectionDelegate AdditionalArgumentsSection()
-    public static HelpSectionDelegate CommandArgumentsSection()
-    public static HelpSectionDelegate CommandUsageSection()
+    public static System.Action<HelpContext> AdditionalArgumentsSection()
+    public static System.Action<HelpContext> CommandArgumentsSection()
+    public static System.Action<HelpContext> CommandUsageSection()
     public static System.String GetArgumentDefaultValue(System.CommandLine.Argument argument)
     public static System.String GetArgumentDescription(System.CommandLine.Argument argument)
     public static System.String GetArgumentUsageLabel(System.CommandLine.Argument argument)
     public static System.String GetIdentifierSymbolDescription(System.CommandLine.IdentifierSymbol symbol)
     public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.IdentifierSymbol symbol, HelpContext context)
-    public static System.Collections.Generic.IEnumerable<HelpSectionDelegate> GetLayout()
-    public static HelpSectionDelegate OptionsSection()
-    public static HelpSectionDelegate SubcommandsSection()
-    public static HelpSectionDelegate SynopsisSection()
+    public static System.Collections.Generic.IEnumerable<System.Action<HelpContext>> GetLayout()
+    public static System.Action<HelpContext> OptionsSection()
+    public static System.Action<HelpContext> SubcommandsSection()
+    public static System.Action<HelpContext> SynopsisSection()
   public static class HelpBuilderExtensions
     public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.Symbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter writer)
@@ -340,11 +328,6 @@ System.CommandLine.Help
     public HelpBuilder HelpBuilder { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
-  public delegate HelpSectionDelegate : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(HelpContext context, System.AsyncCallback callback, System.Object object)
-    public System.Void EndInvoke(System.IAsyncResult result)
-    public System.Void Invoke(HelpContext context)
   public class TwoColumnHelpRow, System.IEquatable<TwoColumnHelpRow>
     .ctor(System.String firstColumnText, System.String secondColumnText)
     public System.String FirstColumnText { get; }
@@ -434,11 +417,6 @@ System.CommandLine.Parsing
     public Token Token { get; }
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
-  public delegate ParseArgument<out T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(ArgumentResult result, System.AsyncCallback callback, System.Object object)
-    public T EndInvoke(System.IAsyncResult result)
-    public T Invoke(ArgumentResult result)
   public class ParseError
     public System.String Message { get; }
     public SymbolResult SymbolResult { get; }
@@ -496,8 +474,3 @@ System.CommandLine.Parsing
     public System.IAsyncResult BeginInvoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.AsyncCallback callback, System.Object object)
     public System.Boolean EndInvoke(ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.IAsyncResult result)
     public System.Boolean Invoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage)
-  public delegate ValidateSymbolResult<in T> : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(T symbolResult, System.AsyncCallback callback, System.Object object)
-    public System.Void EndInvoke(System.IAsyncResult result)
-    public System.Void Invoke(T symbolResult)
