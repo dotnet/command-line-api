@@ -46,18 +46,18 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public Option(
             string name,
-            Func<T> getDefaultValue,
+            Func<T> defaultValueFactory,
             string? description = null) 
             : base(name, description, 
-                  new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
+                  new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
         { }
 
         /// <inheritdoc/>
         public Option(
             string[] aliases,
-            Func<T> getDefaultValue,
+            Func<T> defaultValueFactory,
             string? description = null)
-            : base(aliases, description, new Argument<T>(getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue))))
+            : base(aliases, description, new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
         {
         }
 

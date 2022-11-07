@@ -93,7 +93,7 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Argument<bool>("x", getDefaultValue: () => true)
+                new Argument<bool>("x", defaultValueFactory: () => true)
             };
             rootCommand.SetHandler(() => { });
 

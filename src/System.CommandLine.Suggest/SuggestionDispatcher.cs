@@ -97,7 +97,7 @@ namespace System.CommandLine.Suggest
 
         private Option<int> PositionOption { get; } = new(new[] { "-p", "--position" },
                                                           description: "The current character position on the command line",
-                                                          getDefaultValue: () => short.MaxValue);
+                                                          defaultValueFactory: () => short.MaxValue);
 
         private Command RegisterCommand { get; }
 

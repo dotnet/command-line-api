@@ -144,26 +144,26 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a delegate to invoke when the default value for the argument is required.
         /// </summary>
-        /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<object?> getDefaultValue)
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
+        public void SetDefaultValueFactory(Func<object?> defaultValueFactory)
         {
-            if (getDefaultValue is null)
+            if (defaultValueFactory is null)
             {
-                throw new ArgumentNullException(nameof(getDefaultValue));
+                throw new ArgumentNullException(nameof(defaultValueFactory));
             }
 
-            SetDefaultValueFactory(_ => getDefaultValue());
+            SetDefaultValueFactory(_ => defaultValueFactory());
         }
         
         /// <summary>
         /// Sets a delegate to invoke when the default value for the argument is required.
         /// </summary>
-        /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
         /// <remarks>In this overload, the <see cref="ArgumentResult"/> is provided to the delegate.</remarks>
-        public void SetDefaultValueFactory(Func<ArgumentResult, object?> getDefaultValue)
+        public void SetDefaultValueFactory(Func<ArgumentResult, object?> defaultValueFactory)
         {
-            _defaultValueFactory = getDefaultValue ?? throw new ArgumentNullException(nameof(getDefaultValue));
+            _defaultValueFactory = defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory));
         }
 
         /// <summary>

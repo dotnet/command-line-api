@@ -189,7 +189,7 @@ namespace System.CommandLine.Tests
         {
             var parser = new RootCommand
             {
-                new Option<string>("--apple", getDefaultValue: () => "cortland"),
+                new Option<string>("--apple", defaultValueFactory: () => "cortland"),
                 new Option<string>("--banana"),
                 new Option<string>("--cherry")
             };

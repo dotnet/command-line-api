@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Option_can_customize_default_value()
             {
-                var option = new Option<string>("--the-option", getDefaultValue: () => "not 42");
+                var option = new Option<string>("--the-option", defaultValueFactory: () => "not 42");
                 var command = new Command("the-command", "command help")
                 {
                     option
@@ -188,7 +188,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Command_arguments_can_customize_second_column_text()
             {
-                var argument = new Argument<string>("some-arg", description: "Default description", getDefaultValue: () => "not 42");
+                var argument = new Argument<string>("some-arg", description: "Default description", defaultValueFactory: () => "not 42");
                 var command = new Command("the-command", "command help")
                 {
                     argument
@@ -207,7 +207,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Command_arguments_can_customize_default_value()
             {
-                var argument = new Argument<string>("some-arg", getDefaultValue: () => "not 42");
+                var argument = new Argument<string>("some-arg", defaultValueFactory: () => "not 42");
                 var command = new Command("the-command", "command help")
                 {
                     argument
