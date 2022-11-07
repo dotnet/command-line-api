@@ -29,35 +29,35 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument.</param>
-        /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
         /// <param name="description">The description of the argument, shown in help.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
         public Argument(
             string name, 
-            Func<T> getDefaultValue, 
+            Func<T> defaultValueFactory, 
             string? description = null) : this(name, description)
         {
-            if (getDefaultValue is null)
+            if (defaultValueFactory is null)
             {
-                throw new ArgumentNullException(nameof(getDefaultValue));
+                throw new ArgumentNullException(nameof(defaultValueFactory));
             }
 
-            SetDefaultValueFactory(() => getDefaultValue());
+            SetDefaultValueFactory(() => defaultValueFactory());
         }
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
-        public Argument(Func<T> getDefaultValue) : this()
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
+        public Argument(Func<T> defaultValueFactory) : this()
         {
-            if (getDefaultValue is null)
+            if (defaultValueFactory is null)
             {
-                throw new ArgumentNullException(nameof(getDefaultValue));
+                throw new ArgumentNullException(nameof(defaultValueFactory));
             }
 
-            SetDefaultValueFactory(() => getDefaultValue());
+            SetDefaultValueFactory(() => defaultValueFactory());
         }
 
         /// <summary>

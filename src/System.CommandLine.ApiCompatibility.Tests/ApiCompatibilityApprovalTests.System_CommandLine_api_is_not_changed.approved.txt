@@ -9,14 +9,14 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
     public System.Void SetDefaultValue(System.Object value)
-    public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
-    public System.Void SetDefaultValueFactory(System.Func<System.CommandLine.Parsing.ArgumentResult,System.Object> getDefaultValue)
+    public System.Void SetDefaultValueFactory(System.Func<System.Object> defaultValueFactory)
+    public System.Void SetDefaultValueFactory(System.Func<System.CommandLine.Parsing.ArgumentResult,System.Object> defaultValueFactory)
     public System.String ToString()
   public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     .ctor()
     .ctor(System.String name, System.String description = null)
-    .ctor(System.String name, Func<T> getDefaultValue, System.String description = null)
-    .ctor(Func<T> getDefaultValue)
+    .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
+    .ctor(Func<T> defaultValueFactory)
     .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False, System.String description = null)
     .ctor(Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False)
     public System.Type ValueType { get; }
@@ -198,14 +198,14 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public System.Void SetDefaultValue(System.Object value)
-    public System.Void SetDefaultValueFactory(System.Func<System.Object> getDefaultValue)
+    public System.Void SetDefaultValueFactory(System.Func<System.Object> defaultValueFactory)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null)
     .ctor(System.String[] aliases, System.String description = null)
     .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
     .ctor(System.String[] aliases, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
-    .ctor(System.String name, Func<T> getDefaultValue, System.String description = null)
-    .ctor(System.String[] aliases, Func<T> getDefaultValue, System.String description = null)
+    .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
+    .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
     public ArgumentArity Arity { get; set; }
   public static class OptionExtensions
     public static TOption AddCompletions<TOption>(this TOption option, System.String[] values)

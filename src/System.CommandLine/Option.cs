@@ -152,10 +152,10 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a delegate to invoke when the default value for the option is required.
         /// </summary>
-        /// <param name="getDefaultValue">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="getDefaultValue"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<object?> getDefaultValue) =>
-            Argument.SetDefaultValueFactory(getDefaultValue);
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
+        public void SetDefaultValueFactory(Func<object?> defaultValueFactory) =>
+            Argument.SetDefaultValueFactory(defaultValueFactory);
 
         /// <summary>
         /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.

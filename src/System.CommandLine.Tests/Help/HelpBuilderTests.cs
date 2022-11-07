@@ -921,7 +921,7 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("the-command", "command help")
             {
                 new Argument<List<int>>("filter-size",
-                    getDefaultValue: () => new List<int>() { 0, 2, 4 })
+                    defaultValueFactory: () => new List<int>() { 0, 2, 4 })
             };
 
             _helpBuilder.Write(command, _console);
@@ -1149,7 +1149,7 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("test-command", "Help text for the command")
             {
                 new Option<string>("-x", "Option with a short description"),
-                new Option<string>(new[] { "-a", "--aaa" }, description: longOptionText, getDefaultValue: () => "the quick brown fox jumps over the lazy dog"),
+                new Option<string>(new[] { "-a", "--aaa" }, description: longOptionText, defaultValueFactory: () => "the quick brown fox jumps over the lazy dog"),
                 new Option<string>("-y", "Option with a short description"),
             };
 
@@ -1313,7 +1313,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "command help")
             {
-                new Option<string>(new[] { "-arg"}, getDefaultValue: () => "the-arg-value")
+                new Option<string>(new[] { "-arg"}, defaultValueFactory: () => "the-arg-value")
                 {
                     ArgumentHelpName = "the-arg"
                 }
@@ -1335,7 +1335,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option<List<int>>(
                     "--filter-size",
-                    getDefaultValue: () => new List<int> { 0, 2, 4 })
+                    defaultValueFactory: () => new List<int> { 0, 2, 4 })
                 { }
             };
 
@@ -1354,7 +1354,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option<string[]>(
                     "--prefixes",
-                    getDefaultValue: () => new[]{ "^(TODO|BUG)", "^HACK" })
+                    defaultValueFactory: () => new[]{ "^(TODO|BUG)", "^HACK" })
                 { }
             };
 

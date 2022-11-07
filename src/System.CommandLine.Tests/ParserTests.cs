@@ -1556,7 +1556,7 @@ namespace System.CommandLine.Tests
         [InlineData("--exec-prefix=", "")]
         public void Parsed_value_of_empty_string_arg_is_an_empty_string(string arg1, string arg2)
         {
-            var option = new Option<string>("--exec-prefix", getDefaultValue: () => "/usr/local");
+            var option = new Option<string>("--exec-prefix", defaultValueFactory: () => "/usr/local");
             var rootCommand = new RootCommand
             {
                 option

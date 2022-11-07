@@ -252,7 +252,7 @@ namespace System.CommandLine.Tests
             public void Unsatisfied_subsequent_argument_with_min_arity_1_parses_as_default_value()
             {
                 Argument<string> arg1 = new(name: "arg1");
-                Argument<string> arg2 = new(name: "arg2", getDefaultValue: () => "the-default");
+                Argument<string> arg2 = new(name: "arg2", defaultValueFactory: () => "the-default");
 
                 var rootCommand = new RootCommand
                 {
