@@ -94,7 +94,7 @@ namespace System.CommandLine.Suggest
         private static Option<FileInfo> GetExecutableOption()
         {
             var option = new Option<FileInfo>(new[] { "-e", "--executable" }, "The executable to call for suggestions");
-            option.LegalFilePathsOnly();
+            option.AcceptLegalFilePathsOnly();
 
             return option;
         }

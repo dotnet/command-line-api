@@ -531,7 +531,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<string>().LegalFilePathsOnly()
+                    new Argument<string>().AcceptLegalFilePathsOnly()
                 };
 
                 var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
@@ -551,7 +551,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option<string>("-x").LegalFilePathsOnly()
+                    new Option<string>("-x").AcceptLegalFilePathsOnly()
                 };
 
                 var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
@@ -571,7 +571,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<string[]>().LegalFilePathsOnly()
+                    new Argument<string[]>().AcceptLegalFilePathsOnly()
                 };
 
                 var validPathName = Directory.GetCurrentDirectory();
@@ -587,7 +587,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option<string[]>("-x").LegalFilePathsOnly()
+                    new Option<string[]>("-x").AcceptLegalFilePathsOnly()
                 };
 
                 var validPathName = Directory.GetCurrentDirectory();
@@ -606,7 +606,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<string>().LegalFileNamesOnly()
+                    new Argument<string>().AcceptLegalFileNamesOnly()
                 };
 
                 var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
@@ -626,7 +626,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option<string>("-x").LegalFileNamesOnly()
+                    new Option<string>("-x").AcceptLegalFileNamesOnly()
                 };
 
                 var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
@@ -646,7 +646,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<string[]>().LegalFileNamesOnly()
+                    new Argument<string[]>().AcceptLegalFileNamesOnly()
                 };
 
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
@@ -662,7 +662,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option<string[]>("-x").LegalFileNamesOnly()
+                    new Option<string[]>("-x").AcceptLegalFileNamesOnly()
                 };
 
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());

@@ -5,6 +5,8 @@ System.CommandLine
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Type ValueType { get; }
+    public Argument AcceptLegalFileNamesOnly()
+    public Argument AcceptLegalFilePathsOnly()
     public Argument AcceptOnlyFromAmong(System.String[] values)
     public Argument AddCompletions(System.String[] values)
     public Argument AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
@@ -12,8 +14,6 @@ System.CommandLine
     public System.Void AddValidator(System.Action<System.CommandLine.Parsing.ArgumentResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
-    public Argument LegalFileNamesOnly()
-    public Argument LegalFilePathsOnly()
     public ParseResult Parse(System.String commandLine)
     public ParseResult Parse(System.String[] args)
     public System.Void SetDefaultValue(System.Object value)
@@ -194,6 +194,8 @@ System.CommandLine
     public ArgumentArity Arity { get; set; }
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
+    public Option AcceptLegalFileNamesOnly()
+    public Option AcceptLegalFilePathsOnly()
     public Option AcceptOnlyFromAmong(System.String[] values)
     public Option AddCompletions(System.String[] values)
     public Option AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
@@ -201,8 +203,6 @@ System.CommandLine
     public System.Void AddValidator(System.Action<System.CommandLine.Parsing.OptionResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
-    public Option LegalFileNamesOnly()
-    public Option LegalFilePathsOnly()
     public ParseResult Parse(System.String commandLine)
     public ParseResult Parse(System.String[] args)
     public System.Void SetDefaultValue(System.Object value)
