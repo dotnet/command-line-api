@@ -16,44 +16,44 @@ namespace System.CommandLine
         /// Adds a completion source using a delegate.
         /// </summary>
         /// <param name="completionSources">The list of completion sources to add to.</param>
-        /// <param name="complete">The delegate to be called when calculating completions.</param>
+        /// <param name="completionsDelegate">The delegate to be called when calculating completions.</param>
         public static void Add(
             this ICollection<ICompletionSource> completionSources,
-            Func<CompletionContext, IEnumerable<string>> complete)
+            Func<CompletionContext, IEnumerable<string>> completionsDelegate)
         {
             if (completionSources is null)
             {
                 throw new ArgumentNullException(nameof(completionSources));
             }
 
-            if (complete is null)
+            if (completionsDelegate is null)
             {
-                throw new ArgumentNullException(nameof(complete));
+                throw new ArgumentNullException(nameof(completionsDelegate));
             }
 
-            completionSources.Add(new AnonymousCompletionSource(complete));
+            completionSources.Add(new AnonymousCompletionSource(completionsDelegate));
         }
         
         /// <summary>
         /// Adds a completion source using a delegate.
         /// </summary>
         /// <param name="completionSources">The list of completion sources to add to.</param>
-        /// <param name="complete">The function to be called when calculating completions.</param>
+        /// <param name="completionsDelegate">The function to be called when calculating completions.</param>
         public static void Add(
             this ICollection<ICompletionSource> completionSources,
-            Func<CompletionContext, IEnumerable<CompletionItem>> complete)
+            Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
         {
             if (completionSources is null)
             {
                 throw new ArgumentNullException(nameof(completionSources));
             }
 
-            if (complete is null)
+            if (completionsDelegate is null)
             {
-                throw new ArgumentNullException(nameof(complete));
+                throw new ArgumentNullException(nameof(completionsDelegate));
             }
 
-            completionSources.Add(new AnonymousCompletionSource(complete));
+            completionSources.Add(new AnonymousCompletionSource(completionsDelegate));
         }
 
         /// <summary>

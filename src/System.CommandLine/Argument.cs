@@ -207,33 +207,33 @@ namespace System.CommandLine
         /// <summary>
         /// Adds completions for the argument.
         /// </summary>
-        /// <param name="values">The completions to add.</param>
+        /// <param name="completions">The completions to add.</param>
         /// <returns>The configured argument.</returns>
-        public Argument AddCompletions(params string[] values)
+        public Argument AddCompletions(params string[] completions)
         {
-            Completions.Add(values);
+            Completions.Add(completions);
             return this;
         }
 
         /// <summary>
         /// Adds completions for the argument.
         /// </summary>
-        /// <param name="complete">A function that will be called to provide completions.</param>
+        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
-        public Argument AddCompletions(Func<CompletionContext, IEnumerable<string>> complete)
+        public Argument AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
         {
-            Completions.Add(complete);
+            Completions.Add(completionsDelegate);
             return this;
         }
 
         /// <summary>
         /// Adds completions for the argument.
         /// </summary>
-        /// <param name="complete">A function that will be called to provide completions.</param>
+        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
         /// <returns>The configured argument.</returns>
-        public Argument AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> complete)
+        public Argument AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
         {
-            Completions.Add(complete);
+            Completions.Add(completionsDelegate);
             return this;
         }
 

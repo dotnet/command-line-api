@@ -253,33 +253,33 @@ namespace System.CommandLine
         /// <summary>
         /// Adds completions for the option.
         /// </summary>
-        /// <param name="values">The completions to add.</param>
+        /// <param name="completions">The completions to add.</param>
         /// <returns>The configured option.</returns>
-        public Option AddCompletions(params string[] values)
+        public Option AddCompletions(params string[] completions)
         {
-            Argument.Completions.Add(values);
+            Argument.Completions.Add(completions);
             return this;
         }
 
         /// <summary>
         /// Adds completions for the option.
         /// </summary>
-        /// <param name="complete">A function that will be called to provide completions.</param>
+        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
         /// <returns>The configured option.</returns>
-        public Option AddCompletions(Func<CompletionContext, IEnumerable<string>> complete)
+        public Option AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
         {
-            Argument.Completions.Add(complete);
+            Argument.Completions.Add(completionsDelegate);
             return this;
         }
 
         /// <summary>
         /// Adds completions for the option.
         /// </summary>
-        /// <param name="complete">A function that will be called to provide completions.</param>
+        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
         /// <returns>The configured option.</returns>
-        public Option AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> complete)
+        public Option AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
         {
-            Argument.Completions.Add(complete);
+            Argument.Completions.Add(completionsDelegate);
             return this;
         }
 
