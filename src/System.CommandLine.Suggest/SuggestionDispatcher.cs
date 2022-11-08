@@ -89,9 +89,15 @@ namespace System.CommandLine.Suggest
 
         private Command GetCommand { get; }
 
-        private Option<FileInfo> ExecutableOption { get; } =
-            new Option<FileInfo>(new[] { "-e", "--executable" }, "The executable to call for suggestions")
-                .LegalFilePathsOnly();
+        private Option<FileInfo> ExecutableOption { get; } = GetExecutableOption();
+
+        private static Option<FileInfo> GetExecutableOption()
+        {
+            var option = new Option<FileInfo>(new[] { "-e", "--executable" }, "The executable to call for suggestions");
+            option.LegalFilePathsOnly();
+
+            return option;
+        }
 
         private Command ListCommand { get; }
 

@@ -6,6 +6,7 @@ using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.CommandLine.Completions;
 using System.Linq;
+using System.IO;
 
 namespace System.CommandLine
 {
@@ -202,5 +203,124 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         string IValueDescriptor.ValueName => Name;
+
+        /// <summary>
+        /// Adds completions for the argument.
+        /// </summary>
+        /// <param name="values">The completions to add.</param>
+        /// <returns>The configured argument.</returns>
+        public Argument AddCompletions(params string[] values)
+        {
+            Completions.Add(values);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds completions for the argument.
+        /// </summary>
+        /// <param name="complete">A function that will be called to provide completions.</param>
+        /// <returns>The option being extended.</returns>
+        public Argument AddCompletions(Func<CompletionContext, IEnumerable<string>> complete)
+        {
+            Completions.Add(complete);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds completions for the argument.
+        /// </summary>
+        /// <param name="complete">A function that will be called to provide completions.</param>
+        /// <returns>The configured argument.</returns>
+        public Argument AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> complete)
+        {
+            Completions.Add(complete);
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
+        /// </summary>
+        /// <param name="values">The values that are allowed for the argument.</param>
+        /// <returns>The configured argument.</returns>
+        public Argument AcceptOnlyFromAmong(params string[] values)
+        {
+            AllowedValues?.Clear();
+            AddAllowedValues(values);
+            Completions.Clear();
+            Completions.Add(values);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the argument to accept only values representing legal file paths.
+        /// </summary>
+        /// <returns>The configured argument.</returns>
+        public Argument LegalFilePathsOnly()
+        {
+            var invalidPathChars = Path.GetInvalidPathChars();
+
+            AddValidator(result =>
+            {
+                for (var i = 0; i < result.Tokens.Count; i++)
+                {
+                    var token = result.Tokens[i];
+
+                    // File class no longer check invalid character
+                    // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
+                    var invalidCharactersIndex = token.Value.IndexOfAny(invalidPathChars);
+
+                    if (invalidCharactersIndex >= 0)
+                    {
+                        result.ErrorMessage = result.LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
+                    }
+                }
+            });
+
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the argument to accept only values representing legal file names.
+        /// </summary>
+        /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
+        /// <returns>The configured argument.</returns>
+        public Argument LegalFileNamesOnly()
+        {
+            var invalidFileNameChars = Path.GetInvalidFileNameChars();
+
+            AddValidator(result =>
+            {
+                for (var i = 0; i < result.Tokens.Count; i++)
+                {
+                    var token = result.Tokens[i];
+                    var invalidCharactersIndex = token.Value.IndexOfAny(invalidFileNameChars);
+
+                    if (invalidCharactersIndex >= 0)
+                    {
+                        result.ErrorMessage = result.LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]);
+                    }
+                }
+            });
+
+            return this;
+        }
+
+        /// <summary>
+        /// Parses a command line string value using the argument.
+        /// </summary>
+        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
+        /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        public ParseResult Parse(string commandLine) =>
+            this.GetOrCreateDefaultSimpleParser().Parse(commandLine);
+
+        /// <summary>
+        /// Parses a command line string value using the argument.
+        /// </summary>
+        /// <param name="args">The string arguments to parse.</param>
+        /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        public ParseResult Parse(string[] args) =>
+            this.GetOrCreateDefaultSimpleParser().Parse(args);
     }
 }

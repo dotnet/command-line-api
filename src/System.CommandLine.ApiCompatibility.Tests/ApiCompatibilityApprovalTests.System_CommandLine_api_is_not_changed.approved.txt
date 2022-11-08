@@ -5,9 +5,17 @@ System.CommandLine
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Type ValueType { get; }
+    public Argument AcceptOnlyFromAmong(System.String[] values)
+    public Argument AddCompletions(System.String[] values)
+    public Argument AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
+    public Argument AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
     public System.Void AddValidator(System.Action<System.CommandLine.Parsing.ArgumentResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
+    public Argument LegalFileNamesOnly()
+    public Argument LegalFilePathsOnly()
+    public ParseResult Parse(System.String commandLine)
+    public ParseResult Parse(System.String[] args)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> defaultValueFactory)
     public System.Void SetDefaultValueFactory(System.Func<System.CommandLine.Parsing.ArgumentResult,System.Object> defaultValueFactory)
@@ -32,19 +40,11 @@ System.CommandLine
     public System.Boolean Equals(ArgumentArity other)
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
-  public static class ArgumentExtensions
+  public static class ArgumentValidationExtensions
     public static Argument<System.IO.FileInfo> AcceptExistingOnly(this Argument<System.IO.FileInfo> argument)
     public static Argument<System.IO.DirectoryInfo> AcceptExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
     public static Argument<System.IO.FileSystemInfo> AcceptExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
     public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
-    public static TArgument AcceptOnlyFromAmong<TArgument>(this TArgument argument, System.String[] values)
-    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.String[] values)
-    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static TArgument AddCompletions<TArgument>(this TArgument argument, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
-    public static TArgument LegalFileNamesOnly<TArgument>(this TArgument argument)
-    public static TArgument LegalFilePathsOnly<TArgument>(this TArgument argument)
-    public static ParseResult Parse(this Argument argument, System.String commandLine)
-    public static ParseResult Parse(this Argument argument, System.String[] args)
   public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
@@ -194,9 +194,17 @@ System.CommandLine
     public ArgumentArity Arity { get; set; }
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
+    public Option AcceptOnlyFromAmong(System.String[] values)
+    public Option AddCompletions(System.String[] values)
+    public Option AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
+    public Option AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
     public System.Void AddValidator(System.Action<System.CommandLine.Parsing.OptionResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
+    public Option LegalFileNamesOnly()
+    public Option LegalFilePathsOnly()
+    public ParseResult Parse(System.String commandLine)
+    public ParseResult Parse(System.String[] args)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> defaultValueFactory)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
@@ -207,19 +215,11 @@ System.CommandLine
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
     .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
     public ArgumentArity Arity { get; set; }
-  public static class OptionExtensions
+  public static class OptionValidationExtensions
     public static Option<System.IO.FileInfo> AcceptExistingOnly(this Option<System.IO.FileInfo> option)
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
     public static Option<System.IO.FileSystemInfo> AcceptExistingOnly(this Option<System.IO.FileSystemInfo> option)
     public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
-    public static TOption AcceptOnlyFromAmong<TOption>(this TOption option, System.String[] values)
-    public static TOption AddCompletions<TOption>(this TOption option, System.String[] values)
-    public static TOption AddCompletions<TOption>(this TOption option, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
-    public static TOption AddCompletions<TOption>(this TOption option, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> complete)
-    public static TOption LegalFileNamesOnly<TOption>(this TOption option)
-    public static TOption LegalFilePathsOnly<TOption>(this TOption option)
-    public static ParseResult Parse(this Option option, System.String commandLine)
-    public static ParseResult Parse(this Option option, System.String[] args)
   public class ParseResult
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
     public System.Collections.Generic.IReadOnlyDictionary<System.String,System.Collections.Generic.IReadOnlyList<System.String>> Directives { get; }

@@ -234,5 +234,91 @@ namespace System.CommandLine
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
         }
+
+        /// <summary>
+        /// Configures the option to accept only the specified values, and to suggest them as command line completions.
+        /// </summary>
+        /// <param name="values">The values that are allowed for the option.</param>
+        /// <returns>The configured option.</returns>
+        public Option AcceptOnlyFromAmong(params string[] values)
+        {
+            Argument.AllowedValues?.Clear();
+            Argument.AddAllowedValues(values);
+            Argument.Completions.Clear();
+            Argument.Completions.Add(values);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds completions for the option.
+        /// </summary>
+        /// <param name="values">The completions to add.</param>
+        /// <returns>The configured option.</returns>
+        public Option AddCompletions(params string[] values)
+        {
+            Argument.Completions.Add(values);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds completions for the option.
+        /// </summary>
+        /// <param name="complete">A function that will be called to provide completions.</param>
+        /// <returns>The configured option.</returns>
+        public Option AddCompletions(Func<CompletionContext, IEnumerable<string>> complete)
+        {
+            Argument.Completions.Add(complete);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds completions for the option.
+        /// </summary>
+        /// <param name="complete">A function that will be called to provide completions.</param>
+        /// <returns>The configured option.</returns>
+        public Option AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> complete)
+        {
+            Argument.Completions.Add(complete);
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the option to accept only values representing legal file paths.
+        /// </summary>
+        /// <returns>The configured option.</returns>
+        public Option LegalFilePathsOnly()
+        {
+            Argument.LegalFilePathsOnly();
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the option to accept only values representing legal file names.
+        /// </summary>
+        /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
+        /// <returns>The configured option.</returns>
+        public Option LegalFileNamesOnly()
+        {
+            Argument.LegalFileNamesOnly();
+            return this;
+        }
+
+        /// <summary>
+        /// Parses a command line string value using the option.
+        /// </summary>
+        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
+        /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        public ParseResult Parse(string commandLine) =>
+            this.GetOrCreateDefaultSimpleParser().Parse(commandLine);
+
+        /// <summary>
+        /// Parses a command line string value using the option.
+        /// </summary>
+        /// <param name="args">The string options to parse.</param>
+        /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        public ParseResult Parse(string[] args) =>
+            this.GetOrCreateDefaultSimpleParser().Parse(args);
     }
 }
