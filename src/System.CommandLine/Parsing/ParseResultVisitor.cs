@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Completions;
 using System.CommandLine.Help;
 using System.Linq;
 
@@ -522,7 +523,7 @@ namespace System.CommandLine.Parsing
             {
                 if (argument.FirstParent?.Symbol is Option option)
                 {
-                    var completions = option.GetCompletions().ToArray();
+                    var completions = option.GetCompletions(CompletionContext.Empty).ToArray();
 
                     if (completions.Length > 0)
                     {

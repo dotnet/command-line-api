@@ -65,7 +65,7 @@ public partial class HelpBuilder
 
             string firstColumn;
             var completions = (argument is { } a
-                                   ? a.GetCompletions()
+                                   ? a.GetCompletions(CompletionContext.Empty)
                                    : Array.Empty<CompletionItem>())
                               .Select(item => item.Label)
                               .ToArray();

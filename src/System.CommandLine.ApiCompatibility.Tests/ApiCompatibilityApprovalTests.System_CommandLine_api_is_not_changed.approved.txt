@@ -275,6 +275,7 @@ System.CommandLine.Binding
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Completions
   public abstract class CompletionContext
+    public static CompletionContext Empty { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
     public System.String WordToComplete { get; }
   public class CompletionItem

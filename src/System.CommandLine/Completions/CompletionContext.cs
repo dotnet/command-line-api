@@ -11,6 +11,8 @@ namespace System.CommandLine.Completions
     /// </summary>
     public abstract class CompletionContext
     {
+        private static CompletionContext _empty;
+
         internal CompletionContext(ParseResult parseResult, string wordToComplete)
         {
             ParseResult = parseResult;
@@ -23,7 +25,11 @@ namespace System.CommandLine.Completions
         /// The parse result for which completions are being requested.
         public ParseResult ParseResult { get; }
 
-        internal static CompletionContext Empty() => new TokenCompletionContext(ParseResult.Empty());
+        /// <summary>
+        /// Gets an empty CompletionContext.
+        /// </summary>
+        /// <remarks>Can be used for testing purposes.</remarks>
+        public static CompletionContext Empty => _empty ??= new TokenCompletionContext(ParseResult.Empty());
 
         /// <summary>
         /// Gets the text to be matched for completion, which can be used to filter a list of completions.
