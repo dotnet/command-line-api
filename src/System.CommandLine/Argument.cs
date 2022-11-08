@@ -17,7 +17,7 @@ namespace System.CommandLine
         private Func<ArgumentResult, object?>? _defaultValueFactory;
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
-        private List<ICompletionSource>? _completions = null;
+        private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completions = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the collection of completion sources for the argument.
         /// </summary>
-        public ICollection<ICompletionSource> Completions =>
+        public ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> Completions =>
             _completions ??= new ()
             {
                 CompletionSource.ForType(ValueType)
@@ -192,7 +192,7 @@ namespace System.CommandLine
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
             return Completions
-                   .SelectMany(source => source.GetCompletions(context))
+                   .SelectMany(source => source.Invoke(context))
                    .Distinct()
                    .OrderBy(c => c.SortText, StringComparer.OrdinalIgnoreCase);
         }
