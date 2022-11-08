@@ -11,7 +11,7 @@ namespace System.CommandLine.Completions
     /// </summary>
     public abstract class CompletionContext
     {
-        private static CompletionContext _empty;
+        private static CompletionContext? _empty;
 
         internal CompletionContext(ParseResult parseResult, string wordToComplete)
         {
