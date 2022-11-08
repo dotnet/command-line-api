@@ -248,7 +248,6 @@ System.CommandLine
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
 System.CommandLine.Binding

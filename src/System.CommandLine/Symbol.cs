@@ -80,10 +80,6 @@ namespace System.CommandLine
         /// <summary>
         /// Gets completions for the symbol.
         /// </summary>
-        public IEnumerable<CompletionItem> GetCompletions() => 
-            GetCompletions(CompletionContext.Empty());
-
-        /// <inheritdoc />
         public abstract IEnumerable<CompletionItem> GetCompletions(CompletionContext context);
 
         /// <inheritdoc/>
