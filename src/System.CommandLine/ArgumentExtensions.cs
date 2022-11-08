@@ -89,7 +89,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
-        public static Argument<FileInfo> ExistingOnly(this Argument<FileInfo> argument)
+        public static Argument<FileInfo> AcceptExistingOnly(this Argument<FileInfo> argument)
         {
             argument.AddValidator(Validate.FileExists);
             return argument;
@@ -100,7 +100,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
-        public static Argument<DirectoryInfo> ExistingOnly(this Argument<DirectoryInfo> argument)
+        public static Argument<DirectoryInfo> AcceptExistingOnly(this Argument<DirectoryInfo> argument)
         {
             argument.AddValidator(Validate.DirectoryExists);
             return argument;
@@ -111,7 +111,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
-        public static Argument<FileSystemInfo> ExistingOnly(this Argument<FileSystemInfo> argument)
+        public static Argument<FileSystemInfo> AcceptExistingOnly(this Argument<FileSystemInfo> argument)
         {
             argument.AddValidator(Validate.FileOrDirectoryExists);
             return argument;
@@ -122,7 +122,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
-        public static Argument<T> ExistingOnly<T>(this Argument<T> argument)
+        public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
             where T : IEnumerable<FileSystemInfo>
         {
             if (typeof(IEnumerable<FileInfo>).IsAssignableFrom(typeof(T)))

@@ -89,7 +89,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        public static Option<FileInfo> ExistingOnly(this Option<FileInfo> option)
+        public static Option<FileInfo> AcceptExistingOnly(this Option<FileInfo> option)
         {
             option.Argument.AddValidator(Validate.FileExists);
             return option;
@@ -100,7 +100,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        public static Option<DirectoryInfo> ExistingOnly(this Option<DirectoryInfo> option)
+        public static Option<DirectoryInfo> AcceptExistingOnly(this Option<DirectoryInfo> option)
         {
             option.Argument.AddValidator(Validate.DirectoryExists);
             return option;
@@ -111,7 +111,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        public static Option<FileSystemInfo> ExistingOnly(this Option<FileSystemInfo> option)
+        public static Option<FileSystemInfo> AcceptExistingOnly(this Option<FileSystemInfo> option)
         {
             option.Argument.AddValidator(Validate.FileOrDirectoryExists);
             return option;
@@ -122,12 +122,12 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        public static Option<T> ExistingOnly<T>(this Option<T> option)
+        public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
             where T : IEnumerable<FileSystemInfo>
         {
             if (option.Argument is Argument<T> arg)
             {
-                arg.ExistingOnly();
+                arg.AcceptExistingOnly();
             }
 
             return option;

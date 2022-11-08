@@ -681,7 +681,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<FileInfo>("to").ExistingOnly()
+                    new Argument<FileInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -700,7 +700,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileInfo>("--to").ExistingOnly()
+                    new Option<FileInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -719,7 +719,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<DirectoryInfo>("to").ExistingOnly()
+                    new Argument<DirectoryInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -738,7 +738,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<DirectoryInfo>("--to").ExistingOnly()
+                    new Option<DirectoryInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -757,7 +757,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<FileSystemInfo>().ExistingOnly()
+                    new Argument<FileSystemInfo>().AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -776,7 +776,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileSystemInfo>("--to").ExistingOnly()
+                    new Option<FileSystemInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -795,7 +795,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<IEnumerable<FileInfo>>("to").ExistingOnly()
+                    new Argument<IEnumerable<FileInfo>>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -814,7 +814,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<IEnumerable<FileInfo>>("--to").ExistingOnly()
+                    new Option<IEnumerable<FileInfo>>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -833,7 +833,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<List<DirectoryInfo>>("to").ExistingOnly()
+                    new Argument<List<DirectoryInfo>>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -852,7 +852,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<DirectoryInfo[]>("--to").ExistingOnly()
+                    new Option<DirectoryInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -874,7 +874,7 @@ namespace System.CommandLine.Tests
                     new Argument<FileSystemInfo[]>("to")
                     {
                         Arity = ArgumentArity.ZeroOrMore
-                    }.ExistingOnly(),
+                    }.AcceptExistingOnly(),
                     new Option<string>("--to")
                 };
 
@@ -892,7 +892,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileSystemInfo[]>("--to").ExistingOnly()
+                    new Option<FileSystemInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -911,7 +911,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<FileSystemInfo>("to").ExistingOnly()
+                    new Argument<FileSystemInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -930,7 +930,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileSystemInfo[]>("--to").ExistingOnly()
+                    new Option<FileSystemInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -949,7 +949,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<FileInfo>().ExistingOnly()
+                    new Argument<FileInfo>().AcceptExistingOnly()
                 };
 
                 var path = ExistingFile();
@@ -963,7 +963,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileInfo>("--to").ExistingOnly()
+                    new Option<FileInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = ExistingFile();
@@ -977,7 +977,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<DirectoryInfo>().ExistingOnly()
+                    new Argument<DirectoryInfo>().AcceptExistingOnly()
                 };
 
                 var path = ExistingDirectory();
@@ -991,7 +991,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<DirectoryInfo>("--to").ExistingOnly()
+                    new Option<DirectoryInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = ExistingDirectory();
