@@ -888,7 +888,25 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Default_completions_can_be_appended_to()
+        public void Default_completions_are_not_used_when_user_provides_their_own()
+        {
+            var argument = new Argument<DayOfWeek>();
+            argument.Completions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
+            var command = new Command("the-command")
+            {
+                argument
+            };
+
+            var completions = command.Parse("the-command s")
+                                     .GetCompletions();
+
+            completions.Select(item => item.Label)
+                       .Should()
+                       .BeEquivalentTo("sat", "sun", "tues");
+        }
+
+        [Fact]
+        public void Default_completions_can_not_be_appended_to()
         {
             var command = new Command("the-command")
             {
@@ -906,13 +924,8 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo(
                     "sat",
-                    nameof(DayOfWeek.Saturday),
                     "sun", 
-                    nameof(DayOfWeek.Sunday),
-                    "tues",
-                    nameof(DayOfWeek.Tuesday),
-                    nameof(DayOfWeek.Thursday),
-                    nameof(DayOfWeek.Wednesday));
+                    "tues");
         }
 
         [Fact]

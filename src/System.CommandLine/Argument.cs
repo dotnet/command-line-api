@@ -74,11 +74,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the collection of completion sources for the argument.
         /// </summary>
-        public ICollection<ICompletionSource> Completions =>
-            _completions ??= new ()
-            {
-                CompletionSource.ForType(ValueType)
-            };
+        public ICollection<ICompletionSource> Completions => _completions ??= new();
 
         /// <summary>
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
@@ -191,7 +187,12 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            return Completions
+            var completions = _completions ?? new()
+            {
+                CompletionSource.ForType(ValueType)
+            };
+
+            return completions
                    .SelectMany(source => source.GetCompletions(context))
                    .Distinct()
                    .OrderBy(c => c.SortText, StringComparer.OrdinalIgnoreCase);
