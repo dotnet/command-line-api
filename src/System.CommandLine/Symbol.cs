@@ -9,7 +9,7 @@ namespace System.CommandLine
     /// <summary>
     /// Defines a named symbol that resides in a hierarchy with parent and child symbols.
     /// </summary>
-    public abstract class Symbol : ICompletionSource
+    public abstract class Symbol
     {
         private string? _name;
         private ParentNode? _firstParent;

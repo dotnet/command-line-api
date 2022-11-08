@@ -220,8 +220,8 @@ namespace System.CommandLine
             }
 
             var completions =
-                currentSymbol is ICompletionSource currentCompletionSource
-                    ? currentCompletionSource.GetCompletions(context)
+                currentSymbol is not null
+                    ? currentSymbol.GetCompletions(context)
                     : Array.Empty<CompletionItem>();
 
             completions =
