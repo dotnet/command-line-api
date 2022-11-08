@@ -375,7 +375,7 @@ namespace System.CommandLine.Tests
         public void Option_of_enum_can_limit_enum_members_as_valid_values()
         {
             var option = new Option<ConsoleColor>("--color")
-                .FromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+                .AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
 
             var result = option.Parse("--color Fuschia");
 

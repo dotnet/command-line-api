@@ -20,7 +20,7 @@ namespace System.CommandLine
         /// <param name="values">The values that are allowed for the option.</param>
         /// <typeparam name="TOption">The type of the option's parsed value.</typeparam>
         /// <returns>The configured argument.</returns>
-        public static TOption FromAmong<TOption>(
+        public static TOption AcceptOnlyFromAmong<TOption>(
             this TOption option,
             params string[] values)
             where TOption : Option

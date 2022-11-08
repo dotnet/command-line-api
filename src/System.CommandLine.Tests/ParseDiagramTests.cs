@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Option<string>("-x").FromAmong("arg1", "arg2", "arg3")
+                new Option<string>("-x").AcceptOnlyFromAmong("arg1", "arg2", "arg3")
             };
 
             var result = command.Parse("command -x ar");

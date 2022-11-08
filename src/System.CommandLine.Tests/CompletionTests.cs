@@ -438,8 +438,8 @@ namespace System.CommandLine.Tests
         {
             var parser = new RootCommand
             {
-                new Option<string>("--bread").FromAmong("wheat", "sourdough", "rye"),
-                new Option<string>("--cheese").FromAmong("provolone", "cheddar", "cream cheese")
+                new Option<string>("--bread").AcceptOnlyFromAmong("wheat", "sourdough", "rye"),
+                new Option<string>("--cheese").AcceptOnlyFromAmong("provolone", "cheddar", "cream cheese")
             };
 
             var commandLine = "--bread";
@@ -543,8 +543,8 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Command("outer")
                 {
-                    new Option<string>("--one").FromAmong("one-a", "one-b"),
-                    new Option<string>("--two").FromAmong("two-a", "two-b")
+                    new Option<string>("--one").AcceptOnlyFromAmong("one-a", "one-b"),
+                    new Option<string>("--two").AcceptOnlyFromAmong("two-a", "two-b")
                 });
 
             var commandLine = "outer --two";
@@ -642,11 +642,11 @@ namespace System.CommandLine.Tests
             var command = new Command("outer")
             {
                 new Option<string>("one")
-                    .FromAmong("one-a", "one-b", "one-c"),
+                    .AcceptOnlyFromAmong("one-a", "one-b", "one-c"),
                 new Option<string>("two")
-                    .FromAmong("two-a", "two-b", "two-c"),
+                    .AcceptOnlyFromAmong("two-a", "two-b", "two-c"),
                 new Option<string>("three")
-                    .FromAmong("three-a", "three-b", "three-c")
+                    .AcceptOnlyFromAmong("three-a", "three-b", "three-c")
             };
 
             var parser = new CommandLineBuilder(new RootCommand
@@ -669,11 +669,11 @@ namespace System.CommandLine.Tests
             var command = new Command("outer")
             {
                 new Option<string>("one")
-                    .FromAmong("one-a", "one-b", "one-c"),
+                    .AcceptOnlyFromAmong("one-a", "one-b", "one-c"),
                 new Option<string>("two")
-                    .FromAmong("two-a", "two-b", "two-c"),
+                    .AcceptOnlyFromAmong("two-a", "two-b", "two-c"),
                 new Option<string>("three")
-                    .FromAmong("three-a", "three-b", "three-c")
+                    .AcceptOnlyFromAmong("three-a", "three-b", "three-c")
             };
 
             var result = command.Parse("outer two b");
@@ -691,15 +691,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument<string>().FromAmong("one-a", "one-b", "one-c")
+                    new Argument<string>().AcceptOnlyFromAmong("one-a", "one-b", "one-c")
                 },
                 new Command("two")
                 {
-                    new Argument<string>().FromAmong("two-a", "two-b", "two-c")
+                    new Argument<string>().AcceptOnlyFromAmong("two-a", "two-b", "two-c")
                 },
                 new Command("three")
                 {
-                    new Argument<string>().FromAmong("three-a", "three-b", "three-c")
+                    new Argument<string>().AcceptOnlyFromAmong("three-a", "three-b", "three-c")
                 }
             };
 
@@ -718,15 +718,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument<string>().FromAmong("one-a", "one-b", "one-c")
+                    new Argument<string>().AcceptOnlyFromAmong("one-a", "one-b", "one-c")
                 },
                 new Command("two")
                 {
-                    new Argument<string>().FromAmong("two-a", "two-b", "two-c")
+                    new Argument<string>().AcceptOnlyFromAmong("two-a", "two-b", "two-c")
                 },
                 new Command("three")
                 {
-                    new Argument<string>().FromAmong("three-a", "three-b", "three-c")
+                    new Argument<string>().AcceptOnlyFromAmong("three-a", "three-b", "three-c")
                 }
             };
 
@@ -743,8 +743,8 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option<string>("--framework").FromAmong("net7.0"),
-                new Option<string>("--language").FromAmong("C#"),
+                new Option<string>("--framework").AcceptOnlyFromAmong("net7.0"),
+                new Option<string>("--language").AcceptOnlyFromAmong("C#"),
                 new Option<string>("--langVersion")
             };
             var parser = new CommandLineBuilder(command).Build();
@@ -760,8 +760,8 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option<string>("--framework").FromAmong("net7.0"),
-                new Option<string>("--language").FromAmong("C#"),
+                new Option<string>("--framework").AcceptOnlyFromAmong("net7.0"),
+                new Option<string>("--language").AcceptOnlyFromAmong("C#"),
                 new Option<string>("--langVersion")
             };
             var parser = new CommandLineBuilder(command).Build();

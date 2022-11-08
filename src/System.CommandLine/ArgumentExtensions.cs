@@ -71,7 +71,7 @@ namespace System.CommandLine
         /// <param name="values">The values that are allowed for the argument.</param>
         /// <typeparam name="TArgument">The type of the argument.</typeparam>
         /// <returns>The configured argument.</returns>
-        public static TArgument FromAmong<TArgument>(
+        public static TArgument AcceptOnlyFromAmong<TArgument>(
             this TArgument argument,
             params string[] values)
             where TArgument : Argument

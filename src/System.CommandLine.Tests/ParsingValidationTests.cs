@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
             var option = new Option<string>("-x")
-                .FromAmong("this", "that", "the-other-thing");
+                .AcceptOnlyFromAmong("this", "that", "the-other-thing");
 
             var result = option.Parse("-x none-of-those");
 
@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
             var option = new Option<string>("-x")
-                .FromAmong("this", "that");
+                .AcceptOnlyFromAmong("this", "that");
 
             var result = option.Parse("-x something_else");
 
@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_OptionResult_ErrorMessage_is_set()
         {
-            var option = new Option<string>("--opt").FromAmong("a", "b");
+            var option = new Option<string>("--opt").AcceptOnlyFromAmong("a", "b");
             var command = new Command("test") { option };
 
             var parseResult = command.Parse("test --opt c");
@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
         {
-            var option = new Argument<string>().FromAmong("a", "b");
+            var option = new Argument<string>().AcceptOnlyFromAmong("a", "b");
             var command = new Command("test") { option };
 
             var parseResult = command.Parse("test c");
@@ -90,8 +90,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").FromAmong("key1", "key2"),
-                new Argument<string>("value").FromAmong("value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
             };
 
             var result = command.Parse("set key1 value1");
@@ -104,8 +104,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").FromAmong("key1", "key2"),
-                new Argument<string>("value").FromAmong("value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
             };
 
             var result = command.Parse("set not-key1 value1");
@@ -124,8 +124,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").FromAmong("key1", "key2"),
-                new Argument<string>("value").FromAmong("value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
             };
 
             var result = command.Parse("set key1 not-value1");
