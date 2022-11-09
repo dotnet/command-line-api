@@ -9,7 +9,7 @@ namespace System.CommandLine
     /// <summary>
     /// Provides extension methods for <see cref="Argument" />.
     /// </summary>
-    public static class ArgumentValidationExtensions
+    public static class ArgumentValidation
     {
         /// <summary>
         /// Configures an argument to accept only values corresponding to an existing file.

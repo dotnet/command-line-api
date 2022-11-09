@@ -40,7 +40,7 @@ System.CommandLine
     public System.Boolean Equals(ArgumentArity other)
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
-  public static class ArgumentValidationExtensions
+  public static class ArgumentValidation
     public static Argument<System.IO.FileInfo> AcceptExistingOnly(this Argument<System.IO.FileInfo> argument)
     public static Argument<System.IO.DirectoryInfo> AcceptExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
     public static Argument<System.IO.FileSystemInfo> AcceptExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
@@ -215,7 +215,7 @@ System.CommandLine
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
     .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
     public ArgumentArity Arity { get; set; }
-  public static class OptionValidationExtensions
+  public static class OptionValidation
     public static Option<System.IO.FileInfo> AcceptExistingOnly(this Option<System.IO.FileInfo> option)
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
     public static Option<System.IO.FileSystemInfo> AcceptExistingOnly(this Option<System.IO.FileSystemInfo> option)

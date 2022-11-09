@@ -11,7 +11,7 @@ namespace System.CommandLine
     /// <summary>
     /// Provides extension methods for <see cref="Option" />.
     /// </summary>
-    public static class OptionValidationExtensions
+    public static class OptionValidation
     {
         /// <summary>
         /// Configures an option to accept only values corresponding to an existing file.
