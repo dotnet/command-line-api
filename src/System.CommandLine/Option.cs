@@ -242,10 +242,7 @@ namespace System.CommandLine
         /// <returns>The configured option.</returns>
         public Option AcceptOnlyFromAmong(params string[] values)
         {
-            Argument.AllowedValues?.Clear();
-            Argument.AddAllowedValues(values);
-            Argument.Completions.Clear();
-            Argument.Completions.Add(values);
+            Argument.AcceptOnlyFromAmong(values);
 
             return this;
         }
