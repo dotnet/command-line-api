@@ -105,14 +105,15 @@ namespace System.CommandLine
             }
         }
 
-        internal List<Action<ArgumentResult>> Validators => _validators ??= new ();
+        internal IReadOnlyList<Action<ArgumentResult>> Validators
+            => _validators is null ? Array.Empty<Action<ArgumentResult>>() : _validators;
 
         /// <summary>
         /// Adds a custom validator to the argument. Validators can be used
         /// to provide custom errors based on user input.
         /// </summary>
         /// <param name="validate">The action to validate the parsed argument.</param>
-        public void AddValidator(Action<ArgumentResult> validate) => Validators.Add(validate);
+        public void AddValidator(Action<ArgumentResult> validate) => (_validators ??= new()).Add(validate);
 
         /// <summary>
         /// Gets the default value for the argument.
