@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command")
             {
                 new Argument<string>(),
-                new Option<string>("--option1").FromAmong("apple", "banana", "cherry", "durian"),
+                new Option<string>("--option1").AcceptOnlyFromAmong("apple", "banana", "cherry", "durian"),
                 new Option<string>("--option2")
             };
 
@@ -178,7 +178,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option<string>("--option1").FromAmong("apple", "banana", "cherry", "durian"),
+                new Option<string>("--option1").AcceptOnlyFromAmong("apple", "banana", "cherry", "durian"),
                 new Option<string>("--option2"),
                 new Argument<string>()
             };

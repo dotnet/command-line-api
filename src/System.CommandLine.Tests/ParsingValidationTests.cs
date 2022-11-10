@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
             var option = new Option<string>("-x")
-                .FromAmong("this", "that", "the-other-thing");
+                .AcceptOnlyFromAmong("this", "that", "the-other-thing");
 
             var result = option.Parse("-x none-of-those");
 
@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
             var option = new Option<string>("-x")
-                .FromAmong("this", "that");
+                .AcceptOnlyFromAmong("this", "that");
 
             var result = option.Parse("-x something_else");
 
@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_OptionResult_ErrorMessage_is_set()
         {
-            var option = new Option<string>("--opt").FromAmong("a", "b");
+            var option = new Option<string>("--opt").AcceptOnlyFromAmong("a", "b");
             var command = new Command("test") { option };
 
             var parseResult = command.Parse("test --opt c");
@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
         {
-            var option = new Argument<string>().FromAmong("a", "b");
+            var option = new Argument<string>().AcceptOnlyFromAmong("a", "b");
             var command = new Command("test") { option };
 
             var parseResult = command.Parse("test c");
@@ -90,8 +90,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").FromAmong("key1", "key2"),
-                new Argument<string>("value").FromAmong("value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
             };
 
             var result = command.Parse("set key1 value1");
@@ -104,8 +104,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").FromAmong("key1", "key2"),
-                new Argument<string>("value").FromAmong("value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
             };
 
             var result = command.Parse("set not-key1 value1");
@@ -124,8 +124,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").FromAmong("key1", "key2"),
-                new Argument<string>("value").FromAmong("value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
             };
 
             var result = command.Parse("set key1 not-value1");
@@ -531,7 +531,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<string>().LegalFilePathsOnly()
+                    new Argument<string>().AcceptLegalFilePathsOnly()
                 };
 
                 var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
@@ -551,7 +551,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option<string>("-x").LegalFilePathsOnly()
+                    new Option<string>("-x").AcceptLegalFilePathsOnly()
                 };
 
                 var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
@@ -571,7 +571,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<string[]>().LegalFilePathsOnly()
+                    new Argument<string[]>().AcceptLegalFilePathsOnly()
                 };
 
                 var validPathName = Directory.GetCurrentDirectory();
@@ -587,7 +587,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option<string[]>("-x").LegalFilePathsOnly()
+                    new Option<string[]>("-x").AcceptLegalFilePathsOnly()
                 };
 
                 var validPathName = Directory.GetCurrentDirectory();
@@ -606,7 +606,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<string>().LegalFileNamesOnly()
+                    new Argument<string>().AcceptLegalFileNamesOnly()
                 };
 
                 var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
@@ -626,7 +626,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option<string>("-x").LegalFileNamesOnly()
+                    new Option<string>("-x").AcceptLegalFileNamesOnly()
                 };
 
                 var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
@@ -646,7 +646,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Argument<string[]>().LegalFileNamesOnly()
+                    new Argument<string[]>().AcceptLegalFileNamesOnly()
                 };
 
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
@@ -662,7 +662,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("the-command")
                 {
-                    new Option<string[]>("-x").LegalFileNamesOnly()
+                    new Option<string[]>("-x").AcceptLegalFileNamesOnly()
                 };
 
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
@@ -681,7 +681,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<FileInfo>("to").ExistingOnly()
+                    new Argument<FileInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -700,7 +700,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileInfo>("--to").ExistingOnly()
+                    new Option<FileInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -719,7 +719,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<DirectoryInfo>("to").ExistingOnly()
+                    new Argument<DirectoryInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -738,7 +738,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<DirectoryInfo>("--to").ExistingOnly()
+                    new Option<DirectoryInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -757,7 +757,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<FileSystemInfo>().ExistingOnly()
+                    new Argument<FileSystemInfo>().AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -776,7 +776,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileSystemInfo>("--to").ExistingOnly()
+                    new Option<FileSystemInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -795,7 +795,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<IEnumerable<FileInfo>>("to").ExistingOnly()
+                    new Argument<IEnumerable<FileInfo>>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -814,7 +814,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<IEnumerable<FileInfo>>("--to").ExistingOnly()
+                    new Option<IEnumerable<FileInfo>>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -833,7 +833,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<List<DirectoryInfo>>("to").ExistingOnly()
+                    new Argument<List<DirectoryInfo>>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -852,7 +852,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<DirectoryInfo[]>("--to").ExistingOnly()
+                    new Option<DirectoryInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -874,7 +874,7 @@ namespace System.CommandLine.Tests
                     new Argument<FileSystemInfo[]>("to")
                     {
                         Arity = ArgumentArity.ZeroOrMore
-                    }.ExistingOnly(),
+                    }.AcceptExistingOnly(),
                     new Option<string>("--to")
                 };
 
@@ -892,7 +892,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileSystemInfo[]>("--to").ExistingOnly()
+                    new Option<FileSystemInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -911,7 +911,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<FileSystemInfo>("to").ExistingOnly()
+                    new Argument<FileSystemInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -930,7 +930,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileSystemInfo[]>("--to").ExistingOnly()
+                    new Option<FileSystemInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -949,7 +949,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<FileInfo>().ExistingOnly()
+                    new Argument<FileInfo>().AcceptExistingOnly()
                 };
 
                 var path = ExistingFile();
@@ -963,7 +963,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<FileInfo>("--to").ExistingOnly()
+                    new Option<FileInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = ExistingFile();
@@ -977,7 +977,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Argument<DirectoryInfo>().ExistingOnly()
+                    new Argument<DirectoryInfo>().AcceptExistingOnly()
                 };
 
                 var path = ExistingDirectory();
@@ -991,7 +991,7 @@ namespace System.CommandLine.Tests
             {
                 var command = new Command("move")
                 {
-                    new Option<DirectoryInfo>("--to").ExistingOnly()
+                    new Option<DirectoryInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = ExistingDirectory();

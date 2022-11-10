@@ -16,22 +16,22 @@ namespace System.CommandLine
         /// Adds a completion source using a delegate.
         /// </summary>
         /// <param name="completionSources">The list of completion sources to add to.</param>
-        /// <param name="complete">The delegate to be called when calculating completions.</param>
+        /// <param name="completionsDelegate">The delegate to be called when calculating completions.</param>
         public static void Add(
             this ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources,
-            Func<CompletionContext, IEnumerable<string>> complete)
+            Func<CompletionContext, IEnumerable<string>> completionsDelegate)
         {
             if (completionSources is null)
             {
                 throw new ArgumentNullException(nameof(completionSources));
             }
 
-            if (complete is null)
+            if (completionsDelegate is null)
             {
-                throw new ArgumentNullException(nameof(complete));
+                throw new ArgumentNullException(nameof(completionsDelegate));
             }
 
-            completionSources.Add(context => complete(context).Select(value => new CompletionItem(value)));
+            completionSources.Add(context => completionsDelegate(context).Select(value => new CompletionItem(value)));
         }
 
         /// <summary>

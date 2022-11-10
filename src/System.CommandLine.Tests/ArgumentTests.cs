@@ -769,7 +769,7 @@ namespace System.CommandLine.Tests
         public void Argument_of_enum_can_limit_enum_members_as_valid_values()
         {
             var argument = new Argument<ConsoleColor>()
-                .FromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+                .AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
             Command command = new("set-color")
             {
                 argument
