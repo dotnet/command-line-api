@@ -39,8 +39,6 @@ namespace System.CommandLine
             Description = description;
         }
 
-        internal HashSet<string>? AllowedValues { get; private set; }
-
         /// <summary>
         /// Gets or sets the arity of the argument.
         /// </summary>
@@ -180,16 +178,6 @@ namespace System.CommandLine
             Arity = ArgumentArity.Zero
         };
 
-        internal void AddAllowedValues(IReadOnlyList<string> values)
-        {
-            if (AllowedValues is null)
-            {
-                AllowedValues = new HashSet<string>();
-            }
-
-            AllowedValues.UnionWith(values);
-        }
-
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
@@ -245,12 +233,30 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public Argument AcceptOnlyFromAmong(params string[] values)
         {
-            AllowedValues?.Clear();
-            AddAllowedValues(values);
-            Completions.Clear();
-            Completions.Add(values);
+            if (values is not null && values.Length > 0)
+            {
+                AddValidator(UnrecognizedArgumentError);
+                Completions.Clear();
+                Completions.Add(values);
+            }
 
             return this;
+
+            void UnrecognizedArgumentError(ArgumentResult argumentResult)
+            {
+                for (var i = 0; i < argumentResult.Tokens.Count; i++)
+                {
+                    var token = argumentResult.Tokens[i];
+
+                    if (token.Symbol is null || token.Symbol == this)
+                    {
+                        if (!values.Contains(token.Value))
+                        {
+                            argumentResult.ErrorMessage = argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
