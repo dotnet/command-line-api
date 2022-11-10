@@ -9,67 +9,38 @@ using System.Linq;
 namespace System.CommandLine.Completions
 {
     /// <summary>
-    /// Provides extension methods supporting <see cref="ICompletionSource"/> and command line tab completion.
+    /// Provides extension methods supporting command line tab completion.
     /// </summary>
     internal static class CompletionSource
     {
-        private static readonly ConcurrentDictionary<Type, ICompletionSource> _completionSourcesByType = new();
+        private static readonly ConcurrentDictionary<Type, Func<CompletionContext, IEnumerable<CompletionItem>>> _completionSourcesByType = new();
         
         /// <summary>
         /// Gets a completion source that provides completions for a type (e.g. enum) with well-known values.
         /// </summary>
-        internal static ICompletionSource ForType(Type type)
+        internal static Func<CompletionContext, IEnumerable<CompletionItem>> ForType(Type type)
         {
-            return _completionSourcesByType.GetOrAdd(type, t => new CompletionSourceForType(t));
+            return _completionSourcesByType.GetOrAdd(type, t => GetCompletionSourceForType(t));
         }
 
-        internal static ICompletionSource Empty { get; } = new AnonymousCompletionSource(static _ => Array.Empty<CompletionItem>());
-
-        private class CompletionSourceForType : ICompletionSource
+        private static Func<CompletionContext, IEnumerable<CompletionItem>> GetCompletionSourceForType(Type type)
         {
-            private readonly Type _type;
-            private ICompletionSource? _innerCompletionSource;
+            Type actualType = type.TryGetNullableType(out var nullableType) ? nullableType : type;
 
-            public CompletionSourceForType(Type type)
+            if (actualType.IsEnum)
             {
-                _type = type;
+                return _ => Enum.GetNames(actualType).Select(n => new CompletionItem(n));
+            }
+            else if (actualType == typeof(bool))
+            {
+                return static _ => new CompletionItem[]
+                {
+                    new(bool.TrueString),
+                    new(bool.FalseString)
+                };
             }
 
-            public IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
-            {
-                if (_innerCompletionSource is null)
-                {
-                    _innerCompletionSource = CreateForType(_type);
-                }
-
-                return _innerCompletionSource.GetCompletions(context);
-            }
-
-            private static ICompletionSource CreateForType(Type type)
-            {
-                if (type.TryGetNullableType(out var nullableType))
-                {
-                    return CreateForType(nullableType);
-                }
-
-                if (type.IsEnum)
-                {
-                    return new AnonymousCompletionSource(_ => GetEnumNames());
-
-                    IEnumerable<CompletionItem> GetEnumNames() => Enum.GetNames(type).Select(n => new CompletionItem(n));
-                }
-
-                if (type == typeof(bool))
-                {
-                    return new AnonymousCompletionSource(static  _ => new CompletionItem[]
-                    {
-                        new(bool.TrueString),
-                        new(bool.FalseString)
-                    });
-                }
-
-                return Empty;
-            }
+            return static _ => Array.Empty<CompletionItem>();
         }
     }
 }

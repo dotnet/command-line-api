@@ -18,7 +18,7 @@ namespace System.CommandLine
         /// <param name="completionSources">The list of completion sources to add to.</param>
         /// <param name="completionsDelegate">The delegate to be called when calculating completions.</param>
         public static void Add(
-            this ICollection<ICompletionSource> completionSources,
+            this ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources,
             Func<CompletionContext, IEnumerable<string>> completionsDelegate)
         {
             if (completionSources is null)
@@ -31,29 +31,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(completionsDelegate));
             }
 
-            completionSources.Add(new AnonymousCompletionSource(completionsDelegate));
-        }
-        
-        /// <summary>
-        /// Adds a completion source using a delegate.
-        /// </summary>
-        /// <param name="completionSources">The list of completion sources to add to.</param>
-        /// <param name="completionsDelegate">The function to be called when calculating completions.</param>
-        public static void Add(
-            this ICollection<ICompletionSource> completionSources,
-            Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
-        {
-            if (completionSources is null)
-            {
-                throw new ArgumentNullException(nameof(completionSources));
-            }
-
-            if (completionsDelegate is null)
-            {
-                throw new ArgumentNullException(nameof(completionsDelegate));
-            }
-
-            completionSources.Add(new AnonymousCompletionSource(completionsDelegate));
+            completionSources.Add(context => completionsDelegate(context).Select(value => new CompletionItem(value)));
         }
 
         /// <summary>
@@ -62,7 +40,7 @@ namespace System.CommandLine
         /// <param name="completionSources">The list of completion sources to add to.</param>
         /// <param name="completions">A list of strings to be suggested for command line completions.</param>
         public static void Add(
-            this ICollection<ICompletionSource> completionSources,
+            this ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources,
             params string[] completions)
         {
             if (completionSources is null)
@@ -75,7 +53,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(completions));
             }
 
-            completionSources.Add(new AnonymousCompletionSource(_ => completions.Select(s => new CompletionItem(s))));
+            completionSources.Add(context => completions.Select(value => new CompletionItem(value)));
         }
     }
 }

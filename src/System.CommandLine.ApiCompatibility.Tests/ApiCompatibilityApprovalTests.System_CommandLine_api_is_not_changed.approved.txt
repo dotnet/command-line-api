@@ -1,7 +1,7 @@
 System.CommandLine
-  public abstract class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
+  public abstract class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor
     public ArgumentArity Arity { get; set; }
-    public System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> Completions { get; }
+    public System.Collections.Generic.ICollection<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> Completions { get; }
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Type ValueType { get; }
@@ -20,7 +20,7 @@ System.CommandLine
     public System.Void SetDefaultValueFactory(System.Func<System.Object> defaultValueFactory)
     public System.Void SetDefaultValueFactory(System.Func<System.CommandLine.Parsing.ArgumentResult,System.Object> defaultValueFactory)
     public System.String ToString()
-  public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
+  public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
     .ctor()
     .ctor(System.String name, System.String description = null)
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
@@ -109,9 +109,8 @@ System.CommandLine
     .ctor()
     .ctor(System.String message, System.Exception innerException)
   public static class CompletionSourceExtensions
-    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
-    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
-    public static System.Void Add(this System.Collections.Generic.ICollection<System.CommandLine.Completions.ICompletionSource> completionSources, System.String[] completions)
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)
+    public static System.Void Add(this System.Collections.Generic.ICollection<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
   public static class ConsoleExtensions
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)
@@ -145,7 +144,7 @@ System.CommandLine
     public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context)
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
-  public abstract class IdentifierSymbol : Symbol, System.CommandLine.Completions.ICompletionSource
+  public abstract class IdentifierSymbol : Symbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.String Name { get; set; }
     public System.Void AddAlias(System.String alias)
@@ -188,7 +187,7 @@ System.CommandLine
     public System.String UnrecognizedCommandOrArgument(System.String arg)
     public System.String VersionOptionCannotBeCombinedWithOtherArguments(System.String optionAlias)
     public System.String VersionOptionDescription()
-  public abstract class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
+  public abstract class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
@@ -207,7 +206,7 @@ System.CommandLine
     public ParseResult Parse(System.String[] args)
     public System.Void SetDefaultValue(System.Object value)
     public System.Void SetDefaultValueFactory(System.Func<System.Object> defaultValueFactory)
-  public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor, System.CommandLine.Completions.ICompletionSource
+  public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
     .ctor(System.String name, System.String description = null)
     .ctor(System.String[] aliases, System.String description = null)
     .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
@@ -239,11 +238,11 @@ System.CommandLine
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
     public System.String ToString()
-  public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable, System.CommandLine.Completions.ICompletionSource
+  public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
-  public abstract class Symbol, System.CommandLine.Completions.ICompletionSource
+  public abstract class Symbol
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
@@ -289,8 +288,6 @@ System.CommandLine.Completions
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
     public System.String ToString()
-  public interface ICompletionSource
-    public System.Collections.Generic.IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
   public class TextCompletionContext : CompletionContext
     public System.String CommandLineText { get; }
     public System.Int32 CursorPosition { get; }
