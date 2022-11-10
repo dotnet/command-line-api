@@ -205,7 +205,6 @@ System.CommandLine
     .ctor(System.String[] aliases, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
     .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
-    public ArgumentArity Arity { get; set; }
   public static class OptionExtensions
     public static TOption AddCompletions<TOption>(this TOption option, System.String[] values)
     public static TOption AddCompletions<TOption>(this TOption option, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> complete)

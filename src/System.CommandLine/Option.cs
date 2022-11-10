@@ -83,7 +83,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets the arity of the option.
         /// </summary>
-        public virtual ArgumentArity Arity
+        public ArgumentArity Arity
         {
             get => Argument.Arity;
             set => Argument.Arity = value;

@@ -60,12 +60,5 @@ namespace System.CommandLine
             : base(aliases, description, new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
         {
         }
-
-        /// <inheritdoc/>
-        public override ArgumentArity Arity
-        {
-            get => base.Arity;
-            set => Argument.Arity = value;
-        }
     }
 }
