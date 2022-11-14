@@ -17,13 +17,8 @@ namespace System.CommandLine
     {
         private string? _name;
         private List<Action<OptionResult>>? _validators;
-        private readonly Argument _argument;
 
-        internal Option(
-            string name,
-            string? description,
-            Argument argument)
-            : base(description)
+        private protected Option(string name, string? description) : base(description)
         {
             if (name is null)
             {
@@ -33,16 +28,9 @@ namespace System.CommandLine
             _name = name.RemovePrefix();
 
             AddAlias(name);
-
-            argument.AddParent(this);
-            _argument = argument;
         }
 
-        internal Option(
-            string[] aliases,
-            string? description,
-            Argument argument)
-            : base(description)
+        private protected Option(string[] aliases, string? description) : base(description)
         {
             if (aliases is null)
             {
@@ -58,15 +46,12 @@ namespace System.CommandLine
             {
                 AddAlias(aliases[i]);
             }
-
-            argument.AddParent(this);
-            _argument = argument;
         }
 
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
-        internal virtual Argument Argument => _argument;
+        internal abstract Argument Argument { get; }
 
         /// <summary>
         /// Gets or sets the name of the argument when displayed in help.
@@ -173,7 +158,7 @@ namespace System.CommandLine
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
         internal virtual bool IsGreedy
-            => _argument is not null && _argument.Arity.MinimumNumberOfValues > 0 && _argument.ValueType != typeof(bool);
+            => Argument is not null && Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
@@ -210,14 +195,14 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            if (_argument is null)
+            if (Argument is null)
             {
                 return Array.Empty<CompletionItem>();
             }
 
             List<CompletionItem>? completions = null;
 
-            foreach (var completion in _argument.GetCompletions(context))
+            foreach (var completion in Argument.GetCompletions(context))
             {
                 if (completion.Label.ContainsCaseInsensitive(context.WordToComplete))
                 {
@@ -233,75 +218,6 @@ namespace System.CommandLine
             return completions
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// Configures the option to accept only the specified values, and to suggest them as command line completions.
-        /// </summary>
-        /// <param name="values">The values that are allowed for the option.</param>
-        /// <returns>The configured option.</returns>
-        public Option AcceptOnlyFromAmong(params string[] values)
-        {
-            Argument.AllowedValues?.Clear();
-            Argument.AddAllowedValues(values);
-            Argument.Completions.Clear();
-            Argument.Completions.Add(values);
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completions">The completions to add.</param>
-        /// <returns>The configured option.</returns>
-        public Option AddCompletions(params string[] completions)
-        {
-            Argument.Completions.Add(completions);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured option.</returns>
-        public Option AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
-        {
-            Argument.Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured option.</returns>
-        public Option AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
-        {
-            Argument.Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the option to accept only values representing legal file paths.
-        /// </summary>
-        /// <returns>The configured option.</returns>
-        public Option AcceptLegalFilePathsOnly()
-        {
-            Argument.AcceptLegalFilePathsOnly();
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the option to accept only values representing legal file names.
-        /// </summary>
-        /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
-        /// <returns>The configured option.</returns>
-        public Option AcceptLegalFileNamesOnly()
-        {
-            Argument.AcceptLegalFileNamesOnly();
-            return this;
         }
 
         /// <summary>

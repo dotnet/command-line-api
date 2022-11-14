@@ -9,6 +9,7 @@ using FluentAssertions;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using System.CommandLine.Completions;
 
 namespace System.CommandLine.Tests
 {
@@ -781,6 +782,20 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
+        }
+
+        [Fact]
+        public void Argument_of_T_fluent_APIs_return_Argument_of_T()
+        {
+            Argument<string> argument = new Argument<string>("--path")
+                .AcceptOnlyFromAmong("text")
+                .AddCompletions("test")
+                .AddCompletions(ctx => Array.Empty<string>())
+                .AddCompletions(ctx => Array.Empty<CompletionItem>())
+                .AcceptLegalFileNamesOnly()
+                .AcceptLegalFilePathsOnly();
+
+            argument.Should().BeOfType<Argument<string>>();
         }
 
         protected override Symbol CreateSymbol(string name)
