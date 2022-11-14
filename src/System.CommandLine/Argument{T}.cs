@@ -154,6 +154,17 @@ namespace System.CommandLine
         }
 
         /// <summary>
+        /// Adds a custom validator to the argument. Validators can be used
+        /// to provide custom errors based on user input.
+        /// </summary>
+        /// <param name="validate">The action to validate the parsed argument.</param>
+        public Argument<T> AddValidator(Action<ArgumentResult> validate)
+        {
+            Validators.Add(validate);
+            return this;
+        }
+
+        /// <summary>
         /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
         /// <param name="values">The values that are allowed for the argument.</param>

@@ -102,12 +102,6 @@ namespace System.CommandLine
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
-        /// Adds a validator that will be called when the option is matched by the parser.
-        /// </summary>
-        /// <param name="validate">An action used to validate the <see cref="OptionResult"/> produced during parsing.</param>
-        public void AddValidator(Action<OptionResult> validate) => Validators.Add(validate);
-
-        /// <summary>
         /// Indicates whether a given alias exists on the option, regardless of its prefix.
         /// </summary>
         /// <param name="alias">The alias, which can include a prefix.</param>
