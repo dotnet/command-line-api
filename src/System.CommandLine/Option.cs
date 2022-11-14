@@ -17,13 +17,8 @@ namespace System.CommandLine
     {
         private string? _name;
         private List<Action<OptionResult>>? _validators;
-        private readonly Argument _argument;
 
-        internal Option(
-            string name,
-            string? description,
-            Argument argument)
-            : base(description)
+        private protected Option(string name, string? description) : base(description)
         {
             if (name is null)
             {
@@ -33,16 +28,9 @@ namespace System.CommandLine
             _name = name.RemovePrefix();
 
             AddAlias(name);
-
-            argument.AddParent(this);
-            _argument = argument;
         }
 
-        internal Option(
-            string[] aliases,
-            string? description,
-            Argument argument)
-            : base(description)
+        private protected Option(string[] aliases, string? description) : base(description)
         {
             if (aliases is null)
             {
@@ -58,15 +46,12 @@ namespace System.CommandLine
             {
                 AddAlias(aliases[i]);
             }
-
-            argument.AddParent(this);
-            _argument = argument;
         }
 
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
-        internal virtual Argument Argument => _argument;
+        internal abstract Argument Argument { get; }
 
         /// <summary>
         /// Gets or sets the name of the argument when displayed in help.
@@ -173,7 +158,7 @@ namespace System.CommandLine
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
         internal virtual bool IsGreedy
-            => _argument is not null && _argument.Arity.MinimumNumberOfValues > 0 && _argument.ValueType != typeof(bool);
+            => Argument is not null && Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
@@ -210,14 +195,14 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            if (_argument is null)
+            if (Argument is null)
             {
                 return Array.Empty<CompletionItem>();
             }
 
             List<CompletionItem>? completions = null;
 
-            foreach (var completion in _argument.GetCompletions(context))
+            foreach (var completion in Argument.GetCompletions(context))
             {
                 if (completion.Label.ContainsCaseInsensitive(context.WordToComplete))
                 {

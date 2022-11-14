@@ -12,18 +12,20 @@ namespace System.CommandLine
     /// <typeparam name="T">The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.</typeparam>
     public class Option<T> : Option, IValueDescriptor<T>
     {
+        private readonly Argument<T> _argument;
+
         /// <inheritdoc/>
         public Option(
             string name,
             string? description = null) 
-            : base(name, description, new Argument<T>())
+            : this(name, description, new Argument<T>())
         { }
 
         /// <inheritdoc/>
         public Option(
             string[] aliases,
             string? description = null) 
-            : base(aliases, description, new Argument<T>())
+            : this(aliases, description, new Argument<T>())
         { }
 
         /// <inheritdoc/>
@@ -32,7 +34,7 @@ namespace System.CommandLine
             Func<ArgumentResult, T> parseArgument,
             bool isDefault = false,
             string? description = null) 
-            : base(name, description, 
+            : this(name, description, 
                   new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
         { }
 
@@ -42,7 +44,7 @@ namespace System.CommandLine
             Func<ArgumentResult, T> parseArgument,
             bool isDefault = false,
             string? description = null) 
-            : base(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
+            : this(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
         { }
 
         /// <inheritdoc/>
@@ -50,7 +52,7 @@ namespace System.CommandLine
             string name,
             Func<T> defaultValueFactory,
             string? description = null) 
-            : base(name, description, 
+            : this(name, description, 
                   new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
         { }
 
@@ -59,9 +61,31 @@ namespace System.CommandLine
             string[] aliases,
             Func<T> defaultValueFactory,
             string? description = null)
-            : base(aliases, description, new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
+            : this(aliases, description, new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
         {
         }
+
+        private protected Option(
+            string name,
+            string? description,
+            Argument<T> argument)
+            : base(name, description)
+        {
+            argument.AddParent(this);
+            _argument = argument;
+        }
+
+        private protected Option(
+            string[] aliases,
+            string? description,
+            Argument<T> argument)
+            : base(aliases, description)
+        {
+            argument.AddParent(this);
+            _argument = argument;
+        }
+
+        internal sealed override Argument Argument => _argument;
 
         /// <summary>
         /// Configures the option to accept only the specified values, and to suggest them as command line completions.
@@ -70,7 +94,7 @@ namespace System.CommandLine
         /// <returns>The configured option.</returns>
         public Option<T> AcceptOnlyFromAmong(params string[] values)
         {
-            Argument.AcceptOnlyFromAmong(values);
+            _argument.AcceptOnlyFromAmong(values);
 
             return this;
         }
@@ -82,7 +106,7 @@ namespace System.CommandLine
         /// <returns>The configured option.</returns>
         public Option<T> AddCompletions(params string[] completions)
         {
-            Argument.Completions.Add(completions);
+            _argument.Completions.Add(completions);
             return this;
         }
 
@@ -93,7 +117,7 @@ namespace System.CommandLine
         /// <returns>The configured option.</returns>
         public Option<T> AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
         {
-            Argument.Completions.Add(completionsDelegate);
+            _argument.Completions.Add(completionsDelegate);
             return this;
         }
 
@@ -104,7 +128,7 @@ namespace System.CommandLine
         /// <returns>The configured option.</returns>
         public Option<T> AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
         {
-            Argument.Completions.Add(completionsDelegate);
+            _argument.Completions.Add(completionsDelegate);
             return this;
         }
 
@@ -114,7 +138,7 @@ namespace System.CommandLine
         /// <returns>The configured option.</returns>
         public Option<T> AcceptLegalFilePathsOnly()
         {
-            Argument.AcceptLegalFilePathsOnly();
+            _argument.AcceptLegalFilePathsOnly();
             return this;
         }
 
@@ -125,7 +149,7 @@ namespace System.CommandLine
         /// <returns>The configured option.</returns>
         public Option<T> AcceptLegalFileNamesOnly()
         {
-            Argument.AcceptLegalFileNamesOnly();
+            _argument.AcceptLegalFileNamesOnly();
             return this;
         }
     }

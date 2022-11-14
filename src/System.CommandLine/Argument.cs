@@ -174,11 +174,6 @@ namespace System.CommandLine
 
         internal virtual bool HasCustomParser => false;
 
-        internal static Argument None() => new Argument<bool>
-        {
-            Arity = ArgumentArity.Zero
-        };
-
         internal void AddAllowedValues(IReadOnlyList<string> values)
         {
             if (AllowedValues is null)

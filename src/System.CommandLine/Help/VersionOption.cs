@@ -11,7 +11,7 @@ namespace System.CommandLine.Help
         private readonly CommandLineBuilder _builder;
         private string? _description;
 
-        public VersionOption(CommandLineBuilder builder) : base("--version")
+        public VersionOption(CommandLineBuilder builder) : base("--version", null, new Argument<bool> { Arity = ArgumentArity.Zero })
         {
             _builder = builder;
             
@@ -57,8 +57,6 @@ namespace System.CommandLine.Help
             get => _description ??= _builder.LocalizationResources.VersionOptionDescription();
             set => _description = value;
         }
-
-        internal override Argument Argument => Argument.None();
 
         internal override bool IsGreedy => false;
 

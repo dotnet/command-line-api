@@ -116,5 +116,6 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         public override Type ValueType => typeof(T);
+        {
     }
 }

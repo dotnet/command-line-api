@@ -9,7 +9,7 @@ namespace System.CommandLine.Help
         private string? _description;
 
         public HelpOption(string[] aliases, Func<LocalizationResources> getLocalizationResources)
-            : base(aliases)
+            : base(aliases, null, new Argument<bool> { Arity = ArgumentArity.Zero })
         {
             _localizationResources = getLocalizationResources;
             DisallowBinding = true;
@@ -31,8 +31,6 @@ namespace System.CommandLine.Help
             get => _description ??= _localizationResources().HelpOptionDescription();
             set => _description = value;
         }
-
-        internal override Argument Argument => Argument.None();
 
         internal override bool IsGreedy => false;
 
