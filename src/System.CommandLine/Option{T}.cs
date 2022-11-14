@@ -133,6 +133,16 @@ namespace System.CommandLine
         }
 
         /// <summary>
+        /// Adds a validator that will be called when the option is matched by the parser.
+        /// </summary>
+        /// <param name="validate">An action used to validate the <see cref="OptionResult"/> produced during parsing.</param>
+        public Option<T> AddValidator(Action<OptionResult> validate)
+        {
+            Validators.Add(validate);
+            return this;
+        }
+
+        /// <summary>
         /// Configures the option to accept only values representing legal file paths.
         /// </summary>
         /// <returns>The configured option.</returns>
