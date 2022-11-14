@@ -5,12 +5,6 @@ System.CommandLine
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Type ValueType { get; }
-    public Argument AcceptLegalFileNamesOnly()
-    public Argument AcceptLegalFilePathsOnly()
-    public Argument AcceptOnlyFromAmong(System.String[] values)
-    public Argument AddCompletions(System.String[] completions)
-    public Argument AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
-    public Argument AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
     public System.Void AddValidator(System.Action<System.CommandLine.Parsing.ArgumentResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
@@ -28,6 +22,12 @@ System.CommandLine
     .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False, System.String description = null)
     .ctor(Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False)
     public System.Type ValueType { get; }
+    public Argument<T> AcceptLegalFileNamesOnly()
+    public Argument<T> AcceptLegalFilePathsOnly()
+    public Argument<T> AcceptOnlyFromAmong(System.String[] values)
+    public Argument<T> AddCompletions(System.String[] completions)
+    public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
+    public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
   public struct ArgumentArity : System.ValueType, System.IEquatable<ArgumentArity>
     public static ArgumentArity ExactlyOne { get; }
     public static ArgumentArity OneOrMore { get; }

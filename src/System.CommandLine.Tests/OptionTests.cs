@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.Linq;
 using Xunit;
@@ -383,6 +384,20 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
+        }
+
+        [Fact]
+        public void Option_of_T_fluent_APIs_return_Option_of_T()
+        {
+            Option<string> option = new Option<string>("--path")
+                .AcceptOnlyFromAmong("text")
+                .AddCompletions("test")
+                .AddCompletions(ctx => Array.Empty<string>())
+                .AddCompletions(ctx => Array.Empty<CompletionItem>())
+                .AcceptLegalFileNamesOnly()
+                .AcceptLegalFilePathsOnly();
+
+            option.Should().BeOfType<Option<string>>();
         }
         
         protected override Symbol CreateSymbol(string name) => new Option<string>(name);
