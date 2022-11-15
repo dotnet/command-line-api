@@ -99,3 +99,6 @@ namespace System.CommandLine.Invocation
         }
     }
 }
+
+
+// myapp.exe [parse] subcommand -h
