@@ -9,17 +9,16 @@ System.CommandLine
     public System.Object GetDefaultValue()
     public ParseResult Parse(System.String commandLine)
     public ParseResult Parse(System.String[] args)
-    public System.Void SetDefaultValue(System.Object value)
-    public System.Void SetDefaultValueFactory(System.Func<System.Object> defaultValueFactory)
-    public System.Void SetDefaultValueFactory(System.Func<System.CommandLine.Parsing.ArgumentResult,System.Object> defaultValueFactory)
     public System.String ToString()
   public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
     .ctor()
     .ctor(System.String name, System.String description = null)
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
+    .ctor(System.String name, T defaultValue, System.String description = null)
     .ctor(Func<T> defaultValueFactory)
     .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False, System.String description = null)
     .ctor(Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False)
+    public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; }
     public Argument<T> AcceptLegalFileNamesOnly()
     public Argument<T> AcceptLegalFilePathsOnly()
@@ -28,6 +27,9 @@ System.CommandLine
     public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
     public Argument<T> AddValidator(System.Action<System.CommandLine.Parsing.ArgumentResult> validate)
+    public System.Void SetDefaultValue(T value)
+    public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
+    public System.Void SetDefaultValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> defaultValueFactory)
   public struct ArgumentArity : System.ValueType, System.IEquatable<ArgumentArity>
     public static ArgumentArity ExactlyOne { get; }
     public static ArgumentArity OneOrMore { get; }
@@ -197,8 +199,6 @@ System.CommandLine
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public ParseResult Parse(System.String commandLine)
     public ParseResult Parse(System.String[] args)
-    public System.Void SetDefaultValue(System.Object value)
-    public System.Void SetDefaultValueFactory(System.Func<System.Object> defaultValueFactory)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
     .ctor(System.String name, System.String description = null)
     .ctor(System.String[] aliases, System.String description = null)
@@ -213,6 +213,8 @@ System.CommandLine
     public Option<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public Option<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
     public Option<T> AddValidator(System.Action<System.CommandLine.Parsing.OptionResult> validate)
+    public System.Void SetDefaultValue(T value)
+    public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
   public static class OptionValidation
     public static Option<System.IO.FileInfo> AcceptExistingOnly(this Option<System.IO.FileInfo> option)
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)

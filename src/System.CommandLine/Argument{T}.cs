@@ -12,6 +12,7 @@ namespace System.CommandLine
     /// <inheritdoc cref="Argument" />
     public class Argument<T> : Argument, IValueDescriptor<T>
     {
+        private Func<ArgumentResult, T>? _defaultValueFactory;
         private readonly bool _hasCustomParser;
 
         /// <summary>
@@ -40,12 +41,21 @@ namespace System.CommandLine
             Func<T> defaultValueFactory, 
             string? description = null) : this(name, description)
         {
-            if (defaultValueFactory is null)
-            {
-                throw new ArgumentNullException(nameof(defaultValueFactory));
-            }
-
             SetDefaultValueFactory(() => defaultValueFactory());
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the Argument class.
+        /// </summary>
+        /// <param name="name">The name of the argument.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="description">The description of the argument, shown in help.</param>
+        public Argument(
+            string name,
+            T defaultValue,
+            string? description = null) : this(name, description)
+        {
+            SetDefaultValue(defaultValue);
         }
 
         /// <summary>
@@ -55,11 +65,6 @@ namespace System.CommandLine
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
         public Argument(Func<T> defaultValueFactory) : this()
         {
-            if (defaultValueFactory is null)
-            {
-                throw new ArgumentNullException(nameof(defaultValueFactory));
-            }
-
             SetDefaultValueFactory(() => defaultValueFactory());
         }
 
@@ -73,7 +78,7 @@ namespace System.CommandLine
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="parse"/> is null.</exception>
         public Argument(
             string? name,
-            Func<ArgumentResult, T> parse, 
+            Func<ArgumentResult, T> parse,
             bool isDefault = false,
             string? description = null) : this(name, description)
         {
@@ -84,7 +89,7 @@ namespace System.CommandLine
 
             if (isDefault)
             {
-                SetDefaultValueFactory(argumentResult => parse(argumentResult));
+                SetDefaultValueFactory(parse);
             }
 
             ConvertArguments = (ArgumentResult argumentResult, out object? value) =>
@@ -119,6 +124,53 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         public override Type ValueType => typeof(T);
+
+        /// <inheritdoc />
+        public override bool HasDefaultValue => _defaultValueFactory is not null;
+
+        /// <summary>
+        /// Sets the default value for the argument.
+        /// </summary>
+        /// <param name="value">The default value for the argument.</param>
+        public void SetDefaultValue(T value)
+        {
+            SetDefaultValueFactory(() => value);
+        }
+
+        /// <summary>
+        /// Sets a delegate to invoke when the default value for the argument is required.
+        /// </summary>
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
+        public void SetDefaultValueFactory(Func<T> defaultValueFactory)
+        {
+            if (defaultValueFactory is null)
+            {
+                throw new ArgumentNullException(nameof(defaultValueFactory));
+            }
+
+            SetDefaultValueFactory(_ => defaultValueFactory());
+        }
+
+        /// <summary>
+        /// Sets a delegate to invoke when the default value for the argument is required.
+        /// </summary>
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
+        /// <remarks>In this overload, the <see cref="ArgumentResult"/> is provided to the delegate.</remarks>
+        public void SetDefaultValueFactory(Func<ArgumentResult, T> defaultValueFactory)
+        {
+            _defaultValueFactory = defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory));
+        }
+
+        internal override object? GetDefaultValue(ArgumentResult argumentResult)
+        {
+            if (_defaultValueFactory is null)
+            {
+                throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
+            }
+
+            return _defaultValueFactory.Invoke(argumentResult);
+        }
 
         /// <summary>
         /// Adds completions for the argument.
