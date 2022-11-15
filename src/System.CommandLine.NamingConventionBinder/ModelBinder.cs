@@ -141,7 +141,7 @@ public class ModelBinder
     private (bool success, object? newInstance, bool anyNonDefaults) InstanceFromSpecificConstructor(
         BindingContext bindingContext, ConstructorDescriptor constructor, IReadOnlyList<BoundValue>? boundValues, ref bool nonDefaultsUsed)
     {
-        var values = boundValues.Select(x => x.Value).ToArray();
+        var values = boundValues?.Select(x => x.Value).ToArray() ?? Array.Empty<object>();
         object? newInstance = null;
         try
         {
@@ -332,7 +332,7 @@ public class ModelBinder
             valueSource);
     }
 
-    private protected IValueDescriptor FindModelPropertyDescriptor(Type propertyType, string propertyName)
+    private protected IValueDescriptor? FindModelPropertyDescriptor(Type propertyType, string propertyName)
     {
         return ModelDescriptor.PropertyDescriptors
                               .FirstOrDefault(desc =>
