@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -26,6 +28,7 @@ namespace System.CommandLine.Parsing
         private RootCommandResult? _rootCommandResult;
         private CommandResult? _innermostCommandResult;
         private bool _isHelpRequested;
+        private bool _isVersionRequested;
 
         public ParseResultVisitor(
             Parser parser,
@@ -181,6 +184,11 @@ namespace System.CommandLine.Parsing
                 if (optionNode.Option is HelpOption)
                 {
                     _isHelpRequested = true;
+                }
+
+                if (optionNode.Option is VersionOption)
+                {
+                    _isVersionRequested = true;
                 }
 
                 var optionResult = new OptionResult(
@@ -622,14 +630,27 @@ namespace System.CommandLine.Parsing
             _errors.Add(parseError);
         }
 
-        public ParseResult GetResult() =>
-            new(_parser,
-                _rootCommandResult ?? throw new InvalidOperationException("No root command was found"),
-                _innermostCommandResult ?? throw new InvalidOperationException("No command was found"),
-                _directives,
-                _tokenizeResult,
-                _unmatchedTokens,
-                _errors,
-                _rawInput);
+        public ParseResult GetResult()
+        {
+            var parseResult = new ParseResult(_parser,
+                                              _rootCommandResult ?? throw new InvalidOperationException("No root command was found"),
+                                              _innermostCommandResult ?? throw new InvalidOperationException("No command was found"),
+                                              _directives,
+                                              _tokenizeResult,
+                                              _unmatchedTokens,
+                                              _errors,
+                                              _rawInput);
+
+            if (_isVersionRequested)
+            {
+                // FIX: (GetResult) use the ActiveOption's handler
+                parseResult.Handler = new AnonymousCommandHandler(context =>
+                {
+                    context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
+                });
+            }
+
+            return parseResult;
+        }
     }
 }

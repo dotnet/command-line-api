@@ -68,19 +68,11 @@ namespace System.CommandLine.Invocation
 
             invocations.Add(async (invocationContext, _) =>
             {
-                if (invocationContext
-                    .ParseResult
-                    .CommandResult
-                    .Command is Command command)
+                if (invocationContext.ParseResult.Handler is { } handler)
                 {
-                    var handler = command.Handler;
-
-                    if (handler is not null)
-                    {
-                        context.ExitCode = invokeAsync
-                            ? await handler.InvokeAsync(invocationContext)
-                            : handler.Invoke(invocationContext);
-                    }
+                    context.ExitCode = invokeAsync
+                                           ? await handler.InvokeAsync(invocationContext)
+                                           : handler.Invoke(invocationContext);
                 }
             });
 
@@ -88,7 +80,7 @@ namespace System.CommandLine.Invocation
                 (first, second) =>
                     (ctx, next) =>
                         first(ctx,
-                            c => second(c, next)));
+                              c => second(c, next)));
         }
 
         private static int GetExitCode(InvocationContext context)
@@ -99,6 +91,3 @@ namespace System.CommandLine.Invocation
         }
     }
 }
-
-
-// myapp.exe [parse] subcommand -h

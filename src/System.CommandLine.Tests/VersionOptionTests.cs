@@ -73,7 +73,7 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Option<bool>("-x")
+                new Option<bool>("-x", defaultValueFactory: () => true)
             };
             rootCommand.SetHandler(() => { });
 
