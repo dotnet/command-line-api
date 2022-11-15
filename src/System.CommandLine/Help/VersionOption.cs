@@ -15,16 +15,12 @@ namespace System.CommandLine.Help
         {
             _builder = builder;
             
-            DisallowBinding = true;
-
             AddValidators();
         }
 
         public VersionOption(string[] aliases, CommandLineBuilder builder) : base(aliases)
         {
             _builder = builder;
-
-            DisallowBinding = true;
 
             AddValidators();
         }

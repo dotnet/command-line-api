@@ -80,8 +80,6 @@ namespace System.CommandLine
         /// </summary>
         internal bool IsGlobal { get; set; }
 
-        internal bool DisallowBinding { get; init; }
-
         /// <inheritdoc />
         public override string Name
         {
