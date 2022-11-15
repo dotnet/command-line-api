@@ -1,11 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Binding;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
-using ApprovalUtilities.SimpleLogger;
 using FluentAssertions;
 using Xunit;
 
@@ -168,23 +166,6 @@ namespace System.CommandLine.Tests
                                    .InvokeAsync("the-command", _console);
 
             resultCode.Should().Be(42);
-        }
-
-        [Fact(Skip = "for later")]
-        public void issue_796()
-        {
-            var rootCmd = new RootCommand();
-            rootCmd.SetHandler(_ => throw new Exception());
-
-            var parser = new CommandLineBuilder(rootCmd)
-                         .UseExceptionHandler(
-                             (_, _) => { },
-                             errorExitCode: 42)
-                         .Build();
-
-            var exitCode = parser.Invoke("");
-
-            exitCode.Should().Be(42);
         }
     }
 }
