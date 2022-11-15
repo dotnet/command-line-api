@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,15 +22,15 @@ namespace System.CommandLine.Invocation
         {
             var context = new InvocationContext(_parseResult, console, cancellationToken);
 
-            if (context.Parser.Configuration.Middleware.Count == 0
-                && context.ParseResult.CommandResult.Command.Handler is ICommandHandler handler)
+            if (context.Parser.Configuration.Middleware.Count == 0 && 
+                _parseResult.Handler is not null)
             {
-                return handler.InvokeAsync(context);
+                return _parseResult.Handler.InvokeAsync(context);
             }
 
-            return FullInvocationChainAsync(context);
+            return InvokeHandlerWithMiddleware(context);
 
-            static async Task<int> FullInvocationChainAsync(InvocationContext context)
+            static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context)
             {
                 InvocationMiddleware invocationChain = BuildInvocationChain(context, true);
 
@@ -49,9 +50,9 @@ namespace System.CommandLine.Invocation
                 return handler.Invoke(context);
             }
 
-            return FullInvocationChain(context); // kept in a separate method to avoid JITting
+            return InvokeHandlerWithMiddleware(context); // kept in a separate method to avoid JITting
 
-            static int FullInvocationChain(InvocationContext context)
+            static int InvokeHandlerWithMiddleware(InvocationContext context)
             {
                 InvocationMiddleware invocationChain = BuildInvocationChain(context, false);
 
