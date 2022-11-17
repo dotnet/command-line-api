@@ -624,27 +624,6 @@ ERR:
             builder.VersionOption = versionOption;
             builder.Command.AddOption(versionOption);
 
-#if false
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.FindResultFor(versionOption) is { })
-                {
-                    if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
-                    {
-                        context.InvocationResult = static ctx => ParseErrorResult.Apply(ctx, null);
-                    }
-                    else
-                    {
-                        context.Console.Out.WriteLine(_assemblyVersion.Value);
-                    }
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.VersionOption);
-#endif
-
             return builder;
         }
 
@@ -666,27 +645,6 @@ ERR:
 
             builder.VersionOption = versionOption;
             command.AddOption(versionOption);
-
-#if false
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.FindResultFor(versionOption) is { })
-                {
-                    if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
-                    {
-                        context.InvocationResult = static ctx => ParseErrorResult.Apply(ctx, null);
-                    }
-                    else
-                    {
-                        context.Console.Out.WriteLine(_assemblyVersion.Value);
-                    }
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.VersionOption);
-#endif
 
             return builder;
         }
