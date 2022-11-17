@@ -14,7 +14,6 @@ namespace System.CommandLine
     /// </summary>
     public abstract class Argument : Symbol, IValueDescriptor
     {
-        private Func<ArgumentResult, object?>? _defaultValueFactory;
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completions = null;
@@ -115,54 +114,12 @@ namespace System.CommandLine
             return GetDefaultValue(new ArgumentResult(this, null));
         }
 
-        internal object? GetDefaultValue(ArgumentResult argumentResult)
-        {
-            if (_defaultValueFactory is null)
-            {
-                throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
-            }
-
-            return _defaultValueFactory.Invoke(argumentResult);
-        }
-
-        /// <summary>
-        /// Sets the default value for the argument.
-        /// </summary>
-        /// <param name="value">The default value for the argument.</param>
-        public void SetDefaultValue(object? value)
-        {
-            SetDefaultValueFactory(() => value);
-        }
-
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the argument is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<object?> defaultValueFactory)
-        {
-            if (defaultValueFactory is null)
-            {
-                throw new ArgumentNullException(nameof(defaultValueFactory));
-            }
-
-            SetDefaultValueFactory(_ => defaultValueFactory());
-        }
-        
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the argument is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <remarks>In this overload, the <see cref="ArgumentResult"/> is provided to the delegate.</remarks>
-        public void SetDefaultValueFactory(Func<ArgumentResult, object?> defaultValueFactory)
-        {
-            _defaultValueFactory = defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory));
-        }
+        internal abstract object? GetDefaultValue(ArgumentResult argumentResult);
 
         /// <summary>
         /// Specifies if a default value is defined for the argument.
         /// </summary>
-        public bool HasDefaultValue => _defaultValueFactory is not null;
+        public abstract bool HasDefaultValue { get; }
 
         internal virtual bool HasCustomParser => false;
 

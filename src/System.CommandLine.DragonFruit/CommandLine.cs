@@ -165,21 +165,7 @@ namespace System.CommandLine.DragonFruit
 
             if (method.GetParameters().FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is { } argsParam)
             {
-                var argument = ArgumentBuilder.CreateArgument(argsParam.ParameterType, argsParam.Name);
-
-                if (argsParam.HasDefaultValue)
-                {
-                    if (argsParam.DefaultValue is not null)
-                    {
-                        argument.SetDefaultValue(argsParam.DefaultValue);
-                    }
-                    else
-                    {
-                        argument.SetDefaultValueFactory(() => null);
-                    }
-                }
-
-                command.AddArgument(argument);
+                command.AddArgument(ArgumentBuilder.CreateArgument(argsParam));
             }
 
             command.Handler = CommandHandler.Create(method, target);
@@ -285,24 +271,11 @@ namespace System.CommandLine.DragonFruit
         }
 
         public static Option BuildOption(this ParameterDescriptor parameter)
-        {
-            Func<object> getDefaultValue = null;
-            if (parameter.HasDefaultValue)
-            {
-                getDefaultValue = parameter.GetDefaultValue;
-            }
-
-            var option = OptionBuilder.CreateOption(parameter.BuildAlias(), parameter.ValueType);
-            
-            option.Description = parameter.ValueName;
-
-            if (getDefaultValue is not null)
-            {
-                option.SetDefaultValueFactory(getDefaultValue);
-            }
-
-            return option;
-        }
+            => OptionBuilder.CreateOption(
+                parameter.BuildAlias(),
+                parameter.ValueType,
+                parameter.ValueName,
+                parameter.HasDefaultValue ? parameter.GetDefaultValue : null);
 
         private static string GetDefaultXmlDocsFileLocation(Assembly assembly)
         {

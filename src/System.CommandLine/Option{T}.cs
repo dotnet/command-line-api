@@ -88,6 +88,20 @@ namespace System.CommandLine
         internal sealed override Argument Argument => _argument;
 
         /// <summary>
+        /// Sets the default value for the option.
+        /// </summary>
+        /// <param name="value">The default value for the option.</param>
+        public void SetDefaultValue(T value) => _argument.SetDefaultValue(value);
+
+        /// <summary>
+        /// Sets a delegate to invoke when the default value for the option is required.
+        /// </summary>
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
+        public void SetDefaultValueFactory(Func<T> defaultValueFactory) =>
+            _argument.SetDefaultValueFactory(defaultValueFactory);
+
+        /// <summary>
         /// Configures the option to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
         /// <param name="values">The values that are allowed for the option.</param>
