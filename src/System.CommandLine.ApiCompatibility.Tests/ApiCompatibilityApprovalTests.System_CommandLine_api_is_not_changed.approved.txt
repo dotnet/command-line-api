@@ -55,6 +55,7 @@ System.CommandLine
     public System.Collections.Generic.IReadOnlyList<Option> Options { get; }
     public System.Collections.Generic.IReadOnlyList<Command> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
+    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.CommandResult>> Validators { get; }
     public System.Void Add(Option option)
     public System.Void Add(Argument argument)
     public System.Void Add(Command command)
@@ -62,7 +63,6 @@ System.CommandLine
     public System.Void AddCommand(Command command)
     public System.Void AddGlobalOption(Option option)
     public System.Void AddOption(Option option)
-    public System.Void AddValidator(System.Action<System.CommandLine.Parsing.CommandResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
   public static class CommandExtensions

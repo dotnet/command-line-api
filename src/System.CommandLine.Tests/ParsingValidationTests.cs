@@ -275,7 +275,7 @@ namespace System.CommandLine.Tests
                 new Option<bool>("--two")
             };
 
-            command.AddValidator(commandResult =>
+            command.Validators.Add(commandResult =>
             {
                 if (commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--one")) &&
                     commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--two")))
@@ -375,7 +375,7 @@ namespace System.CommandLine.Tests
                 option,
                 argument
             };
-            rootCommand.AddValidator(_ =>
+            rootCommand.Validators.Add(_ =>
             {
                 commandValidatorWasCalled = true;
             });
@@ -1121,8 +1121,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_command_do_not_report_duplicate_errors()
         {
             var command = new RootCommand();
-            command.AddValidator(result => result.ErrorMessage = "Wrong");
-            command.AddValidator(_ => { });
+            command.Validators.Add(result => result.ErrorMessage = "Wrong");
+            command.Validators.Add(_ => { });
 
             var parseResult = command.Parse("");
 
