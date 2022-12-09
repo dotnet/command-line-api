@@ -192,6 +192,7 @@ System.CommandLine
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
+    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> Completions { get; }
     public System.Boolean IsRequired { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }
@@ -209,9 +210,6 @@ System.CommandLine
     public Option<T> AcceptLegalFileNamesOnly()
     public Option<T> AcceptLegalFilePathsOnly()
     public Option<T> AcceptOnlyFromAmong(System.String[] values)
-    public Option<T> AddCompletions(System.String[] completions)
-    public Option<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
-    public Option<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
   public static class OptionValidation

@@ -391,9 +391,6 @@ namespace System.CommandLine.Tests
         {
             Option<string> option = new Option<string>("--path")
                 .AcceptOnlyFromAmong("text")
-                .AddCompletions("test")
-                .AddCompletions(ctx => Array.Empty<string>())
-                .AddCompletions(ctx => Array.Empty<CompletionItem>())
                 .AcceptLegalFileNamesOnly()
                 .AcceptLegalFilePathsOnly();
 

@@ -24,8 +24,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_GetCompletions_returns_argument_completions_if_configured()
         {
-            var option = new Option<string>("--hello")
-                .AddCompletions("one", "two", "three");
+            var option = new Option<string>("--hello");
+            option.Completions.Add("one", "two", "three");
 
             var completions = option.GetCompletions();
 
@@ -210,17 +210,19 @@ namespace System.CommandLine.Tests
         public void Command_GetCompletions_can_access_ParseResult()
         {
             var originOption = new Option<string>("--origin");
+            var cloneOption = new Option<string>("--clone");
+
+            cloneOption.Completions.Add(ctx =>
+            {
+                var opt1Value = ctx.ParseResult.GetValue(originOption);
+                return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
+            });
 
             var parser = new Parser(
                 new RootCommand
                 {
                     originOption,
-                    new Option<string>("--clone")
-                        .AddCompletions(ctx =>
-                        {
-                            var opt1Value = ctx.ParseResult.GetValue(originOption);
-                            return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
-                        })
+                    cloneOption
                 });
 
             var result = parser.Parse("--origin test --clone ");
@@ -578,10 +580,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Completions_can_be_provided_in_the_absence_of_validation()
         {
+            Option<string> option = new ("-t");
+            option.Completions.Add("vegetable", "mineral", "animal");
+
             var command = new Command("the-command")
                 {
-                    new Option<string>("-t")
-                        .AddCompletions("vegetable", "mineral", "animal")
+                    option
                 };
 
             command.Parse("the-command -t m")
@@ -621,10 +625,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_argument_completions_can_be_provided_using_a_delegate()
         {
+            var option = new Option<string>("-x");
+            option.Completions.Add(_ => new[] { "vegetable", "mineral", "animal" });
+
             var command = new Command("the-command")
             {
-                new Option<string>("-x")
-                    .AddCompletions(_ => new [] { "vegetable", "mineral", "animal" })
+                option
             };
 
             var parseResult = command.Parse("the-command -x m");

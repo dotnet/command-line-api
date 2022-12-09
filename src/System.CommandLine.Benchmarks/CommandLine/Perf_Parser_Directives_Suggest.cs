@@ -22,10 +22,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             _nullConsole = new NullConsole();
 
+            Option<string> fruitOption = new("--fruit");
+            fruitOption.Completions.Add("apple", "banana", "cherry");
+
+            Option<string> vegetableOption = new("--vegetable");
+            vegetableOption.Completions.Add("asparagus", "broccoli", "carrot");
+
             var eatCommand = new Command("eat")
             {
-                new Option<string>("--fruit").AddCompletions("apple", "banana", "cherry"),
-                new Option<string>("--vegetable").AddCompletions("asparagus", "broccoli", "carrot")
+                fruitOption,
+                vegetableOption
             };
 
             _testParser = new CommandLineBuilder(eatCommand)

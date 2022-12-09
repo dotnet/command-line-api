@@ -105,6 +105,11 @@ namespace System.CommandLine
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
+        /// Gets the list of completion sources for the option.
+        /// </summary>
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> Completions => Argument.Completions;
+
+        /// <summary>
         /// Indicates whether a given alias exists on the option, regardless of its prefix.
         /// </summary>
         /// <param name="alias">The alias, which can include a prefix.</param>

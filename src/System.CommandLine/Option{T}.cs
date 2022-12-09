@@ -114,39 +114,6 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completions">The completions to add.</param>
-        /// <returns>The configured option.</returns>
-        public Option<T> AddCompletions(params string[] completions)
-        {
-            _argument.Completions.Add(completions);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured option.</returns>
-        public Option<T> AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
-        {
-            _argument.Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured option.</returns>
-        public Option<T> AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
-        {
-            _argument.Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
         /// Configures the option to accept only values representing legal file paths.
         /// </summary>
         /// <returns>The configured option.</returns>
