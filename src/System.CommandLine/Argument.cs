@@ -71,9 +71,9 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the collection of completion sources for the argument.
+        /// Gets the list of completion sources for the argument.
         /// </summary>
-        public ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> Completions =>
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> Completions =>
             _completions ??= new ()
             {
                 CompletionSource.ForType(ValueType)

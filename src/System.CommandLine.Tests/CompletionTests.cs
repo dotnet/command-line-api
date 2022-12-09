@@ -850,8 +850,8 @@ namespace System.CommandLine.Tests
                 "\"nuget:Microsoft.DotNet.Interactive\""
             };
 
-            var argument = new Argument<string>()
-                .AddCompletions(expectedSuggestions);
+            var argument = new Argument<string>();
+            argument.Completions.Add(expectedSuggestions);
 
             var r = new Command("#r")
             {

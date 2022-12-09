@@ -175,17 +175,6 @@ namespace System.CommandLine
         /// <summary>
         /// Adds completions for the argument.
         /// </summary>
-        /// <param name="completions">The completions to add.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AddCompletions(params string[] completions)
-        {
-            Completions.Add(completions);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
         /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
         /// <returns>The option being extended.</returns>
         public Argument<T> AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
