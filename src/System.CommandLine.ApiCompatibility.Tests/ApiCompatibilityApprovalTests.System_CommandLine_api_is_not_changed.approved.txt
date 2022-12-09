@@ -4,6 +4,7 @@ System.CommandLine
     public System.Collections.Generic.ICollection<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> Completions { get; }
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
+    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.ArgumentResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
@@ -26,7 +27,6 @@ System.CommandLine
     public Argument<T> AddCompletions(System.String[] completions)
     public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
-    public Argument<T> AddValidator(System.Action<System.CommandLine.Parsing.ArgumentResult> validate)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
     public System.Void SetDefaultValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> defaultValueFactory)

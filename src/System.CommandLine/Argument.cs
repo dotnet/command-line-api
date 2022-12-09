@@ -103,7 +103,11 @@ namespace System.CommandLine
             }
         }
 
-        internal List<Action<ArgumentResult>> Validators => _validators ??= new ();
+        /// <summary>
+        /// Provides a list of argument validators. Validators can be used
+        /// to provide custom errors based on user input.
+        /// </summary>
+        public List<Action<ArgumentResult>> Validators => _validators ??= new ();
 
         /// <summary>
         /// Gets the default value for the argument.

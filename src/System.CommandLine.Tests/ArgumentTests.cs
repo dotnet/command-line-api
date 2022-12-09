@@ -792,7 +792,6 @@ namespace System.CommandLine.Tests
                 .AddCompletions("test")
                 .AddCompletions(ctx => Array.Empty<string>())
                 .AddCompletions(ctx => Array.Empty<CompletionItem>())
-                .AddValidator(_ => { })
                 .AcceptLegalFileNamesOnly()
                 .AcceptLegalFilePathsOnly();
 

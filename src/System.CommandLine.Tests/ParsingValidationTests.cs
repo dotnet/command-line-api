@@ -327,7 +327,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<int>("x");
 
-            argument.AddValidator(r =>
+            argument.Validators.Add(r =>
             {
                 var value = r.GetValueOrDefault<int>();
 
@@ -365,7 +365,7 @@ namespace System.CommandLine.Tests
             });
 
             var argument = new Argument<string>("the-arg");
-            argument.AddValidator(_ =>
+            argument.Validators.Add(_ =>
             {
                 argumentValidatorWasCalled = true;
             });
@@ -460,7 +460,7 @@ namespace System.CommandLine.Tests
         {
             var errorMessage = "that's not right...";
             var argument = new Argument<string>();
-            argument.AddValidator(r => r.ErrorMessage = errorMessage);
+            argument.Validators.Add(r => r.ErrorMessage = errorMessage);
 
             var cmd = new Command("get")
             {
@@ -481,7 +481,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<int>();
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
-            argument.AddValidator(result =>
+            argument.Validators.Add(result =>
             {
                 var value = result.GetValue(argument);
 
@@ -1162,8 +1162,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_argument_do_not_report_duplicate_errors()
         {
             var argument = new Argument<string>();
-            argument.AddValidator(result => result.ErrorMessage = "Wrong");
-            argument.AddValidator(_ => { });
+            argument.Validators.Add(result => result.ErrorMessage = "Wrong");
+            argument.Validators.Add(_ => { });
 
             var command = new RootCommand
             {
