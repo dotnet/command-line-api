@@ -300,7 +300,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x");
 
-            option.AddValidator(r =>
+            option.Validators.Add(r =>
             {
                 var value = r.GetValueOrDefault<int>();
 
@@ -359,7 +359,7 @@ namespace System.CommandLine.Tests
             var argumentValidatorWasCalled = false;
 
             var option = new Option<string>("-o");
-            option.AddValidator(_ =>
+            option.Validators.Add(_ =>
             {
                 optionValidatorWasCalled = true;
             });
@@ -393,7 +393,7 @@ namespace System.CommandLine.Tests
         public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)
         {
             var option = new Option<FileInfo>("--file");
-            option.AddValidator(r =>
+            option.Validators.Add(r =>
             {
                 r.ErrorMessage = "Invoked validator";
             });
@@ -430,7 +430,7 @@ namespace System.CommandLine.Tests
             var handlerWasCalled = false;
 
             var globalOption = new Option<int>("--value");
-            globalOption.AddValidator(r => r.ErrorMessage = "oops!");
+            globalOption.Validators.Add(r => r.ErrorMessage = "oops!");
 
             var grandchildCommand = new Command("grandchild");
 
@@ -505,7 +505,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x");
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
-            option.AddValidator(result =>
+            option.Validators.Add(result =>
             {
                 var value = result.GetValue(option);
 
@@ -1139,8 +1139,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_option_do_not_report_duplicate_errors()
         {
             var option = new Option<string>("-x");
-            option.AddValidator(result => result.ErrorMessage = "Wrong");
-            option.AddValidator(_ => { });
+            option.Validators.Add(result => result.ErrorMessage = "Wrong");
+            option.Validators.Add(_ => { });
 
             var command = new RootCommand
             {
@@ -1185,7 +1185,7 @@ namespace System.CommandLine.Tests
         internal void When_there_is_an_arity_error_then_further_errors_are_not_reported()
         {
             var option = new Option<string>("-o");
-            option.AddValidator(result =>
+            option.Validators.Add(result =>
             {
                 result.ErrorMessage = "OOPS";
             }); //all good;

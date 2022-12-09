@@ -97,7 +97,10 @@ namespace System.CommandLine
             }
         }
 
-        internal List<Action<OptionResult>> Validators => _validators ??= new();
+        /// <summary>
+        /// Validators that will be called when the option is matched by the parser.
+        /// </summary>
+        public List<Action<OptionResult>> Validators => _validators ??= new();
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 

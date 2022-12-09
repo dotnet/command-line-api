@@ -194,6 +194,7 @@ System.CommandLine
     public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
     public System.Boolean IsRequired { get; set; }
+    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Boolean HasAliasIgnoringPrefix(System.String alias)
@@ -212,7 +213,6 @@ System.CommandLine
     public Option<T> AddCompletions(System.String[] completions)
     public Option<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public Option<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
-    public Option<T> AddValidator(System.Action<System.CommandLine.Parsing.OptionResult> validate)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
   public static class OptionValidation

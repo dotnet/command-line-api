@@ -303,7 +303,7 @@ namespace System.CommandLine.Tests
         public void Option_T_default_value_is_validated()
         {
             var option = new Option<int>("-x", () => 123);
-            option.AddValidator(symbol =>
+            option.Validators.Add(symbol =>
                                     symbol.ErrorMessage = symbol.Tokens
                                                                 .Select(t => t.Value)
                                                                 .Where(v => v == "123")
@@ -394,7 +394,6 @@ namespace System.CommandLine.Tests
                 .AddCompletions("test")
                 .AddCompletions(ctx => Array.Empty<string>())
                 .AddCompletions(ctx => Array.Empty<CompletionItem>())
-                .AddValidator(_ => { })
                 .AcceptLegalFileNamesOnly()
                 .AcceptLegalFilePathsOnly();
 
