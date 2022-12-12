@@ -641,7 +641,7 @@ ERR:
             var versionOption = new VersionOption(builder);
 
             builder.VersionOption = versionOption;
-            builder.Command.AddOption(versionOption);
+            builder.Command.Options.Add(versionOption);
 
             builder.AddMiddleware(async (context, next) =>
             {
@@ -682,7 +682,7 @@ ERR:
             var versionOption = new VersionOption(aliases, builder);
 
             builder.VersionOption = versionOption;
-            command.AddOption(versionOption);
+            command.Options.Add(versionOption);
 
             builder.AddMiddleware(async (context, next) =>
             {

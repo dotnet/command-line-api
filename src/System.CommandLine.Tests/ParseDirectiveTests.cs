@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
             var subcommand = new Command("subcommand");
             rootCommand.AddCommand(subcommand);
             var option = new Option<int>(new[] { "-c", "--count" });
-            subcommand.AddOption(option);
+            subcommand.Options.Add(option);
 
             var parser = new CommandLineBuilder(rootCommand)
                          .UseParseDirective()

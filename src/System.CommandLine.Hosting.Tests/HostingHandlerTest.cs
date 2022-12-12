@@ -155,7 +155,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             public MyCommand() : base(name: "mycommand")
             {
-                AddOption(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+                Options.Add(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
 
             public class MyHandler : ICommandHandler
@@ -204,7 +204,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             public MyOtherCommand() : base(name: "myothercommand")
             {
-                AddOption(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+                Options.Add(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
                 Arguments.Add(new Argument<string>("One"));
             }
 

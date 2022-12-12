@@ -81,12 +81,6 @@ namespace System.CommandLine
         public void AddCommand(Command command) => Subcommands.Add(command);
 
         /// <summary>
-        /// Adds an <see cref="Option"/> to the command.
-        /// </summary>
-        /// <param name="option">The option to add to the command.</param>
-        public void AddOption(Option option) => Options.Add(option);
-
-        /// <summary>
         /// Adds a global <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The global option to add to the command.</param>
@@ -95,7 +89,7 @@ namespace System.CommandLine
         public void AddGlobalOption(Option option)
         {
             option.IsGlobal = true;
-            AddOption(option);
+            Options.Add(option);
         }
 
         /// <summary>

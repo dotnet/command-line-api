@@ -21,7 +21,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             var rootCommand = new Command("root_command");
             var nestedCommand = new Command("nested_command");
             var option = new Option<int>("-opt1", () => 123);
-            nestedCommand.AddOption(option);
+            nestedCommand.Options.Add(option);
             rootCommand.AddCommand(nestedCommand);
 
             _testParser = new Parser(rootCommand);

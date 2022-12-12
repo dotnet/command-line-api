@@ -53,7 +53,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
             foreach (var option in GenerateOptionsArray(TestSuggestionsCount))
             {
-                testCommand.AddOption(option);
+                testCommand.Options.Add(option);
             }
 
             _testParseResult = testCommand.Parse("--wrong");

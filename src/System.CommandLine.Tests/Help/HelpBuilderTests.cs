@@ -207,7 +207,7 @@ namespace System.CommandLine.Tests.Help
             outer.AddCommand(inner);
             var innerEr = new Command("inner-er", "the inner-er command");
             inner.AddCommand(innerEr);
-            innerEr.AddOption(new Option<string>("--some-option", "some option"));
+            innerEr.Options.Add(new Option<string>("--some-option", "some option"));
             var rootCommand = new RootCommand();
             rootCommand.Add(outer);
 
@@ -255,7 +255,7 @@ namespace System.CommandLine.Tests.Help
             var command = new Command(
                 "some-command",
                 "Does something");
-            command.AddOption(
+            command.Options.Add(
                 new Option<string>("-x", "Indicates whether x"));
 
             _helpBuilder.Write(command, _console);
@@ -269,7 +269,7 @@ namespace System.CommandLine.Tests.Help
             var command = new RootCommand();
             var subcommand = new Command("some-command", "Does something");
             command.AddCommand(subcommand);
-            subcommand.AddOption(new Option<string>("-x", "Indicates whether x"));
+            subcommand.Options.Add(new Option<string>("-x", "Indicates whether x"));
             subcommand.TreatUnmatchedTokensAsErrors = true;
 
             _helpBuilder.Write(subcommand, _console);
@@ -283,7 +283,7 @@ namespace System.CommandLine.Tests.Help
             var command = new RootCommand();
             var subcommand = new Command("some-command", "Does something");
             command.AddCommand(subcommand);
-            subcommand.AddOption(new Option<string>("-x", "Indicates whether x"));
+            subcommand.Options.Add(new Option<string>("-x", "Indicates whether x"));
             subcommand.TreatUnmatchedTokensAsErrors = false;
 
             _helpBuilder.Write(subcommand, _console);
@@ -1013,11 +1013,11 @@ namespace System.CommandLine.Tests.Help
         public void Options_section_does_not_contain_option_with_HelpDefinition_that_IsHidden()
         {
             var command = new Command("the-command");
-            command.AddOption(new Option<string>("-x", "Is Hidden")
+            command.Options.Add(new Option<string>("-x", "Is Hidden")
             {
                 IsHidden = true
             });
-            command.AddOption(new Option<string>("-n", "Not Hidden")
+            command.Options.Add(new Option<string>("-n", "Not Hidden")
             {
                 IsHidden = false
             });

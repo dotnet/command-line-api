@@ -30,8 +30,8 @@ public class ParameterBindingTests
         }
 
         var command = new Command("command");
-        command.AddOption(new Option<string>("--name"));
-        command.AddOption(new Option<int>("--age"));
+        command.Options.Add(new Option<string>("--name"));
+        command.Options.Add(new Option<int>("--age"));
         command.Handler = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command --age 425 --name Gandalf", _console);
@@ -74,8 +74,8 @@ public class ParameterBindingTests
         }
 
         var command = new Command("command");
-        command.AddOption(new Option<string>("--NAME"));
-        command.AddOption(new Option<int>("--age"));
+        command.Options.Add(new Option<string>("--NAME"));
+        command.Options.Add(new Option<int>("--age"));
         command.Handler = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command --age 425 --NAME Gandalf", _console);

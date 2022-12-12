@@ -95,9 +95,9 @@ namespace System.CommandLine.Generator.Tests
 
             var command = new Command("command");
             var nameOption = new Option<string>("--name");
-            command.AddOption(nameOption);
+            command.Options.Add(nameOption);
             var ageOption = new Option<int>("--age");
-            command.AddOption(ageOption);
+            command.Options.Add(ageOption);
 
             command.SetHandler<Action<Character, IConsole>>(Execute, nameOption, ageOption);
 

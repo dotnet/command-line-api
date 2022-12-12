@@ -101,7 +101,7 @@ public class ModelBinderTests
         var option = new Option<string>("--string-option", () => "the default");
 
         var command = new Command("the-command");
-        command.AddOption(option);
+        command.Options.Add(option);
         var binder = new ModelBinder(typeof(ClassWithMultiLetterCtorParameters));
 
         var parser = new Parser(command);
@@ -176,7 +176,7 @@ public class ModelBinderTests
         var option = new Option<DirectoryInfo>("--value");
 
         var command = new Command("the-command");
-        command.AddOption(option);
+        command.Options.Add(option);
         var binder = new ModelBinder(typeof(ClassWithCtorParameter<DirectoryInfo>));
         var bindingContext = new InvocationContext(command.Parse($"--value \"{tempPath}\"")).BindingContext;
 
@@ -191,7 +191,7 @@ public class ModelBinderTests
         var option = new Option<string>("--value", () => "the default");
 
         var command = new Command("the-command");
-        command.AddOption(option);
+        command.Options.Add(option);
         var binder = new ModelBinder(typeof(ClassWithSetter<string>));
 
         var parser = new Parser(command);
@@ -441,7 +441,7 @@ public class ModelBinderTests
     {
         var command = new Command("the-command");
         var option = new Option<int>("--fred");
-        command.AddOption(option);
+        command.Options.Add(option);
 
         var binder = new ModelBinder<ClassWithMultiLetterSetters>();
 

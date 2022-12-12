@@ -160,7 +160,7 @@ namespace System.CommandLine.DragonFruit
 
             foreach (var option in method.BuildOptions())
             {
-                command.AddOption(option);
+                command.Options.Add(option);
             }
 
             if (method.GetParameters().FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is { } argsParam)
