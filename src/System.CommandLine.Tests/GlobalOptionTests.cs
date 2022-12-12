@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
 
             var child = new Command("child");
 
-            root.AddCommand(child);
+            root.Subcommands.Add(child);
 
             root.Options.Should().Contain(option);
         }
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
 
             var child = new Command("child");
 
-            root.AddCommand(child);
+            root.Subcommands.Add(child);
 
             root.Parse("child --global 123").GetValue(option).Should().Be(123);
 
@@ -104,7 +104,7 @@ namespace System.CommandLine.Tests
             
             var firstChild = new Command("first");
             
-            root.AddCommand(firstChild);
+            root.Subcommands.Add(firstChild);
             
             var option = new Option<int>("--global");
             
@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
             
             var secondChild = new Command("second");
             
-            firstChild.AddCommand(secondChild);
+            firstChild.Subcommands.Add(secondChild);
             
             root.Parse("first second --global 123").GetValue(option).Should().Be(123);
             

@@ -74,13 +74,6 @@ namespace System.CommandLine
         internal bool HasValidators => _validators is not null; // initialized by Add method, so when it's not null the Count is always > 0
 
         /// <summary>
-        /// Adds a subcommand to the command.
-        /// </summary>
-        /// <param name="command">The subcommand to add to the command.</param>
-        /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
-        public void AddCommand(Command command) => Subcommands.Add(command);
-
-        /// <summary>
         /// Adds a global <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The global option to add to the command.</param>

@@ -144,7 +144,7 @@ namespace System.CommandLine.Tests.Help
                 }
             };
             var rootCommand = new RootCommand();
-            rootCommand.AddCommand(command);
+            rootCommand.Subcommands.Add(command);
 
             new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth).Write(command, _console);
 
@@ -188,7 +188,7 @@ namespace System.CommandLine.Tests.Help
             };
 
             var rootCommand = new RootCommand();
-            rootCommand.AddCommand(command);
+            rootCommand.Subcommands.Add(command);
 
             _helpBuilder.Write(command, _console);
 
@@ -204,9 +204,9 @@ namespace System.CommandLine.Tests.Help
         {
             var outer = new Command("outer", "the outer command");
             var inner = new Command("inner", "the inner command");
-            outer.AddCommand(inner);
+            outer.Subcommands.Add(inner);
             var innerEr = new Command("inner-er", "the inner-er command");
-            inner.AddCommand(innerEr);
+            inner.Subcommands.Add(innerEr);
             innerEr.Options.Add(new Option<string>("--some-option", "some option"));
             var rootCommand = new RootCommand();
             rootCommand.Add(outer);
@@ -268,7 +268,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new RootCommand();
             var subcommand = new Command("some-command", "Does something");
-            command.AddCommand(subcommand);
+            command.Subcommands.Add(subcommand);
             subcommand.Options.Add(new Option<string>("-x", "Indicates whether x"));
             subcommand.TreatUnmatchedTokensAsErrors = true;
 
@@ -282,7 +282,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new RootCommand();
             var subcommand = new Command("some-command", "Does something");
-            command.AddCommand(subcommand);
+            command.Subcommands.Add(subcommand);
             subcommand.Options.Add(new Option<string>("-x", "Indicates whether x"));
             subcommand.TreatUnmatchedTokensAsErrors = false;
 
@@ -986,7 +986,7 @@ namespace System.CommandLine.Tests.Help
         public void Options_section_is_not_included_if_only_subcommands_configured()
         {
             var command = new Command("outer", "description for outer");
-            command.AddCommand(new Command("inner"));
+            command.Subcommands.Add(new Command("inner"));
 
             _helpBuilder.Write(command, _console);
 
@@ -1496,7 +1496,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "Does things.");
             var subCommand = new Command("the-subcommand", description: null);
-            command.AddCommand(subCommand);
+            command.Subcommands.Add(subCommand);
 
             _helpBuilder.Write(command, _console);
             var help = _console.ToString();
@@ -1516,8 +1516,8 @@ namespace System.CommandLine.Tests.Help
             {
                 IsHidden = false
             };
-            command.AddCommand(hiddenSubCommand);
-            command.AddCommand(visibleSubCommand);
+            command.Subcommands.Add(hiddenSubCommand);
+            command.Subcommands.Add(visibleSubCommand);
 
             _helpBuilder.Write(command, _console);
             var help = _console.ToString();
@@ -1543,7 +1543,7 @@ namespace System.CommandLine.Tests.Help
             };
             subCommand.Arguments.Add(hidden);
             subCommand.Arguments.Add(visible);
-            command.AddCommand(subCommand);
+            command.Subcommands.Add(subCommand);
 
             _helpBuilder.Write(command, _console);
             var help = _console.ToString();

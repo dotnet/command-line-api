@@ -40,7 +40,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             {
                 string cmdName = $"{parent.Name}_{depth}.{i}";
                 Command cmd = new(cmdName);
-                parent.AddCommand(cmd);
+                parent.Subcommands.Add(cmd);
                 GenerateTestNestedCommands(cmd, depth - 1, countPerLevel);
             }
         }

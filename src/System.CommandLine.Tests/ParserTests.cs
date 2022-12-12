@@ -188,7 +188,7 @@ namespace System.CommandLine.Tests
             };
             inner.Options.Add(new Option<bool>("-b"));
             inner.Options.Add(new Option<bool>("-c"));
-            outer.AddCommand(inner);
+            outer.Subcommands.Add(inner);
 
             var parser = new Parser(outer);
 
@@ -683,7 +683,7 @@ namespace System.CommandLine.Tests
             outer.Options.Add(new Option<bool>("-x"));
             var inner = new Command("inner");
             inner.Options.Add(new Option<bool>("-x"));
-            outer.AddCommand(inner);
+            outer.Subcommands.Add(inner);
 
             var result = outer.Parse("outer -x inner");
 

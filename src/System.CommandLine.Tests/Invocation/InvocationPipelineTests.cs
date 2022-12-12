@@ -180,7 +180,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var command = new Command("the-command");
             var implicitInnerCommand = new Command("implicit-inner-command");
-            command.AddCommand(implicitInnerCommand);
+            command.Subcommands.Add(implicitInnerCommand);
             implicitInnerCommand.SetHandler(context =>
             {
                 wasCalled = true;

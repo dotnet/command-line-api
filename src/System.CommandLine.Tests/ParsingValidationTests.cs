@@ -1022,8 +1022,8 @@ namespace System.CommandLine.Tests
             var outer = new Command("outer");
             var inner = new Command("inner");
             var innerer = new Command("inner-er");
-            outer.AddCommand(inner);
-            inner.AddCommand(innerer);
+            outer.Subcommands.Add(inner);
+            inner.Subcommands.Add(innerer);
 
             var result = outer.Parse("outer inner arg");
 
@@ -1057,8 +1057,8 @@ namespace System.CommandLine.Tests
             var inner = new Command("inner");
             inner.SetHandler(() => { });
             var innerer = new Command("inner-er");
-            outer.AddCommand(inner);
-            inner.AddCommand(innerer);
+            outer.Subcommands.Add(inner);
+            inner.Subcommands.Add(innerer);
 
             var result = outer.Parse("outer inner");
 

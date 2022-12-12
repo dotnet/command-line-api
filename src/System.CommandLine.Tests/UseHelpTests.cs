@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command");
             var subcommand = new Command("subcommand");
-            command.AddCommand(subcommand);
+            command.Subcommands.Add(subcommand);
 
             var parser =
                 new CommandLineBuilder(new RootCommand
@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests
             var command = new Command("command");
             var subcommand = new Command("subcommand");
             subcommand.SetHandler(() => wasCalled = true);
-            command.AddCommand(subcommand);
+            command.Subcommands.Add(subcommand);
 
             var parser =
                 new CommandLineBuilder(new RootCommand

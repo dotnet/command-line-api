@@ -59,8 +59,8 @@ namespace System.CommandLine.Hosting.Tests
         {
             var root = new RootCommand();
 
-            root.AddCommand(new MyCommand());
-            root.AddCommand(new MyOtherCommand());
+            root.Subcommands.Add(new MyCommand());
+            root.Subcommands.Add(new MyOtherCommand());
             var parser = new CommandLineBuilder(root)
                 .UseHost(host =>
                 {
@@ -90,7 +90,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
             var cmd = new RootCommand();
-            cmd.AddCommand(new MyOtherCommand());
+            cmd.Subcommands.Add(new MyOtherCommand());
             var parser = new CommandLineBuilder(cmd)
                 .UseHost(host =>
                 {
@@ -113,8 +113,8 @@ namespace System.CommandLine.Hosting.Tests
             var service = new MyService();
 
             var cmd = new RootCommand();
-            cmd.AddCommand(new MyCommand());
-            cmd.AddCommand(new MyOtherCommand());
+            cmd.Subcommands.Add(new MyCommand());
+            cmd.Subcommands.Add(new MyOtherCommand());
             var parser = new CommandLineBuilder(cmd)
                          .UseHost((builder) => {
                              builder.ConfigureServices(services =>

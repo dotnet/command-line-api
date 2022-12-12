@@ -98,7 +98,7 @@ namespace System.CommandLine.Tests
             {
                 new Argument<string>()
             };
-            outer.AddCommand(
+            outer.Subcommands.Add(
                 new Command("inner")
                 {
                     new Argument<string[]>()
