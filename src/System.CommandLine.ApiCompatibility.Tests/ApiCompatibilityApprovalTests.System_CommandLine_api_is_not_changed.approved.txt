@@ -195,7 +195,6 @@ System.CommandLine
     public System.Boolean IsRequired { get; set; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public ParseResult Parse(System.String commandLine)
     public ParseResult Parse(System.String[] args)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor

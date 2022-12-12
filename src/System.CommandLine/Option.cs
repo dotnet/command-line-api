@@ -101,26 +101,6 @@ namespace System.CommandLine
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
-        /// Indicates whether a given alias exists on the option, regardless of its prefix.
-        /// </summary>
-        /// <param name="alias">The alias, which can include a prefix.</param>
-        /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
-        public bool HasAliasIgnoringPrefix(string alias)
-        {
-            ReadOnlySpan<char> rawAlias = alias.AsSpan(alias.GetPrefixLength());
-
-            foreach (string existingAlias in _aliases)
-            {
-                if (MemoryExtensions.Equals(existingAlias.AsSpan(existingAlias.GetPrefixLength()), rawAlias, StringComparison.CurrentCulture))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
         /// </summary>
         /// <example>
