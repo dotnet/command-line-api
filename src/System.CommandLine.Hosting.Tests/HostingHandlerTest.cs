@@ -205,7 +205,7 @@ namespace System.CommandLine.Hosting.Tests
             public MyOtherCommand() : base(name: "myothercommand")
             {
                 AddOption(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
-                AddArgument(new Argument<string>("One"));
+                Arguments.Add(new Argument<string>("One"));
             }
 
             public class MyHandler : ICommandHandler

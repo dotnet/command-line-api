@@ -374,8 +374,8 @@ namespace System.CommandLine.Tests.Help
                 Name = visibleArgName,
                 IsHidden = false
             };
-            command.AddArgument(hiddenArg);
-            command.AddArgument(visibleArg);
+            command.Arguments.Add(hiddenArg);
+            command.Arguments.Add(visibleArg);
 
             _helpBuilder.Write(command, _console);
 
@@ -543,8 +543,8 @@ namespace System.CommandLine.Tests.Help
                 Description = visibleDesc,
                 IsHidden = false
             };
-            command.AddArgument(hiddenArg);
-            command.AddArgument(visibleArg);
+            command.Arguments.Add(hiddenArg);
+            command.Arguments.Add(visibleArg);
 
             var expected =
                 $"Arguments:{NewLine}" +
@@ -1541,8 +1541,8 @@ namespace System.CommandLine.Tests.Help
                 Name = "the-visible",
                 IsHidden = false
             };
-            subCommand.AddArgument(hidden);
-            subCommand.AddArgument(visible);
+            subCommand.Arguments.Add(hidden);
+            subCommand.Arguments.Add(visible);
             command.AddCommand(subCommand);
 
             _helpBuilder.Write(command, _console);

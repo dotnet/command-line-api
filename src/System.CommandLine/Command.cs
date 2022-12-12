@@ -74,12 +74,6 @@ namespace System.CommandLine
         internal bool HasValidators => _validators is not null; // initialized by Add method, so when it's not null the Count is always > 0
 
         /// <summary>
-        /// Adds an <see cref="Argument"/> to the command.
-        /// </summary>
-        /// <param name="argument">The argument to add to the command.</param>
-        public void AddArgument(Argument argument) => Arguments.Add(argument);
-
-        /// <summary>
         /// Adds a subcommand to the command.
         /// </summary>
         /// <param name="command">The subcommand to add to the command.</param>

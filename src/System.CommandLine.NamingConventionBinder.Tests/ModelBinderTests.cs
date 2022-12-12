@@ -421,7 +421,7 @@ public class ModelBinderTests
     {
         var command = new Command("the-command");
         var argument = new Argument<int> { Arity = ArgumentArity.ExactlyOne };
-        command.AddArgument(argument);
+        command.Arguments.Add(argument);
 
         var type = typeof(ClassWithMultiLetterSetters);
         var binder = new ModelBinder(type);
@@ -461,7 +461,7 @@ public class ModelBinderTests
     {
         var command = new Command("the-command");
         var argument = new Argument<int> { Arity = ArgumentArity.ExactlyOne };
-        command.AddArgument(argument);
+        command.Arguments.Add(argument);
 
         var binder = new ModelBinder<ClassWithMultiLetterSetters>();
 
@@ -493,7 +493,7 @@ public class ModelBinderTests
     public void Command_argument_is_bound_to_longest_constructor()
     {
         var rootCommand = new RootCommand();
-        rootCommand.AddArgument(new Argument<int> { Name = nameof(ClassWithMultipleCtor.IntProperty) });
+        rootCommand.Arguments.Add(new Argument<int> { Name = nameof(ClassWithMultipleCtor.IntProperty) });
         var parser = new Parser(rootCommand);
 
         var bindingContext = new InvocationContext(parser.Parse("42")).BindingContext;

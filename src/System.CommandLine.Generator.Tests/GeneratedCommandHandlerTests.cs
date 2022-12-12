@@ -118,9 +118,9 @@ namespace System.CommandLine.Generator.Tests
 
             var command = new Command("add");
             var firstArgument = new Argument<int>("first");
-            command.AddArgument(firstArgument);
+            command.Arguments.Add(firstArgument);
             var secondArgument = new Argument<int>("second");
-            command.AddArgument(secondArgument);
+            command.Arguments.Add(secondArgument);
 
             command.SetHandler<Func<int, int, int>>(Execute, firstArgument, secondArgument);
 
@@ -243,12 +243,12 @@ namespace System.CommandLine.Generator.Tests
 
             var command1 = new Command("first");
             var argument1 = new Argument<string>("first-value");
-            command1.AddArgument(argument1);
+            command1.Arguments.Add(argument1);
             command1.SetHandler<Action<string>>(Execute1, argument1);
 
             var command2 = new Command("second");
             var argument2 = new Argument<string>("second-value");
-            command2.AddArgument(argument2);
+            command2.Arguments.Add(argument2);
             command2.SetHandler<Action<string>>(Execute2, argument2);
 
             await command1.InvokeAsync("first v1", _console);

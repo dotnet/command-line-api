@@ -278,7 +278,7 @@ namespace System.CommandLine.Tests.Help
                 var argument = new Argument<string>("arg", "description");
                 argument.SetDefaultValue("default");
 
-                command.AddArgument(argument);
+                command.Arguments.Add(argument);
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(argument,

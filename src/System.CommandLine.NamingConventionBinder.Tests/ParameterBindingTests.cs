@@ -350,8 +350,8 @@ public class ParameterBindingTests
         }
 
         var command = new Command("command");
-        command.AddArgument(new Argument<int>("age"));
-        command.AddArgument(new Argument<string>("name"));
+        command.Arguments.Add(new Argument<int>("age"));
+        command.Arguments.Add(new Argument<string>("name"));
         command.Handler = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command 425 Gandalf", _console);
@@ -394,8 +394,8 @@ public class ParameterBindingTests
         }
 
         var command = new Command("command");
-        command.AddArgument(new Argument<int>("AGE"));
-        command.AddArgument(new Argument<string>("Name"));
+        command.Arguments.Add(new Argument<int>("AGE"));
+        command.Arguments.Add(new Argument<string>("Name"));
         command.Handler = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command 425 Gandalf", _console);
@@ -417,8 +417,8 @@ public class ParameterBindingTests
         }
 
         var command = new Command("command");
-        command.AddArgument(new Argument<int>("age"));
-        command.AddArgument(new Argument<string>("fullname|nickname"));
+        command.Arguments.Add(new Argument<int>("age"));
+        command.Arguments.Add(new Argument<string>("fullname|nickname"));
         command.Handler = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command 425 Gandalf", _console);

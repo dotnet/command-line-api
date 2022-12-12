@@ -165,7 +165,7 @@ namespace System.CommandLine.DragonFruit
 
             if (method.GetParameters().FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is { } argsParam)
             {
-                command.AddArgument(ArgumentBuilder.CreateArgument(argsParam));
+                command.Arguments.Add(ArgumentBuilder.CreateArgument(argsParam));
             }
 
             command.Handler = CommandHandler.Create(method, target);
