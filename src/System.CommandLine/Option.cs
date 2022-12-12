@@ -155,20 +155,7 @@ namespace System.CommandLine
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
-        private protected override string DefaultName => GetLongestAlias();
-        
-        private string GetLongestAlias()
-        {
-            string max = "";
-            foreach (string alias in _aliases)
-            {
-                if (alias.Length > max.Length)
-                {
-                    max = alias;
-                }
-            }
-            return max.RemovePrefix();
-        }
+        private protected override string DefaultName => GetLongestAlias(true);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

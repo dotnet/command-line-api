@@ -102,7 +102,7 @@ namespace System.CommandLine
         ///   Interpolates values into a localized string similar to Option '{0}' is required.
         /// </summary>
         public virtual string RequiredOptionWasNotProvided(Option option) =>
-            GetResourceString(Properties.Resources.RequiredOptionWasNotProvided, option.Aliases.OrderByDescending(x => x.Length).First());
+            GetResourceString(Properties.Resources.RequiredOptionWasNotProvided, option.GetLongestAlias(removePrefix: false));
 
         /// <summary>
         ///   Interpolates values into a localized string similar to Argument &apos;{0}&apos; not recognized. Must be one of:{1}.

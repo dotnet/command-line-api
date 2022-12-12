@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 
 namespace System.CommandLine
@@ -79,6 +80,19 @@ namespace System.CommandLine
         /// <param name="alias">The alias to search for.</param>
         /// <returns><see langword="true" /> if the alias has already been defined; otherwise <see langword="false" />.</returns>
         public bool HasAlias(string alias) => _aliases.Contains(alias);
+
+        internal string GetLongestAlias(bool removePrefix)
+        {
+            string max = "";
+            foreach (string alias in _aliases)
+            {
+                if (alias.Length > max.Length)
+                {
+                    max = alias;
+                }
+            }
+            return removePrefix ? max.RemovePrefix() : max;
+        }
 
         [DebuggerStepThrough]
         private void ThrowIfAliasIsInvalid(string alias)
