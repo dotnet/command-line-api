@@ -55,9 +55,7 @@ System.CommandLine
     public System.Collections.Generic.IList<Option> Options { get; }
     public System.Collections.Generic.IList<Command> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
-    public System.Void Add(Option option)
-    public System.Void Add(Argument argument)
-    public System.Void Add(Command command)
+    public System.Void Add(Symbol symbol)
     public System.Void AddArgument(Argument argument)
     public System.Void AddCommand(Command command)
     public System.Void AddGlobalOption(Option option)

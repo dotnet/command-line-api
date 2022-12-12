@@ -103,24 +103,28 @@ namespace System.CommandLine
             option.IsGlobal = true;
             AddOption(option);
         }
-        /// <summary>
-        /// Adds an <see cref="Option"/> to the command.
-        /// </summary>
-        /// <param name="option">The option to add to the command.</param>
-        public void Add(Option option) => AddOption(option);
 
         /// <summary>
-        /// Adds an <see cref="Argument"/> to the command.
+        /// Adds a <see cref="Symbol"/> to the command.
         /// </summary>
-        /// <param name="argument">The argument to add to the command.</param>
-        public void Add(Argument argument) => AddArgument(argument);
-
-        /// <summary>
-        /// Adds a subcommand to the command.
-        /// </summary>
-        /// <param name="command">The subcommand to add to the command.</param>
-        /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
-        public void Add(Command command) => AddCommand(command);
+        /// <param name="symbol">The symbol to add to the command.</param>
+        public void Add(Symbol symbol)
+        {
+            switch (symbol)
+            {
+                case Option option:
+                    Options.Add(option);
+                    break;
+                case Argument argument:
+                    Arguments.Add(argument);
+                    break;
+                case Command command:
+                    Subcommands.Add(command);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
 
         private protected override string DefaultName => throw new NotImplementedException();
 
