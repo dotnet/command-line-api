@@ -259,7 +259,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void ValidateAndConvertArgumentResults(IReadOnlyList<Argument> arguments, int commandArgumentResultCount)
+        private void ValidateAndConvertArgumentResults(IList<Argument> arguments, int commandArgumentResultCount)
         {
             for (var i = 0; i < arguments.Count; i++)
             {
@@ -406,7 +406,7 @@ namespace System.CommandLine.Parsing
             return false;
         }
 
-        private void ValidateArguments(IReadOnlyList<Argument> arguments, CommandResult innermostCommandResult)
+        private void ValidateArguments(IList<Argument> arguments, CommandResult innermostCommandResult)
         {
             for (var i = 0; i < arguments.Count; i++)
             {

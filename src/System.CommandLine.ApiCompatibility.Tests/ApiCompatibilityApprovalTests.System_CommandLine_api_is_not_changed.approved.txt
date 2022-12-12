@@ -49,11 +49,11 @@ System.CommandLine
     public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
   public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
     .ctor(System.String name, System.String description = null)
-    public System.Collections.Generic.IReadOnlyList<Argument> Arguments { get; }
+    public System.Collections.Generic.IList<Argument> Arguments { get; }
     public System.Collections.Generic.IEnumerable<Symbol> Children { get; }
     public ICommandHandler Handler { get; set; }
-    public System.Collections.Generic.IReadOnlyList<Option> Options { get; }
-    public System.Collections.Generic.IReadOnlyList<Command> Subcommands { get; }
+    public System.Collections.Generic.IList<Option> Options { get; }
+    public System.Collections.Generic.IList<Command> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
     public System.Void Add(Option option)
     public System.Void Add(Argument argument)
