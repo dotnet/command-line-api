@@ -15,7 +15,6 @@ namespace System.CommandLine
     /// <seealso cref="IdentifierSymbol" />
     public abstract class Option : IdentifierSymbol, IValueDescriptor
     {
-        private string? _name;
         private List<Action<OptionResult>>? _validators;
 
         private protected Option(string name, string? description) : base(description)
@@ -156,7 +155,7 @@ namespace System.CommandLine
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
-        private protected override string DefaultName => _name ??= GetLongestAlias();
+        private protected override string DefaultName => GetLongestAlias();
         
         private string GetLongestAlias()
         {
