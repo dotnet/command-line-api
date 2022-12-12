@@ -56,10 +56,7 @@ System.CommandLine
     public System.Collections.Generic.IList<Command> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
     public System.Void Add(Symbol symbol)
-    public System.Void AddArgument(Argument argument)
-    public System.Void AddCommand(Command command)
     public System.Void AddGlobalOption(Option option)
-    public System.Void AddOption(Option option)
     public System.Void AddValidator(System.Action<System.CommandLine.Parsing.CommandResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()

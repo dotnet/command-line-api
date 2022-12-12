@@ -91,6 +91,8 @@ namespace System.CommandLine
         /// <param name="symbol">The symbol to add to the command.</param>
         public void Add(Symbol symbol)
         {
+            // this method exists so users can use C# duck typing for adding symbols to the Command:
+            // new Command { option };
             switch (symbol)
             {
                 case Option option:
