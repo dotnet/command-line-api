@@ -12,7 +12,6 @@ namespace System.CommandLine
     public abstract class IdentifierSymbol : Symbol
     {
         private protected readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
-        private string? _specifiedName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IdentifierSymbol"/> class.
@@ -42,19 +41,18 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public override string Name
         {
-            get => _specifiedName ??= DefaultName;
             set
             {
-                if (_specifiedName is null || !string.Equals(_specifiedName, value, StringComparison.Ordinal))
+                if (_name is null || !string.Equals(_name, value, StringComparison.Ordinal))
                 {
                     AddAlias(value);
 
-                    if (_specifiedName is { })
+                    if (_name is { })
                     {
-                        RemoveAlias(_specifiedName);
+                        RemoveAlias(_name);
                     }
 
-                    _specifiedName = value;
+                    _name = value;
                 }
             }
         }

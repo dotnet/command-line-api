@@ -11,7 +11,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class Symbol
     {
-        private string? _name;
+        private protected string? _name;
         private ParentNode? _firstParent;
 
         private protected Symbol()

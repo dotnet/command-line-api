@@ -148,7 +148,6 @@ System.CommandLine
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
   public abstract class IdentifierSymbol : Symbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
-    public System.String Name { get; set; }
     public System.Void AddAlias(System.String alias)
     public System.Boolean HasAlias(System.String alias)
   public class LocalizationResources
