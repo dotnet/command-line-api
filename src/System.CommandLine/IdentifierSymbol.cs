@@ -12,7 +12,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class IdentifierSymbol : Symbol
     {
-        private protected readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
+        private readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IdentifierSymbol"/> class.
