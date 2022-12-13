@@ -24,8 +24,6 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(name));
             }
 
-            _name = name.RemovePrefix();
-
             AddAlias(name);
         }
 
@@ -81,21 +79,6 @@ namespace System.CommandLine
 
         internal bool DisallowBinding { get; init; }
 
-        /// <inheritdoc />
-        public override string Name
-        {
-            set
-            {
-                if (!HasAlias(value))
-                {
-                    _name = null;
-                    RemoveAlias(DefaultName);
-                }
-
-                base.Name = value;
-            }
-        }
-
         internal List<Action<OptionResult>> Validators => _validators ??= new();
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
@@ -116,7 +99,7 @@ namespace System.CommandLine
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
         internal virtual bool IsGreedy
-            => Argument is not null && Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
+            => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.

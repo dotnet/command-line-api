@@ -30,7 +30,7 @@ namespace System.CommandLine
         /// <param name="description">The description of the symbol, which is displayed in command line help.</param>
         protected IdentifierSymbol(string name, string? description = null) 
         {
-            Name = name;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             Description = description;
         }
 
