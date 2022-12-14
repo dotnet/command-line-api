@@ -246,7 +246,6 @@ System.CommandLine
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
 System.CommandLine.Binding
@@ -273,6 +272,7 @@ System.CommandLine.Binding
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Completions
   public abstract class CompletionContext
+    public static CompletionContext Empty { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
     public System.String WordToComplete { get; }
   public class CompletionItem, System.IEquatable<CompletionItem>

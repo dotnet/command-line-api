@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Completions;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
@@ -43,7 +44,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Benchmark]
         public void SuggestionsFromSymbol()
         {
-            _testSymbol.GetCompletions().Consume(new Consumer());
+            _testSymbol.GetCompletions(CompletionContext.Empty).Consume(new Consumer());
         }
 
         [GlobalSetup(Target = nameof(SuggestionsFromParseResult))]
