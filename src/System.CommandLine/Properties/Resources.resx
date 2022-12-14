@@ -148,7 +148,7 @@
     <value>Character not allowed in a path: '{0}'.</value>
   </data>
   <data name="CommandRequiredArgumentMissing" xml:space="preserve">
-    <value>Required argument missing for command: '{0}'.</value>
+    <value>Required argument '{0}' missing for command: '{1}'.</value>
   </data>
   <data name="OptionRequiredArgumentMissing" xml:space="preserve">
     <value>Required argument missing for option: '{0}'.</value>

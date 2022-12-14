@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests.Utility
     {
         public WindowsOnlyFactAttribute()
         {
-            if (RuntimeEnvironment.OperatingSystemPlatform != Platform.Windows)
+            if (RuntimeEnvironment.OperatingSystemPlatform != Microsoft.DotNet.PlatformAbstractions.Platform.Windows)
             {
                 Skip = "This test requires Windows to run";
             }
