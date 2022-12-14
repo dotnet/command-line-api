@@ -48,7 +48,7 @@ namespace System.CommandLine
                 {
                     AddAlias(value);
 
-                    if (_name is { })
+                    if (_name != null)
                     {
                         RemoveAlias(_name);
                     }
