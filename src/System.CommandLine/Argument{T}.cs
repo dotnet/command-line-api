@@ -39,7 +39,7 @@ namespace System.CommandLine
             Func<T> defaultValueFactory, 
             string? description = null) : this(name, description)
         {
-            SetDefaultValueFactory(() => defaultValueFactory());
+            SetDefaultValueFactory(defaultValueFactory);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace System.CommandLine
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
         public Argument(Func<T> defaultValueFactory) : this()
         {
-            SetDefaultValueFactory(() => defaultValueFactory());
+            SetDefaultValueFactory(defaultValueFactory);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace System.CommandLine
         /// <param name="value">The default value for the argument.</param>
         public void SetDefaultValue(T value)
         {
-            SetDefaultValueFactory(() => value);
+            SetDefaultValueFactory(_ => value);
         }
 
         /// <summary>
@@ -206,10 +206,10 @@ namespace System.CommandLine
         /// </summary>
         public void AcceptLegalFilePathsOnly()
         {
-            var invalidPathChars = Path.GetInvalidPathChars();
-
-            Validators.Add(result =>
+            Validators.Add(static result =>
             {
+                var invalidPathChars = Path.GetInvalidPathChars();
+
                 for (var i = 0; i < result.Tokens.Count; i++)
                 {
                     var token = result.Tokens[i];
@@ -232,10 +232,10 @@ namespace System.CommandLine
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
         public void AcceptLegalFileNamesOnly()
         {
-            var invalidFileNameChars = Path.GetInvalidFileNameChars();
-
-            Validators.Add(result =>
+            Validators.Add(static result =>
             {
+                var invalidFileNameChars = Path.GetInvalidFileNameChars();
+
                 for (var i = 0; i < result.Tokens.Count; i++)
                 {
                     var token = result.Tokens[i];
