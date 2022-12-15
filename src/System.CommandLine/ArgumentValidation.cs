@@ -18,7 +18,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<FileInfo> AcceptExistingOnly(this Argument<FileInfo> argument)
         {
-            argument.AddValidator(Validate.FileExists);
+            argument.Validators.Add(Validate.FileExists);
             return argument;
         }
 
@@ -29,7 +29,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<DirectoryInfo> AcceptExistingOnly(this Argument<DirectoryInfo> argument)
         {
-            argument.AddValidator(Validate.DirectoryExists);
+            argument.Validators.Add(Validate.DirectoryExists);
             return argument;
         }
 
@@ -40,7 +40,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<FileSystemInfo> AcceptExistingOnly(this Argument<FileSystemInfo> argument)
         {
-            argument.AddValidator(Validate.FileOrDirectoryExists);
+            argument.Validators.Add(Validate.FileOrDirectoryExists);
             return argument;
         }
 
@@ -54,15 +54,15 @@ namespace System.CommandLine
         {
             if (typeof(IEnumerable<FileInfo>).IsAssignableFrom(typeof(T)))
             {
-                argument.AddValidator(Validate.FileExists);
+                argument.Validators.Add(Validate.FileExists);
             }
             else if (typeof(IEnumerable<DirectoryInfo>).IsAssignableFrom(typeof(T)))
             {
-                argument.AddValidator(Validate.DirectoryExists);
+                argument.Validators.Add(Validate.DirectoryExists);
             }
             else
             {
-                argument.AddValidator(Validate.FileOrDirectoryExists);
+                argument.Validators.Add(Validate.FileOrDirectoryExists);
             }
 
             return argument;

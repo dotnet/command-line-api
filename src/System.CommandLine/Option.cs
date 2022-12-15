@@ -15,34 +15,19 @@ namespace System.CommandLine
     /// <seealso cref="IdentifierSymbol" />
     public abstract class Option : IdentifierSymbol, IValueDescriptor
     {
-        private string? _name;
         private List<Action<OptionResult>>? _validators;
-        private readonly Argument _argument;
 
-        internal Option(
-            string name,
-            string? description,
-            Argument argument)
-            : base(description)
+        private protected Option(string name, string? description) : base(description)
         {
             if (name is null)
             {
                 throw new ArgumentNullException(nameof(name));
             }
 
-            _name = name.RemovePrefix();
-
             AddAlias(name);
-
-            argument.AddParent(this);
-            _argument = argument;
         }
 
-        internal Option(
-            string[] aliases,
-            string? description,
-            Argument argument)
-            : base(description)
+        private protected Option(string[] aliases, string? description) : base(description)
         {
             if (aliases is null)
             {
@@ -58,15 +43,12 @@ namespace System.CommandLine
             {
                 AddAlias(aliases[i]);
             }
-
-            argument.AddParent(this);
-            _argument = argument;
         }
 
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
-        internal virtual Argument Argument => _argument;
+        internal abstract Argument Argument { get; }
 
         /// <summary>
         /// Gets or sets the name of the argument when displayed in help.
@@ -97,65 +79,17 @@ namespace System.CommandLine
 
         internal bool DisallowBinding { get; init; }
 
-        /// <inheritdoc />
-        public override string Name
-        {
-            set
-            {
-                if (!HasAlias(value))
-                {
-                    _name = null;
-                    RemoveAlias(DefaultName);
-                }
-
-                base.Name = value;
-            }
-        }
-
-        internal List<Action<OptionResult>> Validators => _validators ??= new();
+        /// <summary>
+        /// Validators that will be called when the option is matched by the parser.
+        /// </summary>
+        public List<Action<OptionResult>> Validators => _validators ??= new();
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
-        /// Adds a validator that will be called when the option is matched by the parser.
+        /// Gets the list of completion sources for the option.
         /// </summary>
-        /// <param name="validate">An action used to validate the <see cref="OptionResult"/> produced during parsing.</param>
-        public void AddValidator(Action<OptionResult> validate) => Validators.Add(validate);
-
-        /// <summary>
-        /// Indicates whether a given alias exists on the option, regardless of its prefix.
-        /// </summary>
-        /// <param name="alias">The alias, which can include a prefix.</param>
-        /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
-        public bool HasAliasIgnoringPrefix(string alias)
-        {
-            ReadOnlySpan<char> rawAlias = alias.AsSpan(alias.GetPrefixLength());
-
-            foreach (string existingAlias in _aliases)
-            {
-                if (MemoryExtensions.Equals(existingAlias.AsSpan(existingAlias.GetPrefixLength()), rawAlias, StringComparison.CurrentCulture))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Sets the default value for the option.
-        /// </summary>
-        /// <param name="value">The default value for the option.</param>
-        public void SetDefaultValue(object? value) =>
-            Argument.SetDefaultValue(value);
-
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the option is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<object?> defaultValueFactory) =>
-            Argument.SetDefaultValueFactory(defaultValueFactory);
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources => Argument.CompletionSources;
 
         /// <summary>
         /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
@@ -173,7 +107,7 @@ namespace System.CommandLine
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
         internal virtual bool IsGreedy
-            => _argument is not null && _argument.Arity.MinimumNumberOfValues > 0 && _argument.ValueType != typeof(bool);
+            => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
@@ -192,32 +126,19 @@ namespace System.CommandLine
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
-        private protected override string DefaultName => _name ??= GetLongestAlias();
-        
-        private string GetLongestAlias()
-        {
-            string max = "";
-            foreach (string alias in _aliases)
-            {
-                if (alias.Length > max.Length)
-                {
-                    max = alias;
-                }
-            }
-            return max.RemovePrefix();
-        }
+        private protected override string DefaultName => GetLongestAlias(true);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            if (_argument is null)
+            if (Argument is null)
             {
                 return Array.Empty<CompletionItem>();
             }
 
             List<CompletionItem>? completions = null;
 
-            foreach (var completion in _argument.GetCompletions(context))
+            foreach (var completion in Argument.GetCompletions(context))
             {
                 if (completion.Label.ContainsCaseInsensitive(context.WordToComplete))
                 {
@@ -233,72 +154,6 @@ namespace System.CommandLine
             return completions
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// Configures the option to accept only the specified values, and to suggest them as command line completions.
-        /// </summary>
-        /// <param name="values">The values that are allowed for the option.</param>
-        /// <returns>The configured option.</returns>
-        public Option AcceptOnlyFromAmong(params string[] values)
-        {
-            Argument.AcceptOnlyFromAmong(values);
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completions">The completions to add.</param>
-        /// <returns>The configured option.</returns>
-        public Option AddCompletions(params string[] completions)
-        {
-            Argument.Completions.Add(completions);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured option.</returns>
-        public Option AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
-        {
-            Argument.Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the option.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured option.</returns>
-        public Option AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
-        {
-            Argument.Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the option to accept only values representing legal file paths.
-        /// </summary>
-        /// <returns>The configured option.</returns>
-        public Option AcceptLegalFilePathsOnly()
-        {
-            Argument.AcceptLegalFilePathsOnly();
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the option to accept only values representing legal file names.
-        /// </summary>
-        /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
-        /// <returns>The configured option.</returns>
-        public Option AcceptLegalFileNamesOnly()
-        {
-            Argument.AcceptLegalFileNamesOnly();
-            return this;
         }
 
         /// <summary>

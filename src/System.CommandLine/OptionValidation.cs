@@ -18,7 +18,7 @@ namespace System.CommandLine
         /// <returns>The option being extended.</returns>
         public static Option<FileInfo> AcceptExistingOnly(this Option<FileInfo> option)
         {
-            option.Argument.AddValidator(Validate.FileExists);
+            option.Argument.Validators.Add(Validate.FileExists);
             return option;
         }
 
@@ -29,7 +29,7 @@ namespace System.CommandLine
         /// <returns>The option being extended.</returns>
         public static Option<DirectoryInfo> AcceptExistingOnly(this Option<DirectoryInfo> option)
         {
-            option.Argument.AddValidator(Validate.DirectoryExists);
+            option.Argument.Validators.Add(Validate.DirectoryExists);
             return option;
         }
 
@@ -40,7 +40,7 @@ namespace System.CommandLine
         /// <returns>The option being extended.</returns>
         public static Option<FileSystemInfo> AcceptExistingOnly(this Option<FileSystemInfo> option)
         {
-            option.Argument.AddValidator(Validate.FileOrDirectoryExists);
+            option.Argument.Validators.Add(Validate.FileOrDirectoryExists);
             return option;
         }
 

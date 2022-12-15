@@ -32,7 +32,7 @@ namespace System.CommandLine.Parsing
                        : alias;
         }
 
-        internal static int GetPrefixLength(this string alias)
+        private static int GetPrefixLength(this string alias)
         {
             if (alias[0] == '-')
             {

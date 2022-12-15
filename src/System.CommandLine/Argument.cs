@@ -6,7 +6,6 @@ using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.CommandLine.Completions;
 using System.Linq;
-using System.IO;
 
 namespace System.CommandLine
 {
@@ -15,10 +14,9 @@ namespace System.CommandLine
     /// </summary>
     public abstract class Argument : Symbol, IValueDescriptor
     {
-        private Func<ArgumentResult, object?>? _defaultValueFactory;
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
-        private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completions = null;
+        private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
         /// <summary>
@@ -71,10 +69,10 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the collection of completion sources for the argument.
+        /// Gets the list of completion sources for the argument.
         /// </summary>
-        public ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> Completions =>
-            _completions ??= new ()
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources =>
+            _completionSources ??= new ()
             {
                 CompletionSource.ForType(ValueType)
             };
@@ -103,15 +101,12 @@ namespace System.CommandLine
             }
         }
 
-        internal IReadOnlyList<Action<ArgumentResult>> Validators
-            => _validators is null ? Array.Empty<Action<ArgumentResult>>() : _validators;
 
         /// <summary>
-        /// Adds a custom validator to the argument. Validators can be used
+        /// Provides a list of argument validators. Validators can be used
         /// to provide custom errors based on user input.
         /// </summary>
-        /// <param name="validate">The action to validate the parsed argument.</param>
-        public void AddValidator(Action<ArgumentResult> validate) => (_validators ??= new()).Add(validate);
+        public List<Action<ArgumentResult>> Validators => _validators ??= new ();
 
         /// <summary>
         /// Gets the default value for the argument.
@@ -122,66 +117,19 @@ namespace System.CommandLine
             return GetDefaultValue(new ArgumentResult(this, null));
         }
 
-        internal object? GetDefaultValue(ArgumentResult argumentResult)
-        {
-            if (_defaultValueFactory is null)
-            {
-                throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
-            }
-
-            return _defaultValueFactory.Invoke(argumentResult);
-        }
-
-        /// <summary>
-        /// Sets the default value for the argument.
-        /// </summary>
-        /// <param name="value">The default value for the argument.</param>
-        public void SetDefaultValue(object? value)
-        {
-            SetDefaultValueFactory(() => value);
-        }
-
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the argument is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<object?> defaultValueFactory)
-        {
-            if (defaultValueFactory is null)
-            {
-                throw new ArgumentNullException(nameof(defaultValueFactory));
-            }
-
-            SetDefaultValueFactory(_ => defaultValueFactory());
-        }
-        
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the argument is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <remarks>In this overload, the <see cref="ArgumentResult"/> is provided to the delegate.</remarks>
-        public void SetDefaultValueFactory(Func<ArgumentResult, object?> defaultValueFactory)
-        {
-            _defaultValueFactory = defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory));
-        }
+        internal abstract object? GetDefaultValue(ArgumentResult argumentResult);
 
         /// <summary>
         /// Specifies if a default value is defined for the argument.
         /// </summary>
-        public bool HasDefaultValue => _defaultValueFactory is not null;
+        public abstract bool HasDefaultValue { get; }
 
         internal virtual bool HasCustomParser => false;
-
-        internal static Argument None() => new Argument<bool>
-        {
-            Arity = ArgumentArity.Zero
-        };
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            return Completions
+            return CompletionSources
                    .SelectMany(source => source.Invoke(context))
                    .Distinct()
                    .OrderBy(c => c.SortText, StringComparer.OrdinalIgnoreCase);
@@ -192,126 +140,6 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         string IValueDescriptor.ValueName => Name;
-
-        /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
-        /// <param name="completions">The completions to add.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument AddCompletions(params string[] completions)
-        {
-            Completions.Add(completions);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The option being extended.</returns>
-        public Argument AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
-        {
-            Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
-        {
-            Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
-        /// </summary>
-        /// <param name="values">The values that are allowed for the argument.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument AcceptOnlyFromAmong(params string[] values)
-        {
-            if (values is not null && values.Length > 0)
-            {
-                AddValidator(UnrecognizedArgumentError);
-                Completions.Clear();
-                Completions.Add(values);
-            }
-
-            return this;
-
-            void UnrecognizedArgumentError(ArgumentResult argumentResult)
-            {
-                for (var i = 0; i < argumentResult.Tokens.Count; i++)
-                {
-                    var token = argumentResult.Tokens[i];
-
-                    if (token.Symbol is null || token.Symbol == this)
-                    {
-                        if (!values.Contains(token.Value))
-                        {
-                            argumentResult.ErrorMessage = argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Configures the argument to accept only values representing legal file paths.
-        /// </summary>
-        /// <returns>The configured argument.</returns>
-        public Argument AcceptLegalFilePathsOnly()
-        {
-            var invalidPathChars = Path.GetInvalidPathChars();
-
-            AddValidator(result =>
-            {
-                for (var i = 0; i < result.Tokens.Count; i++)
-                {
-                    var token = result.Tokens[i];
-
-                    // File class no longer check invalid character
-                    // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
-                    var invalidCharactersIndex = token.Value.IndexOfAny(invalidPathChars);
-
-                    if (invalidCharactersIndex >= 0)
-                    {
-                        result.ErrorMessage = result.LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
-                    }
-                }
-            });
-
-            return this;
-        }
-
-        /// <summary>
-        /// Configures the argument to accept only values representing legal file names.
-        /// </summary>
-        /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
-        /// <returns>The configured argument.</returns>
-        public Argument AcceptLegalFileNamesOnly()
-        {
-            var invalidFileNameChars = Path.GetInvalidFileNameChars();
-
-            AddValidator(result =>
-            {
-                for (var i = 0; i < result.Tokens.Count; i++)
-                {
-                    var token = result.Tokens[i];
-                    var invalidCharactersIndex = token.Value.IndexOfAny(invalidFileNameChars);
-
-                    if (invalidCharactersIndex >= 0)
-                    {
-                        result.ErrorMessage = result.LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]);
-                    }
-                }
-            });
-
-            return this;
-        }
 
         /// <summary>
         /// Parses a command line string value using the argument.

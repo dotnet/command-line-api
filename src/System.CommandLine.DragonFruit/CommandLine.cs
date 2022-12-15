@@ -165,21 +165,7 @@ namespace System.CommandLine.DragonFruit
 
             if (method.GetParameters().FirstOrDefault(p => _argumentParameterNames.Contains(p.Name)) is { } argsParam)
             {
-                var argument = ArgumentBuilder.CreateArgument(argsParam.ParameterType, argsParam.Name);
-
-                if (argsParam.HasDefaultValue)
-                {
-                    if (argsParam.DefaultValue is not null)
-                    {
-                        argument.SetDefaultValue(argsParam.DefaultValue);
-                    }
-                    else
-                    {
-                        argument.SetDefaultValueFactory(() => null);
-                    }
-                }
-
-                command.AddArgument(argument);
+                command.AddArgument(ArgumentBuilder.CreateArgument(argsParam));
             }
 
             command.Handler = CommandHandler.Create(method, target);
@@ -211,7 +197,7 @@ namespace System.CommandLine.DragonFruit
                     {
                         var kebabCasedParameterName = parameterDescription.Key.ToKebabCase();
 
-                        var option = builder.Command.Options.FirstOrDefault(o => o.HasAliasIgnoringPrefix(kebabCasedParameterName));
+                        var option = builder.Command.Options.FirstOrDefault(o => HasAliasIgnoringPrefix(o, kebabCasedParameterName));
 
                         if (option != null)
                         {
@@ -285,24 +271,11 @@ namespace System.CommandLine.DragonFruit
         }
 
         public static Option BuildOption(this ParameterDescriptor parameter)
-        {
-            Func<object> getDefaultValue = null;
-            if (parameter.HasDefaultValue)
-            {
-                getDefaultValue = parameter.GetDefaultValue;
-            }
-
-            var option = OptionBuilder.CreateOption(parameter.BuildAlias(), parameter.ValueType);
-            
-            option.Description = parameter.ValueName;
-
-            if (getDefaultValue is not null)
-            {
-                option.SetDefaultValueFactory(getDefaultValue);
-            }
-
-            return option;
-        }
+            => OptionBuilder.CreateOption(
+                parameter.BuildAlias(),
+                parameter.ValueType,
+                parameter.ValueName,
+                parameter.HasDefaultValue ? parameter.GetDefaultValue : null);
 
         private static string GetDefaultXmlDocsFileLocation(Assembly assembly)
         {
@@ -326,6 +299,40 @@ namespace System.CommandLine.DragonFruit
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// Indicates whether a given alias exists on the option, regardless of its prefix.
+        /// </summary>
+        /// <param name="alias">The alias, which can include a prefix.</param>
+        /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
+        private static bool HasAliasIgnoringPrefix(Option option, string alias)
+        {
+            ReadOnlySpan<char> rawAlias = alias.AsSpan(GetPrefixLength(alias));
+
+            foreach (string existingAlias in option.Aliases)
+            {
+                if (MemoryExtensions.Equals(existingAlias.AsSpan(GetPrefixLength(existingAlias)), rawAlias, StringComparison.CurrentCulture))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+
+            static int GetPrefixLength(string alias)
+            {
+                if (alias[0] == '-')
+                {
+                    return alias.Length > 1 && alias[1] == '-' ? 2 : 1;
+                }
+                else if (alias[0] == '/')
+                {
+                    return 1;
+                }
+
+                return 0;
+            }
         }
     }
 }

@@ -10,18 +10,20 @@ namespace System.CommandLine
     /// <typeparam name="T">The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.</typeparam>
     public class Option<T> : Option, IValueDescriptor<T>
     {
+        private readonly Argument<T> _argument;
+
         /// <inheritdoc/>
         public Option(
             string name,
             string? description = null) 
-            : base(name, description, new Argument<T>())
+            : this(name, description, new Argument<T>())
         { }
 
         /// <inheritdoc/>
         public Option(
             string[] aliases,
             string? description = null) 
-            : base(aliases, description, new Argument<T>())
+            : this(aliases, description, new Argument<T>())
         { }
 
         /// <inheritdoc/>
@@ -30,7 +32,7 @@ namespace System.CommandLine
             Func<ArgumentResult, T> parseArgument,
             bool isDefault = false,
             string? description = null) 
-            : base(name, description, 
+            : this(name, description, 
                   new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
         { }
 
@@ -40,7 +42,7 @@ namespace System.CommandLine
             Func<ArgumentResult, T> parseArgument,
             bool isDefault = false,
             string? description = null) 
-            : base(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
+            : this(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
         { }
 
         /// <inheritdoc/>
@@ -48,7 +50,7 @@ namespace System.CommandLine
             string name,
             Func<T> defaultValueFactory,
             string? description = null) 
-            : base(name, description, 
+            : this(name, description, 
                   new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
         { }
 
@@ -57,8 +59,77 @@ namespace System.CommandLine
             string[] aliases,
             Func<T> defaultValueFactory,
             string? description = null)
-            : base(aliases, description, new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
+            : this(aliases, description, new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
         {
+        }
+
+        private protected Option(
+            string name,
+            string? description,
+            Argument<T> argument)
+            : base(name, description)
+        {
+            argument.AddParent(this);
+            _argument = argument;
+        }
+
+        private protected Option(
+            string[] aliases,
+            string? description,
+            Argument<T> argument)
+            : base(aliases, description)
+        {
+            argument.AddParent(this);
+            _argument = argument;
+        }
+
+        internal sealed override Argument Argument => _argument;
+
+        /// <summary>
+        /// Sets the default value for the option.
+        /// </summary>
+        /// <param name="value">The default value for the option.</param>
+        public void SetDefaultValue(T value) => _argument.SetDefaultValue(value);
+
+        /// <summary>
+        /// Sets a delegate to invoke when the default value for the option is required.
+        /// </summary>
+        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
+        public void SetDefaultValueFactory(Func<T> defaultValueFactory) =>
+            _argument.SetDefaultValueFactory(defaultValueFactory);
+
+        /// <summary>
+        /// Configures the option to accept only the specified values, and to suggest them as command line completions.
+        /// </summary>
+        /// <param name="values">The values that are allowed for the option.</param>
+        /// <returns>The configured option.</returns>
+        public Option<T> AcceptOnlyFromAmong(params string[] values)
+        {
+            _argument.AcceptOnlyFromAmong(values);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the option to accept only values representing legal file paths.
+        /// </summary>
+        /// <returns>The configured option.</returns>
+        public Option<T> AcceptLegalFilePathsOnly()
+        {
+            _argument.AcceptLegalFilePathsOnly();
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the option to accept only values representing legal file names.
+        /// </summary>
+        /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
+        /// <returns>The configured option.</returns>
+        public Option<T> AcceptLegalFileNamesOnly()
+        {
+            _argument.AcceptLegalFileNamesOnly();
+            return this;
         }
     }
 }
