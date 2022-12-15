@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.IO;
 
@@ -181,6 +179,7 @@ namespace System.CommandLine
         {
             if (values is not null && values.Length > 0)
             {
+                Validators.Clear();
                 Validators.Add(UnrecognizedArgumentError);
                 CompletionSources.Clear();
                 CompletionSources.Add(values);
