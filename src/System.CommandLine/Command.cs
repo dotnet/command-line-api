@@ -68,10 +68,13 @@ namespace System.CommandLine
         /// </summary>
         public IList<Command> Subcommands => _subcommands ??= new(this);
 
-        internal IReadOnlyList<Action<CommandResult>> Validators
-            => _validators is not null ? _validators : Array.Empty<Action<CommandResult>>();
+        /// <summary>
+        /// Validators to the command. Validators can be used
+        /// to create custom validation logic.
+        /// </summary>
+        public List<Action<CommandResult>> Validators => _validators ??= new ();
 
-        internal bool HasValidators => _validators is not null; // initialized by Add method, so when it's not null the Count is always > 0
+        internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
         /// Adds a global <see cref="Option"/> to the command.
@@ -110,13 +113,6 @@ namespace System.CommandLine
         }
 
         private protected override string DefaultName => throw new NotImplementedException();
-
-        /// <summary>
-        /// Adds a custom validator to the command. Validators can be used
-        /// to create custom validation logic.
-        /// </summary>
-        /// <param name="validate">The action to validate the symbols during parsing.</param>
-        public void AddValidator(Action<CommandResult> validate) => (_validators ??= new()).Add(validate);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,

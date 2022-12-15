@@ -56,7 +56,7 @@ namespace System.CommandLine.Binding
             if (argument.FirstParent?.Symbol is IdentifierSymbol identifierSymbol &&
                 argument.FirstParent.Next is null)
             {
-                var alias = identifierSymbol.Aliases.First();
+                var alias = identifierSymbol.GetLongestAlias(removePrefix: false);
 
                 switch (identifierSymbol)
                 {

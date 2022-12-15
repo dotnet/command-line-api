@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -31,11 +30,7 @@ namespace System.CommandLine.Parsing
 
             Token CreateImplicitToken(Option option)
             {
-                var optionName = option.Name;
-
-                var defaultAlias = option.Aliases.First(alias => alias.RemovePrefix() == optionName);
-
-                return new Token(defaultAlias, TokenType.Option, option, Parsing.Token.ImplicitPosition);
+                return new Token(option.GetLongestAlias(removePrefix: false), TokenType.Option, option, Parsing.Token.ImplicitPosition);
             }
         }
     }

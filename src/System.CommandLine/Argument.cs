@@ -16,7 +16,7 @@ namespace System.CommandLine
     {
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
-        private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completions = null;
+        private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
         /// <summary>
@@ -36,8 +36,6 @@ namespace System.CommandLine
             Name = name!;
             Description = description;
         }
-
-        internal HashSet<string>? AllowedValues { get; private set; }
 
         /// <summary>
         /// Gets or sets the arity of the argument.
@@ -71,10 +69,10 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the collection of completion sources for the argument.
+        /// Gets the list of completion sources for the argument.
         /// </summary>
-        public ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> Completions =>
-            _completions ??= new ()
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources =>
+            _completionSources ??= new ()
             {
                 CompletionSource.ForType(ValueType)
             };
@@ -103,7 +101,11 @@ namespace System.CommandLine
             }
         }
 
-        internal List<Action<ArgumentResult>> Validators => _validators ??= new ();
+        /// <summary>
+        /// Provides a list of argument validators. Validators can be used
+        /// to provide custom errors based on user input.
+        /// </summary>
+        public List<Action<ArgumentResult>> Validators => _validators ??= new ();
 
         /// <summary>
         /// Gets the default value for the argument.
@@ -123,20 +125,10 @@ namespace System.CommandLine
 
         internal virtual bool HasCustomParser => false;
 
-        internal void AddAllowedValues(IReadOnlyList<string> values)
-        {
-            if (AllowedValues is null)
-            {
-                AllowedValues = new HashSet<string>();
-            }
-
-            AllowedValues.UnionWith(values);
-        }
-
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            return Completions
+            return CompletionSources
                    .SelectMany(source => source.Invoke(context))
                    .Distinct()
                    .OrderBy(c => c.SortText, StringComparer.OrdinalIgnoreCase);

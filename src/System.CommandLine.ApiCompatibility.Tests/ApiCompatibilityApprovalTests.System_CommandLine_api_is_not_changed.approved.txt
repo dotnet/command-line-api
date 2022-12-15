@@ -1,9 +1,10 @@
 System.CommandLine
   public abstract class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor
     public ArgumentArity Arity { get; set; }
-    public System.Collections.Generic.ICollection<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> Completions { get; }
+    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
+    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.ArgumentResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
@@ -23,10 +24,6 @@ System.CommandLine
     public Argument<T> AcceptLegalFileNamesOnly()
     public Argument<T> AcceptLegalFilePathsOnly()
     public Argument<T> AcceptOnlyFromAmong(System.String[] values)
-    public Argument<T> AddCompletions(System.String[] completions)
-    public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
-    public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
-    public Argument<T> AddValidator(System.Action<System.CommandLine.Parsing.ArgumentResult> validate)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
     public System.Void SetDefaultValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> defaultValueFactory)
@@ -55,9 +52,9 @@ System.CommandLine
     public System.Collections.Generic.IList<Option> Options { get; }
     public System.Collections.Generic.IList<Command> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
+    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.CommandResult>> Validators { get; }
     public System.Void Add(Symbol symbol)
     public System.Void AddGlobalOption(Option option)
-    public System.Void AddValidator(System.Action<System.CommandLine.Parsing.CommandResult> validate)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
   public static class CommandExtensions
@@ -106,8 +103,8 @@ System.CommandLine
     .ctor()
     .ctor(System.String message, System.Exception innerException)
   public static class CompletionSourceExtensions
-    public static System.Void Add(this System.Collections.Generic.ICollection<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
-    public static System.Void Add(this System.Collections.Generic.ICollection<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
+    public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
+    public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
   public static class ConsoleExtensions
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)
@@ -143,7 +140,6 @@ System.CommandLine
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
   public abstract class IdentifierSymbol : Symbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
-    public System.String Name { get; set; }
     public System.Void AddAlias(System.String alias)
     public System.Boolean HasAlias(System.String alias)
   public class LocalizationResources
@@ -188,10 +184,11 @@ System.CommandLine
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
+    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
     public System.Boolean IsRequired { get; set; }
+    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public ParseResult Parse(System.String commandLine)
     public ParseResult Parse(System.String[] args)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
@@ -204,10 +201,6 @@ System.CommandLine
     public Option<T> AcceptLegalFileNamesOnly()
     public Option<T> AcceptLegalFilePathsOnly()
     public Option<T> AcceptOnlyFromAmong(System.String[] values)
-    public Option<T> AddCompletions(System.String[] completions)
-    public Option<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
-    public Option<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
-    public Option<T> AddValidator(System.Action<System.CommandLine.Parsing.OptionResult> validate)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
   public static class OptionValidation
@@ -243,7 +236,6 @@ System.CommandLine
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
 System.CommandLine.Binding
@@ -270,9 +262,10 @@ System.CommandLine.Binding
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Completions
   public abstract class CompletionContext
+    public static CompletionContext Empty { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
     public System.String WordToComplete { get; }
-  public class CompletionItem
+  public class CompletionItem, System.IEquatable<CompletionItem>
     .ctor(System.String label, System.String kind = Value, System.String sortText = null, System.String insertText = null, System.String documentation = null, System.String detail = null)
     public System.String Detail { get; }
     public System.String Documentation { get; set; }
@@ -280,7 +273,7 @@ System.CommandLine.Completions
     public System.String Kind { get; }
     public System.String Label { get; }
     public System.String SortText { get; }
-    protected System.Boolean Equals(CompletionItem other)
+    public System.Boolean Equals(CompletionItem other)
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
     public System.String ToString()

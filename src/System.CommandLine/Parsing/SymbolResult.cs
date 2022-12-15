@@ -185,29 +185,5 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {this.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}";
-
-        internal ParseError? UnrecognizedArgumentError(Argument argument)
-        {
-            if (argument.AllowedValues?.Count > 0 &&
-                Tokens.Count > 0)
-            {
-                for (var i = 0; i < Tokens.Count; i++)
-                {
-                    var token = Tokens[i];
-
-                    if (token.Symbol is null || token.Symbol == argument)
-                    {
-                        if (!argument.AllowedValues.Contains(token.Value))
-                        {
-                            return new ParseError(
-                                LocalizationResources.UnrecognizedArgument(token.Value, argument.AllowedValues),
-                                this);
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
     }
 }

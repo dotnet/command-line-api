@@ -64,7 +64,6 @@ namespace System.CommandLine.Tests
 
             option.AddAlias("-a");
 
-            option.HasAliasIgnoringPrefix("a").Should().BeTrue();
             option.HasAlias("-a").Should().BeTrue();
         }
 
@@ -85,27 +84,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAliasIgnorePrefix_accepts_unprefixed_short_value()
-        {
-            var option = new Option<string>(new[] { "-o", "--option" });
-
-            option.HasAliasIgnoringPrefix("o").Should().BeTrue();
-        }
-
-        [Fact]
         public void HasAlias_accepts_prefixed_long_value()
         {
             var option = new Option<string>(new[] { "-o", "--option" });
 
             option.HasAlias("--option").Should().BeTrue();
-        }
-
-        [Fact]
-        public void HasAliasIgnorePrefix_accepts_unprefixed_long_value()
-        {
-            var option = new Option<string>(new[] { "-o", "--option" });
-
-            option.HasAliasIgnoringPrefix("option").Should().BeTrue();
         }
 
         [Fact]
@@ -303,7 +286,7 @@ namespace System.CommandLine.Tests
         public void Option_T_default_value_is_validated()
         {
             var option = new Option<int>("-x", () => 123);
-            option.AddValidator(symbol =>
+            option.Validators.Add(symbol =>
                                     symbol.ErrorMessage = symbol.Tokens
                                                                 .Select(t => t.Value)
                                                                 .Where(v => v == "123")
@@ -391,10 +374,6 @@ namespace System.CommandLine.Tests
         {
             Option<string> option = new Option<string>("--path")
                 .AcceptOnlyFromAmong("text")
-                .AddCompletions("test")
-                .AddCompletions(ctx => Array.Empty<string>())
-                .AddCompletions(ctx => Array.Empty<CompletionItem>())
-                .AddValidator(_ => { })
                 .AcceptLegalFileNamesOnly()
                 .AcceptLegalFilePathsOnly();
 

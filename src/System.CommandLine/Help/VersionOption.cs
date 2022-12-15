@@ -31,7 +31,7 @@ namespace System.CommandLine.Help
 
         private void AddValidators()
         {
-            AddValidator(result =>
+            Validators.Add(result =>
             {
                 if (result.Parent is { } parent &&
                     parent.Children.Where(r => r.Symbol is not VersionOption)

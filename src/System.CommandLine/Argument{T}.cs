@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.IO;
 
@@ -173,62 +171,37 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
-        /// <param name="completions">The completions to add.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AddCompletions(params string[] completions)
-        {
-            Completions.Add(completions);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The option being extended.</returns>
-        public Argument<T> AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
-        {
-            Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
-        {
-            Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a custom validator to the argument. Validators can be used
-        /// to provide custom errors based on user input.
-        /// </summary>
-        /// <param name="validate">The action to validate the parsed argument.</param>
-        public Argument<T> AddValidator(Action<ArgumentResult> validate)
-        {
-            Validators.Add(validate);
-            return this;
-        }
-
-        /// <summary>
         /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
         /// <param name="values">The values that are allowed for the argument.</param>
         /// <returns>The configured argument.</returns>
         public Argument<T> AcceptOnlyFromAmong(params string[] values)
         {
-            AllowedValues?.Clear();
-            AddAllowedValues(values);
-            Completions.Clear();
-            Completions.Add(values);
+            if (values is not null && values.Length > 0)
+            {
+                Validators.Clear();
+                Validators.Add(UnrecognizedArgumentError);
+                CompletionSources.Clear();
+                CompletionSources.Add(values);
+            }
 
             return this;
+
+            void UnrecognizedArgumentError(ArgumentResult argumentResult)
+            {
+                for (var i = 0; i < argumentResult.Tokens.Count; i++)
+                {
+                    var token = argumentResult.Tokens[i];
+
+                    if (token.Symbol is null || token.Symbol == this)
+                    {
+                        if (Array.IndexOf(values, token.Value) < 0)
+                        {
+                            argumentResult.ErrorMessage = argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -239,7 +212,7 @@ namespace System.CommandLine
         {
             var invalidPathChars = Path.GetInvalidPathChars();
 
-            AddValidator(result =>
+            Validators.Add(result =>
             {
                 for (var i = 0; i < result.Tokens.Count; i++)
                 {
@@ -268,7 +241,7 @@ namespace System.CommandLine
         {
             var invalidFileNameChars = Path.GetInvalidFileNameChars();
 
-            AddValidator(result =>
+            Validators.Add(result =>
             {
                 for (var i = 0; i < result.Tokens.Count; i++)
                 {

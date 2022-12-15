@@ -11,7 +11,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class Symbol
     {
-        private string? _name;
+        private protected string? _name;
         private ParentNode? _firstParent;
 
         private protected Symbol()
@@ -80,10 +80,6 @@ namespace System.CommandLine
         /// <summary>
         /// Gets completions for the symbol.
         /// </summary>
-        public IEnumerable<CompletionItem> GetCompletions() => 
-            GetCompletions(CompletionContext.Empty());
-
-        /// <inheritdoc />
         public abstract IEnumerable<CompletionItem> GetCompletions(CompletionContext context);
 
         /// <inheritdoc/>

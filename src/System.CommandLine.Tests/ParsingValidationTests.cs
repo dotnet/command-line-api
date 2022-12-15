@@ -120,6 +120,34 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_FromAmong_is_used_multiple_times_only_the_most_recently_provided_values_are_taken_into_account()
+        {
+            Argument<string> argument = new("key");
+            argument.AcceptOnlyFromAmong("key1");
+
+            var command = new Command("set")
+            {
+                argument
+            };
+
+            var result = command.Parse("set key2");
+
+            result.Errors
+              .Should()
+              .ContainSingle()
+              .Which
+              .Message
+              .Should()
+              .Be(LocalizationResources.Instance.UnrecognizedArgument("key2", new[] { "key1" }));
+
+            argument.AcceptOnlyFromAmong("key2");
+
+            result = command.Parse("set key2");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
         public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_second_one_then_the_error_is_informative()
         {
             var command = new Command("set")
@@ -275,7 +303,7 @@ namespace System.CommandLine.Tests
                 new Option<bool>("--two")
             };
 
-            command.AddValidator(commandResult =>
+            command.Validators.Add(commandResult =>
             {
                 if (commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--one")) &&
                     commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--two")))
@@ -300,7 +328,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x");
 
-            option.AddValidator(r =>
+            option.Validators.Add(r =>
             {
                 var value = r.GetValueOrDefault<int>();
 
@@ -327,7 +355,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<int>("x");
 
-            argument.AddValidator(r =>
+            argument.Validators.Add(r =>
             {
                 var value = r.GetValueOrDefault<int>();
 
@@ -359,13 +387,13 @@ namespace System.CommandLine.Tests
             var argumentValidatorWasCalled = false;
 
             var option = new Option<string>("-o");
-            option.AddValidator(_ =>
+            option.Validators.Add(_ =>
             {
                 optionValidatorWasCalled = true;
             });
 
             var argument = new Argument<string>("the-arg");
-            argument.AddValidator(_ =>
+            argument.Validators.Add(_ =>
             {
                 argumentValidatorWasCalled = true;
             });
@@ -375,7 +403,7 @@ namespace System.CommandLine.Tests
                 option,
                 argument
             };
-            rootCommand.AddValidator(_ =>
+            rootCommand.Validators.Add(_ =>
             {
                 commandValidatorWasCalled = true;
             });
@@ -393,7 +421,7 @@ namespace System.CommandLine.Tests
         public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)
         {
             var option = new Option<FileInfo>("--file");
-            option.AddValidator(r =>
+            option.Validators.Add(r =>
             {
                 r.ErrorMessage = "Invoked validator";
             });
@@ -430,7 +458,7 @@ namespace System.CommandLine.Tests
             var handlerWasCalled = false;
 
             var globalOption = new Option<int>("--value");
-            globalOption.AddValidator(r => r.ErrorMessage = "oops!");
+            globalOption.Validators.Add(r => r.ErrorMessage = "oops!");
 
             var grandchildCommand = new Command("grandchild");
 
@@ -460,7 +488,7 @@ namespace System.CommandLine.Tests
         {
             var errorMessage = "that's not right...";
             var argument = new Argument<string>();
-            argument.AddValidator(r => r.ErrorMessage = errorMessage);
+            argument.Validators.Add(r => r.ErrorMessage = errorMessage);
 
             var cmd = new Command("get")
             {
@@ -481,7 +509,7 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<int>();
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
-            argument.AddValidator(result =>
+            argument.Validators.Add(result =>
             {
                 var value = result.GetValue(argument);
 
@@ -505,7 +533,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x");
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
-            option.AddValidator(result =>
+            option.Validators.Add(result =>
             {
                 var value = result.GetValue(option);
 
@@ -1121,8 +1149,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_command_do_not_report_duplicate_errors()
         {
             var command = new RootCommand();
-            command.AddValidator(result => result.ErrorMessage = "Wrong");
-            command.AddValidator(_ => { });
+            command.Validators.Add(result => result.ErrorMessage = "Wrong");
+            command.Validators.Add(_ => { });
 
             var parseResult = command.Parse("");
 
@@ -1139,8 +1167,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_option_do_not_report_duplicate_errors()
         {
             var option = new Option<string>("-x");
-            option.AddValidator(result => result.ErrorMessage = "Wrong");
-            option.AddValidator(_ => { });
+            option.Validators.Add(result => result.ErrorMessage = "Wrong");
+            option.Validators.Add(_ => { });
 
             var command = new RootCommand
             {
@@ -1162,8 +1190,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_argument_do_not_report_duplicate_errors()
         {
             var argument = new Argument<string>();
-            argument.AddValidator(result => result.ErrorMessage = "Wrong");
-            argument.AddValidator(_ => { });
+            argument.Validators.Add(result => result.ErrorMessage = "Wrong");
+            argument.Validators.Add(_ => { });
 
             var command = new RootCommand
             {
@@ -1185,7 +1213,7 @@ namespace System.CommandLine.Tests
         internal void When_there_is_an_arity_error_then_further_errors_are_not_reported()
         {
             var option = new Option<string>("-o");
-            option.AddValidator(result =>
+            option.Validators.Add(result =>
             {
                 result.ErrorMessage = "OOPS";
             }); //all good;
