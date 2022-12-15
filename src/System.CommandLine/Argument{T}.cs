@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.IO;
 
@@ -179,12 +177,31 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public Argument<T> AcceptOnlyFromAmong(params string[] values)
         {
-            AllowedValues?.Clear();
-            AddAllowedValues(values);
-            CompletionSources.Clear();
-            CompletionSources.Add(values);
+            if (values is not null && values.Length > 0)
+            {
+                Validators.Clear();
+                Validators.Add(UnrecognizedArgumentError);
+                CompletionSources.Clear();
+                CompletionSources.Add(values);
+            }
 
             return this;
+
+            void UnrecognizedArgumentError(ArgumentResult argumentResult)
+            {
+                for (var i = 0; i < argumentResult.Tokens.Count; i++)
+                {
+                    var token = argumentResult.Tokens[i];
+
+                    if (token.Symbol is null || token.Symbol == this)
+                    {
+                        if (Array.IndexOf(values, token.Value) < 0)
+                        {
+                            argumentResult.ErrorMessage = argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

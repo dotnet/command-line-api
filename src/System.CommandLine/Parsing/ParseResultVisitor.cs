@@ -506,9 +506,7 @@ namespace System.CommandLine.Parsing
         {
             var argument = argumentResult.Argument;
 
-            var parseError =
-                argumentResult.Parent?.UnrecognizedArgumentError(argument) ??
-                argumentResult.CustomError(argument);
+            var parseError = argumentResult.CustomError(argument);
 
             if (parseError is { })
             {

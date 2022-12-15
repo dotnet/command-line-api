@@ -37,8 +37,6 @@ namespace System.CommandLine
             Description = description;
         }
 
-        internal HashSet<string>? AllowedValues { get; private set; }
-
         /// <summary>
         /// Gets or sets the arity of the argument.
         /// </summary>
@@ -126,16 +124,6 @@ namespace System.CommandLine
         public abstract bool HasDefaultValue { get; }
 
         internal virtual bool HasCustomParser => false;
-
-        internal void AddAllowedValues(IReadOnlyList<string> values)
-        {
-            if (AllowedValues is null)
-            {
-                AllowedValues = new HashSet<string>();
-            }
-
-            AllowedValues.UnionWith(values);
-        }
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

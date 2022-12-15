@@ -83,7 +83,7 @@ namespace System.CommandLine.Parsing
 
                 if (!string.IsNullOrWhiteSpace(ErrorMessage))
                 {
-                    return new ParseError(ErrorMessage!, this);
+                    return new ParseError(ErrorMessage!, Parent is OptionResult option ? option : this);
                 }
             }
 

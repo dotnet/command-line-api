@@ -120,6 +120,34 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_FromAmong_is_used_multiple_times_only_the_most_recently_provided_values_are_taken_into_account()
+        {
+            Argument<string> argument = new("key");
+            argument.AcceptOnlyFromAmong("key1");
+
+            var command = new Command("set")
+            {
+                argument
+            };
+
+            var result = command.Parse("set key2");
+
+            result.Errors
+              .Should()
+              .ContainSingle()
+              .Which
+              .Message
+              .Should()
+              .Be(LocalizationResources.Instance.UnrecognizedArgument("key2", new[] { "key1" }));
+
+            argument.AcceptOnlyFromAmong("key2");
+
+            result = command.Parse("set key2");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
         public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_second_one_then_the_error_is_informative()
         {
             var command = new Command("set")
