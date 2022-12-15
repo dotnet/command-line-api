@@ -358,8 +358,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_of_enum_can_limit_enum_members_as_valid_values()
         {
-            var option = new Option<ConsoleColor>("--color")
-                .AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+            Option<ConsoleColor> option = new("--color");
+            option.AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
 
             var result = option.Parse("--color Fuschia");
 
@@ -367,17 +367,6 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
-        }
-
-        [Fact]
-        public void Option_of_T_fluent_APIs_return_Option_of_T()
-        {
-            Option<string> option = new Option<string>("--path")
-                .AcceptOnlyFromAmong("text")
-                .AcceptLegalFileNamesOnly()
-                .AcceptLegalFilePathsOnly();
-
-            option.Should().BeOfType<Option<string>>();
         }
         
         protected override Symbol CreateSymbol(string name) => new Option<string>(name);

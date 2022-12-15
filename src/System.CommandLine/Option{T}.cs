@@ -103,33 +103,17 @@ namespace System.CommandLine
         /// Configures the option to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
         /// <param name="values">The values that are allowed for the option.</param>
-        /// <returns>The configured option.</returns>
-        public Option<T> AcceptOnlyFromAmong(params string[] values)
-        {
-            _argument.AcceptOnlyFromAmong(values);
-
-            return this;
-        }
+        public void AcceptOnlyFromAmong(params string[] values) => _argument.AcceptOnlyFromAmong(values);
 
         /// <summary>
         /// Configures the option to accept only values representing legal file paths.
         /// </summary>
-        /// <returns>The configured option.</returns>
-        public Option<T> AcceptLegalFilePathsOnly()
-        {
-            _argument.AcceptLegalFilePathsOnly();
-            return this;
-        }
+        public void AcceptLegalFilePathsOnly() => _argument.AcceptLegalFilePathsOnly();
 
         /// <summary>
         /// Configures the option to accept only values representing legal file names.
         /// </summary>
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
-        /// <returns>The configured option.</returns>
-        public Option<T> AcceptLegalFileNamesOnly()
-        {
-            _argument.AcceptLegalFileNamesOnly();
-            return this;
-        }
+        public void AcceptLegalFileNamesOnly() => _argument.AcceptLegalFileNamesOnly();
     }
 }

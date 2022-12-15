@@ -21,9 +21,9 @@ System.CommandLine
     .ctor(Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False)
     public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; }
-    public Argument<T> AcceptLegalFileNamesOnly()
-    public Argument<T> AcceptLegalFilePathsOnly()
-    public Argument<T> AcceptOnlyFromAmong(System.String[] values)
+    public System.Void AcceptLegalFileNamesOnly()
+    public System.Void AcceptLegalFilePathsOnly()
+    public System.Void AcceptOnlyFromAmong(System.String[] values)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
     public System.Void SetDefaultValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> defaultValueFactory)
@@ -198,9 +198,9 @@ System.CommandLine
     .ctor(System.String[] aliases, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
     .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
-    public Option<T> AcceptLegalFileNamesOnly()
-    public Option<T> AcceptLegalFilePathsOnly()
-    public Option<T> AcceptOnlyFromAmong(System.String[] values)
+    public System.Void AcceptLegalFileNamesOnly()
+    public System.Void AcceptLegalFilePathsOnly()
+    public System.Void AcceptOnlyFromAmong(System.String[] values)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
   public static class OptionValidation

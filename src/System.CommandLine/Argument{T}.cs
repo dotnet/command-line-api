@@ -174,8 +174,7 @@ namespace System.CommandLine
         /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
         /// <param name="values">The values that are allowed for the argument.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AcceptOnlyFromAmong(params string[] values)
+        public void AcceptOnlyFromAmong(params string[] values)
         {
             if (values is not null && values.Length > 0)
             {
@@ -184,8 +183,6 @@ namespace System.CommandLine
                 CompletionSources.Clear();
                 CompletionSources.Add(values);
             }
-
-            return this;
 
             void UnrecognizedArgumentError(ArgumentResult argumentResult)
             {
@@ -207,8 +204,7 @@ namespace System.CommandLine
         /// <summary>
         /// Configures the argument to accept only values representing legal file paths.
         /// </summary>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AcceptLegalFilePathsOnly()
+        public void AcceptLegalFilePathsOnly()
         {
             var invalidPathChars = Path.GetInvalidPathChars();
 
@@ -228,16 +224,13 @@ namespace System.CommandLine
                     }
                 }
             });
-
-            return this;
         }
 
         /// <summary>
         /// Configures the argument to accept only values representing legal file names.
         /// </summary>
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AcceptLegalFileNamesOnly()
+        public void AcceptLegalFileNamesOnly()
         {
             var invalidFileNameChars = Path.GetInvalidFileNameChars();
 
@@ -254,8 +247,6 @@ namespace System.CommandLine
                     }
                 }
             });
-
-            return this;
         }
     }
 }

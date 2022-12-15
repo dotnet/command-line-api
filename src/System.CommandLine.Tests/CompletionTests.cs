@@ -441,8 +441,8 @@ namespace System.CommandLine.Tests
         {
             var parser = new RootCommand
             {
-                new Option<string>("--bread").AcceptOnlyFromAmong("wheat", "sourdough", "rye"),
-                new Option<string>("--cheese").AcceptOnlyFromAmong("provolone", "cheddar", "cream cheese")
+                CreateOptionWithAcceptOnlyFromAmong(name: "--bread", "wheat", "sourdough", "rye"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "--cheese", "provolone", "cheddar", "cream cheese")
             };
 
             var commandLine = "--bread";
@@ -546,8 +546,8 @@ namespace System.CommandLine.Tests
             var parser = new Parser(
                 new Command("outer")
                 {
-                    new Option<string>("--one").AcceptOnlyFromAmong("one-a", "one-b"),
-                    new Option<string>("--two").AcceptOnlyFromAmong("two-a", "two-b")
+                    CreateOptionWithAcceptOnlyFromAmong(name: "--one", "one-a", "one-b"),
+                    CreateOptionWithAcceptOnlyFromAmong(name: "--two", "two-a", "two-b")
                 });
 
             var commandLine = "outer --two";
@@ -648,12 +648,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("outer")
             {
-                new Option<string>("one")
-                    .AcceptOnlyFromAmong("one-a", "one-b", "one-c"),
-                new Option<string>("two")
-                    .AcceptOnlyFromAmong("two-a", "two-b", "two-c"),
-                new Option<string>("three")
-                    .AcceptOnlyFromAmong("three-a", "three-b", "three-c")
+                CreateOptionWithAcceptOnlyFromAmong(name: "one", "one-a", "one-b", "one-c"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "two", "two-a", "two-b", "two-c"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "three", "three-a", "three-b", "three-c")
             };
 
             var parser = new CommandLineBuilder(new RootCommand
@@ -675,12 +672,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("outer")
             {
-                new Option<string>("one")
-                    .AcceptOnlyFromAmong("one-a", "one-b", "one-c"),
-                new Option<string>("two")
-                    .AcceptOnlyFromAmong("two-a", "two-b", "two-c"),
-                new Option<string>("three")
-                    .AcceptOnlyFromAmong("three-a", "three-b", "three-c")
+                CreateOptionWithAcceptOnlyFromAmong(name: "one", "one-a", "one-b", "one-c"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "two", "two-a", "two-b", "two-c"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "three", "three-a", "three-b", "three-c")
             };
 
             var result = command.Parse("outer two b");
@@ -698,15 +692,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("one-a", "one-b", "one-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("one-a", "one-b", "one-c")
                 },
                 new Command("two")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("two-a", "two-b", "two-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("two-a", "two-b", "two-c")
                 },
                 new Command("three")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("three-a", "three-b", "three-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("three-a", "three-b", "three-c")
                 }
             };
 
@@ -725,15 +719,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("one-a", "one-b", "one-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("one-a", "one-b", "one-c")
                 },
                 new Command("two")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("two-a", "two-b", "two-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("two-a", "two-b", "two-c")
                 },
                 new Command("three")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("three-a", "three-b", "three-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("three-a", "three-b", "three-c")
                 }
             };
 
@@ -750,8 +744,8 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option<string>("--framework").AcceptOnlyFromAmong("net7.0"),
-                new Option<string>("--language").AcceptOnlyFromAmong("C#"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "--framework", "net7.0"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
             var parser = new CommandLineBuilder(command).Build();
@@ -767,8 +761,8 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option<string>("--framework").AcceptOnlyFromAmong("net7.0"),
-                new Option<string>("--language").AcceptOnlyFromAmong("C#"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "--framework", "net7.0"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
             var parser = new CommandLineBuilder(command).Build();
@@ -967,6 +961,20 @@ namespace System.CommandLine.Tests
                   .Should()
                   .Be(
                       $"Cannot parse argument 'SleepyDay' for option '--day' as expected type 'System.DayOfWeek'. Did you mean one of the following?{NewLine}Friday{NewLine}Monday{NewLine}Saturday{NewLine}Sunday{NewLine}Thursday{NewLine}Tuesday{NewLine}Wednesday");
+        }
+
+        private static Argument<string> CreateArgumentWithAcceptOnlyFromAmong(params string[] values)
+        {
+            Argument<string> argument = new();
+            argument.AcceptOnlyFromAmong(values);
+            return argument;
+        }
+
+        private static Option<string> CreateOptionWithAcceptOnlyFromAmong(string name, params string[] values)
+        {
+            Option<string> option = new(name);
+            option.AcceptOnlyFromAmong(values);
+            return option;
         }
     }
 }

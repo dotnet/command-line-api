@@ -350,8 +350,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option<string[]>(new[] { "-a", "--animals" })
-                .AcceptOnlyFromAmong("dog", "cat", "sheep");
+            var animalsOption = new Option<string[]>(new[] { "-a", "--animals" });
+            animalsOption.AcceptOnlyFromAmong("dog", "cat", "sheep");
             var vegetablesOption = new Option<string[]>(new[] { "-v", "--vegetables" });
             var parser = new Parser(
                 new Command("the-command") {
