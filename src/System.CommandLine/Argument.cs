@@ -101,7 +101,6 @@ namespace System.CommandLine
             }
         }
 
-
         /// <summary>
         /// Provides a list of argument validators. Validators can be used
         /// to provide custom errors based on user input.
