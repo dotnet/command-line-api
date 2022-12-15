@@ -174,8 +174,7 @@ namespace System.CommandLine
         /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
         /// <param name="values">The values that are allowed for the argument.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AcceptOnlyFromAmong(params string[] values)
+        public void AcceptOnlyFromAmong(params string[] values)
         {
             if (values is not null && values.Length > 0)
             {
@@ -184,8 +183,6 @@ namespace System.CommandLine
                 CompletionSources.Clear();
                 CompletionSources.Add(values);
             }
-
-            return this;
 
             void UnrecognizedArgumentError(ArgumentResult argumentResult)
             {

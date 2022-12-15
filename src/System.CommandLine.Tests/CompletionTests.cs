@@ -698,15 +698,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("one-a", "one-b", "one-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("one-a", "one-b", "one-c")
                 },
                 new Command("two")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("two-a", "two-b", "two-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("two-a", "two-b", "two-c")
                 },
                 new Command("three")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("three-a", "three-b", "three-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("three-a", "three-b", "three-c")
                 }
             };
 
@@ -725,15 +725,15 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("one-a", "one-b", "one-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("one-a", "one-b", "one-c")
                 },
                 new Command("two")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("two-a", "two-b", "two-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("two-a", "two-b", "two-c")
                 },
                 new Command("three")
                 {
-                    new Argument<string>().AcceptOnlyFromAmong("three-a", "three-b", "three-c")
+                    CreateArgumentWithAcceptOnlyFromAmong("three-a", "three-b", "three-c")
                 }
             };
 
@@ -967,6 +967,13 @@ namespace System.CommandLine.Tests
                   .Should()
                   .Be(
                       $"Cannot parse argument 'SleepyDay' for option '--day' as expected type 'System.DayOfWeek'. Did you mean one of the following?{NewLine}Friday{NewLine}Monday{NewLine}Saturday{NewLine}Sunday{NewLine}Thursday{NewLine}Tuesday{NewLine}Wednesday");
+        }
+
+        private Argument<string> CreateArgumentWithAcceptOnlyFromAmong(params string[] values)
+        {
+            Argument<string> argument = new();
+            argument.AcceptOnlyFromAmong(values);
+            return argument;
         }
     }
 }

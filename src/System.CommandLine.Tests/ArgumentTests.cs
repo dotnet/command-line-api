@@ -769,8 +769,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_of_enum_can_limit_enum_members_as_valid_values()
         {
-            var argument = new Argument<ConsoleColor>()
-                .AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+            var argument = new Argument<ConsoleColor>();
+            argument.AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+
             Command command = new("set-color")
             {
                 argument
@@ -788,7 +789,6 @@ namespace System.CommandLine.Tests
         public void Argument_of_T_fluent_APIs_return_Argument_of_T()
         {
             Argument<string> argument = new Argument<string>("--path")
-                .AcceptOnlyFromAmong("text")
                 .AcceptLegalFileNamesOnly()
                 .AcceptLegalFilePathsOnly();
 

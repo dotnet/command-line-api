@@ -71,12 +71,14 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
         {
-            var option = new Argument<string>().AcceptOnlyFromAmong("a", "b");
-            var command = new Command("test") { option };
+            var argument = new Argument<string>();
+            argument.AcceptOnlyFromAmong("a", "b");
+
+            var command = new Command("test") { argument };
 
             var parseResult = command.Parse("test c");
 
-            parseResult.FindResultFor(option)
+            parseResult.FindResultFor(argument)
                        .ErrorMessage
                        .Should()
                        .Be(parseResult.Errors.Single().Message)
@@ -90,8 +92,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
-                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
+                CreateArgumentWithAcceptOnlyFromAmong(name: "key", "key1", "key2"),
+                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
             };
 
             var result = command.Parse("set key1 value1");
@@ -104,8 +106,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
-                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
+                CreateArgumentWithAcceptOnlyFromAmong(name : "key", "key1", "key2"),
+                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
             };
 
             var result = command.Parse("set not-key1 value1");
@@ -152,8 +154,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
-                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
+                CreateArgumentWithAcceptOnlyFromAmong(name : "key", "key1", "key2"),
+                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
             };
 
             var result = command.Parse("set key1 not-value1");
@@ -1232,6 +1234,13 @@ namespace System.CommandLine.Tests
                        .Message
                        .Should()
                        .Be("Required argument missing for option: '-o'.");
+        }
+
+        private Argument<string> CreateArgumentWithAcceptOnlyFromAmong(string name, params string[] values)
+        {
+            Argument<string> argument = new(name);
+            argument.AcceptOnlyFromAmong(values);
+            return argument;
         }
     }
 }

@@ -23,7 +23,7 @@ System.CommandLine
     public System.Type ValueType { get; }
     public Argument<T> AcceptLegalFileNamesOnly()
     public Argument<T> AcceptLegalFilePathsOnly()
-    public Argument<T> AcceptOnlyFromAmong(System.String[] values)
+    public System.Void AcceptOnlyFromAmong(System.String[] values)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
     public System.Void SetDefaultValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> defaultValueFactory)
