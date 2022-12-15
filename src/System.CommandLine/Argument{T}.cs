@@ -39,7 +39,7 @@ namespace System.CommandLine
             Func<T> defaultValueFactory, 
             string? description = null) : this(name, description)
         {
-            SetDefaultValueFactory(() => defaultValueFactory());
+            SetDefaultValueFactory(defaultValueFactory);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace System.CommandLine
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
         public Argument(Func<T> defaultValueFactory) : this()
         {
-            SetDefaultValueFactory(() => defaultValueFactory());
+            SetDefaultValueFactory(defaultValueFactory);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace System.CommandLine
         /// <param name="value">The default value for the argument.</param>
         public void SetDefaultValue(T value)
         {
-            SetDefaultValueFactory(() => value);
+            SetDefaultValueFactory(_ => value);
         }
 
         /// <summary>
