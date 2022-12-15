@@ -352,7 +352,7 @@ namespace System.CommandLine.Tests
 
                 var command = new RootCommand();
                 command.SetHandler((int value) => handlerWasCalled = true, option);
-                command.AddOption(option);
+                command.Options.Add(option);
 
                 await command.InvokeAsync("--value 42");
 

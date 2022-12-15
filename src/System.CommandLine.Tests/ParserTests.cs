@@ -121,9 +121,9 @@ namespace System.CommandLine.Tests
         public void Option_short_forms_can_be_bundled()
         {
             var command = new Command("the-command");
-            command.AddOption(new Option<bool>("-x"));
-            command.AddOption(new Option<bool>("-y"));
-            command.AddOption(new Option<bool>("-z"));
+            command.Options.Add(new Option<bool>("-x"));
+            command.Options.Add(new Option<bool>("-y"));
+            command.Options.Add(new Option<bool>("-z"));
 
             var result = command.Parse("the-command -xyz");
 
@@ -181,14 +181,14 @@ namespace System.CommandLine.Tests
         public void Options_do_not_get_unbundled_unless_all_resulting_options_would_be_valid_for_the_current_command()
         {
             var outer = new Command("outer");
-            outer.AddOption(new Option<bool>("-a"));
+            outer.Options.Add(new Option<bool>("-a"));
             var inner = new Command("inner")
             {
                 new Argument<string[]>()
             };
-            inner.AddOption(new Option<bool>("-b"));
-            inner.AddOption(new Option<bool>("-c"));
-            outer.AddCommand(inner);
+            inner.Options.Add(new Option<bool>("-b"));
+            inner.Options.Add(new Option<bool>("-c"));
+            outer.Subcommands.Add(inner);
 
             var parser = new Parser(outer);
 
@@ -680,10 +680,10 @@ namespace System.CommandLine.Tests
         public void When_options_with_the_same_name_are_defined_on_parent_and_child_commands_and_specified_in_between_then_it_attaches_to_the_outer_command()
         {
             var outer = new Command("outer");
-            outer.AddOption(new Option<bool>("-x"));
+            outer.Options.Add(new Option<bool>("-x"));
             var inner = new Command("inner");
-            inner.AddOption(new Option<bool>("-x"));
-            outer.AddCommand(inner);
+            inner.Options.Add(new Option<bool>("-x"));
+            outer.Subcommands.Add(inner);
 
             var result = outer.Parse("outer -x inner");
 
@@ -834,7 +834,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command");
             var option = new Option<string>(new[] { "-o", "--option" }, () => "the-default");
-            command.AddOption(option);
+            command.Options.Add(option);
 
             ParseResult result = command.Parse("command");
 
@@ -1310,9 +1310,9 @@ namespace System.CommandLine.Tests
                 TreatUnmatchedTokensAsErrors = false
             };
             var optionX = new Option<string>("-x");
-            command.AddOption(optionX);
+            command.Options.Add(optionX);
             var optionY = new Option<string>("-y");
-            command.AddOption(optionY);
+            command.Options.Add(optionY);
 
             var result = command.Parse("-x 23 unmatched-token -y 42");
 

@@ -11,7 +11,7 @@ namespace System.CommandLine
     /// </summary>
     internal static class SymbolExtensions
     {
-        internal static IReadOnlyList<Argument> Arguments(this Symbol symbol)
+        internal static IList<Argument> Arguments(this Symbol symbol)
         {
             switch (symbol)
             {

@@ -270,7 +270,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        private string FormatArgumentUsage(IReadOnlyList<Argument> arguments)
+        private string FormatArgumentUsage(IList<Argument> arguments)
         {
             var sb = StringBuilderPool.Default.Rent();
 
@@ -463,7 +463,7 @@ namespace System.CommandLine.Help
 
             string GetSymbolDefaultValue(IdentifierSymbol symbol)
             {
-                IEnumerable<Argument> arguments = symbol.Arguments();
+                IList<Argument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
 
                 if (defaultArguments.Length == 0) return "";

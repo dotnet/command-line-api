@@ -241,7 +241,7 @@ namespace System.CommandLine.Tests.Help
                 var command = new Command("test");
                 var option = new Option<string>("--option", "description");
 
-                command.AddOption(option);
+                command.Options.Add(option);
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(option,
@@ -278,7 +278,7 @@ namespace System.CommandLine.Tests.Help
                 var argument = new Argument<string>("arg", "description");
                 argument.SetDefaultValue("default");
 
-                command.AddArgument(argument);
+                command.Arguments.Add(argument);
 
                 var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(argument,
