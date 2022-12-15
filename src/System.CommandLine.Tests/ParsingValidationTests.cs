@@ -560,9 +560,11 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFilePathsOnly_rejects_command_arguments_containing_invalid_path_characters()
             {
+                Argument<string> argument = new();
+                argument.AcceptLegalFilePathsOnly();
                 var command = new Command("the-command")
                 {
-                    new Argument<string>().AcceptLegalFilePathsOnly()
+                    argument
                 };
 
                 var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
@@ -600,9 +602,11 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFilePathsOnly_accepts_command_arguments_containing_valid_path_characters()
             {
+                Argument<string[]> argument = new ();
+                argument.AcceptLegalFilePathsOnly();
                 var command = new Command("the-command")
                 {
-                    new Argument<string[]>().AcceptLegalFilePathsOnly()
+                    argument
                 };
 
                 var validPathName = Directory.GetCurrentDirectory();

@@ -205,7 +205,7 @@ namespace System.CommandLine
         /// Configures the argument to accept only values representing legal file paths.
         /// </summary>
         /// <returns>The configured argument.</returns>
-        public Argument<T> AcceptLegalFilePathsOnly()
+        public void AcceptLegalFilePathsOnly()
         {
             var invalidPathChars = Path.GetInvalidPathChars();
 
@@ -225,8 +225,6 @@ namespace System.CommandLine
                     }
                 }
             });
-
-            return this;
         }
 
         /// <summary>

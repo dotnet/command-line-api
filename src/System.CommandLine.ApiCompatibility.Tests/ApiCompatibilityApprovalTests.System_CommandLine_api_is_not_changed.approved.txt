@@ -22,7 +22,7 @@ System.CommandLine
     public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; }
     public Argument<T> AcceptLegalFileNamesOnly()
-    public Argument<T> AcceptLegalFilePathsOnly()
+    public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
