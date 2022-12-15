@@ -24,8 +24,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var option = new Option<string>("-x")
-                .AcceptOnlyFromAmong("this", "that", "the-other-thing");
+            var option = new Option<string>("-x");
+            option.AcceptOnlyFromAmong("this", "that", "the-other-thing");
 
             var result = option.Parse("-x none-of-those");
 
@@ -40,8 +40,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var option = new Option<string>("-x")
-                .AcceptOnlyFromAmong("this", "that");
+            var option = new Option<string>("-x");
+            option.AcceptOnlyFromAmong("this", "that");
 
             var result = option.Parse("-x something_else");
 
@@ -54,7 +54,8 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_OptionResult_ErrorMessage_is_set()
         {
-            var option = new Option<string>("--opt").AcceptOnlyFromAmong("a", "b");
+            var option = new Option<string>("--opt");
+            option.AcceptOnlyFromAmong("a", "b");
             var command = new Command("test") { option };
 
             var parseResult = command.Parse("test --opt c");

@@ -32,9 +32,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_diagram_displays_unmatched_tokens()
         {
+            Option<string> option = new ("-x");
+            option.AcceptOnlyFromAmong("arg1", "arg2", "arg3");
+
             var command = new Command("command")
             {
-                new Option<string>("-x").AcceptOnlyFromAmong("arg1", "arg2", "arg3")
+                option
             };
 
             var result = command.Parse("command -x ar");

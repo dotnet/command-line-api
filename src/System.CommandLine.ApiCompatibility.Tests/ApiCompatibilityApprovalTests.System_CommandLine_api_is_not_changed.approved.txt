@@ -200,7 +200,7 @@ System.CommandLine
     .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
     public Option<T> AcceptLegalFileNamesOnly()
     public Option<T> AcceptLegalFilePathsOnly()
-    public Option<T> AcceptOnlyFromAmong(System.String[] values)
+    public System.Void AcceptOnlyFromAmong(System.String[] values)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
   public static class OptionValidation
