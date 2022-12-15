@@ -51,7 +51,7 @@ namespace System.CommandLine
             Func<T> defaultValueFactory,
             string? description = null) 
             : this(name, description, 
-                  new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
+                  new Argument<T>(defaultValueFactory))
         { }
 
         /// <inheritdoc/>
@@ -59,7 +59,7 @@ namespace System.CommandLine
             string[] aliases,
             Func<T> defaultValueFactory,
             string? description = null)
-            : this(aliases, description, new Argument<T>(defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory))))
+            : this(aliases, description, new Argument<T>(defaultValueFactory))
         {
         }
 
