@@ -210,10 +210,10 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public Argument<T> AcceptLegalFilePathsOnly()
         {
-            var invalidPathChars = Path.GetInvalidPathChars();
-
-            Validators.Add(result =>
+            Validators.Add(static result =>
             {
+                var invalidPathChars = Path.GetInvalidPathChars();
+
                 for (var i = 0; i < result.Tokens.Count; i++)
                 {
                     var token = result.Tokens[i];
@@ -239,10 +239,10 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public Argument<T> AcceptLegalFileNamesOnly()
         {
-            var invalidFileNameChars = Path.GetInvalidFileNameChars();
-
-            Validators.Add(result =>
+            Validators.Add(static result =>
             {
+                var invalidFileNameChars = Path.GetInvalidFileNameChars();
+
                 for (var i = 0; i < result.Tokens.Count; i++)
                 {
                     var token = result.Tokens[i];
