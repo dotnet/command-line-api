@@ -788,8 +788,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_of_T_fluent_APIs_return_Argument_of_T()
         {
-            Argument<string> argument = new Argument<string>("--path")
-                .AcceptLegalFileNamesOnly();
+            Argument<string> argument = new Argument<string>("--path");
+            argument.AcceptLegalFileNamesOnly();
 
             argument.Should().BeOfType<Argument<string>>();
         }

@@ -21,7 +21,7 @@ System.CommandLine
     .ctor(Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False)
     public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; }
-    public Argument<T> AcceptLegalFileNamesOnly()
+    public System.Void AcceptLegalFileNamesOnly()
     public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
     public System.Void SetDefaultValue(T value)

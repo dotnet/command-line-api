@@ -204,7 +204,6 @@ namespace System.CommandLine
         /// <summary>
         /// Configures the argument to accept only values representing legal file paths.
         /// </summary>
-        /// <returns>The configured argument.</returns>
         public void AcceptLegalFilePathsOnly()
         {
             var invalidPathChars = Path.GetInvalidPathChars();
@@ -231,8 +230,7 @@ namespace System.CommandLine
         /// Configures the argument to accept only values representing legal file names.
         /// </summary>
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AcceptLegalFileNamesOnly()
+        public void AcceptLegalFileNamesOnly()
         {
             var invalidFileNameChars = Path.GetInvalidFileNameChars();
 
@@ -249,8 +247,6 @@ namespace System.CommandLine
                     }
                 }
             });
-
-            return this;
         }
     }
 }

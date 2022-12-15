@@ -1,7 +1,8 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 
-var fileArgument = new Argument<FileInfo>().AcceptLegalFileNamesOnly();
+var fileArgument = new Argument<FileInfo>();
+fileArgument.AcceptLegalFileNamesOnly();
 
 var command = new RootCommand
 {

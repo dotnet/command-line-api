@@ -644,9 +644,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_rejects_command_arguments_containing_invalid_file_name_characters()
             {
+                Argument<string> argument = new();
+                argument.AcceptLegalFileNamesOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Argument<string>().AcceptLegalFileNamesOnly()
+                    argument
                 };
 
                 var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
@@ -684,9 +687,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_accepts_command_arguments_containing_valid_file_name_characters()
             {
+                Argument<string[]> argument = new ();
+                argument.AcceptLegalFileNamesOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Argument<string[]>().AcceptLegalFileNamesOnly()
+                    argument
                 };
 
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
