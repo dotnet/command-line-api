@@ -79,9 +79,17 @@ namespace System.CommandLine
 
         internal bool DisallowBinding { get; init; }
 
-        internal List<Action<OptionResult>> Validators => _validators ??= new();
+        /// <summary>
+        /// Validators that will be called when the option is matched by the parser.
+        /// </summary>
+        public List<Action<OptionResult>> Validators => _validators ??= new();
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
+
+        /// <summary>
+        /// Gets the list of completion sources for the option.
+        /// </summary>
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources => Argument.CompletionSources;
 
         /// <summary>
         /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.

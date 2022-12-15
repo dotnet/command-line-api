@@ -789,10 +789,6 @@ namespace System.CommandLine.Tests
         {
             Argument<string> argument = new Argument<string>("--path")
                 .AcceptOnlyFromAmong("text")
-                .AddCompletions("test")
-                .AddCompletions(ctx => Array.Empty<string>())
-                .AddCompletions(ctx => Array.Empty<CompletionItem>())
-                .AddValidator(_ => { })
                 .AcceptLegalFileNamesOnly()
                 .AcceptLegalFilePathsOnly();
 

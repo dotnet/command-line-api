@@ -15,7 +15,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Suggestions
     {
-        private Symbol _testSymbol;
+        private Option _testSymbol;
         private ParseResult _testParseResult;
 
         /// <remarks>
@@ -37,8 +37,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup(Target = nameof(SuggestionsFromSymbol))]
         public void Setup_FromSymbol()
         {
-            _testSymbol = new Option<string>("--hello")
-                .AddCompletions(GenerateSuggestionsArray(TestSuggestionsCount));
+            _testSymbol = new Option<string>("--hello");
+            _testSymbol.CompletionSources.Add(GenerateSuggestionsArray(TestSuggestionsCount));
         }
 
         [Benchmark]
