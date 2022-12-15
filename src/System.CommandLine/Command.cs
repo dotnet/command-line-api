@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
+using System.ComponentModel;
 using System.Linq;
 
 namespace System.CommandLine
@@ -92,6 +93,7 @@ namespace System.CommandLine
         /// Adds a <see cref="Symbol"/> to the command.
         /// </summary>
         /// <param name="symbol">The symbol to add to the command.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# duck typing
         public void Add(Symbol symbol)
         {
             // this method exists so users can use C# duck typing for adding symbols to the Command:
