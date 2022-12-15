@@ -145,7 +145,6 @@ System.CommandLine
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
   public abstract class IdentifierSymbol : Symbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
-    public System.String Name { get; set; }
     public System.Void AddAlias(System.String alias)
     public System.Boolean HasAlias(System.String alias)
   public class LocalizationResources
@@ -195,7 +194,6 @@ System.CommandLine
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Boolean HasAliasIgnoringPrefix(System.String alias)
     public ParseResult Parse(System.String commandLine)
     public ParseResult Parse(System.String[] args)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
@@ -243,7 +241,6 @@ System.CommandLine
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; set; }
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
 System.CommandLine.Binding
@@ -270,9 +267,10 @@ System.CommandLine.Binding
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Completions
   public abstract class CompletionContext
+    public static CompletionContext Empty { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
     public System.String WordToComplete { get; }
-  public class CompletionItem
+  public class CompletionItem, System.IEquatable<CompletionItem>
     .ctor(System.String label, System.String kind = Value, System.String sortText = null, System.String insertText = null, System.String documentation = null, System.String detail = null)
     public System.String Detail { get; }
     public System.String Documentation { get; set; }
@@ -280,7 +278,7 @@ System.CommandLine.Completions
     public System.String Kind { get; }
     public System.String Label { get; }
     public System.String SortText { get; }
-    protected System.Boolean Equals(CompletionItem other)
+    public System.Boolean Equals(CompletionItem other)
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
     public System.String ToString()

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.IO;
@@ -27,7 +28,7 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("--hello");
             option.CompletionSources.Add("one", "two", "three");
 
-            var completions = option.GetCompletions();
+            var completions = option.GetCompletions(CompletionContext.Empty);
 
             completions
                 .Select(item => item.Label)
@@ -45,7 +46,7 @@ namespace System.CommandLine.Tests
                 new Option<string>("--three", "option three")
             };
 
-            var completions = command.GetCompletions();
+            var completions = command.GetCompletions(CompletionContext.Empty);
 
             completions
                 .Select(item => item.Label)
@@ -69,7 +70,7 @@ namespace System.CommandLine.Tests
 
             rootCommand.AddGlobalOption(new Option<string>("--three", "option three"));
 
-            var completions = subcommand.GetCompletions();
+            var completions = subcommand.GetCompletions(CompletionContext.Empty);
 
             completions
                 .Select(item => item.Label)
@@ -87,7 +88,7 @@ namespace System.CommandLine.Tests
                 new Command("three")
             };
 
-            var completions = command.GetCompletions();
+            var completions = command.GetCompletions(CompletionContext.Empty);
 
             completions
                 .Select(item => item.Label)
@@ -104,7 +105,7 @@ namespace System.CommandLine.Tests
                 new Option<string>("--option")
             };
 
-            var completions = command.GetCompletions();
+            var completions = command.GetCompletions(CompletionContext.Empty);
 
             completions.Select(item => item.Label)
                        .Should()
@@ -125,7 +126,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var completions = command.GetCompletions();
+            var completions = command.GetCompletions(CompletionContext.Empty);
 
             completions.Select(item => item.Label)
                        .Should()
@@ -142,7 +143,7 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var completions = command.GetCompletions();
+            var completions = command.GetCompletions(CompletionContext.Empty);
 
             completions
                 .Select(item => item.Label)
@@ -158,7 +159,7 @@ namespace System.CommandLine.Tests
                 new Argument<string>("the-argument")
             };
 
-            var completions = command.GetCompletions();
+            var completions = command.GetCompletions(CompletionContext.Empty);
 
             completions
                 .Select(item => item.Label)
@@ -927,7 +928,7 @@ namespace System.CommandLine.Tests
             var description = "The option before -y.";
             var option = new Option<string>("-x", description);
 
-            var completions = new RootCommand { option }.GetCompletions();
+            var completions = new RootCommand { option }.GetCompletions(CompletionContext.Empty);
 
             completions.Should().ContainSingle()
                        .Which
@@ -942,7 +943,7 @@ namespace System.CommandLine.Tests
             var description = "The description for the subcommand";
             var subcommand = new Command("-x", description);
 
-            var completions = new RootCommand { subcommand }.GetCompletions();
+            var completions = new RootCommand { subcommand }.GetCompletions(CompletionContext.Empty);
 
             completions.Should().ContainSingle()
                        .Which

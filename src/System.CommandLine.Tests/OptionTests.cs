@@ -64,7 +64,6 @@ namespace System.CommandLine.Tests
 
             option.AddAlias("-a");
 
-            option.HasAliasIgnoringPrefix("a").Should().BeTrue();
             option.HasAlias("-a").Should().BeTrue();
         }
 
@@ -85,27 +84,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAliasIgnorePrefix_accepts_unprefixed_short_value()
-        {
-            var option = new Option<string>(new[] { "-o", "--option" });
-
-            option.HasAliasIgnoringPrefix("o").Should().BeTrue();
-        }
-
-        [Fact]
         public void HasAlias_accepts_prefixed_long_value()
         {
             var option = new Option<string>(new[] { "-o", "--option" });
 
             option.HasAlias("--option").Should().BeTrue();
-        }
-
-        [Fact]
-        public void HasAliasIgnorePrefix_accepts_unprefixed_long_value()
-        {
-            var option = new Option<string>(new[] { "-o", "--option" });
-
-            option.HasAliasIgnoringPrefix("option").Should().BeTrue();
         }
 
         [Fact]
