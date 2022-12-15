@@ -1,7 +1,7 @@
 System.CommandLine
   public abstract class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor
     public ArgumentArity Arity { get; set; }
-    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> Completions { get; }
+    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
     public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.ArgumentResult>> Validators { get; }
@@ -24,8 +24,6 @@ System.CommandLine
     public Argument<T> AcceptLegalFileNamesOnly()
     public Argument<T> AcceptLegalFilePathsOnly()
     public Argument<T> AcceptOnlyFromAmong(System.String[] values)
-    public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
-    public Argument<T> AddCompletions(System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>> completionsDelegate)
     public System.Void SetDefaultValue(T value)
     public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
     public System.Void SetDefaultValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> defaultValueFactory)
@@ -192,7 +190,7 @@ System.CommandLine
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
-    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> Completions { get; }
+    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
     public System.Boolean IsRequired { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }

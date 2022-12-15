@@ -37,7 +37,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public void Setup_FromSymbol()
         {
             _testSymbol = new Option<string>("--hello");
-            _testSymbol.Completions.Add(GenerateSuggestionsArray(TestSuggestionsCount));
+            _testSymbol.CompletionSources.Add(GenerateSuggestionsArray(TestSuggestionsCount));
         }
 
         [Benchmark]

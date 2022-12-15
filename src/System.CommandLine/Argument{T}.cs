@@ -173,28 +173,6 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The option being extended.</returns>
-        public Argument<T> AddCompletions(Func<CompletionContext, IEnumerable<string>> completionsDelegate)
-        {
-            Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds completions for the argument.
-        /// </summary>
-        /// <param name="completionsDelegate">A function that will be called to provide completions.</param>
-        /// <returns>The configured argument.</returns>
-        public Argument<T> AddCompletions(Func<CompletionContext, IEnumerable<CompletionItem>> completionsDelegate)
-        {
-            Completions.Add(completionsDelegate);
-            return this;
-        }
-
-        /// <summary>
         /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
         /// <param name="values">The values that are allowed for the argument.</param>
@@ -203,8 +181,8 @@ namespace System.CommandLine
         {
             AllowedValues?.Clear();
             AddAllowedValues(values);
-            Completions.Clear();
-            Completions.Add(values);
+            CompletionSources.Clear();
+            CompletionSources.Add(values);
 
             return this;
         }

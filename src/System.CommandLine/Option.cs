@@ -107,7 +107,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the list of completion sources for the option.
         /// </summary>
-        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> Completions => Argument.Completions;
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources => Argument.CompletionSources;
 
         /// <summary>
         /// Indicates whether a given alias exists on the option, regardless of its prefix.

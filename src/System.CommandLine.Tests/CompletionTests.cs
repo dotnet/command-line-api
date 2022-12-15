@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         public void Option_GetCompletions_returns_argument_completions_if_configured()
         {
             var option = new Option<string>("--hello");
-            option.Completions.Add("one", "two", "three");
+            option.CompletionSources.Add("one", "two", "three");
 
             var completions = option.GetCompletions();
 
@@ -121,7 +121,7 @@ namespace System.CommandLine.Tests
                 new Argument<string[]>
                 {
                     Arity = ArgumentArity.OneOrMore,
-                    Completions = { "command-argument" }
+                    CompletionSources = { "command-argument" }
                 }
             };
 
@@ -212,7 +212,7 @@ namespace System.CommandLine.Tests
             var originOption = new Option<string>("--origin");
             var cloneOption = new Option<string>("--clone");
 
-            cloneOption.Completions.Add(ctx =>
+            cloneOption.CompletionSources.Add(ctx =>
             {
                 var opt1Value = ctx.ParseResult.GetValue(originOption);
                 return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
@@ -581,7 +581,7 @@ namespace System.CommandLine.Tests
         public void Completions_can_be_provided_in_the_absence_of_validation()
         {
             Option<string> option = new ("-t");
-            option.Completions.Add("vegetable", "mineral", "animal");
+            option.CompletionSources.Add("vegetable", "mineral", "animal");
 
             var command = new Command("the-command")
                 {
@@ -610,7 +610,7 @@ namespace System.CommandLine.Tests
                 {
                     new Argument<string>
                         {
-                            Completions = { _ => new[] { "vegetable", "mineral", "animal" } }
+                            CompletionSources = { _ => new[] { "vegetable", "mineral", "animal" } }
                         }
                 }
             };
@@ -626,7 +626,7 @@ namespace System.CommandLine.Tests
         public void Option_argument_completions_can_be_provided_using_a_delegate()
         {
             var option = new Option<string>("-x");
-            option.Completions.Add(_ => new[] { "vegetable", "mineral", "animal" });
+            option.CompletionSources.Add(_ => new[] { "vegetable", "mineral", "animal" });
 
             var command = new Command("the-command")
             {
@@ -857,7 +857,7 @@ namespace System.CommandLine.Tests
             };
 
             var argument = new Argument<string>();
-            argument.Completions.Add(expectedSuggestions);
+            argument.CompletionSources.Add(expectedSuggestions);
 
             var r = new Command("#r")
             {
@@ -878,8 +878,8 @@ namespace System.CommandLine.Tests
         public void Default_completions_can_be_cleared_and_replaced()
         {
             var argument = new Argument<DayOfWeek>();
-            argument.Completions.Clear();
-            argument.Completions.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
+            argument.CompletionSources.Clear();
+            argument.CompletionSources.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
             var command = new Command("the-command")
             {
                 argument
@@ -900,7 +900,7 @@ namespace System.CommandLine.Tests
             {
                 new Argument<DayOfWeek>
                 {
-                    Completions = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
+                    CompletionSources = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
                 }
             };
 

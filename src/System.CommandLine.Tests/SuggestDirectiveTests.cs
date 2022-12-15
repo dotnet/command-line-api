@@ -21,10 +21,10 @@ namespace System.CommandLine.Tests
         public SuggestDirectiveTests()
         {
             _fruitOption = new Option<string>("--fruit");
-            _fruitOption.Completions.Add("apple", "banana", "cherry");
+            _fruitOption.CompletionSources.Add("apple", "banana", "cherry");
 
             _vegetableOption = new Option<string>("--vegetable");
-            _vegetableOption.Completions.Add(_ => new[] { "asparagus", "broccoli", "carrot" });
+            _vegetableOption.CompletionSources.Add(_ => new[] { "asparagus", "broccoli", "carrot" });
 
             _eatCommand = new Command("eat")
             {
