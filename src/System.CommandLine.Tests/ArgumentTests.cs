@@ -785,15 +785,6 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
         }
 
-        [Fact]
-        public void Argument_of_T_fluent_APIs_return_Argument_of_T()
-        {
-            Argument<string> argument = new Argument<string>("--path");
-            argument.AcceptLegalFileNamesOnly();
-
-            argument.Should().BeOfType<Argument<string>>();
-        }
-
         protected override Symbol CreateSymbol(string name)
         {
             return new Argument<string>(name);

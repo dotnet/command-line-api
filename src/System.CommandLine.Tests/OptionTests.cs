@@ -368,15 +368,6 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
         }
-
-        [Fact]
-        public void Option_of_T_fluent_APIs_return_Option_of_T()
-        {
-            Option<string> option = new Option<string>("--path");
-            option.AcceptLegalFileNamesOnly();
-
-            option.Should().BeOfType<Option<string>>();
-        }
         
         protected override Symbol CreateSymbol(string name) => new Option<string>(name);
     }
