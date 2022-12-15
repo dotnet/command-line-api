@@ -972,9 +972,9 @@ namespace System.CommandLine.Tests
 
         private static Option<string> CreateOptionWithAcceptOnlyFromAmong(string name, params string[] values)
         {
-            Option<string> argument = new(name);
-            argument.AcceptOnlyFromAmong(values);
-            return argument;
+            Option<string> option = new(name);
+            option.AcceptOnlyFromAmong(values);
+            return option;
         }
     }
 }
