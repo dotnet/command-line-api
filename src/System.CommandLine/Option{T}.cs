@@ -108,18 +108,12 @@ namespace System.CommandLine
         /// <summary>
         /// Configures the option to accept only values representing legal file paths.
         /// </summary>
-        /// <returns>The configured option.</returns>
         public void AcceptLegalFilePathsOnly() => _argument.AcceptLegalFilePathsOnly();
 
         /// <summary>
         /// Configures the option to accept only values representing legal file names.
         /// </summary>
         /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
-        /// <returns>The configured option.</returns>
-        public Option<T> AcceptLegalFileNamesOnly()
-        {
-            _argument.AcceptLegalFileNamesOnly();
-            return this;
-        }
+        public void AcceptLegalFileNamesOnly() => _argument.AcceptLegalFileNamesOnly();
     }
 }

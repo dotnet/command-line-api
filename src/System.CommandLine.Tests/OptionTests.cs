@@ -372,8 +372,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_of_T_fluent_APIs_return_Option_of_T()
         {
-            Option<string> option = new Option<string>("--path")
-                .AcceptLegalFileNamesOnly();
+            Option<string> option = new Option<string>("--path");
+            option.AcceptLegalFileNamesOnly();
 
             option.Should().BeOfType<Option<string>>();
         }

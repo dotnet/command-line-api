@@ -667,9 +667,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_rejects_option_arguments_containing_invalid_file_name_characters()
             {
+                Option<string> option = new("-x");
+                option.AcceptLegalFileNamesOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Option<string>("-x").AcceptLegalFileNamesOnly()
+                    option
                 };
 
                 var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
@@ -706,9 +709,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_accepts_option_arguments_containing_valid_file_name_characters()
             {
+                Option<string[]> option = new("-x");
+                option.AcceptLegalFileNamesOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Option<string[]>("-x").AcceptLegalFileNamesOnly()
+                    option
                 };
 
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());

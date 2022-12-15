@@ -198,7 +198,7 @@ System.CommandLine
     .ctor(System.String[] aliases, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
     .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
-    public Option<T> AcceptLegalFileNamesOnly()
+    public System.Void AcceptLegalFileNamesOnly()
     public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
     public System.Void SetDefaultValue(T value)
