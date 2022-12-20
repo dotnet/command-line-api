@@ -116,7 +116,8 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the list of tokens used on the command line that were not matched by the parser.
         /// </summary>
-        public IReadOnlyList<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();
+        public IReadOnlyList<string> UnmatchedTokens
+            => _unmatchedTokens.Count == 0 ? Array.Empty<string>() : _unmatchedTokens.Select(t => t.Value).ToArray();
 
         /// <summary>
         /// Gets the completion context for the parse result.
