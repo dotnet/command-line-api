@@ -71,23 +71,29 @@ namespace System.CommandLine.Parsing
         internal static TokenizeResult Tokenize(
             this IReadOnlyList<string> args,
             CommandLineConfiguration configuration,
-            bool inferRootCommand = true)
+            bool inferRootCommand)
         {
+            const int FirstArgIsNotRootCommand = -1;
+
             List<string>? errorList = null;
 
             var currentCommand = configuration.RootCommand;
             var foundDoubleDash = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
 
-            var argList = NormalizeRootCommand(args, configuration.RootCommand, inferRootCommand);
-
-            var tokenList = new List<Token>(argList.Count);
+            var tokenList = new List<Token>(args.Count);
 
             var knownTokens = configuration.RootCommand.ValidTokens();
 
-            for (var i = 0; i < argList.Count; i++)
+            int i = FirstArgumentIsRootCommand(args, configuration.RootCommand, inferRootCommand)
+                ? 0
+                : FirstArgIsNotRootCommand;
+
+            for (; i < args.Count; i++)
             {
-                var arg = argList[i];
+                var arg = i == FirstArgIsNotRootCommand
+                    ? configuration.RootCommand.Name
+                    : args[i];
 
                 if (foundDoubleDash)
                 {
@@ -131,7 +137,12 @@ namespace System.CommandLine.Parsing
                             out var newTokens,
                             out var error))
                     {
-                        argList.InsertRange(i + 1, newTokens ?? Array.Empty<string>());
+                        if (newTokens is not null && newTokens.Count > 0)
+                        {
+                            List<string> listWithReplacedTokens = args.ToList();
+                            listWithReplacedTokens.InsertRange(i + 1, newTokens);
+                            args = listWithReplacedTokens;
+                        }
                         continue;
                     }
                     else if (!string.IsNullOrWhiteSpace(error))
@@ -286,48 +297,31 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static List<string> NormalizeRootCommand(
-            IReadOnlyList<string> args,
-            Command rootCommand,
-            bool inferRootCommand = true)
+        private static bool FirstArgumentIsRootCommand(IReadOnlyList<string> args, Command rootCommand, bool inferRootCommand)
         {
-            var list = new List<string>();
-
             if (args.Count > 0)
             {
-                if (inferRootCommand &&
-                    args[0] == RootCommand.ExecutablePath)
+                if (inferRootCommand && args[0] == RootCommand.ExecutablePath)
                 {
-                    list.AddRange(args);
-                    return list;
+                    return true;
                 }
-                else
-                {
-                    try
-                    {
-                        var potentialRootCommand = Path.GetFileName(args[0]);
 
-                        if (rootCommand.HasAlias(potentialRootCommand))
-                        {
-                            list.AddRange(args);
-                            return list;
-                        }
-                    }
-                    catch (ArgumentException)
+                try
+                {
+                    var potentialRootCommand = Path.GetFileName(args[0]);
+
+                    if (rootCommand.HasAlias(potentialRootCommand))
                     {
-                        // possible exception for illegal characters in path on .NET Framework
+                        return true;
                     }
+                }
+                catch (ArgumentException)
+                {
+                    // possible exception for illegal characters in path on .NET Framework
                 }
             }
 
-            list.Add(rootCommand.Name);
-
-            for (var i = 0; i < args.Count; i++)
-            {
-                list.Add(args[i]);
-            }
-
-            return list;
+            return false;
         }
 
         private static string? GetReplaceableTokenValue(this string arg) =>
