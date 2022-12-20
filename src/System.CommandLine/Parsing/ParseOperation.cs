@@ -21,8 +21,6 @@ namespace System.CommandLine.Parsing
 
         private Token CurrentToken => _tokenizeResult.Tokens[_index];
 
-        public List<ParseError> Errors { get; } = new();
-
         public CommandNode? RootCommandNode { get; private set; }
 
         public List<Token>? UnmatchedTokens { get; private set; }
