@@ -116,7 +116,7 @@ namespace System.CommandLine.Parsing
                         arg[0] == '[' &&
                         arg[1] != ']' &&
                         arg[1] != ':' &&
-                        arg.EndsWith("]", StringComparison.Ordinal))
+                        arg[arg.Length - 1] == ']')
                     {
                         tokenList.Add(Directive(arg));
                         continue;
