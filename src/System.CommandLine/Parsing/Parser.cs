@@ -21,13 +21,6 @@ namespace System.CommandLine.Parsing
         public Parser(Command command) : this(new CommandLineConfiguration(command))
         {
         }
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Parser" /> class using the default <see cref="RootCommand" />.
-        /// </summary>
-        public Parser() : this(new RootCommand())
-        {
-        }
 
         /// <summary>
         /// Gets the configuration on which the parser's grammar and behaviors are based.
