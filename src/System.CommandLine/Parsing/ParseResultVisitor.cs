@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
+using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -22,7 +23,7 @@ namespace System.CommandLine.Parsing
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults = new();
 
         private List<OptionResult>? _optionResults;
-        private readonly List<ArgumentResult> _argumentResults = new();
+        private List<ArgumentResult>? _argumentResults;
 
         private RootCommandResult? _rootCommandResult;
         private CommandResult? _innermostCommandResult;
@@ -122,7 +123,7 @@ namespace System.CommandLine.Parsing
             _innermostCommandResult?.AddChild(result);
             if (_symbolResults.TryAdd(result.Argument, result))
             {
-                _argumentResults.Add(result);
+                (_argumentResults ??= new()).Add(result);
             }
         }
 
@@ -257,25 +258,27 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            if (_argumentResults.Count > 0)
+            if (_argumentResults is not null)
             {
-                ValidateAndConvertArgumentResults(_innermostCommandResult!.Command.Arguments, _argumentResults.Count);
+                ValidateAndConvertArgumentResults(_innermostCommandResult!.Command.Arguments, _argumentResults);
             }
         }
 
-        private void ValidateAndConvertArgumentResults(IList<Argument> arguments, int commandArgumentResultCount)
+        private void ValidateAndConvertArgumentResults(IList<Argument> arguments, List<ArgumentResult> argumentResults)
         {
+            int commandArgumentResultCount = argumentResults.Count;
+
             for (var i = 0; i < arguments.Count; i++)
             {
-                if (i > 0 && _argumentResults.Count > i)
+                if (i > 0 && argumentResults.Count > i)
                 {
-                    var previousArgumentResult = _argumentResults[i - 1];
+                    var previousArgumentResult = argumentResults[i - 1];
 
                     var passedOnTokensCount = previousArgumentResult.PassedOnTokens?.Count;
 
                     if (passedOnTokensCount > 0)
                     {
-                        ShiftPassedOnTokensToNextResult(previousArgumentResult, _argumentResults[i], passedOnTokensCount);
+                        ShiftPassedOnTokensToNextResult(previousArgumentResult, argumentResults[i], passedOnTokensCount);
                     }
                 }
 
@@ -287,13 +290,13 @@ namespace System.CommandLine.Parsing
                         nextArgument,
                         _innermostCommandResult);
 
-                    var previousArgumentResult = _argumentResults[i - 1];
+                    var previousArgumentResult = argumentResults[i - 1];
 
                     var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
 
                     ShiftPassedOnTokensToNextResult(previousArgumentResult, nextArgumentResult, passedOnTokensCount);
 
-                    _argumentResults.Add(nextArgumentResult);
+                    argumentResults.Add(nextArgumentResult);
 
                     if (previousArgumentResult.Parent is CommandResult)
                     {
@@ -303,9 +306,9 @@ namespace System.CommandLine.Parsing
                     _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                 }
 
-                if (commandArgumentResultCount >= _argumentResults.Count)
+                if (commandArgumentResultCount >= argumentResults.Count)
                 {
-                    var argumentResult = _argumentResults[i];
+                    var argumentResult = argumentResults[i];
 
                     ValidateAndConvertArgumentResult(argumentResult);
 
@@ -318,11 +321,11 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            if (_argumentResults.Count > arguments.Count)
+            if (argumentResults.Count > arguments.Count)
             {
-                for (var i = arguments.Count; i < _argumentResults.Count - 1; i++)
+                for (var i = arguments.Count; i < argumentResults.Count - 1; i++)
                 {
-                    var result = _argumentResults[i];
+                    var result = argumentResults[i];
 
                     if (result.Parent is CommandResult)
                     {
