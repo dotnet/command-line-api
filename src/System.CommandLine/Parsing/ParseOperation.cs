@@ -202,16 +202,14 @@ namespace System.CommandLine.Parsing
             void ParseDirective(CommandNode parent)
             {
                 var token = CurrentToken;
-                var withoutBrackets = token.Value.Substring(1, token.Value.Length - 2);
-                var keyAndValue = withoutBrackets.Split(new[]
-                {
-                    ':'
-                }, 2);
-
-                var key = keyAndValue[0];
-                var value = keyAndValue.Length == 2
-                                ? keyAndValue[1]
-                                : null;
+                ReadOnlySpan<char> withoutBrackets = token.Value.AsSpan(1, token.Value.Length - 2);
+                int commaIndex = withoutBrackets.IndexOf(':');
+                string key = commaIndex >= 0 
+                    ? withoutBrackets.Slice(0, commaIndex).ToString()
+                    : withoutBrackets.ToString();
+                string? value = commaIndex > 0
+                    ? withoutBrackets.Slice(commaIndex + 1).ToString()
+                    : null;
 
                 var directiveNode = new DirectiveNode(token, parent, key, value);
 
