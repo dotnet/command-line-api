@@ -124,11 +124,6 @@ namespace System.CommandLine
 
             static void ThrowIfInvalid(Command command)
             {
-                if (command.Parents.FlattenBreadthFirst(c => c.Parents).Any(ancestor => ancestor == command))
-                {
-                    throw new CommandLineConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
-                }
-
                 int count = command.Subcommands.Count + command.Options.Count;
                 for (var i = 0; i < count; i++)
                 {

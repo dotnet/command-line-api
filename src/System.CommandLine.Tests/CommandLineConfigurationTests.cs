@@ -227,41 +227,4 @@ public class CommandLineConfigurationTests
 
         validate.Should().NotThrow();
     }
-
-    [Fact]
-    public void ThrowIfInvalid_throws_if_a_command_is_its_own_parent()
-    {
-        var command = new RootCommand();
-        command.Add(command);
-
-        var config = new CommandLineConfiguration(command);
-
-        var validate = () => config.ThrowIfInvalid();
-
-        validate.Should()
-                .Throw<CommandLineConfigurationException>()
-                .Which
-                .Message
-                .Should()
-                .Be($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
-    }
-
-    [Fact]
-    public void ThrowIfInvalid_throws_if_a_parentage_cycle_is_detected()
-    {
-        var command = new Command("command");
-        var rootCommand = new RootCommand { command };
-        command.Add(rootCommand);
-
-        var config = new CommandLineConfiguration(rootCommand);
-
-        var validate = () => config.ThrowIfInvalid();
-
-        validate.Should()
-                .Throw<CommandLineConfigurationException>()
-                .Which
-                .Message
-                .Should()
-                .Be($"Cycle detected in command tree. Command '{rootCommand.Name}' is its own ancestor.");
-    }
 }

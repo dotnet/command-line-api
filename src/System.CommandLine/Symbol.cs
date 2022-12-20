@@ -41,6 +41,24 @@ namespace System.CommandLine
         
         internal void AddParent(Symbol symbol)
         {
+            if (ReferenceEquals(this, symbol))
+            {
+                Throw(this);
+            }
+            else if(symbol._firstParent is not null)
+            {
+                ParentNode? ancestor = symbol._firstParent;
+                do
+                {
+                    if (ReferenceEquals(ancestor.Symbol, this))
+                    {
+                        Throw(symbol);
+                    }
+
+                    ancestor = ancestor.Symbol.FirstParent;
+                } while (ancestor is not null);
+            }
+
             if (_firstParent == null)
             {
                 _firstParent = new ParentNode(symbol);
@@ -54,6 +72,8 @@ namespace System.CommandLine
                 }
                 current.Next = new ParentNode(symbol);
             }
+
+            static void Throw(Symbol symbol) => throw new ArgumentException($"Cycle detected in symbol tree. Symbol '{symbol.Name}' would be its own ancestor.");
         }
 
         /// <summary>

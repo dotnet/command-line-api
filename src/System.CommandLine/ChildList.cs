@@ -25,8 +25,8 @@ namespace System.CommandLine
             get => _children[index];
             set
             {
-                _children[index] = value;
                 value.AddParent(_parent);
+                _children[index] = value;
             }
         }
 

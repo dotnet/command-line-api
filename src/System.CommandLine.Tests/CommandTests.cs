@@ -301,6 +301,39 @@ namespace System.CommandLine.Tests
                 .Contain(option);
         }
 
+        [Fact]
+        public void Command_can_not_be_its_own_parent()
+        {
+            var command = new Command("test");
+
+            Assert.Throws<ArgumentException>(() => command.Subcommands.Add(command))
+                  .Message
+                    .Should()
+                    .Be($"Cycle detected in symbol tree. Symbol '{command.Name}' would be its own ancestor.");
+
+            Assert.Throws<ArgumentException>(() => command.Subcommands.Insert(0, command))
+                  .Message
+                    .Should()
+                    .Be($"Cycle detected in symbol tree. Symbol '{command.Name}' would be its own ancestor.");
+        }
+
+        [Fact]
+        public void Command_can_not_be_its_own_ancestor()
+        {
+            var command = new Command("command");
+            var rootCommand = new Command("root") { command };
+
+            Assert.Throws<ArgumentException>(() => command.Subcommands.Add(rootCommand))
+                  .Message
+                    .Should()
+                    .Be($"Cycle detected in symbol tree. Symbol '{command.Name}' would be its own ancestor.");
+
+            Assert.Throws<ArgumentException>(() => command.Subcommands.Insert(0, rootCommand))
+                  .Message
+                    .Should()
+                    .Be($"Cycle detected in symbol tree. Symbol '{command.Name}' would be its own ancestor.");
+        }
+
         protected override Symbol CreateSymbol(string name) => new Command(name);
     }
 }
