@@ -16,7 +16,7 @@ namespace System.CommandLine.Parsing
         private readonly TokenizeResult _tokenizeResult;
         private readonly string? _rawInput;
 
-        private readonly Dictionary<string, IReadOnlyList<string>> _directives = new();
+        private Dictionary<string, IReadOnlyList<string>>? _directives;
         private List<Token>? _unmatchedTokens;
         private readonly List<ParseError> _errors;
 
@@ -224,11 +224,11 @@ namespace System.CommandLine.Parsing
 
         private void VisitDirectiveNode(DirectiveNode directiveNode)
         {
-            if (!_directives.TryGetValue(directiveNode.Name, out var values))
+            if (_directives is null || !_directives.TryGetValue(directiveNode.Name, out var values))
             {
                 values = new List<string>();
 
-                _directives.Add(directiveNode.Name, values);
+                (_directives ??= new()).Add(directiveNode.Name, values);
             }
 
             if (directiveNode.Value is not null)

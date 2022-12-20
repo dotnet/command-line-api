@@ -17,13 +17,14 @@ namespace System.CommandLine
         private readonly List<ParseError> _errors;
         private readonly RootCommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
+        private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CompletionContext? _completionContext;
 
         internal ParseResult(
             Parser parser,
             RootCommandResult rootCommandResult,
             CommandResult commandResult,
-            IReadOnlyDictionary<string, IReadOnlyList<string>> directives,
+            Dictionary<string, IReadOnlyList<string>>? directives,
             TokenizeResult tokenizeResult,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
@@ -32,7 +33,7 @@ namespace System.CommandLine
             Parser = parser;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
-            Directives = directives;
+            _directives = directives;
 
             // skip the root command when populating Tokens property
             if (tokenizeResult.Tokens.Count > 1)
@@ -99,7 +100,7 @@ namespace System.CommandLine
         /// Gets the directives found while parsing command line input.
         /// </summary>
         /// <remarks>If <see cref="CommandLineConfiguration.EnableDirectives"/> is set to <see langword="false"/>, then this collection will be empty.</remarks>
-        public IReadOnlyDictionary<string, IReadOnlyList<string>> Directives { get; }
+        public IReadOnlyDictionary<string, IReadOnlyList<string>> Directives => _directives ??= new ();
 
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
