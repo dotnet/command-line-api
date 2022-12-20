@@ -7,14 +7,14 @@ namespace System.CommandLine.Parsing
 {
     internal abstract class NonterminalSyntaxNode : SyntaxNode
     {
-        private readonly List<SyntaxNode> _children = new();
+        private List<SyntaxNode>? _children;
 
         protected NonterminalSyntaxNode(Token token, SyntaxNode? parent) : base(token, parent)
         {
         }
 
-        public IReadOnlyList<SyntaxNode> Children => _children;
+        public IReadOnlyList<SyntaxNode> Children => _children is not null ? _children : Array.Empty<SyntaxNode>();
 
-        internal void AddChildNode(SyntaxNode node) => _children.Add(node);
+        internal void AddChildNode(SyntaxNode node) => (_children ??= new()).Add(node);
     }
 }
