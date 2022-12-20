@@ -23,9 +23,10 @@ namespace System.CommandLine.Invocation
 
         public void ProvideSuggestions(ParseResult result, IConsole console)
         {
-            for (var i = 0; i < result.UnmatchedTokens.Count; i++)
+            var unmatchedTokens = result.UnmatchedTokens;
+            for (var i = 0; i < unmatchedTokens.Count; i++)
             {
-                var token = result.UnmatchedTokens[i];
+                var token = unmatchedTokens[i];
                 var suggestions = GetPossibleTokens(result.CommandResult.Command, token).ToList();
                 if (suggestions.Count > 0)
                 {
