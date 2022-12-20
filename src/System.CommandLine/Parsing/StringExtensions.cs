@@ -73,7 +73,7 @@ namespace System.CommandLine.Parsing
             CommandLineConfiguration configuration,
             bool inferRootCommand = true)
         {
-            var errorList = new List<string>();
+            List<string>? errorList = null;
 
             var currentCommand = configuration.RootCommand;
             var foundDoubleDash = false;
@@ -136,7 +136,7 @@ namespace System.CommandLine.Parsing
                     }
                     else if (!string.IsNullOrWhiteSpace(error))
                     {
-                        errorList.Add(error!);
+                        (errorList ??= new()).Add(error!);
                         continue;
                     }
                 }

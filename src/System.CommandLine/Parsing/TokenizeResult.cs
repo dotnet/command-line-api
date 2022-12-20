@@ -9,13 +9,13 @@ internal class TokenizeResult
 {
     internal TokenizeResult(
         List<Token> tokens,
-        List<string> errors)
+        List<string>? errors)
     {
         Tokens = tokens;
-        Errors = errors;
+        Errors = errors is null ? Array.Empty<string>() : errors;
     }
 
     public List<Token> Tokens { get; }
 
-    public List<string> Errors { get; }
+    public IReadOnlyList<string> Errors { get; }
 }
