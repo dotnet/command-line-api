@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
+
 namespace System.CommandLine.Parsing
 {
     internal class DirectiveNode : SyntaxNode
@@ -11,10 +13,7 @@ namespace System.CommandLine.Parsing
             string name,
             string? value) : base(token, parent)
         {
-            if (token.Type != TokenType.Directive)
-            {
-                throw new ArgumentException($"Incorrect token type: {token}");
-            }
+            Debug.Assert(token.Type == TokenType.Directive, $"Incorrect token type: {token}");
 
             Name = name;
             Value = value;
