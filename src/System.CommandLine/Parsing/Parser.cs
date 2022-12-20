@@ -41,9 +41,11 @@ namespace System.CommandLine.Parsing
         /// <param name="rawInput">The complete command line input prior to splitting and tokenization. This input is not typically available when the parser is called from <c>Program.Main</c>. It is primarily used when calculating completions via the <c>dotnet-suggest</c> tool.</param>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
         public ParseResult Parse(
-            IReadOnlyList<string> arguments,
+            IReadOnlyList<string>? arguments,
             string? rawInput = null)
         {
+            arguments ??= Array.Empty<string>();
+
             var tokenizeResult = arguments.Tokenize(
                 Configuration,
                 inferRootCommand: rawInput is not null);

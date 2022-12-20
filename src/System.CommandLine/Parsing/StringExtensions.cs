@@ -287,15 +287,10 @@ namespace System.CommandLine.Parsing
         }
 
         private static List<string> NormalizeRootCommand(
-            IReadOnlyList<string>? args,
+            IReadOnlyList<string> args,
             Command rootCommand,
             bool inferRootCommand = true)
         {
-            if (args is null)
-            {
-                args = new List<string>();
-            }
-
             var list = new List<string>();
 
             if (args.Count > 0)
