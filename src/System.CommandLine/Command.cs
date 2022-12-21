@@ -64,6 +64,8 @@ namespace System.CommandLine
         /// </summary>
         public IList<Option> Options => _options ??= new (this);
 
+        internal bool HasOptions => _options is not null;
+
         /// <summary>
         /// Represents all of the subcommands for the command.
         /// </summary>
@@ -157,10 +159,13 @@ namespace System.CommandLine
                     AddCompletionsFor(commands[i]);
                 }
 
-                var options = Options;
-                for (int i = 0; i < options.Count; i++)
+                if (HasOptions)
                 {
-                    AddCompletionsFor(options[i]);
+                    var options = Options;
+                    for (int i = 0; i < options.Count; i++)
+                    {
+                        AddCompletionsFor(options[i]);
+                    }
                 }
 
                 var arguments = Arguments;
@@ -176,9 +181,10 @@ namespace System.CommandLine
                     }
                 }
 
-                foreach (var parent in Parents.FlattenBreadthFirst(p => p.Parents))
+                ParentNode? parent = FirstParent;
+                while (parent is not null)
                 {
-                    if (parent is Command parentCommand)
+                    if (parent.Symbol is Command parentCommand && parentCommand.HasOptions)
                     {
                         for (var i = 0; i < parentCommand.Options.Count; i++)
                         {
@@ -190,6 +196,8 @@ namespace System.CommandLine
                             }
                         }
                     }
+
+                    parent = parent.Next;
                 }
             }
 

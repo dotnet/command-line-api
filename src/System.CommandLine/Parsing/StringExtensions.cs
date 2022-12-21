@@ -443,15 +443,18 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            var options = command.Options;
-            for (int childIndex = 0; childIndex < options.Count; childIndex++)
+            if (command.HasOptions)
             {
-                Option option = options[childIndex];
-                foreach (string childAlias in option.Aliases)
+                var options = command.Options;
+                for (int childIndex = 0; childIndex < options.Count; childIndex++)
                 {
-                    if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
+                    Option option = options[childIndex];
+                    foreach (string childAlias in option.Aliases)
                     {
-                        tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                        if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
+                        {
+                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                        }
                     }
                 }
             }
@@ -465,16 +468,19 @@ namespace System.CommandLine.Parsing
                 {
                     if ((parentCommand = parent.Symbol as Command) is not null)
                     {
-                        for (var i = 0; i < parentCommand.Options.Count; i++)
+                        if (parentCommand.HasOptions)
                         {
-                            Option option = parentCommand.Options[i];
-                            if (option.IsGlobal)
+                            for (var i = 0; i < parentCommand.Options.Count; i++)
                             {
-                                foreach (var childAlias in option.Aliases)
+                                Option option = parentCommand.Options[i];
+                                if (option.IsGlobal)
                                 {
-                                    if (!tokens.ContainsKey(childAlias))
+                                    foreach (var childAlias in option.Aliases)
                                     {
-                                        tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                                        if (!tokens.ContainsKey(childAlias))
+                                        {
+                                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                                        }
                                     }
                                 }
                             }

@@ -201,11 +201,14 @@ public partial class HelpBuilder
                 // by making this logic more complex, we were able to get some nice perf wins elsewhere
                 List<TwoColumnHelpRow> options = new();
                 HashSet<Option> uniqueOptions = new();
-                foreach (Option option in ctx.Command.Options)
+                if (ctx.Command.HasOptions)
                 {
-                    if (!option.IsHidden && uniqueOptions.Add(option))
+                    foreach (Option option in ctx.Command.Options)
                     {
-                        options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                        if (!option.IsHidden && uniqueOptions.Add(option))
+                        {
+                            options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                        }
                     }
                 }
 
@@ -218,12 +221,15 @@ public partial class HelpBuilder
                     {
                         if ((parentCommand = parent.Symbol as Command) is not null)
                         {
-                            foreach (var option in parentCommand.Options)
+                            if (parentCommand.HasOptions)
                             {
-                                // global help aliases may be duplicated, we just ignore them
-                                if (option.IsGlobal && !option.IsHidden && uniqueOptions.Add(option))
+                                foreach (var option in parentCommand.Options)
                                 {
-                                    options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                                    // global help aliases may be duplicated, we just ignore them
+                                    if (option.IsGlobal && !option.IsHidden && uniqueOptions.Add(option))
+                                    {
+                                        options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                                    }
                                 }
                             }
 

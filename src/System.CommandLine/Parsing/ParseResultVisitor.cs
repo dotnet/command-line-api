@@ -371,19 +371,22 @@ namespace System.CommandLine.Parsing
             Command? currentCommand = command;
             while (currentCommand is not null)
             {
-                var options = currentCommand.Options;
-                for (var i = 0; i < options.Count; i++)
+                if (currentCommand.HasOptions)
                 {
-                    var option = options[i];
-                    if (option.IsRequired && (!checkOnlyGlobalOptions || (checkOnlyGlobalOptions && option.IsGlobal)))
+                    var options = currentCommand.Options;
+                    for (var i = 0; i < options.Count; i++)
                     {
-                        if (_rootCommandResult!.FindResultFor(option) is null)
+                        var option = options[i];
+                        if (option.IsRequired && (!checkOnlyGlobalOptions || (checkOnlyGlobalOptions && option.IsGlobal)))
                         {
-                            AddErrorToResult(
-                                _innermostCommandResult,
-                                new ParseError(
-                                    _rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option),
-                                    _innermostCommandResult));
+                            if (_rootCommandResult!.FindResultFor(option) is null)
+                            {
+                                AddErrorToResult(
+                                    _innermostCommandResult,
+                                    new ParseError(
+                                        _rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option),
+                                        _innermostCommandResult));
+                            }
                         }
                     }
                 }
@@ -550,13 +553,16 @@ namespace System.CommandLine.Parsing
         {
             var commandResult = _innermostCommandResult;
             
-            while (commandResult is { })
+            while (commandResult is not null)
             {
-                var options = commandResult.Command.Options;
-                for (var i = 0; i < options.Count; i++)
+                if (commandResult.Command.HasOptions)
                 {
-                    Symbol symbol = options[i];
-                    Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                    var options = commandResult.Command.Options;
+                    for (var i = 0; i < options.Count; i++)
+                    {
+                        Symbol symbol = options[i];
+                        Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                    }
                 }
 
                 var arguments = commandResult.Command.Arguments;

@@ -125,7 +125,7 @@ namespace System.CommandLine.Help
                 {
                     if (!displayOptionTitle)
                     {
-                        displayOptionTitle = parentCommand.Options.Any(x => x.IsGlobal && !x.IsHidden);
+                        displayOptionTitle = parentCommand.HasOptions && parentCommand.Options.Any(x => x.IsGlobal && !x.IsHidden);
                     }
 
                     yield return parentCommand.Name;
@@ -140,7 +140,7 @@ namespace System.CommandLine.Help
                     yield return LocalizationResources.HelpUsageCommand();
                 }
 
-                displayOptionTitle = displayOptionTitle || command.Options.Any(x => !x.IsHidden);
+                displayOptionTitle = displayOptionTitle || (command.HasOptions && command.Options.Any(x => !x.IsHidden));
                 
                 if (displayOptionTitle)
                 {
