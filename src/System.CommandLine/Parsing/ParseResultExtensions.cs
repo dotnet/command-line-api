@@ -92,7 +92,7 @@ namespace System.CommandLine.Parsing
                 {
                     var includeArgumentName =
                         argumentResult.Argument.FirstParent!.Symbol is Command command &&
-                        command.Arguments.Count > 1;
+                        command.HasArguments && command.Arguments.Count > 1;
 
                     if (includeArgumentName)
                     {

@@ -130,7 +130,10 @@ namespace System.CommandLine.Help
 
                     yield return parentCommand.Name;
 
-                    yield return FormatArgumentUsage(parentCommand.Arguments);
+                    if (parentCommand.HasArguments)
+                    {
+                        yield return FormatArgumentUsage(parentCommand.Arguments);
+                    }
                 }
 
                 var hasCommandWithHelp = command.Subcommands.Any(x => !x.IsHidden);

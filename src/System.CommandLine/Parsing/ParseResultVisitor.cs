@@ -565,11 +565,14 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                var arguments = commandResult.Command.Arguments;
-                for (var i = 0; i < arguments.Count; i++)
+                if (commandResult.Command.HasArguments)
                 {
-                    Symbol symbol = arguments[i];
-                    Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                    var arguments = commandResult.Command.Arguments;
+                    for (var i = 0; i < arguments.Count; i++)
+                    {
+                        Symbol symbol = arguments[i];
+                        Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                    }
                 }
 
                 commandResult = commandResult.Parent as CommandResult;

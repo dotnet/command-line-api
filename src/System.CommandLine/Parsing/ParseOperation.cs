@@ -97,7 +97,7 @@ namespace System.CommandLine.Parsing
         {
             while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Argument)
             {
-                while (currentArgumentIndex < commandNode.Command.Arguments.Count)
+                while (commandNode.Command.HasArguments && currentArgumentIndex < commandNode.Command.Arguments.Count)
                 {
                     Argument argument = commandNode.Command.Arguments[currentArgumentIndex];
 

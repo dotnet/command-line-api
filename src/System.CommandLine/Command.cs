@@ -57,14 +57,14 @@ namespace System.CommandLine
         /// </summary>
         public IList<Argument> Arguments => _arguments ??= new(this);
 
-        internal bool HasArguments => _arguments is not null;
+        internal bool HasArguments => _arguments is not null && _arguments.Count > 0 ;
 
         /// <summary>
         /// Represents all of the options for the command, including global options that have been applied to any of the command's ancestors.
         /// </summary>
         public IList<Option> Options => _options ??= new (this);
 
-        internal bool HasOptions => _options is not null;
+        internal bool HasOptions => _options is not null && _options.Count > 0;
 
         /// <summary>
         /// Represents all of the subcommands for the command.
@@ -168,15 +168,18 @@ namespace System.CommandLine
                     }
                 }
 
-                var arguments = Arguments;
-                for (int i = 0; i < arguments.Count; i++)
+                if (HasArguments)
                 {
-                    var argument = arguments[i];
-                    foreach (var completion in argument.GetCompletions(context))
+                    var arguments = Arguments;
+                    for (int i = 0; i < arguments.Count; i++)
                     {
-                        if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                        var argument = arguments[i];
+                        foreach (var completion in argument.GetCompletions(context))
                         {
-                            completions.Add(completion);
+                            if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                            {
+                                completions.Add(completion);
+                            }
                         }
                     }
                 }

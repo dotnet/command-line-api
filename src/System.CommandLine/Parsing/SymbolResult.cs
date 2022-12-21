@@ -78,11 +78,14 @@ namespace System.CommandLine.Parsing
                     case Command command:
                         var value = 0;
 
-                        var arguments = command.Arguments;
-
-                        for (var i = 0; i < arguments.Count; i++)
+                        if (command.HasArguments)
                         {
-                            value += arguments[i].Arity.MaximumNumberOfValues;
+                            var arguments = command.Arguments;
+
+                            for (var i = 0; i < arguments.Count; i++)
+                            {
+                                value += arguments[i].Arity.MaximumNumberOfValues;
+                            }
                         }
 
                         return value;
