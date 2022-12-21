@@ -12,7 +12,7 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public abstract class SymbolResult
     {
-        private readonly List<SymbolResult> _children = new();
+        private List<SymbolResult>? _children;
         private protected readonly List<Token> _tokens = new();
         private LocalizationResources? _resources;
         private readonly Dictionary<Argument, ArgumentResult> _defaultArgumentValues = new();
@@ -37,9 +37,9 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Child symbol results in the parse tree.
         /// </summary>
-        public IReadOnlyList<SymbolResult> Children => _children;
+        public IReadOnlyList<SymbolResult> Children => _children is not null ? _children : Array.Empty<SymbolResult>();
 
-        internal void AddChild(SymbolResult symbolResult) => _children.Add(symbolResult);
+        internal void AddChild(SymbolResult symbolResult) => (_children ??= new()).Add(symbolResult);
 
         /// <summary>
         /// The parent symbol result in the parse tree.
