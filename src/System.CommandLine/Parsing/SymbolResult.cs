@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
     public abstract class SymbolResult
     {
         private List<SymbolResult>? _children;
-        private protected readonly List<Token> _tokens = new();
+        private protected List<Token>? _tokens;
         private LocalizationResources? _resources;
         private readonly Dictionary<Argument, ArgumentResult> _defaultArgumentValues = new();
 
@@ -56,7 +56,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The list of tokens associated with this symbol result during parsing.
         /// </summary>
-        public IReadOnlyList<Token> Tokens => _tokens;
+        public IReadOnlyList<Token> Tokens => _tokens is not null ? _tokens : Array.Empty<Token>();
 
         internal bool IsArgumentLimitReached => RemainingArgumentCapacity == 0;
 
@@ -105,7 +105,7 @@ namespace System.CommandLine.Parsing
             set => _resources = value;
         }
 
-        internal void AddToken(Token token) => _tokens.Add(token);
+        internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
 
         /// <summary>
         /// Finds a result for the specific argument anywhere in the parse tree, including parent and child symbol results.
