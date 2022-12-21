@@ -433,13 +433,16 @@ namespace System.CommandLine.Parsing
                     new Token(commandAlias, TokenType.Command, command, Token.ImplicitPosition));
             }
 
-            var subCommands = command.Subcommands;
-            for (int childIndex = 0; childIndex < subCommands.Count; childIndex++)
+            if (command.HasSubcommands)
             {
-                Command cmd = subCommands[childIndex];
-                foreach (string childAlias in cmd.Aliases)
+                var subCommands = command.Subcommands;
+                for (int childIndex = 0; childIndex < subCommands.Count; childIndex++)
                 {
-                    tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                    Command cmd = subCommands[childIndex];
+                    foreach (string childAlias in cmd.Aliases)
+                    {
+                        tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                    }
                 }
             }
 

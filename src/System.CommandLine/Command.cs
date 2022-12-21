@@ -71,6 +71,8 @@ namespace System.CommandLine
         /// </summary>
         public IList<Command> Subcommands => _subcommands ??= new(this);
 
+        internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
+
         /// <summary>
         /// Validators to the command. Validators can be used
         /// to create custom validation logic.
@@ -153,10 +155,13 @@ namespace System.CommandLine
 
             if (context.WordToComplete is { } textToMatch)
             {
-                var commands = Subcommands;
-                for (int i = 0; i < commands.Count; i++)
+                if (HasSubcommands)
                 {
-                    AddCompletionsFor(commands[i]);
+                    var commands = Subcommands;
+                    for (int i = 0; i < commands.Count; i++)
+                    {
+                        AddCompletionsFor(commands[i]);
+                    }
                 }
 
                 if (HasOptions)

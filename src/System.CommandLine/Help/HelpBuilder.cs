@@ -136,7 +136,7 @@ namespace System.CommandLine.Help
                     }
                 }
 
-                var hasCommandWithHelp = command.Subcommands.Any(x => !x.IsHidden);
+                var hasCommandWithHelp = command.HasSubcommands && command.Subcommands.Any(x => !x.IsHidden);
 
                 if (hasCommandWithHelp)
                 {

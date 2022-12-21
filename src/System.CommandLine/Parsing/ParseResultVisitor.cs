@@ -446,7 +446,7 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            if (cmd.Subcommands.Count == 0)
+            if (!cmd.HasSubcommands)
             {
                 return;
             }
