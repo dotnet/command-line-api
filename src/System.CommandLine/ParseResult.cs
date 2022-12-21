@@ -38,14 +38,11 @@ namespace System.CommandLine
             // skip the root command when populating Tokens property
             if (tokenizeResult.Tokens.Count > 1)
             {
-                var tokens = new Token[tokenizeResult.Tokens.Count - 1];
-                for (var i = 0; i < tokenizeResult.Tokens.Count - 1; i++)
-                {
-                    var token = tokenizeResult.Tokens[i + 1];
-                    tokens[i] = token;
-                }
-
-                Tokens = tokens;
+                // Since TokenizeResult.Tokens is not public and not used anywhere after the parsing,
+                // we take advantage of its mutability and remove the root command token
+                // instead of creating a copy of the whole list.
+                tokenizeResult.Tokens.RemoveAt(0);
+                Tokens = tokenizeResult.Tokens;
             }
             else
             {
