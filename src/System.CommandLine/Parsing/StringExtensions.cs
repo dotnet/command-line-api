@@ -68,10 +68,13 @@ namespace System.CommandLine.Parsing
             return (null, rawAlias);
         }
 
-        internal static TokenizeResult Tokenize(
+        // this method is not returning a Value Tuple or a dedicated type to avoid JITting
+        internal static void Tokenize(
             this IReadOnlyList<string> args,
             CommandLineConfiguration configuration,
-            bool inferRootCommand)
+            bool inferRootCommand,
+            out List<Token> tokens,
+            out List<string>? errors)
         {
             const int FirstArgIsNotRootCommand = -1;
 
@@ -219,7 +222,8 @@ namespace System.CommandLine.Parsing
                 Token Directive(string value) => new(value, TokenType.Directive, default, i);
             }
 
-            return new TokenizeResult(tokenList, errorList);
+            tokens = tokenList;
+            errors = errorList;
 
             bool CanBeUnbundled(string arg)
                 => arg.Length > 2

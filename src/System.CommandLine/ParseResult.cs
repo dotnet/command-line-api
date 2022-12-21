@@ -25,7 +25,7 @@ namespace System.CommandLine
             RootCommandResult rootCommandResult,
             CommandResult commandResult,
             Dictionary<string, IReadOnlyList<string>>? directives,
-            TokenizeResult tokenizeResult,
+            List<Token> tokens,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null)
@@ -36,13 +36,13 @@ namespace System.CommandLine
             _directives = directives;
 
             // skip the root command when populating Tokens property
-            if (tokenizeResult.Tokens.Count > 1)
+            if (tokens.Count > 1)
             {
                 // Since TokenizeResult.Tokens is not public and not used anywhere after the parsing,
                 // we take advantage of its mutability and remove the root command token
                 // instead of creating a copy of the whole list.
-                tokenizeResult.Tokens.RemoveAt(0);
-                Tokens = tokenizeResult.Tokens;
+                tokens.RemoveAt(0);
+                Tokens = tokens;
             }
             else
             {

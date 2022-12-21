@@ -46,19 +46,22 @@ namespace System.CommandLine.Parsing
         {
             arguments ??= Array.Empty<string>();
 
-            var tokenizeResult = arguments.Tokenize(
+            arguments.Tokenize(
                 Configuration,
-                inferRootCommand: rawInput is not null);
+                inferRootCommand: rawInput is not null,
+                out List<Token> tokens,
+                out List<string>? tokenizationErrors);
 
             var operation = new ParseOperation(
-                tokenizeResult,
+                tokens,
                 Configuration);
 
             operation.Parse();
 
             var visitor = new ParseResultVisitor(
                 this,
-                tokenizeResult,
+                tokens,
+                tokenizationErrors,
                 operation.UnmatchedTokens,
                 rawInput);
 

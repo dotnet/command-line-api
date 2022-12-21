@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
     internal sealed class ParseResultVisitor
     {
         private readonly Parser _parser;
-        private readonly TokenizeResult _tokenizeResult;
+        private readonly List<Token> _tokens;
         private readonly string? _rawInput;
 
         private Dictionary<string, IReadOnlyList<string>>? _directives;
@@ -29,22 +29,26 @@ namespace System.CommandLine.Parsing
         private CommandResult? _innermostCommandResult;
         private bool _isHelpRequested;
 
-        public ParseResultVisitor(
+        internal ParseResultVisitor(
             Parser parser,
-            TokenizeResult tokenizeResult,
+            List<Token> tokens,
+            List<string>? tokenizeErrors,
             List<Token>? unmatchedTokens,
             string? rawInput)
         {
             _parser = parser;
-            _tokenizeResult = tokenizeResult;
+            _tokens = tokens;
             _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
-            _errors = new List<ParseError>(_tokenizeResult.Errors.Count);
 
-            for (var i = 0; i < _tokenizeResult.Errors.Count; i++)
             {
-                var error = _tokenizeResult.Errors[i];
-                _errors.Add(new ParseError(error));
+                _errors = new List<ParseError>(tokenizeErrors.Count);
+
+                for (var i = 0; i < tokenizeErrors.Count; i++)
+                {
+                    var error = tokenizeErrors[i];
+                    _errors.Add(new ParseError(error));
+                }
             }
         }
 
