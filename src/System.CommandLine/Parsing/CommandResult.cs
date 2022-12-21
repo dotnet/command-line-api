@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+
 namespace System.CommandLine.Parsing
 {
     /// <summary>
@@ -8,6 +10,8 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public class CommandResult : SymbolResult
     {
+        private Dictionary<Argument, ArgumentResult>? _defaultArgumentValues;
+
         internal CommandResult(
             Command command,
             Token token,
@@ -36,5 +40,10 @@ namespace System.CommandLine.Parsing
                                       arg.Tokens.Count == 0,
                 _ => false
             };
+
+        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
+            (_defaultArgumentValues ??= new()).GetOrAdd(
+                argument,
+                arg => new ArgumentResult(arg, this));
     }
 }

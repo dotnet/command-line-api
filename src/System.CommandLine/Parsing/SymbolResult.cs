@@ -15,7 +15,6 @@ namespace System.CommandLine.Parsing
         private List<SymbolResult>? _children;
         private protected List<Token>? _tokens;
         private LocalizationResources? _resources;
-        private readonly Dictionary<Argument, ArgumentResult> _defaultArgumentValues = new();
 
         private protected SymbolResult(
             Symbol symbol, 
@@ -178,11 +177,6 @@ namespace System.CommandLine.Parsing
 
             return ArgumentConverter.GetDefaultValue(option.Argument.ValueType);
         }
-
-        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
-            _defaultArgumentValues.GetOrAdd(
-                argument,
-                arg => new ArgumentResult(arg, this));
 
         internal virtual bool UseDefaultValueFor(Argument argument) => false;
 
