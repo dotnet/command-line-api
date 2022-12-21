@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
-using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -18,7 +17,7 @@ namespace System.CommandLine.Parsing
 
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private List<Token>? _unmatchedTokens;
-        private readonly List<ParseError> _errors;
+        private List<ParseError>? _errors;
 
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults = new();
 
@@ -41,6 +40,7 @@ namespace System.CommandLine.Parsing
             _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
 
+            if (tokenizeErrors is not null)
             {
                 _errors = new List<ParseError>(tokenizeErrors.Count);
 
@@ -448,7 +448,7 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            _errors.Insert(
+            (_errors ??= new()).Insert(
                 0,
                 new ParseError(
                     _innermostCommandResult.LocalizationResources.RequiredCommandWasNotProvided(),
@@ -628,7 +628,7 @@ namespace System.CommandLine.Parsing
                 optionResult.ErrorMessage ??= symbolResult.ErrorMessage;
             }
 
-            _errors.Add(parseError);
+            (_errors ??= new()).Add(parseError);
         }
 
         public ParseResult GetResult() =>
@@ -636,7 +636,7 @@ namespace System.CommandLine.Parsing
                 _rootCommandResult ?? throw new InvalidOperationException("No root command was found"),
                 _innermostCommandResult ?? throw new InvalidOperationException("No command was found"),
                 _directives,
-                _tokenizeResult,
+                _tokens,
                 _unmatchedTokens,
                 _errors,
                 _rawInput);

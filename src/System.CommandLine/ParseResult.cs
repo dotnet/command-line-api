@@ -14,7 +14,7 @@ namespace System.CommandLine
     /// </summary>
     public class ParseResult
     {
-        private readonly List<ParseError> _errors;
+        private readonly IReadOnlyList<ParseError> _errors;
         private readonly RootCommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private Dictionary<string, IReadOnlyList<string>>? _directives;
@@ -49,7 +49,6 @@ namespace System.CommandLine
                 Tokens = Array.Empty<Token>();
             }
 
-            _errors = errors ?? new List<ParseError>();
             CommandLineText = commandLineText;
 
             if (unmatchedTokens is null)
@@ -65,10 +64,12 @@ namespace System.CommandLine
                     for (var i = 0; i < _unmatchedTokens.Count; i++)
                     {
                         var token = _unmatchedTokens[i];
-                        _errors.Add(new ParseError(parser.Configuration.LocalizationResources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
+                        (errors ??= new()).Add(new ParseError(parser.Configuration.LocalizationResources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
                     }
                 }
             }
+
+            _errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
         internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
