@@ -27,20 +27,28 @@ namespace System.CommandLine.Invocation
             for (var i = 0; i < unmatchedTokens.Count; i++)
             {
                 var token = unmatchedTokens[i];
-                var suggestions = GetPossibleTokens(result.CommandResult.Command, token).ToList();
-                if (suggestions.Count > 0)
+
+                bool first = true;
+                foreach (string suggestion in GetPossibleTokens(result.CommandResult.Command, token))
                 {
-                    console.Out.WriteLine(result.CommandResult.LocalizationResources.SuggestionsTokenNotMatched(token));
-                    foreach(string suggestion in suggestions)
+                    if (first)
                     {
-                        console.Out.WriteLine(suggestion);
+                        console.Out.WriteLine(result.CommandResult.LocalizationResources.SuggestionsTokenNotMatched(token));
+                        first = false;
                     }
+
+                    console.Out.WriteLine(suggestion);
                 }
             }
         }
 
         private IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)
         {
+            if (!targetSymbol.HasOptions && !targetSymbol.HasSubcommands)
+            {
+                return Array.Empty<string>();
+            }
+
             IEnumerable<string> possibleMatches = targetSymbol
                 .Children
                 .OfType<IdentifierSymbol>()
