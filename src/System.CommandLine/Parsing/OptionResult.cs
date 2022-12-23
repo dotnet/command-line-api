@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.Diagnostics.CodeAnalysis;
 
@@ -12,6 +13,7 @@ namespace System.CommandLine.Parsing
     public class OptionResult : SymbolResult
     {
         private ArgumentConversionResult? _argumentConversionResult;
+        private Dictionary<Argument, ArgumentResult>? _defaultArgumentValues;
 
         internal OptionResult(
             Option option,
@@ -94,5 +96,10 @@ namespace System.CommandLine.Parsing
         }
         
         internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
+
+        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
+            (_defaultArgumentValues ??= new()).GetOrAdd(
+                argument,
+                arg => new ArgumentResult(arg, this));
     }
 }

@@ -68,26 +68,35 @@ namespace System.CommandLine.Parsing
             return (null, rawAlias);
         }
 
-        internal static TokenizeResult Tokenize(
+        // this method is not returning a Value Tuple or a dedicated type to avoid JITting
+        internal static void Tokenize(
             this IReadOnlyList<string> args,
             CommandLineConfiguration configuration,
-            bool inferRootCommand = true)
+            bool inferRootCommand,
+            out List<Token> tokens,
+            out List<string>? errors)
         {
-            var errorList = new List<string>();
+            const int FirstArgIsNotRootCommand = -1;
+
+            List<string>? errorList = null;
 
             var currentCommand = configuration.RootCommand;
             var foundDoubleDash = false;
             var foundEndOfDirectives = !configuration.EnableDirectives;
 
-            var argList = NormalizeRootCommand(args, configuration.RootCommand, inferRootCommand);
-
-            var tokenList = new List<Token>(argList.Count);
+            var tokenList = new List<Token>(args.Count);
 
             var knownTokens = configuration.RootCommand.ValidTokens();
 
-            for (var i = 0; i < argList.Count; i++)
+            int i = FirstArgumentIsRootCommand(args, configuration.RootCommand, inferRootCommand)
+                ? 0
+                : FirstArgIsNotRootCommand;
+
+            for (; i < args.Count; i++)
             {
-                var arg = argList[i];
+                var arg = i == FirstArgIsNotRootCommand
+                    ? configuration.RootCommand.Name
+                    : args[i];
 
                 if (foundDoubleDash)
                 {
@@ -110,7 +119,7 @@ namespace System.CommandLine.Parsing
                         arg[0] == '[' &&
                         arg[1] != ']' &&
                         arg[1] != ':' &&
-                        arg.EndsWith("]", StringComparison.Ordinal))
+                        arg[arg.Length - 1] == ']')
                     {
                         tokenList.Add(Directive(arg));
                         continue;
@@ -131,12 +140,17 @@ namespace System.CommandLine.Parsing
                             out var newTokens,
                             out var error))
                     {
-                        argList.InsertRange(i + 1, newTokens ?? Array.Empty<string>());
+                        if (newTokens is not null && newTokens.Count > 0)
+                        {
+                            List<string> listWithReplacedTokens = args.ToList();
+                            listWithReplacedTokens.InsertRange(i + 1, newTokens);
+                            args = listWithReplacedTokens;
+                        }
                         continue;
                     }
                     else if (!string.IsNullOrWhiteSpace(error))
                     {
-                        errorList.Add(error!);
+                        (errorList ??= new()).Add(error!);
                         continue;
                     }
                 }
@@ -208,7 +222,8 @@ namespace System.CommandLine.Parsing
                 Token Directive(string value) => new(value, TokenType.Directive, default, i);
             }
 
-            return new TokenizeResult(tokenList, errorList);
+            tokens = tokenList;
+            errors = errorList;
 
             bool CanBeUnbundled(string arg)
                 => arg.Length > 2
@@ -286,53 +301,31 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static List<string> NormalizeRootCommand(
-            IReadOnlyList<string>? args,
-            Command rootCommand,
-            bool inferRootCommand = true)
+        private static bool FirstArgumentIsRootCommand(IReadOnlyList<string> args, Command rootCommand, bool inferRootCommand)
         {
-            if (args is null)
-            {
-                args = new List<string>();
-            }
-
-            var list = new List<string>();
-
             if (args.Count > 0)
             {
-                if (inferRootCommand &&
-                    args[0] == RootCommand.ExecutablePath)
+                if (inferRootCommand && args[0] == RootCommand.ExecutablePath)
                 {
-                    list.AddRange(args);
-                    return list;
+                    return true;
                 }
-                else
-                {
-                    try
-                    {
-                        var potentialRootCommand = Path.GetFileName(args[0]);
 
-                        if (rootCommand.HasAlias(potentialRootCommand))
-                        {
-                            list.AddRange(args);
-                            return list;
-                        }
-                    }
-                    catch (ArgumentException)
+                try
+                {
+                    var potentialRootCommand = Path.GetFileName(args[0]);
+
+                    if (rootCommand.HasAlias(potentialRootCommand))
                     {
-                        // possible exception for illegal characters in path on .NET Framework
+                        return true;
                     }
+                }
+                catch (ArgumentException)
+                {
+                    // possible exception for illegal characters in path on .NET Framework
                 }
             }
 
-            list.Add(rootCommand.Name);
-
-            for (var i = 0; i < args.Count; i++)
-            {
-                list.Add(args[i]);
-            }
-
-            return list;
+            return false;
         }
 
         private static string? GetReplaceableTokenValue(this string arg) =>
@@ -440,25 +433,31 @@ namespace System.CommandLine.Parsing
                     new Token(commandAlias, TokenType.Command, command, Token.ImplicitPosition));
             }
 
-            var subCommands = command.Subcommands;
-            for (int childIndex = 0; childIndex < subCommands.Count; childIndex++)
+            if (command.HasSubcommands)
             {
-                Command cmd = subCommands[childIndex];
-                foreach (string childAlias in cmd.Aliases)
+                var subCommands = command.Subcommands;
+                for (int childIndex = 0; childIndex < subCommands.Count; childIndex++)
                 {
-                    tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                    Command cmd = subCommands[childIndex];
+                    foreach (string childAlias in cmd.Aliases)
+                    {
+                        tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                    }
                 }
             }
 
-            var options = command.Options;
-            for (int childIndex = 0; childIndex < options.Count; childIndex++)
+            if (command.HasOptions)
             {
-                Option option = options[childIndex];
-                foreach (string childAlias in option.Aliases)
+                var options = command.Options;
+                for (int childIndex = 0; childIndex < options.Count; childIndex++)
                 {
-                    if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
+                    Option option = options[childIndex];
+                    foreach (string childAlias in option.Aliases)
                     {
-                        tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                        if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
+                        {
+                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                        }
                     }
                 }
             }
@@ -472,16 +471,19 @@ namespace System.CommandLine.Parsing
                 {
                     if ((parentCommand = parent.Symbol as Command) is not null)
                     {
-                        for (var i = 0; i < parentCommand.Options.Count; i++)
+                        if (parentCommand.HasOptions)
                         {
-                            Option option = parentCommand.Options[i];
-                            if (option.IsGlobal)
+                            for (var i = 0; i < parentCommand.Options.Count; i++)
                             {
-                                foreach (var childAlias in option.Aliases)
+                                Option option = parentCommand.Options[i];
+                                if (option.IsGlobal)
                                 {
-                                    if (!tokens.ContainsKey(childAlias))
+                                    foreach (var childAlias in option.Aliases)
                                     {
-                                        tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                                        if (!tokens.ContainsKey(childAlias))
+                                        {
+                                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                                        }
                                     }
                                 }
                             }

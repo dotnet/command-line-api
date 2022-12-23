@@ -125,22 +125,25 @@ namespace System.CommandLine.Help
                 {
                     if (!displayOptionTitle)
                     {
-                        displayOptionTitle = parentCommand.Options.Any(x => x.IsGlobal && !x.IsHidden);
+                        displayOptionTitle = parentCommand.HasOptions && parentCommand.Options.Any(x => x.IsGlobal && !x.IsHidden);
                     }
 
                     yield return parentCommand.Name;
 
-                    yield return FormatArgumentUsage(parentCommand.Arguments);
+                    if (parentCommand.HasArguments)
+                    {
+                        yield return FormatArgumentUsage(parentCommand.Arguments);
+                    }
                 }
 
-                var hasCommandWithHelp = command.Subcommands.Any(x => !x.IsHidden);
+                var hasCommandWithHelp = command.HasSubcommands && command.Subcommands.Any(x => !x.IsHidden);
 
                 if (hasCommandWithHelp)
                 {
                     yield return LocalizationResources.HelpUsageCommand();
                 }
 
-                displayOptionTitle = displayOptionTitle || command.Options.Any(x => !x.IsHidden);
+                displayOptionTitle = displayOptionTitle || (command.HasOptions && command.Options.Any(x => !x.IsHidden));
                 
                 if (displayOptionTitle)
                 {

@@ -49,7 +49,7 @@ namespace System.CommandLine.Parsing
         internal Symbol? Symbol { get; }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj) => obj is Token other && Equals(other);
+        public override bool Equals(object? obj) => Equals(obj as Token);
 
         /// <inheritdoc />
         public bool Equals(Token? other) => other is not null && Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);
@@ -75,6 +75,5 @@ namespace System.CommandLine.Parsing
         /// <param name="right">The second <see cref="Token"/>.</param>
         /// <returns><see langword="true" /> if the objects are not equal.</returns>
         public static bool operator !=(Token? left, Token? right) => left is null ? right is not null : !left.Equals(right);
-
     }
 }

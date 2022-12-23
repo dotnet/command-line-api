@@ -12,38 +12,43 @@ namespace System.CommandLine.Parsing
     internal sealed class ParseResultVisitor
     {
         private readonly Parser _parser;
-        private readonly TokenizeResult _tokenizeResult;
+        private readonly List<Token> _tokens;
         private readonly string? _rawInput;
 
-        private readonly Dictionary<string, IReadOnlyList<string>> _directives = new();
+        private Dictionary<string, IReadOnlyList<string>>? _directives;
         private List<Token>? _unmatchedTokens;
-        private readonly List<ParseError> _errors;
+        private List<ParseError>? _errors;
 
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults = new();
 
-        private readonly List<OptionResult> _optionResults = new();
-        private readonly List<ArgumentResult> _argumentResults = new();
+        private List<OptionResult>? _optionResults;
+        private List<ArgumentResult>? _argumentResults;
 
         private RootCommandResult? _rootCommandResult;
         private CommandResult? _innermostCommandResult;
         private bool _isHelpRequested;
 
-        public ParseResultVisitor(
+        internal ParseResultVisitor(
             Parser parser,
-            TokenizeResult tokenizeResult,
+            List<Token> tokens,
+            List<string>? tokenizeErrors,
             List<Token>? unmatchedTokens,
             string? rawInput)
         {
             _parser = parser;
-            _tokenizeResult = tokenizeResult;
+            _tokens = tokens;
             _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
-            _errors = new List<ParseError>(_tokenizeResult.Errors.Count);
 
-            for (var i = 0; i < _tokenizeResult.Errors.Count; i++)
+            if (tokenizeErrors is not null)
             {
-                var error = _tokenizeResult.Errors[i];
-                _errors.Add(new ParseError(error));
+                _errors = new List<ParseError>(tokenizeErrors.Count);
+
+                for (var i = 0; i < tokenizeErrors.Count; i++)
+                {
+                    var error = tokenizeErrors[i];
+                    _errors.Add(new ParseError(error));
+                }
             }
         }
 
@@ -113,7 +118,7 @@ namespace System.CommandLine.Parsing
             _innermostCommandResult?.AddChild(result);
             if (_symbolResults.TryAdd(result.Option, result))
             {
-                _optionResults.Add(result);
+                (_optionResults ??= new()).Add(result);
             }
         }
 
@@ -122,7 +127,7 @@ namespace System.CommandLine.Parsing
             _innermostCommandResult?.AddChild(result);
             if (_symbolResults.TryAdd(result.Argument, result))
             {
-                _argumentResults.Add(result);
+                (_argumentResults ??= new()).Add(result);
             }
         }
 
@@ -223,11 +228,11 @@ namespace System.CommandLine.Parsing
 
         private void VisitDirectiveNode(DirectiveNode directiveNode)
         {
-            if (!_directives.TryGetValue(directiveNode.Name, out var values))
+            if (_directives is null || !_directives.TryGetValue(directiveNode.Name, out var values))
             {
                 values = new List<string>();
 
-                _directives.Add(directiveNode.Name, values);
+                (_directives ??= new()).Add(directiveNode.Name, values);
             }
 
             if (directiveNode.Value is not null)
@@ -249,30 +254,35 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            foreach (var optionResult in _optionResults)
+            if (_optionResults is not null)
             {
-                ValidateAndConvertOptionResult(optionResult);
+                foreach (var optionResult in _optionResults)
+                {
+                    ValidateAndConvertOptionResult(optionResult);
+                }
             }
 
-            if (_argumentResults.Count > 0)
+            if (_argumentResults is not null)
             {
-                ValidateAndConvertArgumentResults(_innermostCommandResult!.Command.Arguments, _argumentResults.Count);
+                ValidateAndConvertArgumentResults(_innermostCommandResult!.Command.Arguments, _argumentResults);
             }
         }
 
-        private void ValidateAndConvertArgumentResults(IList<Argument> arguments, int commandArgumentResultCount)
+        private void ValidateAndConvertArgumentResults(IList<Argument> arguments, List<ArgumentResult> argumentResults)
         {
+            int commandArgumentResultCount = argumentResults.Count;
+
             for (var i = 0; i < arguments.Count; i++)
             {
-                if (i > 0 && _argumentResults.Count > i)
+                if (i > 0 && argumentResults.Count > i)
                 {
-                    var previousArgumentResult = _argumentResults[i - 1];
+                    var previousArgumentResult = argumentResults[i - 1];
 
                     var passedOnTokensCount = previousArgumentResult.PassedOnTokens?.Count;
 
                     if (passedOnTokensCount > 0)
                     {
-                        ShiftPassedOnTokensToNextResult(previousArgumentResult, _argumentResults[i], passedOnTokensCount);
+                        ShiftPassedOnTokensToNextResult(previousArgumentResult, argumentResults[i], passedOnTokensCount);
                     }
                 }
 
@@ -284,13 +294,13 @@ namespace System.CommandLine.Parsing
                         nextArgument,
                         _innermostCommandResult);
 
-                    var previousArgumentResult = _argumentResults[i - 1];
+                    var previousArgumentResult = argumentResults[i - 1];
 
                     var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
 
                     ShiftPassedOnTokensToNextResult(previousArgumentResult, nextArgumentResult, passedOnTokensCount);
 
-                    _argumentResults.Add(nextArgumentResult);
+                    argumentResults.Add(nextArgumentResult);
 
                     if (previousArgumentResult.Parent is CommandResult)
                     {
@@ -300,9 +310,9 @@ namespace System.CommandLine.Parsing
                     _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
                 }
 
-                if (commandArgumentResultCount >= _argumentResults.Count)
+                if (commandArgumentResultCount >= argumentResults.Count)
                 {
-                    var argumentResult = _argumentResults[i];
+                    var argumentResult = argumentResults[i];
 
                     ValidateAndConvertArgumentResult(argumentResult);
 
@@ -315,11 +325,11 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            if (_argumentResults.Count > arguments.Count)
+            if (argumentResults.Count > arguments.Count)
             {
-                for (var i = arguments.Count; i < _argumentResults.Count - 1; i++)
+                for (var i = arguments.Count; i < argumentResults.Count - 1; i++)
                 {
-                    var result = _argumentResults[i];
+                    var result = argumentResults[i];
 
                     if (result.Parent is CommandResult)
                     {
@@ -361,19 +371,22 @@ namespace System.CommandLine.Parsing
             Command? currentCommand = command;
             while (currentCommand is not null)
             {
-                var options = currentCommand.Options;
-                for (var i = 0; i < options.Count; i++)
+                if (currentCommand.HasOptions)
                 {
-                    var option = options[i];
-                    if (option.IsRequired && (!checkOnlyGlobalOptions || (checkOnlyGlobalOptions && option.IsGlobal)))
+                    var options = currentCommand.Options;
+                    for (var i = 0; i < options.Count; i++)
                     {
-                        if (_rootCommandResult!.FindResultFor(option) is null)
+                        var option = options[i];
+                        if (option.IsRequired && (!checkOnlyGlobalOptions || (checkOnlyGlobalOptions && option.IsGlobal)))
                         {
-                            AddErrorToResult(
-                                _innermostCommandResult,
-                                new ParseError(
-                                    _rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option),
-                                    _innermostCommandResult));
+                            if (_rootCommandResult!.FindResultFor(option) is null)
+                            {
+                                AddErrorToResult(
+                                    _innermostCommandResult,
+                                    new ParseError(
+                                        _rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option),
+                                        _innermostCommandResult));
+                            }
                         }
                     }
                 }
@@ -433,12 +446,12 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            if (cmd.Subcommands.Count == 0)
+            if (!cmd.HasSubcommands)
             {
                 return;
             }
 
-            _errors.Insert(
+            (_errors ??= new()).Insert(
                 0,
                 new ParseError(
                     _innermostCommandResult.LocalizationResources.RequiredCommandWasNotProvided(),
@@ -540,20 +553,26 @@ namespace System.CommandLine.Parsing
         {
             var commandResult = _innermostCommandResult;
             
-            while (commandResult is { })
+            while (commandResult is not null)
             {
-                var options = commandResult.Command.Options;
-                for (var i = 0; i < options.Count; i++)
+                if (commandResult.Command.HasOptions)
                 {
-                    Symbol symbol = options[i];
-                    Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                    var options = commandResult.Command.Options;
+                    for (var i = 0; i < options.Count; i++)
+                    {
+                        Symbol symbol = options[i];
+                        Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                    }
                 }
 
-                var arguments = commandResult.Command.Arguments;
-                for (var i = 0; i < arguments.Count; i++)
+                if (commandResult.Command.HasArguments)
                 {
-                    Symbol symbol = arguments[i];
-                    Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                    var arguments = commandResult.Command.Arguments;
+                    for (var i = 0; i < arguments.Count; i++)
+                    {
+                        Symbol symbol = arguments[i];
+                        Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                    }
                 }
 
                 commandResult = commandResult.Parent as CommandResult;
@@ -591,7 +610,7 @@ namespace System.CommandLine.Parsing
                                 commandResult.AddChild(optionResult);
                                 if (_symbolResults.TryAdd(optionResult.Symbol, optionResult))
                                 {
-                                    _optionResults.Add(optionResult);
+                                    (_optionResults ??= new()).Add(optionResult);
                                 }
 
                                 break;
@@ -618,7 +637,7 @@ namespace System.CommandLine.Parsing
                 optionResult.ErrorMessage ??= symbolResult.ErrorMessage;
             }
 
-            _errors.Add(parseError);
+            (_errors ??= new()).Add(parseError);
         }
 
         public ParseResult GetResult() =>
@@ -626,7 +645,7 @@ namespace System.CommandLine.Parsing
                 _rootCommandResult ?? throw new InvalidOperationException("No root command was found"),
                 _innermostCommandResult ?? throw new InvalidOperationException("No command was found"),
                 _directives,
-                _tokenizeResult,
+                _tokens,
                 _unmatchedTokens,
                 _errors,
                 _rawInput);

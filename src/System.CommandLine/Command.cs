@@ -57,17 +57,21 @@ namespace System.CommandLine
         /// </summary>
         public IList<Argument> Arguments => _arguments ??= new(this);
 
-        internal bool HasArguments => _arguments is not null;
+        internal bool HasArguments => _arguments is not null && _arguments.Count > 0 ;
 
         /// <summary>
         /// Represents all of the options for the command, including global options that have been applied to any of the command's ancestors.
         /// </summary>
         public IList<Option> Options => _options ??= new (this);
 
+        internal bool HasOptions => _options is not null && _options.Count > 0;
+
         /// <summary>
         /// Represents all of the subcommands for the command.
         /// </summary>
         public IList<Command> Subcommands => _subcommands ??= new(this);
+
+        internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
 
         /// <summary>
         /// Validators to the command. Validators can be used
@@ -151,34 +155,44 @@ namespace System.CommandLine
 
             if (context.WordToComplete is { } textToMatch)
             {
-                var commands = Subcommands;
-                for (int i = 0; i < commands.Count; i++)
+                if (HasSubcommands)
                 {
-                    AddCompletionsFor(commands[i]);
-                }
-
-                var options = Options;
-                for (int i = 0; i < options.Count; i++)
-                {
-                    AddCompletionsFor(options[i]);
-                }
-
-                var arguments = Arguments;
-                for (int i = 0; i < arguments.Count; i++)
-                {
-                    var argument = arguments[i];
-                    foreach (var completion in argument.GetCompletions(context))
+                    var commands = Subcommands;
+                    for (int i = 0; i < commands.Count; i++)
                     {
-                        if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                        AddCompletionsFor(commands[i]);
+                    }
+                }
+
+                if (HasOptions)
+                {
+                    var options = Options;
+                    for (int i = 0; i < options.Count; i++)
+                    {
+                        AddCompletionsFor(options[i]);
+                    }
+                }
+
+                if (HasArguments)
+                {
+                    var arguments = Arguments;
+                    for (int i = 0; i < arguments.Count; i++)
+                    {
+                        var argument = arguments[i];
+                        foreach (var completion in argument.GetCompletions(context))
                         {
-                            completions.Add(completion);
+                            if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                            {
+                                completions.Add(completion);
+                            }
                         }
                     }
                 }
 
-                foreach (var parent in Parents.FlattenBreadthFirst(p => p.Parents))
+                ParentNode? parent = FirstParent;
+                while (parent is not null)
                 {
-                    if (parent is Command parentCommand)
+                    if (parent.Symbol is Command parentCommand && parentCommand.HasOptions)
                     {
                         for (var i = 0; i < parentCommand.Options.Count; i++)
                         {
@@ -190,6 +204,8 @@ namespace System.CommandLine
                             }
                         }
                     }
+
+                    parent = parent.Next;
                 }
             }
 

@@ -14,17 +14,18 @@ namespace System.CommandLine
     /// </summary>
     public class ParseResult
     {
-        private readonly List<ParseError> _errors;
+        private readonly IReadOnlyList<ParseError> _errors;
         private readonly RootCommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
+        private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CompletionContext? _completionContext;
 
         internal ParseResult(
             Parser parser,
             RootCommandResult rootCommandResult,
             CommandResult commandResult,
-            IReadOnlyDictionary<string, IReadOnlyList<string>> directives,
-            TokenizeResult tokenizeResult,
+            Dictionary<string, IReadOnlyList<string>>? directives,
+            List<Token> tokens,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null)
@@ -32,18 +33,15 @@ namespace System.CommandLine
             Parser = parser;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
-            Directives = directives;
+            _directives = directives;
 
             // skip the root command when populating Tokens property
-            if (tokenizeResult.Tokens.Count > 1)
+            if (tokens.Count > 1)
             {
-                var tokens = new Token[tokenizeResult.Tokens.Count - 1];
-                for (var i = 0; i < tokenizeResult.Tokens.Count - 1; i++)
-                {
-                    var token = tokenizeResult.Tokens[i + 1];
-                    tokens[i] = token;
-                }
-
+                // Since TokenizeResult.Tokens is not public and not used anywhere after the parsing,
+                // we take advantage of its mutability and remove the root command token
+                // instead of creating a copy of the whole list.
+                tokens.RemoveAt(0);
                 Tokens = tokens;
             }
             else
@@ -51,7 +49,6 @@ namespace System.CommandLine
                 Tokens = Array.Empty<Token>();
             }
 
-            _errors = errors ?? new List<ParseError>();
             CommandLineText = commandLineText;
 
             if (unmatchedTokens is null)
@@ -67,10 +64,12 @@ namespace System.CommandLine
                     for (var i = 0; i < _unmatchedTokens.Count; i++)
                     {
                         var token = _unmatchedTokens[i];
-                        _errors.Add(new ParseError(parser.Configuration.LocalizationResources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
+                        (errors ??= new()).Add(new ParseError(parser.Configuration.LocalizationResources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
                     }
                 }
             }
+
+            _errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
         internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
@@ -99,7 +98,7 @@ namespace System.CommandLine
         /// Gets the directives found while parsing command line input.
         /// </summary>
         /// <remarks>If <see cref="CommandLineConfiguration.EnableDirectives"/> is set to <see langword="false"/>, then this collection will be empty.</remarks>
-        public IReadOnlyDictionary<string, IReadOnlyList<string>> Directives { get; }
+        public IReadOnlyDictionary<string, IReadOnlyList<string>> Directives => _directives ??= new ();
 
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
@@ -115,7 +114,8 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the list of tokens used on the command line that were not matched by the parser.
         /// </summary>
-        public IReadOnlyList<string> UnmatchedTokens => _unmatchedTokens.Select(t => t.Value).ToArray();
+        public IReadOnlyList<string> UnmatchedTokens
+            => _unmatchedTokens.Count == 0 ? Array.Empty<string>() : _unmatchedTokens.Select(t => t.Value).ToArray();
 
         /// <summary>
         /// Gets the completion context for the parse result.

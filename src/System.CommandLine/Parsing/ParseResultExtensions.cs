@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
+using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Linq;
@@ -53,13 +54,14 @@ namespace System.CommandLine.Parsing
             {
                 builder.Diagram(parseResult.RootCommandResult, parseResult);
 
-                if (parseResult.UnmatchedTokens.Count > 0)
+                var unmatchedTokens = parseResult.UnmatchedTokens;
+                if (unmatchedTokens.Count > 0)
                 {
                     builder.Append("   ???-->");
 
-                    for (var i = 0; i < parseResult.UnmatchedTokens.Count; i++)
+                    for (var i = 0; i < unmatchedTokens.Count; i++)
                     {
-                        var error = parseResult.UnmatchedTokens[i];
+                        var error = unmatchedTokens[i];
                         builder.Append(" ");
                         builder.Append(error);
                     }
@@ -90,7 +92,7 @@ namespace System.CommandLine.Parsing
                 {
                     var includeArgumentName =
                         argumentResult.Argument.FirstParent!.Symbol is Command command &&
-                        command.Arguments.Count > 1;
+                        command.HasArguments && command.Arguments.Count > 1;
 
                     if (includeArgumentName)
                     {
