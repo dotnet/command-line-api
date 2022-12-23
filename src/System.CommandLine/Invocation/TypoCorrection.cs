@@ -48,7 +48,6 @@ namespace System.CommandLine.Invocation
                 .Where(x => x.Aliases.Count > 0)
                 .Select(symbol => 
                     symbol.Aliases
-                        .Union(symbol.Aliases)
                         .OrderBy(x => GetDistance(token, x))
                         .ThenByDescending(x => GetStartsWithDistance(token, x))
                         .First()
