@@ -201,12 +201,12 @@ namespace System.CommandLine.Parsing
             {
                 var token = CurrentToken;
                 ReadOnlySpan<char> withoutBrackets = token.Value.AsSpan(1, token.Value.Length - 2);
-                int commaIndex = withoutBrackets.IndexOf(':');
-                string key = commaIndex >= 0 
-                    ? withoutBrackets.Slice(0, commaIndex).ToString()
+                int indexOfColon = withoutBrackets.IndexOf(':');
+                string key = indexOfColon >= 0 
+                    ? withoutBrackets.Slice(0, indexOfColon).ToString()
                     : withoutBrackets.ToString();
-                string? value = commaIndex > 0
-                    ? withoutBrackets.Slice(commaIndex + 1).ToString()
+                string? value = indexOfColon > 0
+                    ? withoutBrackets.Slice(indexOfColon + 1).ToString()
                     : null;
 
                 var directiveNode = new DirectiveNode(token, parent, key, value);
