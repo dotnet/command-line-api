@@ -408,7 +408,6 @@ System.CommandLine.Parsing
   public class Parser
     .ctor(System.CommandLine.CommandLineConfiguration configuration)
     .ctor(System.CommandLine.Command command)
-    .ctor()
     public System.CommandLine.CommandLineConfiguration Configuration { get; }
     public System.CommandLine.ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> arguments, System.String rawInput = null)
   public static class ParseResultExtensions
