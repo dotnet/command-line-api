@@ -7,8 +7,7 @@ namespace System.CommandLine.Parsing
     {
         public OptionNode(
             Token token,
-            Option option,
-            CommandNode parent) : base(token, parent)
+            Option option) : base(token)
         {
             Option = option;
         }

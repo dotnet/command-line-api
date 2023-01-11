@@ -7,8 +7,7 @@ namespace System.CommandLine.Parsing
     {
         public CommandNode(
             Token token,
-            Command command,
-            CommandNode? parent) : base(token, parent)
+            Command command) : base(token)
         {
             Command = command;
         }

@@ -52,9 +52,11 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public void Visit(SyntaxNode node)
+        internal void Visit(CommandNode rootCommandNode)
         {
-            VisitInternal(node);
+            VisitRootCommandNode(rootCommandNode);
+
+            VisitChildren(rootCommandNode);
 
             Stop();
         }
@@ -69,29 +71,16 @@ namespace System.CommandLine.Parsing
                     break;
 
                 case CommandNode commandNode:
-                    if (commandNode.Parent is null)
-                    {
-                        VisitRootCommandNode(commandNode);
-                    }
-                    else
-                    {
-                        VisitCommandNode(commandNode);
-                    }
+                    VisitCommandNode(commandNode);
 
-                    for (var i = 0; i < commandNode.Children.Count; i++)
-                    {
-                        VisitInternal(commandNode.Children[i]);
-                    }
+                    VisitChildren(commandNode);
 
                     break;
 
                 case OptionNode optionNode:
                     VisitOptionNode(optionNode);
 
-                    for (var i = 0; i < optionNode.Children.Count; i++)
-                    {
-                        VisitInternal(optionNode.Children[i]);
-                    }
+                    VisitChildren(optionNode);
 
                     break;
 
@@ -238,6 +227,14 @@ namespace System.CommandLine.Parsing
             if (directiveNode.Value is not null)
             {
                 ((List<string>)values).Add(directiveNode.Value);
+            }
+        }
+
+        private void VisitChildren(NonterminalSyntaxNode parentNode)
+        {
+            for (var i = 0; i < parentNode.Children.Count; i++)
+            {
+                VisitInternal(parentNode.Children[i]);
             }
         }
 

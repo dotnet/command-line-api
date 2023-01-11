@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing
         public CommandArgumentNode(
             Token token, 
             Argument argument,
-            CommandNode parent) : base(token, parent)
+            CommandNode parent) : base(token)
         {
             Debug.Assert(token.Type == TokenType.Argument, $"Incorrect token type: {token}");
 

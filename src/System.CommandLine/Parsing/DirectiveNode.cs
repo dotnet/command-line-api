@@ -9,9 +9,8 @@ namespace System.CommandLine.Parsing
     {
         public DirectiveNode(
             Token token,
-            CommandNode parent,
             string name,
-            string? value) : base(token, parent)
+            string? value) : base(token)
         {
             Debug.Assert(token.Type == TokenType.Directive, $"Incorrect token type: {token}");
 

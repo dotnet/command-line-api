@@ -9,7 +9,7 @@ namespace System.CommandLine.Parsing
     {
         private List<SyntaxNode>? _children;
 
-        protected NonterminalSyntaxNode(Token token, SyntaxNode? parent) : base(token, parent)
+        protected NonterminalSyntaxNode(Token token) : base(token)
         {
         }
 
