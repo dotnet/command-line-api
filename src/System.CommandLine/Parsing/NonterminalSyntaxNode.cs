@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
         {
         }
 
-        public IReadOnlyList<SyntaxNode> Children => _children is not null ? _children : Array.Empty<SyntaxNode>();
+        public IReadOnlyList<SyntaxNode>? Children => _children;
 
         internal void AddChildNode(SyntaxNode node) => (_children ??= new()).Add(node);
     }

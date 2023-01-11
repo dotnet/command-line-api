@@ -232,9 +232,12 @@ namespace System.CommandLine.Parsing
 
         private void VisitChildren(NonterminalSyntaxNode parentNode)
         {
-            for (var i = 0; i < parentNode.Children.Count; i++)
+            if (parentNode.Children is not null)
             {
-                VisitInternal(parentNode.Children[i]);
+                for (var i = 0; i < parentNode.Children.Count; i++)
+                {
+                    VisitInternal(parentNode.Children[i]);
+                }
             }
         }
 
