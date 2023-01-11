@@ -21,7 +21,6 @@ namespace System.CommandLine.Parsing
 
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults = new();
 
-        private List<OptionResult>? _optionResults;
         private List<ArgumentResult>? _argumentResults;
 
         private RootCommandResult? _rootCommandResult;
@@ -105,10 +104,7 @@ namespace System.CommandLine.Parsing
         private void AddToResult(OptionResult result)
         {
             _innermostCommandResult?.AddChild(result);
-            if (_symbolResults.TryAdd(result.Option, result))
-            {
-                (_optionResults ??= new()).Add(result);
-            }
+            _symbolResults.TryAdd(result.Option, result);
         }
 
         private void AddToResult(ArgumentResult result)
@@ -254,9 +250,9 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            if (_optionResults is not null)
+            foreach (var symbolPair in _symbolResults)
             {
-                foreach (var optionResult in _optionResults)
+                if (symbolPair.Value is OptionResult optionResult)
                 {
                     ValidateAndConvertOptionResult(optionResult);
                 }
@@ -608,10 +604,7 @@ namespace System.CommandLine.Parsing
 
                                 optionResult.AddChild(childArgumentResult);
                                 commandResult.AddChild(optionResult);
-                                if (_symbolResults.TryAdd(optionResult.Symbol, optionResult))
-                                {
-                                    (_optionResults ??= new()).Add(optionResult);
-                                }
+                                _symbolResults.TryAdd(optionResult.Symbol, optionResult);
 
                                 break;
 
