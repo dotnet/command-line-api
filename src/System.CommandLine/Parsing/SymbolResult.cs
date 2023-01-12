@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -23,8 +24,6 @@ namespace System.CommandLine.Parsing
             Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
 
             Parent = parent;
-            
-            Root = parent?.Root;
         }
 
         /// <summary>
@@ -44,8 +43,6 @@ namespace System.CommandLine.Parsing
         /// The parent symbol result in the parse tree.
         /// </summary>
         public SymbolResult? Parent { get; }
-
-        internal virtual RootCommandResult? Root { get; }
 
         /// <summary>
         /// The symbol to which the result applies.
@@ -111,24 +108,34 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public virtual ArgumentResult? FindResultFor(Argument argument) =>
-            Root?.FindResultFor(argument);
+        public virtual ArgumentResult? FindResultFor(Argument argument) => GetRoot().FindResultFor(argument);
 
         /// <summary>
         /// Finds a result for the specific command anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
-        public virtual CommandResult? FindResultFor(Command command) =>
-            Root?.FindResultFor(command);
+        public virtual CommandResult? FindResultFor(Command command) => GetRoot().FindResultFor(command);
 
         /// <summary>
         /// Finds a result for the specific option anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public virtual OptionResult? FindResultFor(Option option) =>
-            Root?.FindResultFor(option);
+        public virtual OptionResult? FindResultFor(Option option) => GetRoot().FindResultFor(option);
+
+        private SymbolResult GetRoot()
+        {
+            SymbolResult result = this;
+            while (result.Parent is not null)
+            {
+                result = result.Parent;
+            }
+
+            Debug.Assert(result is RootCommandResult);
+
+            return result;
+        }
 
         /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
         public T GetValue<T>(Argument<T> argument)

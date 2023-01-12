@@ -17,8 +17,6 @@ namespace System.CommandLine.Parsing
             _symbolResults = symbolResults;
         }
 
-        internal override RootCommandResult Root => this;
-
         public override ArgumentResult? FindResultFor(Argument argument)
             => _symbolResults.TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
 

@@ -81,7 +81,7 @@ namespace System.CommandLine
             var argumentResult = symbolResult switch
             {
                 ArgumentResult a => a,
-                _ => symbolResult.Root!.FindResultFor(argument)
+                _ => symbolResult.FindResultFor(argument)
             };
 
             var tokenCount = argumentResult?.Tokens.Count ?? 0;
