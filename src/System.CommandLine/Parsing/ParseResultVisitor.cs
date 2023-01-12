@@ -21,7 +21,6 @@ namespace System.CommandLine.Parsing
 
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults = new();
 
-        private List<OptionResult>? _optionResults;
         private List<ArgumentResult>? _argumentResults;
 
         private RootCommandResult? _rootCommandResult;
@@ -52,9 +51,11 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        public void Visit(SyntaxNode node)
+        internal void Visit(CommandNode rootCommandNode)
         {
-            VisitInternal(node);
+            VisitRootCommandNode(rootCommandNode);
+
+            VisitChildren(rootCommandNode);
 
             Stop();
         }
@@ -69,29 +70,16 @@ namespace System.CommandLine.Parsing
                     break;
 
                 case CommandNode commandNode:
-                    if (commandNode.Parent is null)
-                    {
-                        VisitRootCommandNode(commandNode);
-                    }
-                    else
-                    {
-                        VisitCommandNode(commandNode);
-                    }
+                    VisitCommandNode(commandNode);
 
-                    for (var i = 0; i < commandNode.Children.Count; i++)
-                    {
-                        VisitInternal(commandNode.Children[i]);
-                    }
+                    VisitChildren(commandNode);
 
                     break;
 
                 case OptionNode optionNode:
                     VisitOptionNode(optionNode);
 
-                    for (var i = 0; i < optionNode.Children.Count; i++)
-                    {
-                        VisitInternal(optionNode.Children[i]);
-                    }
+                    VisitChildren(optionNode);
 
                     break;
 
@@ -116,10 +104,7 @@ namespace System.CommandLine.Parsing
         private void AddToResult(OptionResult result)
         {
             _innermostCommandResult?.AddChild(result);
-            if (_symbolResults.TryAdd(result.Option, result))
-            {
-                (_optionResults ??= new()).Add(result);
-            }
+            _symbolResults.TryAdd(result.Option, result);
         }
 
         private void AddToResult(ArgumentResult result)
@@ -241,6 +226,17 @@ namespace System.CommandLine.Parsing
             }
         }
 
+        private void VisitChildren(NonterminalSyntaxNode parentNode)
+        {
+            if (parentNode.Children is not null)
+            {
+                for (var i = 0; i < parentNode.Children.Count; i++)
+                {
+                    VisitInternal(parentNode.Children[i]);
+                }
+            }
+        }
+
         private void Stop()
         {
             if (_isHelpRequested)
@@ -254,9 +250,9 @@ namespace System.CommandLine.Parsing
 
             ValidateCommandResult();
 
-            if (_optionResults is not null)
+            foreach (var symbolPair in _symbolResults)
             {
-                foreach (var optionResult in _optionResults)
+                if (symbolPair.Value is OptionResult optionResult)
                 {
                     ValidateAndConvertOptionResult(optionResult);
                 }
@@ -307,7 +303,7 @@ namespace System.CommandLine.Parsing
                         AddToResult(nextArgumentResult);
                     }
 
-                    _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
+                    _symbolResults.TryAdd(nextArgumentResult.Argument, nextArgumentResult);
                 }
 
                 if (commandArgumentResultCount >= argumentResults.Count)
@@ -560,8 +556,8 @@ namespace System.CommandLine.Parsing
                     var options = commandResult.Command.Options;
                     for (var i = 0; i < options.Count; i++)
                     {
-                        Symbol symbol = options[i];
-                        Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                        Option option = options[i];
+                        Handle(_rootCommandResult!.FindResultFor(option), option);
                     }
                 }
 
@@ -570,8 +566,8 @@ namespace System.CommandLine.Parsing
                     var arguments = commandResult.Command.Arguments;
                     for (var i = 0; i < arguments.Count; i++)
                     {
-                        Symbol symbol = arguments[i];
-                        Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                        Argument argument = arguments[i];
+                        Handle(_rootCommandResult!.FindResultFor(argument), argument);
                     }
                 }
 
@@ -608,10 +604,7 @@ namespace System.CommandLine.Parsing
 
                                 optionResult.AddChild(childArgumentResult);
                                 commandResult.AddChild(optionResult);
-                                if (_symbolResults.TryAdd(optionResult.Symbol, optionResult))
-                                {
-                                    (_optionResults ??= new()).Add(optionResult);
-                                }
+                                _symbolResults.TryAdd(optionResult.Option, optionResult);
 
                                 break;
 

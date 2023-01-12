@@ -5,12 +5,12 @@ using System.Diagnostics;
 
 namespace System.CommandLine.Parsing
 {
-    internal class OptionArgumentNode : SyntaxNode
+    internal sealed class OptionArgumentNode : SyntaxNode
     {
         public OptionArgumentNode(
             Token token,
             Argument argument,
-            OptionNode parent) : base(token, parent)
+            OptionNode parent) : base(token)
         {
             Debug.Assert(token.Type == TokenType.Argument, $"Incorrect token type: {token}");
 

@@ -224,26 +224,30 @@ namespace System.CommandLine
                     ? currentSymbol.GetCompletions(context)
                     : Array.Empty<CompletionItem>();
 
+            string[] optionsWithArgumentLimitReached = currentSymbolResult is CommandResult commandResult
+                ? OptionsWithArgumentLimitReached(commandResult)
+                : Array.Empty<string>();
+
             completions =
-                completions.Where(item => OptionsWithArgumentLimitReached(currentSymbolResult).All(s => s != item.Label));
+                completions.Where(item => optionsWithArgumentLimitReached.All(s => s != item.Label));
 
             return completions;
 
-            static IEnumerable<string> OptionsWithArgumentLimitReached(SymbolResult symbolResult) =>
-                symbolResult
+            static string[] OptionsWithArgumentLimitReached(CommandResult commandResult) =>
+                commandResult
                     .Children
                     .Where(c => c.IsArgumentLimitReached)
                     .OfType<OptionResult>()
-                    .Select(o => o.Symbol)
-                    .OfType<IdentifierSymbol>()
-                    .SelectMany(c => c.Aliases);
+                    .Select(o => o.Option)
+                    .SelectMany(c => c.Aliases)
+                    .ToArray();
         }
 
         private SymbolResult SymbolToComplete(int? position = null)
         {
             var commandResult = CommandResult;
 
-            var allSymbolResultsForCompletion = AllSymbolResultsForCompletion().ToArray();
+            var allSymbolResultsForCompletion = AllSymbolResultsForCompletion();
 
             var currentSymbol = allSymbolResultsForCompletion.Last();
 

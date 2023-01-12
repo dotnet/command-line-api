@@ -5,13 +5,12 @@ using System.Diagnostics;
 
 namespace System.CommandLine.Parsing
 {
-    internal class DirectiveNode : SyntaxNode
+    internal sealed class DirectiveNode : SyntaxNode
     {
         public DirectiveNode(
             Token token,
-            CommandNode parent,
             string name,
-            string? value) : base(token, parent)
+            string? value) : base(token)
         {
             Debug.Assert(token.Type == TokenType.Directive, $"Incorrect token type: {token}");
 

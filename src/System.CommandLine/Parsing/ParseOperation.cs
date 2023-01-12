@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    internal class ParseOperation
+    internal sealed class ParseOperation
     {
         private readonly List<Token> _tokens;
         private readonly CommandLineConfiguration _configuration;
@@ -43,8 +43,7 @@ namespace System.CommandLine.Parsing
         {
             var rootCommandNode = new CommandNode(
                 CurrentToken,
-                _configuration.RootCommand,
-                null);
+                _configuration.RootCommand);
 
             Advance();
 
@@ -57,7 +56,7 @@ namespace System.CommandLine.Parsing
 
         private void ParseSubcommand(CommandNode parentNode)
         {
-            var commandNode = new CommandNode(CurrentToken, (Command)CurrentToken.Symbol!, parentNode);
+            var commandNode = new CommandNode(CurrentToken, (Command)CurrentToken.Symbol!);
 
             Advance();
 
@@ -135,8 +134,7 @@ namespace System.CommandLine.Parsing
         {
             OptionNode optionNode = new(
                 CurrentToken,
-                (Option)CurrentToken.Symbol!,
-                parent);
+                (Option)CurrentToken.Symbol!);
 
             Advance();
 
@@ -209,7 +207,7 @@ namespace System.CommandLine.Parsing
                     ? withoutBrackets.Slice(indexOfColon + 1).ToString()
                     : null;
 
-                var directiveNode = new DirectiveNode(token, parent, key, value);
+                var directiveNode = new DirectiveNode(token, key, value);
 
                 parent.AddChildNode(directiveNode);
 

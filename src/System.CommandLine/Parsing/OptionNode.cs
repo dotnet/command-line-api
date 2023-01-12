@@ -3,12 +3,11 @@
 
 namespace System.CommandLine.Parsing
 {
-    internal class OptionNode : NonterminalSyntaxNode
+    internal sealed class OptionNode : NonterminalSyntaxNode
     {
         public OptionNode(
             Token token,
-            Option option,
-            CommandNode parent) : base(token, parent)
+            Option option) : base(token)
         {
             Option = option;
         }
