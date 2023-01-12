@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing an <see cref="Argument"/>.
     /// </summary>
-    public class ArgumentResult : SymbolResult
+    public sealed class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    internal class RootCommandResult : CommandResult
+    internal sealed class RootCommandResult : CommandResult
     {
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults;
 
