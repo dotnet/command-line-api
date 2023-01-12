@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace System.CommandLine.Parsing
 {
-    internal class OptionArgumentNode : SyntaxNode
+    internal sealed class OptionArgumentNode : SyntaxNode
     {
         public OptionArgumentNode(
             Token token,

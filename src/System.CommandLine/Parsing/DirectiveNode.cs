@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace System.CommandLine.Parsing
 {
-    internal class DirectiveNode : SyntaxNode
+    internal sealed class DirectiveNode : SyntaxNode
     {
         public DirectiveNode(
             Token token,

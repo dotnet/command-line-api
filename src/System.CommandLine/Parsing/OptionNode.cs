@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Parsing
 {
-    internal class OptionNode : NonterminalSyntaxNode
+    internal sealed class OptionNode : NonterminalSyntaxNode
     {
         public OptionNode(
             Token token,
