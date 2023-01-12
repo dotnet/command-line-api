@@ -303,7 +303,7 @@ namespace System.CommandLine.Parsing
                         AddToResult(nextArgumentResult);
                     }
 
-                    _symbolResults.TryAdd(nextArgumentResult.Symbol, nextArgumentResult);
+                    _symbolResults.TryAdd(nextArgumentResult.Argument, nextArgumentResult);
                 }
 
                 if (commandArgumentResultCount >= argumentResults.Count)
@@ -604,7 +604,7 @@ namespace System.CommandLine.Parsing
 
                                 optionResult.AddChild(childArgumentResult);
                                 commandResult.AddChild(optionResult);
-                                _symbolResults.TryAdd(optionResult.Symbol, optionResult);
+                                _symbolResults.TryAdd(optionResult.Option, optionResult);
 
                                 break;
 

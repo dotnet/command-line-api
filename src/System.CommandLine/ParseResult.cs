@@ -234,8 +234,7 @@ namespace System.CommandLine
                     .Children
                     .Where(c => c.IsArgumentLimitReached)
                     .OfType<OptionResult>()
-                    .Select(o => o.Symbol)
-                    .OfType<IdentifierSymbol>()
+                    .Select(o => o.Option)
                     .SelectMany(c => c.Aliases);
         }
 
