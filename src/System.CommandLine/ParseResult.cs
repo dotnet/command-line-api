@@ -247,7 +247,7 @@ namespace System.CommandLine
         {
             var commandResult = CommandResult;
 
-            var allSymbolResultsForCompletion = AllSymbolResultsForCompletion().ToArray();
+            var allSymbolResultsForCompletion = AllSymbolResultsForCompletion();
 
             var currentSymbol = allSymbolResultsForCompletion.Last();
 
