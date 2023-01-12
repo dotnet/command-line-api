@@ -556,8 +556,8 @@ namespace System.CommandLine.Parsing
                     var options = commandResult.Command.Options;
                     for (var i = 0; i < options.Count; i++)
                     {
-                        Symbol symbol = options[i];
-                        Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                        Option option = options[i];
+                        Handle(_rootCommandResult!.FindResultFor(option), option);
                     }
                 }
 
@@ -566,8 +566,8 @@ namespace System.CommandLine.Parsing
                     var arguments = commandResult.Command.Arguments;
                     for (var i = 0; i < arguments.Count; i++)
                     {
-                        Symbol symbol = arguments[i];
-                        Handle(_rootCommandResult!.FindResultForSymbol(symbol), symbol);
+                        Argument argument = arguments[i];
+                        Handle(_rootCommandResult!.FindResultFor(argument), argument);
                     }
                 }
 
