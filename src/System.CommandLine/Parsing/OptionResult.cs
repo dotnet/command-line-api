@@ -12,6 +12,7 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public sealed class OptionResult : SymbolResult
     {
+        private List<ArgumentResult>? _children;
         private ArgumentConversionResult? _argumentConversionResult;
         private Dictionary<Argument, ArgumentResult>? _defaultArgumentValues;
 
@@ -79,14 +80,9 @@ namespace System.CommandLine.Parsing
             {
                 if (_argumentConversionResult is null)
                 {
-                    for (var i = 0; i < Children.Count; i++)
+                    if (_children is not null)
                     {
-                        var child = Children[i];
-
-                        if (child is ArgumentResult argumentResult)
-                        {
-                            return _argumentConversionResult = argumentResult.GetArgumentConversionResult();
-                        }
+                        return _argumentConversionResult = _children[0].GetArgumentConversionResult();
                     }
 
                     return _argumentConversionResult = ArgumentConversionResult.None(Option.Argument);
@@ -95,7 +91,9 @@ namespace System.CommandLine.Parsing
                 return _argumentConversionResult;
             }
         }
-        
+
+        internal void AddChild(ArgumentResult argumentResult) => (_children ??= new()).Add(argumentResult);
+
         internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
 
         internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>

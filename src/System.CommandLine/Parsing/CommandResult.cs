@@ -11,6 +11,7 @@ namespace System.CommandLine.Parsing
     public class CommandResult : SymbolResult
     {
         private Dictionary<Argument, ArgumentResult>? _defaultArgumentValues;
+        private List<SymbolResult>? _children;
 
         internal CommandResult(
             Command command,
@@ -32,6 +33,11 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public Token Token { get; }
 
+        /// <summary>
+        /// Child symbol results in the parse tree.
+        /// </summary>
+        public IReadOnlyList<SymbolResult> Children => _children is not null ? _children : Array.Empty<SymbolResult>();
+
         internal sealed override int MaximumArgumentCapacity
         {
             get
@@ -51,6 +57,8 @@ namespace System.CommandLine.Parsing
                 return value;
             }
         }
+
+        internal void AddChild(SymbolResult symbolResult) => (_children ??= new()).Add(symbolResult);
 
         internal override bool UseDefaultValueFor(Argument argument) =>
             FindResultFor(argument) switch

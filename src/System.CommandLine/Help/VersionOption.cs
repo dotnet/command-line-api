@@ -33,7 +33,7 @@ namespace System.CommandLine.Help
         {
             Validators.Add(static result =>
             {
-                if (result.Parent is { } parent &&
+                if (result.Parent is CommandResult parent &&
                     parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
                           .Any(IsNotImplicit))
                 {

@@ -185,11 +185,8 @@ namespace System.CommandLine.Parsing
         private void VisitOptionArgumentNode(
             OptionArgumentNode argumentNode)
         {
-            _symbolResults.TryGetValue(
-                argumentNode.ParentOptionNode.Option,
-                out var optionResult);
-
-            if (optionResult is not OptionResult)
+            if (!(_symbolResults.TryGetValue(argumentNode.ParentOptionNode.Option, out SymbolResult? symbolResult)
+                    && symbolResult is OptionResult optionResult))
             {
                 return;
             }

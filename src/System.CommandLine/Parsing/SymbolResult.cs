@@ -13,7 +13,6 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public abstract class SymbolResult
     {
-        private List<SymbolResult>? _children;
         private protected List<Token>? _tokens;
 
         private protected SymbolResult(SymbolResult? parent)
@@ -26,13 +25,6 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <remarks>Setting this value to a non-<c>null</c> during parsing will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
         public string? ErrorMessage { get; set; }
-
-        /// <summary>
-        /// Child symbol results in the parse tree.
-        /// </summary>
-        public IReadOnlyList<SymbolResult> Children => _children is not null ? _children : Array.Empty<SymbolResult>();
-
-        internal void AddChild(SymbolResult symbolResult) => (_children ??= new()).Add(symbolResult);
 
         /// <summary>
         /// The parent symbol result in the parse tree.
