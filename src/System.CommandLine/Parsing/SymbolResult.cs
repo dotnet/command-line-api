@@ -15,7 +15,6 @@ namespace System.CommandLine.Parsing
     {
         private List<SymbolResult>? _children;
         private protected List<Token>? _tokens;
-        private LocalizationResources? _resources;
 
         private protected SymbolResult(
             Symbol symbol, 
@@ -95,11 +94,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Localization resources used to produce messages for this symbol result.
         /// </summary>
-        public LocalizationResources LocalizationResources
-        {
-            get => _resources ??= Parent?.LocalizationResources ?? LocalizationResources.Instance;
-            set => _resources = value;
-        }
+        public virtual LocalizationResources LocalizationResources => GetRoot().LocalizationResources;
 
         internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
 

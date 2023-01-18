@@ -121,9 +121,8 @@ namespace System.CommandLine.Parsing
             _rootCommandResult = new RootCommandResult(
                 rootCommandNode.Command,
                 rootCommandNode.Token,
-                _symbolResults);
-
-            _rootCommandResult.LocalizationResources = _parser.Configuration.LocalizationResources;
+                _symbolResults,
+                _parser.Configuration.LocalizationResources ?? LocalizationResources.Instance);
 
             _innermostCommandResult = _rootCommandResult;
         }

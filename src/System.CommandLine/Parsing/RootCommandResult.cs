@@ -8,14 +8,19 @@ namespace System.CommandLine.Parsing
     internal sealed class RootCommandResult : CommandResult
     {
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults;
+        private readonly LocalizationResources _localizationResources;
 
         public RootCommandResult(
             Command command,
             Token token,
-            Dictionary<Symbol, SymbolResult> symbolResults) : base(command, token)
+            Dictionary<Symbol, SymbolResult> symbolResults,
+            LocalizationResources localizationResources) : base(command, token)
         {
             _symbolResults = symbolResults;
+            _localizationResources = localizationResources;
         }
+
+        public override LocalizationResources LocalizationResources => _localizationResources;
 
         public override ArgumentResult? FindResultFor(Argument argument)
             => _symbolResults.TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
