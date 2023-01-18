@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.Diagnostics.CodeAnalysis;
 
@@ -12,9 +11,7 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public sealed class OptionResult : SymbolResult
     {
-        private List<ArgumentResult>? _children;
         private ArgumentConversionResult? _argumentConversionResult;
-        private Dictionary<Argument, ArgumentResult>? _defaultArgumentValues;
 
         internal OptionResult(
             Option option,
@@ -80,9 +77,9 @@ namespace System.CommandLine.Parsing
             {
                 if (_argumentConversionResult is null)
                 {
-                    if (_children is not null)
+                    if (FindResultFor(Option.Argument) is ArgumentResult firstChild)
                     {
-                        return _argumentConversionResult = _children[0].GetArgumentConversionResult();
+                        return _argumentConversionResult = firstChild.GetArgumentConversionResult();
                     }
 
                     return _argumentConversionResult = ArgumentConversionResult.None(Option.Argument);
@@ -92,13 +89,6 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        internal void AddChild(ArgumentResult argumentResult) => (_children ??= new()).Add(argumentResult);
-
         internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
-
-        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
-            (_defaultArgumentValues ??= new()).GetOrAdd(
-                argument,
-                arg => new ArgumentResult(arg, this));
     }
 }

@@ -667,6 +667,9 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Parent
+                  .Should()
+                  .BeAssignableTo<CommandResult>()
+                  .Which
                   .Children
                   .Should()
                   .AllBeAssignableTo<CommandResult>();
@@ -693,6 +696,9 @@ namespace System.CommandLine.Tests
                   .BeEmpty();
             result.CommandResult
                   .Parent
+                  .Should()
+                  .BeAssignableTo<CommandResult>()
+                  .Which
                   .Children
                   .Should()
                   .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "x");
@@ -1001,6 +1007,9 @@ namespace System.CommandLine.Tests
             parser.Parse("outer --inner inner")
                   .CommandResult
                   .Parent
+                  .Should()
+                  .BeAssignableTo<CommandResult>()
+                  .Which
                   .Children
                   .Should()
                   .Contain(o => ((OptionResult)o).Option == option);

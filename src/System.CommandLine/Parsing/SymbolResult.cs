@@ -71,6 +71,8 @@ namespace System.CommandLine.Parsing
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public virtual OptionResult? FindResultFor(Option option) => GetRoot().FindResultFor(option);
 
+        internal virtual IEnumerable<SymbolResult> GetChildren(SymbolResult parent) => GetRoot().GetChildren(parent);
+
         private SymbolResult GetRoot()
         {
             SymbolResult result = this;

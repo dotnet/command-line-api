@@ -30,5 +30,16 @@ namespace System.CommandLine.Parsing
 
         public override OptionResult? FindResultFor(Option option)
             => _symbolResults.TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
+
+        internal override IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
+        {
+            foreach (var pair in _symbolResults)
+            {
+                if (ReferenceEquals(parent, pair.Value.Parent))
+                {
+                    yield return pair.Value;
+                }
+            }
+        }
     }
 }
