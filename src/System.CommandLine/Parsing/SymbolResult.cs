@@ -16,12 +16,8 @@ namespace System.CommandLine.Parsing
         private List<SymbolResult>? _children;
         private protected List<Token>? _tokens;
 
-        private protected SymbolResult(
-            Symbol symbol, 
-            SymbolResult? parent)
+        private protected SymbolResult(SymbolResult? parent)
         {
-            Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
-
             Parent = parent;
         }
 
@@ -44,11 +40,6 @@ namespace System.CommandLine.Parsing
         public SymbolResult? Parent { get; }
 
         /// <summary>
-        /// The symbol to which the result applies.
-        /// </summary>
-        public Symbol Symbol { get; }
-
-        /// <summary>
         /// The list of tokens associated with this symbol result during parsing.
         /// </summary>
         public IReadOnlyList<Token> Tokens => _tokens is not null ? _tokens : Array.Empty<Token>();
@@ -58,38 +49,7 @@ namespace System.CommandLine.Parsing
         private protected virtual int RemainingArgumentCapacity =>
             MaximumArgumentCapacity - Tokens.Count;
 
-        internal int MaximumArgumentCapacity
-        {
-            get
-            {
-                switch (Symbol)
-                {
-                    case Option option:
-                        return option.Argument.Arity.MaximumNumberOfValues;
-
-                    case Argument argument:
-                        return argument.Arity.MaximumNumberOfValues;
-
-                    case Command command:
-                        var value = 0;
-
-                        if (command.HasArguments)
-                        {
-                            var arguments = command.Arguments;
-
-                            for (var i = 0; i < arguments.Count; i++)
-                            {
-                                value += arguments[i].Arity.MaximumNumberOfValues;
-                            }
-                        }
-
-                        return value;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
+        internal abstract int MaximumArgumentCapacity { get; }
 
         /// <summary>
         /// Localization resources used to produce messages for this symbol result.

@@ -207,9 +207,14 @@ namespace System.CommandLine
         public IEnumerable<CompletionItem> GetCompletions(
             int? position = null)
         {
-            var currentSymbolResult = SymbolToComplete(position);
+            SymbolResult currentSymbolResult = SymbolToComplete(position);
 
-            var currentSymbol = currentSymbolResult.Symbol;
+            Symbol currentSymbol = currentSymbolResult switch
+            {
+                ArgumentResult argumentResult => argumentResult.Argument,
+                OptionResult optionResult => optionResult.Option,
+                _ => ((CommandResult)currentSymbolResult).Command
+            };
 
             var context = GetCompletionContext();
 

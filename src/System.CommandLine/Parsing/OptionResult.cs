@@ -19,10 +19,9 @@ namespace System.CommandLine.Parsing
             Option option,
             Token? token = null,
             CommandResult? parent = null) :
-            base(option ?? throw new ArgumentNullException(nameof(option)),
-                 parent)
+            base(parent)
         {
-            Option = option;
+            Option = option ?? throw new ArgumentNullException(nameof(option));
             Token = token;
         }
 
@@ -41,6 +40,8 @@ namespace System.CommandLine.Parsing
         /// The token that was parsed to specify the option.
         /// </summary>
         public Token? Token { get; }
+
+        internal override int MaximumArgumentCapacity => Option.Argument.Arity.MaximumNumberOfValues;
 
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>

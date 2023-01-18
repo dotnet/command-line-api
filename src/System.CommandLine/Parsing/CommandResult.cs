@@ -16,10 +16,9 @@ namespace System.CommandLine.Parsing
             Command command,
             Token token,
             CommandResult? parent = null) :
-            base(command ?? throw new ArgumentNullException(nameof(command)),
-                 parent)
+            base(parent)
         {
-            Command = command;
+            Command = command ?? throw new ArgumentNullException(nameof(command));
             Token = token ?? throw new ArgumentNullException(nameof(token));
         }
 
@@ -32,6 +31,26 @@ namespace System.CommandLine.Parsing
         /// The token that was parsed to specify the command.
         /// </summary>
         public Token Token { get; }
+
+        internal sealed override int MaximumArgumentCapacity
+        {
+            get
+            {
+                var value = 0;
+
+                if (Command.HasArguments)
+                {
+                    var arguments = Command.Arguments;
+
+                    for (var i = 0; i < arguments.Count; i++)
+                    {
+                        value += arguments[i].Arity.MaximumNumberOfValues;
+                    }
+                }
+
+                return value;
+            }
+        }
 
         internal override bool UseDefaultValueFor(Argument argument) =>
             FindResultFor(argument) switch
