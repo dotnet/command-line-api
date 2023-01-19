@@ -13,16 +13,10 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public abstract class SymbolResult
     {
-        private List<SymbolResult>? _children;
         private protected List<Token>? _tokens;
-        private LocalizationResources? _resources;
 
-        private protected SymbolResult(
-            Symbol symbol, 
-            SymbolResult? parent)
+        private protected SymbolResult(SymbolResult? parent)
         {
-            Symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
-
             Parent = parent;
         }
 
@@ -33,21 +27,9 @@ namespace System.CommandLine.Parsing
         public string? ErrorMessage { get; set; }
 
         /// <summary>
-        /// Child symbol results in the parse tree.
-        /// </summary>
-        public IReadOnlyList<SymbolResult> Children => _children is not null ? _children : Array.Empty<SymbolResult>();
-
-        internal void AddChild(SymbolResult symbolResult) => (_children ??= new()).Add(symbolResult);
-
-        /// <summary>
         /// The parent symbol result in the parse tree.
         /// </summary>
         public SymbolResult? Parent { get; }
-
-        /// <summary>
-        /// The symbol to which the result applies.
-        /// </summary>
-        public Symbol Symbol { get; }
 
         /// <summary>
         /// The list of tokens associated with this symbol result during parsing.
@@ -59,47 +41,12 @@ namespace System.CommandLine.Parsing
         private protected virtual int RemainingArgumentCapacity =>
             MaximumArgumentCapacity - Tokens.Count;
 
-        internal int MaximumArgumentCapacity
-        {
-            get
-            {
-                switch (Symbol)
-                {
-                    case Option option:
-                        return option.Argument.Arity.MaximumNumberOfValues;
-
-                    case Argument argument:
-                        return argument.Arity.MaximumNumberOfValues;
-
-                    case Command command:
-                        var value = 0;
-
-                        if (command.HasArguments)
-                        {
-                            var arguments = command.Arguments;
-
-                            for (var i = 0; i < arguments.Count; i++)
-                            {
-                                value += arguments[i].Arity.MaximumNumberOfValues;
-                            }
-                        }
-
-                        return value;
-
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
+        internal abstract int MaximumArgumentCapacity { get; }
 
         /// <summary>
         /// Localization resources used to produce messages for this symbol result.
         /// </summary>
-        public LocalizationResources LocalizationResources
-        {
-            get => _resources ??= Parent?.LocalizationResources ?? LocalizationResources.Instance;
-            set => _resources = value;
-        }
+        public virtual LocalizationResources LocalizationResources => GetRoot().LocalizationResources;
 
         internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
 
@@ -123,6 +70,8 @@ namespace System.CommandLine.Parsing
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public virtual OptionResult? FindResultFor(Option option) => GetRoot().FindResultFor(option);
+
+        internal virtual IEnumerable<SymbolResult> GetChildren(SymbolResult parent) => GetRoot().GetChildren(parent);
 
         private SymbolResult GetRoot()
         {

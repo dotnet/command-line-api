@@ -16,15 +16,17 @@ namespace System.CommandLine.Parsing
 
         internal ArgumentResult(
             Argument argument,
-            SymbolResult? parent) : base(argument, parent)
+            SymbolResult? parent) : base(parent)
         {
-            Argument = argument;
+            Argument = argument ?? throw new ArgumentNullException(nameof(argument));
         }
 
         /// <summary>
         /// The argument to which the result applies.
         /// </summary>
         public Argument Argument { get; }
+
+        internal override int MaximumArgumentCapacity => Argument.Arity.MaximumNumberOfValues;
 
         internal bool IsImplicit => Argument.HasDefaultValue && Tokens.Count == 0;
 

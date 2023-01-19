@@ -10,16 +10,13 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public class CommandResult : SymbolResult
     {
-        private Dictionary<Argument, ArgumentResult>? _defaultArgumentValues;
-
         internal CommandResult(
             Command command,
             Token token,
             CommandResult? parent = null) :
-            base(command ?? throw new ArgumentNullException(nameof(command)),
-                 parent)
+            base(parent)
         {
-            Command = command;
+            Command = command ?? throw new ArgumentNullException(nameof(command));
             Token = token ?? throw new ArgumentNullException(nameof(token));
         }
 
@@ -33,6 +30,31 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public Token Token { get; }
 
+        /// <summary>
+        /// Child symbol results in the parse tree.
+        /// </summary>
+        public IEnumerable<SymbolResult> Children => GetChildren(this);
+
+        internal sealed override int MaximumArgumentCapacity
+        {
+            get
+            {
+                var value = 0;
+
+                if (Command.HasArguments)
+                {
+                    var arguments = Command.Arguments;
+
+                    for (var i = 0; i < arguments.Count; i++)
+                    {
+                        value += arguments[i].Arity.MaximumNumberOfValues;
+                    }
+                }
+
+                return value;
+            }
+        }
+
         internal override bool UseDefaultValueFor(Argument argument) =>
             FindResultFor(argument) switch
             {
@@ -40,10 +62,5 @@ namespace System.CommandLine.Parsing
                                       arg.Tokens.Count == 0,
                 _ => false
             };
-
-        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
-            (_defaultArgumentValues ??= new()).GetOrAdd(
-                argument,
-                arg => new ArgumentResult(arg, this));
     }
 }

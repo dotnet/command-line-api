@@ -129,7 +129,7 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Children
-                  .Select(o => o.Symbol.Name)
+                  .Select(o => ((OptionResult)o).Option.Name)
                   .Should()
                   .BeEquivalentTo("x", "y", "z");
         }
@@ -172,7 +172,7 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Children
-                  .Select(o => o.Symbol.Name)
+                  .Select(o => ((OptionResult)o).Option.Name)
                   .Should()
                   .BeEquivalentTo("xyz");
         }
@@ -427,13 +427,13 @@ namespace System.CommandLine.Tests
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     o.Symbol.Name == "inner1" &&
+                                     ((OptionResult)o).Option.Name == "inner1" &&
                                      o.Tokens.Single().Value == "argument1");
             result.CommandResult
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     o.Symbol.Name == "inner2" &&
+                                     ((OptionResult)o).Option.Name == "inner2" &&
                                      o.Tokens.Single().Value == "argument2");
         }
 
@@ -667,13 +667,16 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Parent
+                  .Should()
+                  .BeAssignableTo<CommandResult>()
+                  .Which
                   .Children
                   .Should()
-                  .NotContain(o => o.Symbol.Name == "x");
+                  .AllBeAssignableTo<CommandResult>();
             result.CommandResult
                   .Children
                   .Should()
-                  .ContainSingle(o => o.Symbol.Name == "x");
+                  .ContainSingle(o => ((OptionResult)o).Option.Name == "x");
         }
 
         [Fact]
@@ -693,9 +696,12 @@ namespace System.CommandLine.Tests
                   .BeEmpty();
             result.CommandResult
                   .Parent
+                  .Should()
+                  .BeAssignableTo<CommandResult>()
+                  .Which
                   .Children
                   .Should()
-                  .ContainSingle(o => o.Symbol.Name == "x");
+                  .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "x");
         }
 
         [Fact]
@@ -1001,9 +1007,12 @@ namespace System.CommandLine.Tests
             parser.Parse("outer --inner inner")
                   .CommandResult
                   .Parent
+                  .Should()
+                  .BeAssignableTo<CommandResult>()
+                  .Which
                   .Children
                   .Should()
-                  .Contain(c => c.Symbol == option);
+                  .Contain(o => ((OptionResult)o).Option == option);
         }
 
         [Fact]
@@ -1020,12 +1029,12 @@ namespace System.CommandLine.Tests
 
             parser.Parse("-a").CommandResult
                   .Children
-                  .Select(s => s.Symbol)
+                  .Select(s => ((OptionResult)s).Option)
                   .Should()
                   .BeEquivalentTo(option1);
             parser.Parse("--a").CommandResult
                   .Children
-                  .Select(s => s.Symbol)
+                  .Select(s => ((OptionResult)s).Option)
                   .Should()
                   .BeEquivalentTo(option2);
         }

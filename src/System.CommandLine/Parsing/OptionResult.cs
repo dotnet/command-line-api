@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.Diagnostics.CodeAnalysis;
 
@@ -13,16 +12,14 @@ namespace System.CommandLine.Parsing
     public sealed class OptionResult : SymbolResult
     {
         private ArgumentConversionResult? _argumentConversionResult;
-        private Dictionary<Argument, ArgumentResult>? _defaultArgumentValues;
 
         internal OptionResult(
             Option option,
             Token? token = null,
             CommandResult? parent = null) :
-            base(option ?? throw new ArgumentNullException(nameof(option)),
-                 parent)
+            base(parent)
         {
-            Option = option;
+            Option = option ?? throw new ArgumentNullException(nameof(option));
             Token = token;
         }
 
@@ -41,6 +38,8 @@ namespace System.CommandLine.Parsing
         /// The token that was parsed to specify the option.
         /// </summary>
         public Token? Token { get; }
+
+        internal override int MaximumArgumentCapacity => Option.Argument.Arity.MaximumNumberOfValues;
 
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
@@ -78,14 +77,9 @@ namespace System.CommandLine.Parsing
             {
                 if (_argumentConversionResult is null)
                 {
-                    for (var i = 0; i < Children.Count; i++)
+                    if (FindResultFor(Option.Argument) is ArgumentResult firstChild)
                     {
-                        var child = Children[i];
-
-                        if (child is ArgumentResult argumentResult)
-                        {
-                            return _argumentConversionResult = argumentResult.GetArgumentConversionResult();
-                        }
+                        return _argumentConversionResult = firstChild.GetArgumentConversionResult();
                     }
 
                     return _argumentConversionResult = ArgumentConversionResult.None(Option.Argument);
@@ -94,12 +88,7 @@ namespace System.CommandLine.Parsing
                 return _argumentConversionResult;
             }
         }
-        
-        internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
 
-        internal ArgumentResult GetOrCreateDefaultArgumentResult(Argument argument) =>
-            (_defaultArgumentValues ??= new()).GetOrAdd(
-                argument,
-                arg => new ArgumentResult(arg, this));
+        internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
     }
 }

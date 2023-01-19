@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests
                 argument.Parse("x")
                         .Errors
                         .Should()
-                        .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                        .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
                         .Which
                         .Message
                         .Should()
@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
                 argument.Parse("")
                         .Errors
                         .Should()
-                        .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                        .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
                         .Which
                         .Message
                         .Should()
@@ -248,7 +248,10 @@ namespace System.CommandLine.Tests
 
                 argumentResult
                     .Parent
-                    .Symbol
+                    .Should()
+                    .BeOfType<OptionResult>()
+                    .Which
+                    .Option
                     .Should()
                     .Be(command.Options.Single());
             }
@@ -274,9 +277,12 @@ namespace System.CommandLine.Tests
                 argumentResult
                     .Parent
                     .Parent
-                    .Symbol
                     .Should()
-                    .Be(command);
+                    .BeAssignableTo<CommandResult>()
+                    .Which
+                    .Command
+                    .Should()
+                    .BeSameAs(command);
             }
             
             [Theory]
@@ -333,9 +339,12 @@ namespace System.CommandLine.Tests
 
                 argumentResult
                     .Parent
-                    .Symbol
                     .Should()
-                    .Be(command);
+                    .BeAssignableTo<CommandResult>()
+                    .Which
+                    .Command
+                    .Should()
+                    .BeSameAs(command);
             }
 
             [Fact]

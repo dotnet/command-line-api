@@ -159,10 +159,8 @@ namespace System.CommandLine.Parsing
                     builder.Append("[ ");
                     builder.Append(symbolResult.Token().Value);
 
-                    for (var i = 0; i < symbolResult.Children.Count; i++)
+                    foreach (SymbolResult child in symbolResult.GetChildren(symbolResult))
                     {
-                        var child = symbolResult.Children[i];
-
                         if (child is ArgumentResult arg &&
                             (arg.Argument.ValueType == typeof(bool) ||
                              arg.Argument.Arity.MaximumNumberOfValues == 0))

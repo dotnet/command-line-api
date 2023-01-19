@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
@@ -141,7 +142,15 @@ namespace System.CommandLine.Tests
                 var result = outer.Parse(commandLine);
 
                 result.Errors.Should().BeEmpty();
-                result.CommandResult.Parent.Symbol.Name.Should().Be(expectedParent);
+                result.CommandResult
+                    .Parent
+                    .Should()
+                    .BeOfType<CommandResult>()
+                    .Which
+                    .Command
+                    .Name
+                    .Should()
+                    .Be(expectedParent);
             }
 
             [Fact]

@@ -31,13 +31,13 @@ namespace System.CommandLine.Help
 
         private void AddValidators()
         {
-            Validators.Add(result =>
+            Validators.Add(static result =>
             {
-                if (result.Parent is { } parent &&
-                    parent.Children.Where(r => r.Symbol is not VersionOption)
+                if (result.Parent is CommandResult parent &&
+                    parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
                           .Any(IsNotImplicit))
                 {
-                    result.ErrorMessage =  result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Symbol.Name);
+                    result.ErrorMessage = result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name);
                 }
             });
         }

@@ -393,6 +393,7 @@ System.CommandLine.Parsing
   public class CommandLineStringSplitter
     public System.Collections.Generic.IEnumerable<System.String> Split(System.String commandLine)
   public class CommandResult : SymbolResult
+    public System.Collections.Generic.IEnumerable<SymbolResult> Children { get; }
     public System.CommandLine.Command Command { get; }
     public Token Token { get; }
   public class OptionResult : SymbolResult
@@ -422,11 +423,9 @@ System.CommandLine.Parsing
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static System.CommandLine.ParseResult Parse(this Parser parser, System.String commandLine)
   public abstract class SymbolResult
-    public System.Collections.Generic.IReadOnlyList<SymbolResult> Children { get; }
     public System.String ErrorMessage { get; set; }
-    public System.CommandLine.LocalizationResources LocalizationResources { get; set; }
+    public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public SymbolResult Parent { get; }
-    public System.CommandLine.Symbol Symbol { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
     public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
     public CommandResult FindResultFor(System.CommandLine.Command command)
