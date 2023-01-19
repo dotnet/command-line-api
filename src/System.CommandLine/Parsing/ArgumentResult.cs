@@ -111,7 +111,7 @@ namespace System.CommandLine.Parsing
 
             if (Parent!.UseDefaultValueFor(argument))
             {
-                var argumentResult = new ArgumentResult(argument, _symbolResultTree, Parent);
+                var argumentResult = new ArgumentResult(argument, SymbolResultTree, Parent);
 
                 var defaultValue = argument.GetDefaultValue(argumentResult);
 

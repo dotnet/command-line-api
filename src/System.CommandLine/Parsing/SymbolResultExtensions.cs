@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
 
             foreach (var item in commandResult
                                  .Children
-                                 .FlattenBreadthFirst(o => o.GetChildren(o)))
+                                 .FlattenBreadthFirst(o => o.SymbolResultTree.GetChildren(o)))
             {
                 yield return item;
             }

@@ -159,7 +159,7 @@ namespace System.CommandLine.Parsing
                     builder.Append("[ ");
                     builder.Append(symbolResult.Token().Value);
 
-                    foreach (SymbolResult child in symbolResult.GetChildren(symbolResult))
+                    foreach (SymbolResult child in symbolResult.SymbolResultTree.GetChildren(symbolResult))
                     {
                         if (child is ArgumentResult arg &&
                             (arg.Argument.ValueType == typeof(bool) ||

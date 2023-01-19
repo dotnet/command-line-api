@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Child symbol results in the parse tree.
         /// </summary>
-        public IEnumerable<SymbolResult> Children => _symbolResultTree.GetChildren(this);
+        public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
         internal sealed override int MaximumArgumentCapacity
         {

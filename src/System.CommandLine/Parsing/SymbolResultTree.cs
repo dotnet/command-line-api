@@ -31,11 +31,14 @@ namespace System.CommandLine.Parsing
 
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
-            foreach (KeyValuePair<Symbol, SymbolResult> pair in _symbolResults)
+            if (parent is not ArgumentResult)
             {
-                if (ReferenceEquals(parent, pair.Value.Parent))
+                foreach (KeyValuePair<Symbol, SymbolResult> pair in _symbolResults)
                 {
-                    yield return pair.Value;
+                    if (ReferenceEquals(parent, pair.Value.Parent))
+                    {
+                        yield return pair.Value;
+                    }
                 }
             }
         }
