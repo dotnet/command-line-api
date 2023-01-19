@@ -113,7 +113,7 @@ namespace System.CommandLine
         /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
         public object? GetDefaultValue()
         {
-            return GetDefaultValue(new ArgumentResult(this, null));
+            return GetDefaultValue(new ArgumentResult(this, null!, null));
         }
 
         internal abstract object? GetDefaultValue(ArgumentResult argumentResult);

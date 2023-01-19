@@ -15,14 +15,14 @@ namespace System.CommandLine
     public class ParseResult
     {
         private readonly IReadOnlyList<ParseError> _errors;
-        private readonly RootCommandResult _rootCommandResult;
+        private readonly CommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CompletionContext? _completionContext;
 
         internal ParseResult(
             Parser parser,
-            RootCommandResult rootCommandResult,
+            CommandResult rootCommandResult,
             CommandResult commandResult,
             Dictionary<string, IReadOnlyList<string>>? directives,
             List<Token> tokens,

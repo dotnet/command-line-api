@@ -5,35 +5,33 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    internal sealed class RootCommandResult : CommandResult
+    internal sealed class SymbolResultTree
     {
         private readonly Dictionary<Symbol, SymbolResult> _symbolResults;
         private readonly LocalizationResources _localizationResources;
 
-        public RootCommandResult(
-            Command command,
-            Token token,
+        internal SymbolResultTree(
             Dictionary<Symbol, SymbolResult> symbolResults,
-            LocalizationResources localizationResources) : base(command, token)
+            LocalizationResources localizationResources)
         {
             _symbolResults = symbolResults;
             _localizationResources = localizationResources;
         }
 
-        public override LocalizationResources LocalizationResources => _localizationResources;
+        internal LocalizationResources LocalizationResources => _localizationResources;
 
-        public override ArgumentResult? FindResultFor(Argument argument)
+        internal ArgumentResult? FindResultFor(Argument argument)
             => _symbolResults.TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
 
-        public override CommandResult? FindResultFor(Command command)
+        internal CommandResult? FindResultFor(Command command)
             => _symbolResults.TryGetValue(command, out SymbolResult? result) ? (CommandResult)result : default;
 
-        public override OptionResult? FindResultFor(Option option)
+        internal OptionResult? FindResultFor(Option option)
             => _symbolResults.TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
-        internal override IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
+        internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
-            foreach (var pair in _symbolResults)
+            foreach (KeyValuePair<Symbol, SymbolResult> pair in _symbolResults)
             {
                 if (ReferenceEquals(parent, pair.Value.Parent))
                 {

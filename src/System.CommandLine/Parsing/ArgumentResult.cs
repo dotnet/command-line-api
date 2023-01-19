@@ -16,7 +16,8 @@ namespace System.CommandLine.Parsing
 
         internal ArgumentResult(
             Argument argument,
-            SymbolResult? parent) : base(parent)
+            SymbolResultTree symbolResultTree,
+            SymbolResult? parent) : base(symbolResultTree, parent)
         {
             Argument = argument ?? throw new ArgumentNullException(nameof(argument));
         }
@@ -110,7 +111,7 @@ namespace System.CommandLine.Parsing
 
             if (Parent!.UseDefaultValueFor(argument))
             {
-                var argumentResult = new ArgumentResult(argument, Parent);
+                var argumentResult = new ArgumentResult(argument, _symbolResultTree, Parent);
 
                 var defaultValue = argument.GetDefaultValue(argumentResult);
 

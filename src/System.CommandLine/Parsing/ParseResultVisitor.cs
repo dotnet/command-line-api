@@ -14,16 +14,16 @@ namespace System.CommandLine.Parsing
         private readonly Parser _parser;
         private readonly List<Token> _tokens;
         private readonly string? _rawInput;
+        private readonly Dictionary<Symbol, SymbolResult> _symbolResults;
+        private readonly SymbolResultTree _symbolResultTree;
 
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private List<Token>? _unmatchedTokens;
         private List<ParseError>? _errors;
 
-        private readonly Dictionary<Symbol, SymbolResult> _symbolResults = new();
-
         private List<ArgumentResult>? _argumentResults;
 
-        private RootCommandResult? _rootCommandResult;
+        private CommandResult? _rootCommandResult;
         private CommandResult? _innermostCommandResult;
         private bool _isHelpRequested;
 
@@ -38,6 +38,8 @@ namespace System.CommandLine.Parsing
             _tokens = tokens;
             _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
+            _symbolResults = new ();
+            _symbolResultTree = new(_symbolResults, _parser.Configuration.LocalizationResources);
 
             if (tokenizeErrors is not null)
             {
@@ -105,11 +107,10 @@ namespace System.CommandLine.Parsing
 
         private void VisitRootCommandNode(CommandNode rootCommandNode)
         {
-            _rootCommandResult = new RootCommandResult(
+            _rootCommandResult = new CommandResult(
                 rootCommandNode.Command,
                 rootCommandNode.Token,
-                _symbolResults,
-                _parser.Configuration.LocalizationResources ?? LocalizationResources.Instance);
+                _symbolResultTree);
 
             _innermostCommandResult = _rootCommandResult;
         }
@@ -119,6 +120,7 @@ namespace System.CommandLine.Parsing
             var commandResult = new CommandResult(
                 commandNode.Command,
                 commandNode.Token,
+                _symbolResultTree,
                 _innermostCommandResult);
 
             _symbolResults.Add(commandNode.Command, commandResult);
@@ -134,6 +136,7 @@ namespace System.CommandLine.Parsing
                 argumentResult =
                     new ArgumentResult(
                         argumentNode.Argument,
+                        _symbolResultTree,
                         _innermostCommandResult);
 
                 AddToResult(argumentResult);
@@ -159,6 +162,7 @@ namespace System.CommandLine.Parsing
 
                 var optionResult = new OptionResult(
                     optionNode.Option,
+                    _symbolResultTree,
                     optionNode.Token,
                     _innermostCommandResult);
 
@@ -168,7 +172,7 @@ namespace System.CommandLine.Parsing
                 {
                     if (optionResult.Option.Argument.HasCustomParser)
                     {
-                        ArgumentResult argumentResult = new (optionResult.Option.Argument, optionResult);
+                        ArgumentResult argumentResult = new (optionResult.Option.Argument, _symbolResultTree, optionResult);
                         _symbolResults.Add(optionResult.Option.Argument, argumentResult);
                     }
                 }
@@ -188,6 +192,7 @@ namespace System.CommandLine.Parsing
                 argumentResult =
                     new ArgumentResult(
                         argumentNode.Argument,
+                        _symbolResultTree,
                         optionResult);
                 _symbolResults.TryAdd(argument, argumentResult);
             }
@@ -273,6 +278,7 @@ namespace System.CommandLine.Parsing
                     var nextArgument = arguments[i];
                     var nextArgumentResult = new ArgumentResult(
                         nextArgument,
+                        _symbolResultTree,
                         _innermostCommandResult);
 
                     var previousArgumentResult = argumentResults[i - 1];
@@ -552,7 +558,7 @@ namespace System.CommandLine.Parsing
                         if (o.Option.Argument.ValueType == typeof(bool)
                             && !_symbolResults.ContainsKey(o.Option.Argument))
                         {
-                            _symbolResults.Add(o.Option.Argument, new ArgumentResult(o.Option.Argument, o));
+                            _symbolResults.Add(o.Option.Argument, new ArgumentResult(o.Option.Argument, _symbolResultTree, o));
                         }
 
                         break;
@@ -564,12 +570,14 @@ namespace System.CommandLine.Parsing
 
                                 var optionResult = new OptionResult(
                                     option,
+                                    _symbolResultTree,
                                     null,
                                     commandResult);
 
                                 if (_symbolResults.TryAdd(optionResult.Option, optionResult))
                                 {
-                                    _symbolResults.Add(optionResult.Option.Argument, new ArgumentResult(optionResult.Option.Argument, optionResult));
+                                    ArgumentResult argumentResult = new (optionResult.Option.Argument, _symbolResultTree, optionResult);
+                                    _symbolResults.Add(optionResult.Option.Argument, argumentResult);
                                 }
 
                                 break;
@@ -578,7 +586,7 @@ namespace System.CommandLine.Parsing
 
                                 if (!_symbolResults.ContainsKey(argument))
                                 {
-                                    AddToResult(new ArgumentResult(argument, commandResult));
+                                    AddToResult(new ArgumentResult(argument, _symbolResultTree, commandResult));
                                 }
                                 
                                 break;
