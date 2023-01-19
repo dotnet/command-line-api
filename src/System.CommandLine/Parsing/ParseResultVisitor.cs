@@ -15,15 +15,13 @@ namespace System.CommandLine.Parsing
         private readonly List<Token> _tokens;
         private readonly string? _rawInput;
         private readonly SymbolResultTree _symbolResultTree;
+        private readonly CommandResult _rootCommandResult;
 
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private List<Token>? _unmatchedTokens;
         private List<ParseError>? _errors;
-
         private List<ArgumentResult>? _argumentResults;
-
-        private CommandResult? _rootCommandResult;
-        private CommandResult? _innermostCommandResult;
+        private CommandResult _innermostCommandResult;
         private bool _isHelpRequested;
 
         internal ParseResultVisitor(
@@ -31,13 +29,18 @@ namespace System.CommandLine.Parsing
             List<Token> tokens,
             List<string>? tokenizeErrors,
             List<Token>? unmatchedTokens,
-            string? rawInput)
+            string? rawInput,
+            CommandNode rootCommandNode)
         {
             _parser = parser;
             _tokens = tokens;
             _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
             _symbolResultTree = new(_parser.Configuration.LocalizationResources);
+            _innermostCommandResult = _rootCommandResult = new CommandResult(
+                rootCommandNode.Command,
+                rootCommandNode.Token,
+                _symbolResultTree);
 
             if (tokenizeErrors is not null)
             {
@@ -53,8 +56,6 @@ namespace System.CommandLine.Parsing
 
         internal void Visit(CommandNode rootCommandNode)
         {
-            VisitRootCommandNode(rootCommandNode);
-
             VisitChildren(rootCommandNode);
 
             Stop();
@@ -103,16 +104,6 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void VisitRootCommandNode(CommandNode rootCommandNode)
-        {
-            _rootCommandResult = new CommandResult(
-                rootCommandNode.Command,
-                rootCommandNode.Token,
-                _symbolResultTree);
-
-            _innermostCommandResult = _rootCommandResult;
-        }
-
         private void VisitCommandNode(CommandNode commandNode)
         {
             var commandResult = new CommandResult(
@@ -141,7 +132,7 @@ namespace System.CommandLine.Parsing
             }
 
             argumentResult.AddToken(argumentNode.Token);
-            _innermostCommandResult?.AddToken(argumentNode.Token);
+            _innermostCommandResult.AddToken(argumentNode.Token);
         }
 
         private void VisitOptionNode(OptionNode optionNode)
@@ -243,7 +234,7 @@ namespace System.CommandLine.Parsing
 
             if (_argumentResults is not null)
             {
-                ValidateAndConvertArgumentResults(_innermostCommandResult!.Command.Arguments, _argumentResults);
+                ValidateAndConvertArgumentResults(_innermostCommandResult.Command.Arguments, _argumentResults);
             }
         }
 
@@ -276,7 +267,7 @@ namespace System.CommandLine.Parsing
 
                     var previousArgumentResult = argumentResults[i - 1];
 
-                    var passedOnTokensCount = _innermostCommandResult?.Tokens.Count;
+                    var passedOnTokensCount = _innermostCommandResult.Tokens.Count;
 
                     ShiftPassedOnTokensToNextResult(previousArgumentResult, nextArgumentResult, passedOnTokensCount);
 
@@ -330,17 +321,14 @@ namespace System.CommandLine.Parsing
                         break;
                     }
 
-                    if (_innermostCommandResult is not null)
-                    {
-                        next.AddToken(_innermostCommandResult.Tokens[j]);
-                    }
+                    next.AddToken(_innermostCommandResult.Tokens[j]);
                 }
             }
         }
 
         private void ValidateCommandResult()
         {
-            var command = _innermostCommandResult!.Command;
+            var command = _innermostCommandResult.Command;
 
             if (command.HasValidators && UseValidators(command, _innermostCommandResult))
             {
@@ -359,7 +347,7 @@ namespace System.CommandLine.Parsing
                         var option = options[i];
                         if (option.IsRequired && (!checkOnlyGlobalOptions || (checkOnlyGlobalOptions && option.IsGlobal)))
                         {
-                            if (_rootCommandResult!.FindResultFor(option) is null)
+                            if (_rootCommandResult.FindResultFor(option) is null)
                             {
                                 AddErrorToResult(
                                     _innermostCommandResult,
@@ -421,7 +409,7 @@ namespace System.CommandLine.Parsing
 
         private void ValidateCommandHandler()
         {
-            if (_innermostCommandResult!.Command is not { Handler: null } cmd)
+            if (_innermostCommandResult.Command is not { Handler: null } cmd)
             {
                 return;
             }
@@ -525,7 +513,7 @@ namespace System.CommandLine.Parsing
                     for (var i = 0; i < options.Count; i++)
                     {
                         Option option = options[i];
-                        Handle(_rootCommandResult!.FindResultFor(option), option);
+                        Handle(_rootCommandResult.FindResultFor(option), option);
                     }
                 }
 
@@ -535,7 +523,7 @@ namespace System.CommandLine.Parsing
                     for (var i = 0; i < arguments.Count; i++)
                     {
                         Argument argument = arguments[i];
-                        Handle(_rootCommandResult!.FindResultFor(argument), argument);
+                        Handle(_rootCommandResult.FindResultFor(argument), argument);
                     }
                 }
 
@@ -604,8 +592,8 @@ namespace System.CommandLine.Parsing
 
         public ParseResult GetResult() =>
             new(_parser,
-                _rootCommandResult ?? throw new InvalidOperationException("No root command was found"),
-                _innermostCommandResult ?? throw new InvalidOperationException("No command was found"),
+                _rootCommandResult,
+                _innermostCommandResult,
                 _directives,
                 _tokens,
                 _unmatchedTokens,

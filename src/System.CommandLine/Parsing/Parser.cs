@@ -56,7 +56,8 @@ namespace System.CommandLine.Parsing
                 tokens,
                 tokenizationErrors,
                 operation.UnmatchedTokens,
-                rawInput);
+                rawInput,
+                operation.RootCommandNode!);
 
             visitor.Visit(operation.RootCommandNode!);
 
