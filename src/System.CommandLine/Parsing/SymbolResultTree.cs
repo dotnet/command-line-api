@@ -5,35 +5,31 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    internal sealed class SymbolResultTree
+    internal sealed class SymbolResultTree : Dictionary<Symbol, SymbolResult>
     {
-        private readonly Dictionary<Symbol, SymbolResult> _symbolResults;
         private readonly LocalizationResources _localizationResources;
 
-        internal SymbolResultTree(
-            Dictionary<Symbol, SymbolResult> symbolResults,
-            LocalizationResources localizationResources)
+        internal SymbolResultTree(LocalizationResources localizationResources)
         {
-            _symbolResults = symbolResults;
             _localizationResources = localizationResources;
         }
 
         internal LocalizationResources LocalizationResources => _localizationResources;
 
         internal ArgumentResult? FindResultFor(Argument argument)
-            => _symbolResults.TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
+            => TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
 
         internal CommandResult? FindResultFor(Command command)
-            => _symbolResults.TryGetValue(command, out SymbolResult? result) ? (CommandResult)result : default;
+            => TryGetValue(command, out SymbolResult? result) ? (CommandResult)result : default;
 
         internal OptionResult? FindResultFor(Option option)
-            => _symbolResults.TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
+            => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
             if (parent is not ArgumentResult)
             {
-                foreach (KeyValuePair<Symbol, SymbolResult> pair in _symbolResults)
+                foreach (KeyValuePair<Symbol, SymbolResult> pair in this)
                 {
                     if (ReferenceEquals(parent, pair.Value.Parent))
                     {
