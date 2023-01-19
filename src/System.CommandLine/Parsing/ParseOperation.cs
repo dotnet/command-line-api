@@ -102,6 +102,12 @@ namespace System.CommandLine.Parsing
 
                     if (currentArgumentCount < argument.Arity.MaximumNumberOfValues)
                     {
+                        if (CurrentToken.Symbol is null)
+                        {
+                            // update the token with missing information now, so later stages don't need to modify it
+                            CurrentToken.Symbol = argument;
+                        }
+
                         var argumentNode = new CommandArgumentNode(
                             CurrentToken,
                             argument,

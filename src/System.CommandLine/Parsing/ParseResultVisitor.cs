@@ -140,13 +140,8 @@ namespace System.CommandLine.Parsing
                 AddToResult(argumentResult);
             }
 
-            var token = argumentNode.Token.Symbol is null
-                            ? new Token(argumentNode.Token.Value, TokenType.Argument, argumentResult.Argument)
-                            : argumentNode.Token;
-
-            argumentResult.AddToken(token);
-
-            _innermostCommandResult?.AddToken(token);
+            argumentResult.AddToken(argumentNode.Token);
+            _innermostCommandResult?.AddToken(argumentNode.Token);
         }
 
         private void VisitOptionNode(OptionNode optionNode)
