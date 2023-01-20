@@ -171,6 +171,29 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_FromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_error_mentions_first_invalid_argument()
+        {
+            Option<string[]> option = new(new[] { "--columns" });
+            option.AcceptOnlyFromAmong("author", "language", "tags", "type");
+            option.Arity = new ArgumentArity(1, 4);
+            option.AllowMultipleArgumentsPerToken = true;
+
+            var command = new Command("list")
+            {
+                option
+            };
+
+            var result = command.Parse("list --columns c1 c2");
+
+            // Currently there is no possibility for a single validator to produce multiple errors,
+            // so only the first one is checked.
+            result.Errors[0]
+                  .Message
+                  .Should()
+                  .Be(LocalizationResources.Instance.UnrecognizedArgument("c1", new[] { "author", "language", "tags", "type" }));
+        }
+
+        [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
             var option = new Option<string>("-x");
