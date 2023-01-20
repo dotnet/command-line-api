@@ -46,7 +46,7 @@ namespace System.CommandLine.Tests
                 .CommandResult
                 .Parent
                 .Should()
-                .BeAssignableTo<CommandResult>()
+                .BeOfType<CommandResult>()
                 .Which
                 .Command
                 .Name

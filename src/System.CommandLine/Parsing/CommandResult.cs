@@ -8,13 +8,14 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing a <see cref="Command" />.
     /// </summary>
-    public class CommandResult : SymbolResult
+    public sealed class CommandResult : SymbolResult
     {
         internal CommandResult(
             Command command,
             Token token,
+            SymbolResultTree symbolResultTree,
             CommandResult? parent = null) :
-            base(parent)
+            base(symbolResultTree, parent)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
             Token = token ?? throw new ArgumentNullException(nameof(token));
@@ -33,7 +34,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Child symbol results in the parse tree.
         /// </summary>
-        public IEnumerable<SymbolResult> Children => GetChildren(this);
+        public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
         internal sealed override int MaximumArgumentCapacity
         {

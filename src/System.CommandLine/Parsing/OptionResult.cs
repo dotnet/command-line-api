@@ -15,9 +15,10 @@ namespace System.CommandLine.Parsing
 
         internal OptionResult(
             Option option,
+            SymbolResultTree symbolResultTree,
             Token? token = null,
             CommandResult? parent = null) :
-            base(parent)
+            base(symbolResultTree, parent)
         {
             Option = option ?? throw new ArgumentNullException(nameof(option));
             Token = token;

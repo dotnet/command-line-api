@@ -278,7 +278,7 @@ namespace System.CommandLine.Tests
                     .Parent
                     .Parent
                     .Should()
-                    .BeAssignableTo<CommandResult>()
+                    .BeOfType<CommandResult>()
                     .Which
                     .Command
                     .Should()
@@ -340,7 +340,7 @@ namespace System.CommandLine.Tests
                 argumentResult
                     .Parent
                     .Should()
-                    .BeAssignableTo<CommandResult>()
+                    .BeOfType<CommandResult>()
                     .Which
                     .Command
                     .Should()
