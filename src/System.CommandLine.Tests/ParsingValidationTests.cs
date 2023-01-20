@@ -178,12 +178,12 @@ namespace System.CommandLine.Tests
             option.Arity = new ArgumentArity(1, 4);
             option.AllowMultipleArgumentsPerToken = true;
 
-            var command = new Command("--list")
+            var command = new Command("list")
             {
                 option
             };
 
-            var result = command.Parse("--list --columns c1 c2");
+            var result = command.Parse("list --columns c1 c2");
 
             // Currently there is no possibility for a single validator to produce multiple errors,
             // so only the first one is checked.
