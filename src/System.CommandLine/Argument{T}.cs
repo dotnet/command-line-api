@@ -195,6 +195,7 @@ namespace System.CommandLine
                         if (Array.IndexOf(values, token.Value) < 0)
                         {
                             argumentResult.ErrorMessage = argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values);
+                            break;
                         }
                     }
                 }
