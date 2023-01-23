@@ -31,6 +31,8 @@ namespace System.CommandLine.Completions
         /// <remarks>Can be used for testing purposes.</remarks>
         public static CompletionContext Empty => _empty ??= new TokenCompletionContext(ParseResult.Empty());
 
+        internal bool IsEmpty => ReferenceEquals(this, _empty);
+
         /// <summary>
         /// Gets the text to be matched for completion, which can be used to filter a list of completions.
         /// </summary>

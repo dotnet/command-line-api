@@ -192,20 +192,28 @@ namespace System.CommandLine
                 ParentNode? parent = FirstParent;
                 while (parent is not null)
                 {
-                    if (parent.Symbol is Command parentCommand && parentCommand.HasOptions)
-                    {
-                        for (var i = 0; i < parentCommand.Options.Count; i++)
-                        {
-                            var option = parentCommand.Options[i];
+                    Command parentCommand = (Command)parent.Symbol;
 
-                            if (option.IsGlobal)
+                    if (context.IsEmpty || context.ParseResult.FindResultFor(parentCommand) is not null)
+                    {
+                        if (parentCommand.HasOptions)
+                        {
+                            for (var i = 0; i < parentCommand.Options.Count; i++)
                             {
-                                AddCompletionsFor(option);
+                                var option = parentCommand.Options[i];
+
+                                if (option.IsGlobal)
+                                {
+                                    AddCompletionsFor(option);
+                                }
                             }
                         }
+                        parent = parent.Symbol.FirstParent;
                     }
-
-                    parent = parent.Next;
+                    else
+                    {
+                        parent = parent.Next;
+                    }
                 }
             }
 

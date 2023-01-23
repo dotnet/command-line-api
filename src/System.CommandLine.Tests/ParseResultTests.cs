@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
 using System.CommandLine.Parsing;
 using FluentAssertions;
 using Xunit;
@@ -82,6 +83,43 @@ namespace System.CommandLine.Tests
 
             result2.CommandResult.Command.Name.Should().Be("inner-two");
             result2.Errors.Count.Should().Be(1);
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/pull/2030#issuecomment-1400275332
+        public void ParseResult_GetCompletions_returns_global_options_of_given_command_only()
+        {
+            var leafCommand = new Command("leafCommand")
+            {
+                new Option<string>("--one", "option one"),
+                new Option<string>("--two", "option two")
+            };
+
+            var midCommand1 = new Command("midCommand1")
+            {
+                leafCommand
+            };
+            midCommand1.AddGlobalOption(new Option<string>("--three1", "option three 1"));
+
+            var midCommand2 = new Command("midCommand2")
+            {
+                leafCommand
+            };
+            midCommand2.AddGlobalOption(new Option<string>("--three2", "option three 2"));
+
+            var rootCommand = new Command("root")
+            {
+                midCommand1,
+                midCommand2
+            };
+
+            var result = new Parser(rootCommand).Parse("root midCommand2 leafCommand --");
+
+            var completions = result.GetCompletions();
+
+            completions
+                .Select(item => item.Label)
+                .Should()
+                .BeEquivalentTo("--one", "--two", "--three2");
         }
     }
 }
