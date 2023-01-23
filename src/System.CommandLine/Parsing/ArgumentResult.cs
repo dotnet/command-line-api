@@ -22,6 +22,9 @@ namespace System.CommandLine.Parsing
             Argument = argument ?? throw new ArgumentNullException(nameof(argument));
         }
 
+        /// <inheritdoc/>
+        public override Symbol Symbol => Argument;
+
         /// <summary>
         /// The argument to which the result applies.
         /// </summary>

@@ -386,6 +386,7 @@ System.CommandLine.IO
 System.CommandLine.Parsing
   public class ArgumentResult : SymbolResult
     public System.CommandLine.Argument Argument { get; }
+    public System.CommandLine.Symbol Symbol { get; }
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
@@ -395,10 +396,12 @@ System.CommandLine.Parsing
   public class CommandResult : SymbolResult
     public System.Collections.Generic.IEnumerable<SymbolResult> Children { get; }
     public System.CommandLine.Command Command { get; }
+    public System.CommandLine.Symbol Symbol { get; }
     public Token Token { get; }
   public class OptionResult : SymbolResult
     public System.Boolean IsImplicit { get; }
     public System.CommandLine.Option Option { get; }
+    public System.CommandLine.Symbol Symbol { get; }
     public Token Token { get; }
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
@@ -426,6 +429,7 @@ System.CommandLine.Parsing
     public System.String ErrorMessage { get; set; }
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public SymbolResult Parent { get; }
+    public System.CommandLine.Symbol Symbol { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
     public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
     public CommandResult FindResultFor(System.CommandLine.Command command)

@@ -647,7 +647,7 @@ ERR:
             {
                 if (context.ParseResult.FindResultFor(versionOption) is { })
                 {
-                    if (context.ParseResult.Errors.Any(e => e.SymbolResult is OptionResult optionResult && optionResult.Option is VersionOption))
+                    if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
                     {
                         context.InvocationResult = static ctx => ParseErrorResult.Apply(ctx, null);
                     }
@@ -688,7 +688,7 @@ ERR:
             {
                 if (context.ParseResult.FindResultFor(versionOption) is { })
                 {
-                    if (context.ParseResult.Errors.Any(e => e.SymbolResult is OptionResult optionResult && optionResult.Option is VersionOption))
+                    if (context.ParseResult.Errors.Any(e => e.SymbolResult?.Symbol is VersionOption))
                     {
                         context.InvocationResult = static ctx => ParseErrorResult.Apply(ctx, null);
                     }

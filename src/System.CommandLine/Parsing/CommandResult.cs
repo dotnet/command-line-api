@@ -21,6 +21,9 @@ namespace System.CommandLine.Parsing
             Token = token ?? throw new ArgumentNullException(nameof(token));
         }
 
+        /// <inheritdoc/>
+        public override Symbol Symbol => Command;
+
         /// <summary>
         /// The command to which the result applies.
         /// </summary>

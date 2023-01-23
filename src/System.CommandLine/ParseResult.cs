@@ -209,12 +209,7 @@ namespace System.CommandLine
         {
             SymbolResult currentSymbolResult = SymbolToComplete(position);
 
-            Symbol currentSymbol = currentSymbolResult switch
-            {
-                ArgumentResult argumentResult => argumentResult.Argument,
-                OptionResult optionResult => optionResult.Option,
-                _ => ((CommandResult)currentSymbolResult).Command
-            };
+            Symbol currentSymbol = currentSymbolResult.Symbol;
 
             var context = GetCompletionContext();
 

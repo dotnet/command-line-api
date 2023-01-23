@@ -34,7 +34,7 @@ namespace System.CommandLine.Help
             Validators.Add(static result =>
             {
                 if (result.Parent is CommandResult parent &&
-                    parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
+                    parent.Children.Where(r => r.Symbol is not VersionOption)
                           .Any(IsNotImplicit))
                 {
                     result.ErrorMessage = result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name);

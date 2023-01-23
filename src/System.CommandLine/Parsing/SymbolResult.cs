@@ -22,6 +22,11 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
+        /// The symbol to which the result applies.
+        /// </summary>
+        public abstract Symbol Symbol { get; }
+
+        /// <summary>
         /// An error message for this symbol result.
         /// </summary>
         /// <remarks>Setting this value to a non-<c>null</c> during parsing will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>

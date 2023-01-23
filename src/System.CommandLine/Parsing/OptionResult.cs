@@ -24,6 +24,9 @@ namespace System.CommandLine.Parsing
             Token = token;
         }
 
+        /// <inheritdoc/>
+        public override Symbol Symbol => Option;
+
         /// <summary>
         /// The option to which the result applies.
         /// </summary>
