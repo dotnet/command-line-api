@@ -205,7 +205,7 @@ namespace System.CommandLine
                         }
                     }
 
-                    parent = parent.Next;
+                    parent = parent.Symbol.FirstParent;
                 }
             }
 
