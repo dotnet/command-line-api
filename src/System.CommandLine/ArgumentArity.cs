@@ -73,41 +73,37 @@ namespace System.CommandLine
             => MaximumNumberOfValues ^ MinimumNumberOfValues ^ IsNonDefault.GetHashCode();
 
         internal static ArgumentConversionResult? Validate(
-            SymbolResult symbolResult,
+            SymbolResult parentSymbolResult,
             Argument argument,
             int minimumNumberOfValues,
             int maximumNumberOfValues)
         {
-            var argumentResult = symbolResult switch
-            {
-                ArgumentResult a => a,
-                _ => symbolResult.FindResultFor(argument)
-            };
+            var argumentResult = parentSymbolResult.FindResultFor(argument);
 
             var tokenCount = argumentResult?.Tokens.Count ?? 0;
 
             if (tokenCount < minimumNumberOfValues)
             {
-                if (symbolResult.UseDefaultValueFor(argument))
+                if (parentSymbolResult.UseDefaultValueFor(argument))
                 {
                     return null;
                 }
 
                 return ArgumentConversionResult.Failure(
                     argument,
-                    symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult),
+                    parentSymbolResult.LocalizationResources.RequiredArgumentMissing(parentSymbolResult),
                     ArgumentConversionResultType.FailedMissingArgument);
             }
 
             if (tokenCount > maximumNumberOfValues)
             {
-                if (symbolResult is OptionResult optionResult)
+                if (parentSymbolResult is OptionResult optionResult)
                 {
                     if (!optionResult.Option.AllowMultipleArgumentsPerToken)
                     {
                         return ArgumentConversionResult.Failure(
                             argument,
-                            symbolResult!.LocalizationResources.ExpectsOneArgument(symbolResult),
+                            parentSymbolResult!.LocalizationResources.ExpectsOneArgument(parentSymbolResult),
                             ArgumentConversionResultType.FailedTooManyArguments);
                     }
                 }

@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests
             {
                 var argument = new Argument<FileSystemInfo>(result =>
                 {
-                    result.ErrorMessage = "oops!";
+                    result.ReportError("oops!");
                     return null;
                 });
 
@@ -143,7 +143,7 @@ namespace System.CommandLine.Tests
             {
                 var argument = new Argument<FileSystemInfo>(result =>
                 {
-                    result.ErrorMessage = "oops!";
+                    result.ReportError("oops!");
                     return null;
                 }, true);
 
@@ -164,7 +164,7 @@ namespace System.CommandLine.Tests
                     "-x",
                     result =>
                     {
-                        result.ErrorMessage = "oops!";
+                        result.ReportError("oops!");
                         return null;
                     }, true);
 
@@ -389,7 +389,7 @@ namespace System.CommandLine.Tests
                 {
                     new Argument<FileInfo[]>("from", argumentResult =>
                     {
-                        argumentResult.ErrorMessage = "nope";
+                        argumentResult.ReportError("nope");
                         return null;
                     }, true)
                     {
@@ -397,7 +397,7 @@ namespace System.CommandLine.Tests
                     },
                     new Argument<DirectoryInfo>("to", argumentResult =>
                     {
-                        argumentResult.ErrorMessage = "UH UH";
+                        argumentResult.ReportError("UH UH");
                         return null;
                     }, true)
                     {
@@ -426,7 +426,7 @@ namespace System.CommandLine.Tests
                     new Argument<string>(),
                     new Option<string>("-x", argResult =>
                         {
-                            argResult.ErrorMessage = "nope";
+                            argResult.ReportError("nope");
                             return default;
                         })
                 };
@@ -446,7 +446,7 @@ namespace System.CommandLine.Tests
                         return value;
                     }
 
-                    argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
+                    argumentResult.ReportError($"'{argumentResult.Tokens.Single().Value}' is not an integer");
 
                     return default;
                 });

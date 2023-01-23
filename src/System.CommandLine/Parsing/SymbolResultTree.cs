@@ -2,19 +2,33 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Parsing
 {
     internal sealed class SymbolResultTree : Dictionary<Symbol, SymbolResult>
     {
         private readonly LocalizationResources _localizationResources;
+        internal List<ParseError>? Errors;
 
-        internal SymbolResultTree(LocalizationResources localizationResources)
+        internal SymbolResultTree(LocalizationResources localizationResources, List<string>? tokenizeErrors)
         {
             _localizationResources = localizationResources;
+
+            if (tokenizeErrors is not null)
+            {
+                Errors = new List<ParseError>(tokenizeErrors.Count);
+
+                for (var i = 0; i < tokenizeErrors.Count; i++)
+                {
+                    Errors.Add(new ParseError(tokenizeErrors[i]));
+                }
+            }
         }
 
         internal LocalizationResources LocalizationResources => _localizationResources;
+
+        internal int ErrorCount => Errors?.Count ?? 0;
 
         internal ArgumentResult? FindResultFor(Argument argument)
             => TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
@@ -38,5 +52,28 @@ namespace System.CommandLine.Parsing
                 }
             }
         }
+
+        internal bool HasError(ArgumentResult argumentResult, [NotNullWhen(true)] out ParseError? error)
+        {
+            if (Errors is not null)
+            {
+                SymbolResult symbolResult = argumentResult.Parent is OptionResult optionResult ? optionResult : argumentResult;
+                for (int i = 0; i < Errors.Count; i++)
+                {
+                    if (ReferenceEquals(Errors[i].SymbolResult, symbolResult))
+                    {
+                        error = Errors[i];
+                        return true;
+                    }
+                }
+            }
+
+            error = null;
+            return false;
+        }
+
+        internal void ReportError(ParseError parseError) => (Errors ??= new()).Add(parseError);
+
+        internal void InsertError(int index, ParseError parseError) => (Errors ??= new()).Insert(index, parseError);
     }
 }

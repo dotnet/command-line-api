@@ -22,12 +22,6 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
-        /// An error message for this symbol result.
-        /// </summary>
-        /// <remarks>Setting this value to a non-<c>null</c> during parsing will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
-        public string? ErrorMessage { get; set; }
-
-        /// <summary>
         /// The parent symbol result in the parse tree.
         /// </summary>
         public SymbolResult? Parent { get; }
@@ -50,6 +44,13 @@ namespace System.CommandLine.Parsing
         public LocalizationResources LocalizationResources => SymbolResultTree.LocalizationResources;
 
         internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
+
+        /// <summary>
+        /// Adds an error message for this symbol result to it's parse tree.
+        /// </summary>
+        /// <remarks>Setting an error will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
+        public void ReportError(string errorMessage)
+            => SymbolResultTree.ReportError(new ParseError(errorMessage, Parent is OptionResult option ? option : this));
 
         /// <summary>
         /// Finds a result for the specific argument anywhere in the parse tree, including parent and child symbol results.

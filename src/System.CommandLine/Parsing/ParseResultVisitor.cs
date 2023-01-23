@@ -19,7 +19,6 @@ namespace System.CommandLine.Parsing
 
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private List<Token>? _unmatchedTokens;
-        private List<ParseError>? _errors;
         private List<ArgumentResult>? _argumentResults;
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested;
@@ -36,22 +35,11 @@ namespace System.CommandLine.Parsing
             _tokens = tokens;
             _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
-            _symbolResultTree = new(_parser.Configuration.LocalizationResources);
+            _symbolResultTree = new(_parser.Configuration.LocalizationResources, tokenizeErrors);
             _innermostCommandResult = _rootCommandResult = new CommandResult(
                 rootCommandNode.Command,
                 rootCommandNode.Token,
                 _symbolResultTree);
-
-            if (tokenizeErrors is not null)
-            {
-                _errors = new List<ParseError>(tokenizeErrors.Count);
-
-                for (var i = 0; i < tokenizeErrors.Count; i++)
-                {
-                    var error = tokenizeErrors[i];
-                    _errors.Add(new ParseError(error));
-                }
-            }
         }
 
         internal void Visit(CommandNode rootCommandNode)
@@ -349,11 +337,7 @@ namespace System.CommandLine.Parsing
                         {
                             if (_rootCommandResult.FindResultFor(option) is null)
                             {
-                                AddErrorToResult(
-                                    _innermostCommandResult,
-                                    new ParseError(
-                                        _rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option),
-                                        _innermostCommandResult));
+                                _innermostCommandResult.ReportError(_rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option));
                             }
                         }
                     }
@@ -371,21 +355,17 @@ namespace System.CommandLine.Parsing
 
         private bool UseValidators(Command command, CommandResult innermostCommandResult)
         {
+            if (!command.HasValidators)
+            {
+                return false;
+            }
+
+            int errorCountBefore = _symbolResultTree.ErrorCount;
             for (var i = 0; i < command.Validators.Count; i++)
             {
-                var validateSymbolResult = command.Validators[i];
-                validateSymbolResult(innermostCommandResult);
-
-                if (!string.IsNullOrWhiteSpace(innermostCommandResult.ErrorMessage))
-                {
-                    AddErrorToResult(
-                        innermostCommandResult,
-                        new ParseError(innermostCommandResult.ErrorMessage!, _innermostCommandResult));
-
-                    return true;
-                }
+                command.Validators[i](innermostCommandResult);
             }
-            return false;
+            return _symbolResultTree.ErrorCount != errorCountBefore;
         }
 
         private void ValidateArguments(IList<Argument> arguments, CommandResult innermostCommandResult)
@@ -402,7 +382,7 @@ namespace System.CommandLine.Parsing
 
                 if (arityFailure is not null)
                 {
-                    AddErrorToResult(innermostCommandResult, new ParseError(arityFailure.ErrorMessage!, innermostCommandResult));
+                    innermostCommandResult.ReportError(arityFailure.ErrorMessage!);
                 }
             }
         }
@@ -419,7 +399,7 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            (_errors ??= new()).Insert(
+            _symbolResultTree.InsertError(
                 0,
                 new ParseError(
                     _innermostCommandResult.LocalizationResources.RequiredCommandWasNotProvided(),
@@ -436,31 +416,30 @@ namespace System.CommandLine.Parsing
                 argument.Arity.MinimumNumberOfValues,
                 argument.Arity.MaximumNumberOfValues);
 
-            if (arityFailure is { })
+            if (arityFailure is not null)
             {
-                AddErrorToResult(optionResult, new ParseError(arityFailure.ErrorMessage!, optionResult));
+                optionResult.ReportError(arityFailure.ErrorMessage!);
                 return;
             }
 
             if (optionResult.Option.HasValidators)
             {
+                int errorsBefore = _symbolResultTree.ErrorCount;
+
                 for (var i = 0; i < optionResult.Option.Validators.Count; i++)
                 {
-                    var validate = optionResult.Option.Validators[i];
-                    validate(optionResult);
+                    optionResult.Option.Validators[i](optionResult);
+                }
 
-                    if (!string.IsNullOrWhiteSpace(optionResult.ErrorMessage))
-                    {
-                        AddErrorToResult(optionResult, new ParseError(optionResult.ErrorMessage!, optionResult));
-
-                        return;
-                    }
+                if (errorsBefore != _symbolResultTree.ErrorCount)
+                {
+                    return;
                 }
             }
 
             foreach (var pair in _symbolResultTree)
             {
-                if (object.ReferenceEquals(pair.Value.Parent, optionResult))
+                if (ReferenceEquals(pair.Value.Parent, optionResult))
                 {
                     ValidateAndConvertArgumentResult((ArgumentResult)pair.Value);
                 }
@@ -471,12 +450,18 @@ namespace System.CommandLine.Parsing
         {
             var argument = argumentResult.Argument;
 
-            var parseError = argumentResult.CustomError(argument);
-
-            if (parseError is { })
+            if (argument.HasValidators)
             {
-                AddErrorToResult(argumentResult, parseError);
-                return;
+                int errorsBefore = _symbolResultTree.ErrorCount;
+                for (var i = 0; i < argument.Validators.Count; i++)
+                {
+                    argument.Validators[i](argumentResult);
+                }
+
+                if (errorsBefore != _symbolResultTree.ErrorCount)
+                {
+                    return;
+                }
             }
 
             var argumentConversionResult = argumentResult.GetArgumentConversionResult();
@@ -497,7 +482,7 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                AddErrorToResult(argumentResult, new ParseError(argumentConversionResult.ErrorMessage!, argumentResult));
+                argumentResult.ReportError(argumentConversionResult.ErrorMessage!);
             }
         }
 
@@ -578,18 +563,6 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void AddErrorToResult(SymbolResult symbolResult, ParseError parseError)
-        {
-            symbolResult.ErrorMessage ??= parseError.Message;
-
-            if (symbolResult.Parent is OptionResult optionResult)
-            {
-                optionResult.ErrorMessage ??= symbolResult.ErrorMessage;
-            }
-
-            (_errors ??= new()).Add(parseError);
-        }
-
         public ParseResult GetResult() =>
             new(_parser,
                 _rootCommandResult,
@@ -597,7 +570,7 @@ namespace System.CommandLine.Parsing
                 _directives,
                 _tokens,
                 _unmatchedTokens,
-                _errors,
+                _symbolResultTree.Errors,
                 _rawInput);
     }
 }

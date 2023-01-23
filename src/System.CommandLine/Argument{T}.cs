@@ -92,9 +92,10 @@ namespace System.CommandLine
 
             ConvertArguments = (ArgumentResult argumentResult, out object? value) =>
             {
+                int errorsBefore = argumentResult.SymbolResultTree.ErrorCount;
                 var result = parse(argumentResult);
 
-                if (string.IsNullOrEmpty(argumentResult.ErrorMessage))
+                if (errorsBefore == argumentResult.SymbolResultTree.ErrorCount)
                 {
                     value = result;
                     return true;
@@ -194,8 +195,7 @@ namespace System.CommandLine
                     {
                         if (Array.IndexOf(values, token.Value) < 0)
                         {
-                            argumentResult.ErrorMessage = argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values);
-                            break;
+                            argumentResult.ReportError(argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values));
                         }
                     }
                 }
@@ -221,7 +221,7 @@ namespace System.CommandLine
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        result.ErrorMessage = result.LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]);
+                        result.ReportError(result.LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]));
                     }
                 }
             });
@@ -244,7 +244,7 @@ namespace System.CommandLine
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        result.ErrorMessage = result.LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]);
+                        result.ReportError(result.LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]));
                     }
                 }
             });

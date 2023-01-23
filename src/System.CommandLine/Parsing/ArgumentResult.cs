@@ -80,22 +80,6 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
-        internal ParseError? CustomError(Argument argument)
-        {
-            for (var i = 0; i < argument.Validators.Count; i++)
-            {
-                var validateSymbolResult = argument.Validators[i];
-                validateSymbolResult(this);
-
-                if (!string.IsNullOrWhiteSpace(ErrorMessage))
-                {
-                    return new ParseError(ErrorMessage!, Parent is OptionResult option ? option : this);
-                }
-            }
-
-            return null;
-        }
-
         private ArgumentConversionResult Convert(Argument argument)
         {
             if (ShouldCheckArity() &&
@@ -115,7 +99,7 @@ namespace System.CommandLine.Parsing
 
                 var defaultValue = argument.GetDefaultValue(argumentResult);
 
-                if (string.IsNullOrEmpty(argumentResult.ErrorMessage))
+                if (!SymbolResultTree.HasError(argumentResult, out ParseError? error))
                 {
                     return ArgumentConversionResult.Success(
                         argument,
@@ -125,7 +109,7 @@ namespace System.CommandLine.Parsing
                 {
                     return ArgumentConversionResult.Failure(
                         argument,
-                        argumentResult.ErrorMessage!,
+                        error.Message,
                         ArgumentConversionResultType.Failed);
                 }
             }
@@ -151,9 +135,9 @@ namespace System.CommandLine.Parsing
                 return ArgumentConversionResult.Success(argument, value);
             }
 
-            if (ErrorMessage is not null)
+            if (SymbolResultTree.HasError(this, out ParseError? e))
             {
-                return ArgumentConversionResult.Failure(argument, ErrorMessage, ArgumentConversionResultType.Failed);
+                return ArgumentConversionResult.Failure(argument, e.Message, ArgumentConversionResultType.Failed);
             }
 
             return new ArgumentConversionResult(
