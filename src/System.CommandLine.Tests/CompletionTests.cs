@@ -57,20 +57,25 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1563
         public void Command_GetCompletions_returns_available_option_aliases_for_global_options()
         {
-            var subcommand = new Command("command")
+            var subcommand2 = new Command("command2")
             {
                 new Option<string>("--one", "option one"),
                 new Option<string>("--two", "option two")
             };
 
+            var subcommand1 = new Command("command1")
+            {
+                subcommand2
+            };
+
             var rootCommand = new RootCommand
             {
-                subcommand
+                subcommand1
             };
 
             rootCommand.AddGlobalOption(new Option<string>("--three", "option three"));
 
-            var completions = subcommand.GetCompletions(CompletionContext.Empty);
+            var completions = subcommand2.GetCompletions(CompletionContext.Empty);
 
             completions
                 .Select(item => item.Label)
