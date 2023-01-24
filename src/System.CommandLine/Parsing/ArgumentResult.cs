@@ -93,7 +93,7 @@ namespace System.CommandLine.Parsing
                 Parent is not OptionResult { IsImplicit: true } &&
                 ArgumentArity.Validate(this) is { } failed) // returns null on success
             {
-                return failed;
+                return ReportErrorIfNeeded(failed);
             }
 
             if (Parent!.UseDefaultValueFor(Argument))
@@ -123,12 +123,7 @@ namespace System.CommandLine.Parsing
 
             if (value is ArgumentConversionResult conversionResult)
             {
-                if (conversionResult.Result >= ArgumentConversionResultType.Failed)
-                {
-                    ReportError(conversionResult.ErrorMessage!);
-                }
-
-                return conversionResult;
+                return ReportErrorIfNeeded(conversionResult);
             }
 
             if (success)
@@ -136,10 +131,17 @@ namespace System.CommandLine.Parsing
                 return ArgumentConversionResult.Success(this, value);
             }
 
-            ArgumentConversionResult failure = new ArgumentConversionResult(this, Argument.ValueType, Tokens[0].Value);
-            ReportError(failure.ErrorMessage!);
+            return ReportErrorIfNeeded(new ArgumentConversionResult(this, Argument.ValueType, Tokens[0].Value));
 
-            return failure;
+            ArgumentConversionResult ReportErrorIfNeeded(ArgumentConversionResult result)
+            {
+                if (result.Result >= ArgumentConversionResultType.Failed)
+                {
+                    SymbolResultTree.ReportError(new ParseError(result.ErrorMessage!, Parent is OptionResult option ? option : this));
+                }
+
+                return result;
+            }
         }
     }
 }
