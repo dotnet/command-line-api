@@ -53,25 +53,6 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        internal bool HasError(ArgumentResult argumentResult, [NotNullWhen(true)] out ParseError? error)
-        {
-            if (Errors is not null)
-            {
-                SymbolResult symbolResult = argumentResult.Parent is OptionResult optionResult ? optionResult : argumentResult;
-                for (int i = 0; i < Errors.Count; i++)
-                {
-                    if (ReferenceEquals(Errors[i].SymbolResult, symbolResult))
-                    {
-                        error = Errors[i];
-                        return true;
-                    }
-                }
-            }
-
-            error = null;
-            return false;
-        }
-
         internal void ReportError(ParseError parseError) => (Errors ??= new()).Add(parseError);
 
         internal void InsertError(int index, ParseError parseError) => (Errors ??= new()).Insert(index, parseError);
