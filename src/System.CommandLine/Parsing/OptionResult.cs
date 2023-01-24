@@ -54,7 +54,7 @@ namespace System.CommandLine.Parsing
         /// <returns>The parsed value or the default value for <see cref="Option"/></returns>
         [return: MaybeNull]
         public T GetValueOrDefault<T>() =>
-            this.ConvertIfNeeded(typeof(T))
+            ArgumentConversionResult.ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
         private protected override int RemainingArgumentCapacity
@@ -83,7 +83,7 @@ namespace System.CommandLine.Parsing
                         return _argumentConversionResult = firstChild.GetArgumentConversionResult();
                     }
 
-                    return _argumentConversionResult = ArgumentConversionResult.None(Option.Argument);
+                    return _argumentConversionResult = ArgumentConversionResult.None(new ArgumentResult(Option.Argument, SymbolResultTree, this));
                 }
 
                 return _argumentConversionResult;

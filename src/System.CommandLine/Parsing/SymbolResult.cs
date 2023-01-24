@@ -49,8 +49,7 @@ namespace System.CommandLine.Parsing
         /// Adds an error message for this symbol result to it's parse tree.
         /// </summary>
         /// <remarks>Setting an error will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
-        public void ReportError(string errorMessage)
-            => SymbolResultTree.ReportError(new ParseError(errorMessage, Parent is OptionResult option ? option : this));
+        public virtual void ReportError(string errorMessage) => SymbolResultTree.ReportError(new ParseError(errorMessage, this));
 
         /// <summary>
         /// Finds a result for the specific argument anywhere in the parse tree, including parent and child symbol results.

@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
         internal IReadOnlyList<Token>? PassedOnTokens { get; private set; }
 
         internal ArgumentConversionResult GetArgumentConversionResult() =>
-            _conversionResult ??= Convert(Argument);
+            _conversionResult ??= Convert();
 
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
@@ -46,7 +46,7 @@ namespace System.CommandLine.Parsing
         /// <returns>The parsed value or the default value for <see cref="Argument"/></returns>
         public T GetValueOrDefault<T>() =>
             GetArgumentConversionResult()
-                .ConvertIfNeeded(this, typeof(T))
+                .ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
         /// <summary>
@@ -80,74 +80,66 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
-        private ArgumentConversionResult Convert(Argument argument)
+        /// <inheritdoc/>
+        public override void ReportError(string errorMessage)
         {
-            if (ShouldCheckArity() &&
-                Parent is { } &&
-                ArgumentArity.Validate(
-                    Parent,
-                    argument,
-                    argument.Arity.MinimumNumberOfValues,
-                    argument.Arity.MaximumNumberOfValues) is { } failed) // returns null on success
+            SymbolResultTree.ReportError(new ParseError(errorMessage, Parent is OptionResult option ? option : this));
+            _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
+        }
+
+        private ArgumentConversionResult Convert()
+        {
+            if (Parent is not null &&
+                Parent is not OptionResult { IsImplicit: true } &&
+                ArgumentArity.Validate(this) is { } failed) // returns null on success
             {
                 return failed;
             }
 
-            if (Parent!.UseDefaultValueFor(argument))
+            if (Parent!.UseDefaultValueFor(Argument))
             {
-                var argumentResult = new ArgumentResult(argument, SymbolResultTree, Parent);
+                var defaultValue = Argument.GetDefaultValue(this);
 
-                var defaultValue = argument.GetDefaultValue(argumentResult);
-
-                if (!SymbolResultTree.HasError(argumentResult, out ParseError? error))
-                {
-                    return ArgumentConversionResult.Success(
-                        argument,
-                        defaultValue);
-                }
-                else
-                {
-                    return ArgumentConversionResult.Failure(
-                        argument,
-                        error.Message,
-                        ArgumentConversionResultType.Failed);
-                }
+                // default value factory provided by the user might report an error, which sets _conversionResult
+                return _conversionResult ?? ArgumentConversionResult.Success(this, defaultValue);
             }
 
-            if (argument.ConvertArguments is null)
+            if (Argument.ConvertArguments is null)
             {
-                return argument.Arity.MaximumNumberOfValues switch
+                return Argument.Arity.MaximumNumberOfValues switch
                 {
-                    1 => ArgumentConversionResult.Success(argument, Tokens.SingleOrDefault()),
-                    _ => ArgumentConversionResult.Success(argument, Tokens)
+                    1 => ArgumentConversionResult.Success(this, Tokens.SingleOrDefault()),
+                    _ => ArgumentConversionResult.Success(this, Tokens)
                 };
             }
 
-            var success = argument.ConvertArguments(this, out var value);
+            var success = Argument.ConvertArguments(this, out var value);
+
+            // default value factory provided by the user might report an error, which sets _conversionResult
+            if (_conversionResult is not null)
+            {
+                return _conversionResult;
+            }
 
             if (value is ArgumentConversionResult conversionResult)
             {
+                if (conversionResult.Result >= ArgumentConversionResultType.Failed)
+                {
+                    ReportError(conversionResult.ErrorMessage!);
+                }
+
                 return conversionResult;
             }
 
             if (success)
             {
-                return ArgumentConversionResult.Success(argument, value);
+                return ArgumentConversionResult.Success(this, value);
             }
 
-            if (SymbolResultTree.HasError(this, out ParseError? e))
-            {
-                return ArgumentConversionResult.Failure(argument, e.Message, ArgumentConversionResultType.Failed);
-            }
+            ArgumentConversionResult failure = new ArgumentConversionResult(this, Argument.ValueType, Tokens[0].Value);
+            ReportError(failure.ErrorMessage!);
 
-            return new ArgumentConversionResult(
-                argument,
-                argument.ValueType,
-                Tokens[0].Value,
-                LocalizationResources);
-
-            bool ShouldCheckArity() => 
-                Parent is not OptionResult { IsImplicit: true };
+            return failure;
         }
     }
 }

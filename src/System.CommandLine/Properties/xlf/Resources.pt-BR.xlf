@@ -12,9 +12,19 @@
         <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForCommand_Completions">
+        <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
+        <target state="new">Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</source>
         <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForOption_Completions">
+        <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
+        <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandExpectsFewerArguments">

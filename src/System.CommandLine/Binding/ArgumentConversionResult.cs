@@ -1,73 +1,94 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Completions;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine.Binding
 {
     internal sealed class ArgumentConversionResult
     {
-        internal readonly Argument Argument;
+        internal readonly ArgumentResult ArgumentResult;
         internal readonly object? Value;
         internal readonly string? ErrorMessage;
         internal ArgumentConversionResultType Result;
 
-        private ArgumentConversionResult(Argument argument, string error, ArgumentConversionResultType failure)
+        private ArgumentConversionResult(ArgumentResult argumentResult, string error, ArgumentConversionResultType failure)
         {
-            Argument = argument ?? throw new ArgumentNullException(nameof(argument));
+            ArgumentResult = argumentResult ?? throw new ArgumentNullException(nameof(argumentResult));
             ErrorMessage = error ?? throw new ArgumentNullException(nameof(error));
             Result = failure;
         }
 
-        private ArgumentConversionResult(Argument argument, object? value)
+        private ArgumentConversionResult(ArgumentResult argumentResult, object? value)
         {
-            Argument = argument ?? throw new ArgumentNullException(nameof(argument));
+            ArgumentResult = argumentResult ?? throw new ArgumentNullException(nameof(argumentResult));
             Value = value;
             Result = ArgumentConversionResultType.Successful;
         }
 
-        private ArgumentConversionResult(Argument argument)
+        private ArgumentConversionResult(ArgumentResult argumentResult)
         {
-            Argument = argument ?? throw new ArgumentNullException(nameof(argument));
+            ArgumentResult = argumentResult ?? throw new ArgumentNullException(nameof(argumentResult));
             Result = ArgumentConversionResultType.NoArgument;
         }
 
         internal ArgumentConversionResult(
-            Argument argument,
+            ArgumentResult argumentResult,
             Type expectedType,
-            string value,
-            LocalizationResources localizationResources) :
-            this(argument, FormatErrorMessage(argument, expectedType, value, localizationResources), ArgumentConversionResultType.FailedType)
+            string value) :
+            this(argumentResult, FormatErrorMessage(argumentResult, expectedType, value), ArgumentConversionResultType.FailedType)
         {
         }
 
-        internal static ArgumentConversionResult Failure(Argument argument, string error, ArgumentConversionResultType reason) => new(argument, error, reason);
+        internal static ArgumentConversionResult Failure(ArgumentResult argumentResult, string error, ArgumentConversionResultType reason)
+            => new(argumentResult, error, reason);
 
-        public static ArgumentConversionResult Success(Argument argument, object? value) => new(argument, value);
+        public static ArgumentConversionResult Success(ArgumentResult argumentResult, object? value)
+            => new(argumentResult, value);
 
-        internal static ArgumentConversionResult None(Argument argument) => new(argument);
+        internal static ArgumentConversionResult None(ArgumentResult argumentResult)
+            => new(argumentResult);
 
         private static string FormatErrorMessage(
-            Argument argument,
+            ArgumentResult argumentResult,
             Type expectedType,
-            string value,
-            LocalizationResources localizationResources)
+            string value)
         {
-            if (argument.FirstParent?.Symbol is IdentifierSymbol identifierSymbol &&
-                argument.FirstParent.Next is null)
+            if (argumentResult.Parent is CommandResult commandResult)
             {
-                var alias = identifierSymbol.GetLongestAlias(removePrefix: false);
+                string alias = commandResult.Command.GetLongestAlias(removePrefix: false);
+                CompletionItem[] completionItems = argumentResult.Argument.GetCompletions(CompletionContext.Empty).ToArray();
 
-                switch (identifierSymbol)
+                if (completionItems.Length > 0)
                 {
-                    case Command _:
-                        return localizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
-                    case Option _:
-                        return localizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
+                    return argumentResult.LocalizationResources.ArgumentConversionCannotParseForCommand(
+                        value, alias, expectedType, completionItems.Select(ci => ci.Label));
+                }
+                else
+                {
+                    return argumentResult.LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
+                }
+            }
+            else if (argumentResult.Parent is OptionResult optionResult)
+            {
+                string alias = optionResult.Option.GetLongestAlias(removePrefix: false);
+                CompletionItem[] completionItems = optionResult.Option.GetCompletions(CompletionContext.Empty).ToArray();
+
+                if (completionItems.Length > 0)
+                {
+                    return argumentResult.LocalizationResources.ArgumentConversionCannotParseForOption(
+                        value, alias, expectedType, completionItems.Select(ci => ci.Label));
+                }
+                else
+                {
+                    return argumentResult.LocalizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
                 }
             }
 
-            return localizationResources.ArgumentConversionCannotParse(value, expectedType);
+            // fake ArgumentResults with no Parent
+            return argumentResult.LocalizationResources.ArgumentConversionCannotParse(value, expectedType);
         }
     }
 }

@@ -72,38 +72,31 @@ namespace System.CommandLine
         public override int GetHashCode()
             => MaximumNumberOfValues ^ MinimumNumberOfValues ^ IsNonDefault.GetHashCode();
 
-        internal static ArgumentConversionResult? Validate(
-            SymbolResult parentSymbolResult,
-            Argument argument,
-            int minimumNumberOfValues,
-            int maximumNumberOfValues)
+        internal static ArgumentConversionResult? Validate(ArgumentResult argumentResult)
         {
-            var argumentResult = parentSymbolResult.FindResultFor(argument);
-
-            var tokenCount = argumentResult?.Tokens.Count ?? 0;
-
-            if (tokenCount < minimumNumberOfValues)
+            int tokenCount = argumentResult.Tokens.Count;
+            if (tokenCount < argumentResult.Argument.Arity.MinimumNumberOfValues)
             {
-                if (parentSymbolResult.UseDefaultValueFor(argument))
+                if (argumentResult.Parent!.UseDefaultValueFor(argumentResult.Argument))
                 {
                     return null;
                 }
 
                 return ArgumentConversionResult.Failure(
-                    argument,
-                    parentSymbolResult.LocalizationResources.RequiredArgumentMissing(parentSymbolResult),
+                    argumentResult,
+                    argumentResult.LocalizationResources.RequiredArgumentMissing(argumentResult.Parent!),
                     ArgumentConversionResultType.FailedMissingArgument);
             }
 
-            if (tokenCount > maximumNumberOfValues)
+            if (tokenCount > argumentResult.Argument.Arity.MaximumNumberOfValues)
             {
-                if (parentSymbolResult is OptionResult optionResult)
+                if (argumentResult.Parent is OptionResult optionResult)
                 {
                     if (!optionResult.Option.AllowMultipleArgumentsPerToken)
                     {
                         return ArgumentConversionResult.Failure(
-                            argument,
-                            parentSymbolResult!.LocalizationResources.ExpectsOneArgument(parentSymbolResult),
+                            argumentResult,
+                            argumentResult.LocalizationResources.ExpectsOneArgument(optionResult),
                             ArgumentConversionResultType.FailedTooManyArguments);
                     }
                 }

@@ -3,6 +3,7 @@
 
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -84,7 +85,7 @@ namespace System.CommandLine.Binding
         internal bool TryBindToScalarValue(
             IValueDescriptor valueDescriptor,
             IValueSource valueSource,
-            LocalizationResources localizationResources,
+            ParseResult parseResult,
             out BoundValue? boundValue)
         {
             if (valueSource.TryGetValue(valueDescriptor, this, out var value))
@@ -96,11 +97,16 @@ namespace System.CommandLine.Binding
                 }
                 else
                 {
+                    ArgumentResult argumentResult = valueDescriptor is Argument argument 
+                        ? parseResult.FindResultFor(argument) is ArgumentResult found
+                            ? found
+                            : new ArgumentResult(argument, parseResult.RootCommandResult.SymbolResultTree, null)
+                        : new ArgumentResult(new Argument<string>(valueDescriptor.ValueName), parseResult.RootCommandResult.SymbolResultTree, null);
+
                     var parsed = ArgumentConverter.ConvertObject(
-                        valueDescriptor as Argument ?? new Argument<string>(valueDescriptor.ValueName),
+                        argumentResult,
                         valueDescriptor.ValueType,
-                        value,
-                        localizationResources);
+                        value);
 
                     if (parsed.Result == ArgumentConversionResultType.Successful)
                     {

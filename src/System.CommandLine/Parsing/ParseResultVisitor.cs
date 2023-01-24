@@ -372,13 +372,11 @@ namespace System.CommandLine.Parsing
         {
             for (var i = 0; i < arguments.Count; i++)
             {
-                var symbol = arguments[i];
+                ArgumentResult argumentResult = _symbolResultTree.TryGetValue(arguments[i], out SymbolResult? symbolResult)
+                    ? (ArgumentResult)symbolResult
+                    : new ArgumentResult(arguments[i], _symbolResultTree, innermostCommandResult);
 
-                var arityFailure = ArgumentArity.Validate(
-                    innermostCommandResult,
-                    symbol,
-                    symbol.Arity.MinimumNumberOfValues,
-                    symbol.Arity.MaximumNumberOfValues);
+                ArgumentConversionResult? arityFailure = ArgumentArity.Validate(argumentResult);
 
                 if (arityFailure is not null)
                 {
@@ -410,12 +408,11 @@ namespace System.CommandLine.Parsing
         {
             var argument = optionResult.Option.Argument;
 
-            var arityFailure = ArgumentArity.Validate(
-                optionResult,
-                argument,
-                argument.Arity.MinimumNumberOfValues,
-                argument.Arity.MaximumNumberOfValues);
+            ArgumentResult argumentResult = _symbolResultTree.TryGetValue(argument, out SymbolResult? symbolResult)
+                ? (ArgumentResult)symbolResult
+                : new ArgumentResult(argument, _symbolResultTree, optionResult);
 
+            ArgumentConversionResult? arityFailure = ArgumentArity.Validate(argumentResult);
             if (arityFailure is not null)
             {
                 optionResult.ReportError(arityFailure.ErrorMessage!);
@@ -464,26 +461,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            var argumentConversionResult = argumentResult.GetArgumentConversionResult();
-
-            if (argumentConversionResult.Result >= ArgumentConversionResultType.Failed && 
-                argumentConversionResult.Result != ArgumentConversionResultType.FailedArity)
-            {
-                if (argument.FirstParent?.Symbol is Option option)
-                {
-                    var completions = option.GetCompletions(CompletionContext.Empty).ToArray();
-
-                    if (completions.Length > 0)
-                    {
-                        argumentConversionResult = ArgumentConversionResult.Failure(
-                            argumentConversionResult.Argument,
-                            argumentConversionResult.ErrorMessage + " Did you mean one of the following?" + Environment.NewLine + string.Join(Environment.NewLine, completions.Select(c => c.Label)),
-                            argumentConversionResult.Result);
-                    }
-                }
-
-                argumentResult.ReportError(argumentConversionResult.ErrorMessage!);
-            }
+            _ = argumentResult.GetArgumentConversionResult();
         }
 
         private void PopulateDefaultValues()
