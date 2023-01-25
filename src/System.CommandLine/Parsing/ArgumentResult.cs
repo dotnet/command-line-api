@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -34,7 +35,7 @@ namespace System.CommandLine.Parsing
         internal IReadOnlyList<Token>? PassedOnTokens { get; private set; }
 
         internal ArgumentConversionResult GetArgumentConversionResult() =>
-            _conversionResult ??= Convert();
+            _conversionResult ??= ValidateAndConvert(potentialRecursion: false);
 
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
@@ -45,7 +46,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <returns>The parsed value or the default value for <see cref="Argument"/></returns>
         public T GetValueOrDefault<T>() =>
-            GetArgumentConversionResult()
+            (_conversionResult ??= ValidateAndConvert(potentialRecursion: true))
                 .ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
@@ -83,17 +84,31 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         public override void AddError(string errorMessage)
         {
-            SymbolResultTree.ReportError(new ParseError(errorMessage, Parent is OptionResult option ? option : this));
+            SymbolResultTree.AddError(new ParseError(errorMessage, Parent is OptionResult option ? option : this));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
         }
 
-        private ArgumentConversionResult Convert()
+        private ArgumentConversionResult ValidateAndConvert(bool potentialRecursion)
         {
-            if (Parent is not null &&
-                Parent is not OptionResult { IsImplicit: true } &&
-                ArgumentArity.Validate(this) is { } failed) // returns null on success
+            Debug.Assert(_conversionResult is null);
+
+            if (!ArgumentArity.Validate(this, out ArgumentConversionResult? arityFailure))
             {
-                return ReportErrorIfNeeded(failed);
+                return ReportErrorIfNeeded(arityFailure);
+            }
+
+            if (!potentialRecursion && Argument.HasValidators)
+            {
+                for (var i = 0; i < Argument.Validators.Count; i++)
+                {
+                    Argument.Validators[i](this);
+                }
+
+                // validator provided by the user might report an error, which sets _conversionResult
+                if (_conversionResult is not null)
+                {
+                    return _conversionResult;
+                }
             }
 
             if (Parent!.UseDefaultValueFor(Argument))
@@ -137,7 +152,7 @@ namespace System.CommandLine.Parsing
             {
                 if (result.Result >= ArgumentConversionResultType.Failed)
                 {
-                    SymbolResultTree.ReportError(new ParseError(result.ErrorMessage!, Parent is OptionResult option ? option : this));
+                    SymbolResultTree.AddError(new ParseError(result.ErrorMessage!, Parent is OptionResult option ? option : this));
                 }
 
                 return result;

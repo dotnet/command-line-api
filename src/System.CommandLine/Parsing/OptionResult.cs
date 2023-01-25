@@ -82,7 +82,6 @@ namespace System.CommandLine.Parsing
                     {
                         return _argumentConversionResult = firstChild.GetArgumentConversionResult();
                     }
-
                     return _argumentConversionResult = ArgumentConversionResult.None(new ArgumentResult(Option.Argument, SymbolResultTree, this));
                 }
 

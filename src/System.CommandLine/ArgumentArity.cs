@@ -5,6 +5,7 @@ using System.Collections;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine
 {
@@ -72,20 +73,29 @@ namespace System.CommandLine
         public override int GetHashCode()
             => MaximumNumberOfValues ^ MinimumNumberOfValues ^ IsNonDefault.GetHashCode();
 
-        internal static ArgumentConversionResult? Validate(ArgumentResult argumentResult)
+        internal static bool Validate(ArgumentResult argumentResult, [NotNullWhen(false)] out ArgumentConversionResult? error)
         {
+            error = null;
+
+            if (argumentResult.Parent is null || argumentResult.Parent is OptionResult { IsImplicit: true })
+            {
+                return true;
+            }
+
             int tokenCount = argumentResult.Tokens.Count;
             if (tokenCount < argumentResult.Argument.Arity.MinimumNumberOfValues)
             {
-                if (argumentResult.Parent!.UseDefaultValueFor(argumentResult.Argument))
+                if (argumentResult.Parent.UseDefaultValueFor(argumentResult.Argument))
                 {
-                    return null;
+                    return true;
                 }
 
-                return ArgumentConversionResult.Failure(
+                error = ArgumentConversionResult.Failure(
                     argumentResult,
-                    argumentResult.LocalizationResources.RequiredArgumentMissing(argumentResult.Parent!),
+                    argumentResult.LocalizationResources.RequiredArgumentMissing(argumentResult.Parent),
                     ArgumentConversionResultType.FailedMissingArgument);
+
+                return false;
             }
 
             if (tokenCount > argumentResult.Argument.Arity.MaximumNumberOfValues)
@@ -94,15 +104,17 @@ namespace System.CommandLine
                 {
                     if (!optionResult.Option.AllowMultipleArgumentsPerToken)
                     {
-                        return ArgumentConversionResult.Failure(
+                        error = ArgumentConversionResult.Failure(
                             argumentResult,
                             argumentResult.LocalizationResources.ExpectsOneArgument(optionResult),
                             ArgumentConversionResultType.FailedTooManyArguments);
+
+                        return false;
                     }
                 }
             }
 
-            return null;
+            return true;
         }
 
         /// <summary>

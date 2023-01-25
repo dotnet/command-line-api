@@ -7,12 +7,12 @@ namespace System.CommandLine.Parsing
 {
     internal sealed class SymbolResultTree : Dictionary<Symbol, SymbolResult>
     {
-        private readonly LocalizationResources _localizationResources;
+        internal readonly LocalizationResources LocalizationResources;
         internal List<ParseError>? Errors;
 
         internal SymbolResultTree(LocalizationResources localizationResources, List<string>? tokenizeErrors)
         {
-            _localizationResources = localizationResources;
+            LocalizationResources = localizationResources;
 
             if (tokenizeErrors is not null)
             {
@@ -24,8 +24,6 @@ namespace System.CommandLine.Parsing
                 }
             }
         }
-
-        internal LocalizationResources LocalizationResources => _localizationResources;
 
         internal int ErrorCount => Errors?.Count ?? 0;
 
@@ -52,7 +50,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        internal void ReportError(ParseError parseError) => (Errors ??= new()).Add(parseError);
+        internal void AddError(ParseError parseError) => (Errors ??= new()).Add(parseError);
 
         internal void InsertError(int index, ParseError parseError) => (Errors ??= new()).Insert(index, parseError);
     }
