@@ -192,12 +192,17 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("list --columns c1 c2");
 
-            // Currently there is no possibility for a single validator to produce multiple errors,
-            // so only the first one is checked.
+            result.Errors.Count.Should().Be(2);
+
             result.Errors[0]
-                  .Message
-                  .Should()
-                  .Be(LocalizationResources.Instance.UnrecognizedArgument("c1", new[] { "author", "language", "tags", "type" }));
+                .Message
+                .Should()
+                .Be(LocalizationResources.Instance.UnrecognizedArgument("c1", new[] { "author", "language", "tags", "type" }));
+
+            result.Errors[1]
+                .Message
+                .Should()
+                .Be(LocalizationResources.Instance.UnrecognizedArgument("c2", new[] { "author", "language", "tags", "type" }));
         }
 
         [Fact]
@@ -341,7 +346,7 @@ namespace System.CommandLine.Tests
                 if (commandResult.Children.Any(sr => ((OptionResult)sr).Option.HasAlias("--one")) &&
                     commandResult.Children.Any(sr => ((OptionResult)sr).Option.HasAlias("--two")))
                 {
-                    commandResult.ReportError("Options '--one' and '--two' cannot be used together.");
+                    commandResult.AddError("Options '--one' and '--two' cannot be used together.");
                 }
             });
 
@@ -365,7 +370,7 @@ namespace System.CommandLine.Tests
             {
                 var value = r.GetValueOrDefault<int>();
 
-                r.ReportError($"Option {r.Token.Value} cannot be set to {value}");
+                r.AddError($"Option {r.Token.Value} cannot be set to {value}");
             });
 
             var command = new RootCommand { option };
@@ -392,7 +397,7 @@ namespace System.CommandLine.Tests
             {
                 var value = r.GetValueOrDefault<int>();
 
-                r.ReportError($"Argument {r.Argument.Name} cannot be set to {value}");
+                r.AddError($"Argument {r.Argument.Name} cannot be set to {value}");
             });
 
             var command = new RootCommand { argument };
@@ -456,7 +461,7 @@ namespace System.CommandLine.Tests
             var option = new Option<FileInfo>("--file");
             option.Validators.Add(r =>
             {
-                r.ReportError("Invoked validator");
+                r.AddError("Invoked validator");
             });
 
             var subCommand = new Command("subcommand");
@@ -491,7 +496,7 @@ namespace System.CommandLine.Tests
             var handlerWasCalled = false;
 
             var globalOption = new Option<int>("--value");
-            globalOption.Validators.Add(r => r.ReportError("oops!"));
+            globalOption.Validators.Add(r => r.AddError("oops!"));
 
             var grandchildCommand = new Command("grandchild");
 
@@ -521,7 +526,7 @@ namespace System.CommandLine.Tests
         {
             var errorMessage = "that's not right...";
             var argument = new Argument<string>();
-            argument.Validators.Add(r => r.ReportError(errorMessage));
+            argument.Validators.Add(r => r.AddError(errorMessage));
 
             var cmd = new Command("get")
             {
@@ -548,7 +553,7 @@ namespace System.CommandLine.Tests
 
                 if (value < 0 || value > 100)
                 {
-                    result.ReportError(errorMessage);
+                    result.AddError(errorMessage);
                 }
             });
 
@@ -572,7 +577,7 @@ namespace System.CommandLine.Tests
 
                 if (value < 0 || value > 100)
                 {
-                    result.ReportError(errorMessage);
+                    result.AddError(errorMessage);
                 }
             });
 
@@ -1203,7 +1208,7 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_command_do_not_report_duplicate_errors()
         {
             var command = new RootCommand();
-            command.Validators.Add(result => result.ReportError("Wrong"));
+            command.Validators.Add(result => result.AddError("Wrong"));
             command.Validators.Add(_ => { });
 
             var parseResult = command.Parse("");
@@ -1221,7 +1226,7 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_option_do_not_report_duplicate_errors()
         {
             var option = new Option<string>("-x");
-            option.Validators.Add(result => result.ReportError("Wrong"));
+            option.Validators.Add(result => result.AddError("Wrong"));
             option.Validators.Add(_ => { });
 
             var command = new RootCommand
@@ -1244,7 +1249,7 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_argument_do_not_report_duplicate_errors()
         {
             var argument = new Argument<string>();
-            argument.Validators.Add(result => result.ReportError("Wrong"));
+            argument.Validators.Add(result => result.AddError("Wrong"));
             argument.Validators.Add(_ => { });
 
             var command = new RootCommand
@@ -1269,7 +1274,7 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("-o");
             option.Validators.Add(result =>
             {
-                result.ReportError("OOPS");
+                result.AddError("OOPS");
             }); //all good;
 
             var command = new Command("comm")

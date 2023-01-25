@@ -337,7 +337,7 @@ namespace System.CommandLine.Parsing
                         {
                             if (_rootCommandResult.FindResultFor(option) is null)
                             {
-                                _innermostCommandResult.ReportError(_rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option));
+                                _innermostCommandResult.AddError(_rootCommandResult.LocalizationResources.RequiredOptionWasNotProvided(option));
                             }
                         }
                     }
@@ -380,7 +380,7 @@ namespace System.CommandLine.Parsing
 
                 if (arityFailure is not null)
                 {
-                    innermostCommandResult.ReportError(arityFailure.ErrorMessage!);
+                    innermostCommandResult.AddError(arityFailure.ErrorMessage!);
                 }
             }
         }
@@ -415,7 +415,7 @@ namespace System.CommandLine.Parsing
             ArgumentConversionResult? arityFailure = ArgumentArity.Validate(argumentResult);
             if (arityFailure is not null)
             {
-                optionResult.ReportError(arityFailure.ErrorMessage!);
+                optionResult.AddError(arityFailure.ErrorMessage!);
                 return;
             }
 

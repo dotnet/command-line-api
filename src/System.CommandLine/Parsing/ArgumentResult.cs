@@ -81,7 +81,7 @@ namespace System.CommandLine.Parsing
         public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
         /// <inheritdoc/>
-        public override void ReportError(string errorMessage)
+        public override void AddError(string errorMessage)
         {
             SymbolResultTree.ReportError(new ParseError(errorMessage, Parent is OptionResult option ? option : this));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);

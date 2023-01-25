@@ -195,7 +195,7 @@ namespace System.CommandLine
                     {
                         if (Array.IndexOf(values, token.Value) < 0)
                         {
-                            argumentResult.ReportError(argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values));
+                            argumentResult.AddError(argumentResult.LocalizationResources.UnrecognizedArgument(token.Value, values));
                         }
                     }
                 }
@@ -221,7 +221,7 @@ namespace System.CommandLine
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        result.ReportError(result.LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]));
+                        result.AddError(result.LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]));
                     }
                 }
             });
@@ -244,7 +244,7 @@ namespace System.CommandLine
 
                     if (invalidCharactersIndex >= 0)
                     {
-                        result.ReportError(result.LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]));
+                        result.AddError(result.LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]));
                     }
                 }
             });

@@ -287,7 +287,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x", () => 123);
             option.Validators.Add(symbol =>
-                                    symbol.ReportError(symbol.Tokens
+                                    symbol.AddError(symbol.Tokens
                                                                 .Select(t => t.Value)
                                                                 .Where(v => v == "123")
                                                                 .Select(_ => "ERR")

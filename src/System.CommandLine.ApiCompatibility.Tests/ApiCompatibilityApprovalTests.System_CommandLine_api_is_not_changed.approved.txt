@@ -388,10 +388,10 @@ System.CommandLine.IO
 System.CommandLine.Parsing
   public class ArgumentResult : SymbolResult
     public System.CommandLine.Argument Argument { get; }
+    public System.Void AddError(System.String errorMessage)
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
-    public System.Void ReportError(System.String errorMessage)
     public System.String ToString()
   public class CommandLineStringSplitter
     public System.Collections.Generic.IEnumerable<System.String> Split(System.String commandLine)
@@ -429,6 +429,7 @@ System.CommandLine.Parsing
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public SymbolResult Parent { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
+    public System.Void AddError(System.String errorMessage)
     public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
     public CommandResult FindResultFor(System.CommandLine.Command command)
     public OptionResult FindResultFor(System.CommandLine.Option option)
@@ -436,7 +437,6 @@ System.CommandLine.Parsing
     public System.Object GetValue(System.CommandLine.Argument argument)
     public T GetValue<T>(Option<T> option)
     public System.Object GetValue(System.CommandLine.Option option)
-    public System.Void ReportError(System.String errorMessage)
     public System.String ToString()
   public class Token, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)
