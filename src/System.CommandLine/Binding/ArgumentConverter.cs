@@ -48,7 +48,7 @@ namespace System.CommandLine.Binding
                 }
                 else
                 {
-                    return Failure(argumentResult, type, value);
+                    return ArgumentConversionCannotParse(argumentResult, type, value);
                 }
             }
 
@@ -64,7 +64,7 @@ namespace System.CommandLine.Binding
                 }
             }
 
-            return Failure(argumentResult, type, value);
+            return ArgumentConversionCannotParse(argumentResult, type, value);
         }
 
         private static ArgumentConversionResult ConvertTokens(
@@ -161,14 +161,6 @@ namespace System.CommandLine.Binding
 
                 return false;
             }
-        }
-
-        private static ArgumentConversionResult Failure(
-            ArgumentResult argumentResult,
-            Type expectedType,
-            string value)
-        {
-            return new ArgumentConversionResult(argumentResult, expectedType, value);
         }
 
         internal static ArgumentConversionResult ConvertIfNeeded(

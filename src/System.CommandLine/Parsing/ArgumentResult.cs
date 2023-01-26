@@ -188,7 +188,7 @@ namespace System.CommandLine.Parsing
                 return ArgumentConversionResult.Success(this, value);
             }
 
-            return ReportErrorIfNeeded(new ArgumentConversionResult(this, Argument.ValueType, Tokens[0].Value));
+            return ReportErrorIfNeeded(ArgumentConversionResult.ArgumentConversionCannotParse(this, Argument.ValueType, Tokens[0].Value));
 
             ArgumentConversionResult ReportErrorIfNeeded(ArgumentConversionResult result)
             {

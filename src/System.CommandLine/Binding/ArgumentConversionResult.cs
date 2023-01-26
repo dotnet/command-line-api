@@ -16,40 +16,29 @@ namespace System.CommandLine.Binding
 
         private ArgumentConversionResult(ArgumentResult argumentResult, string error, ArgumentConversionResultType failure)
         {
-            ArgumentResult = argumentResult ?? throw new ArgumentNullException(nameof(argumentResult));
-            ErrorMessage = error ?? throw new ArgumentNullException(nameof(error));
+            ArgumentResult = argumentResult;
+            ErrorMessage = error;
             Result = failure;
         }
 
-        private ArgumentConversionResult(ArgumentResult argumentResult, object? value)
+        private ArgumentConversionResult(ArgumentResult argumentResult, object? value, ArgumentConversionResultType result)
         {
-            ArgumentResult = argumentResult ?? throw new ArgumentNullException(nameof(argumentResult));
+            ArgumentResult = argumentResult;
             Value = value;
-            Result = ArgumentConversionResultType.Successful;
-        }
-
-        private ArgumentConversionResult(ArgumentResult argumentResult)
-        {
-            ArgumentResult = argumentResult ?? throw new ArgumentNullException(nameof(argumentResult));
-            Result = ArgumentConversionResultType.NoArgument;
-        }
-
-        internal ArgumentConversionResult(
-            ArgumentResult argumentResult,
-            Type expectedType,
-            string value) :
-            this(argumentResult, FormatErrorMessage(argumentResult, expectedType, value), ArgumentConversionResultType.FailedType)
-        {
+            Result = result;
         }
 
         internal static ArgumentConversionResult Failure(ArgumentResult argumentResult, string error, ArgumentConversionResultType reason)
             => new(argumentResult, error, reason);
 
+        internal static ArgumentConversionResult ArgumentConversionCannotParse(ArgumentResult argumentResult, Type expectedType, string value)
+            => new(argumentResult, FormatErrorMessage(argumentResult, expectedType, value), ArgumentConversionResultType.FailedType);
+
         public static ArgumentConversionResult Success(ArgumentResult argumentResult, object? value)
-            => new(argumentResult, value);
+            => new(argumentResult, value, ArgumentConversionResultType.Successful);
 
         internal static ArgumentConversionResult None(ArgumentResult argumentResult)
-            => new(argumentResult);
+            => new(argumentResult, value: null, ArgumentConversionResultType.NoArgument);
 
         private static string FormatErrorMessage(
             ArgumentResult argumentResult,
