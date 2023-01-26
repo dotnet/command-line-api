@@ -89,6 +89,6 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
+        internal override bool UseDefaultValueFor(ArgumentResult argument) => IsImplicit;
     }
 }

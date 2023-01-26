@@ -120,7 +120,7 @@ namespace System.CommandLine.Parsing
             return ArgumentConverter.GetDefaultValue(option.Argument.ValueType);
         }
 
-        internal virtual bool UseDefaultValueFor(Argument argument) => false;
+        internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {this.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}";

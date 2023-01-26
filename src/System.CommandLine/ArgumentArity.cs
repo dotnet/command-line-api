@@ -85,7 +85,7 @@ namespace System.CommandLine
             int tokenCount = argumentResult.Tokens.Count;
             if (tokenCount < argumentResult.Argument.Arity.MinimumNumberOfValues)
             {
-                if (argumentResult.Parent.UseDefaultValueFor(argumentResult.Argument))
+                if (argumentResult.Parent.UseDefaultValueFor(argumentResult))
                 {
                     return true;
                 }

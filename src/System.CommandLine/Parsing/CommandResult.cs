@@ -56,12 +56,147 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        internal override bool UseDefaultValueFor(Argument argument) =>
-            FindResultFor(argument) switch
+        internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
+            => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;
+
+        /// <param name="completeValidation">Only the inner most command goes through complete validation.</param>
+        internal void Validate(bool completeValidation)
+        {
+            if (completeValidation)
             {
-                ArgumentResult arg => arg.Argument.HasDefaultValue && 
-                                      arg.Tokens.Count == 0,
-                _ => false
-            };
+                if (Command.Handler is null && Command.HasSubcommands)
+                {
+                    SymbolResultTree.InsertFirstError(
+                        new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));
+                }
+            }
+
+            if (completeValidation && Command.HasValidators)
+            {
+                int errorCountBefore = SymbolResultTree.ErrorCount;
+                for (var i = 0; i < Command.Validators.Count; i++)
+                {
+                    Command.Validators[i](this);
+                }
+
+                if (SymbolResultTree.ErrorCount != errorCountBefore)
+                {
+                    return;
+                }
+            }
+
+            if (Command.HasOptions)
+            {
+                ValidateOptions(completeValidation);
+            }
+
+            if (Command.HasArguments)
+            {
+                ValidateArguments(completeValidation);
+            }
+        }
+
+        private void ValidateOptions(bool completeValidation)
+        {
+            var options = Command.Options;
+            for (var i = 0; i < options.Count; i++)
+            {
+                var option = options[i];
+
+                if (!completeValidation && !(option.IsGlobal || option.Argument.HasDefaultValue || option.DisallowBinding))
+                {
+                    continue;
+                }
+
+                OptionResult optionResult;
+                ArgumentResult argumentResult;
+
+                if (!SymbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
+                {
+                    if (option.IsRequired)
+                    {
+                        AddError(LocalizationResources.RequiredOptionWasNotProvided(option));
+                        continue;
+                    }
+                    else if (option.Argument.HasDefaultValue)
+                    {
+                        optionResult = new(option, SymbolResultTree, null, this);
+                        SymbolResultTree.Add(optionResult.Option, optionResult);
+
+                        argumentResult = new(optionResult.Option.Argument, SymbolResultTree, optionResult);
+                        SymbolResultTree.Add(optionResult.Option.Argument, argumentResult);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    optionResult = (OptionResult)symbolResult;
+                    argumentResult = (ArgumentResult)SymbolResultTree[option.Argument];
+                }
+
+                // When_there_is_an_arity_error_then_further_errors_are_not_reported
+                if (!ArgumentArity.Validate(argumentResult, out var error))
+                {
+                    optionResult.AddError(error.ErrorMessage!);
+                    continue;
+                }
+
+                if (optionResult.Option.HasValidators)
+                {
+                    int errorsBefore = SymbolResultTree.ErrorCount;
+
+                    for (var j = 0; j < optionResult.Option.Validators.Count; j++)
+                    {
+                        optionResult.Option.Validators[j](optionResult);
+                    }
+
+                    if (errorsBefore != SymbolResultTree.ErrorCount)
+                    {
+                        break;
+                    }
+                }
+
+                _ = argumentResult.GetArgumentConversionResult();
+            }
+        }
+
+        private void ValidateArguments(bool completeValidation)
+        {
+            var arguments = Command.Arguments;
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                Argument argument = arguments[i];
+
+                if (!completeValidation && !argument.HasDefaultValue)
+                {
+                    continue;
+                }
+
+                ArgumentResult? argumentResult;
+                if (SymbolResultTree.TryGetValue(argument, out SymbolResult? symbolResult))
+                {
+                    argumentResult = (ArgumentResult)symbolResult;
+                }
+                else if (argument.HasDefaultValue)
+                {
+                    argumentResult = new ArgumentResult(argument, SymbolResultTree, this);
+                    SymbolResultTree[argument] = argumentResult;
+                }
+                else if (argument.Arity.MinimumNumberOfValues > 0)
+                {
+                    AddError(LocalizationResources.RequiredArgumentMissing(this));
+                    continue;
+                }
+                else
+                {
+                    continue;
+                }
+
+                _ = argumentResult.GetArgumentConversionResult();
+            }
+        }
     }
 }

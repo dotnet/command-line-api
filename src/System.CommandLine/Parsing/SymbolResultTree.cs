@@ -52,6 +52,6 @@ namespace System.CommandLine.Parsing
 
         internal void AddError(ParseError parseError) => (Errors ??= new()).Add(parseError);
 
-        internal void InsertError(int index, ParseError parseError) => (Errors ??= new()).Insert(index, parseError);
+        internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
     }
 }

@@ -42,10 +42,23 @@ namespace System.CommandLine.Parsing
         {
             VisitChildren(rootCommandNode);
 
-            Stop();
+            if (!_isHelpRequested)
+            {
+                Validate();
+            }
         }
 
-        private void VisitInternal(SyntaxNode node)
+        internal ParseResult CreateResult() =>
+            new(_parser,
+                _rootCommandResult,
+                _innermostCommandResult,
+                _directives,
+                _tokens,
+                _unmatchedTokens,
+                _symbolResultTree.Errors,
+                _rawInput);
+
+        private void VisitSyntaxNode(SyntaxNode node)
         {
             if (node is OptionNode optionNode)
                 VisitOptionNode(optionNode);
@@ -92,7 +105,7 @@ namespace System.CommandLine.Parsing
         {
             if (!_symbolResultTree.ContainsKey(optionNode.Option))
             {
-                if (optionNode.Option is HelpOption)
+                if (optionNode.Option.DisallowBinding && optionNode.Option is HelpOption)
                 {
                     _isHelpRequested = true;
                 }
@@ -157,194 +170,24 @@ namespace System.CommandLine.Parsing
             {
                 for (var i = 0; i < parentNode.Children.Count; i++)
                 {
-                    VisitInternal(parentNode.Children[i]);
+                    VisitSyntaxNode(parentNode.Children[i]);
                 }
             }
         }
 
-        private void Stop()
+        private void Validate()
         {
-            if (_isHelpRequested)
-            {
-                return;
-            }
+            // Only the inner most command goes through complete validation,
+            // for other commands only a subset of options is checked.
+            _innermostCommandResult.Validate(completeValidation: true);
 
-            ValidateCommandHandler();
-
-            ValidateCommandResults();
-        }
-
-        private void ValidateCommandHandler()
-        {
-            if (_innermostCommandResult.Command is not { Handler: null } cmd)
-            {
-                return;
-            }
-
-            if (!cmd.HasSubcommands)
-            {
-                return;
-            }
-
-            _symbolResultTree.InsertError(
-                0,
-                new ParseError(
-                    _innermostCommandResult.LocalizationResources.RequiredCommandWasNotProvided(),
-                    _innermostCommandResult));
-        }
-
-        private void ValidateCommandResults()
-        {
-            CommandResult? currentResult = _innermostCommandResult;
+            CommandResult? currentResult = _innermostCommandResult.Parent as CommandResult;
             while (currentResult is not null)
             {
-                Command command = currentResult.Command;
-                // Only the inner most command goes through full check, for other commands only global options are checked
-                bool performFullCheck = currentResult == _innermostCommandResult;
-                
-                if (performFullCheck && command.HasValidators)
-                {
-                    if (ValidateCommand(currentResult))
-                    {
-                        return;
-                    }
-                }
-
-                if (command.HasOptions)
-                {
-                    ValidateCommandOptions(currentResult, performFullCheck);
-                }
-
-                if (command.HasArguments)
-                {
-                    ValidateCommandArguments(currentResult, performFullCheck);
-                }
+                currentResult.Validate(completeValidation: false);
 
                 currentResult = currentResult.Parent as CommandResult;
             }
         }
-
-        private bool ValidateCommand(CommandResult commandResult)
-        {
-            int errorCountBefore = _symbolResultTree.ErrorCount;
-            for (var i = 0; i < commandResult.Command.Validators.Count; i++)
-            {
-                commandResult.Command.Validators[i](commandResult);
-            }
-            return _symbolResultTree.ErrorCount != errorCountBefore;
-        }
-
-        private void ValidateCommandOptions(CommandResult commandResult, bool performFullCheck)
-        {
-            var options = commandResult.Command.Options;
-            for (var i = 0; i < options.Count; i++)
-            {
-                var option = options[i];
-
-                if (!performFullCheck && !(option.IsGlobal || option.Argument.HasDefaultValue || option.DisallowBinding))
-                {
-                    continue;
-                }
-
-                OptionResult optionResult;
-                ArgumentResult argumentResult;
-
-                if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
-                {
-                    if (option.IsRequired)
-                    {
-                        commandResult.AddError(commandResult.LocalizationResources.RequiredOptionWasNotProvided(option));
-                        continue;
-                    }
-                    else if (option.Argument.HasDefaultValue)
-                    {
-                        optionResult = new (option, _symbolResultTree, null, commandResult);
-                        _symbolResultTree.Add(optionResult.Option, optionResult);
-
-                        argumentResult = new (optionResult.Option.Argument, _symbolResultTree, optionResult);
-                        _symbolResultTree.Add(optionResult.Option.Argument, argumentResult);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    optionResult = (OptionResult)symbolResult;
-                    argumentResult = (ArgumentResult)_symbolResultTree[option.Argument];
-                }
-
-                // When_there_is_an_arity_error_then_further_errors_are_not_reported
-                if (!ArgumentArity.Validate(argumentResult, out var error))
-                {
-                    optionResult.AddError(error.ErrorMessage!);
-                    continue;
-                }
-
-                if (optionResult.Option.HasValidators)
-                {
-                    int errorsBefore = _symbolResultTree.ErrorCount;
-
-                    for (var j = 0; j < optionResult.Option.Validators.Count; j++)
-                    {
-                        optionResult.Option.Validators[j](optionResult);
-                    }
-
-                    if (errorsBefore != _symbolResultTree.ErrorCount)
-                    {
-                        break;
-                    }
-                }
-
-                _ = argumentResult.GetArgumentConversionResult();
-            }
-        }
-
-        private void ValidateCommandArguments(CommandResult commandResult, bool performFullCheck)
-        {
-            var arguments = commandResult.Command.Arguments;
-            for (var i = 0; i < arguments.Count; i++)
-            {
-                Argument argument = arguments[i];
-
-                if (!performFullCheck && !argument.HasDefaultValue)
-                {
-                    continue;
-                }
-
-                ArgumentResult? argumentResult;
-                if (_symbolResultTree.TryGetValue(argument, out SymbolResult? symbolResult))
-                {
-                    argumentResult = (ArgumentResult)symbolResult;
-                }
-                else if (argument.HasDefaultValue)
-                {
-                    argumentResult = new ArgumentResult(argument, _symbolResultTree, commandResult);
-                    _symbolResultTree[argument] = argumentResult;
-                }
-                else if (argument.Arity.MinimumNumberOfValues > 0)
-                {
-                    commandResult.AddError(commandResult.LocalizationResources.RequiredArgumentMissing(commandResult));
-                    continue;
-                }
-                else
-                {
-                    continue;
-                }
-
-                _ = argumentResult.GetArgumentConversionResult();
-            }
-        }
-
-        public ParseResult GetResult() =>
-            new(_parser,
-                _rootCommandResult,
-                _innermostCommandResult,
-                _directives,
-                _tokens,
-                _unmatchedTokens,
-                _symbolResultTree.Errors,
-                _rawInput);
     }
 }
