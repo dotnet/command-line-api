@@ -54,14 +54,20 @@ namespace System.CommandLine.Binding
 
             if (type.IsEnum)
             {
+#if NET7_0_OR_GREATER
+                if (Enum.TryParse(type, value, ignoreCase: true, out var converted))
+                {
+                    return Success(argumentResult, converted);
+                }
+#else
                 try
                 {
                     return Success(argumentResult, Enum.Parse(type, value, true));
                 }
                 catch (ArgumentException)
                 {
-                    // TODO: find a way to do this without the try..catch
                 }
+#endif
             }
 
             return ArgumentConversionCannotParse(argumentResult, type, value);
