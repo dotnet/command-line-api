@@ -31,13 +31,6 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public IReadOnlyList<Token> Tokens => _tokens is not null ? _tokens : Array.Empty<Token>();
 
-        internal bool IsArgumentLimitReached => RemainingArgumentCapacity == 0;
-
-        private protected virtual int RemainingArgumentCapacity =>
-            MaximumArgumentCapacity - Tokens.Count;
-
-        internal abstract int MaximumArgumentCapacity { get; }
-
         /// <summary>
         /// Localization resources used to produce messages for this symbol result.
         /// </summary>

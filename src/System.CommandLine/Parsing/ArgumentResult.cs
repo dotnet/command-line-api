@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.Diagnostics;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -14,6 +12,7 @@ namespace System.CommandLine.Parsing
     public sealed class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;
+        private bool _passedOnHasBeenCalled;
 
         internal ArgumentResult(
             Argument argument,
@@ -28,11 +27,9 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public Argument Argument { get; }
 
-        internal override int MaximumArgumentCapacity => Argument.Arity.MaximumNumberOfValues;
+        internal bool IsArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
 
         internal bool IsImplicit => Argument.HasDefaultValue && Tokens.Count == 0;
-
-        internal IReadOnlyList<Token>? PassedOnTokens { get; private set; }
 
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= ValidateAndConvert(potentialRecursion: false);
@@ -56,6 +53,7 @@ namespace System.CommandLine.Parsing
         /// <param name="numberOfTokens">The number of tokens to take. The rest are passed on.</param>
         /// <exception cref="ArgumentOutOfRangeException">numberOfTokens - Value must be at least 1.</exception>
         /// <exception cref="InvalidOperationException">Thrown if this method is called more than once.</exception>
+        /// <exception cref="NotSupportedException">Thrown if this method is called by Option-owned ArgumentResult.</exception>
         public void OnlyTake(int numberOfTokens)
         {
             if (numberOfTokens < 0)
@@ -63,18 +61,63 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentOutOfRangeException(nameof(numberOfTokens), numberOfTokens, "Value must be at least 1.");
             }
 
-            if (PassedOnTokens is { })
+            if (_passedOnHasBeenCalled)
             {
                 throw new InvalidOperationException($"{nameof(OnlyTake)} can only be called once.");
             }
 
-            if (_tokens is not null)
+            if (Parent is OptionResult)
             {
-                var passedOnTokensCount = _tokens.Count - numberOfTokens;
+                throw new NotSupportedException($"TakeOnly is supported only by Command-owned ArgumentResults");
+            }
 
-                PassedOnTokens = new List<Token>(_tokens.GetRange(numberOfTokens, passedOnTokensCount));
+            _passedOnHasBeenCalled = true;
 
-                _tokens.RemoveRange(numberOfTokens, passedOnTokensCount);
+            if (_tokens is null || numberOfTokens >= _tokens.Count)
+            {
+                return;
+            }
+
+            CommandResult parent = (CommandResult)Parent!;
+            var arguments = parent.Command.Arguments;
+            int argumentIndex = arguments.IndexOf(Argument);
+            int nextArgumentIndex = argumentIndex + 1;
+            int tokensToPass = _tokens.Count - numberOfTokens;
+
+            while (tokensToPass > 0 && nextArgumentIndex < arguments.Count)
+            {
+                Argument nextArgument = parent.Command.Arguments[nextArgumentIndex];
+                ArgumentResult nextArgumentResult;
+
+                if (SymbolResultTree.TryGetValue(nextArgument, out SymbolResult? symbolResult))
+                {
+                    nextArgumentResult = (ArgumentResult)symbolResult;
+                }
+                else
+                {
+                    // it might have not been parsed yet or due too few arguments, so we add it now
+                    nextArgumentResult = new ArgumentResult(nextArgument, SymbolResultTree, Parent);
+                    SymbolResultTree.Add(nextArgument, nextArgumentResult);
+                }
+
+                while (!nextArgumentResult.IsArgumentLimitReached && tokensToPass > 0)
+                {
+                    Token toPass = _tokens[numberOfTokens];
+                    _tokens.RemoveAt(numberOfTokens);
+                    nextArgumentResult.AddToken(toPass);
+                    --tokensToPass;
+                }
+
+                nextArgumentIndex++;
+            }
+
+            // When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unmatched_tokens
+            while (tokensToPass > 0)
+            {
+                Token unmatched = _tokens[numberOfTokens];
+                _tokens.RemoveAt(numberOfTokens);
+                SymbolResultTree.AddUnmatchedToken(unmatched);
+                --tokensToPass;
             }
         }
 
@@ -90,8 +133,6 @@ namespace System.CommandLine.Parsing
 
         private ArgumentConversionResult ValidateAndConvert(bool potentialRecursion)
         {
-            Debug.Assert(_conversionResult is null);
-
             if (!ArgumentArity.Validate(this, out ArgumentConversionResult? arityFailure))
             {
                 return ReportErrorIfNeeded(arityFailure);

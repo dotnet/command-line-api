@@ -9,10 +9,12 @@ namespace System.CommandLine.Parsing
     {
         internal readonly LocalizationResources LocalizationResources;
         internal List<ParseError>? Errors;
+        internal List<Token>? UnmatchedTokens;
 
-        internal SymbolResultTree(LocalizationResources localizationResources, List<string>? tokenizeErrors)
+        internal SymbolResultTree(LocalizationResources localizationResources, List<string>? tokenizeErrors, List<Token>? unmatchedTokens)
         {
             LocalizationResources = localizationResources;
+            UnmatchedTokens = unmatchedTokens;
 
             if (tokenizeErrors is not null)
             {
@@ -53,5 +55,7 @@ namespace System.CommandLine.Parsing
         internal void AddError(ParseError parseError) => (Errors ??= new()).Add(parseError);
 
         internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
+
+        internal void AddUnmatchedToken(Token token) => (UnmatchedTokens ??= new()).Add(token);
     }
 }

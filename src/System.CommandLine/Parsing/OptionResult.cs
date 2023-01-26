@@ -40,8 +40,6 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public Token? Token { get; }
 
-        internal override int MaximumArgumentCapacity => Option.Argument.Arity.MaximumNumberOfValues;
-
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
             Option.ValueType == typeof(bool)
@@ -57,20 +55,8 @@ namespace System.CommandLine.Parsing
             ArgumentConversionResult.ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
-        private protected override int RemainingArgumentCapacity
-        {
-            get
-            {
-                var capacity = base.RemainingArgumentCapacity;
-
-                if (IsImplicit && capacity < int.MaxValue)
-                {
-                    capacity += 1;
-                }
-
-                return capacity;
-            }
-        }
+        internal bool IsArgumentLimitReached
+            => Option.Argument.Arity.MaximumNumberOfValues == (IsImplicit ? Tokens.Count - 1 : Tokens.Count);
 
         internal ArgumentConversionResult ArgumentConversionResult
         {
@@ -78,9 +64,9 @@ namespace System.CommandLine.Parsing
             {
                 if (_argumentConversionResult is null)
                 {
-                    if (FindResultFor(Option.Argument) is ArgumentResult firstChild)
+                    if (FindResultFor(Option.Argument) is ArgumentResult child)
                     {
-                        return _argumentConversionResult = firstChild.GetArgumentConversionResult();
+                        return _argumentConversionResult = child.GetArgumentConversionResult();
                     }
                     return _argumentConversionResult = ArgumentConversionResult.None(new ArgumentResult(Option.Argument, SymbolResultTree, this));
                 }

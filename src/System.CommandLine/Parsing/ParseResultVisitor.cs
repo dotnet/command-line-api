@@ -15,7 +15,6 @@ namespace System.CommandLine.Parsing
         private readonly CommandResult _rootCommandResult;
 
         private Dictionary<string, IReadOnlyList<string>>? _directives;
-        private List<Token>? _unmatchedTokens;
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested;
 
@@ -29,9 +28,8 @@ namespace System.CommandLine.Parsing
         {
             _parser = parser;
             _tokens = tokens;
-            _unmatchedTokens = unmatchedTokens;
             _rawInput = rawInput;
-            _symbolResultTree = new(_parser.Configuration.LocalizationResources, tokenizeErrors);
+            _symbolResultTree = new(_parser.Configuration.LocalizationResources, tokenizeErrors, unmatchedTokens);
             _innermostCommandResult = _rootCommandResult = new CommandResult(
                 rootCommandNode.Command,
                 rootCommandNode.Token,
@@ -54,7 +52,7 @@ namespace System.CommandLine.Parsing
                 _innermostCommandResult,
                 _directives,
                 _tokens,
-                _unmatchedTokens,
+                _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
                 _rawInput);
 

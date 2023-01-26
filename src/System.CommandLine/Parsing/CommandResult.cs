@@ -36,26 +36,6 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
-        internal sealed override int MaximumArgumentCapacity
-        {
-            get
-            {
-                var value = 0;
-
-                if (Command.HasArguments)
-                {
-                    var arguments = Command.Arguments;
-
-                    for (var i = 0; i < arguments.Count; i++)
-                    {
-                        value += arguments[i].Arity.MaximumNumberOfValues;
-                    }
-                }
-
-                return value;
-            }
-        }
-
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;
 
