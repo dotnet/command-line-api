@@ -59,21 +59,7 @@ namespace System.CommandLine.Parsing
             => Option.Argument.Arity.MaximumNumberOfValues == (IsImplicit ? Tokens.Count - 1 : Tokens.Count);
 
         internal ArgumentConversionResult ArgumentConversionResult
-        {
-            get
-            {
-                if (_argumentConversionResult is null)
-                {
-                    if (FindResultFor(Option.Argument) is ArgumentResult child)
-                    {
-                        return _argumentConversionResult = child.GetArgumentConversionResult();
-                    }
-                    return _argumentConversionResult = ArgumentConversionResult.None(new ArgumentResult(Option.Argument, SymbolResultTree, this));
-                }
-
-                return _argumentConversionResult;
-            }
-        }
+            => _argumentConversionResult ??= FindResultFor(Option.Argument)!.GetArgumentConversionResult();
 
         internal override bool UseDefaultValueFor(ArgumentResult argument) => IsImplicit;
     }
