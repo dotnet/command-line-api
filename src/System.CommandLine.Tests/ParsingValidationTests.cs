@@ -178,7 +178,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_FromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_error_mentions_first_invalid_argument()
+        public void When_FromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_errors_mention_all_invalid_arguments()
         {
             Option<string[]> option = new(new[] { "--columns" });
             option.AcceptOnlyFromAmong("author", "language", "tags", "type");
