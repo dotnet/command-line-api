@@ -68,7 +68,7 @@ namespace System.CommandLine.Parsing
 
             if (Parent is OptionResult)
             {
-                throw new NotSupportedException($"TakeOnly is supported only by Command-owned ArgumentResults");
+                throw new NotSupportedException($"{nameof(OnlyTake)} is supported only for a {nameof(Command)}-owned {nameof(ArgumentResult)}");
             }
 
             _passedOnHasBeenCalled = true;
