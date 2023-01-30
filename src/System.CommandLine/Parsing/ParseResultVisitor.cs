@@ -59,15 +59,25 @@ namespace System.CommandLine.Parsing
         private void VisitSyntaxNode(SyntaxNode node)
         {
             if (node is OptionNode optionNode)
+            {
                 VisitOptionNode(optionNode);
+            }
             else if (node is OptionArgumentNode optionArgumentNode)
+            {
                 VisitOptionArgumentNode(optionArgumentNode);
+            }
             else if (node is CommandArgumentNode commandArgumentNode)
+            {
                 VisitCommandArgumentNode(commandArgumentNode);
+            }
             else if (node is CommandNode commandNode)
+            {
                 VisitCommandNode(commandNode);
+            }
             else if (node is DirectiveNode directiveNode)
+            {
                 VisitDirectiveNode(directiveNode);
+            }
         }
 
         private void VisitCommandNode(CommandNode commandNode)

@@ -49,19 +49,19 @@ namespace System.CommandLine.Parsing
                     SymbolResultTree.InsertFirstError(
                         new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));
                 }
-            }
 
-            if (completeValidation && Command.HasValidators)
-            {
-                int errorCountBefore = SymbolResultTree.ErrorCount;
-                for (var i = 0; i < Command.Validators.Count; i++)
+                if (Command.HasValidators)
                 {
-                    Command.Validators[i](this);
-                }
+                    int errorCountBefore = SymbolResultTree.ErrorCount;
+                    for (var i = 0; i < Command.Validators.Count; i++)
+                    {
+                        Command.Validators[i](this);
+                    }
 
-                if (SymbolResultTree.ErrorCount != errorCountBefore)
-                {
-                    return;
+                    if (SymbolResultTree.ErrorCount != errorCountBefore)
+                    {
+                        return;
+                    }
                 }
             }
 

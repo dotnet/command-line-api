@@ -12,7 +12,7 @@ namespace System.CommandLine.Parsing
     public sealed class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;
-        private bool _passedOnHasBeenCalled;
+        private bool _onlyTakeHasBeenCalled;
 
         internal ArgumentResult(
             Argument argument,
@@ -32,7 +32,7 @@ namespace System.CommandLine.Parsing
         internal bool IsImplicit => Argument.HasDefaultValue && Tokens.Count == 0;
 
         internal ArgumentConversionResult GetArgumentConversionResult() =>
-            _conversionResult ??= ValidateAndConvert(potentialRecursion: false);
+            _conversionResult ??= ValidateAndConvert(useValidators: true);
 
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
@@ -43,7 +43,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <returns>The parsed value or the default value for <see cref="Argument"/></returns>
         public T GetValueOrDefault<T>() =>
-            (_conversionResult ??= ValidateAndConvert(potentialRecursion: true))
+            (_conversionResult ??= ValidateAndConvert(useValidators: false))
                 .ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
@@ -61,7 +61,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentOutOfRangeException(nameof(numberOfTokens), numberOfTokens, "Value must be at least 1.");
             }
 
-            if (_passedOnHasBeenCalled)
+            if (_onlyTakeHasBeenCalled)
             {
                 throw new InvalidOperationException($"{nameof(OnlyTake)} can only be called once.");
             }
@@ -71,7 +71,7 @@ namespace System.CommandLine.Parsing
                 throw new NotSupportedException($"{nameof(OnlyTake)} is supported only for a {nameof(Command)}-owned {nameof(ArgumentResult)}");
             }
 
-            _passedOnHasBeenCalled = true;
+            _onlyTakeHasBeenCalled = true;
 
             if (_tokens is null || numberOfTokens >= _tokens.Count)
             {
@@ -131,14 +131,18 @@ namespace System.CommandLine.Parsing
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
         }
 
-        private ArgumentConversionResult ValidateAndConvert(bool potentialRecursion)
+        private ArgumentConversionResult ValidateAndConvert(bool useValidators)
         {
             if (!ArgumentArity.Validate(this, out ArgumentConversionResult? arityFailure))
             {
                 return ReportErrorIfNeeded(arityFailure);
             }
 
-            if (!potentialRecursion && Argument.HasValidators)
+            // There is nothing that stops user-defined Validator from calling ArgumentResult.GetValueOrDefault.
+            // In such cases, we can't call the validators again, as it would create infinite recursion.
+            // GetArgumentConversionResult => ValidateAndConvert => Validator
+            //        => GetValueOrDefault => ValidateAndConvert (again)
+            if (useValidators && Argument.HasValidators)
             {
                 for (var i = 0; i < Argument.Validators.Count; i++)
                 {
