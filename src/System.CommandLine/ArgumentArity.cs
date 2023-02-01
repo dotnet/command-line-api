@@ -95,7 +95,7 @@ namespace System.CommandLine
 
                 return ArgumentConversionResult.Failure(
                     argument,
-                    symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult),
+                    symbolResult.LocalizationResources.RequiredArgumentMissing(argument, symbolResult),
                     ArgumentConversionResultType.FailedMissingArgument);
             }
 

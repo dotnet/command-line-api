@@ -1410,7 +1410,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult));
+                  .Contain(LocalizationResources.Instance.RequiredArgumentMissing(command.Arguments.First(), result.CommandResult));
         }
 
         [Fact]
@@ -1498,7 +1498,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
+                  .Contain(LocalizationResources.Instance.RequiredArgumentMissing(option.Argument, result.CommandResult.FindResultFor(option)));
         }
 
         [Fact]

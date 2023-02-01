@@ -85,11 +85,25 @@ namespace System.CommandLine
             GetResourceString(Properties.Resources.InvalidCharactersInFileName, invalidChar);
 
         /// <summary>
-        ///   Interpolates values into a localized string similar to Required argument missing for command: {0}.
+        ///   Interpolates values into a localized string similar to 
+        ///   Required argument {0} missing for command: {1}.
+        ///   or
+        ///   Required argument missing for option: {0}.
+        /// </summary>
+        public virtual string RequiredArgumentMissing(Argument argument, SymbolResult symbolResult) =>
+            symbolResult is CommandResult
+                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, argument.Name, symbolResult.Token().Value)
+                : GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, symbolResult.Token().Value);
+
+        /// <summary>
+        ///   Interpolates values into a localized string similar to 
+        ///   Required argument {0} missing for command: {1}.
+        ///   or
+        ///   Required argument missing for option: {0}.
         /// </summary>
         public virtual string RequiredArgumentMissing(SymbolResult symbolResult) =>
             symbolResult is CommandResult
-                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, symbolResult.Token().Value)
+                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, "(unknown)", symbolResult.Token().Value)
                 : GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, symbolResult.Token().Value);
 
         /// <summary>
