@@ -9,7 +9,6 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Environment;
@@ -22,24 +21,6 @@ namespace System.CommandLine
     /// </summary>
     public static class CommandLineBuilderExtensions
     {
-        private static readonly Lazy<string> _assemblyVersion =
-            new(() =>
-            {
-                var assembly = RootCommand.GetAssembly();
-
-                var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-
-                if (assemblyVersionAttribute is null)
-                {
-                    return assembly.GetName().Version?.ToString() ?? "";
-                }
-                else
-                {
-                    return assemblyVersionAttribute.InformationalVersion;
-                }
-
-            });
-
         /// <summary>
         /// Enables signaling and handling of process termination via a <see cref="CancellationToken"/> that can be passed to a <see cref="ICommandHandler"/> during invocation.
         /// </summary>
@@ -643,25 +624,6 @@ ERR:
             builder.VersionOption = versionOption;
             builder.Command.Options.Add(versionOption);
 
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.FindResultFor(versionOption) is { })
-                {
-                    if (context.ParseResult.Errors.Any(e => e.SymbolResult is OptionResult optionResult && optionResult.Option is VersionOption))
-                    {
-                        context.InvocationResult = static ctx => ParseErrorResult.Apply(ctx, null);
-                    }
-                    else
-                    {
-                        context.Console.Out.WriteLine(_assemblyVersion.Value);
-                    }
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.VersionOption);
-
             return builder;
         }
 
@@ -683,25 +645,6 @@ ERR:
 
             builder.VersionOption = versionOption;
             command.Options.Add(versionOption);
-
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.FindResultFor(versionOption) is { })
-                {
-                    if (context.ParseResult.Errors.Any(e => e.SymbolResult is OptionResult optionResult && optionResult.Option is VersionOption))
-                    {
-                        context.InvocationResult = static ctx => ParseErrorResult.Apply(ctx, null);
-                    }
-                    else
-                    {
-                        context.Console.Out.WriteLine(_assemblyVersion.Value);
-                    }
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.VersionOption);
 
             return builder;
         }

@@ -19,6 +19,23 @@ namespace System.CommandLine
         private static Assembly? _assembly;
         private static string? _executablePath;
         private static string? _executableName;
+        private static string? _executableVersion;
+
+        private static string GetExecutableVersion()
+        {
+            var assembly = GetAssembly();
+
+            var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+
+            if (assemblyVersionAttribute is null)
+            {
+                return assembly.GetName().Version?.ToString() ?? "";
+            }
+            else
+            {
+                return assemblyVersionAttribute.InformationalVersion;
+            }
+        }
 
         /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
@@ -38,6 +55,8 @@ namespace System.CommandLine
         /// The path to the currently running executable.
         /// </summary>
         public static string ExecutablePath => _executablePath ??= Environment.GetCommandLineArgs()[0];
+        
+        internal static string ExecutableVersion => _executableVersion ??= GetExecutableVersion();
 
         private protected override void RemoveAlias(string alias)
         {

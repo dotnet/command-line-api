@@ -46,7 +46,7 @@ public class ModelDescriptor
     public IReadOnlyList<IValueDescriptor> PropertyDescriptors =>
         _propertyDescriptors ??=
             ModelType.GetProperties(CommonBindingFlags)
-                     .Where(p => p.CanWrite && p.SetMethod.IsPublic)
+                     .Where(p => p.CanWrite && p.SetMethod?.IsPublic == true)
                      .Select(i => new PropertyDescriptor(i, this))
                      .ToList();
 

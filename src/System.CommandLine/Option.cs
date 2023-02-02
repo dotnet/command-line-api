@@ -77,8 +77,6 @@ namespace System.CommandLine
         /// </summary>
         internal bool IsGlobal { get; set; }
 
-        internal bool DisallowBinding { get; init; }
-
         /// <summary>
         /// Validators that will be called when the option is matched by the parser.
         /// </summary>

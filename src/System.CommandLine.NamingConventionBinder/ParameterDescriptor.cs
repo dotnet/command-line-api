@@ -23,7 +23,7 @@ public class ParameterDescriptor : IValueDescriptor
     }
 
     /// <inheritdoc />
-    public string ValueName => _parameterInfo.Name;
+    public string ValueName => _parameterInfo.Name!;
 
     /// <summary>
     /// The method descriptor that this constructor belongs to.

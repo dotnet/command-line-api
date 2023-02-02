@@ -73,7 +73,7 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Option<bool>("-x")
+                new Option<bool>("-x", defaultValueFactory: () => true)
             };
             rootCommand.SetHandler(() => { });
 
@@ -126,21 +126,9 @@ namespace System.CommandLine.Tests
                 .UseVersionOption()
                 .Build();
 
-            var console = new TestConsole();
+            var result = parser.Parse(commandLine);
 
-            var result = parser.Invoke(commandLine, console);
-
-            console.Out
-                   .ToString()
-                   .Should()
-                   .NotContain(version);
-
-            console.Error
-                   .ToString()
-                   .Should()
-                   .Contain("--version option cannot be combined with other arguments.");
-
-            result.Should().NotBe(0);
+            result.Errors.Should().Contain(e => e.Message == "--version option cannot be combined with other arguments.");
         }
 
         [Fact]
@@ -206,7 +194,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
         {
-            var childCommand =  new Command("subcommand");
+            var childCommand = new Command("subcommand");
             childCommand.SetHandler(() => { });
             var rootCommand = new RootCommand
             {
@@ -215,24 +203,12 @@ namespace System.CommandLine.Tests
             rootCommand.SetHandler(() => { });
 
             var parser = new CommandLineBuilder(rootCommand)
-                .UseVersionOption("-v")
-                .Build();
+                         .UseVersionOption("-v")
+                         .Build();
 
-            var console = new TestConsole();
+            var result = parser.Parse("-v subcommand");
 
-            var result = parser.Invoke("-v subcommand", console);
-
-            console.Out
-                   .ToString()
-                   .Should()
-                   .NotContain(version);
-
-            console.Error
-                   .ToString()
-                   .Should()
-                   .Contain("-v option cannot be combined with other arguments.");
-
-            result.Should().NotBe(0);
+            result.Errors.Should().ContainSingle(e => e.Message == "-v option cannot be combined with other arguments.");
         }
     }
 }

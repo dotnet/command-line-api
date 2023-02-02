@@ -12,7 +12,6 @@ namespace System.CommandLine.Help
             : base(aliases, null, new Argument<bool> { Arity = ArgumentArity.Zero })
         {
             _localizationResources = getLocalizationResources;
-            DisallowBinding = true;
         }
 
         public HelpOption(Func<LocalizationResources> getLocalizationResources) : this(new[]

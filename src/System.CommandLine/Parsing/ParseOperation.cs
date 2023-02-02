@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 
 namespace System.CommandLine.Parsing
 {
@@ -18,6 +20,7 @@ namespace System.CommandLine.Parsing
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested;
+        private bool _isVersionRequested;
 
         public ParseOperation(
             List<Token> tokens,
@@ -59,7 +62,7 @@ namespace System.CommandLine.Parsing
                 Validate();
             }
 
-            return new(
+            ParseResult parseResult = new (
                 parser,
                 _rootCommandResult,
                 _innermostCommandResult,
@@ -68,6 +71,17 @@ namespace System.CommandLine.Parsing
                 _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
                 _rawInput);
+
+            if (_isVersionRequested)
+            {
+                // FIX: (GetResult) use the ActiveOption's handler
+                parseResult.Handler = new AnonymousCommandHandler(context =>
+                {
+                    context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
+                });
+            }
+
+            return parseResult;
         }
 
         private void ParseSubcommand()
@@ -173,9 +187,13 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
-                if (option.DisallowBinding && option is HelpOption)
+                if (option is HelpOption)
                 {
                     _isHelpRequested = true;
+                }
+                else if (option is VersionOption)
+                {
+                    _isVersionRequested = true;
                 }
 
                 optionResult = new OptionResult(

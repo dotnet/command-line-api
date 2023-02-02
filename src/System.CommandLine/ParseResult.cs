@@ -19,6 +19,7 @@ namespace System.CommandLine
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CompletionContext? _completionContext;
+        private ICommandHandler? _handler;
 
         internal ParseResult(
             Parser parser,
@@ -246,6 +247,25 @@ namespace System.CommandLine
                     .Select(o => o.Option)
                     .SelectMany(c => c.Aliases)
                     .ToArray();
+        }
+
+        internal ICommandHandler? Handler
+        {
+            get
+            {
+                if (_handler is not null)
+                {
+                    return _handler;
+                }
+
+                if (CommandResult.Command is { } command)
+                {
+                    return command.Handler;
+                }
+
+                return null;
+            }
+            set => _handler = value;
         }
 
         private SymbolResult SymbolToComplete(int? position = null)

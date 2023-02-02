@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Help;
 
 namespace System.CommandLine.Parsing
 {
@@ -83,7 +84,7 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-                if (!completeValidation && !(option.IsGlobal || option.Argument.HasDefaultValue || option.DisallowBinding))
+                if (!completeValidation && !(option.IsGlobal || option.Argument.HasDefaultValue || (option is HelpOption or VersionOption)))
                 {
                     continue;
                 }

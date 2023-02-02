@@ -31,7 +31,7 @@ public class ModelBindingCommandHandler : ICommandHandler
         _handlerMethodInfo = handlerMethodInfo ?? throw new ArgumentNullException(nameof(handlerMethodInfo));
         _invocationTargetBinder = _handlerMethodInfo.IsStatic
                                       ? null
-                                      : new ModelBinder(_handlerMethodInfo.ReflectedType);
+                                      : new ModelBinder(_handlerMethodInfo.ReflectedType!);
         _methodDescriptor = methodDescriptor ?? throw new ArgumentNullException(nameof(methodDescriptor));
         _invocationTarget = invocationTarget;
     }
@@ -69,11 +69,11 @@ public class ModelBindingCommandHandler : ICommandHandler
                                   .Select(x => x.Value)
                                   .ToArray();
 
-        object result;
+        object? result;
         if (_handlerDelegate is null)
         {
             var invocationTarget = _invocationTarget ?? 
-                                   bindingContext.GetService(_handlerMethodInfo!.ReflectedType);
+                                   bindingContext.GetService(_handlerMethodInfo!.ReflectedType!);
             if(invocationTarget is { })
             {
                 _invocationTargetBinder?.UpdateInstance(invocationTarget, bindingContext);

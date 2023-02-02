@@ -25,10 +25,12 @@ public class ModelBinder<TModel> : ModelBinder
         IValueDescriptor valueDescriptor)
     {
         var (propertyType, propertyName) = property.MemberTypeAndName();
-        var propertyDescriptor = FindModelPropertyDescriptor(
-            propertyType, propertyName);
-        MemberBindingSources[propertyDescriptor] = 
-            new SpecificSymbolValueSource(valueDescriptor);
+        var propertyDescriptor = FindModelPropertyDescriptor(propertyType, propertyName);
+
+        if (propertyDescriptor is not null)
+        {
+            MemberBindingSources[propertyDescriptor] = new SpecificSymbolValueSource(valueDescriptor);
+        }
     }
 
     /// <summary>
@@ -42,9 +44,10 @@ public class ModelBinder<TModel> : ModelBinder
         Func<BindingContext?, TValue> getValue)
     {
         var (propertyType, propertyName) = property.MemberTypeAndName();
-        var propertyDescriptor = FindModelPropertyDescriptor(
-            propertyType, propertyName);
-        MemberBindingSources[propertyDescriptor] =
-            new DelegateValueSource(c => getValue(c));
+        var propertyDescriptor = FindModelPropertyDescriptor(propertyType, propertyName);
+        if (propertyDescriptor is not null)
+        {
+            MemberBindingSources[propertyDescriptor] = new DelegateValueSource(c => getValue(c));
+        }
     }
 }
