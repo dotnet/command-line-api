@@ -11,10 +11,9 @@ namespace System.CommandLine.Parsing
         internal List<ParseError>? Errors;
         internal List<Token>? UnmatchedTokens;
 
-        internal SymbolResultTree(LocalizationResources localizationResources, List<string>? tokenizeErrors, List<Token>? unmatchedTokens)
+        internal SymbolResultTree(LocalizationResources localizationResources, List<string>? tokenizeErrors)
         {
             LocalizationResources = localizationResources;
-            UnmatchedTokens = unmatchedTokens;
 
             if (tokenizeErrors is not null)
             {

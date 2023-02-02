@@ -47,21 +47,11 @@ namespace System.CommandLine.Parsing
 
             var operation = new ParseOperation(
                 tokens,
-                Configuration);
-
-            operation.Parse();
-
-            var visitor = new ParseResultVisitor(
-                this,
-                tokens,
+                Configuration,
                 tokenizationErrors,
-                operation.UnmatchedTokens,
-                rawInput,
-                operation.RootCommandNode!);
+                rawInput);
 
-            visitor.Visit(operation.RootCommandNode!);
-
-            return visitor.CreateResult();
+            return operation.Parse(this);
         }
     }
 }
