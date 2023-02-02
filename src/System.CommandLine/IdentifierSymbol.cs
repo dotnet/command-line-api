@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 
 namespace System.CommandLine
@@ -11,8 +12,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class IdentifierSymbol : Symbol
     {
-        private protected readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
-        private string? _specifiedName;
+        private readonly HashSet<string> _aliases = new(StringComparer.Ordinal);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IdentifierSymbol"/> class.
@@ -30,7 +30,7 @@ namespace System.CommandLine
         /// <param name="description">The description of the symbol, which is displayed in command line help.</param>
         protected IdentifierSymbol(string name, string? description = null) 
         {
-            Name = name;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             Description = description;
         }
 
@@ -42,19 +42,18 @@ namespace System.CommandLine
         /// <inheritdoc/>
         public override string Name
         {
-            get => _specifiedName ??= DefaultName;
             set
             {
-                if (_specifiedName is null || !string.Equals(_specifiedName, value, StringComparison.Ordinal))
+                if (_name is null || !string.Equals(_name, value, StringComparison.Ordinal))
                 {
                     AddAlias(value);
 
-                    if (_specifiedName is { })
+                    if (_name != null)
                     {
-                        RemoveAlias(_specifiedName);
+                        RemoveAlias(_name);
                     }
 
-                    _specifiedName = value;
+                    _name = value;
                 }
             }
         }
@@ -81,6 +80,19 @@ namespace System.CommandLine
         /// <param name="alias">The alias to search for.</param>
         /// <returns><see langword="true" /> if the alias has already been defined; otherwise <see langword="false" />.</returns>
         public bool HasAlias(string alias) => _aliases.Contains(alias);
+
+        internal string GetLongestAlias(bool removePrefix)
+        {
+            string max = "";
+            foreach (string alias in _aliases)
+            {
+                if (alias.Length > max.Length)
+                {
+                    max = alias;
+                }
+            }
+            return removePrefix ? max.RemovePrefix() : max;
+        }
 
         [DebuggerStepThrough]
         private void ThrowIfAliasIsInvalid(string alias)

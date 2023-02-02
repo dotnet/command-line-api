@@ -94,6 +94,30 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Fact]
+        public async Task When_XML_documentation_comment_contains_a_para_tag_and_some_text_then_help_skips_text_outside_para_tag()
+        {
+            int exitCode = await CommandLine.InvokeMethodAsync(
+                new[] { "--help" },
+                TestProgram.TestMainMethodInfoWithTextAndPara,
+                null,
+                _testProgram, 
+                _terminal);
+
+            exitCode.Should().Be(0);
+
+            var stdOut = _terminal.Out.ToString();
+
+            stdOut.Should()
+                .Contain("<args>  These are arguments")
+                .And.Contain("Arguments:");
+            stdOut.Should()
+                .ContainAll("--name <name>", "Specifies the name option")
+                .And.Contain("Options:");
+            stdOut.Should()
+                .Contain($"Description:{Environment.NewLine}  Help for the test program{Environment.NewLine}  More help for the test program{Environment.NewLine}");
+        }
+
+        [Fact]
         public void It_synchronously_shows_help_text_based_on_XML_documentation_comments()
         {
             int exitCode = CommandLine.InvokeMethod(

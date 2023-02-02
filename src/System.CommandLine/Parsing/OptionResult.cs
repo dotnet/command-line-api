@@ -9,18 +9,18 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing an <see cref="Option" />.
     /// </summary>
-    public class OptionResult : SymbolResult
+    public sealed class OptionResult : SymbolResult
     {
         private ArgumentConversionResult? _argumentConversionResult;
 
         internal OptionResult(
             Option option,
+            SymbolResultTree symbolResultTree,
             Token? token = null,
             CommandResult? parent = null) :
-            base(option ?? throw new ArgumentNullException(nameof(option)),
-                 parent)
+            base(symbolResultTree, parent)
         {
-            Option = option;
+            Option = option ?? throw new ArgumentNullException(nameof(option));
             Token = token;
         }
 
@@ -52,47 +52,15 @@ namespace System.CommandLine.Parsing
         /// <returns>The parsed value or the default value for <see cref="Option"/></returns>
         [return: MaybeNull]
         public T GetValueOrDefault<T>() =>
-            this.ConvertIfNeeded(typeof(T))
+            ArgumentConversionResult.ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
-        private protected override int RemainingArgumentCapacity
-        {
-            get
-            {
-                var capacity = base.RemainingArgumentCapacity;
-
-                if (IsImplicit && capacity < int.MaxValue)
-                {
-                    capacity += 1;
-                }
-
-                return capacity;
-            }
-        }
+        internal bool IsArgumentLimitReached
+            => Option.Argument.Arity.MaximumNumberOfValues == (IsImplicit ? Tokens.Count - 1 : Tokens.Count);
 
         internal ArgumentConversionResult ArgumentConversionResult
-        {
-            get
-            {
-                if (_argumentConversionResult is null)
-                {
-                    for (var i = 0; i < Children.Count; i++)
-                    {
-                        var child = Children[i];
+            => _argumentConversionResult ??= FindResultFor(Option.Argument)!.GetArgumentConversionResult();
 
-                        if (child is ArgumentResult argumentResult)
-                        {
-                            return _argumentConversionResult = argumentResult.GetArgumentConversionResult();
-                        }
-                    }
-
-                    return _argumentConversionResult = ArgumentConversionResult.None(Option.Argument);
-                }
-
-                return _argumentConversionResult;
-            }
-        }
-        
-        internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
+        internal override bool UseDefaultValueFor(ArgumentResult argument) => IsImplicit;
     }
 }

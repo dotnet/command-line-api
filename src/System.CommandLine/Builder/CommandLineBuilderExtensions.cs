@@ -622,7 +622,7 @@ ERR:
             var versionOption = new VersionOption(builder);
 
             builder.VersionOption = versionOption;
-            builder.Command.AddOption(versionOption);
+            builder.Command.Options.Add(versionOption);
 
             return builder;
         }
@@ -644,7 +644,7 @@ ERR:
             var versionOption = new VersionOption(aliases, builder);
 
             builder.VersionOption = versionOption;
-            command.AddOption(versionOption);
+            command.Options.Add(versionOption);
 
             return builder;
         }

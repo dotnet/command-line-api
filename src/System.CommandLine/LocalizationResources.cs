@@ -102,7 +102,7 @@ namespace System.CommandLine
         ///   Interpolates values into a localized string similar to Option '{0}' is required.
         /// </summary>
         public virtual string RequiredOptionWasNotProvided(Option option) =>
-            GetResourceString(Properties.Resources.RequiredOptionWasNotProvided, option.Aliases.OrderByDescending(x => x.Length).First());
+            GetResourceString(Properties.Resources.RequiredOptionWasNotProvided, option.GetLongestAlias(removePrefix: false));
 
         /// <summary>
         ///   Interpolates values into a localized string similar to Argument &apos;{0}&apos; not recognized. Must be one of:{1}.
@@ -243,10 +243,24 @@ namespace System.CommandLine
             => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForCommand, value, commandAlias, expectedType);
 
         /// <summary>
+        ///   Interpolates values into a localized string similar to Cannot parse argument &apos;{0}&apos; for command &apos;{1}&apos; as expected type {2}..
+        /// </summary>
+        public virtual string ArgumentConversionCannotParseForCommand(string value, string commandAlias, Type expectedType, IEnumerable<string> completions)
+            => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForCommand_Completions, 
+                value, commandAlias, expectedType, Environment.NewLine + string.Join(Environment.NewLine, completions));
+
+        /// <summary>
         ///   Interpolates values into a localized string similar to Cannot parse argument &apos;{0}&apos; for option &apos;{1}&apos; as expected type {2}..
         /// </summary>
         public virtual string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType)
             => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption, value, optionAlias, expectedType);
+
+        /// <summary>
+        ///   Interpolates values into a localized string similar to Cannot parse argument &apos;{0}&apos; for option &apos;{1}&apos; as expected type {2}..
+        /// </summary>
+        public virtual string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType, IEnumerable<string> completions)
+            => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption_Completions, 
+                value, optionAlias, expectedType, Environment.NewLine + string.Join(Environment.NewLine, completions));
 
         /// <summary>
         /// Interpolates values into a localized string.

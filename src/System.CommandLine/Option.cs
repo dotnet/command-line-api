@@ -15,7 +15,6 @@ namespace System.CommandLine
     /// <seealso cref="IdentifierSymbol" />
     public abstract class Option : IdentifierSymbol, IValueDescriptor
     {
-        private string? _name;
         private List<Action<OptionResult>>? _validators;
 
         private protected Option(string name, string? description) : base(description)
@@ -24,8 +23,6 @@ namespace System.CommandLine
             {
                 throw new ArgumentNullException(nameof(name));
             }
-
-            _name = name.RemovePrefix();
 
             AddAlias(name);
         }
@@ -80,59 +77,17 @@ namespace System.CommandLine
         /// </summary>
         internal bool IsGlobal { get; set; }
 
-        /// <inheritdoc />
-        public override string Name
-        {
-            set
-            {
-                if (!HasAlias(value))
-                {
-                    _name = null;
-                    RemoveAlias(DefaultName);
-                }
-
-                base.Name = value;
-            }
-        }
-
-        internal List<Action<OptionResult>> Validators => _validators ??= new();
+        /// <summary>
+        /// Validators that will be called when the option is matched by the parser.
+        /// </summary>
+        public List<Action<OptionResult>> Validators => _validators ??= new();
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
-        /// Indicates whether a given alias exists on the option, regardless of its prefix.
+        /// Gets the list of completion sources for the option.
         /// </summary>
-        /// <param name="alias">The alias, which can include a prefix.</param>
-        /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
-        public bool HasAliasIgnoringPrefix(string alias)
-        {
-            ReadOnlySpan<char> rawAlias = alias.AsSpan(alias.GetPrefixLength());
-
-            foreach (string existingAlias in _aliases)
-            {
-                if (MemoryExtensions.Equals(existingAlias.AsSpan(existingAlias.GetPrefixLength()), rawAlias, StringComparison.CurrentCulture))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Sets the default value for the option.
-        /// </summary>
-        /// <param name="value">The default value for the option.</param>
-        public void SetDefaultValue(object? value) =>
-            Argument.SetDefaultValue(value);
-
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the option is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<object?> defaultValueFactory) =>
-            Argument.SetDefaultValueFactory(defaultValueFactory);
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources => Argument.CompletionSources;
 
         /// <summary>
         /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
@@ -150,7 +105,7 @@ namespace System.CommandLine
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
         internal virtual bool IsGreedy
-            => Argument is not null && Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
+            => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
@@ -169,20 +124,7 @@ namespace System.CommandLine
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
-        private protected override string DefaultName => _name ??= GetLongestAlias();
-        
-        private string GetLongestAlias()
-        {
-            string max = "";
-            foreach (string alias in _aliases)
-            {
-                if (alias.Length > max.Length)
-                {
-                    max = alias;
-                }
-            }
-            return max.RemovePrefix();
-        }
+        private protected override string DefaultName => GetLongestAlias(true);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

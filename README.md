@@ -17,7 +17,7 @@ Daily builds are available if you add this feed to your nuget.config: https://pk
 
 ## Documentation
 
-The System.CommandLine documentation can now be found at [Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/standard/commandline/).
+The System.CommandLine documentation can now be found at [Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/standard/commandline/).
 
 ## Code of Conduct
 

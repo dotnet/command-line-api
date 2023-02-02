@@ -18,7 +18,7 @@ namespace System.CommandLine
         /// <param name="completionSources">The list of completion sources to add to.</param>
         /// <param name="completionsDelegate">The delegate to be called when calculating completions.</param>
         public static void Add(
-            this ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources,
+            this List<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources,
             Func<CompletionContext, IEnumerable<string>> completionsDelegate)
         {
             if (completionSources is null)
@@ -40,7 +40,7 @@ namespace System.CommandLine
         /// <param name="completionSources">The list of completion sources to add to.</param>
         /// <param name="completions">A list of strings to be suggested for command line completions.</param>
         public static void Add(
-            this ICollection<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources,
+            this List<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources,
             params string[] completions)
         {
             if (completionSources is null)

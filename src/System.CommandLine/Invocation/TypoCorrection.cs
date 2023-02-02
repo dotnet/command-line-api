@@ -23,23 +23,32 @@ namespace System.CommandLine.Invocation
 
         public void ProvideSuggestions(ParseResult result, IConsole console)
         {
-            for (var i = 0; i < result.UnmatchedTokens.Count; i++)
+            var unmatchedTokens = result.UnmatchedTokens;
+            for (var i = 0; i < unmatchedTokens.Count; i++)
             {
-                var token = result.UnmatchedTokens[i];
-                var suggestions = GetPossibleTokens(result.CommandResult.Command, token).ToList();
-                if (suggestions.Count > 0)
+                var token = unmatchedTokens[i];
+
+                bool first = true;
+                foreach (string suggestion in GetPossibleTokens(result.CommandResult.Command, token))
                 {
-                    console.Out.WriteLine(result.CommandResult.LocalizationResources.SuggestionsTokenNotMatched(token));
-                    foreach(string suggestion in suggestions)
+                    if (first)
                     {
-                        console.Out.WriteLine(suggestion);
+                        console.Out.WriteLine(result.CommandResult.LocalizationResources.SuggestionsTokenNotMatched(token));
+                        first = false;
                     }
+
+                    console.Out.WriteLine(suggestion);
                 }
             }
         }
 
         private IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)
         {
+            if (!targetSymbol.HasOptions && !targetSymbol.HasSubcommands)
+            {
+                return Array.Empty<string>();
+            }
+
             IEnumerable<string> possibleMatches = targetSymbol
                 .Children
                 .OfType<IdentifierSymbol>()
@@ -47,7 +56,6 @@ namespace System.CommandLine.Invocation
                 .Where(x => x.Aliases.Count > 0)
                 .Select(symbol => 
                     symbol.Aliases
-                        .Union(symbol.Aliases)
                         .OrderBy(x => GetDistance(token, x))
                         .ThenByDescending(x => GetStartsWithDistance(token, x))
                         .First()

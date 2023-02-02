@@ -9,8 +9,7 @@
     <UseSharedCompilation>false</UseSharedCompilation>
 
     <!-- Supported target frameworks -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)' == '' AND '$(OS)' == 'Windows_NT'">net7.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetFrameworks)' == ''">net7.0</TargetFrameworks>
+    <TargetFramework>net7.0</TargetFramework>
 
     <!-- This repo does not produce any libraries, therefore generating docs is disabled -->
     <GenerateDocumentationFile>False</GenerateDocumentationFile>

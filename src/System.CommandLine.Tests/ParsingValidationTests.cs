@@ -24,8 +24,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var option = new Option<string>("-x")
-                .AcceptOnlyFromAmong("this", "that", "the-other-thing");
+            var option = new Option<string>("-x");
+            option.AcceptOnlyFromAmong("this", "that", "the-other-thing");
 
             var result = option.Parse("-x none-of-those");
 
@@ -40,49 +40,59 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var option = new Option<string>("-x")
-                .AcceptOnlyFromAmong("this", "that");
+            var option = new Option<string>("-x");
+            option.AcceptOnlyFromAmong("this", "that");
 
             var result = option.Parse("-x something_else");
 
             result.Errors
                   .Where(e => e.SymbolResult != null)
                   .Should()
-                  .Contain(e => e.SymbolResult.Symbol.Name == option.Name);
+                  .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == option.Name);
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_OptionResult_ErrorMessage_is_set()
         {
-            var option = new Option<string>("--opt").AcceptOnlyFromAmong("a", "b");
+            var option = new Option<string>("--opt");
+            option.AcceptOnlyFromAmong("a", "b");
             var command = new Command("test") { option };
 
             var parseResult = command.Parse("test --opt c");
 
-            parseResult.FindResultFor(option)
-                       .ErrorMessage
-                       .Should()
-                       .Be(parseResult.Errors.Single().Message)
-                       .And
-                       .Should()
-                       .NotBeNull();
+            var error = parseResult.Errors.Single();
+
+            error
+               .Message
+               .Should()
+               .Be(parseResult.CommandResult.LocalizationResources.UnrecognizedArgument("c", new []{ "a", "b"}));
+            error
+                .SymbolResult
+                .Should()
+                .BeOfType<OptionResult>();
+
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
         {
-            var option = new Argument<string>().AcceptOnlyFromAmong("a", "b");
-            var command = new Command("test") { option };
+            var argument = new Argument<string>();
+            argument.AcceptOnlyFromAmong("a", "b");
+
+            var command = new Command("test") { argument };
 
             var parseResult = command.Parse("test c");
 
-            parseResult.FindResultFor(option)
-                       .ErrorMessage
-                       .Should()
-                       .Be(parseResult.Errors.Single().Message)
-                       .And
-                       .Should()
-                       .NotBeNull();
+            var error = parseResult.Errors.Single();
+
+            error
+                .Message
+                .Should()
+                .Be(parseResult.CommandResult.LocalizationResources.UnrecognizedArgument("c", new []{ "a", "b"}));
+            error
+                .SymbolResult
+                .Should()
+                .BeOfType<ArgumentResult>();
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1556
@@ -90,8 +100,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
-                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
+                CreateArgumentWithAcceptOnlyFromAmong(name: "key", "key1", "key2"),
+                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
             };
 
             var result = command.Parse("set key1 value1");
@@ -104,8 +114,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
-                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
+                CreateArgumentWithAcceptOnlyFromAmong(name : "key", "key1", "key2"),
+                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
             };
 
             var result = command.Parse("set not-key1 value1");
@@ -120,12 +130,40 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_FromAmong_is_used_multiple_times_only_the_most_recently_provided_values_are_taken_into_account()
+        {
+            Argument<string> argument = new("key");
+            argument.AcceptOnlyFromAmong("key1");
+
+            var command = new Command("set")
+            {
+                argument
+            };
+
+            var result = command.Parse("set key2");
+
+            result.Errors
+              .Should()
+              .ContainSingle()
+              .Which
+              .Message
+              .Should()
+              .Be(LocalizationResources.Instance.UnrecognizedArgument("key2", new[] { "key1" }));
+
+            argument.AcceptOnlyFromAmong("key2");
+
+            result = command.Parse("set key2");
+
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
         public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_second_one_then_the_error_is_informative()
         {
             var command = new Command("set")
             {
-                new Argument<string>("key").AcceptOnlyFromAmong("key1", "key2"),
-                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
+                CreateArgumentWithAcceptOnlyFromAmong(name : "key", "key1", "key2"),
+                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
             };
 
             var result = command.Parse("set key1 not-value1");
@@ -137,6 +175,34 @@ namespace System.CommandLine.Tests
                   .Message
                   .Should()
                   .Be(LocalizationResources.Instance.UnrecognizedArgument("not-value1", new[] { "value1", "value2" }));
+        }
+
+        [Fact]
+        public void When_FromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_errors_mention_all_invalid_arguments()
+        {
+            Option<string[]> option = new(new[] { "--columns" });
+            option.AcceptOnlyFromAmong("author", "language", "tags", "type");
+            option.Arity = new ArgumentArity(1, 4);
+            option.AllowMultipleArgumentsPerToken = true;
+
+            var command = new Command("list")
+            {
+                option
+            };
+
+            var result = command.Parse("list --columns c1 c2");
+
+            result.Errors.Count.Should().Be(2);
+
+            result.Errors[0]
+                .Message
+                .Should()
+                .Be(LocalizationResources.Instance.UnrecognizedArgument("c1", new[] { "author", "language", "tags", "type" }));
+
+            result.Errors[1]
+                .Message
+                .Should()
+                .Be(LocalizationResources.Instance.UnrecognizedArgument("c2", new[] { "author", "language", "tags", "type" }));
         }
 
         [Fact]
@@ -170,7 +236,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => e.SymbolResult.Symbol == command)
+                  .Contain(e => ((CommandResult)e.SymbolResult).Command == command)
                   .Which
                   .Message
                   .Should()
@@ -194,7 +260,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => e.SymbolResult.Symbol == command)
+                  .Contain(e => ((CommandResult)e.SymbolResult).Command == command)
                   .Which
                   .Message
                   .Should()
@@ -275,12 +341,12 @@ namespace System.CommandLine.Tests
                 new Option<bool>("--two")
             };
 
-            command.AddValidator(commandResult =>
+            command.Validators.Add(commandResult =>
             {
-                if (commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--one")) &&
-                    commandResult.Children.Any(sr => sr.Symbol is IdentifierSymbol id && id.HasAlias("--two")))
+                if (commandResult.Children.Any(sr => ((OptionResult)sr).Option.HasAlias("--one")) &&
+                    commandResult.Children.Any(sr => ((OptionResult)sr).Option.HasAlias("--two")))
                 {
-                    commandResult.ErrorMessage = "Options '--one' and '--two' cannot be used together.";
+                    commandResult.AddError("Options '--one' and '--two' cannot be used together.");
                 }
             });
 
@@ -300,11 +366,11 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x");
 
-            option.AddValidator(r =>
+            option.Validators.Add(r =>
             {
                 var value = r.GetValueOrDefault<int>();
 
-                r.ErrorMessage = $"Option {r.Token.Value} cannot be set to {value}";
+                r.AddError($"Option {r.Token.Value} cannot be set to {value}");
             });
 
             var command = new RootCommand { option };
@@ -315,7 +381,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => e.SymbolResult.Symbol == option)
+                  .Contain(e => ((OptionResult)e.SymbolResult).Option == option)
                   .Which
                   .Message
                   .Should()
@@ -327,11 +393,11 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<int>("x");
 
-            argument.AddValidator(r =>
+            argument.Validators.Add(r =>
             {
                 var value = r.GetValueOrDefault<int>();
 
-                r.ErrorMessage = $"Argument {r.Argument.Name} cannot be set to {value}";
+                r.AddError($"Argument {r.Argument.Name} cannot be set to {value}");
             });
 
             var command = new RootCommand { argument };
@@ -342,7 +408,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => e.SymbolResult.Symbol == argument)
+                  .Contain(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
                   .Which
                   .Message
                   .Should()
@@ -359,13 +425,13 @@ namespace System.CommandLine.Tests
             var argumentValidatorWasCalled = false;
 
             var option = new Option<string>("-o");
-            option.AddValidator(_ =>
+            option.Validators.Add(_ =>
             {
                 optionValidatorWasCalled = true;
             });
 
             var argument = new Argument<string>("the-arg");
-            argument.AddValidator(_ =>
+            argument.Validators.Add(_ =>
             {
                 argumentValidatorWasCalled = true;
             });
@@ -375,7 +441,7 @@ namespace System.CommandLine.Tests
                 option,
                 argument
             };
-            rootCommand.AddValidator(_ =>
+            rootCommand.Validators.Add(_ =>
             {
                 commandValidatorWasCalled = true;
             });
@@ -393,9 +459,9 @@ namespace System.CommandLine.Tests
         public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)
         {
             var option = new Option<FileInfo>("--file");
-            option.AddValidator(r =>
+            option.Validators.Add(r =>
             {
-                r.ErrorMessage = "Invoked validator";
+                r.AddError("Invoked validator");
             });
 
             var subCommand = new Command("subcommand");
@@ -411,7 +477,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => e.SymbolResult.Symbol == option)
+                  .Contain(e => ((OptionResult)e.SymbolResult).Option == option)
                   .Which
                   .Message
                   .Should()
@@ -430,7 +496,7 @@ namespace System.CommandLine.Tests
             var handlerWasCalled = false;
 
             var globalOption = new Option<int>("--value");
-            globalOption.AddValidator(r => r.ErrorMessage = "oops!");
+            globalOption.Validators.Add(r => r.AddError("oops!"));
 
             var grandchildCommand = new Command("grandchild");
 
@@ -460,7 +526,7 @@ namespace System.CommandLine.Tests
         {
             var errorMessage = "that's not right...";
             var argument = new Argument<string>();
-            argument.AddValidator(r => r.ErrorMessage = errorMessage);
+            argument.Validators.Add(r => r.AddError(errorMessage));
 
             var cmd = new Command("get")
             {
@@ -481,13 +547,13 @@ namespace System.CommandLine.Tests
         {
             var argument = new Argument<int>();
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
-            argument.AddValidator(result =>
+            argument.Validators.Add(result =>
             {
                 var value = result.GetValue(argument);
 
                 if (value < 0 || value > 100)
                 {
-                    result.ErrorMessage = errorMessage;
+                    result.AddError(errorMessage);
                 }
             });
 
@@ -505,13 +571,13 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x");
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
-            option.AddValidator(result =>
+            option.Validators.Add(result =>
             {
                 var value = result.GetValue(option);
 
                 if (value < 0 || value > 100)
                 {
-                    result.ErrorMessage = errorMessage;
+                    result.AddError(errorMessage);
                 }
             });
 
@@ -529,9 +595,11 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFilePathsOnly_rejects_command_arguments_containing_invalid_path_characters()
             {
+                Argument<string> argument = new();
+                argument.AcceptLegalFilePathsOnly();
                 var command = new Command("the-command")
                 {
-                    new Argument<string>().AcceptLegalFilePathsOnly()
+                    argument
                 };
 
                 var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
@@ -542,16 +610,18 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument == command.Arguments.First() &&
                                     e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }   
             
             [Fact]
             public void LegalFilePathsOnly_rejects_option_arguments_containing_invalid_path_characters()
             {
+                Option<string> option = new ("-x");
+                option.AcceptLegalFilePathsOnly();
                 var command = new Command("the-command")
                 {
-                    new Option<string>("-x").AcceptLegalFilePathsOnly()
+                    option
                 };
 
                 var invalidCharacter = Path.GetInvalidPathChars().First(c => c != '"');
@@ -562,16 +632,18 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
+                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "x" &&
                                     e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }
 
             [Fact]
             public void LegalFilePathsOnly_accepts_command_arguments_containing_valid_path_characters()
             {
+                Argument<string[]> argument = new ();
+                argument.AcceptLegalFilePathsOnly();
                 var command = new Command("the-command")
                 {
-                    new Argument<string[]>().AcceptLegalFilePathsOnly()
+                    argument
                 };
 
                 var validPathName = Directory.GetCurrentDirectory();
@@ -585,9 +657,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFilePathsOnly_accepts_option_arguments_containing_valid_path_characters()
             {
+                Option<string[]> option = new ("-x");
+                option.AcceptLegalFilePathsOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Option<string[]>("-x").AcceptLegalFilePathsOnly()
+                    option
                 };
 
                 var validPathName = Directory.GetCurrentDirectory();
@@ -604,9 +679,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_rejects_command_arguments_containing_invalid_file_name_characters()
             {
+                Argument<string> argument = new();
+                argument.AcceptLegalFileNamesOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Argument<string>().AcceptLegalFileNamesOnly()
+                    argument
                 };
 
                 var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
@@ -617,16 +695,19 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument == command.Arguments.First() &&
                                     e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
 
             [Fact]
             public void LegalFileNamesOnly_rejects_option_arguments_containing_invalid_file_name_characters()
             {
+                Option<string> option = new("-x");
+                option.AcceptLegalFileNamesOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Option<string>("-x").AcceptLegalFileNamesOnly()
+                    option
                 };
 
                 var invalidCharacter = Path.GetInvalidFileNameChars().First(c => c != '"');
@@ -637,16 +718,19 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "x" &&
+                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "x" &&
                                     e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
 
             [Fact]
             public void LegalFileNamesOnly_accepts_command_arguments_containing_valid_file_name_characters()
             {
+                Argument<string[]> argument = new ();
+                argument.AcceptLegalFileNamesOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Argument<string[]>().AcceptLegalFileNamesOnly()
+                    argument
                 };
 
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
@@ -660,9 +744,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_accepts_option_arguments_containing_valid_file_name_characters()
             {
+                Option<string[]> option = new("-x");
+                option.AcceptLegalFileNamesOnly();
+
                 var command = new Command("the-command")
                 {
-                    new Option<string[]>("-x").AcceptLegalFileNamesOnly()
+                    option
                 };
 
                 var validFileName = Path.GetFileName(Directory.GetCurrentDirectory());
@@ -691,7 +778,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
                                     e.Message == $"File does not exist: '{path}'.");
             }
 
@@ -710,7 +797,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "to" &&
                                     e.Message == $"File does not exist: '{path}'.");
             }
 
@@ -729,7 +816,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
                                     e.Message == $"Directory does not exist: '{path}'.");
             }
 
@@ -748,7 +835,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "to" &&
                                     e.Message == $"Directory does not exist: '{path}'.");
             }
 
@@ -767,7 +854,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol == command.Arguments.First() &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument == command.Arguments.First() &&
                                     e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -786,7 +873,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "to" &&
                                     e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -805,7 +892,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
+                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" && 
                                     e.Message == $"File does not exist: '{path}'.");
             }
             
@@ -824,7 +911,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => e.SymbolResult.Symbol.Name == "to" && 
+                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "to" && 
                                     e.Message == $"File does not exist: '{path}'.");
             }
 
@@ -843,7 +930,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
                                           e.Message == $"Directory does not exist: '{path}'.");
             }
 
@@ -862,7 +949,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .ContainSingle(e => ((OptionResult)e.SymbolResult).Option.Name == "to" &&
                                           e.Message == $"Directory does not exist: '{path}'.");
             }
 
@@ -883,7 +970,7 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
-                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
                                           e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -902,7 +989,7 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
-                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .ContainSingle(e => ((OptionResult)e.SymbolResult).Option.Name == "to" &&
                                           e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -921,7 +1008,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
                                           e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -940,7 +1027,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .ContainSingle(e => e.SymbolResult.Symbol.Name == "to" &&
+                      .ContainSingle(e => ((OptionResult)e.SymbolResult).Option.Name == "to" &&
                                           e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -1022,8 +1109,8 @@ namespace System.CommandLine.Tests
             var outer = new Command("outer");
             var inner = new Command("inner");
             var innerer = new Command("inner-er");
-            outer.AddCommand(inner);
-            inner.AddCommand(innerer);
+            outer.Subcommands.Add(inner);
+            inner.Subcommands.Add(innerer);
 
             var result = outer.Parse("outer inner arg");
 
@@ -1031,7 +1118,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message.Equals(LocalizationResources.Instance.RequiredCommandWasNotProvided()) &&
-                           e.SymbolResult.Symbol.Name.Equals("inner"));
+                           ((CommandResult)e.SymbolResult).Command.Name.Equals("inner"));
         }
 
         [Fact]
@@ -1047,7 +1134,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message.Equals(LocalizationResources.Instance.RequiredCommandWasNotProvided()) &&
-                           e.SymbolResult.Symbol == rootCommand);
+                           ((CommandResult)e.SymbolResult).Command == rootCommand);
         }
 
         [Fact]
@@ -1057,8 +1144,8 @@ namespace System.CommandLine.Tests
             var inner = new Command("inner");
             inner.SetHandler(() => { });
             var innerer = new Command("inner-er");
-            outer.AddCommand(inner);
-            inner.AddCommand(innerer);
+            outer.Subcommands.Add(inner);
+            inner.Subcommands.Add(innerer);
 
             var result = outer.Parse("outer inner");
 
@@ -1121,8 +1208,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_command_do_not_report_duplicate_errors()
         {
             var command = new RootCommand();
-            command.AddValidator(result => result.ErrorMessage = "Wrong");
-            command.AddValidator(_ => { });
+            command.Validators.Add(result => result.AddError("Wrong"));
+            command.Validators.Add(_ => { });
 
             var parseResult = command.Parse("");
 
@@ -1139,8 +1226,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_option_do_not_report_duplicate_errors()
         {
             var option = new Option<string>("-x");
-            option.AddValidator(result => result.ErrorMessage = "Wrong");
-            option.AddValidator(_ => { });
+            option.Validators.Add(result => result.AddError("Wrong"));
+            option.Validators.Add(_ => { });
 
             var command = new RootCommand
             {
@@ -1162,8 +1249,8 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_argument_do_not_report_duplicate_errors()
         {
             var argument = new Argument<string>();
-            argument.AddValidator(result => result.ErrorMessage = "Wrong");
-            argument.AddValidator(_ => { });
+            argument.Validators.Add(result => result.AddError("Wrong"));
+            argument.Validators.Add(_ => { });
 
             var command = new RootCommand
             {
@@ -1185,9 +1272,9 @@ namespace System.CommandLine.Tests
         internal void When_there_is_an_arity_error_then_further_errors_are_not_reported()
         {
             var option = new Option<string>("-o");
-            option.AddValidator(result =>
+            option.Validators.Add(result =>
             {
-                result.ErrorMessage = "OOPS";
+                result.AddError("OOPS");
             }); //all good;
 
             var command = new Command("comm")
@@ -1204,6 +1291,13 @@ namespace System.CommandLine.Tests
                        .Message
                        .Should()
                        .Be("Required argument missing for option: '-o'.");
+        }
+
+        private Argument<string> CreateArgumentWithAcceptOnlyFromAmong(string name, params string[] values)
+        {
+            Argument<string> argument = new(name);
+            argument.AcceptOnlyFromAmong(values);
+            return argument;
         }
     }
 }

@@ -109,10 +109,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_greater_than_input_length_in_a_string_command_line_then_it_returns_empty()
         {
+            Option<string> option1 = new ("--option1");
+            option1.AcceptOnlyFromAmong("apple", "banana", "cherry", "durian");
+
             var command = new Command("the-command")
             {
                 new Argument<string>(),
-                new Option<string>("--option1").AcceptOnlyFromAmong("apple", "banana", "cherry", "durian"),
+                option1,
                 new Option<string>("--option2")
             };
 
@@ -176,9 +179,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_argument_then_it_returns_the_argument_value()
         {
+            Option<string> option1 = new("--option1");
+            option1.AcceptOnlyFromAmong("apple", "banana", "cherry", "durian");
+
             var command = new Command("the-command")
             {
-                new Option<string>("--option1").AcceptOnlyFromAmong("apple", "banana", "cherry", "durian"),
+                option1,
                 new Option<string>("--option2"),
                 new Argument<string>()
             };

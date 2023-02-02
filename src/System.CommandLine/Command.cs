@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
+using System.ComponentModel;
 using System.Linq;
 
 namespace System.CommandLine
@@ -19,9 +20,9 @@ namespace System.CommandLine
     /// </remarks>
     public class Command : IdentifierSymbol, IEnumerable<Symbol>
     {
-        private List<Argument>? _arguments;
-        private List<Option>? _options;
-        private List<Command>? _subcommands;
+        private ChildList<Argument>? _arguments;
+        private ChildList<Option>? _options;
+        private ChildList<Command>? _subcommands;
         private List<Action<CommandResult>>? _validators;
 
         /// <summary>
@@ -54,55 +55,31 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the arguments for the command.
         /// </summary>
-        public IReadOnlyList<Argument> Arguments => _arguments is not null ? _arguments : Array.Empty<Argument>();
+        public IList<Argument> Arguments => _arguments ??= new(this);
 
-        internal bool HasArguments => _arguments is not null;
+        internal bool HasArguments => _arguments is not null && _arguments.Count > 0 ;
 
         /// <summary>
         /// Represents all of the options for the command, including global options that have been applied to any of the command's ancestors.
         /// </summary>
-        public IReadOnlyList<Option> Options => _options is not null ? _options : Array.Empty<Option>();
+        public IList<Option> Options => _options ??= new (this);
+
+        internal bool HasOptions => _options is not null && _options.Count > 0;
 
         /// <summary>
         /// Represents all of the subcommands for the command.
         /// </summary>
-        public IReadOnlyList<Command> Subcommands => _subcommands is not null ? _subcommands : Array.Empty<Command>();
+        public IList<Command> Subcommands => _subcommands ??= new(this);
 
-        internal IReadOnlyList<Action<CommandResult>> Validators
-            => _validators is not null ? _validators : Array.Empty<Action<CommandResult>>();
-
-        internal bool HasValidators => _validators is not null; // initialized by Add method, so when it's not null the Count is always > 0
+        internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
 
         /// <summary>
-        /// Adds an <see cref="Argument"/> to the command.
+        /// Validators to the command. Validators can be used
+        /// to create custom validation logic.
         /// </summary>
-        /// <param name="argument">The argument to add to the command.</param>
-        public void AddArgument(Argument argument)
-        {
-            argument.AddParent(this);
-            (_arguments ??= new()).Add(argument);
-        }
+        public List<Action<CommandResult>> Validators => _validators ??= new ();
 
-        /// <summary>
-        /// Adds a subcommand to the command.
-        /// </summary>
-        /// <param name="command">The subcommand to add to the command.</param>
-        /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
-        public void AddCommand(Command command)
-        {
-            command.AddParent(this);
-            (_subcommands ??= new()).Add(command);
-        }
-
-        /// <summary>
-        /// Adds an <see cref="Option"/> to the command.
-        /// </summary>
-        /// <param name="option">The option to add to the command.</param>
-        public void AddOption(Option option)
-        {
-            option.AddParent(this);
-            (_options ??= new()).Add(option);
-        }
+        internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
         /// Adds a global <see cref="Option"/> to the command.
@@ -113,35 +90,35 @@ namespace System.CommandLine
         public void AddGlobalOption(Option option)
         {
             option.IsGlobal = true;
-            AddOption(option);
+            Options.Add(option);
         }
-        /// <summary>
-        /// Adds an <see cref="Option"/> to the command.
-        /// </summary>
-        /// <param name="option">The option to add to the command.</param>
-        public void Add(Option option) => AddOption(option);
 
         /// <summary>
-        /// Adds an <see cref="Argument"/> to the command.
+        /// Adds a <see cref="Symbol"/> to the command.
         /// </summary>
-        /// <param name="argument">The argument to add to the command.</param>
-        public void Add(Argument argument) => AddArgument(argument);
-
-        /// <summary>
-        /// Adds a subcommand to the command.
-        /// </summary>
-        /// <param name="command">The subcommand to add to the command.</param>
-        /// <remarks>Commands can be nested to an arbitrary depth.</remarks>
-        public void Add(Command command) => AddCommand(command);
+        /// <param name="symbol">The symbol to add to the command.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# duck typing
+        public void Add(Symbol symbol)
+        {
+            // this method exists so users can use C# duck typing for adding symbols to the Command:
+            // new Command { option };
+            switch (symbol)
+            {
+                case Option option:
+                    Options.Add(option);
+                    break;
+                case Argument argument:
+                    Arguments.Add(argument);
+                    break;
+                case Command command:
+                    Subcommands.Add(command);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
 
         private protected override string DefaultName => throw new NotImplementedException();
-
-        /// <summary>
-        /// Adds a custom validator to the command. Validators can be used
-        /// to create custom validation logic.
-        /// </summary>
-        /// <param name="validate">The action to validate the symbols during parsing.</param>
-        public void AddValidator(Action<CommandResult> validate) => (_validators ??= new()).Add(validate);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
@@ -178,44 +155,64 @@ namespace System.CommandLine
 
             if (context.WordToComplete is { } textToMatch)
             {
-                var commands = Subcommands;
-                for (int i = 0; i < commands.Count; i++)
+                if (HasSubcommands)
                 {
-                    AddCompletionsFor(commands[i]);
-                }
-
-                var options = Options;
-                for (int i = 0; i < options.Count; i++)
-                {
-                    AddCompletionsFor(options[i]);
-                }
-
-                var arguments = Arguments;
-                for (int i = 0; i < arguments.Count; i++)
-                {
-                    var argument = arguments[i];
-                    foreach (var completion in argument.GetCompletions(context))
+                    var commands = Subcommands;
+                    for (int i = 0; i < commands.Count; i++)
                     {
-                        if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                        AddCompletionsFor(commands[i]);
+                    }
+                }
+
+                if (HasOptions)
+                {
+                    var options = Options;
+                    for (int i = 0; i < options.Count; i++)
+                    {
+                        AddCompletionsFor(options[i]);
+                    }
+                }
+
+                if (HasArguments)
+                {
+                    var arguments = Arguments;
+                    for (int i = 0; i < arguments.Count; i++)
+                    {
+                        var argument = arguments[i];
+                        foreach (var completion in argument.GetCompletions(context))
                         {
-                            completions.Add(completion);
+                            if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                            {
+                                completions.Add(completion);
+                            }
                         }
                     }
                 }
 
-                foreach (var parent in Parents.FlattenBreadthFirst(p => p.Parents))
+                ParentNode? parent = FirstParent;
+                while (parent is not null)
                 {
-                    if (parent is Command parentCommand)
-                    {
-                        for (var i = 0; i < parentCommand.Options.Count; i++)
-                        {
-                            var option = parentCommand.Options[i];
+                    Command parentCommand = (Command)parent.Symbol;
 
-                            if (option.IsGlobal)
+                    if (context.IsEmpty || context.ParseResult.FindResultFor(parentCommand) is not null)
+                    {
+                        if (parentCommand.HasOptions)
+                        {
+                            for (var i = 0; i < parentCommand.Options.Count; i++)
                             {
-                                AddCompletionsFor(option);
+                                var option = parentCommand.Options[i];
+
+                                if (option.IsGlobal)
+                                {
+                                    AddCompletionsFor(option);
+                                }
                             }
                         }
+                        parent = parent.Symbol.FirstParent;
+                    }
+                    else
+                    {
+                        parent = parent.Next;
                     }
                 }
             }

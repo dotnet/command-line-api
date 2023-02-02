@@ -1,5 +1,6 @@
+<!-- Additional documentation on pre-built detection can be found at https://aka.ms/source-build/pre-built -->
 <UsageData>
   <IgnorePatterns>
-    <UsagePattern IdentityGlob="*/*" />
+    <UsagePattern IdentityGlob="Microsoft.SourceBuild.Intermediate.*" />
   </IgnorePatterns>
 </UsageData>

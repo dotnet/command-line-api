@@ -6,7 +6,7 @@ namespace System.CommandLine.Completions
     /// <summary>
     /// Provides details about a command line completion item.
     /// </summary>
-    public class CompletionItem
+    public class CompletionItem : IEquatable<CompletionItem>
     {
         /// <param name="label">The label value, which is the text displayed to users and, unless <paramref name="insertText"/> is set, is also used to populate the <see cref="InsertText"/> property.</param>
         /// <param name="kind">The kind of completion item.</param>
@@ -66,31 +66,13 @@ namespace System.CommandLine.Completions
         /// <summary>
         /// Determines whether two completion items are equal.
         /// </summary>
-        protected bool Equals(CompletionItem other)
+        public bool Equals(CompletionItem? other)
         {
-            return Label == other.Label && Kind == other.Kind;
+            return other is not null && Label == other.Label && Kind == other.Kind;
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (obj.GetType() != GetType())
-            {
-                return false;
-            }
-
-            return Equals((CompletionItem)obj);
-        }
+        public override bool Equals(object? obj) => Equals(obj as CompletionItem);
 
         /// <inheritdoc />
         public override int GetHashCode()

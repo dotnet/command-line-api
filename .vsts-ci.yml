@@ -3,6 +3,8 @@ variables:
     value: DotNetCore
   - name: _DotNetArtifactsCategory
     value: .NETCore
+  - name: Codeql.Enabled
+    value: true
 
 # CI and PR triggers
 trigger:

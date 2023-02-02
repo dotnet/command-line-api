@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests.Binding
 
             for (var i = 1; i <= arity; i++)
             {
-                command.AddArgument(new Argument<int>($"i{i}"));
+                command.Arguments.Add(new Argument<int>($"i{i}"));
 
                 commandLine += $" {i}";
             }
@@ -176,7 +176,7 @@ namespace System.CommandLine.Tests.Binding
 
             for (var i = 1; i <= arity; i++)
             {
-                command.AddArgument(new Argument<int>($"i{i}"));
+                command.Arguments.Add(new Argument<int>($"i{i}"));
 
                 commandLine += $" {i}";
             }

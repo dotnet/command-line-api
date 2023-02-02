@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Completions;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
@@ -14,7 +15,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Suggestions
     {
-        private Symbol _testSymbol;
+        private Option _testSymbol;
         private ParseResult _testParseResult;
 
         /// <remarks>
@@ -36,14 +37,14 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup(Target = nameof(SuggestionsFromSymbol))]
         public void Setup_FromSymbol()
         {
-            _testSymbol = new Option<string>("--hello")
-                .AddCompletions(GenerateSuggestionsArray(TestSuggestionsCount));
+            _testSymbol = new Option<string>("--hello");
+            _testSymbol.CompletionSources.Add(GenerateSuggestionsArray(TestSuggestionsCount));
         }
 
         [Benchmark]
         public void SuggestionsFromSymbol()
         {
-            _testSymbol.GetCompletions().Consume(new Consumer());
+            _testSymbol.GetCompletions(CompletionContext.Empty).Consume(new Consumer());
         }
 
         [GlobalSetup(Target = nameof(SuggestionsFromParseResult))]
@@ -53,7 +54,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
             foreach (var option in GenerateOptionsArray(TestSuggestionsCount))
             {
-                testCommand.AddOption(option);
+                testCommand.Options.Add(option);
             }
 
             _testParseResult = testCommand.Parse("--wrong");

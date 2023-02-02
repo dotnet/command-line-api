@@ -64,7 +64,6 @@ namespace System.CommandLine.Tests
 
             option.AddAlias("-a");
 
-            option.HasAliasIgnoringPrefix("a").Should().BeTrue();
             option.HasAlias("-a").Should().BeTrue();
         }
 
@@ -85,27 +84,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAliasIgnorePrefix_accepts_unprefixed_short_value()
-        {
-            var option = new Option<string>(new[] { "-o", "--option" });
-
-            option.HasAliasIgnoringPrefix("o").Should().BeTrue();
-        }
-
-        [Fact]
         public void HasAlias_accepts_prefixed_long_value()
         {
             var option = new Option<string>(new[] { "-o", "--option" });
 
             option.HasAlias("--option").Should().BeTrue();
-        }
-
-        [Fact]
-        public void HasAliasIgnorePrefix_accepts_unprefixed_long_value()
-        {
-            var option = new Option<string>(new[] { "-o", "--option" });
-
-            option.HasAliasIgnoringPrefix("option").Should().BeTrue();
         }
 
         [Fact]
@@ -303,12 +286,12 @@ namespace System.CommandLine.Tests
         public void Option_T_default_value_is_validated()
         {
             var option = new Option<int>("-x", () => 123);
-            option.AddValidator(symbol =>
-                                    symbol.ErrorMessage = symbol.Tokens
+            option.Validators.Add(symbol =>
+                                    symbol.AddError(symbol.Tokens
                                                                 .Select(t => t.Value)
                                                                 .Where(v => v == "123")
                                                                 .Select(_ => "ERR")
-                                                                .FirstOrDefault());
+                                                                .First()));
 
             option
                 .Parse("-x 123")
@@ -375,8 +358,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_of_enum_can_limit_enum_members_as_valid_values()
         {
-            var option = new Option<ConsoleColor>("--color")
-                .AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+            Option<ConsoleColor> option = new("--color");
+            option.AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
 
             var result = option.Parse("--color Fuschia");
 
@@ -384,21 +367,6 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
-        }
-
-        [Fact]
-        public void Option_of_T_fluent_APIs_return_Option_of_T()
-        {
-            Option<string> option = new Option<string>("--path")
-                .AcceptOnlyFromAmong("text")
-                .AddCompletions("test")
-                .AddCompletions(ctx => Array.Empty<string>())
-                .AddCompletions(ctx => Array.Empty<CompletionItem>())
-                .AddValidator(_ => { })
-                .AcceptLegalFileNamesOnly()
-                .AcceptLegalFilePathsOnly();
-
-            option.Should().BeOfType<Option<string>>();
         }
         
         protected override Symbol CreateSymbol(string name) => new Option<string>(name);

@@ -21,13 +21,6 @@ namespace System.CommandLine.Parsing
         public Parser(Command command) : this(new CommandLineConfiguration(command))
         {
         }
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Parser" /> class using the default <see cref="RootCommand" />.
-        /// </summary>
-        public Parser() : this(new RootCommand())
-        {
-        }
 
         /// <summary>
         /// Gets the configuration on which the parser's grammar and behaviors are based.
@@ -41,28 +34,24 @@ namespace System.CommandLine.Parsing
         /// <param name="rawInput">The complete command line input prior to splitting and tokenization. This input is not typically available when the parser is called from <c>Program.Main</c>. It is primarily used when calculating completions via the <c>dotnet-suggest</c> tool.</param>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
         public ParseResult Parse(
-            IReadOnlyList<string> arguments,
+            IReadOnlyList<string>? arguments,
             string? rawInput = null)
         {
-            var tokenizeResult = arguments.Tokenize(
+            arguments ??= Array.Empty<string>();
+
+            arguments.Tokenize(
                 Configuration,
-                inferRootCommand: rawInput is not null);
+                inferRootCommand: rawInput is not null,
+                out List<Token> tokens,
+                out List<string>? tokenizationErrors);
 
             var operation = new ParseOperation(
-                tokenizeResult,
-                Configuration);
-
-            operation.Parse();
-
-            var visitor = new ParseResultVisitor(
-                this,
-                tokenizeResult,
-                operation.UnmatchedTokens,
+                tokens,
+                Configuration,
+                tokenizationErrors,
                 rawInput);
 
-            visitor.Visit(operation.RootCommandNode!);
-
-            return visitor.GetResult();
+            return operation.Parse(this);
         }
     }
 }

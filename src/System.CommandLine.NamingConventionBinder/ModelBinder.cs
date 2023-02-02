@@ -132,7 +132,7 @@ public class ModelBinder
         var valueSource = GetValueSource(bindingSources, bindingContext, ValueDescriptor, EnforceExplicitBinding);
         return bindingContext.TryBindToScalarValue(ValueDescriptor,
                                                    valueSource,
-                                                   bindingContext.ParseResult.CommandResult.LocalizationResources,
+                                                   bindingContext.ParseResult,
                                                    out var boundValue)
                    ? (true, boundValue?.Value, true)
                    : (false, null, false);
@@ -277,7 +277,7 @@ public class ModelBinder
         if (bindingContext.TryBindToScalarValue(
                 valueDescriptor,
                 valueSource,
-                bindingContext.ParseResult.CommandResult.LocalizationResources,
+                bindingContext.ParseResult,
                 out var boundValue))
         {
             return (boundValue, true);

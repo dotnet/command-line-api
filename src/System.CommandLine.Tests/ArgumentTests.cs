@@ -124,14 +124,14 @@ namespace System.CommandLine.Tests
             {
                 var argument = new Argument<FileSystemInfo>(result =>
                 {
-                    result.ErrorMessage = "oops!";
+                    result.AddError("oops!");
                     return null;
                 });
 
                 argument.Parse("x")
                         .Errors
                         .Should()
-                        .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                        .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
                         .Which
                         .Message
                         .Should()
@@ -143,14 +143,14 @@ namespace System.CommandLine.Tests
             {
                 var argument = new Argument<FileSystemInfo>(result =>
                 {
-                    result.ErrorMessage = "oops!";
+                    result.AddError("oops!");
                     return null;
                 }, true);
 
                 argument.Parse("")
                         .Errors
                         .Should()
-                        .ContainSingle(e => e.SymbolResult.Symbol == argument)
+                        .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
                         .Which
                         .Message
                         .Should()
@@ -164,7 +164,7 @@ namespace System.CommandLine.Tests
                     "-x",
                     result =>
                     {
-                        result.ErrorMessage = "oops!";
+                        result.AddError("oops!");
                         return null;
                     }, true);
 
@@ -248,7 +248,10 @@ namespace System.CommandLine.Tests
 
                 argumentResult
                     .Parent
-                    .Symbol
+                    .Should()
+                    .BeOfType<OptionResult>()
+                    .Which
+                    .Option
                     .Should()
                     .Be(command.Options.Single());
             }
@@ -274,9 +277,12 @@ namespace System.CommandLine.Tests
                 argumentResult
                     .Parent
                     .Parent
-                    .Symbol
                     .Should()
-                    .Be(command);
+                    .BeOfType<CommandResult>()
+                    .Which
+                    .Command
+                    .Should()
+                    .BeSameAs(command);
             }
             
             [Theory]
@@ -333,9 +339,12 @@ namespace System.CommandLine.Tests
 
                 argumentResult
                     .Parent
-                    .Symbol
                     .Should()
-                    .Be(command);
+                    .BeOfType<CommandResult>()
+                    .Which
+                    .Command
+                    .Should()
+                    .BeSameAs(command);
             }
 
             [Fact]
@@ -352,7 +361,7 @@ namespace System.CommandLine.Tests
 
                 var command = new RootCommand();
                 command.SetHandler((int value) => handlerWasCalled = true, option);
-                command.AddOption(option);
+                command.Options.Add(option);
 
                 await command.InvokeAsync("--value 42");
 
@@ -380,7 +389,7 @@ namespace System.CommandLine.Tests
                 {
                     new Argument<FileInfo[]>("from", argumentResult =>
                     {
-                        argumentResult.ErrorMessage = "nope";
+                        argumentResult.AddError("nope");
                         return null;
                     }, true)
                     {
@@ -388,7 +397,7 @@ namespace System.CommandLine.Tests
                     },
                     new Argument<DirectoryInfo>("to", argumentResult =>
                     {
-                        argumentResult.ErrorMessage = "UH UH";
+                        argumentResult.AddError("UH UH");
                         return null;
                     }, true)
                     {
@@ -417,7 +426,7 @@ namespace System.CommandLine.Tests
                     new Argument<string>(),
                     new Option<string>("-x", argResult =>
                         {
-                            argResult.ErrorMessage = "nope";
+                            argResult.AddError("nope");
                             return default;
                         })
                 };
@@ -437,7 +446,7 @@ namespace System.CommandLine.Tests
                         return value;
                     }
 
-                    argumentResult.ErrorMessage = $"'{argumentResult.Tokens.Single().Value}' is not an integer";
+                    argumentResult.AddError($"'{argumentResult.Tokens.Single().Value}' is not an integer");
 
                     return default;
                 });
@@ -769,8 +778,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_of_enum_can_limit_enum_members_as_valid_values()
         {
-            var argument = new Argument<ConsoleColor>()
-                .AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+            var argument = new Argument<ConsoleColor>();
+            argument.AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
+
             Command command = new("set-color")
             {
                 argument
@@ -782,21 +792,6 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
-        }
-
-        [Fact]
-        public void Argument_of_T_fluent_APIs_return_Argument_of_T()
-        {
-            Argument<string> argument = new Argument<string>("--path")
-                .AcceptOnlyFromAmong("text")
-                .AddCompletions("test")
-                .AddCompletions(ctx => Array.Empty<string>())
-                .AddCompletions(ctx => Array.Empty<CompletionItem>())
-                .AddValidator(_ => { })
-                .AcceptLegalFileNamesOnly()
-                .AcceptLegalFilePathsOnly();
-
-            argument.Should().BeOfType<Argument<string>>();
         }
 
         protected override Symbol CreateSymbol(string name)

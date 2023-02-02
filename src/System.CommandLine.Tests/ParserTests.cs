@@ -121,15 +121,15 @@ namespace System.CommandLine.Tests
         public void Option_short_forms_can_be_bundled()
         {
             var command = new Command("the-command");
-            command.AddOption(new Option<bool>("-x"));
-            command.AddOption(new Option<bool>("-y"));
-            command.AddOption(new Option<bool>("-z"));
+            command.Options.Add(new Option<bool>("-x"));
+            command.Options.Add(new Option<bool>("-y"));
+            command.Options.Add(new Option<bool>("-z"));
 
             var result = command.Parse("the-command -xyz");
 
             result.CommandResult
                   .Children
-                  .Select(o => o.Symbol.Name)
+                  .Select(o => ((OptionResult)o).Option.Name)
                   .Should()
                   .BeEquivalentTo("x", "y", "z");
         }
@@ -172,7 +172,7 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Children
-                  .Select(o => o.Symbol.Name)
+                  .Select(o => ((OptionResult)o).Option.Name)
                   .Should()
                   .BeEquivalentTo("xyz");
         }
@@ -181,14 +181,14 @@ namespace System.CommandLine.Tests
         public void Options_do_not_get_unbundled_unless_all_resulting_options_would_be_valid_for_the_current_command()
         {
             var outer = new Command("outer");
-            outer.AddOption(new Option<bool>("-a"));
+            outer.Options.Add(new Option<bool>("-a"));
             var inner = new Command("inner")
             {
                 new Argument<string[]>()
             };
-            inner.AddOption(new Option<bool>("-b"));
-            inner.AddOption(new Option<bool>("-c"));
-            outer.AddCommand(inner);
+            inner.Options.Add(new Option<bool>("-b"));
+            inner.Options.Add(new Option<bool>("-c"));
+            outer.Subcommands.Add(inner);
 
             var parser = new Parser(outer);
 
@@ -350,8 +350,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option<string[]>(new[] { "-a", "--animals" })
-                .AcceptOnlyFromAmong("dog", "cat", "sheep");
+            var animalsOption = new Option<string[]>(new[] { "-a", "--animals" });
+            animalsOption.AcceptOnlyFromAmong("dog", "cat", "sheep");
             var vegetablesOption = new Option<string[]>(new[] { "-v", "--vegetables" });
             var parser = new Parser(
                 new Command("the-command") {
@@ -427,13 +427,13 @@ namespace System.CommandLine.Tests
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     o.Symbol.Name == "inner1" &&
+                                     ((OptionResult)o).Option.Name == "inner1" &&
                                      o.Tokens.Single().Value == "argument1");
             result.CommandResult
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     o.Symbol.Name == "inner2" &&
+                                     ((OptionResult)o).Option.Name == "inner2" &&
                                      o.Tokens.Single().Value == "argument2");
         }
 
@@ -667,23 +667,26 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Parent
+                  .Should()
+                  .BeOfType<CommandResult>()
+                  .Which
                   .Children
                   .Should()
-                  .NotContain(o => o.Symbol.Name == "x");
+                  .AllBeAssignableTo<CommandResult>();
             result.CommandResult
                   .Children
                   .Should()
-                  .ContainSingle(o => o.Symbol.Name == "x");
+                  .ContainSingle(o => ((OptionResult)o).Option.Name == "x");
         }
 
         [Fact]
         public void When_options_with_the_same_name_are_defined_on_parent_and_child_commands_and_specified_in_between_then_it_attaches_to_the_outer_command()
         {
             var outer = new Command("outer");
-            outer.AddOption(new Option<bool>("-x"));
+            outer.Options.Add(new Option<bool>("-x"));
             var inner = new Command("inner");
-            inner.AddOption(new Option<bool>("-x"));
-            outer.AddCommand(inner);
+            inner.Options.Add(new Option<bool>("-x"));
+            outer.Subcommands.Add(inner);
 
             var result = outer.Parse("outer -x inner");
 
@@ -693,9 +696,12 @@ namespace System.CommandLine.Tests
                   .BeEmpty();
             result.CommandResult
                   .Parent
+                  .Should()
+                  .BeOfType<CommandResult>()
+                  .Which
                   .Children
                   .Should()
-                  .ContainSingle(o => o.Symbol.Name == "x");
+                  .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "x");
         }
 
         [Fact]
@@ -834,7 +840,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command");
             var option = new Option<string>(new[] { "-o", "--option" }, () => "the-default");
-            command.AddOption(option);
+            command.Options.Add(option);
 
             ParseResult result = command.Parse("command");
 
@@ -1001,9 +1007,12 @@ namespace System.CommandLine.Tests
             parser.Parse("outer --inner inner")
                   .CommandResult
                   .Parent
+                  .Should()
+                  .BeOfType<CommandResult>()
+                  .Which
                   .Children
                   .Should()
-                  .Contain(c => c.Symbol == option);
+                  .Contain(o => ((OptionResult)o).Option == option);
         }
 
         [Fact]
@@ -1020,12 +1029,12 @@ namespace System.CommandLine.Tests
 
             parser.Parse("-a").CommandResult
                   .Children
-                  .Select(s => s.Symbol)
+                  .Select(s => ((OptionResult)s).Option)
                   .Should()
                   .BeEquivalentTo(option1);
             parser.Parse("--a").CommandResult
                   .Children
-                  .Select(s => s.Symbol)
+                  .Select(s => ((OptionResult)s).Option)
                   .Should()
                   .BeEquivalentTo(option2);
         }
@@ -1310,9 +1319,9 @@ namespace System.CommandLine.Tests
                 TreatUnmatchedTokensAsErrors = false
             };
             var optionX = new Option<string>("-x");
-            command.AddOption(optionX);
+            command.Options.Add(optionX);
             var optionY = new Option<string>("-y");
-            command.AddOption(optionY);
+            command.Options.Add(optionY);
 
             var result = command.Parse("-x 23 unmatched-token -y 42");
 

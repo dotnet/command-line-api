@@ -2,19 +2,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
     internal static class SymbolResultExtensions
     {
-        internal static IEnumerable<SymbolResult> AllSymbolResults(this SymbolResult symbolResult)
+        internal static IEnumerable<SymbolResult> AllSymbolResults(this CommandResult commandResult)
         {
-            yield return symbolResult;
+            yield return commandResult;
 
-            foreach (var item in symbolResult
+            foreach (var item in commandResult
                                  .Children
-                                 .FlattenBreadthFirst(o => o.Children))
+                                 .FlattenBreadthFirst(o => o.SymbolResultTree.GetChildren(o)))
             {
                 yield return item;
             }
@@ -29,13 +28,9 @@ namespace System.CommandLine.Parsing
                 _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
             };
 
-            Token CreateImplicitToken(Option option)
+            static Token CreateImplicitToken(Option option)
             {
-                var optionName = option.Name;
-
-                var defaultAlias = option.Aliases.First(alias => alias.RemovePrefix() == optionName);
-
-                return new Token(defaultAlias, TokenType.Option, option, Parsing.Token.ImplicitPosition);
+                return new Token(option.GetLongestAlias(removePrefix: false), TokenType.Option, option, Parsing.Token.ImplicitPosition);
             }
         }
     }

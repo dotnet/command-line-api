@@ -79,11 +79,29 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot parse argument &apos;{0}&apos; for command &apos;{1}&apos; as expected type &apos;{2}&apos;. Did you mean one of the following?{3}.
+        /// </summary>
+        internal static string ArgumentConversionCannotParseForCommand_Completions {
+            get {
+                return ResourceManager.GetString("ArgumentConversionCannotParseForCommand_Completions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot parse argument &apos;{0}&apos; for option &apos;{1}&apos; as expected type &apos;{2}&apos;..
         /// </summary>
         internal static string ArgumentConversionCannotParseForOption {
             get {
                 return ResourceManager.GetString("ArgumentConversionCannotParseForOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot parse argument &apos;{0}&apos; for option &apos;{1}&apos; as expected type &apos;{2}&apos;. Did you mean one of the following?{3}.
+        /// </summary>
+        internal static string ArgumentConversionCannotParseForOption_Completions {
+            get {
+                return ResourceManager.GetString("ArgumentConversionCannotParseForOption_Completions", resourceCulture);
             }
         }
         

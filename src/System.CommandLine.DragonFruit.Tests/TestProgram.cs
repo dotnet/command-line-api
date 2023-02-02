@@ -11,6 +11,8 @@ namespace System.CommandLine.DragonFruit.Tests
         
         public static readonly MethodInfo TestMainMethodInfoWithPara = typeof(TestProgram).GetMethod(nameof(TestMainWithPara));
 
+        public static readonly MethodInfo TestMainMethodInfoWithTextAndPara = typeof(TestProgram).GetMethod(nameof(TestMainWithTextAndPara));
+
         public static readonly MethodInfo TestMainMethodInfoWithDefault = typeof(TestProgram).GetMethod(nameof(TestMainWithDefault));
 
         /// <summary>
@@ -21,6 +23,25 @@ namespace System.CommandLine.DragonFruit.Tests
         /// <param name="console"></param>
         /// <param name="args">These are arguments</param>
         public void TestMainWithPara(string name, IConsole console, string[] args = null)
+        {
+            console.Out.Write(name);
+            if (args != null && args.Length > 0)
+            {
+                console.Out.Write($"args: { string.Join(",", args) }");
+            }
+        }
+
+        /// <summary>
+        /// Skipped help for the test program
+        /// More skipped help for the test program<para>Help for the test program</para>More skipped help for the test program
+        /// More skipped help for the test program<para>More help for the test program</para>More skipped help for the test program
+        ///
+        /// More skipped help for the test program
+        /// </summary>
+        /// <param name="name">Specifies the name option</param>
+        /// <param name="console"></param>
+        /// <param name="args">These are arguments</param>
+        public void TestMainWithTextAndPara(string name, IConsole console, string[] args = null)
         {
             console.Out.Write(name);
             if (args != null && args.Length > 0)
