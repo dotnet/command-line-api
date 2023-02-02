@@ -171,7 +171,7 @@ namespace System.CommandLine.Parsing
             Option option = (Option)CurrentToken.Symbol!;
             OptionResult optionResult;
 
-            if (!_symbolResultTree.TryGetValue(option, out SymbolResult symbolResult))
+            if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
                 if (option.DisallowBinding && option is HelpOption)
                 {
