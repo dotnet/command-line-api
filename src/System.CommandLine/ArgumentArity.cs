@@ -92,7 +92,7 @@ namespace System.CommandLine
 
                 error = ArgumentConversionResult.Failure(
                     argumentResult,
-                    argumentResult.LocalizationResources.RequiredArgumentMissing(argumentResult.Parent),
+                    LocalizationResources.RequiredArgumentMissing(argumentResult.Parent),
                     ArgumentConversionResultType.FailedMissingArgument);
 
                 return false;
@@ -106,7 +106,7 @@ namespace System.CommandLine
                     {
                         error = ArgumentConversionResult.Failure(
                             argumentResult,
-                            argumentResult.LocalizationResources.ExpectsOneArgument(optionResult),
+                            LocalizationResources.ExpectsOneArgument(optionResult),
                             ArgumentConversionResultType.FailedTooManyArguments);
 
                         return false;

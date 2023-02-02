@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.Instance.UnrecognizedCommandOrArgument(prefix));
+                  .Contain(LocalizationResources.UnrecognizedCommandOrArgument(prefix));
         }
 
         [Fact]
@@ -1410,7 +1410,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult));
+                  .Contain(LocalizationResources.RequiredArgumentMissing(result.CommandResult));
         }
 
         [Fact]
@@ -1430,7 +1430,7 @@ namespace System.CommandLine.Tests
                    .Errors
                    .Select(e => e.Message)
                    .Should()
-                   .Contain(LocalizationResources.Instance.UnrecognizedCommandOrArgument("4"));
+                   .Contain(LocalizationResources.UnrecognizedCommandOrArgument("4"));
         }
 
         [Fact]
@@ -1498,7 +1498,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
+                  .Contain(LocalizationResources.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
         }
 
         [Fact]
@@ -1513,7 +1513,7 @@ namespace System.CommandLine.Tests
                    .Errors
                    .Select(e => e.Message)
                    .Should()
-                   .Contain(LocalizationResources.Instance.UnrecognizedCommandOrArgument("4"));
+                   .Contain(LocalizationResources.UnrecognizedCommandOrArgument("4"));
         }
         
         [Fact]

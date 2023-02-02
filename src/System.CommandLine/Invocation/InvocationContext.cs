@@ -87,11 +87,6 @@ namespace System.CommandLine.Invocation
         public Parser Parser => ParseResult.Parser;
 
         /// <summary>
-        /// Provides localizable strings for help and error messages.
-        /// </summary>
-        public LocalizationResources LocalizationResources => Parser.Configuration.LocalizationResources;
-
-        /// <summary>
         /// The parse result for the current invocation.
         /// </summary>
         public ParseResult ParseResult { get; set; }

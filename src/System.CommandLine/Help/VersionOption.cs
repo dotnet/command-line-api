@@ -33,7 +33,7 @@ namespace System.CommandLine.Help
                     parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
                           .Any(IsNotImplicit))
                 {
-                    result.AddError(result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
+                    result.AddError(LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
                 }
             });
         }
@@ -50,7 +50,7 @@ namespace System.CommandLine.Help
 
         public override string? Description
         {
-            get => _description ??= _builder.LocalizationResources.VersionOptionDescription();
+            get => _description ??= LocalizationResources.VersionOptionDescription();
             set => _description = value;
         }
 

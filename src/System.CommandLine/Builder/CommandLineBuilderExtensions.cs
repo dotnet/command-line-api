@@ -323,7 +323,7 @@ ERR:
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();
 
-                    context.Console.Error.Write(context.LocalizationResources.ExceptionHandlerHeader());
+                    context.Console.Error.Write(LocalizationResources.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
                     context.Console.ResetTerminalForegroundColor();
@@ -347,7 +347,7 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, int? maxWidth = null)
         {
-            return builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
+            return builder.UseHelp(new HelpOption(), maxWidth);
         }
 
         /// <summary>
@@ -361,7 +361,7 @@ ERR:
             this CommandLineBuilder builder,
             params string[] helpAliases)
         {
-            return builder.UseHelp(new HelpOption(helpAliases, () => builder.LocalizationResources));
+            return builder.UseHelp(new HelpOption(helpAliases));
         }
 
         /// <summary>
@@ -381,7 +381,7 @@ ERR:
 
             if (builder.HelpOption is null)
             {
-                builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
+                builder.UseHelp(new HelpOption(), maxWidth);
             }
 
             return builder;
@@ -574,20 +574,6 @@ ERR:
                 await next(context);
             }, MiddlewareOrderInternal.TypoCorrection);
 
-            return builder;
-        }
-
-        /// <summary>
-        /// Specifies localization resources to be used when displaying help, error messages, and other user-facing strings.
-        /// </summary>
-        /// <param name="builder">A command line builder.</param>
-        /// <param name="validationMessages">The localizations resources to use.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseLocalizationResources(
-            this CommandLineBuilder builder,
-            LocalizationResources validationMessages)
-        {
-            builder.LocalizationResources = validationMessages;
             return builder;
         }
 

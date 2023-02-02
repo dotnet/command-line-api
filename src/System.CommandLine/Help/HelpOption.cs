@@ -5,29 +5,27 @@ namespace System.CommandLine.Help
 {
     internal class HelpOption : Option<bool>
     {
-        private readonly Func<LocalizationResources> _localizationResources;
         private string? _description;
 
-        public HelpOption(string[] aliases, Func<LocalizationResources> getLocalizationResources)
+        public HelpOption(string[] aliases)
             : base(aliases, null, new Argument<bool> { Arity = ArgumentArity.Zero })
         {
-            _localizationResources = getLocalizationResources;
         }
 
-        public HelpOption(Func<LocalizationResources> getLocalizationResources) : this(new[]
+        public HelpOption() : this(new[]
         {
             "-h",
             "/h",
             "--help",
             "-?",
             "/?"
-        }, getLocalizationResources)
+        })
         {
         }
 
         public override string? Description
         {
-            get => _description ??= _localizationResources().HelpOptionDescription();
+            get => _description ??= LocalizationResources.HelpOptionDescription();
             set => _description = value;
         }
 
