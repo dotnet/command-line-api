@@ -1,8 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine.Help
 {
@@ -29,23 +30,33 @@ namespace System.CommandLine.Help
         {
             Validators.Add(static result =>
             {
-                if (result.Parent is CommandResult parent &&
-                    parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
-                          .Any(IsNotImplicit))
+                CommandResult parent = (CommandResult)result.Parent!;
+
+                bool setHandler = true;
+                foreach (SymbolResult sibling in parent.Children)
                 {
-                    result.AddError(result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
+                    setHandler = sibling switch
+                    {
+                        OptionResult optionResult => optionResult.IsImplicit || optionResult.Option is VersionOption,
+                        ArgumentResult argumentResult => argumentResult.IsImplicit,
+                        _ => false
+                    };
+
+                    if (!setHandler)
+                    {
+                        result.AddError(result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
+                        break;
+                    }
+                }
+
+                if (setHandler)
+                {
+                    parent.Command.Handler = new AnonymousCommandHandler(static context =>
+                    {
+                        context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
+                    });
                 }
             });
-        }
-
-        private static bool IsNotImplicit(SymbolResult symbolResult)
-        {
-            return symbolResult switch
-            {
-                ArgumentResult argumentResult => !argumentResult.IsImplicit,
-                OptionResult optionResult => !optionResult.IsImplicit,
-                _ => true
-            };
         }
 
         public override string? Description
