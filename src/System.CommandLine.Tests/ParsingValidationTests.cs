@@ -60,13 +60,17 @@ namespace System.CommandLine.Tests
 
             var parseResult = command.Parse("test --opt c");
 
-            parseResult.FindResultFor(option)
-                       .ErrorMessage
-                       .Should()
-                       .Be(parseResult.Errors.Single().Message)
-                       .And
-                       .Should()
-                       .NotBeNull();
+            var error = parseResult.Errors.Single();
+
+            error
+               .Message
+               .Should()
+               .Be(parseResult.CommandResult.LocalizationResources.UnrecognizedArgument("c", new []{ "a", "b"}));
+            error
+                .SymbolResult
+                .Should()
+                .BeOfType<OptionResult>();
+
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
@@ -79,13 +83,16 @@ namespace System.CommandLine.Tests
 
             var parseResult = command.Parse("test c");
 
-            parseResult.FindResultFor(argument)
-                       .ErrorMessage
-                       .Should()
-                       .Be(parseResult.Errors.Single().Message)
-                       .And
-                       .Should()
-                       .NotBeNull();
+            var error = parseResult.Errors.Single();
+
+            error
+                .Message
+                .Should()
+                .Be(parseResult.CommandResult.LocalizationResources.UnrecognizedArgument("c", new []{ "a", "b"}));
+            error
+                .SymbolResult
+                .Should()
+                .BeOfType<ArgumentResult>();
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1556
@@ -171,7 +178,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_FromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_error_mentions_first_invalid_argument()
+        public void When_FromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_errors_mention_all_invalid_arguments()
         {
             Option<string[]> option = new(new[] { "--columns" });
             option.AcceptOnlyFromAmong("author", "language", "tags", "type");
@@ -185,12 +192,17 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("list --columns c1 c2");
 
-            // Currently there is no possibility for a single validator to produce multiple errors,
-            // so only the first one is checked.
+            result.Errors.Count.Should().Be(2);
+
             result.Errors[0]
-                  .Message
-                  .Should()
-                  .Be(LocalizationResources.Instance.UnrecognizedArgument("c1", new[] { "author", "language", "tags", "type" }));
+                .Message
+                .Should()
+                .Be(LocalizationResources.Instance.UnrecognizedArgument("c1", new[] { "author", "language", "tags", "type" }));
+
+            result.Errors[1]
+                .Message
+                .Should()
+                .Be(LocalizationResources.Instance.UnrecognizedArgument("c2", new[] { "author", "language", "tags", "type" }));
         }
 
         [Fact]
@@ -334,7 +346,7 @@ namespace System.CommandLine.Tests
                 if (commandResult.Children.Any(sr => ((OptionResult)sr).Option.HasAlias("--one")) &&
                     commandResult.Children.Any(sr => ((OptionResult)sr).Option.HasAlias("--two")))
                 {
-                    commandResult.ErrorMessage = "Options '--one' and '--two' cannot be used together.";
+                    commandResult.AddError("Options '--one' and '--two' cannot be used together.");
                 }
             });
 
@@ -358,7 +370,7 @@ namespace System.CommandLine.Tests
             {
                 var value = r.GetValueOrDefault<int>();
 
-                r.ErrorMessage = $"Option {r.Token.Value} cannot be set to {value}";
+                r.AddError($"Option {r.Token.Value} cannot be set to {value}");
             });
 
             var command = new RootCommand { option };
@@ -385,7 +397,7 @@ namespace System.CommandLine.Tests
             {
                 var value = r.GetValueOrDefault<int>();
 
-                r.ErrorMessage = $"Argument {r.Argument.Name} cannot be set to {value}";
+                r.AddError($"Argument {r.Argument.Name} cannot be set to {value}");
             });
 
             var command = new RootCommand { argument };
@@ -449,7 +461,7 @@ namespace System.CommandLine.Tests
             var option = new Option<FileInfo>("--file");
             option.Validators.Add(r =>
             {
-                r.ErrorMessage = "Invoked validator";
+                r.AddError("Invoked validator");
             });
 
             var subCommand = new Command("subcommand");
@@ -484,7 +496,7 @@ namespace System.CommandLine.Tests
             var handlerWasCalled = false;
 
             var globalOption = new Option<int>("--value");
-            globalOption.Validators.Add(r => r.ErrorMessage = "oops!");
+            globalOption.Validators.Add(r => r.AddError("oops!"));
 
             var grandchildCommand = new Command("grandchild");
 
@@ -514,7 +526,7 @@ namespace System.CommandLine.Tests
         {
             var errorMessage = "that's not right...";
             var argument = new Argument<string>();
-            argument.Validators.Add(r => r.ErrorMessage = errorMessage);
+            argument.Validators.Add(r => r.AddError(errorMessage));
 
             var cmd = new Command("get")
             {
@@ -541,7 +553,7 @@ namespace System.CommandLine.Tests
 
                 if (value < 0 || value > 100)
                 {
-                    result.ErrorMessage = errorMessage;
+                    result.AddError(errorMessage);
                 }
             });
 
@@ -565,7 +577,7 @@ namespace System.CommandLine.Tests
 
                 if (value < 0 || value > 100)
                 {
-                    result.ErrorMessage = errorMessage;
+                    result.AddError(errorMessage);
                 }
             });
 
@@ -1196,7 +1208,7 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_command_do_not_report_duplicate_errors()
         {
             var command = new RootCommand();
-            command.Validators.Add(result => result.ErrorMessage = "Wrong");
+            command.Validators.Add(result => result.AddError("Wrong"));
             command.Validators.Add(_ => { });
 
             var parseResult = command.Parse("");
@@ -1214,7 +1226,7 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_option_do_not_report_duplicate_errors()
         {
             var option = new Option<string>("-x");
-            option.Validators.Add(result => result.ErrorMessage = "Wrong");
+            option.Validators.Add(result => result.AddError("Wrong"));
             option.Validators.Add(_ => { });
 
             var command = new RootCommand
@@ -1237,7 +1249,7 @@ namespace System.CommandLine.Tests
         public void Multiple_validators_on_the_same_argument_do_not_report_duplicate_errors()
         {
             var argument = new Argument<string>();
-            argument.Validators.Add(result => result.ErrorMessage = "Wrong");
+            argument.Validators.Add(result => result.AddError("Wrong"));
             argument.Validators.Add(_ => { });
 
             var command = new RootCommand
@@ -1262,7 +1274,7 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("-o");
             option.Validators.Add(result =>
             {
-                result.ErrorMessage = "OOPS";
+                result.AddError("OOPS");
             }); //all good;
 
             var command = new Command("comm")

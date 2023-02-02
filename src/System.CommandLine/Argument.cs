@@ -107,6 +107,8 @@ namespace System.CommandLine
         /// </summary>
         public List<Action<ArgumentResult>> Validators => _validators ??= new ();
 
+        internal bool HasValidators => (_validators?.Count ?? 0) > 0;
+
         /// <summary>
         /// Gets the default value for the argument.
         /// </summary>

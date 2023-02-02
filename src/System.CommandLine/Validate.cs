@@ -13,8 +13,7 @@ internal static class Validate
 
             if (!File.Exists(token.Value))
             {
-                result.ErrorMessage = result.LocalizationResources.FileDoesNotExist(token.Value);
-                return;
+                result.AddError(result.LocalizationResources.FileDoesNotExist(token.Value));
             }
         }
     }
@@ -27,8 +26,7 @@ internal static class Validate
 
             if (!Directory.Exists(token.Value))
             {
-                result.ErrorMessage = result.LocalizationResources.DirectoryDoesNotExist(token.Value);
-                return;
+                result.AddError(result.LocalizationResources.DirectoryDoesNotExist(token.Value));
             }
         }
     }
@@ -41,8 +39,7 @@ internal static class Validate
 
             if (!Directory.Exists(token.Value) && !File.Exists(token.Value))
             {
-                result.ErrorMessage = result.LocalizationResources.FileOrDirectoryDoesNotExist(token.Value);
-                return;
+                result.AddError(result.LocalizationResources.FileOrDirectoryDoesNotExist(token.Value));
             }
         }
     }

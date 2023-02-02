@@ -11,70 +11,72 @@ namespace System.CommandLine.Binding
     internal static partial class ArgumentConverter
     {
         internal static ArgumentConversionResult ConvertObject(
-            Argument argument,
+            ArgumentResult argumentResult,
             Type type,
-            object? value,
-            LocalizationResources localizationResources)
+            object? value)
         {
             switch (value)
             {
                 case Token singleValue:
-                    return ConvertToken(argument, type, singleValue, localizationResources);
+                    return ConvertToken(argumentResult, type, singleValue);
 
                 case IReadOnlyList<Token> manyValues:
-                    return ConvertTokens(argument, type, manyValues, localizationResources);
+                    return ConvertTokens(argumentResult, type, manyValues);
 
                 default:
-                    return None(argument);
+                    return None(argumentResult);
             }
         }
 
         private static ArgumentConversionResult ConvertToken(
-            Argument argument,
+            ArgumentResult argumentResult,
             Type type,
-            Token token,
-            LocalizationResources localizationResources)
+            Token token)
         {
             var value = token.Value;
 
             if (type.TryGetNullableType(out var nullableType))
             {
-                return ConvertToken(argument, nullableType, token, localizationResources);
+                return ConvertToken(argumentResult, nullableType, token);
             }
 
             if (_stringConverters.TryGetValue(type, out var tryConvert))
             {
                 if (tryConvert(value, out var converted))
                 {
-                    return Success(argument, converted);
+                    return Success(argumentResult, converted);
                 }
                 else
                 {
-                    return Failure(argument, type, value, localizationResources);
+                    return ArgumentConversionCannotParse(argumentResult, type, value);
                 }
             }
 
             if (type.IsEnum)
             {
+#if NET7_0_OR_GREATER
+                if (Enum.TryParse(type, value, ignoreCase: true, out var converted))
+                {
+                    return Success(argumentResult, converted);
+                }
+#else
                 try
                 {
-                    return Success(argument, Enum.Parse(type, value, true));
+                    return Success(argumentResult, Enum.Parse(type, value, true));
                 }
                 catch (ArgumentException)
                 {
-                    // TODO: find a way to do this without the try..catch
                 }
+#endif
             }
 
-            return Failure(argument, type, value, localizationResources);
+            return ArgumentConversionCannotParse(argumentResult, type, value);
         }
 
         private static ArgumentConversionResult ConvertTokens(
-            Argument argument,
+            ArgumentResult argumentResult,
             Type type,
-            IReadOnlyList<Token> tokens,
-            LocalizationResources localizationResources,
-            ArgumentResult? argumentResult = null)
+            IReadOnlyList<Token> tokens)
         {
             var itemType = type.GetElementTypeIfEnumerable() ?? typeof(string);
             var values = CreateEnumerable(type, itemType, tokens.Count);
@@ -84,7 +86,7 @@ namespace System.CommandLine.Binding
             {
                 var token = tokens[i];
 
-                var result = ConvertToken(argument, itemType, token, localizationResources);
+                var result = ConvertToken(argumentResult, itemType, token);
 
                 switch (result.Result)
                 {
@@ -101,7 +103,7 @@ namespace System.CommandLine.Binding
                         break;
 
                     default: // failures
-                        if (argumentResult is { Parent: CommandResult })
+                        if (argumentResult.Parent is CommandResult)
                         {
                             argumentResult.OnlyTake(i);
 
@@ -113,7 +115,7 @@ namespace System.CommandLine.Binding
                 }
             }
 
-            return Success(argument, values);
+            return Success(argumentResult, values);
         }
 
         internal static TryConvertArgument? GetConverter(Argument argument)
@@ -167,35 +169,26 @@ namespace System.CommandLine.Binding
             }
         }
 
-        private static ArgumentConversionResult Failure(
-            Argument argument,
-            Type expectedType,
-            string value,
-            LocalizationResources localizationResources)
-        {
-            return new ArgumentConversionResult(argument, expectedType, value, localizationResources);
-        }
-
         internal static ArgumentConversionResult ConvertIfNeeded(
             this ArgumentConversionResult conversionResult,
-            SymbolResult symbolResult,
             Type toType)
         {
             return conversionResult.Result switch
             {
                 ArgumentConversionResultType.Successful when !toType.IsInstanceOfType(conversionResult.Value) =>
-                    ConvertObject(conversionResult.Argument,
+                    ConvertObject(conversionResult.ArgumentResult,
                                   toType,
-                                  conversionResult.Value,
-                                  symbolResult.LocalizationResources),
+                                  conversionResult.Value),
 
-                ArgumentConversionResultType.NoArgument when conversionResult.Argument.ValueType == typeof(bool) || conversionResult.Argument.ValueType == typeof(bool?) =>
-                    Success(conversionResult.Argument, true),
+                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.ValueType == typeof(bool) =>
+                    Success(conversionResult.ArgumentResult, true),
+                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.ValueType == typeof(bool?) =>
+                    Success(conversionResult.ArgumentResult, true),
 
-                ArgumentConversionResultType.NoArgument when conversionResult.Argument.Arity.MinimumNumberOfValues > 0 =>
+                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.Arity.MinimumNumberOfValues > 0 =>
                     ArgumentConversionResult.Failure(
-                        conversionResult.Argument,
-                        symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult),
+                        conversionResult.ArgumentResult,
+                        conversionResult.ArgumentResult.LocalizationResources.RequiredArgumentMissing(conversionResult.ArgumentResult.Parent!),
                         ArgumentConversionResultType.FailedMissingArgument),
                         
                 _ => conversionResult
@@ -219,18 +212,15 @@ namespace System.CommandLine.Binding
             ArgumentConversionResult result = argument.Arity.MaximumNumberOfValues switch
             {
                 // 0 is an implicit bool, i.e. a "flag"
-                0 => Success(argumentResult.Argument, true),
-                1 => ConvertObject(argument,
+                0 => Success(argumentResult, true),
+                1 => ConvertObject(argumentResult,
                                    argument.ValueType,
                                    argumentResult.Tokens.Count > 0
                                        ? argumentResult.Tokens[argumentResult.Tokens.Count - 1]
-                                       : null, 
-                                   argumentResult.LocalizationResources),
-                _ => ConvertTokens(argument,
+                                       : null),
+                _ => ConvertTokens(argumentResult,
                                     argument.ValueType,
-                                    argumentResult.Tokens,
-                                    argumentResult.LocalizationResources,
-                                    argumentResult)
+                                    argumentResult.Tokens)
             };
 
             value = result;

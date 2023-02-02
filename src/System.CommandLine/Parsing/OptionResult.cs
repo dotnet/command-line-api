@@ -40,8 +40,6 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public Token? Token { get; }
 
-        internal override int MaximumArgumentCapacity => Option.Argument.Arity.MaximumNumberOfValues;
-
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
             Option.ValueType == typeof(bool)
@@ -54,42 +52,15 @@ namespace System.CommandLine.Parsing
         /// <returns>The parsed value or the default value for <see cref="Option"/></returns>
         [return: MaybeNull]
         public T GetValueOrDefault<T>() =>
-            this.ConvertIfNeeded(typeof(T))
+            ArgumentConversionResult.ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
-        private protected override int RemainingArgumentCapacity
-        {
-            get
-            {
-                var capacity = base.RemainingArgumentCapacity;
-
-                if (IsImplicit && capacity < int.MaxValue)
-                {
-                    capacity += 1;
-                }
-
-                return capacity;
-            }
-        }
+        internal bool IsArgumentLimitReached
+            => Option.Argument.Arity.MaximumNumberOfValues == (IsImplicit ? Tokens.Count - 1 : Tokens.Count);
 
         internal ArgumentConversionResult ArgumentConversionResult
-        {
-            get
-            {
-                if (_argumentConversionResult is null)
-                {
-                    if (FindResultFor(Option.Argument) is ArgumentResult firstChild)
-                    {
-                        return _argumentConversionResult = firstChild.GetArgumentConversionResult();
-                    }
+            => _argumentConversionResult ??= FindResultFor(Option.Argument)!.GetArgumentConversionResult();
 
-                    return _argumentConversionResult = ArgumentConversionResult.None(Option.Argument);
-                }
-
-                return _argumentConversionResult;
-            }
-        }
-
-        internal override bool UseDefaultValueFor(Argument argument) => IsImplicit;
+        internal override bool UseDefaultValueFor(ArgumentResult argument) => IsImplicit;
     }
 }

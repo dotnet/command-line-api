@@ -146,7 +146,9 @@ System.CommandLine
     public static LocalizationResources Instance { get; }
     public System.String ArgumentConversionCannotParse(System.String value, System.Type expectedType)
     public System.String ArgumentConversionCannotParseForCommand(System.String value, System.String commandAlias, System.Type expectedType)
+    public System.String ArgumentConversionCannotParseForCommand(System.String value, System.String commandAlias, System.Type expectedType, System.Collections.Generic.IEnumerable<System.String> completions)
     public System.String ArgumentConversionCannotParseForOption(System.String value, System.String optionAlias, System.Type expectedType)
+    public System.String ArgumentConversionCannotParseForOption(System.String value, System.String optionAlias, System.Type expectedType, System.Collections.Generic.IEnumerable<System.String> completions)
     public System.String DirectoryDoesNotExist(System.String path)
     public System.String ErrorReadingResponseFile(System.String filePath, System.IO.IOException e)
     public System.String ExceptionHandlerHeader()
@@ -386,6 +388,7 @@ System.CommandLine.IO
 System.CommandLine.Parsing
   public class ArgumentResult : SymbolResult
     public System.CommandLine.Argument Argument { get; }
+    public System.Void AddError(System.String errorMessage)
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
@@ -423,10 +426,10 @@ System.CommandLine.Parsing
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static System.CommandLine.ParseResult Parse(this Parser parser, System.String commandLine)
   public abstract class SymbolResult
-    public System.String ErrorMessage { get; set; }
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public SymbolResult Parent { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
+    public System.Void AddError(System.String errorMessage)
     public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
     public CommandResult FindResultFor(System.CommandLine.Command command)
     public OptionResult FindResultFor(System.CommandLine.Option option)

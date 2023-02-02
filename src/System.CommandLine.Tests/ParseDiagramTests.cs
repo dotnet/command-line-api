@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests
 
             result.Diagram()
                   .Should()
-                  .Be($"[ {RootCommand.ExecutableName} [ -f !<not-an-int> ] ]");
+                  .Be($"[ {RootCommand.ExecutableName} ![ -f <not-an-int> ] ]");
         }
 
         [Fact]

@@ -241,8 +241,8 @@ namespace System.CommandLine
             static string[] OptionsWithArgumentLimitReached(CommandResult commandResult) =>
                 commandResult
                     .Children
-                    .Where(c => c.IsArgumentLimitReached)
                     .OfType<OptionResult>()
+                    .Where(c => c.IsArgumentLimitReached)
                     .Select(o => o.Option)
                     .SelectMany(c => c.Aliases)
                     .ToArray();

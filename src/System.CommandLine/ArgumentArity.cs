@@ -5,6 +5,7 @@ using System.Collections;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine
 {
@@ -72,48 +73,48 @@ namespace System.CommandLine
         public override int GetHashCode()
             => MaximumNumberOfValues ^ MinimumNumberOfValues ^ IsNonDefault.GetHashCode();
 
-        internal static ArgumentConversionResult? Validate(
-            SymbolResult symbolResult,
-            Argument argument,
-            int minimumNumberOfValues,
-            int maximumNumberOfValues)
+        internal static bool Validate(ArgumentResult argumentResult, [NotNullWhen(false)] out ArgumentConversionResult? error)
         {
-            var argumentResult = symbolResult switch
+            error = null;
+
+            if (argumentResult.Parent is null || argumentResult.Parent is OptionResult { IsImplicit: true })
             {
-                ArgumentResult a => a,
-                _ => symbolResult.FindResultFor(argument)
-            };
-
-            var tokenCount = argumentResult?.Tokens.Count ?? 0;
-
-            if (tokenCount < minimumNumberOfValues)
-            {
-                if (symbolResult.UseDefaultValueFor(argument))
-                {
-                    return null;
-                }
-
-                return ArgumentConversionResult.Failure(
-                    argument,
-                    symbolResult.LocalizationResources.RequiredArgumentMissing(symbolResult),
-                    ArgumentConversionResultType.FailedMissingArgument);
+                return true;
             }
 
-            if (tokenCount > maximumNumberOfValues)
+            int tokenCount = argumentResult.Tokens.Count;
+            if (tokenCount < argumentResult.Argument.Arity.MinimumNumberOfValues)
             {
-                if (symbolResult is OptionResult optionResult)
+                if (argumentResult.Parent.UseDefaultValueFor(argumentResult))
+                {
+                    return true;
+                }
+
+                error = ArgumentConversionResult.Failure(
+                    argumentResult,
+                    argumentResult.LocalizationResources.RequiredArgumentMissing(argumentResult.Parent),
+                    ArgumentConversionResultType.FailedMissingArgument);
+
+                return false;
+            }
+
+            if (tokenCount > argumentResult.Argument.Arity.MaximumNumberOfValues)
+            {
+                if (argumentResult.Parent is OptionResult optionResult)
                 {
                     if (!optionResult.Option.AllowMultipleArgumentsPerToken)
                     {
-                        return ArgumentConversionResult.Failure(
-                            argument,
-                            symbolResult!.LocalizationResources.ExpectsOneArgument(symbolResult),
+                        error = ArgumentConversionResult.Failure(
+                            argumentResult,
+                            argumentResult.LocalizationResources.ExpectsOneArgument(optionResult),
                             ArgumentConversionResultType.FailedTooManyArguments);
+
+                        return false;
                     }
                 }
             }
 
-            return null;
+            return true;
         }
 
         /// <summary>
