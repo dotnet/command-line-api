@@ -8,7 +8,6 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Environment;
@@ -230,27 +229,7 @@ ERR:
         public static CommandLineBuilder UseEnvironmentVariableDirective(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware((context, next) =>
-            {
-                if (context.ParseResult.Directives.TryGetValue("env", out var keyValuePairs))
-                {
-                    for (var i = 0; i < keyValuePairs.Count; i++)
-                    {
-                        var envDirective = keyValuePairs[i];
-                        var components = envDirective.Split(new[] { '=' }, count: 2);
-                        var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
-                        if (string.IsNullOrEmpty(variable) || components.Length < 2)
-                        {
-                            continue;
-                        }
-
-                        var value = components[1].Trim();
-                        SetEnvironmentVariable(variable, value);
-                    }
-                }
-
-                return next(context);
-            }, MiddlewareOrderInternal.EnvironmentVariableDirective);
+            builder.EnableEnvironmentVariableDirective = true;
 
             return builder;
         }
@@ -302,17 +281,7 @@ ERR:
             Action<Exception, InvocationContext>? onException = null,
             int? errorExitCode = null)
         {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                try
-                {
-                    await next(context);
-                }
-                catch (Exception exception)
-                {
-                    (onException ?? Default)(exception, context);
-                }
-            }, MiddlewareOrderInternal.ExceptionHandler);
+            builder.ExceptionHandler = onException ?? Default;
 
             return builder;
 
@@ -397,14 +366,6 @@ ERR:
                 builder.HelpOption = helpOption;
                 builder.Command.AddGlobalOption(helpOption);
                 builder.MaxHelpWidth = maxWidth;
-
-                builder.AddMiddleware(async (context, next) =>
-                {
-                    if (!ShowHelp(context, builder.HelpOption))
-                    {
-                        await next(context);
-                    }
-                }, MiddlewareOrderInternal.HelpOption);
             }
             return builder;
         }
@@ -475,19 +436,9 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseParseDirective(
             this CommandLineBuilder builder,
-            int? errorExitCode = null)
+            int errorExitCode = 1)
         {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Directives.ContainsKey("parse"))
-                {
-                    context.InvocationResult = ctx => ParseDirectiveResult.Apply(ctx, errorExitCode);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.ParseDirective);
+            builder.ParseDirectiveExitCode = errorExitCode;
 
             return builder;
         }
@@ -500,19 +451,9 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseParseErrorReporting(
             this CommandLineBuilder builder,
-            int? errorExitCode = null)
+            int errorExitCode = 1)
         {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Errors.Count > 0)
-                {
-                    context.InvocationResult = ctx => ParseErrorResult.Apply(ctx, errorExitCode);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.ParseErrorReporting);
+            builder.ParseErrorReportingExitCode = errorExitCode;
 
             return builder;
         }
@@ -526,28 +467,7 @@ ERR:
         public static CommandLineBuilder UseSuggestDirective(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Directives.TryGetValue("suggest", out var values))
-                {
-                    int position;
-
-                    if (values.FirstOrDefault() is { } positionString)
-                    {
-                        position = int.Parse(positionString);
-                    }
-                    else
-                    {
-                        position = context.ParseResult.CommandLineText?.Length ?? 0;
-                    }
-
-                    context.InvocationResult = ctx => SuggestDirectiveResult.Apply(ctx, position);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.SuggestDirective);
+            builder.EnableSuggestDirective = true;
 
             return builder;
         }
@@ -562,17 +482,12 @@ ERR:
             this CommandLineBuilder builder,
             int maxLevenshteinDistance = 3)
         {
-            builder.AddMiddleware(async (context, next) =>
+            if (maxLevenshteinDistance <= 0)
             {
-                if (context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors &&
-                    context.ParseResult.UnmatchedTokens.Count > 0)
-                {
-                    var typoCorrection = new TypoCorrection(maxLevenshteinDistance);
+                throw new ArgumentOutOfRangeException(nameof(maxLevenshteinDistance));
+            }
 
-                    typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
-                }
-                await next(context);
-            }, MiddlewareOrderInternal.TypoCorrection);
+            builder.MaxLevenshteinDistance = maxLevenshteinDistance;
 
             return builder;
         }
@@ -619,10 +534,8 @@ ERR:
                 return builder;
             }
 
-            var versionOption = new VersionOption(builder);
-
-            builder.VersionOption = versionOption;
-            builder.Command.Options.Add(versionOption);
+            builder.VersionOption = new (builder);
+            builder.Command.Options.Add(builder.VersionOption);
 
             return builder;
         }
@@ -634,32 +547,15 @@ ERR:
             this CommandLineBuilder builder,
             params string[] aliases)
         {
-            var command = builder.Command;
-
             if (builder.VersionOption is not null)
             {
                 return builder;
             }
 
-            var versionOption = new VersionOption(aliases, builder);
-
-            builder.VersionOption = versionOption;
-            command.Options.Add(versionOption);
+            builder.VersionOption = new (aliases, builder);
+            builder.Command.Options.Add(builder.VersionOption);
 
             return builder;
-        }
-
-        private static bool ShowHelp(
-            InvocationContext context,
-            Option helpOption)
-        {
-            if (context.ParseResult.FindResultFor(helpOption) is { })
-            {
-                context.InvocationResult = HelpResult.Apply;
-                return true;
-            }
-
-            return false;
         }
     }
 }

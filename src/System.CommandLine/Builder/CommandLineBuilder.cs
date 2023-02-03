@@ -14,6 +14,33 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineBuilder 
     {
+        /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
+        internal bool EnablePosixBundling = true;
+
+        /// <inheritdoc cref="CommandLineConfiguration.EnableTokenReplacement"/>
+        internal bool EnableTokenReplacement = true;
+
+        /// <inheritdoc cref="CommandLineConfiguration.ParseErrorReportingExitCode"/>
+        internal int? ParseErrorReportingExitCode;
+
+        /// <inheritdoc cref="CommandLineConfiguration.EnableDirectives"/>
+        internal bool EnableDirectives = true;
+
+        /// <inheritdoc cref="CommandLineConfiguration.EnableEnvironmentVariableDirective"/>
+        internal bool EnableEnvironmentVariableDirective;
+
+        /// <inheritdoc cref="CommandLineConfiguration.ParseDirectiveExitCode"/>
+        internal int? ParseDirectiveExitCode;
+
+        /// <inheritdoc cref="CommandLineConfiguration.EnableSuggestDirective"/>
+        internal bool EnableSuggestDirective;
+
+        /// <inheritdoc cref="CommandLineConfiguration.MaxLevenshteinDistance"/>
+        internal int MaxLevenshteinDistance;
+
+        /// <inheritdoc cref="CommandLineConfiguration.ExceptionHandler"/>
+        internal Action<Exception, InvocationContext>? ExceptionHandler;
+
         // for every generic type with type argument being struct JIT needs to compile a dedicated version
         // (because each struct is of a different size)
         // that is why we don't use List<ValueTuple> for middleware
@@ -33,19 +60,6 @@ namespace System.CommandLine
         /// </summary>
         public Command Command { get; }
 
-        /// <summary>
-        /// Determines whether the parser recognizes command line directives.
-        /// </summary>
-        /// <seealso cref="DirectiveCollection"/>
-        internal bool EnableDirectives { get; set; } = true;
-
-        /// <summary>
-        /// Determines whether the parser recognize and expands POSIX-style bundled options.
-        /// </summary>
-        internal bool EnablePosixBundling { get; set; } = true;
-        
-        internal bool EnableTokenReplacement { get; set; } = true;
-        
         internal void CustomizeHelpLayout(Action<HelpContext> customize) => 
             _customizeHelpBuilder = customize;
 
@@ -68,11 +82,11 @@ namespace System.CommandLine
             }
         }
 
-        internal HelpOption? HelpOption { get; set; }
+        internal HelpOption? HelpOption;
 
-        internal VersionOption? VersionOption { get; set; }
+        internal VersionOption? VersionOption;
 
-        internal int? MaxHelpWidth { get; set; }
+        internal int? MaxHelpWidth;
 
         internal LocalizationResources LocalizationResources
         {
@@ -80,7 +94,7 @@ namespace System.CommandLine
             set => _localizationResources = value;
         }
 
-        internal TryReplaceToken? TokenReplacer { get; set; }
+        internal TryReplaceToken? TokenReplacer;
 
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
@@ -92,6 +106,12 @@ namespace System.CommandLine
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
                     enableTokenReplacement: EnableTokenReplacement,
+                    enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
+                    parseDirectiveExitCode: ParseDirectiveExitCode,
+                    enableSuggestDirective: EnableSuggestDirective,
+                    parseErrorReportingExitCode: ParseErrorReportingExitCode,
+                    maxLevenshteinDistance: MaxLevenshteinDistance,
+                    exceptionHandler: ExceptionHandler,
                     resources: LocalizationResources,
                     middlewarePipeline: _middlewareList is null
                                             ? Array.Empty<InvocationMiddleware>()

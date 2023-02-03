@@ -16,6 +16,39 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
+        /// <summary>
+        /// A delegate that will be called when an exception is thrown by a command handler.
+        /// </summary>
+        internal readonly Action<Exception, InvocationContext>? ExceptionHandler;
+
+        /// <summary>
+        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
+        /// </summary>
+        internal readonly bool EnableEnvironmentVariableDirective;
+
+        /// <summary>
+        /// If the parse result contains errors, this exit code will be used when the process exits.
+        /// </summary>
+        internal readonly int? ParseDirectiveExitCode;
+
+        /// <summary>
+        /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
+        /// </summary>
+        /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
+        internal readonly bool EnableSuggestDirective;
+
+        /// <summary>
+        /// The exit code to use when parser errors occur.
+        /// </summary>
+        internal readonly int? ParseErrorReportingExitCode;
+
+        /// <summary>
+        /// The maximum Levenshtein distance for suggestions based on detected typos in command line input.
+        /// </summary>
+        internal readonly int MaxLevenshteinDistance;
+
+        internal readonly IReadOnlyList<InvocationMiddleware> Middleware;
+
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
         private TryReplaceToken? _tokenReplacer;
 
@@ -39,17 +72,42 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
+            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, null, false, null, 0,
+                  resources, middlewarePipeline, helpBuilderFactory, tokenReplacer, null)
+        {
+        }
+
+        internal CommandLineConfiguration(
+            Command command,
+            bool enablePosixBundling,
+            bool enableDirectives,
+            bool enableTokenReplacement,
+            bool enableEnvironmentVariableDirective,
+            int? parseDirectiveExitCode,
+            bool enableSuggestDirective,
+            int? parseErrorReportingExitCode,
+            int maxLevenshteinDistance,
+            LocalizationResources? resources,
+            IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
+            Func<BindingContext, HelpBuilder>? helpBuilderFactory,
+            TryReplaceToken? tokenReplacer,
+            Action<Exception, InvocationContext>? exceptionHandler)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
             EnableTokenReplacement = enableTokenReplacement;
             EnablePosixBundling = enablePosixBundling;
-            EnableDirectives = enableDirectives;
-
+            EnableDirectives = enableDirectives || enableEnvironmentVariableDirective || parseDirectiveExitCode.HasValue || enableSuggestDirective;
+            EnableEnvironmentVariableDirective = enableEnvironmentVariableDirective;
+            ParseDirectiveExitCode = parseDirectiveExitCode;
+            EnableSuggestDirective = enableSuggestDirective;
+            ParseErrorReportingExitCode = parseErrorReportingExitCode;
+            MaxLevenshteinDistance = maxLevenshteinDistance;
             LocalizationResources = resources ?? LocalizationResources.Instance;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;
             _tokenReplacer = tokenReplacer;
+            ExceptionHandler = exceptionHandler;
         }
 
         internal static HelpBuilder DefaultHelpBuilderFactory(BindingContext context, int? requestedMaxWidth = null)
@@ -90,8 +148,6 @@ namespace System.CommandLine
         public LocalizationResources LocalizationResources { get; }
 
         internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= context => DefaultHelpBuilderFactory(context);
-
-        internal IReadOnlyList<InvocationMiddleware> Middleware { get; }
 
         internal TryReplaceToken? TokenReplacer =>
             EnableTokenReplacement

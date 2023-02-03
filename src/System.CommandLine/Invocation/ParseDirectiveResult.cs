@@ -8,13 +8,13 @@ namespace System.CommandLine.Invocation
 {
     internal static class ParseDirectiveResult
     {
-        internal static void Apply(InvocationContext context, int? errorExitCode)
+        internal static void Apply(InvocationContext context)
         {
             var parseResult = context.ParseResult;
             context.Console.Out.WriteLine(parseResult.Diagram());
             context.ExitCode = parseResult.Errors.Count == 0
                                      ? 0
-                                     : errorExitCode ?? 1;
+                                     : context.Parser.Configuration.ParseDirectiveExitCode!.Value;
         }
     }
 }
