@@ -47,6 +47,56 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public async Task When_parse_directive_is_used_the_help_is_not_displayed()
+        {
+            var rootCommand = new RootCommand();
+
+            var parser = new CommandLineBuilder(rootCommand)
+                         .UseParseDirective()
+                         .UseVersionOption()
+                         .UseHelp()
+                         .Build();
+
+            var result = parser.Parse("[parse] --help");
+
+            output.WriteLine(result.Diagram());
+
+            var console = new TestConsole();
+
+            await result.InvokeAsync(console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"[ {RootCommand.ExecutableName} [ --help ] ]" + Environment.NewLine);
+        }
+
+        [Fact]
+        public async Task When_parse_directive_is_used_the_version_is_not_displayed()
+        {
+            var rootCommand = new RootCommand();
+
+            var parser = new CommandLineBuilder(rootCommand)
+                         .UseParseDirective()
+                         .UseVersionOption()
+                         .UseHelp()
+                         .Build();
+
+            var result = parser.Parse("[parse] --version");
+
+            output.WriteLine(result.Diagram());
+
+            var console = new TestConsole();
+
+            await result.InvokeAsync(console);
+
+            console.Out
+                   .ToString()
+                   .Should()
+                   .Be($"[ {RootCommand.ExecutableName} [ --version ] ]" + Environment.NewLine);
+        }
+
+        [Fact]
         public async Task When_there_are_no_errors_then_parse_directive_sets_exit_code_0()
         {
             var command = new RootCommand
