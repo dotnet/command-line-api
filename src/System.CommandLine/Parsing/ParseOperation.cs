@@ -61,6 +61,11 @@ namespace System.CommandLine.Parsing
                 Validate();
             }
 
+            if (_configuration.EnableParseErrorReporting && _handler is null && _symbolResultTree.ErrorCount > 0)
+            {
+                _handler = new AnonymousCommandHandler(ParseErrorResult.Apply);
+            }
+
             return new (
                 parser,
                 _rootCommandResult,
@@ -315,7 +320,8 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            _symbolResultTree.AddUnmatchedToken(CurrentToken);
+            _symbolResultTree.AddUnmatchedToken(CurrentToken,
+                _rootCommandResult.Command.TreatUnmatchedTokensAsErrors ? _rootCommandResult : null);
         }
 
         private void Validate()
@@ -353,7 +359,7 @@ namespace System.CommandLine.Parsing
             else if (_configuration.EnableParseDirective && directiveKey == "parse")
             {
                 _isParseRequested = true;
-                _handler = new AnonymousCommandHandler(ctx => ParseDirectiveResult.Apply(ctx, _configuration.ParseDirectiveExitCode));
+                _handler = new AnonymousCommandHandler(ParseDirectiveResult.Apply);
             }
             else if (_configuration.EnableSuggestDirective && directiveKey == "suggest")
             {

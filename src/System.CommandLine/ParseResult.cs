@@ -53,25 +53,7 @@ namespace System.CommandLine
             }
 
             CommandLineText = commandLineText;
-
-            if (unmatchedTokens is null)
-            {
-                _unmatchedTokens = Array.Empty<Token>();
-            }
-            else
-            {
-                _unmatchedTokens = unmatchedTokens;
-
-                if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
-                {
-                    for (var i = 0; i < _unmatchedTokens.Count; i++)
-                    {
-                        var token = _unmatchedTokens[i];
-                        (errors ??= new()).Add(new ParseError(parser.Configuration.LocalizationResources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
-                    }
-                }
-            }
-
+            _unmatchedTokens = unmatchedTokens is null ? Array.Empty<Token>() : unmatchedTokens;
             _errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 

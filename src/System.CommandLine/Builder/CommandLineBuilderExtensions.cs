@@ -465,17 +465,8 @@ ERR:
             this CommandLineBuilder builder,
             int? errorExitCode = null)
         {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Errors.Count > 0)
-                {
-                    context.InvocationResult = ctx => ParseErrorResult.Apply(ctx, errorExitCode);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.ParseErrorReporting);
+            builder.EnableParseErrorReporting = true;
+            builder.ParseErrorReportingExitCode = errorExitCode;
 
             return builder;
         }

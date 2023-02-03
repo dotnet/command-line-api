@@ -46,6 +46,11 @@ namespace System.CommandLine
         /// <inheritdoc cref="CommandLineConfiguration.EnableSuggestDirective"/>
         internal bool EnableSuggestDirective { get; set; }
 
+        /// <inheritdoc cref="CommandLineConfiguration.EnableParseErrorReporting"/>
+        internal bool EnableParseErrorReporting { get; set; }
+        /// <inheritdoc cref="CommandLineConfiguration.ParseErrorReportingExitCode"/>
+        internal int? ParseErrorReportingExitCode { get; set; }
+
         /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
         internal bool EnablePosixBundling { get; set; } = true;
         
@@ -101,6 +106,8 @@ namespace System.CommandLine
                     enableParseDirective: EnableParseDirective,
                     parseDirectiveExitCode: ParseDirectiveExitCode,
                     enableSuggestDirective: EnableSuggestDirective,
+                    enableParseErrorReporting: EnableParseErrorReporting,
+                    parseErrorReportingExitCode: ParseErrorReportingExitCode,
                     resources: LocalizationResources,
                     middlewarePipeline: _middlewareList is null
                                             ? Array.Empty<InvocationMiddleware>()

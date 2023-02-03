@@ -39,7 +39,7 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
-            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null, false,
+            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null, false, false, null,
                   resources, middlewarePipeline, helpBuilderFactory, tokenReplacer)
         {
         }
@@ -53,6 +53,8 @@ namespace System.CommandLine
             bool enableParseDirective,
             int? parseDirectiveExitCode,
             bool enableSuggestDirective,
+            bool enableParseErrorReporting,
+            int? parseErrorReportingExitCode,
             LocalizationResources? resources,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory,
@@ -66,6 +68,8 @@ namespace System.CommandLine
             EnableParseDirective = enableParseDirective;
             ParseDirectiveExitCode = parseDirectiveExitCode;
             EnableSuggestDirective = enableSuggestDirective;
+            EnableParseErrorReporting = enableParseErrorReporting;
+            ParseErrorReportingExitCode = parseErrorReportingExitCode;
             LocalizationResources = resources ?? LocalizationResources.Instance;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
@@ -125,6 +129,15 @@ namespace System.CommandLine
         /// </summary>
         /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
         internal bool EnableSuggestDirective { get; }
+
+        /// <summary>
+        /// Configures the command line to write error information to standard error when there are errors parsing command line input.
+        /// </summary>
+        internal bool EnableParseErrorReporting { get; }
+        /// <summary>
+        /// The exit code to use when parser errors occur.
+        /// </summary>
+        internal int? ParseErrorReportingExitCode { get; }
 
         /// <summary>
         /// Gets the localizable resources.

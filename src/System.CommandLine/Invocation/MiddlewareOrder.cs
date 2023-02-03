@@ -37,6 +37,5 @@ namespace System.CommandLine.Invocation
         RegisterWithDotnetSuggest = -2400,
         DebugDirective = -2300,
         TypoCorrection = -1900,
-        ParseErrorReporting = 1000,
     }
 }

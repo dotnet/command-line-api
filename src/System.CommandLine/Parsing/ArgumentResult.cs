@@ -116,7 +116,7 @@ namespace System.CommandLine.Parsing
             {
                 Token unmatched = _tokens[numberOfTokens];
                 _tokens.RemoveAt(numberOfTokens);
-                SymbolResultTree.AddUnmatchedToken(unmatched);
+                SymbolResultTree.AddUnmatchedToken(unmatched, parent.Command.TreatUnmatchedTokensAsErrors ? parent : null);
                 --tokensToPass;
             }
         }
