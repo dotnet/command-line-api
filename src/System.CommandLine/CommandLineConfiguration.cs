@@ -39,7 +39,8 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
-            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, resources, middlewarePipeline, helpBuilderFactory, tokenReplacer)
+            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null,
+                  resources, middlewarePipeline, helpBuilderFactory, tokenReplacer)
         {
         }
 
@@ -49,6 +50,8 @@ namespace System.CommandLine
             bool enableDirectives,
             bool enableTokenReplacement,
             bool enableEnvironmentVariableDirective,
+            bool enableParseDirective,
+            int? parseDirectiveExitCode,
             LocalizationResources? resources,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory,
@@ -57,9 +60,10 @@ namespace System.CommandLine
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
             EnableTokenReplacement = enableTokenReplacement;
             EnablePosixBundling = enablePosixBundling;
-            EnableDirectives = enableDirectives;
+            EnableDirectives = enableDirectives || enableEnvironmentVariableDirective || enableParseDirective;
             EnableEnvironmentVariableDirective = enableEnvironmentVariableDirective;
-
+            EnableParseDirective = enableParseDirective;
+            ParseDirectiveExitCode = parseDirectiveExitCode;
             LocalizationResources = resources ?? LocalizationResources.Instance;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
@@ -103,6 +107,16 @@ namespace System.CommandLine
         /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
         /// </summary>
         internal bool EnableEnvironmentVariableDirective { get; set; }
+
+        /// <summary>
+        /// Enables the use of the <c>[parse]</c> directive, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
+        /// </summary>
+        internal bool EnableParseDirective { get; }
+
+        /// <summary>
+        /// If the parse result contains errors, this exit code will be used when the process exits.
+        /// </summary>
+        internal int? ParseDirectiveExitCode { get; }
 
         /// <summary>
         /// Gets the localizable resources.

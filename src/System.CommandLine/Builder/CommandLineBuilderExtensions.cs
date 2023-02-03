@@ -449,17 +449,8 @@ ERR:
             this CommandLineBuilder builder,
             int? errorExitCode = null)
         {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Directives.ContainsKey("parse"))
-                {
-                    context.InvocationResult = ctx => ParseDirectiveResult.Apply(ctx, errorExitCode);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.ParseDirective);
+            builder.EnableParseDirective = true;
+            builder.ParseDirectiveExitCode = errorExitCode;
 
             return builder;
         }
