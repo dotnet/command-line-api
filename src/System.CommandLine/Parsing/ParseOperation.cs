@@ -75,10 +75,14 @@ namespace System.CommandLine.Parsing
             if (_isVersionRequested)
             {
                 // FIX: (GetResult) use the ActiveOption's handler
-                parseResult.Handler = new AnonymousCommandHandler(context =>
+                parseResult.Handler = new AnonymousCommandHandler(static context =>
                 {
                     context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
                 });
+            }
+            else if (_isHelpRequested)
+            {
+                parseResult.Handler = new AnonymousCommandHandler(HelpResult.Apply);
             }
 
             return parseResult;

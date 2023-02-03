@@ -397,14 +397,6 @@ ERR:
                 builder.HelpOption = helpOption;
                 builder.Command.AddGlobalOption(helpOption);
                 builder.MaxHelpWidth = maxWidth;
-
-                builder.AddMiddleware(async (context, next) =>
-                {
-                    if (!ShowHelp(context, builder.HelpOption))
-                    {
-                        await next(context);
-                    }
-                }, MiddlewareOrderInternal.HelpOption);
             }
             return builder;
         }
@@ -647,19 +639,6 @@ ERR:
             command.Options.Add(versionOption);
 
             return builder;
-        }
-
-        private static bool ShowHelp(
-            InvocationContext context,
-            Option helpOption)
-        {
-            if (context.ParseResult.FindResultFor(helpOption) is { })
-            {
-                context.InvocationResult = HelpResult.Apply;
-                return true;
-            }
-
-            return false;
         }
     }
 }
