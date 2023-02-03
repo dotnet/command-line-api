@@ -8,7 +8,6 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Environment;
@@ -437,9 +436,8 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseParseDirective(
             this CommandLineBuilder builder,
-            int? errorExitCode = null)
+            int errorExitCode = 1)
         {
-            builder.EnableParseDirective = true;
             builder.ParseDirectiveExitCode = errorExitCode;
 
             return builder;
@@ -453,9 +451,8 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseParseErrorReporting(
             this CommandLineBuilder builder,
-            int? errorExitCode = null)
+            int errorExitCode = 1)
         {
-            builder.EnableParseErrorReporting = true;
             builder.ParseErrorReportingExitCode = errorExitCode;
 
             return builder;
@@ -537,10 +534,8 @@ ERR:
                 return builder;
             }
 
-            var versionOption = new VersionOption(builder);
-
-            builder.VersionOption = versionOption;
-            builder.Command.Options.Add(versionOption);
+            builder.VersionOption = new (builder);
+            builder.Command.Options.Add(builder.VersionOption);
 
             return builder;
         }
@@ -552,17 +547,13 @@ ERR:
             this CommandLineBuilder builder,
             params string[] aliases)
         {
-            var command = builder.Command;
-
             if (builder.VersionOption is not null)
             {
                 return builder;
             }
 
-            var versionOption = new VersionOption(aliases, builder);
-
-            builder.VersionOption = versionOption;
-            command.Options.Add(versionOption);
+            builder.VersionOption = new (aliases, builder);
+            builder.Command.Options.Add(builder.VersionOption);
 
             return builder;
         }

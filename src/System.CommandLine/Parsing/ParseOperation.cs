@@ -63,7 +63,7 @@ namespace System.CommandLine.Parsing
 
             if (_handler is null)
             {
-                if (_configuration.EnableParseErrorReporting && _symbolResultTree.ErrorCount > 0)
+                if (_configuration.ParseErrorReportingExitCode.HasValue && _symbolResultTree.ErrorCount > 0)
                 {
                     _handler = new AnonymousCommandHandler(ParseErrorResult.Apply);
                 }
@@ -364,7 +364,7 @@ namespace System.CommandLine.Parsing
                     Environment.SetEnvironmentVariable(variable, value);
                 }
             }
-            else if (_configuration.EnableParseDirective && directiveKey == "parse")
+            else if (_configuration.ParseDirectiveExitCode.HasValue && directiveKey == "parse")
             {
                 _isParseRequested = true;
                 _handler = new AnonymousCommandHandler(ParseDirectiveResult.Apply);

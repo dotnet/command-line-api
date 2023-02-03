@@ -14,7 +14,7 @@ namespace System.CommandLine.Invocation
             context.Console.Out.WriteLine(parseResult.Diagram());
             context.ExitCode = parseResult.Errors.Count == 0
                                      ? 0
-                                     : context.Parser.Configuration.ParseDirectiveExitCode ?? 1;
+                                     : context.Parser.Configuration.ParseDirectiveExitCode!.Value;
         }
     }
 }

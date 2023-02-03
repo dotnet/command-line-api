@@ -21,6 +21,34 @@ namespace System.CommandLine
         /// </summary>
         internal readonly Action<Exception, InvocationContext>? ExceptionHandler;
 
+        /// <summary>
+        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
+        /// </summary>
+        internal readonly bool EnableEnvironmentVariableDirective;
+
+        /// <summary>
+        /// If the parse result contains errors, this exit code will be used when the process exits.
+        /// </summary>
+        internal readonly int? ParseDirectiveExitCode;
+
+        /// <summary>
+        /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
+        /// </summary>
+        /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
+        internal readonly bool EnableSuggestDirective;
+
+        /// <summary>
+        /// The exit code to use when parser errors occur.
+        /// </summary>
+        internal readonly int? ParseErrorReportingExitCode;
+
+        /// <summary>
+        /// The maximum Levenshtein distance for suggestions based on detected typos in command line input.
+        /// </summary>
+        internal readonly int MaxLevenshteinDistance;
+
+        internal readonly IReadOnlyList<InvocationMiddleware> Middleware;
+
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
         private TryReplaceToken? _tokenReplacer;
 
@@ -44,7 +72,7 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
-            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null, false, false, null, 0,
+            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, null, false, null, 0,
                   resources, middlewarePipeline, helpBuilderFactory, tokenReplacer, null)
         {
         }
@@ -55,10 +83,8 @@ namespace System.CommandLine
             bool enableDirectives,
             bool enableTokenReplacement,
             bool enableEnvironmentVariableDirective,
-            bool enableParseDirective,
             int? parseDirectiveExitCode,
             bool enableSuggestDirective,
-            bool enableParseErrorReporting,
             int? parseErrorReportingExitCode,
             int maxLevenshteinDistance,
             LocalizationResources? resources,
@@ -70,12 +96,10 @@ namespace System.CommandLine
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
             EnableTokenReplacement = enableTokenReplacement;
             EnablePosixBundling = enablePosixBundling;
-            EnableDirectives = enableDirectives || enableEnvironmentVariableDirective || enableParseDirective || enableSuggestDirective;
+            EnableDirectives = enableDirectives || enableEnvironmentVariableDirective || parseDirectiveExitCode.HasValue || enableSuggestDirective;
             EnableEnvironmentVariableDirective = enableEnvironmentVariableDirective;
-            EnableParseDirective = enableParseDirective;
             ParseDirectiveExitCode = parseDirectiveExitCode;
             EnableSuggestDirective = enableSuggestDirective;
-            EnableParseErrorReporting = enableParseErrorReporting;
             ParseErrorReportingExitCode = parseErrorReportingExitCode;
             MaxLevenshteinDistance = maxLevenshteinDistance;
             LocalizationResources = resources ?? LocalizationResources.Instance;
@@ -119,49 +143,11 @@ namespace System.CommandLine
         public bool EnableTokenReplacement { get; }
 
         /// <summary>
-        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
-        /// </summary>
-        internal bool EnableEnvironmentVariableDirective { get; set; }
-
-        /// <summary>
-        /// Enables the use of the <c>[parse]</c> directive, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
-        /// </summary>
-        internal bool EnableParseDirective { get; }
-
-        /// <summary>
-        /// If the parse result contains errors, this exit code will be used when the process exits.
-        /// </summary>
-        internal int? ParseDirectiveExitCode { get; }
-
-        /// <summary>
-        /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
-        /// </summary>
-        /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
-        internal bool EnableSuggestDirective { get; }
-
-        /// <summary>
-        /// Configures the command line to write error information to standard error when there are errors parsing command line input.
-        /// </summary>
-        internal bool EnableParseErrorReporting { get; }
-
-        /// <summary>
-        /// The exit code to use when parser errors occur.
-        /// </summary>
-        internal int? ParseErrorReportingExitCode { get; }
-
-        /// <summary>
-        /// The maximum Levenshtein distance for suggestions based on detected typos in command line input.
-        /// </summary>
-        internal int MaxLevenshteinDistance { get; set; }
-
-        /// <summary>
         /// Gets the localizable resources.
         /// </summary>
         public LocalizationResources LocalizationResources { get; }
 
         internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= context => DefaultHelpBuilderFactory(context);
-
-        internal IReadOnlyList<InvocationMiddleware> Middleware { get; }
 
         internal TryReplaceToken? TokenReplacer =>
             EnableTokenReplacement

@@ -14,6 +14,30 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineBuilder 
     {
+        /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
+        internal bool EnablePosixBundling = true;
+
+        /// <inheritdoc cref="CommandLineConfiguration.EnableTokenReplacement"/>
+        internal bool EnableTokenReplacement = true;
+
+        /// <inheritdoc cref="CommandLineConfiguration.ParseErrorReportingExitCode"/>
+        internal int? ParseErrorReportingExitCode;
+
+        /// <inheritdoc cref="CommandLineConfiguration.EnableDirectives"/>
+        internal bool EnableDirectives = true;
+
+        /// <inheritdoc cref="CommandLineConfiguration.EnableEnvironmentVariableDirective"/>
+        internal bool EnableEnvironmentVariableDirective;
+
+        /// <inheritdoc cref="CommandLineConfiguration.ParseDirectiveExitCode"/>
+        internal int? ParseDirectiveExitCode;
+
+        /// <inheritdoc cref="CommandLineConfiguration.EnableSuggestDirective"/>
+        internal bool EnableSuggestDirective;
+
+        /// <inheritdoc cref="CommandLineConfiguration.MaxLevenshteinDistance"/>
+        internal int MaxLevenshteinDistance;
+
         /// <inheritdoc cref="CommandLineConfiguration.ExceptionHandler"/>
         internal Action<Exception, InvocationContext>? ExceptionHandler;
 
@@ -36,33 +60,6 @@ namespace System.CommandLine
         /// </summary>
         public Command Command { get; }
 
-        /// <inheritdoc cref="CommandLineConfiguration.EnableDirectives"/>
-        internal bool EnableDirectives { get; set; } = true;
-
-        /// <inheritdoc cref="CommandLineConfiguration.EnableEnvironmentVariableDirective"/>
-        internal bool EnableEnvironmentVariableDirective { get; set; }
-
-        /// <inheritdoc cref="CommandLineConfiguration.EnableParseDirective"/>
-        internal bool EnableParseDirective { get; set; }
-        internal int? ParseDirectiveExitCode { get; set; }
-
-        /// <inheritdoc cref="CommandLineConfiguration.EnableSuggestDirective"/>
-        internal bool EnableSuggestDirective { get; set; }
-
-        /// <inheritdoc cref="CommandLineConfiguration.EnableParseErrorReporting"/>
-        internal bool EnableParseErrorReporting { get; set; }
-
-        /// <inheritdoc cref="CommandLineConfiguration.ParseErrorReportingExitCode"/>
-        internal int? ParseErrorReportingExitCode { get; set; }
-
-        /// <inheritdoc cref="CommandLineConfiguration.MaxLevenshteinDistance"/>
-        internal int MaxLevenshteinDistance { get; set; }
-
-        /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
-        internal bool EnablePosixBundling { get; set; } = true;
-        
-        internal bool EnableTokenReplacement { get; set; } = true;
-        
         internal void CustomizeHelpLayout(Action<HelpContext> customize) => 
             _customizeHelpBuilder = customize;
 
@@ -85,11 +82,11 @@ namespace System.CommandLine
             }
         }
 
-        internal HelpOption? HelpOption { get; set; }
+        internal HelpOption? HelpOption;
 
-        internal VersionOption? VersionOption { get; set; }
+        internal VersionOption? VersionOption;
 
-        internal int? MaxHelpWidth { get; set; }
+        internal int? MaxHelpWidth;
 
         internal LocalizationResources LocalizationResources
         {
@@ -97,7 +94,7 @@ namespace System.CommandLine
             set => _localizationResources = value;
         }
 
-        internal TryReplaceToken? TokenReplacer { get; set; }
+        internal TryReplaceToken? TokenReplacer;
 
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
@@ -110,10 +107,8 @@ namespace System.CommandLine
                     enableDirectives: EnableDirectives,
                     enableTokenReplacement: EnableTokenReplacement,
                     enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
-                    enableParseDirective: EnableParseDirective,
                     parseDirectiveExitCode: ParseDirectiveExitCode,
                     enableSuggestDirective: EnableSuggestDirective,
-                    enableParseErrorReporting: EnableParseErrorReporting,
                     parseErrorReportingExitCode: ParseErrorReportingExitCode,
                     maxLevenshteinDistance: MaxLevenshteinDistance,
                     exceptionHandler: ExceptionHandler,
