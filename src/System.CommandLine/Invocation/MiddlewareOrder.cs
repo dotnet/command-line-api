@@ -36,7 +36,6 @@ namespace System.CommandLine.Invocation
         ConfigureConsole = -2500,
         RegisterWithDotnetSuggest = -2400,
         DebugDirective = -2300,
-        SuggestDirective = -2000,
         TypoCorrection = -1900,
         ParseErrorReporting = 1000,
     }

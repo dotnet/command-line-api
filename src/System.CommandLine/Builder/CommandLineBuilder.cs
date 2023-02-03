@@ -43,9 +43,9 @@ namespace System.CommandLine
         internal bool EnableParseDirective { get; set; }
         internal int? ParseDirectiveExitCode { get; set; }
 
-        /// <summary>
-        /// Determines whether the parser recognize and expands POSIX-style bundled options.
-        /// </summary>
+        /// <inheritdoc cref="CommandLineConfiguration.EnableSuggestDirective"/>
+        internal bool EnableSuggestDirective { get; set; }
+
         /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
         internal bool EnablePosixBundling { get; set; } = true;
         
@@ -100,6 +100,7 @@ namespace System.CommandLine
                     enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
                     enableParseDirective: EnableParseDirective,
                     parseDirectiveExitCode: ParseDirectiveExitCode,
+                    enableSuggestDirective: EnableSuggestDirective,
                     resources: LocalizationResources,
                     middlewarePipeline: _middlewareList is null
                                             ? Array.Empty<InvocationMiddleware>()

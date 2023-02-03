@@ -39,7 +39,7 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
-            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null,
+            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null, false,
                   resources, middlewarePipeline, helpBuilderFactory, tokenReplacer)
         {
         }
@@ -52,6 +52,7 @@ namespace System.CommandLine
             bool enableEnvironmentVariableDirective,
             bool enableParseDirective,
             int? parseDirectiveExitCode,
+            bool enableSuggestDirective,
             LocalizationResources? resources,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory,
@@ -60,10 +61,11 @@ namespace System.CommandLine
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
             EnableTokenReplacement = enableTokenReplacement;
             EnablePosixBundling = enablePosixBundling;
-            EnableDirectives = enableDirectives || enableEnvironmentVariableDirective || enableParseDirective;
+            EnableDirectives = enableDirectives || enableEnvironmentVariableDirective || enableParseDirective || enableSuggestDirective;
             EnableEnvironmentVariableDirective = enableEnvironmentVariableDirective;
             EnableParseDirective = enableParseDirective;
             ParseDirectiveExitCode = parseDirectiveExitCode;
+            EnableSuggestDirective = enableSuggestDirective;
             LocalizationResources = resources ?? LocalizationResources.Instance;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
@@ -117,6 +119,12 @@ namespace System.CommandLine
         /// If the parse result contains errors, this exit code will be used when the process exits.
         /// </summary>
         internal int? ParseDirectiveExitCode { get; }
+
+        /// <summary>
+        /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
+        /// </summary>
+        /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
+        internal bool EnableSuggestDirective { get; }
 
         /// <summary>
         /// Gets the localizable resources.

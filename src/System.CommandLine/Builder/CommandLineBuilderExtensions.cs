@@ -489,28 +489,7 @@ ERR:
         public static CommandLineBuilder UseSuggestDirective(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                if (context.ParseResult.Directives.TryGetValue("suggest", out var values))
-                {
-                    int position;
-
-                    if (values.FirstOrDefault() is { } positionString)
-                    {
-                        position = int.Parse(positionString);
-                    }
-                    else
-                    {
-                        position = context.ParseResult.CommandLineText?.Length ?? 0;
-                    }
-
-                    context.InvocationResult = ctx => SuggestDirectiveResult.Apply(ctx, position);
-                }
-                else
-                {
-                    await next(context);
-                }
-            }, MiddlewareOrderInternal.SuggestDirective);
+            builder.EnableSuggestDirective = true;
 
             return builder;
         }

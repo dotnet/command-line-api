@@ -355,6 +355,12 @@ namespace System.CommandLine.Parsing
                 _isParseRequested = true;
                 _handler = new AnonymousCommandHandler(ctx => ParseDirectiveResult.Apply(ctx, _configuration.ParseDirectiveExitCode));
             }
+            else if (_configuration.EnableSuggestDirective && directiveKey == "suggest")
+            {
+                int position = parsedValues is not null ? int.Parse(parsedValues) : _rawInput?.Length ?? 0;
+
+                _handler = new AnonymousCommandHandler(ctx => SuggestDirectiveResult.Apply(ctx, position));
+            }
         }
     }
 }
