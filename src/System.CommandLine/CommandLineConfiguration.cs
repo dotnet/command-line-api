@@ -39,7 +39,7 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
-            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null, false, false, null,
+            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null, false, false, null, 0,
                   resources, middlewarePipeline, helpBuilderFactory, tokenReplacer)
         {
         }
@@ -55,6 +55,7 @@ namespace System.CommandLine
             bool enableSuggestDirective,
             bool enableParseErrorReporting,
             int? parseErrorReportingExitCode,
+            int maxLevenshteinDistance,
             LocalizationResources? resources,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory,
@@ -70,6 +71,7 @@ namespace System.CommandLine
             EnableSuggestDirective = enableSuggestDirective;
             EnableParseErrorReporting = enableParseErrorReporting;
             ParseErrorReportingExitCode = parseErrorReportingExitCode;
+            MaxLevenshteinDistance = maxLevenshteinDistance;
             LocalizationResources = resources ?? LocalizationResources.Instance;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
@@ -134,10 +136,16 @@ namespace System.CommandLine
         /// Configures the command line to write error information to standard error when there are errors parsing command line input.
         /// </summary>
         internal bool EnableParseErrorReporting { get; }
+
         /// <summary>
         /// The exit code to use when parser errors occur.
         /// </summary>
         internal int? ParseErrorReportingExitCode { get; }
+
+        /// <summary>
+        /// The maximum Levenshtein distance for suggestions based on detected typos in command line input.
+        /// </summary>
+        internal int MaxLevenshteinDistance { get; set; }
 
         /// <summary>
         /// Gets the localizable resources.

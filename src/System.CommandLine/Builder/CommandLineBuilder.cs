@@ -48,8 +48,12 @@ namespace System.CommandLine
 
         /// <inheritdoc cref="CommandLineConfiguration.EnableParseErrorReporting"/>
         internal bool EnableParseErrorReporting { get; set; }
+
         /// <inheritdoc cref="CommandLineConfiguration.ParseErrorReportingExitCode"/>
         internal int? ParseErrorReportingExitCode { get; set; }
+
+        /// <inheritdoc cref="CommandLineConfiguration.MaxLevenshteinDistance"/>
+        internal int MaxLevenshteinDistance { get; set; }
 
         /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
         internal bool EnablePosixBundling { get; set; } = true;
@@ -108,6 +112,7 @@ namespace System.CommandLine
                     enableSuggestDirective: EnableSuggestDirective,
                     enableParseErrorReporting: EnableParseErrorReporting,
                     parseErrorReportingExitCode: ParseErrorReportingExitCode,
+                    maxLevenshteinDistance: MaxLevenshteinDistance,
                     resources: LocalizationResources,
                     middlewarePipeline: _middlewareList is null
                                             ? Array.Empty<InvocationMiddleware>()

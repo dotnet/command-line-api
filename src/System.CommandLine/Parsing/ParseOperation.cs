@@ -61,9 +61,17 @@ namespace System.CommandLine.Parsing
                 Validate();
             }
 
-            if (_configuration.EnableParseErrorReporting && _handler is null && _symbolResultTree.ErrorCount > 0)
+            if (_handler is null)
             {
-                _handler = new AnonymousCommandHandler(ParseErrorResult.Apply);
+                if (_configuration.EnableParseErrorReporting && _symbolResultTree.ErrorCount > 0)
+                {
+                    _handler = new AnonymousCommandHandler(ParseErrorResult.Apply);
+                }
+                else if (_configuration.MaxLevenshteinDistance > 0 && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
+                    && _symbolResultTree.UnmatchedTokens is not null)
+                {
+                    _handler = new AnonymousCommandHandler(TypoCorrection.ProvideSuggestions);
+                }
             }
 
             return new (

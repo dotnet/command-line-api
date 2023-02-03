@@ -495,17 +495,12 @@ ERR:
             this CommandLineBuilder builder,
             int maxLevenshteinDistance = 3)
         {
-            builder.AddMiddleware(async (context, next) =>
+            if (maxLevenshteinDistance <= 0)
             {
-                if (context.ParseResult.CommandResult.Command.TreatUnmatchedTokensAsErrors &&
-                    context.ParseResult.UnmatchedTokens.Count > 0)
-                {
-                    var typoCorrection = new TypoCorrection(maxLevenshteinDistance);
+                throw new ArgumentOutOfRangeException(nameof(maxLevenshteinDistance));
+            }
 
-                    typoCorrection.ProvideSuggestions(context.ParseResult, context.Console);
-                }
-                await next(context);
-            }, MiddlewareOrderInternal.TypoCorrection);
+            builder.MaxLevenshteinDistance = maxLevenshteinDistance;
 
             return builder;
         }
