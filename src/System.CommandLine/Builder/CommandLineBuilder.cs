@@ -40,6 +40,11 @@ namespace System.CommandLine
         internal bool EnableDirectives { get; set; } = true;
 
         /// <summary>
+        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
+        /// </summary>
+        internal bool EnableEnvironmentVariableDirective { get; set; }
+
+        /// <summary>
         /// Determines whether the parser recognize and expands POSIX-style bundled options.
         /// </summary>
         internal bool EnablePosixBundling { get; set; } = true;
@@ -92,6 +97,7 @@ namespace System.CommandLine
                     enablePosixBundling: EnablePosixBundling,
                     enableDirectives: EnableDirectives,
                     enableTokenReplacement: EnableTokenReplacement,
+                    enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
                     resources: LocalizationResources,
                     middlewarePipeline: _middlewareList is null
                                             ? Array.Empty<InvocationMiddleware>()

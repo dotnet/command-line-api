@@ -39,11 +39,26 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
+            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, resources, middlewarePipeline, helpBuilderFactory, tokenReplacer)
+        {
+        }
+
+        internal CommandLineConfiguration(
+            Command command,
+            bool enablePosixBundling,
+            bool enableDirectives,
+            bool enableTokenReplacement,
+            bool enableEnvironmentVariableDirective,
+            LocalizationResources? resources,
+            IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
+            Func<BindingContext, HelpBuilder>? helpBuilderFactory,
+            TryReplaceToken? tokenReplacer)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
             EnableTokenReplacement = enableTokenReplacement;
             EnablePosixBundling = enablePosixBundling;
             EnableDirectives = enableDirectives;
+            EnableEnvironmentVariableDirective = enableEnvironmentVariableDirective;
 
             LocalizationResources = resources ?? LocalizationResources.Instance;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
@@ -83,6 +98,11 @@ namespace System.CommandLine
         /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
         public bool EnableTokenReplacement { get; }
+
+        /// <summary>
+        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
+        /// </summary>
+        internal bool EnableEnvironmentVariableDirective { get; set; }
 
         /// <summary>
         /// Gets the localizable resources.

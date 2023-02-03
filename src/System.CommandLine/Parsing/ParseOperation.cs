@@ -306,6 +306,8 @@ namespace System.CommandLine.Parsing
                 if (value is not null)
                 {
                     ((List<string>)values).Add(value);
+
+                    OnDirectiveParsed(key, value);
                 }
 
                 Advance();
@@ -334,6 +336,27 @@ namespace System.CommandLine.Parsing
                 currentResult.Validate(completeValidation: false);
 
                 currentResult = currentResult.Parent as CommandResult;
+            }
+        }
+
+        private void OnDirectiveParsed(string directiveKey, string parsedValues)
+        {
+            if (!_configuration.EnableDirectives)
+            {
+                return;
+            }
+
+            if (_configuration.EnableEnvironmentVariableDirective && directiveKey == "env")
+            {
+                var components = parsedValues.Split(new[] { '=' }, count: 2);
+                var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
+                if (string.IsNullOrEmpty(variable) || components.Length < 2)
+                {
+                    return;
+                }
+
+                var value = components[1].Trim();
+                Environment.SetEnvironmentVariable(variable, value);
             }
         }
     }

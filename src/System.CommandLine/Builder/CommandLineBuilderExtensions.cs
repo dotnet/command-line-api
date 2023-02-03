@@ -230,27 +230,7 @@ ERR:
         public static CommandLineBuilder UseEnvironmentVariableDirective(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware((context, next) =>
-            {
-                if (context.ParseResult.Directives.TryGetValue("env", out var keyValuePairs))
-                {
-                    for (var i = 0; i < keyValuePairs.Count; i++)
-                    {
-                        var envDirective = keyValuePairs[i];
-                        var components = envDirective.Split(new[] { '=' }, count: 2);
-                        var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
-                        if (string.IsNullOrEmpty(variable) || components.Length < 2)
-                        {
-                            continue;
-                        }
-
-                        var value = components[1].Trim();
-                        SetEnvironmentVariable(variable, value);
-                    }
-                }
-
-                return next(context);
-            }, MiddlewareOrderInternal.EnvironmentVariableDirective);
+            builder.EnableEnvironmentVariableDirective = true;
 
             return builder;
         }
