@@ -282,17 +282,7 @@ ERR:
             Action<Exception, InvocationContext>? onException = null,
             int? errorExitCode = null)
         {
-            builder.AddMiddleware(async (context, next) =>
-            {
-                try
-                {
-                    await next(context);
-                }
-                catch (Exception exception)
-                {
-                    (onException ?? Default)(exception, context);
-                }
-            }, MiddlewareOrderInternal.ExceptionHandler);
+            builder.ExceptionHandler = onException ?? Default;
 
             return builder;
 

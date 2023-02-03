@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,22 +12,27 @@ namespace System.CommandLine.Invocation
     {
         private readonly ParseResult _parseResult;
 
-        public InvocationPipeline(ParseResult parseResult)
-        {
-            _parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
-        }
+        internal InvocationPipeline(ParseResult parseResult)
+            => _parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
 
-        public Task<int> InvokeAsync(IConsole? console = null, CancellationToken cancellationToken = default)
+        public async Task<int> InvokeAsync(IConsole? console = null, CancellationToken cancellationToken = default)
         {
             var context = new InvocationContext(_parseResult, console, cancellationToken);
 
-            if (context.Parser.Configuration.Middleware.Count == 0 && 
-                _parseResult.Handler is not null)
+            try
             {
-                return _parseResult.Handler.InvokeAsync(context);
-            }
+                if (context.Parser.Configuration.Middleware.Count == 0 && _parseResult.Handler is not null)
+                {
+                    return await _parseResult.Handler.InvokeAsync(context);
+                }
 
-            return InvokeHandlerWithMiddleware(context);
+                return await InvokeHandlerWithMiddleware(context);
+            }
+            catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)
+            {
+                context.Parser.Configuration.ExceptionHandler(ex, context);
+                return context.ExitCode;
+            }
 
             static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context)
             {
@@ -44,13 +48,20 @@ namespace System.CommandLine.Invocation
         {
             var context = new InvocationContext(_parseResult, console);
 
-            if (context.Parser.Configuration.Middleware.Count == 0
-                && context.ParseResult.CommandResult.Command.Handler is ICommandHandler handler)
+            try
             {
-                return handler.Invoke(context);
-            }
+                if (context.Parser.Configuration.Middleware.Count == 0 && _parseResult.Handler is not null)
+                {
+                    return _parseResult.Handler.Invoke(context);
+                }
 
-            return InvokeHandlerWithMiddleware(context); // kept in a separate method to avoid JITting
+                return InvokeHandlerWithMiddleware(context); // kept in a separate method to avoid JITting
+            }
+            catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)
+            {
+                context.Parser.Configuration.ExceptionHandler(ex, context);
+                return context.ExitCode;
+            }
 
             static int InvokeHandlerWithMiddleware(InvocationContext context)
             {

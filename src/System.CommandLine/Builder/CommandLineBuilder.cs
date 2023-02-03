@@ -14,6 +14,9 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineBuilder 
     {
+        /// <inheritdoc cref="CommandLineConfiguration.ExceptionHandler"/>
+        internal Action<Exception, InvocationContext>? ExceptionHandler;
+
         // for every generic type with type argument being struct JIT needs to compile a dedicated version
         // (because each struct is of a different size)
         // that is why we don't use List<ValueTuple> for middleware
@@ -113,6 +116,7 @@ namespace System.CommandLine
                     enableParseErrorReporting: EnableParseErrorReporting,
                     parseErrorReportingExitCode: ParseErrorReportingExitCode,
                     maxLevenshteinDistance: MaxLevenshteinDistance,
+                    exceptionHandler: ExceptionHandler,
                     resources: LocalizationResources,
                     middlewarePipeline: _middlewareList is null
                                             ? Array.Empty<InvocationMiddleware>()

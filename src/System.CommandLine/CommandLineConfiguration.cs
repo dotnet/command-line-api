@@ -16,6 +16,11 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
+        /// <summary>
+        /// A delegate that will be called when an exception is thrown by a command handler.
+        /// </summary>
+        internal readonly Action<Exception, InvocationContext>? ExceptionHandler;
+
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
         private TryReplaceToken? _tokenReplacer;
 
@@ -40,7 +45,7 @@ namespace System.CommandLine
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
             : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, false, null, false, false, null, 0,
-                  resources, middlewarePipeline, helpBuilderFactory, tokenReplacer)
+                  resources, middlewarePipeline, helpBuilderFactory, tokenReplacer, null)
         {
         }
 
@@ -59,7 +64,8 @@ namespace System.CommandLine
             LocalizationResources? resources,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory,
-            TryReplaceToken? tokenReplacer)
+            TryReplaceToken? tokenReplacer,
+            Action<Exception, InvocationContext>? exceptionHandler)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
             EnableTokenReplacement = enableTokenReplacement;
@@ -77,6 +83,7 @@ namespace System.CommandLine
 
             _helpBuilderFactory = helpBuilderFactory;
             _tokenReplacer = tokenReplacer;
+            ExceptionHandler = exceptionHandler;
         }
 
         internal static HelpBuilder DefaultHelpBuilderFactory(BindingContext context, int? requestedMaxWidth = null)
