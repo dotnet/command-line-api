@@ -33,26 +33,20 @@ namespace System.CommandLine
         /// </summary>
         public Command Command { get; }
 
-        /// <summary>
-        /// Determines whether the parser recognizes command line directives.
-        /// </summary>
-        /// <seealso cref="DirectiveCollection"/>
+        /// <inheritdoc cref="CommandLineConfiguration.EnableDirectives"/>
         internal bool EnableDirectives { get; set; } = true;
 
-        /// <summary>
-        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
-        /// </summary>
+        /// <inheritdoc cref="CommandLineConfiguration.EnableEnvironmentVariableDirective"/>
         internal bool EnableEnvironmentVariableDirective { get; set; }
 
-        /// <summary>
-        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
-        /// </summary>
+        /// <inheritdoc cref="CommandLineConfiguration.EnableParseDirective"/>
         internal bool EnableParseDirective { get; set; }
         internal int? ParseDirectiveExitCode { get; set; }
 
         /// <summary>
         /// Determines whether the parser recognize and expands POSIX-style bundled options.
         /// </summary>
+        /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
         internal bool EnablePosixBundling { get; set; } = true;
         
         internal bool EnableTokenReplacement { get; set; } = true;

@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 
 namespace System.CommandLine.Parsing
 {
@@ -19,9 +18,8 @@ namespace System.CommandLine.Parsing
         private int _index;
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CommandResult _innermostCommandResult;
-        private bool _isHelpRequested;
-        private bool _isVersionRequested;
-        private ICommandHandler? _commandHandler;
+        private bool _isHelpRequested, _isParseRequested;
+        private ICommandHandler? _handler;
 
         public ParseOperation(
             List<Token> tokens,
@@ -63,7 +61,7 @@ namespace System.CommandLine.Parsing
                 Validate();
             }
 
-            ParseResult parseResult = new (
+            return new (
                 parser,
                 _rootCommandResult,
                 _innermostCommandResult,
@@ -71,26 +69,8 @@ namespace System.CommandLine.Parsing
                 _tokens,
                 _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
-                _rawInput);
-
-            if (_isVersionRequested)
-            {
-                // FIX: (GetResult) use the ActiveOption's handler
-                parseResult.Handler = new AnonymousCommandHandler(static context =>
-                {
-                    context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
-                });
-            }
-            else if (_isHelpRequested)
-            {
-                parseResult.Handler = new AnonymousCommandHandler(HelpResult.Apply);
-            }
-            else if (_commandHandler is not null)
-            {
-                parseResult.Handler = _commandHandler;
-            }
-
-            return parseResult;
+                _rawInput,
+                _handler);
         }
 
         private void ParseSubcommand()
@@ -196,13 +176,19 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
-                if (option is HelpOption)
+                // parse directive has a precedence over --help and --version
+                if (!_isParseRequested)
                 {
-                    _isHelpRequested = true;
-                }
-                else if (option is VersionOption)
-                {
-                    _isVersionRequested = true;
+                    if (option is HelpOption)
+                    {
+                        _isHelpRequested = true;
+
+                        _handler = new AnonymousCommandHandler(HelpOption.Handler);
+                    }
+                    else if (option is VersionOption)
+                    {
+                        _handler = new AnonymousCommandHandler(VersionOption.Handler);
+                    }
                 }
 
                 optionResult = new OptionResult(
@@ -366,7 +352,8 @@ namespace System.CommandLine.Parsing
             }
             else if (_configuration.EnableParseDirective && directiveKey == "parse")
             {
-                _commandHandler = new AnonymousCommandHandler(ctx => ParseDirectiveResult.Apply(ctx, _configuration.ParseDirectiveExitCode));
+                _isParseRequested = true;
+                _handler = new AnonymousCommandHandler(ctx => ParseDirectiveResult.Apply(ctx, _configuration.ParseDirectiveExitCode));
             }
         }
     }

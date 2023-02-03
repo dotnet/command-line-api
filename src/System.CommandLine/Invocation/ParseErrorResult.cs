@@ -24,7 +24,7 @@ namespace System.CommandLine.Invocation
 
             context.Console.ResetTerminalForegroundColor();
 
-            HelpResult.Apply(context);
+            HelpOption.Handler(context);
         }
     }
 }
