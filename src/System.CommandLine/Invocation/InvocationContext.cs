@@ -20,7 +20,7 @@ namespace System.CommandLine.Invocation
         private IConsole? _console;
         private readonly CancellationToken _token; 
         private LinkedList<CancellationTokenRegistration>? _registrations;
-        private volatile CancellationTokenSource? _source;
+        private CancellationTokenSource? _source;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
         /// <param name="console">The console to which output is to be written.</param>
