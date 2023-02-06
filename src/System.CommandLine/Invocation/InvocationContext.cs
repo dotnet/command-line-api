@@ -44,35 +44,14 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// The binding context for the current invocation.
         /// </summary>
-        public BindingContext BindingContext
-        {
-            get
-            {
-                if (_bindingContext is null)
-                {
-                    _bindingContext = new BindingContext(this);
-                    _bindingContext.ServiceProvider.AddService(_ => GetCancellationToken());
-                    _bindingContext.ServiceProvider.AddService(_ => this);
-                }
-
-                return _bindingContext;
-            }
-        }
+        public BindingContext BindingContext => _bindingContext ??= new BindingContext(this);
 
         /// <summary>
         /// The console to which output should be written during the current invocation.
         /// </summary>
         public IConsole Console
         {
-            get
-            {
-                if (_console is null)
-                {
-                    _console = new SystemConsole();
-                }
-
-                return _console;
-            }
+            get =>_console ??= new SystemConsole();
             set => _console = value;
         } 
 
