@@ -19,7 +19,7 @@ namespace System.CommandLine.Invocation
         private BindingContext? _bindingContext;
         private IConsole? _console;
         private readonly CancellationToken _token; 
-        private readonly LinkedList<CancellationTokenRegistration> _registrations = new();
+        private LinkedList<CancellationTokenRegistration>? _registrations;
         private volatile CancellationTokenSource? _source;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
@@ -120,7 +120,7 @@ namespace System.CommandLine.Invocation
 
         public void LinkToken(CancellationToken token)
         {
-            _registrations.AddLast(token.Register(Cancel));
+            (_registrations ??= new()).AddLast(token.Register(Cancel));
         }
 
         /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
@@ -143,9 +143,13 @@ namespace System.CommandLine.Invocation
         void IDisposable.Dispose()
         {
             Interlocked.Exchange(ref _source, null)?.Dispose();
-            foreach (CancellationTokenRegistration registration in _registrations)
+
+            if (_registrations is not null)
             {
-                registration.Dispose();
+                foreach (CancellationTokenRegistration registration in _registrations)
+                {
+                    registration.Dispose();
+                }
             }
         }
     }
