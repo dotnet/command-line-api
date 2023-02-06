@@ -10,24 +10,50 @@ namespace System.CommandLine.Invocation
 {
     internal static class InvocationPipeline
     {
+        // https://tldp.org/LDP/abs/html/exitcodes.html - 130 - script terminated by ctrl-c
+        private const int SIGINT_EXIT_CODE = 130;
+
         internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console, CancellationToken cancellationToken)
         {
-            using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             InvocationContext context = new (parseResult, console);
+            TimeSpan? processTerminationTimeout = parseResult.Parser.Configuration.ProcessTerminationTimeout;
+            TaskCompletionSource<int>? processTerminationCompletionSource = processTerminationTimeout.HasValue ? new () : null;
+
+            using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            Task<int> startedInvocation = parseResult.Handler is not null && context.Parser.Configuration.Middleware.Count == 0
+                ? parseResult.Handler.InvokeAsync(context, cts.Token)
+                : InvokeHandlerWithMiddleware(context, cts.Token);
+
+            if (processTerminationTimeout.HasValue)
+            {
+                Console.CancelKeyPress += OnControlCPressed;
+                AppDomain.CurrentDomain.ProcessExit += OnWindowClosed;
+            }
 
             try
             {
-                if (context.Parser.Configuration.Middleware.Count == 0 && parseResult.Handler is not null)
+                if (processTerminationCompletionSource is null)
                 {
-                    return await parseResult.Handler.InvokeAsync(context, cts.Token);
+                    return await startedInvocation;
                 }
-
-                return await InvokeHandlerWithMiddleware(context, cts.Token);
+                else
+                {
+                    return await (await Task.WhenAny(startedInvocation, processTerminationCompletionSource.Task));
+                }
             }
             catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)
             {
                 context.Parser.Configuration.ExceptionHandler(ex, context);
                 return context.ExitCode;
+            }
+            finally
+            {
+                if (processTerminationTimeout.HasValue)
+                {
+                    Console.CancelKeyPress -= OnControlCPressed;
+                    AppDomain.CurrentDomain.ProcessExit -= OnWindowClosed;
+                }
             }
 
             static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context, CancellationToken token)
@@ -37,6 +63,27 @@ namespace System.CommandLine.Invocation
                 await invocationChain(context, _ => Task.CompletedTask);
 
                 return GetExitCode(context);
+            }
+
+            async void OnControlCPressed(object? sender, ConsoleCancelEventArgs e)
+            {
+                e.Cancel = true;
+
+                await CancelAsync();
+            }
+
+            async void OnWindowClosed(object? sender, EventArgs e) => await CancelAsync();
+
+            async Task CancelAsync()
+            {
+                cts.Cancel();
+
+                Task finishedFirst = await Task.WhenAny(startedInvocation, Task.Delay(processTerminationTimeout!.Value!));
+
+                if (finishedFirst != startedInvocation)
+                {
+                    processTerminationCompletionSource!.SetResult(SIGINT_EXIT_CODE);
+                }
             }
         }
 

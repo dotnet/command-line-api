@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -269,6 +270,37 @@ namespace System.CommandLine.Tests.Binding
             var exitCode = await command.InvokeAsync("");
             wasCalled.Should().BeTrue();
             exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task When_User_Requests_Cancellation_Its_Reflected_By_The_Token_Passed_To_Handler()
+        {
+            const int ExpectedExitCode = 123;
+
+            Command command = new ("the-command");
+            command.SetHandler(async (context, cancellationToken) =>
+            {
+                try
+                {
+                    await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+                    context.ExitCode = ExpectedExitCode * -1;
+                }
+                catch (OperationCanceledException)
+                {
+                    context.ExitCode = ExpectedExitCode;
+                }
+            });
+
+            using CancellationTokenSource cts = new ();
+
+            Parser parser = new CommandLineBuilder(new RootCommand { command })
+                .Build();
+
+            Task<int> invokeResult = parser.InvokeAsync("the-command", null, cts.Token);
+
+            cts.Cancel();
+
+            (await invokeResult).Should().Be(ExpectedExitCode);
         }
     }
 }
