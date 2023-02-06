@@ -32,7 +32,7 @@
   </PropertyGroup>
   <!-- Package versions -->
   <PropertyGroup>
-    <MicrosoftSourceBuildIntermediatesourcebuildreferencepackagesPackageVersion>8.0.0-alpha.1.23076.1</MicrosoftSourceBuildIntermediatesourcebuildreferencepackagesPackageVersion>
+    <MicrosoftSourceBuildIntermediatesourcebuildreferencepackagesPackageVersion>8.0.0-alpha.1.23103.1</MicrosoftSourceBuildIntermediatesourcebuildreferencepackagesPackageVersion>
     <MicrosoftSourceLinkGitHubVersion>1.2.0-beta-22518-02</MicrosoftSourceLinkGitHubVersion>
     <MicrosoftDotNetXliffTasksVersion>1.0.0-beta.22631.1</MicrosoftDotNetXliffTasksVersion>
   </PropertyGroup>
