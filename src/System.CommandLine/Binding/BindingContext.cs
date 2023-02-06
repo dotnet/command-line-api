@@ -6,6 +6,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 
 namespace System.CommandLine.Binding
 {
@@ -16,12 +17,11 @@ namespace System.CommandLine.Binding
     {
         private HelpBuilder? _helpBuilder;
 
-        internal BindingContext(InvocationContext invocationContext)
+        internal BindingContext(InvocationContext invocationContext, CancellationToken cancellationToken)
         {
             InvocationContext = invocationContext;
-            ServiceProvider = new ServiceProvider(this);
+            ServiceProvider = new ServiceProvider(this, cancellationToken);
             ServiceProvider.AddService(_ => InvocationContext);
-            ServiceProvider.AddService(_ => InvocationContext.GetCancellationToken());
         }
 
         internal InvocationContext InvocationContext { get; }

@@ -44,7 +44,7 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// The binding context for the current invocation.
         /// </summary>
-        public BindingContext BindingContext => _bindingContext ??= new BindingContext(this);
+        public BindingContext BindingContext => _bindingContext ??= new BindingContext(this, _token);
 
         /// <summary>
         /// The console to which output should be written during the current invocation.
