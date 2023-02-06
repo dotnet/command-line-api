@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -143,7 +144,7 @@ namespace System.CommandLine.Hosting.Tests
                 return Act();
             }
 
-            public Task<int> InvokeAsync(InvocationContext context)
+            public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
             {
                 return Task.FromResult(Act());
             }
@@ -176,7 +177,7 @@ namespace System.CommandLine.Hosting.Tests
                     return IntOption;
                 }
 
-                public Task<int> InvokeAsync(InvocationContext context)
+                public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
                     return Task.FromResult(IntOption);
@@ -222,9 +223,9 @@ namespace System.CommandLine.Hosting.Tests
 
                 public string One { get; set; }
 
-                public int Invoke(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
+                public int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 
-                public Task<int> InvokeAsync(InvocationContext context)
+                public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
                     service.StringValue = One;

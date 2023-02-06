@@ -19,7 +19,6 @@ namespace System.CommandLine.Hosting
 {
     public class InvocationLifetime : IHostLifetime
     {
-        private readonly CancellationToken invokeCancelToken;
         private CancellationTokenRegistration invokeCancelReg;
         private CancellationTokenRegistration appStartedReg;
         private CancellationTokenRegistration appStoppingReg;
@@ -28,7 +27,6 @@ namespace System.CommandLine.Hosting
             IOptions<InvocationLifetimeOptions> options,
             IHostEnvironment environment,
             IHostApplicationLifetime applicationLifetime,
-            InvocationContext context = null,
             ILoggerFactory loggerFactory = null)
         {
             Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -36,11 +34,6 @@ namespace System.CommandLine.Hosting
                 ?? throw new ArgumentNullException(nameof(environment));
             ApplicationLifetime = applicationLifetime
                 ?? throw new ArgumentNullException(nameof(applicationLifetime));
-
-            // if InvocationLifetime is added outside of a System.CommandLine
-            // invocation pipeline context will be null.
-            // Use default cancellation token instead, and become a noop lifetime.
-            invokeCancelToken = context?.GetCancellationToken() ?? default;
 
             Logger = (loggerFactory ?? NullLoggerFactory.Instance)
                 .CreateLogger("Microsoft.Hosting.Lifetime");
@@ -65,7 +58,7 @@ namespace System.CommandLine.Hosting
                 }, this);
             }
 
-            invokeCancelReg = invokeCancelToken.Register(state =>
+            invokeCancelReg = cancellationToken.Register(state =>
             {
                 ((InvocationLifetime)state).OnInvocationCancelled();
             }, this);

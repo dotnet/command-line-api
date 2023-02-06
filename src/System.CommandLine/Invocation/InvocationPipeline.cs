@@ -10,18 +10,19 @@ namespace System.CommandLine.Invocation
 {
     internal static class InvocationPipeline
     {
-        internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console = null, CancellationToken cancellationToken = default)
+        internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console, CancellationToken cancellationToken)
         {
-            using InvocationContext context = new (parseResult, console, cancellationToken);
+            using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            InvocationContext context = new (parseResult, console);
 
             try
             {
                 if (context.Parser.Configuration.Middleware.Count == 0 && parseResult.Handler is not null)
                 {
-                    return await parseResult.Handler.InvokeAsync(context);
+                    return await parseResult.Handler.InvokeAsync(context, cts.Token);
                 }
 
-                return await InvokeHandlerWithMiddleware(context);
+                return await InvokeHandlerWithMiddleware(context, cts.Token);
             }
             catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)
             {
@@ -29,9 +30,9 @@ namespace System.CommandLine.Invocation
                 return context.ExitCode;
             }
 
-            static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context)
+            static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context, CancellationToken token)
             {
-                InvocationMiddleware invocationChain = BuildInvocationChain(context, true);
+                InvocationMiddleware invocationChain = BuildInvocationChain(context, token, true);
 
                 await invocationChain(context, _ => Task.CompletedTask);
 
@@ -41,7 +42,7 @@ namespace System.CommandLine.Invocation
 
         internal static int Invoke(ParseResult parseResult, IConsole? console = null)
         {
-            using InvocationContext context = new (parseResult, console);
+            InvocationContext context = new (parseResult, console);
 
             try
             {
@@ -60,7 +61,7 @@ namespace System.CommandLine.Invocation
 
             static int InvokeHandlerWithMiddleware(InvocationContext context)
             {
-                InvocationMiddleware invocationChain = BuildInvocationChain(context, false);
+                InvocationMiddleware invocationChain = BuildInvocationChain(context, CancellationToken.None, false);
 
                 invocationChain(context, static _ => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -68,7 +69,7 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        private static InvocationMiddleware BuildInvocationChain(InvocationContext context, bool invokeAsync)
+        private static InvocationMiddleware BuildInvocationChain(InvocationContext context, CancellationToken cancellationToken, bool invokeAsync)
         {
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware.Count + 1);
             invocations.AddRange(context.Parser.Configuration.Middleware);
@@ -78,7 +79,7 @@ namespace System.CommandLine.Invocation
                 if (invocationContext.ParseResult.Handler is { } handler)
                 {
                     context.ExitCode = invokeAsync
-                                           ? await handler.InvokeAsync(invocationContext)
+                                           ? await handler.InvokeAsync(invocationContext, cancellationToken)
                                            : handler.Invoke(invocationContext);
                 }
             });

@@ -12,13 +12,12 @@ namespace System.CommandLine.Invocation
     {
         private readonly Dictionary<Type, Func<IServiceProvider, object?>> _services;
 
-        internal ServiceProvider(BindingContext bindingContext, CancellationToken cancellationToken)
+        internal ServiceProvider(BindingContext bindingContext)
         {
             _services = new Dictionary<Type, Func<IServiceProvider, object?>>
                         {
                             [typeof(ParseResult)] = _ => bindingContext.ParseResult,
                             [typeof(IConsole)] = _ => bindingContext.Console,
-                            [typeof(CancellationToken)] = _ => cancellationToken,
                             [typeof(HelpBuilder)] = _ => bindingContext.ParseResult.Parser.Configuration.HelpBuilderFactory(bindingContext),
                             [typeof(BindingContext)] = _ => bindingContext
                         };

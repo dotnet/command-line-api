@@ -7,6 +7,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Suggest
@@ -40,7 +41,7 @@ namespace System.CommandLine.Suggest
             {
                 Description = "Lists apps registered for suggestions",
             };
-            ListCommand.SetHandler(ctx =>
+            ListCommand.SetHandler((ctx, cancellationToken) =>
             {
                 ctx.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
                 return Task.FromResult(0);
@@ -61,7 +62,7 @@ namespace System.CommandLine.Suggest
                 new Option<string>("--suggestion-command", "The command to invoke to retrieve suggestions")
             };
 
-            RegisterCommand.SetHandler(context =>
+            RegisterCommand.SetHandler((context, cancellationToken) =>
             {
                 Register(context.ParseResult.GetValue(commandPathOption), context.Console);
                 return Task.FromResult(0);

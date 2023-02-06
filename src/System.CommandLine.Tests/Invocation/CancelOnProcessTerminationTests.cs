@@ -30,10 +30,8 @@ namespace System.CommandLine.Tests.Invocation
             {
                 var command = new Command("the-command");
             
-                command.SetHandler(async context =>
+                command.SetHandler(async (context, cancellationToken) =>
                 {
-                    var cancellationToken = context.GetCancellationToken();
-
                     try
                     {
                         context.Console.WriteLine(ChildProcessWaiting);
@@ -102,10 +100,8 @@ namespace System.CommandLine.Tests.Invocation
             {
                 var command = new Command("the-command");
 
-                command.SetHandler(async context =>
+                command.SetHandler(async (context, cancellationToken) =>
                 {
-                    var cancellationToken = context.GetCancellationToken();
-
                     try
                     {
                         context.Console.WriteLine(ChildProcessWaiting);
@@ -182,10 +178,8 @@ namespace System.CommandLine.Tests.Invocation
             {
                 var command = new Command("the-command");
 
-                command.SetHandler(async context =>
+                command.SetHandler(async (context, cancellationToken) =>
                 {
-                    var cancellationToken = context.GetCancellationToken();
-
                     try
                     {
                         context.Console.WriteLine(ChildProcessWaiting);

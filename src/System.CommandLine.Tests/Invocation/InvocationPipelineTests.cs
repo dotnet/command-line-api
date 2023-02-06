@@ -120,7 +120,7 @@ namespace System.CommandLine.Tests.Invocation
         public void When_command_handler_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.SetHandler(() =>
+            command.SetHandler(_ =>
                 {
                     throw new Exception("oops!");
                     // Help the compiler pick a CommandHandler.Create overload.
@@ -149,7 +149,7 @@ namespace System.CommandLine.Tests.Invocation
         public void When_command_handler_throws_then_Invoke_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.SetHandler(() =>
+            command.SetHandler(_ =>
             {
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.
@@ -181,7 +181,7 @@ namespace System.CommandLine.Tests.Invocation
             var command = new Command("the-command");
             var implicitInnerCommand = new Command("implicit-inner-command");
             command.Subcommands.Add(implicitInnerCommand);
-            implicitInnerCommand.SetHandler(context =>
+            implicitInnerCommand.SetHandler((context, cancellationToken) =>
             {
                 wasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -217,7 +217,7 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.SetHandler(context =>
+            command.SetHandler((context, cancellationToken) =>
             {
                 handlerWasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -248,7 +248,7 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.SetHandler(context =>
+            command.SetHandler((context, cancellationToken) =>
             {
                 handlerWasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -278,7 +278,7 @@ namespace System.CommandLine.Tests.Invocation
             bool handlerWasCalled = false;
 
             var command = new Command("help-command");
-            command.SetHandler(context =>
+            command.SetHandler((context, cancellationToken) =>
             {
                 handlerWasCalled = true;
                 context.HelpBuilder.Should().NotBeNull();
@@ -305,7 +305,7 @@ namespace System.CommandLine.Tests.Invocation
             HelpBuilder createdHelpBuilder = null;
 
             var command = new Command("help-command");
-            command.SetHandler(context =>
+            command.SetHandler((context, cancellationToken) =>
             {
                 handlerWasCalled = true;
                 context.HelpBuilder.Should().Be(createdHelpBuilder);
@@ -331,37 +331,33 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public async Task Command_InvokeAsync_can_cancel_from_middleware()
+        public async Task Middleware_can_throw_OperationCancelledException()
         {
             var handlerWasCalled = false;
-            var isCancelRequested = false;
 
             var command = new Command("the-command");
-            command.SetHandler((InvocationContext context) =>
+            command.SetHandler((InvocationContext context, CancellationToken cancellationToken) =>
             {
                 handlerWasCalled = true;
-                isCancelRequested = context.GetCancellationToken().IsCancellationRequested;
                 return Task.FromResult(0);
             });
 
-
-            using CancellationTokenSource cts = new();
             var parser = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
-                         .AddMiddleware(async (context, next) =>
+                         .AddMiddleware((context, next) =>
                          {
-                             context.LinkToken(cts.Token);
-                             cts.Cancel();
-                             await next(context);
+                             throw new OperationCanceledException();
                          })
+                         .UseExceptionHandler((ex, ctx) => ctx.ExitCode = ex is OperationCanceledException ? 123 : 456)
                          .Build();
 
-            await parser.InvokeAsync("the-command");
+            int result = await parser.InvokeAsync("the-command");
 
-            handlerWasCalled.Should().BeTrue();
-            isCancelRequested.Should().BeTrue();
+            // when the middleware throws, we never get to handler
+            handlerWasCalled.Should().BeFalse();
+            result.Should().Be(123);
         }
     }
 }
