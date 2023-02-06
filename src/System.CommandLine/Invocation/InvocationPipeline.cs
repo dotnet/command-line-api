@@ -17,7 +17,7 @@ namespace System.CommandLine.Invocation
 
         public async Task<int> InvokeAsync(IConsole? console = null, CancellationToken cancellationToken = default)
         {
-            var context = new InvocationContext(_parseResult, console, cancellationToken);
+            using InvocationContext context = new (_parseResult, console, cancellationToken);
 
             try
             {
@@ -46,7 +46,7 @@ namespace System.CommandLine.Invocation
 
         public int Invoke(IConsole? console = null)
         {
-            var context = new InvocationContext(_parseResult, console);
+            using InvocationContext context = new (_parseResult, console);
 
             try
             {
