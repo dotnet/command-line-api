@@ -53,7 +53,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]
-        public async Task TypoCorrection(BdnParam<ParseResult> parseResult)
-            => await parseResult.Value.InvokeAsync(_nullConsole);
+        public Task TypoCorrection(BdnParam<ParseResult> parseResult)
+            => parseResult.Value.InvokeAsync(_nullConsole);
     }
 }

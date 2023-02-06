@@ -53,7 +53,7 @@ namespace System.CommandLine
         /// <param name="console">The console to which output is written during invocation.</param>
         /// <param name="cancellationToken">A token that can be used to cancel the invocation.</param>
         /// <returns>The exit code for the invocation.</returns>
-        public static async Task<int> InvokeAsync(
+        public static Task<int> InvokeAsync(
             this Command command,
             string[] args,
             IConsole? console = null, 
@@ -61,7 +61,7 @@ namespace System.CommandLine
         {
             ParseResult parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
 
-            return await InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
+            return InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
         }
 
         /// <summary>

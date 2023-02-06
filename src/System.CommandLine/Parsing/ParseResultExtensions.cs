@@ -24,11 +24,11 @@ namespace System.CommandLine.Parsing
         /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
         /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
         /// <returns>A task whose result can be used as a process exit code.</returns>
-        public static async Task<int> InvokeAsync(
+        public static Task<int> InvokeAsync(
             this ParseResult parseResult,
             IConsole? console = null,
             CancellationToken cancellationToken = default) =>
-            await InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
+            InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
 
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.

@@ -28,7 +28,7 @@ namespace System.CommandLine.DragonFruit
         /// <param name="xmlDocsFilePath">Explicitly defined path to xml file containing XML Docs</param>
         /// <param name="console">Output console</param>
         /// <returns>The exit code.</returns>
-        public static async Task<int> ExecuteAssemblyAsync(
+        public static Task<int> ExecuteAssemblyAsync(
             Assembly entryAssembly,
             string[] args,
             string entryPointFullTypeName,
@@ -46,7 +46,7 @@ namespace System.CommandLine.DragonFruit
             MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly, entryPointFullTypeName);
 
             //TODO The xml docs file name and location can be customized using <DocumentationFile> project property.
-            return await InvokeMethodAsync(args, entryMethod, xmlDocsFilePath, null, console);
+            return InvokeMethodAsync(args, entryMethod, xmlDocsFilePath, null, console);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace System.CommandLine.DragonFruit
             return InvokeMethod(args, entryMethod, xmlDocsFilePath, null, console);
         }
 
-        public static async Task<int> InvokeMethodAsync(
+        public static Task<int> InvokeMethodAsync(
             string[] args,
             MethodInfo method,
             string xmlDocsFilePath = null,
@@ -88,7 +88,7 @@ namespace System.CommandLine.DragonFruit
         {
             Parser parser = BuildParser(method, xmlDocsFilePath, target);
 
-            return await parser.InvokeAsync(args, console);
+            return parser.InvokeAsync(args, console);
         }
 
         public static int InvokeMethod(

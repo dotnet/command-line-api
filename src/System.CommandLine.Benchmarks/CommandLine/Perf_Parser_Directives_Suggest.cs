@@ -46,8 +46,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public string TestCmdArgs;
 
         [Benchmark]
-        public async Task InvokeSuggest()
-            => await _testParser.InvokeAsync(TestCmdArgs, _nullConsole);
+        public Task InvokeSuggest()
+            => _testParser.InvokeAsync(TestCmdArgs, _nullConsole);
 
     }
 }
