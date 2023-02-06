@@ -28,7 +28,7 @@ namespace System.CommandLine.Parsing
             this ParseResult parseResult,
             IConsole? console = null,
             CancellationToken cancellationToken = default) =>
-            await new InvocationPipeline(parseResult).InvokeAsync(console, cancellationToken);
+            await InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
 
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.
@@ -39,7 +39,7 @@ namespace System.CommandLine.Parsing
         public static int Invoke(
             this ParseResult parseResult,
             IConsole? console = null) =>
-            new InvocationPipeline(parseResult).Invoke(console);
+            InvocationPipeline.Invoke(parseResult, console);
 
         /// <summary>
         /// Formats a string explaining a parse result.

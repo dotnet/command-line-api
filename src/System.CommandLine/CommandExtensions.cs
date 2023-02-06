@@ -26,7 +26,9 @@ namespace System.CommandLine
             string[] args,
             IConsole? console = null)
         {
-            return GetDefaultInvocationPipeline(command, args).Invoke(console);
+            ParseResult parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
+
+            return InvocationPipeline.Invoke(parseResult, console);
         }
 
         /// <summary>
@@ -57,7 +59,9 @@ namespace System.CommandLine
             IConsole? console = null, 
             CancellationToken cancellationToken = default)
         {
-            return await GetDefaultInvocationPipeline(command, args).InvokeAsync(console, cancellationToken);
+            ParseResult parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
+
+            return await InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
         }
 
         /// <summary>
@@ -75,13 +79,6 @@ namespace System.CommandLine
             IConsole? console = null,
             CancellationToken cancellationToken = default) =>
             command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console, cancellationToken);
-
-        private static InvocationPipeline GetDefaultInvocationPipeline(Command command, string[] args)
-        {
-            var parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
-
-            return new InvocationPipeline(parseResult);
-        }
 
         /// <summary>
         /// Parses an array strings using the specified command.

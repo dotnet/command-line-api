@@ -8,22 +8,17 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal class InvocationPipeline
+    internal static class InvocationPipeline
     {
-        private readonly ParseResult _parseResult;
-
-        internal InvocationPipeline(ParseResult parseResult)
-            => _parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
-
-        public async Task<int> InvokeAsync(IConsole? console = null, CancellationToken cancellationToken = default)
+        internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console = null, CancellationToken cancellationToken = default)
         {
-            using InvocationContext context = new (_parseResult, console, cancellationToken);
+            using InvocationContext context = new (parseResult, console, cancellationToken);
 
             try
             {
-                if (context.Parser.Configuration.Middleware.Count == 0 && _parseResult.Handler is not null)
+                if (context.Parser.Configuration.Middleware.Count == 0 && parseResult.Handler is not null)
                 {
-                    return await _parseResult.Handler.InvokeAsync(context);
+                    return await parseResult.Handler.InvokeAsync(context);
                 }
 
                 return await InvokeHandlerWithMiddleware(context);
@@ -44,15 +39,15 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        public int Invoke(IConsole? console = null)
+        internal static int Invoke(ParseResult parseResult, IConsole? console = null)
         {
-            using InvocationContext context = new (_parseResult, console);
+            using InvocationContext context = new (parseResult, console);
 
             try
             {
-                if (context.Parser.Configuration.Middleware.Count == 0 && _parseResult.Handler is not null)
+                if (context.Parser.Configuration.Middleware.Count == 0 && parseResult.Handler is not null)
                 {
-                    return _parseResult.Handler.Invoke(context);
+                    return parseResult.Handler.Invoke(context);
                 }
 
                 return InvokeHandlerWithMiddleware(context); // kept in a separate method to avoid JITting
