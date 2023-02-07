@@ -10,14 +10,9 @@ namespace System.CommandLine.Invocation
 {
     internal static class InvocationPipeline
     {
-        // https://tldp.org/LDP/abs/html/exitcodes.html - 130 - script terminated by ctrl-c
-        private const int SIGINT_EXIT_CODE = 130, SIGTERM_EXIT_CODE = 143;
-
         internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console, CancellationToken cancellationToken)
         {
             InvocationContext context = new (parseResult, console);
-            TimeSpan? processTerminationTimeout = parseResult.Parser.Configuration.ProcessTerminationTimeout;
-            TaskCompletionSource<int>? processTerminationCompletionSource = processTerminationTimeout.HasValue ? new () : null;
 
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
@@ -25,21 +20,19 @@ namespace System.CommandLine.Invocation
                 ? parseResult.Handler.InvokeAsync(context, cts.Token)
                 : InvokeHandlerWithMiddleware(context, cts.Token);
 
-            if (processTerminationTimeout.HasValue)
-            {
-                Console.CancelKeyPress += OnCancelKeyPress;
-                AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-            }
+            ProcessTerminationHandler? terminationHandler = parseResult.Parser.Configuration.ProcessTerminationTimeout.HasValue
+                ? new (cts, startedInvocation, parseResult.Parser.Configuration.ProcessTerminationTimeout.Value)
+                : null;
 
             try
             {
-                if (processTerminationCompletionSource is null)
+                if (terminationHandler is null)
                 {
                     return await startedInvocation;
                 }
                 else
                 {
-                    return await (await Task.WhenAny(startedInvocation, processTerminationCompletionSource.Task));
+                    return await (await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task));
                 }
             }
             catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)
@@ -49,11 +42,7 @@ namespace System.CommandLine.Invocation
             }
             finally
             {
-                if (processTerminationTimeout.HasValue)
-                {
-                    Console.CancelKeyPress -= OnCancelKeyPress;
-                    AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
-                }
+                terminationHandler?.Dispose();
             }
 
             static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context, CancellationToken token)
@@ -63,29 +52,6 @@ namespace System.CommandLine.Invocation
                 await invocationChain(context, _ => Task.CompletedTask);
 
                 return GetExitCode(context);
-            }
-
-            // Windows: user presses Ctrl+C
-            // Unix: the same + kill(SIGINT)
-            void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
-            {
-                e.Cancel = true;
-
-                Cancel(SIGINT_EXIT_CODE);
-            }
-
-            // Windows: user closes console app windows
-            // Unix: kill(SIGTERM)
-            void OnProcessExit(object? sender, EventArgs e) => Cancel(SIGTERM_EXIT_CODE);
-
-            void Cancel(int forcedTerminationExitCode)
-            {
-                cts.Cancel();
-
-                if (!startedInvocation.Wait(processTerminationTimeout.Value))
-                {
-                    processTerminationCompletionSource!.SetResult(forcedTerminationExitCode);
-                }
             }
         }
 

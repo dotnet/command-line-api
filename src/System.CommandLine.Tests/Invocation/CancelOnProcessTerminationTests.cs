@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests.Invocation
                     signo,
                     expectedExitCode);
 
-        private static async Task<int> Program(string[] args, bool infiniteDelay, TimeSpan? processTerminationTimeout)
+        private static Task<int> Program(string[] args, bool infiniteDelay, TimeSpan? processTerminationTimeout)
         {
             var command = new RootCommand();
 
@@ -83,12 +83,10 @@ namespace System.CommandLine.Tests.Invocation
                 }
             });
 
-            int result = await new CommandLineBuilder(command)
+            return new CommandLineBuilder(command)
                 .CancelOnProcessTermination(processTerminationTimeout)
                 .Build()
-                .InvokeAsync("the-command");
-            
-            return result;
+                .InvokeAsync("");
         }
 
         private static async Task StartKillAndVerify(Func<string[], Task<int>> childProgram, Signals signo, int expectedExitCode)
