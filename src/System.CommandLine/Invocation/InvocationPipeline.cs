@@ -11,7 +11,7 @@ namespace System.CommandLine.Invocation
     internal static class InvocationPipeline
     {
         // https://tldp.org/LDP/abs/html/exitcodes.html - 130 - script terminated by ctrl-c
-        private const int SIGINT_EXIT_CODE = 130;
+        private const int SIGINT_EXIT_CODE = 130, SIGTERM_EXIT_CODE = 143;
 
         internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console, CancellationToken cancellationToken)
         {
@@ -27,8 +27,8 @@ namespace System.CommandLine.Invocation
 
             if (processTerminationTimeout.HasValue)
             {
-                Console.CancelKeyPress += OnControlCPressed;
-                AppDomain.CurrentDomain.ProcessExit += OnWindowClosed;
+                Console.CancelKeyPress += OnCancelKeyPress;
+                AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
             }
 
             try
@@ -51,8 +51,8 @@ namespace System.CommandLine.Invocation
             {
                 if (processTerminationTimeout.HasValue)
                 {
-                    Console.CancelKeyPress -= OnControlCPressed;
-                    AppDomain.CurrentDomain.ProcessExit -= OnWindowClosed;
+                    Console.CancelKeyPress -= OnCancelKeyPress;
+                    AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
                 }
             }
 
@@ -65,24 +65,26 @@ namespace System.CommandLine.Invocation
                 return GetExitCode(context);
             }
 
-            async void OnControlCPressed(object? sender, ConsoleCancelEventArgs e)
+            // Windows: user presses Ctrl+C
+            // Unix: the same + kill(SIGINT)
+            void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
             {
                 e.Cancel = true;
 
-                await CancelAsync();
+                Cancel(SIGINT_EXIT_CODE);
             }
 
-            async void OnWindowClosed(object? sender, EventArgs e) => await CancelAsync();
+            // Windows: user closes console app windows
+            // Unix: kill(SIGTERM)
+            void OnProcessExit(object? sender, EventArgs e) => Cancel(SIGTERM_EXIT_CODE);
 
-            async Task CancelAsync()
+            void Cancel(int forcedTerminationExitCode)
             {
                 cts.Cancel();
 
-                Task finishedFirst = await Task.WhenAny(startedInvocation, Task.Delay(processTerminationTimeout!.Value!));
-
-                if (finishedFirst != startedInvocation)
+                if (!startedInvocation.Wait(processTerminationTimeout.Value))
                 {
-                    processTerminationCompletionSource!.SetResult(SIGINT_EXIT_CODE);
+                    processTerminationCompletionSource!.SetResult(forcedTerminationExitCode);
                 }
             }
         }
