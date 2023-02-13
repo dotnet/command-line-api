@@ -10,22 +10,22 @@ internal sealed class ProcessTerminationHandler : IDisposable
     private const int SIGTERM_EXIT_CODE = 143;
         
     internal readonly TaskCompletionSource<int> ProcessTerminationCompletionSource;
-    private readonly CancellationTokenSource _cts;
-    private readonly Task<int> _startedInvocation;
+    private readonly CancellationTokenSource _handlerCancellationTokenSource;
+    private readonly Task<int> _startedHandler;
     private readonly TimeSpan _processTerminationTimeout;
     private readonly IDisposable? _sigIntRegistration, _sigTermRegistration;
         
     internal ProcessTerminationHandler(
-        CancellationTokenSource cts, 
-        Task<int> startedInvocation,
+        CancellationTokenSource handlerCancellationTokenSource, 
+        Task<int> startedHandler,
         TimeSpan processTerminationTimeout)
     {
         ProcessTerminationCompletionSource = new ();
-        _cts = cts;
-        _startedInvocation = startedInvocation;
+        _handlerCancellationTokenSource = handlerCancellationTokenSource;
+        _startedHandler = startedHandler;
         _processTerminationTimeout = processTerminationTimeout;
 
-#if  NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         if (!OperatingSystem.IsAndroid() 
             && !OperatingSystem.IsIOS() 
             && !OperatingSystem.IsTvOS()
@@ -75,18 +75,14 @@ internal sealed class ProcessTerminationHandler : IDisposable
 
     void Cancel(int forcedTerminationExitCode)
     {
-        try
-        {
-            _cts.Cancel();
-        }
-        catch (Exception ex)
-        {
-            ProcessTerminationCompletionSource.SetException(ex);
-            return;
-        }
+        // request cancellation
+        _handlerCancellationTokenSource.Cancel();
         
-        if (!_startedInvocation.Wait(_processTerminationTimeout))
+        // wait for the configured interval
+        if (!_startedHandler.Wait(_processTerminationTimeout))
         {
+            // if the handler does not finish within configured time,
+            // use the completion source to signal forced completion (preserving native exit code)
             ProcessTerminationCompletionSource.SetResult(forcedTerminationExitCode);
         }
     }

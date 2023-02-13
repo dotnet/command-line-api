@@ -32,7 +32,11 @@ namespace System.CommandLine.Invocation
                 }
                 else
                 {
-                    return await (await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task));
+                    // Handlers may not implement cancellation.
+                    // In such cases, when CancelOnProcessTermination is configured and user presses Ctrl+C,
+                    // ProcessTerminationCompletionSource completes first, with the result equal to native exit code for given signal.
+                    Task<int> firstCompletedTask = await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task);
+                    return await firstCompletedTask; // return the result or propagate the exception
                 }
             }
             catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)

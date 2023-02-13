@@ -38,28 +38,14 @@ namespace System.CommandLine.Invocation
                 return Invoke(context);
             }
 
-            object returnValue = _asyncHandle!(context, cancellationToken);
-
-            int ret;
-
-            switch (returnValue)
+            Task handler = _asyncHandle!(context, cancellationToken);
+            if (handler is Task<int> intReturning)
             {
-                case Task<int> exitCodeTask:
-                    ret = await exitCodeTask;
-                    break;
-                case Task task:
-                    await task;
-                    ret = context.ExitCode;
-                    break;
-                case int exitCode:
-                    ret = exitCode;
-                    break;
-                default:
-                    ret = context.ExitCode;
-                    break;
+                return await intReturning;
             }
 
-            return ret;
+            await handler;
+            return context.ExitCode;
         }
     }
 }

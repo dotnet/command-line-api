@@ -26,49 +26,38 @@ namespace System.CommandLine.Tests.Invocation
             SIGTERM = 15 // AppDomain.CurrentDomain.ProcessExit
         }
 
-        [LinuxOnlyTheory]
-        [InlineData(Signals.SIGINT)]  
-        [InlineData(Signals.SIGTERM)]
-        public Task CancellableHandler_is_cancelled_on_process_termination_when_no_timeout_is_specified(Signals signal)
-            => StartKillAndVerify(args =>
-                    Program(args, infiniteDelay: false, processTerminationTimeout: null),
-                    signal,
-                    GracefulExitCode);
-
-        [LinuxOnlyTheory]
-        [InlineData(Signals.SIGINT)]
-        [InlineData(Signals.SIGTERM)]
-        public Task CancellableHandler_is_cancelled_on_process_termination_when_explicit_timeout_is_specified(Signals signo)
-            => StartKillAndVerify(args => 
-                    Program(args, infiniteDelay: false, processTerminationTimeout: TimeSpan.FromSeconds(1)),
-                    signo,
-                    GracefulExitCode);
-        
-        [LinuxOnlyTheory]
-        [InlineData(Signals.SIGINT, SIGINT_EXIT_CODE)]
-        [InlineData(Signals.SIGTERM, SIGTERM_EXIT_CODE)]
-        public Task NonCancellableHandler_is_interrupted_on_process_termination_when_no_timeout_is_specified(Signals signo, int expectedExitCode)
-            => StartKillAndVerify(args =>
-                    Program(args, infiniteDelay: true, processTerminationTimeout: null),
-                    signo,
-                    expectedExitCode);
-        
-        [LinuxOnlyTheory]
-        [InlineData(Signals.SIGINT, SIGINT_EXIT_CODE)]
-        [InlineData(Signals.SIGTERM, SIGTERM_EXIT_CODE)]
-        public Task NonCancellableHandler_is_interrupted_on_process_termination_when_explicit_timeout_is_specified(Signals signo, int expectedExitCode)
-            => StartKillAndVerify(args =>
-                    Program(args, infiniteDelay: true, processTerminationTimeout: TimeSpan.FromMilliseconds(100)),
-                    signo,
-                    expectedExitCode);
-
-        private static Task<int> Program(string[] args, bool infiniteDelay, TimeSpan? processTerminationTimeout)
+        [Fact]
+        public async Task CancellableHandler_is_cancelled_on_process_termination()
         {
-            var command = new RootCommand();
+            // the feature is supported on Windows, but it's simply harder to send SIGINT to test it properly
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                await StartKillAndVerify(new[] { "--infiniteDelay", "false" }, Signals.SIGINT, GracefulExitCode);
+            }
+        }
+
+        [Fact]
+        public async Task NonCancellableHandler_is_interrupted_on_process_termination()
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                await StartKillAndVerify(new[] { "--infiniteDelay", "true" }, Signals.SIGTERM, SIGTERM_EXIT_CODE);
+            }
+        }
+
+        private static Task<int> Program(string[] args)
+        {
+            Option<bool> infiniteDelayOption = new ("--infiniteDelay");
+            RootCommand command = new ()
+            {
+                infiniteDelayOption
+            };
 
             command.SetHandler(async (context, cancellationToken) =>
             {
                 context.Console.WriteLine(ChildProcessWaiting);
+
+                bool infiniteDelay = context.GetValue(infiniteDelayOption);
 
                 try
                 {
@@ -84,14 +73,17 @@ namespace System.CommandLine.Tests.Invocation
             });
 
             return new CommandLineBuilder(command)
-                .CancelOnProcessTermination(processTerminationTimeout)
+                .CancelOnProcessTermination()
                 .Build()
-                .InvokeAsync("");
+                .InvokeAsync(args);
         }
-
-        private static async Task StartKillAndVerify(Func<string[], Task<int>> childProgram, Signals signo, int expectedExitCode)
+        
+        private async Task StartKillAndVerify(string[] args, Signals signal, int expectedExitCode)
         {
-            using RemoteExecution program = RemoteExecutor.Execute(childProgram, psi: new ProcessStartInfo { RedirectStandardOutput = true, RedirectStandardInput = true });
+            using RemoteExecution program = RemoteExecutor.Execute(
+                Program,
+                args,
+                new ProcessStartInfo { RedirectStandardOutput = true });
 
             Process process = program.Process;
 
@@ -100,7 +92,7 @@ namespace System.CommandLine.Tests.Invocation
             childState.Should().Be(ChildProcessWaiting);
 
             // Request termination
-            kill(process.Id, (int)signo).Should().Be(0);
+            kill(process.Id, (int)signal).Should().Be(0);
 
             // Verify the process terminates timely
             try
