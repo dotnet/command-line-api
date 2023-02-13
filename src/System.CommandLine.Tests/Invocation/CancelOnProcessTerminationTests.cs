@@ -29,8 +29,9 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task CancellableHandler_is_cancelled_on_process_termination()
         {
-            // the feature is supported on Windows, but it's simply harder to send SIGINT to test it properly
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            // The feature is supported on Windows, but it's simply harder to send SIGINT to test it properly.
+            // Same for macOS, where RemoteExecutor does not support getting application arguments.
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 await StartKillAndVerify(new[] { "--infiniteDelay", "false" }, Signals.SIGINT, GracefulExitCode);
             }
@@ -39,7 +40,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task NonCancellableHandler_is_interrupted_on_process_termination()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 await StartKillAndVerify(new[] { "--infiniteDelay", "true" }, Signals.SIGTERM, SIGTERM_EXIT_CODE);
             }
@@ -95,16 +96,9 @@ namespace System.CommandLine.Tests.Invocation
             kill(process.Id, (int)signal).Should().Be(0);
 
             // Verify the process terminates timely
-            try
-            {
-                using CancellationTokenSource cts = new (TimeSpan.FromSeconds(10));
-                await process.WaitForExitAsync(cts.Token);
-            }
-            catch (OperationCanceledException)
+            if (!process.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds))
             {
                 process.Kill();
-                
-                throw;
             }
 
             // Verify the process exit code
