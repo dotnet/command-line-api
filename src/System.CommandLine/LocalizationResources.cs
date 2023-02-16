@@ -16,10 +16,8 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects a single argument but {1} were provided.
         /// </summary>
-        internal static string ExpectsOneArgument(SymbolResult symbolResult) =>
-            symbolResult is CommandResult commandResult
-                    ? GetResourceString(Properties.Resources.CommandExpectsOneArgument, commandResult.Token.Value, symbolResult.Tokens.Count)
-                    : GetResourceString(Properties.Resources.OptionExpectsOneArgument, GetOptionName((OptionResult)symbolResult), symbolResult.Tokens.Count);
+        internal static string ExpectsOneArgument(OptionResult optionResult)
+            => GetResourceString(Properties.Resources.OptionExpectsOneArgument, GetOptionName(optionResult), optionResult.Tokens.Count);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to No argument was provided for Command &apos;{0}&apos;..
