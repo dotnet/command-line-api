@@ -55,7 +55,7 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public static async Task Can_have_diferent_handlers_based_on_command()
+        public static async Task Can_have_different_handlers_based_on_command()
         {
             var root = new RootCommand();
 

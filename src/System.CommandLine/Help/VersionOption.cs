@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -56,14 +58,11 @@ namespace System.CommandLine.Help
 
         internal override bool IsGreedy => false;
 
-        public override bool Equals(object? obj)
-        {
-            return obj is VersionOption;
-        }
+        public override bool Equals(object? obj) => obj is VersionOption;
 
-        public override int GetHashCode()
-        {
-            return typeof(VersionOption).GetHashCode();
-        }
+        public override int GetHashCode() => typeof(VersionOption).GetHashCode();
+
+        internal static void Handler(InvocationContext context)
+            => context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
     }
 }

@@ -29,12 +29,14 @@ namespace System.CommandLine
             List<Token> tokens,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
-            string? commandLineText = null)
+            string? commandLineText = null,
+            ICommandHandler? handler = null)
         {
             Parser = parser;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             _directives = directives;
+            _handler = handler;
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
@@ -51,25 +53,7 @@ namespace System.CommandLine
             }
 
             CommandLineText = commandLineText;
-
-            if (unmatchedTokens is null)
-            {
-                _unmatchedTokens = Array.Empty<Token>();
-            }
-            else
-            {
-                _unmatchedTokens = unmatchedTokens;
-
-                if (parser.Configuration.RootCommand.TreatUnmatchedTokensAsErrors)
-                {
-                    for (var i = 0; i < _unmatchedTokens.Count; i++)
-                    {
-                        var token = _unmatchedTokens[i];
-                        (errors ??= new()).Add(new ParseError(LocalizationResources.UnrecognizedCommandOrArgument(token.Value), rootCommandResult));
-                    }
-                }
-            }
-
+            _unmatchedTokens = unmatchedTokens is null ? Array.Empty<Token>() : unmatchedTokens;
             _errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 

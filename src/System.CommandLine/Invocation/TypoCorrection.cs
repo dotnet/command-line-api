@@ -7,29 +7,21 @@ using System.Linq;
 
 namespace System.CommandLine.Invocation
 {
-    internal class TypoCorrection
+    internal static class TypoCorrection
     {
-        private readonly int _maxLevenshteinDistance;
-
-        public TypoCorrection(int maxLevenshteinDistance)
+        internal static void ProvideSuggestions(InvocationContext context)
         {
-            if (maxLevenshteinDistance <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxLevenshteinDistance));
-            }
+            ParseResult result = context.ParseResult;
+            IConsole console = context.Console;
+            int maxLevenshteinDistance = context.Parser.Configuration.MaxLevenshteinDistance;
 
-            _maxLevenshteinDistance = maxLevenshteinDistance;
-        }
-
-        public void ProvideSuggestions(ParseResult result, IConsole console)
-        {
             var unmatchedTokens = result.UnmatchedTokens;
             for (var i = 0; i < unmatchedTokens.Count; i++)
             {
                 var token = unmatchedTokens[i];
 
                 bool first = true;
-                foreach (string suggestion in GetPossibleTokens(result.CommandResult.Command, token))
+                foreach (string suggestion in GetPossibleTokens(result.CommandResult.Command, token, maxLevenshteinDistance))
                 {
                     if (first)
                     {
@@ -42,7 +34,7 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        private IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)
+        private static IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token, int maxLevenshteinDistance)
         {
             if (!targetSymbol.HasOptions && !targetSymbol.HasSubcommands)
             {
@@ -64,7 +56,7 @@ namespace System.CommandLine.Invocation
             int? bestDistance = null;
             return possibleMatches
                 .Select(possibleMatch => (possibleMatch, distance:GetDistance(token, possibleMatch)))
-                .Where(tuple => tuple.distance <= _maxLevenshteinDistance)
+                .Where(tuple => tuple.distance <= maxLevenshteinDistance)
                 .OrderBy(tuple => tuple.distance)
                 .ThenByDescending(tuple => GetStartsWithDistance(token, tuple.possibleMatch))
                 .TakeWhile(tuple =>
@@ -153,7 +145,6 @@ namespace System.CommandLine.Invocation
 
             // Return the computed edit distance
             return rows[curRow][m];
-
         }
     }
 }

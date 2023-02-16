@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 
 namespace System.CommandLine.Parsing
 {
@@ -19,8 +18,8 @@ namespace System.CommandLine.Parsing
         private int _index;
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CommandResult _innermostCommandResult;
-        private bool _isHelpRequested;
-        private bool _isVersionRequested;
+        private bool _isHelpRequested, _isParseRequested;
+        private ICommandHandler? _handler;
 
         public ParseOperation(
             List<Token> tokens,
@@ -62,7 +61,20 @@ namespace System.CommandLine.Parsing
                 Validate();
             }
 
-            ParseResult parseResult = new (
+            if (_handler is null)
+            {
+                if (_configuration.ParseErrorReportingExitCode.HasValue && _symbolResultTree.ErrorCount > 0)
+                {
+                    _handler = new AnonymousCommandHandler(ParseErrorResult.Apply);
+                }
+                else if (_configuration.MaxLevenshteinDistance > 0 && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
+                    && _symbolResultTree.UnmatchedTokens is not null)
+                {
+                    _handler = new AnonymousCommandHandler(TypoCorrection.ProvideSuggestions);
+                }
+            }
+
+            return new (
                 parser,
                 _rootCommandResult,
                 _innermostCommandResult,
@@ -70,18 +82,8 @@ namespace System.CommandLine.Parsing
                 _tokens,
                 _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
-                _rawInput);
-
-            if (_isVersionRequested)
-            {
-                // FIX: (GetResult) use the ActiveOption's handler
-                parseResult.Handler = new AnonymousCommandHandler(context =>
-                {
-                    context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
-                });
-            }
-
-            return parseResult;
+                _rawInput,
+                _handler);
         }
 
         private void ParseSubcommand()
@@ -187,13 +189,19 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
-                if (option is HelpOption)
+                // parse directive has a precedence over --help and --version
+                if (!_isParseRequested)
                 {
-                    _isHelpRequested = true;
-                }
-                else if (option is VersionOption)
-                {
-                    _isVersionRequested = true;
+                    if (option is HelpOption)
+                    {
+                        _isHelpRequested = true;
+
+                        _handler = new AnonymousCommandHandler(HelpOption.Handler);
+                    }
+                    else if (option is VersionOption)
+                    {
+                        _handler = new AnonymousCommandHandler(VersionOption.Handler);
+                    }
                 }
 
                 optionResult = new OptionResult(
@@ -277,7 +285,12 @@ namespace System.CommandLine.Parsing
         {
             while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Directive)
             {
-                ParseDirective(); // kept in separate method to avoid JIT
+                if (_configuration.EnableDirectives)
+                {
+                    ParseDirective(); // kept in separate method to avoid JIT
+                }
+
+                Advance();
             }
 
             void ParseDirective()
@@ -304,7 +317,7 @@ namespace System.CommandLine.Parsing
                     ((List<string>)values).Add(value);
                 }
 
-                Advance();
+                OnDirectiveParsed(key, value);
             }
         }
 
@@ -315,7 +328,8 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            _symbolResultTree.AddUnmatchedToken(CurrentToken);
+            _symbolResultTree.AddUnmatchedToken(CurrentToken,
+                _rootCommandResult.Command.TreatUnmatchedTokensAsErrors ? _rootCommandResult : null);
         }
 
         private void Validate()
@@ -330,6 +344,36 @@ namespace System.CommandLine.Parsing
                 currentResult.Validate(completeValidation: false);
 
                 currentResult = currentResult.Parent as CommandResult;
+            }
+        }
+
+        private void OnDirectiveParsed(string directiveKey, string? parsedValues)
+        {
+            if (_configuration.EnableEnvironmentVariableDirective && directiveKey == "env")
+            {
+                if (parsedValues is not null)
+                {
+                    var components = parsedValues.Split(new[] { '=' }, count: 2);
+                    var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
+                    if (string.IsNullOrEmpty(variable) || components.Length < 2)
+                    {
+                        return;
+                    }
+
+                    var value = components[1].Trim();
+                    Environment.SetEnvironmentVariable(variable, value);
+                }
+            }
+            else if (_configuration.ParseDirectiveExitCode.HasValue && directiveKey == "parse")
+            {
+                _isParseRequested = true;
+                _handler = new AnonymousCommandHandler(ParseDirectiveResult.Apply);
+            }
+            else if (_configuration.EnableSuggestDirective && directiveKey == "suggest")
+            {
+                int position = parsedValues is not null ? int.Parse(parsedValues) : _rawInput?.Length ?? 0;
+
+                _handler = new AnonymousCommandHandler(ctx => SuggestDirectiveResult.Apply(ctx, position));
             }
         }
     }
