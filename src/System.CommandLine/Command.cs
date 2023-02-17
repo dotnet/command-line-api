@@ -89,7 +89,7 @@ namespace System.CommandLine
         /// parent commands.</remarks>
         public void AddGlobalOption(Option option)
         {
-            option.IsGlobal = true;
+            option.AppliesToSelfAndChildren = true;
             Options.Add(option);
         }
 
@@ -202,7 +202,7 @@ namespace System.CommandLine
                             {
                                 var option = parentCommand.Options[i];
 
-                                if (option.IsGlobal)
+                                if (option.AppliesToSelfAndChildren)
                                 {
                                     AddCompletionsFor(option);
                                 }

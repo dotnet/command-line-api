@@ -125,7 +125,7 @@ namespace System.CommandLine.Help
                 {
                     if (!displayOptionTitle)
                     {
-                        displayOptionTitle = parentCommand.HasOptions && parentCommand.Options.Any(x => x.IsGlobal && !x.IsHidden);
+                        displayOptionTitle = parentCommand.HasOptions && parentCommand.Options.Any(x => x.AppliesToSelfAndChildren && !x.IsHidden);
                     }
 
                     yield return parentCommand.Name;

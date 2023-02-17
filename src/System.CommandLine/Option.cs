@@ -75,7 +75,7 @@ namespace System.CommandLine
         /// Global options are applied to the command and recursively to subcommands.
         /// They do not apply to parent commands.
         /// </summary>
-        internal bool IsGlobal { get; set; }
+        internal bool AppliesToSelfAndChildren { get; set; }
 
         /// <summary>
         /// Validators that will be called when the option is matched by the parser.
