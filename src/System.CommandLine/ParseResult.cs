@@ -124,7 +124,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public T GetValue<T>(Argument<T> argument)
+        public T? GetValue<T>(Argument<T> argument)
             => RootCommandResult.GetValue(argument);
 
         /// <summary>

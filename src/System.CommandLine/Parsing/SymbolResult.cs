@@ -66,7 +66,7 @@ namespace System.CommandLine.Parsing
         public OptionResult? FindResultFor(Option option) => SymbolResultTree.FindResultFor(option);
 
         /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
-        public T GetValue<T>(Argument<T> argument)
+        public T? GetValue<T>(Argument<T> argument)
         {
             if (FindResultFor(argument) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)

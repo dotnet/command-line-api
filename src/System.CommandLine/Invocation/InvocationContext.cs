@@ -128,7 +128,7 @@ namespace System.CommandLine.Invocation
             => ParseResult.GetValue(option);
 
         /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
-        public T GetValue<T>(Argument<T> argument)
+        public T? GetValue<T>(Argument<T> argument)
             => ParseResult.GetValue(argument);
 
         /// <inheritdoc />
