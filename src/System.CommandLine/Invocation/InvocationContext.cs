@@ -123,19 +123,11 @@ namespace System.CommandLine.Invocation
             _registrations.AddLast(token.Register(Cancel));
         }
 
-        /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
-        public object? GetValue(Option option) =>
-            ParseResult.GetValue(option);
-
-        /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
+        /// <inheritdoc cref="ParseResult.GetValue{T}(Option{T})"/>
         public T? GetValue<T>(Option<T> option)
             => ParseResult.GetValue(option);
 
-        /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
-        public object? GetValue(Argument argument) =>
-            ParseResult.GetValue(argument);
-
-        /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
+        /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
         public T GetValue<T>(Argument<T> argument)
             => ParseResult.GetValue(argument);
 

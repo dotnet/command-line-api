@@ -65,7 +65,7 @@ namespace System.CommandLine.Parsing
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public OptionResult? FindResultFor(Option option) => SymbolResultTree.FindResultFor(option);
 
-        /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
+        /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
         public T GetValue<T>(Argument<T> argument)
         {
             if (FindResultFor(argument) is { } result &&
@@ -77,19 +77,7 @@ namespace System.CommandLine.Parsing
             return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
         }
 
-        /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
-        public object? GetValue(Argument argument)
-        {
-            if (FindResultFor(argument) is { } result &&
-                result.GetValueOrDefault<object?>() is { } t)
-            {
-                return t;
-            }
-
-            return ArgumentConverter.GetDefaultValue(argument.ValueType);
-        }
-
-        /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
+        /// <inheritdoc cref="ParseResult.GetValue{T}(Option{T})"/>
         public T? GetValue<T>(Option<T> option)
         {
             if (FindResultFor(option) is { } result &&
@@ -99,18 +87,6 @@ namespace System.CommandLine.Parsing
             }
 
             return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
-        }
-
-        /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
-        public object? GetValue(Option option)
-        {
-            if (FindResultFor(option) is { } result && 
-                result.GetValueOrDefault<object?>() is { } t)
-            {
-                return t;
-            }
-
-            return ArgumentConverter.GetDefaultValue(option.Argument.ValueType);
         }
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;
