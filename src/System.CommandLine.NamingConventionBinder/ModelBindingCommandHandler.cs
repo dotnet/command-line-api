@@ -57,7 +57,7 @@ public class ModelBindingCommandHandler : ICommandHandler
     /// <param name="context">The current invocation context.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the invocation.</param>
     /// <returns>A task whose value can be used to set the process exit code.</returns>
-    public async Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+    public async Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
     {
         var bindingContext = context.BindingContext;
 

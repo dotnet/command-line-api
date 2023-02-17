@@ -25,6 +25,6 @@ namespace System.CommandLine
         /// <param name="context">Provides context for the invocation, including parse results and binding support.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A value that can be used as the exit code for the process.</returns>
-        Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken);
+        Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default);
     }
 }
