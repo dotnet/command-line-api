@@ -192,7 +192,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                             command
                          })
-                         .AddMiddleware(async (context, next) =>
+                         .AddMiddleware(async (context, token, next) =>
                          {
                              var tokens = context.ParseResult
                                                  .Tokens
@@ -201,7 +201,7 @@ namespace System.CommandLine.Tests.Invocation
                                                  .ToArray();
 
                              context.ParseResult = context.Parser.Parse(tokens);
-                             await next(context);
+                             await next(context, token);
                          })
                          .Build();
 
@@ -228,7 +228,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                              command
                          })
-                         .AddMiddleware(async (_, _) =>
+                         .AddMiddleware(async (_, _, _) =>
                          {
                              middlewareWasCalled = true;
                              await Task.Yield();
@@ -259,7 +259,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                              command
                          })
-                         .AddMiddleware(async (context, next) =>
+                         .AddMiddleware(async (context, cancellationToken, next) =>
                          {
                              middlewareWasCalled = true;
                              await Task.Yield();
@@ -346,9 +346,9 @@ namespace System.CommandLine.Tests.Invocation
                          {
                              command
                          })
-                         .AddMiddleware((context, next) =>
+                         .AddMiddleware((context, cancellationToken, next) =>
                          {
-                             throw new OperationCanceledException();
+                             throw new OperationCanceledException(cancellationToken);
                          })
                          .UseExceptionHandler((ex, ctx) => ctx.ExitCode = ex is OperationCanceledException ? 123 : 456)
                          .Build();

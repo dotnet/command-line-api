@@ -340,9 +340,9 @@ System.CommandLine.Invocation
     public T GetValue<T>(Argument<T> argument)
   public delegate InvocationMiddleware : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(InvocationContext context, System.Func<InvocationContext,System.Threading.Tasks.Task> next, System.AsyncCallback callback, System.Object object)
+    public System.IAsyncResult BeginInvoke(InvocationContext context, System.Threading.CancellationToken cancellationToken, System.Func<InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> next, System.AsyncCallback callback, System.Object object)
     public System.Threading.Tasks.Task EndInvoke(System.IAsyncResult result)
-    public System.Threading.Tasks.Task Invoke(InvocationContext context, System.Func<InvocationContext,System.Threading.Tasks.Task> next)
+    public System.Threading.Tasks.Task Invoke(InvocationContext context, System.Threading.CancellationToken cancellationToken, System.Func<InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> next)
   public enum MiddlewareOrder : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
     Default=0
     ErrorReporting=1000

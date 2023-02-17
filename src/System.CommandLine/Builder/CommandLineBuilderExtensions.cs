@@ -95,7 +95,7 @@ namespace System.CommandLine
         public static CommandLineBuilder RegisterWithDotnetSuggest(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) =>
+            builder.AddMiddleware(async (context, cancellationToken, next) =>
             {
                 var feature = new FeatureRegistration("dotnet-suggest-registration");
 
@@ -115,7 +115,7 @@ namespace System.CommandLine
                             stdOut: value => stdOut.Append(value),
                             stdErr: value => stdOut.Append(value));
 
-                        await dotnetSuggestProcess.CompleteAsync();
+                        await dotnetSuggestProcess.CompleteAsync(cancellationToken);
 
                         return $@"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}
 OUT:
@@ -135,7 +135,7 @@ ERR:
                     }
                 });
 
-                await next(context);
+                await next(context, cancellationToken);
             }, MiddlewareOrderInternal.RegisterWithDotnetSuggest);
 
             return builder;
@@ -339,10 +339,10 @@ ERR:
             Action<InvocationContext> onInvoke,
             MiddlewareOrder order = MiddlewareOrder.Default)
         {
-            builder.AddMiddleware(async (context, next) =>
+            builder.AddMiddleware(async (context, cancellationToken, next) =>
             {
                 onInvoke(context);
-                await next(context);
+                await next(context, cancellationToken);
             }, order);
 
             return builder;

@@ -51,9 +51,9 @@ namespace System.CommandLine.Invocation
 
             static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context, CancellationToken token)
             {
-                InvocationMiddleware invocationChain = BuildInvocationChain(context, token, true);
+                InvocationMiddleware invocationChain = BuildInvocationChain(context, true);
 
-                await invocationChain(context, _ => Task.CompletedTask);
+                await invocationChain(context, token, (_, _) => Task.CompletedTask);
 
                 return GetExitCode(context);
             }
@@ -80,20 +80,20 @@ namespace System.CommandLine.Invocation
 
             static int InvokeHandlerWithMiddleware(InvocationContext context)
             {
-                InvocationMiddleware invocationChain = BuildInvocationChain(context, CancellationToken.None, false);
+                InvocationMiddleware invocationChain = BuildInvocationChain(context, false);
 
-                invocationChain(context, static _ => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
+                invocationChain(context, CancellationToken.None, static (_, _) => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
 
                 return GetExitCode(context);
             }
         }
 
-        private static InvocationMiddleware BuildInvocationChain(InvocationContext context, CancellationToken cancellationToken, bool invokeAsync)
+        private static InvocationMiddleware BuildInvocationChain(InvocationContext context, bool invokeAsync)
         {
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware.Count + 1);
             invocations.AddRange(context.Parser.Configuration.Middleware);
 
-            invocations.Add(async (invocationContext, _) =>
+            invocations.Add(async (invocationContext, cancellationToken, _) =>
             {
                 if (invocationContext.ParseResult.Handler is { } handler)
                 {
@@ -105,9 +105,9 @@ namespace System.CommandLine.Invocation
 
             return invocations.Aggregate(
                 (first, second) =>
-                    (ctx, next) =>
-                        first(ctx,
-                              c => second(c, next)));
+                    (ctx, token, next) =>
+                        first(ctx, token,
+                              (c, t) => second(c, t, next)));
         }
 
         private static int GetExitCode(InvocationContext context)
