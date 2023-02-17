@@ -20,25 +20,6 @@ namespace System.CommandLine
             => GetResourceString(Properties.Resources.OptionExpectsOneArgument, GetOptionName(optionResult), optionResult.Tokens.Count);
 
         /// <summary>
-        ///   Interpolates values into a localized string similar to No argument was provided for Command &apos;{0}&apos;..
-        /// </summary>
-        internal static string NoArgumentProvided(SymbolResult symbolResult) =>
-            symbolResult is CommandResult commandResult
-                ? GetResourceString(Properties.Resources.CommandNoArgumentProvided, commandResult.Token.Value)
-                : GetResourceString(Properties.Resources.OptionNoArgumentProvided, GetOptionName((OptionResult)symbolResult));
-
-        /// <summary>
-        ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects no more than {1} arguments, but {2} were provided.
-        /// </summary>
-        internal static string ExpectsFewerArguments(
-            Token token,
-            int providedNumberOfValues,
-            int maximumNumberOfValues) =>
-            token.Type == TokenType.Command
-                ? GetResourceString(Properties.Resources.CommandExpectsFewerArguments, token, maximumNumberOfValues, providedNumberOfValues)
-                : GetResourceString(Properties.Resources.OptionExpectsFewerArguments, token, maximumNumberOfValues, providedNumberOfValues);
-
-        /// <summary>
         ///   Interpolates values into a localized string similar to Directory does not exist: {0}.
         /// </summary>
         internal static string DirectoryDoesNotExist(string path) =>

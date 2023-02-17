@@ -27,21 +27,6 @@
         <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</target>
         <note />
       </trans-unit>
-      <trans-unit id="CommandExpectsFewerArguments">
-        <source>Command '{0}' expects no more than {1} arguments, but {2} were provided.</source>
-        <target state="translated">コマンド '{0}' では引数が {1} 個以下である必要がありますが、{2} 個が指定されました。.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="CommandExpectsOneArgument">
-        <source>Command '{0}' expects a single argument but {1} were provided.</source>
-        <target state="new">Command '{0}' expects a single argument but {1} were provided.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="CommandNoArgumentProvided">
-        <source>No argument was provided for Command '{0}'.</source>
-        <target state="new">No argument was provided for Command '{0}'.</target>
-        <note />
-      </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
         <source>Required argument missing for command: '{0}'.</source>
         <target state="translated">必要な引数がコマンドにありません: '{0}'.</target>
@@ -147,19 +132,9 @@
         <target state="translated">パスで使用することが許可されていない文字: '{0}'.</target>
         <note />
       </trans-unit>
-      <trans-unit id="OptionExpectsFewerArguments">
-        <source>Option '{0}' expects no more than {1} arguments, but {2} were provided.</source>
-        <target state="translated">オプション '{0}' では、引数が {1} 個以下である必要がありますが、{2} 個が指定されています。.</target>
-        <note />
-      </trans-unit>
       <trans-unit id="OptionExpectsOneArgument">
         <source>Option '{0}' expects a single argument but {1} were provided.</source>
         <target state="new">Option '{0}' expects a single argument but {1} were provided.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="OptionNoArgumentProvided">
-        <source>No argument was provided for Option '{0}'.</source>
-        <target state="new">No argument was provided for Option '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="OptionRequiredArgumentMissing">
