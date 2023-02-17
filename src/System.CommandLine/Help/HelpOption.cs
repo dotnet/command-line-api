@@ -15,6 +15,7 @@ namespace System.CommandLine.Help
             : base(aliases, null, new Argument<bool> { Arity = ArgumentArity.Zero })
         {
             _localizationResources = getLocalizationResources;
+            AppliesToSelfAndChildren = true;
         }
 
         public HelpOption(Func<LocalizationResources> getLocalizationResources) : this(new[]

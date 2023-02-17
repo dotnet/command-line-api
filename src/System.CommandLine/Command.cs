@@ -82,18 +82,6 @@ namespace System.CommandLine
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
-        /// Adds a global <see cref="Option"/> to the command.
-        /// </summary>
-        /// <param name="option">The global option to add to the command.</param>
-        /// <remarks>Global options are applied to the command and recursively to subcommands. They do not apply to
-        /// parent commands.</remarks>
-        public void AddGlobalOption(Option option)
-        {
-            option.AppliesToSelfAndChildren = true;
-            Options.Add(option);
-        }
-
-        /// <summary>
         /// Adds a <see cref="Symbol"/> to the command.
         /// </summary>
         /// <param name="symbol">The symbol to add to the command.</param>

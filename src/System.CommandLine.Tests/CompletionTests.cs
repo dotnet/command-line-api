@@ -73,7 +73,7 @@ namespace System.CommandLine.Tests
                 subcommand1
             };
 
-            rootCommand.AddGlobalOption(new Option<string>("--three", "option three"));
+            rootCommand.Options.Add(new Option<string>("--three", "option three") { AppliesToSelfAndChildren = true });
 
             var completions = subcommand2.GetCompletions(CompletionContext.Empty);
 

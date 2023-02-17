@@ -364,7 +364,7 @@ ERR:
             if (builder.HelpOption is null)
             {
                 builder.HelpOption = helpOption;
-                builder.Command.AddGlobalOption(helpOption);
+                builder.Command.Options.Add(helpOption);
                 builder.MaxHelpWidth = maxWidth;
             }
             return builder;

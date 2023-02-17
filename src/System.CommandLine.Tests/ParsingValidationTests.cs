@@ -458,7 +458,7 @@ namespace System.CommandLine.Tests
         [InlineData("subcommand --file \"Foo\"")]
         public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)
         {
-            var option = new Option<FileInfo>("--file");
+            var option = new Option<FileInfo>("--file") { AppliesToSelfAndChildren = true };
             option.Validators.Add(r =>
             {
                 r.AddError("Invoked validator");
@@ -469,7 +469,7 @@ namespace System.CommandLine.Tests
             {
                 subCommand
             };
-            rootCommand.AddGlobalOption(option);
+            rootCommand.Options.Add(option);
 
             var result = rootCommand.Parse(commandLine);
 
@@ -495,7 +495,11 @@ namespace System.CommandLine.Tests
         {
             var handlerWasCalled = false;
 
-            var globalOption = new Option<int>("--value");
+            var globalOption = new Option<int>("--value")
+            { 
+                AppliesToSelfAndChildren = true
+            };
+
             globalOption.Validators.Add(r => r.AddError("oops!"));
 
             var grandchildCommand = new Command("grandchild");
@@ -509,7 +513,7 @@ namespace System.CommandLine.Tests
                 childCommand
             };
 
-            rootCommand.AddGlobalOption(globalOption);
+            rootCommand.Options.Add(globalOption);
 
             rootCommand.SetHandler((int i) => handlerWasCalled = true, globalOption);
             childCommand.SetHandler((int i) => handlerWasCalled = true, globalOption);
