@@ -54,13 +54,13 @@ System.CommandLine
     public System.Void Add(Symbol symbol)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
+    public ParseResult Parse(System.String[] args)
+    public ParseResult Parse(System.String commandLine)
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
-    public static ParseResult Parse(this Command command, System.String[] args)
-    public static ParseResult Parse(this Command command, System.String commandLine)
   public class CommandLineBuilder
     .ctor(Command rootCommand = null)
     public Command Command { get; }
