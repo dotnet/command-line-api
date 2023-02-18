@@ -35,7 +35,7 @@ namespace System.CommandLine.Invocation
         /// </summary>
         public IConsole Console
         {
-            get =>_console ??= new SystemConsole();
+            get => _console ??= new SystemConsole();
             set => _console = value;
         } 
 

@@ -26,7 +26,7 @@ namespace System.CommandLine
         /// <param name="builder">A command line builder.</param>
         /// <param name="timeout">
         /// Optional timeout for the command to process the exit cancellation.
-        /// If not passed , a default timeout of 2 seconds is enforced.
+        /// If not passed, a default timeout of 2 seconds is enforced.
         /// If positive value is passed - command is forcefully terminated after the timeout with exit code 130 (as if <see cref="CancelOnProcessTermination"/> was not called).
         /// Host enforced timeout for ProcessExit event cannot be extended - default is 2 seconds: https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-6.0.
         /// </param>
