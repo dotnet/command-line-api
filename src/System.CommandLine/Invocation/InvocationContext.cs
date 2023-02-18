@@ -70,20 +70,12 @@ namespace System.CommandLine.Invocation
         /// <remarks>As the <see cref="InvocationContext"/> is passed through the invocation pipeline to the <see cref="ICommandHandler"/> associated with the invoked command, only the last value of this property will be the one applied.</remarks>
         public Action<InvocationContext>? InvocationResult { get; set; }
 
-        /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
-        public object? GetValue(Option option) =>
-            ParseResult.GetValue(option);
-
-        /// <inheritdoc cref="ParseResult.GetValue(Option)"/>
+        /// <inheritdoc cref="ParseResult.GetValue{T}(Option{T})"/>
         public T? GetValue<T>(Option<T> option)
             => ParseResult.GetValue(option);
 
-        /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
-        public object? GetValue(Argument argument) =>
-            ParseResult.GetValue(argument);
-
-        /// <inheritdoc cref="ParseResult.GetValue(Argument)"/>
-        public T GetValue<T>(Argument<T> argument)
+        /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
+        public T? GetValue<T>(Argument<T> argument)
             => ParseResult.GetValue(argument);
     }
 }

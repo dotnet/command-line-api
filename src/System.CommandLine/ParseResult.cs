@@ -120,26 +120,18 @@ namespace System.CommandLine
             };
 
         /// <summary>
-        /// Gets the parsed or default value for the specified option.
-        /// </summary>
-        /// <param name="option">The option for which to get a value.</param>
-        /// <returns>The parsed value or a configured default.</returns>
-        public object? GetValue(Option option) =>
-            RootCommandResult.GetValue(option);
-
-        /// <summary>
         /// Gets the parsed or default value for the specified argument.
         /// </summary>
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public object? GetValue(Argument argument) =>
-            RootCommandResult.GetValue(argument);
-
-        /// <inheritdoc cref="GetValue(Argument)"/>
-        public T GetValue<T>(Argument<T> argument)
+        public T? GetValue<T>(Argument<T> argument)
             => RootCommandResult.GetValue(argument);
-        
-        /// <inheritdoc cref="GetValue(Option)"/>
+
+        /// <summary>
+        /// Gets the parsed or default value for the specified option.
+        /// </summary>
+        /// <param name="option">The option for which to get a value.</param>
+        /// <returns>The parsed value or a configured default.</returns>
         public T? GetValue<T>(Option<T> option)
             => RootCommandResult.GetValue(option);
 
