@@ -54,7 +54,6 @@ System.CommandLine
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.CommandResult>> Validators { get; }
     public System.Void Add(Symbol symbol)
-    public System.Void AddGlobalOption(Option option)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
   public static class CommandExtensions
@@ -184,6 +183,7 @@ System.CommandLine
     public System.String VersionOptionDescription()
   public abstract class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
+    public System.Boolean AppliesToSelfAndChildren { get; set; }
     public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
     public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }

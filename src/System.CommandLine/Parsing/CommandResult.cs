@@ -84,7 +84,7 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-                if (!completeValidation && !(option.IsGlobal || option.Argument.HasDefaultValue || (option is HelpOption or VersionOption)))
+                if (!completeValidation && !(option.AppliesToSelfAndChildren || option.Argument.HasDefaultValue || (option is HelpOption or VersionOption)))
                 {
                     continue;
                 }

@@ -226,7 +226,7 @@ public partial class HelpBuilder
                                 foreach (var option in parentCommand.Options)
                                 {
                                     // global help aliases may be duplicated, we just ignore them
-                                    if (option.IsGlobal && !option.IsHidden && uniqueOptions.Add(option))
+                                    if (option.AppliesToSelfAndChildren && !option.IsHidden && uniqueOptions.Add(option))
                                     {
                                         options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
                                     }
