@@ -44,14 +44,12 @@ namespace System.CommandLine.Help
         {
             var output = context.Console.Out.CreateTextWriter();
 
-            var helpContext = new HelpContext(context.BindingContext.HelpBuilder,
+            var helpContext = new HelpContext(context.HelpBuilder,
                                               context.ParseResult.CommandResult.Command,
                                               output,
                                               context.ParseResult);
 
-            context.BindingContext
-                   .HelpBuilder
-                   .Write(helpContext);
+            context.HelpBuilder.Write(helpContext);
         }
     }
 }

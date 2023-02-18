@@ -9,6 +9,7 @@ using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -44,7 +45,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var invocationContext = new InvocationContext(parseResult);
 
-        await handler.InvokeAsync(invocationContext);
+        await handler.InvokeAsync(invocationContext, CancellationToken.None);
 
         BoundValueCapturer.GetBoundValue(invocationContext).Should().Be(expectedValue);
     }
@@ -121,7 +122,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var invocationContext = new InvocationContext(parseResult);
 
-        await handler.InvokeAsync(invocationContext);
+        await handler.InvokeAsync(invocationContext, CancellationToken.None);
 
         var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
 
@@ -184,7 +185,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var invocationContext = new InvocationContext(parseResult);
 
-        await handler.InvokeAsync(invocationContext);
+        await handler.InvokeAsync(invocationContext, CancellationToken.None);
 
         var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
 
@@ -236,7 +237,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var invocationContext = new InvocationContext(parseResult);
 
-        await handler.InvokeAsync(invocationContext);
+        await handler.InvokeAsync(invocationContext, CancellationToken.None);
 
         var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
 
@@ -289,7 +290,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var invocationContext = new InvocationContext(parseResult);
 
-        await handler.InvokeAsync(invocationContext);
+        await handler.InvokeAsync(invocationContext, CancellationToken.None);
 
         var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
 

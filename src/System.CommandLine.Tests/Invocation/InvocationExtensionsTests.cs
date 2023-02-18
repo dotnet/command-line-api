@@ -80,7 +80,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler(_ =>
             {
                 wasCalled = true;
                 throw new Exception("oops!");
@@ -103,7 +103,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler(_ =>
             {
                 wasCalled = true;
                 throw new Exception("oops!");
@@ -125,7 +125,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler(context =>
+            rootCommand.SetHandler((context, cancellationToken) =>
             {
                 context.ExitCode = 123;
                 return Task.CompletedTask;
@@ -141,7 +141,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler(context =>
+            rootCommand.SetHandler((context, cancellationToken) =>
             {
                 context.ExitCode = 123;
                 return Task.CompletedTask;
@@ -157,9 +157,8 @@ namespace System.CommandLine.Tests.Invocation
         {
             CancellationTokenSource cts = new();
             var command = new Command("test");
-            command.SetHandler((InvocationContext context) =>
+            command.SetHandler((InvocationContext context, CancellationToken cancellationToken) =>
             {
-                CancellationToken cancellationToken = context.GetCancellationToken();
                 Assert.True(cancellationToken.CanBeCanceled);
                 if (cancellationToken.IsCancellationRequested)
                 {

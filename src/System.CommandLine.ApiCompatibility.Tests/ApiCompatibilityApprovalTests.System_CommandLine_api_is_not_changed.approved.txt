@@ -116,27 +116,27 @@ System.CommandLine
   public static class Handler
     public static System.Void SetHandler(this Command command, System.Action<System.CommandLine.Invocation.InvocationContext> handle)
     public static System.Void SetHandler(this Command command, System.Action handle)
-    public static System.Void SetHandler(this Command command, System.Func<System.Threading.Tasks.Task> handle)
-    public static System.Void SetHandler(this Command command, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.Tasks.Task> handle)
+    public static System.Void SetHandler(this Command command, System.Func<System.Threading.CancellationToken,System.Threading.Tasks.Task> handle)
+    public static System.Void SetHandler(this Command command, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle)
     public static System.Void SetHandler<T>(this Command command, Action<T> handle, IValueDescriptor<T> symbol)
-    public static System.Void SetHandler<T>(this Command command, Func<T,System.Threading.Tasks.Task> handle, IValueDescriptor<T> symbol)
+    public static System.Void SetHandler<T>(this Command command, Func<T,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle, IValueDescriptor<T> symbol)
     public static System.Void SetHandler<T1, T2>(this Command command, Action<T1,T2> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2)
-    public static System.Void SetHandler<T1, T2>(this Command command, Func<T1,T2,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2)
+    public static System.Void SetHandler<T1, T2>(this Command command, Func<T1,T2,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2)
     public static System.Void SetHandler<T1, T2, T3>(this Command command, Action<T1,T2,T3> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3)
-    public static System.Void SetHandler<T1, T2, T3>(this Command command, Func<T1,T2,T3,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3)
+    public static System.Void SetHandler<T1, T2, T3>(this Command command, Func<T1,T2,T3,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3)
     public static System.Void SetHandler<T1, T2, T3, T4>(this Command command, Action<T1,T2,T3,T4> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4)
-    public static System.Void SetHandler<T1, T2, T3, T4>(this Command command, Func<T1,T2,T3,T4,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4)
+    public static System.Void SetHandler<T1, T2, T3, T4>(this Command command, Func<T1,T2,T3,T4,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4)
     public static System.Void SetHandler<T1, T2, T3, T4, T5>(this Command command, Action<T1,T2,T3,T4,T5> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5)
-    public static System.Void SetHandler<T1, T2, T3, T4, T5>(this Command command, Func<T1,T2,T3,T4,T5,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5>(this Command command, Func<T1,T2,T3,T4,T5,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5)
     public static System.Void SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Action<T1,T2,T3,T4,T5,T6> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6)
-    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Func<T1,T2,T3,T4,T5,T6,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6>(this Command command, Func<T1,T2,T3,T4,T5,T6,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6)
     public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7)
-    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7)
     public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Action<T1,T2,T3,T4,T5,T6,T7,T8> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8)
-    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8)
+    public static System.Void SetHandler<T1, T2, T3, T4, T5, T6, T7, T8>(this Command command, Func<T1,T2,T3,T4,T5,T6,T7,T8,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle, IValueDescriptor<T1> symbol1, IValueDescriptor<T2> symbol2, IValueDescriptor<T3> symbol3, IValueDescriptor<T4> symbol4, IValueDescriptor<T5> symbol5, IValueDescriptor<T6> symbol6, IValueDescriptor<T7> symbol7, IValueDescriptor<T8> symbol8)
   public interface ICommandHandler
     public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
   public abstract class IdentifierSymbol : Symbol
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
@@ -324,8 +324,8 @@ System.CommandLine.Help
     public System.Boolean Equals(TwoColumnHelpRow other)
     public System.Int32 GetHashCode()
 System.CommandLine.Invocation
-  public class InvocationContext, System.IDisposable
-    .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+  public class InvocationContext
+    .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; set; }
     public System.Int32 ExitCode { get; set; }
@@ -334,17 +334,15 @@ System.CommandLine.Invocation
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
-    public System.Threading.CancellationToken GetCancellationToken()
     public System.Object GetValue(System.CommandLine.Option option)
     public T GetValue<T>(Option<T> option)
     public System.Object GetValue(System.CommandLine.Argument argument)
     public T GetValue<T>(Argument<T> argument)
-    public System.Void LinkToken(System.Threading.CancellationToken token)
   public delegate InvocationMiddleware : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(InvocationContext context, System.Func<InvocationContext,System.Threading.Tasks.Task> next, System.AsyncCallback callback, System.Object object)
+    public System.IAsyncResult BeginInvoke(InvocationContext context, System.Threading.CancellationToken cancellationToken, System.Func<InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> next, System.AsyncCallback callback, System.Object object)
     public System.Threading.Tasks.Task EndInvoke(System.IAsyncResult result)
-    public System.Threading.Tasks.Task Invoke(InvocationContext context, System.Func<InvocationContext,System.Threading.Tasks.Task> next)
+    public System.Threading.Tasks.Task Invoke(InvocationContext context, System.Threading.CancellationToken cancellationToken, System.Func<InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> next)
   public enum MiddlewareOrder : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
     Default=0
     ErrorReporting=1000

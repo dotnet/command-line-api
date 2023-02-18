@@ -129,8 +129,8 @@ namespace System.CommandLine.Benchmarks.DragonFruit
         }
 
         [Benchmark(Description = "ExecuteAssemblyAsync entry point search.")]
-        public async Task SearchForStartingPointUsingReflection()
-               => await System.CommandLine.DragonFruit.CommandLine.ExecuteAssemblyAsync(
+        public Task SearchForStartingPointUsingReflection()
+               => System.CommandLine.DragonFruit.CommandLine.ExecuteAssemblyAsync(
                     _testAssembly,
                     new string[] { },
                     null,
@@ -138,8 +138,8 @@ namespace System.CommandLine.Benchmarks.DragonFruit
                    _nullConsole);
 
         [Benchmark(Description = "ExecuteAssemblyAsync explicit entry point.")]
-        public async Task SearchForStartingPointWhenGivenEntryPointClass()
-            => await System.CommandLine.DragonFruit.CommandLine.ExecuteAssemblyAsync(
+        public Task SearchForStartingPointWhenGivenEntryPointClass()
+            => System.CommandLine.DragonFruit.CommandLine.ExecuteAssemblyAsync(
                 _testAssembly,
                 new string[] { },
                 "PerfTestApp.Program",

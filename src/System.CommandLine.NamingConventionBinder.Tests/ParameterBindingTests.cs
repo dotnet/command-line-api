@@ -7,6 +7,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -447,9 +448,9 @@ public class ParameterBindingTests
     {
         public abstract Task<int> DoJobAsync();
 
-        public int Invoke(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
+        public int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 
-        public Task<int> InvokeAsync(InvocationContext context)
+        public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
             => DoJobAsync();
     }
 
@@ -463,13 +464,13 @@ public class ParameterBindingTests
     {
         public int Invoke(InvocationContext context) => 42;
 
-        public virtual Task<int> InvokeAsync(InvocationContext context)
+        public virtual Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
             => Task.FromResult(42);
     }
 
     public class OverridenVirtualTestCommandHandler : VirtualTestCommandHandler
     {
-        public override Task<int> InvokeAsync(InvocationContext context)
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
             => Task.FromResult(41);
     }
 }

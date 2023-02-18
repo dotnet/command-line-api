@@ -6,6 +6,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Tests.Binding;
 using System.CommandLine.Utility;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -41,7 +42,8 @@ public partial class ModelBindingCommandHandlerTests
             var console = new TestConsole();
 
             await handler.InvokeAsync(
-                new InvocationContext(command.Parse(commandLine), console));
+                new InvocationContext(command.Parse(commandLine), console),
+                CancellationToken.None);
 
             console.Out.ToString().Should().Be(expectedValue.ToString());
         }
@@ -73,7 +75,8 @@ public partial class ModelBindingCommandHandlerTests
             var console = new TestConsole();
 
             await handler.InvokeAsync(
-                new InvocationContext(command.Parse(commandLine), console));
+                new InvocationContext(command.Parse(commandLine), console),
+                CancellationToken.None);
 
             console.Out.ToString().Should().Be($"ClassWithSetter<{type.Name}>: {expectedValue}");
         }
@@ -105,7 +108,8 @@ public partial class ModelBindingCommandHandlerTests
             var console = new TestConsole();
 
             await handler.InvokeAsync(
-                new InvocationContext(command.Parse(commandLine), console));
+                new InvocationContext(command.Parse(commandLine), console),
+                CancellationToken.None);
 
             console.Out.ToString().Should().Be($"ClassWithCtorParameter<{type.Name}>: {expectedValue}");
         }
@@ -133,7 +137,7 @@ public partial class ModelBindingCommandHandlerTests
             var console = new TestConsole();
 
             await handler.InvokeAsync(
-                new InvocationContext(command.Parse(commandLine), console));
+                new InvocationContext(command.Parse(commandLine), console), CancellationToken.None);
 
             console.Out.ToString().Should().Be(expectedValue.ToString());
         }

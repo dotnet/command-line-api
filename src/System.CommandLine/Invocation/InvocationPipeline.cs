@@ -8,51 +8,66 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal class InvocationPipeline
+    internal static class InvocationPipeline
     {
-        private readonly ParseResult _parseResult;
-
-        internal InvocationPipeline(ParseResult parseResult)
-            => _parseResult = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
-
-        public async Task<int> InvokeAsync(IConsole? console = null, CancellationToken cancellationToken = default)
+        internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console, CancellationToken cancellationToken)
         {
-            var context = new InvocationContext(_parseResult, console, cancellationToken);
+            InvocationContext context = new (parseResult, console);
+
+            using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            Task<int> startedInvocation = parseResult.Handler is not null && context.Parser.Configuration.Middleware.Count == 0
+                ? parseResult.Handler.InvokeAsync(context, cts.Token)
+                : InvokeHandlerWithMiddleware(context, cts.Token);
+
+            ProcessTerminationHandler? terminationHandler = parseResult.Parser.Configuration.ProcessTerminationTimeout.HasValue
+                ? new (cts, startedInvocation, parseResult.Parser.Configuration.ProcessTerminationTimeout.Value)
+                : null;
 
             try
             {
-                if (context.Parser.Configuration.Middleware.Count == 0 && _parseResult.Handler is not null)
+                if (terminationHandler is null)
                 {
-                    return await _parseResult.Handler.InvokeAsync(context);
+                    return await startedInvocation;
                 }
-
-                return await InvokeHandlerWithMiddleware(context);
+                else
+                {
+                    // Handlers may not implement cancellation.
+                    // In such cases, when CancelOnProcessTermination is configured and user presses Ctrl+C,
+                    // ProcessTerminationCompletionSource completes first, with the result equal to native exit code for given signal.
+                    Task<int> firstCompletedTask = await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task);
+                    return await firstCompletedTask; // return the result or propagate the exception
+                }
             }
             catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)
             {
                 context.Parser.Configuration.ExceptionHandler(ex, context);
                 return context.ExitCode;
             }
+            finally
+            {
+                terminationHandler?.Dispose();
+            }
 
-            static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context)
+            static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context, CancellationToken token)
             {
                 InvocationMiddleware invocationChain = BuildInvocationChain(context, true);
 
-                await invocationChain(context, _ => Task.CompletedTask);
+                await invocationChain(context, token, (_, _) => Task.CompletedTask);
 
                 return GetExitCode(context);
             }
         }
 
-        public int Invoke(IConsole? console = null)
+        internal static int Invoke(ParseResult parseResult, IConsole? console = null)
         {
-            var context = new InvocationContext(_parseResult, console);
+            InvocationContext context = new (parseResult, console);
 
             try
             {
-                if (context.Parser.Configuration.Middleware.Count == 0 && _parseResult.Handler is not null)
+                if (context.Parser.Configuration.Middleware.Count == 0 && parseResult.Handler is not null)
                 {
-                    return _parseResult.Handler.Invoke(context);
+                    return parseResult.Handler.Invoke(context);
                 }
 
                 return InvokeHandlerWithMiddleware(context); // kept in a separate method to avoid JITting
@@ -67,7 +82,7 @@ namespace System.CommandLine.Invocation
             {
                 InvocationMiddleware invocationChain = BuildInvocationChain(context, false);
 
-                invocationChain(context, static _ => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
+                invocationChain(context, CancellationToken.None, static (_, _) => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
 
                 return GetExitCode(context);
             }
@@ -78,21 +93,21 @@ namespace System.CommandLine.Invocation
             var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware.Count + 1);
             invocations.AddRange(context.Parser.Configuration.Middleware);
 
-            invocations.Add(async (invocationContext, _) =>
+            invocations.Add(async (invocationContext, cancellationToken, _) =>
             {
                 if (invocationContext.ParseResult.Handler is { } handler)
                 {
                     context.ExitCode = invokeAsync
-                                           ? await handler.InvokeAsync(invocationContext)
+                                           ? await handler.InvokeAsync(invocationContext, cancellationToken)
                                            : handler.Invoke(invocationContext);
                 }
             });
 
             return invocations.Aggregate(
                 (first, second) =>
-                    (ctx, next) =>
-                        first(ctx,
-                              c => second(c, next)));
+                    (ctx, token, next) =>
+                        first(ctx, token,
+                              (c, t) => second(c, t, next)));
         }
 
         private static int GetExitCode(InvocationContext context)

@@ -31,7 +31,6 @@ namespace System.CommandLine.Invocation
 
     internal enum MiddlewareOrderInternal
     {
-        Startup = -4000,
         RegisterWithDotnetSuggest = -2400,
     }
 }
