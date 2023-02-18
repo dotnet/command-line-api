@@ -26,7 +26,7 @@ namespace System.CommandLine
             string[] args,
             IConsole? console = null)
         {
-            ParseResult parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
+            ParseResult parseResult = command.Parse(args);
 
             return InvocationPipeline.Invoke(parseResult, console);
         }
@@ -59,7 +59,7 @@ namespace System.CommandLine
             IConsole? console = null, 
             CancellationToken cancellationToken = default)
         {
-            ParseResult parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
+            ParseResult parseResult = command.Parse(args);
 
             return InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
         }

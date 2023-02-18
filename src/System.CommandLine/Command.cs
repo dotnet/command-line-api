@@ -132,9 +132,6 @@ namespace System.CommandLine
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        internal Parser? ImplicitInvocationParser { get; set; }
-
-        internal Parser? ImplicitSimpleParser { get; set; }
 
         /// <summary>
         /// Parses an array strings using the command.
@@ -142,7 +139,7 @@ namespace System.CommandLine
         /// <param name="args">The string arguments to parse.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public ParseResult Parse(params string[] args) =>
-            this.GetOrCreateDefaultSimpleParser().Parse(args);
+            new Parser(this).Parse(args);
 
         /// <summary>
         /// Parses a command line string value using the command.
@@ -151,7 +148,7 @@ namespace System.CommandLine
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public ParseResult Parse(string commandLine)
-            => this.GetOrCreateDefaultSimpleParser().Parse(commandLine);
+            => new Parser(this).Parse(commandLine);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
