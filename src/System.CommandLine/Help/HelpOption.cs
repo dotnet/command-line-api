@@ -11,6 +11,7 @@ namespace System.CommandLine.Help
         internal HelpOption(string[] aliases, LocalizationResources localizationResources)
             : base(aliases, localizationResources.HelpOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
         {
+            AppliesToSelfAndChildren = true;
         }
 
         internal HelpOption(LocalizationResources localizationResources) : this(new[]
@@ -34,14 +35,12 @@ namespace System.CommandLine.Help
         {
             var output = context.Console.Out.CreateTextWriter();
 
-            var helpContext = new HelpContext(context.BindingContext.HelpBuilder,
+            var helpContext = new HelpContext(context.HelpBuilder,
                                               context.ParseResult.CommandResult.Command,
                                               output,
                                               context.ParseResult);
 
-            context.BindingContext
-                   .HelpBuilder
-                   .Write(helpContext);
+            context.HelpBuilder.Write(helpContext);
         }
     }
 }

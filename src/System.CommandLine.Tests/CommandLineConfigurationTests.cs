@@ -170,13 +170,13 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_global_option_aliases_on_the_root_command()
     {
-        var option1 = new Option<string>("--dupe");
-        var option2 = new Option<string>("-y");
+        var option1 = new Option<string>("--dupe") { AppliesToSelfAndChildren = true };
+        var option2 = new Option<string>("-y") { AppliesToSelfAndChildren = true };
         option2.AddAlias("--dupe");
 
         var command = new RootCommand();
-        command.AddGlobalOption(option1);
-        command.AddGlobalOption(option2);
+        command.Options.Add(option1);
+        command.Options.Add(option2);
 
         var config = new CommandLineConfiguration(command);
 
@@ -200,7 +200,7 @@ public class CommandLineConfigurationTests
                 new Option<string>("--dupe")
             }
         };
-        rootCommand.AddGlobalOption(new Option<string>("--dupe"));
+        rootCommand.Options.Add(new Option<string>("--dupe") { AppliesToSelfAndChildren = true });
 
         var config = new CommandLineConfiguration(rootCommand);
 
@@ -219,7 +219,7 @@ public class CommandLineConfigurationTests
                 new Command("--dupe")
             }
         };
-        rootCommand.AddGlobalOption(new Option<string>("--dupe"));
+        rootCommand.Options.Add(new Option<string>("--dupe") { AppliesToSelfAndChildren = true });
 
         var config = new CommandLineConfiguration(rootCommand);
 

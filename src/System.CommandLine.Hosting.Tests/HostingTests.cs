@@ -300,10 +300,10 @@ namespace System.CommandLine.Hosting.Tests
             InvocationContext ctxHosting = null;
 
             var parser = new CommandLineBuilder()
-                .AddMiddleware((context, next) =>
+                .AddMiddleware((context, cancellationToken, next) =>
                 {
                     ctxCustom = context;
-                    return next(context);
+                    return next(context, cancellationToken);
                 })
                 .UseHost(hostBuilder =>
                 {
@@ -323,10 +323,10 @@ namespace System.CommandLine.Hosting.Tests
             InvocationContext ctxConfigureServices = null;
 
             var parser = new CommandLineBuilder()
-                .AddMiddleware((context, next) =>
+                .AddMiddleware((context, cancellationToken, next) =>
                 {
                     ctxCustom = context;
-                    return next(context);
+                    return next(context, cancellationToken);
                 })
                 .UseHost(hostBuilder =>
                 {
@@ -373,13 +373,13 @@ namespace System.CommandLine.Hosting.Tests
             bool hostAsserted = false;
             var parser = new CommandLineBuilder()
                 .UseHost()
-                .AddMiddleware((invCtx, next) =>
+                .AddMiddleware((invCtx, cancellationToken, next) =>
                 {
                     IHost host = invCtx.GetHost();
                     host.Should().NotBeNull();
                     hostAsserted = true;
 
-                    return next(invCtx);
+                    return next(invCtx, cancellationToken);
                 })
                 .Build();
 
@@ -393,13 +393,13 @@ namespace System.CommandLine.Hosting.Tests
         {
             bool hostAsserted = false;
             var parser = new CommandLineBuilder()
-                .AddMiddleware((invCtx, next) =>
+                .AddMiddleware((invCtx, cancellationToken, next) =>
                 {
                     IHost host = invCtx.GetHost();
                     host.Should().BeNull();
                     hostAsserted = true;
 
-                    return next(invCtx);
+                    return next(invCtx, cancellationToken);
                 })
                 .Build();
 

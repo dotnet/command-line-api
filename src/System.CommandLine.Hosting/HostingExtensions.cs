@@ -18,7 +18,7 @@ namespace System.CommandLine.Hosting
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null) =>
-            builder.AddMiddleware(async (invocation, next) =>
+            builder.AddMiddleware(async (invocation, cancellationToken, next) =>
             {
                 var argsRemaining = invocation.ParseResult.UnmatchedTokens.ToArray();
                 var hostBuilder = hostBuilderFactory?.Invoke(argsRemaining)
@@ -44,11 +44,11 @@ namespace System.CommandLine.Hosting
 
                 invocation.BindingContext.AddService(typeof(IHost), _ => host);
 
-                await host.StartAsync();
+                await host.StartAsync(cancellationToken);
 
-                await next(invocation);
+                await next(invocation, cancellationToken);
 
-                await host.StopAsync();
+                await host.StopAsync(cancellationToken);
             });
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,

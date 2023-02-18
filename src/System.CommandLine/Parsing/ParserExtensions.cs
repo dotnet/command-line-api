@@ -49,12 +49,12 @@ namespace System.CommandLine.Parsing
         /// Parses a command line string array and invokes the handler for the indicated command.
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
-        public static async Task<int> InvokeAsync(
+        public static Task<int> InvokeAsync(
             this Parser parser,
             string[] args,
             IConsole? console = null,
             CancellationToken cancellationToken = default) =>
-            await parser.Parse(args).InvokeAsync(console, cancellationToken);
+            parser.Parse(args).InvokeAsync(console, cancellationToken);
 
         /// <summary>
         /// Parses a command line string.

@@ -6,6 +6,7 @@ using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.NamingConventionBinder;
@@ -54,8 +55,9 @@ public class ModelBindingCommandHandler : ICommandHandler
     /// Binds values for the underlying user-defined method and uses them to invoke that method.
     /// </summary>
     /// <param name="context">The current invocation context.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the invocation.</param>
     /// <returns>A task whose value can be used to set the process exit code.</returns>
-    public async Task<int> InvokeAsync(InvocationContext context)
+    public async Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
     {
         var bindingContext = context.BindingContext;
 
@@ -130,5 +132,5 @@ public class ModelBindingCommandHandler : ICommandHandler
                                                        x.ValueType == param.ParameterType);
 
     /// <inheritdoc />
-    public int Invoke(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
+    public int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 }
