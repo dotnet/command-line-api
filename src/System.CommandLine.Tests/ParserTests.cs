@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x");
 
-            var result = option.Parse("-x=some-value");
+            var result = new RootCommand { option }.Parse("-x=some-value");
 
             result.Errors.Should().BeEmpty();
 
@@ -86,7 +86,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("--hello");
 
-            var result = option.Parse("--hello=there");
+            var result = new RootCommand { option }.Parse("--hello=there");
 
             result.Errors.Should().BeEmpty();
 
@@ -98,7 +98,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x");
 
-            var result = option.Parse("-x:some-value");
+            var result = new RootCommand { option }.Parse("-x:some-value");
 
             result.Errors.Should().BeEmpty();
 
@@ -110,7 +110,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("--hello");
 
-            var result = option.Parse("--hello:there");
+            var result = new RootCommand { option }.Parse("--hello:there");
 
             result.Errors.Should().BeEmpty();
 
@@ -1052,7 +1052,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string[]>("-x");
 
-            var parseResult = option.Parse(new[] { arg1, arg2 });
+            var parseResult = new RootCommand { option }.Parse(new[] { arg1, arg2 });
 
             parseResult
                 .FindResultFor(option)

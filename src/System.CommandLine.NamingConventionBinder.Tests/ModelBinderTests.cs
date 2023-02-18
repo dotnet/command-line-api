@@ -481,7 +481,7 @@ public class ModelBinderTests
     {
         var option = new Option<int>("--int-property");
 
-        var bindingContext = new InvocationContext(option.Parse("--int-property 42")).BindingContext;
+        var bindingContext = new InvocationContext(new RootCommand { option }.Parse("--int-property 42")).BindingContext;
         var binder = new ModelBinder<ClassWithMultipleCtor>();
         var instance = binder.CreateInstance(bindingContext) as ClassWithMultipleCtor;
 

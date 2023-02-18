@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("-x");
             option.AcceptOnlyFromAmong("this", "that", "the-other-thing");
 
-            var result = option.Parse("-x none-of-those");
+            var result = new RootCommand { option }.Parse("-x none-of-those");
 
             result.Errors
                   .Select(e => e.Message)
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("-x");
             option.AcceptOnlyFromAmong("this", "that");
 
-            var result = option.Parse("-x something_else");
+            var result = new RootCommand { option }.Parse("-x something_else");
 
             result.Errors
                   .Where(e => e.SymbolResult != null)
@@ -210,7 +210,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x");
 
-            var result = option.Parse("-x");
+            var result = new RootCommand { option }.Parse("-x");
 
             result.Errors
                   .Should()
@@ -585,7 +585,7 @@ namespace System.CommandLine.Tests
                 }
             });
 
-            var result = option.Parse("-x -1");
+            var result = new RootCommand { option }.Parse("-x -1");
 
             result.Errors
                   .Should()
@@ -1162,7 +1162,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x", () => 123);
 
-            var result = option.Parse("-x");
+            var result = new RootCommand { option }.Parse("-x");
 
             result.Errors
                   .Select(e => e.Message)

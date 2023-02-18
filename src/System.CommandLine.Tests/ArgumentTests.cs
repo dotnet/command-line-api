@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests
                         return null;
                     }, true);
 
-                option.Parse("")
+                new RootCommand { option }.Parse("")
                       .Errors
                       .Should()
                       .ContainSingle()

@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("--flag");
 
-            var result = option.Parse($"@{CreateResponseFile("--flag")}");
+            var result = new RootCommand { option }.Parse($"@{CreateResponseFile("--flag")}");
 
             result.HasOption(option).Should().BeTrue();
         }

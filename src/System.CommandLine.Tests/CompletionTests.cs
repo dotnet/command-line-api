@@ -956,7 +956,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<DayOfWeek>("--day");
 
-            var result = option.Parse("--day SleepyDay");
+            var result = new RootCommand { option }.Parse("--day SleepyDay");
 
             result.Errors
                   .Should()

@@ -8,8 +8,6 @@ System.CommandLine
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
-    public ParseResult Parse(System.String commandLine)
-    public ParseResult Parse(System.String[] args)
     public System.String ToString()
   public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
     .ctor()
@@ -191,8 +189,6 @@ System.CommandLine
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public ParseResult Parse(System.String commandLine)
-    public ParseResult Parse(System.String[] args)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
     .ctor(System.String name, System.String description = null)
     .ctor(System.String[] aliases, System.String description = null)

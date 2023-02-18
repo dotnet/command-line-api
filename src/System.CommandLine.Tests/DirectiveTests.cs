@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-y");
 
-            var result = option.Parse($"{RootCommand.ExecutableName} [parse] -y");
+            var result = new RootCommand { option }.Parse($"{RootCommand.ExecutableName} [parse] -y");
 
             result.UnmatchedTokens.Should().BeEmpty();
         }
@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-y");
 
-            var result = option.Parse("[parse] -y");
+            var result = new RootCommand { option }.Parse("[parse] -y");
 
             result.Directives.ContainsKey("parse").Should().BeTrue();
             result.Tokens.Should().Contain(t => t.Value == "[parse]");
@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-y");
 
-            var result = option.Parse("[parse] -y");
+            var result = new RootCommand { option }.Parse("[parse] -y");
 
             result.Directives.ContainsKey("parse").Should().BeTrue();
         }
@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-y");
 
-            var result = option.Parse("[parse] [suggest] -y");
+            var result = new RootCommand { option }.Parse("[parse] [suggest] -y");
 
             result.Directives.ContainsKey("parse").Should().BeTrue();
             result.Directives.ContainsKey("suggest").Should().BeTrue();
@@ -58,7 +58,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-y");
 
-            var result = option.Parse("-y [suggest]");
+            var result = new RootCommand { option }.Parse("-y [suggest]");
 
             result.Directives.Should().BeEmpty();
         }
@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-y");
 
-            var result = option.Parse($"{directive} -y");
+            var result = new RootCommand { option }.Parse($"{directive} -y");
 
             result.Directives.TryGetValue(expectedKey, out var values).Should().BeTrue();
             values.Should().BeEquivalentTo(expectedValue);
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-y");
 
-            var result = option.Parse("[parse] -y");
+            var result = new RootCommand { option }.Parse("[parse] -y");
 
             result.Directives.TryGetValue("parse", out var values).Should().BeTrue();
             values.Should().BeEmpty();
@@ -98,7 +98,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-a");
 
-            var result = option.Parse($"{directive} -a");
+            var result = new RootCommand { option }.Parse($"{directive} -a");
 
             result.Directives.Should().BeEmpty();
             result.UnmatchedTokens.Should().Contain(directive);
@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-a");
 
-            var result = option.Parse($"{value} -a");
+            var result = new RootCommand { option }.Parse($"{value} -a");
 
             result.Directives.Should().BeEmpty();
         }
@@ -122,7 +122,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-a");
 
-            var result = option.Parse("[directive:one] [directive:two] -a");
+            var result = new RootCommand { option }.Parse("[directive:one] [directive:two] -a");
 
             result.Directives.TryGetValue("directive", out var values).Should().BeTrue();
             values.Should().BeEquivalentTo("one", "two");
