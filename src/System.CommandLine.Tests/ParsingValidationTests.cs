@@ -561,7 +561,7 @@ namespace System.CommandLine.Tests
                 }
             });
 
-            var result = argument.Parse("-1");
+            var result = new RootCommand() { argument }.Parse("-1");
 
             result.Errors
                   .Should()

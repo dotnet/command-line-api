@@ -987,7 +987,7 @@ namespace System.CommandLine.Tests.Binding
 
         private void AssertParsedValueIsEmpty<T>(Argument<T> argument) where T : IEnumerable
         {
-            var result = argument.Parse("");
+            var result = new RootCommand { argument }.Parse("");
 
             result.GetValue(argument)
                   .Should()
