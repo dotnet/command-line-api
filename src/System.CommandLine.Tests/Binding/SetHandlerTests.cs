@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -184,29 +186,29 @@ namespace System.CommandLine.Tests.Binding
             var receivedValues = new List<int>();
             Delegate handlerFunc = arity switch
             {
-                1 => new Func<int, Task>(
-                    i1 =>
+                1 => new Func<int, CancellationToken, Task>(
+                    (i1, cancellationToken) =>
                         Received(i1)),
-                2 => new Func<int, int, Task>(
-                    (i1, i2) =>
+                2 => new Func<int, int, CancellationToken, Task>(
+                    (i1, i2, cancellationToken) =>
                         Received(i1, i2)),
-                3 => new Func<int, int, int, Task>(
-                    (i1, i2, i3) =>
+                3 => new Func<int, int, int, CancellationToken, Task>(
+                    (i1, i2, i3, cancellationToken) =>
                         Received(i1, i2, i3)),
-                4 => new Func<int, int, int, int, Task>(
-                    (i1, i2, i3, i4) =>
+                4 => new Func<int, int, int, int, CancellationToken, Task>(
+                    (i1, i2, i3, i4, cancellationToken) =>
                         Received(i1, i2, i3, i4)),
-                5 => new Func<int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5) =>
+                5 => new Func<int, int, int, int, int, CancellationToken, Task>(
+                    (i1, i2, i3, i4, i5, cancellationToken) =>
                         Received(i1, i2, i3, i4, i5)),
-                6 => new Func<int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6) =>
+                6 => new Func<int, int, int, int, int, int, CancellationToken, Task>(
+                    (i1, i2, i3, i4, i5, i6, cancellationToken) =>
                         Received(i1, i2, i3, i4, i5, i6)),
-                7 => new Func<int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7) =>
+                7 => new Func<int, int, int, int, int, int, int, CancellationToken, Task>(
+                    (i1, i2, i3, i4, i5, i6, i7, cancellationToken) =>
                         Received(i1, i2, i3, i4, i5, i6, i7)),
-                8 => new Func<int, int, int, int, int, int, int, int, Task>(
-                    (i1, i2, i3, i4, i5, i6, i7, i8) =>
+                8 => new Func<int, int, int, int, int, int, int, int, CancellationToken, Task>(
+                    (i1, i2, i3, i4, i5, i6, i7, i8, cancellationToken) =>
                         Received(i1, i2, i3, i4, i5, i6, i7, i8)),
              
                 _ => throw new ArgumentOutOfRangeException()
@@ -257,7 +259,7 @@ namespace System.CommandLine.Tests.Binding
 
             var command = new Command("wat");
 
-            var handle = () =>
+            var handle = (CancellationToken cancellationToken) =>
             {
                 wasCalled = true;
                 return Task.FromResult(new { NovelType = true });
@@ -268,6 +270,37 @@ namespace System.CommandLine.Tests.Binding
             var exitCode = await command.InvokeAsync("");
             wasCalled.Should().BeTrue();
             exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task When_User_Requests_Cancellation_Its_Reflected_By_The_Token_Passed_To_Handler()
+        {
+            const int ExpectedExitCode = 123;
+
+            Command command = new ("the-command");
+            command.SetHandler(async (context, cancellationToken) =>
+            {
+                try
+                {
+                    await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+                    context.ExitCode = ExpectedExitCode * -1;
+                }
+                catch (OperationCanceledException)
+                {
+                    context.ExitCode = ExpectedExitCode;
+                }
+            });
+
+            using CancellationTokenSource cts = new ();
+
+            Parser parser = new CommandLineBuilder(new RootCommand { command })
+                .Build();
+
+            Task<int> invokeResult = parser.InvokeAsync("the-command", null, cts.Token);
+
+            cts.Cancel();
+
+            (await invokeResult).Should().Be(ExpectedExitCode);
         }
     }
 }

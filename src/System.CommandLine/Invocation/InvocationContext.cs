@@ -1,78 +1,41 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
     /// <summary>
     /// Supports command invocation by providing access to parse results and other services.
     /// </summary>
-    public sealed class InvocationContext : IDisposable
+    public sealed class InvocationContext
     {
         private HelpBuilder? _helpBuilder;
         private BindingContext? _bindingContext;
         private IConsole? _console;
-        private readonly CancellationToken _token; 
-        private readonly LinkedList<CancellationTokenRegistration> _registrations = new();
-        private volatile CancellationTokenSource? _source;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
         /// <param name="console">The console to which output is to be written.</param>
-        /// <param name="cancellationToken">A cancellation token that can be used to cancel and invocation.</param>
-        public InvocationContext(
-            ParseResult parseResult,
-            IConsole? console = null,
-            CancellationToken cancellationToken = default)
+        public InvocationContext(ParseResult parseResult, IConsole? console = null)
         {
             ParseResult = parseResult;
             _console = console;
-            
-            _source = new CancellationTokenSource();
-            _token = _source.Token;
-            if (cancellationToken.CanBeCanceled)
-            {
-                LinkToken(cancellationToken);
-            }
         }
 
         /// <summary>
         /// The binding context for the current invocation.
         /// </summary>
-        public BindingContext BindingContext
-        {
-            get
-            {
-                if (_bindingContext is null)
-                {
-                    _bindingContext = new BindingContext(this);
-                    _bindingContext.ServiceProvider.AddService(_ => GetCancellationToken());
-                    _bindingContext.ServiceProvider.AddService(_ => this);
-                }
-
-                return _bindingContext;
-            }
-        }
+        public BindingContext BindingContext => _bindingContext ??= new BindingContext(this);
 
         /// <summary>
         /// The console to which output should be written during the current invocation.
         /// </summary>
         public IConsole Console
         {
-            get
-            {
-                if (_console is null)
-                {
-                    _console = new SystemConsole();
-                }
-
-                return _console;
-            }
+            get => _console ??= new SystemConsole();
             set => _console = value;
         } 
 
@@ -107,22 +70,6 @@ namespace System.CommandLine.Invocation
         /// <remarks>As the <see cref="InvocationContext"/> is passed through the invocation pipeline to the <see cref="ICommandHandler"/> associated with the invoked command, only the last value of this property will be the one applied.</remarks>
         public Action<InvocationContext>? InvocationResult { get; set; }
 
-        /// <summary>
-        /// Gets a cancellation token that can be used to check if cancellation has been requested.
-        /// </summary>
-        public CancellationToken GetCancellationToken() => _token;
-
-        internal void Cancel()
-        {
-            using var source = Interlocked.Exchange(ref _source, null);
-            source?.Cancel();
-        }
-
-        public void LinkToken(CancellationToken token)
-        {
-            _registrations.AddLast(token.Register(Cancel));
-        }
-
         /// <inheritdoc cref="ParseResult.GetValue{T}(Option{T})"/>
         public T? GetValue<T>(Option<T> option)
             => ParseResult.GetValue(option);
@@ -130,15 +77,5 @@ namespace System.CommandLine.Invocation
         /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
         public T? GetValue<T>(Argument<T> argument)
             => ParseResult.GetValue(argument);
-
-        /// <inheritdoc />
-        void IDisposable.Dispose()
-        {
-            Interlocked.Exchange(ref _source, null)?.Dispose();
-            foreach (CancellationTokenRegistration registration in _registrations)
-            {
-                registration.Dispose();
-            }
-        }
     }
 }

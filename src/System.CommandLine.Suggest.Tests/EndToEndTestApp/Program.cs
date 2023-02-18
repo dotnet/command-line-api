@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace EndToEndTestApp
 {
@@ -22,7 +23,7 @@ namespace EndToEndTestApp
             };
 
             rootCommand.SetHandler(
-                (string apple, string banana, string cherry, string durian) => Task.CompletedTask,
+                (string apple, string banana, string cherry, string durian, CancellationToken cancellationToken) => Task.CompletedTask,
                 appleOption,
                 bananaOption,
                 cherryOption,

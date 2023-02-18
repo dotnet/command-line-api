@@ -99,7 +99,7 @@
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Argument argument)
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Option option)
     public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
   public class ModelDescriptor
     public static ModelDescriptor FromType<T>()
     public static ModelDescriptor FromType(System.Type type)

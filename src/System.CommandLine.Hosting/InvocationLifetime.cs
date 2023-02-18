@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,7 +18,6 @@ namespace System.CommandLine.Hosting
 {
     public class InvocationLifetime : IHostLifetime
     {
-        private readonly CancellationToken invokeCancelToken;
         private CancellationTokenRegistration invokeCancelReg;
         private CancellationTokenRegistration appStartedReg;
         private CancellationTokenRegistration appStoppingReg;
@@ -28,7 +26,6 @@ namespace System.CommandLine.Hosting
             IOptions<InvocationLifetimeOptions> options,
             IHostEnvironment environment,
             IHostApplicationLifetime applicationLifetime,
-            InvocationContext context = null,
             ILoggerFactory loggerFactory = null)
         {
             Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -36,11 +33,6 @@ namespace System.CommandLine.Hosting
                 ?? throw new ArgumentNullException(nameof(environment));
             ApplicationLifetime = applicationLifetime
                 ?? throw new ArgumentNullException(nameof(applicationLifetime));
-
-            // if InvocationLifetime is added outside of a System.CommandLine
-            // invocation pipeline context will be null.
-            // Use default cancellation token instead, and become a noop lifetime.
-            invokeCancelToken = context?.GetCancellationToken() ?? default;
 
             Logger = (loggerFactory ?? NullLoggerFactory.Instance)
                 .CreateLogger("Microsoft.Hosting.Lifetime");
@@ -65,7 +57,9 @@ namespace System.CommandLine.Hosting
                 }, this);
             }
 
-            invokeCancelReg = invokeCancelToken.Register(state =>
+            // The token comes from HostingExtensions.UseHost middleware
+            // and it's the invocation cancellation token.
+            invokeCancelReg = cancellationToken.Register(state =>
             {
                 ((InvocationLifetime)state).OnInvocationCancelled();
             }, this);
