@@ -203,7 +203,7 @@ namespace System.CommandLine.Tests
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
             result.GetValue(optionA).Should().Be("value-for-a");
-            result.HasOption(optionB).Should().BeFalse();
+            result.FindResultFor(optionB).Should().BeNull();
             result.GetValue(optionC).Should().Be("value-for-c");
         }
 
@@ -307,9 +307,9 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("-x");
 
             var result = new RootCommand { option }.Parse("");
-            result.HasOption(option)
+            result.FindResultFor(option)
                 .Should()
-                .BeFalse();
+                .BeNull();
             result.GetValue(option)
                 .Should()
                 .BeNull();
@@ -347,9 +347,9 @@ namespace System.CommandLine.Tests
 
             var result = new RootCommand { option }.Parse("");
 
-            result.HasOption(option)
+            result.FindResultFor(option)
                 .Should()
-                .BeFalse();
+                .BeNull();
             result.GetValue(option)
                 .Should()
                 .BeFalse();

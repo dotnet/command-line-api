@@ -31,8 +31,8 @@ namespace System.CommandLine.Tests
             var result = new RootCommand { option, option2 }
                 .Parse("--flag");
 
-            result.HasOption(option).Should().BeTrue();
-            result.HasOption(option2).Should().BeFalse();
+            result.FindResultFor(option).Should().NotBeNull();
+            result.FindResultFor(option2).Should().BeNull();
         }
 
         [Fact]
@@ -44,8 +44,8 @@ namespace System.CommandLine.Tests
 
             var result = new RootCommand { optionOne, optionTwo }.Parse("-o -t");
 
-            result.HasOption(optionOne).Should().BeTrue();
-            result.HasOption(optionTwo).Should().BeTrue();
+            result.FindResultFor(optionOne).Should().NotBeNull();
+            result.FindResultFor(optionTwo).Should().NotBeNull();
         }
 
         [Theory]
@@ -230,8 +230,8 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abcvalue");
-            result.HasOption(optionA).Should().BeTrue();
-            result.HasOption(optionB).Should().BeTrue();
+            result.FindResultFor(optionA).Should().NotBeNull();
+            result.FindResultFor(optionB).Should().NotBeNull();
 
             result.FindResultFor(optionC)
                 .Tokens
@@ -254,8 +254,8 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abc=value");
-            result.HasOption(optionA).Should().BeTrue();
-            result.HasOption(optionB).Should().BeTrue();
+            result.FindResultFor(optionA).Should().NotBeNull();
+            result.FindResultFor(optionB).Should().NotBeNull();
 
             result.FindResultFor(optionC)
                 .Tokens
@@ -278,8 +278,8 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abc:value");
-            result.HasOption(optionA).Should().BeTrue();
-            result.HasOption(optionB).Should().BeTrue();
+            result.FindResultFor(optionA).Should().NotBeNull();
+            result.FindResultFor(optionB).Should().NotBeNull();
 
             result.FindResultFor(optionC)
                 .Tokens
@@ -302,15 +302,15 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abvcalue");
-            result.HasOption(optionA).Should().BeTrue();
-            result.HasOption(optionB).Should().BeTrue();
+            result.FindResultFor(optionA).Should().NotBeNull();
+            result.FindResultFor(optionB).Should().NotBeNull();
 
             result.FindResultFor(optionB)
                 .Tokens
                 .Should()
                 .ContainSingle(t => t.Value == "vcalue");
 
-            result.HasOption(optionC).Should().BeFalse();
+            result.FindResultFor(optionC).Should().BeNull();
         }
 
         [Fact]
@@ -834,7 +834,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("command");
 
-            result.HasOption(option).Should().BeTrue();
+            result.FindResultFor(option).Should().NotBeNull();
             result.GetValue(option).Should().Be("the-default");
         }
 
@@ -1281,7 +1281,7 @@ namespace System.CommandLine.Tests
 
             var result = new RootCommand { option }.Parse("noprefix");
 
-            result.HasOption(option).Should().BeTrue();
+            result.FindResultFor(option).Should().NotBeNull();
         }
 
         [Fact]

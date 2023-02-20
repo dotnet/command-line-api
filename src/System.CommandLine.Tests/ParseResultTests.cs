@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasOption_can_be_used_to_check_the_presence_of_an_option()
+        public void FindResultForHasOption_can_be_used_to_check_the_presence_of_an_option()
         {
             var option = new Option<bool>(new[] { "-h", "--help" });
 
@@ -36,11 +36,11 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -h");
 
-            result.HasOption(option).Should().BeTrue();
+            result.FindResultFor(option).Should().NotBeNull();
         }
 
         [Fact]
-        public void HasOption_can_be_used_to_check_the_presence_of_an_implicit_option()
+        public void FindResultFor_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
             var option = new Option<int>(new[] { "-c", "--count" }, () => 5);
             var command = new Command("the-command")
@@ -50,7 +50,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command");
 
-            result.HasOption(option).Should().BeTrue();
+            result.FindResultFor(option).Should().NotBeNull();
         }
 
         [Fact]

@@ -408,7 +408,6 @@ System.CommandLine.Parsing
     public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.String commandLine, System.CommandLine.CommandLineConfiguration configuration = null)
   public static class ParseResultExtensions
     public static System.String Diagram(this System.CommandLine.ParseResult parseResult)
-    public static System.Boolean HasOption(this System.CommandLine.ParseResult parseResult, System.CommandLine.Option option)
     public static System.Int32 Invoke(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
   public abstract class SymbolResult

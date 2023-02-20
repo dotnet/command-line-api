@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections;
-using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Linq;
@@ -177,25 +176,6 @@ namespace System.CommandLine.Parsing
                     break;
                 }
             }
-        }
-
-        /// <summary>
-        /// Indicates whether a given option is present in the parse result.
-        /// </summary>
-        /// <remarks>If the option has a default value defined, then <see langword="true"/> will be returned.</remarks>
-        /// <param name="parseResult">The parse result to check for the presence of the option.</param>
-        /// <param name="option">The option to check for the presence of.</param>
-        /// <returns><see langword="true"/> if the option is present; otherwise,  <see langword="false"/>.</returns>
-        public static bool HasOption(
-            this ParseResult parseResult,
-            Option option)
-        {
-            if (parseResult is null)
-            {
-                throw new ArgumentNullException(nameof(parseResult));
-            }
-
-            return parseResult.FindResultFor(option) is { };
         }
     }
 }
