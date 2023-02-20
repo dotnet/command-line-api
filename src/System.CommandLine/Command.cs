@@ -132,23 +132,24 @@ namespace System.CommandLine
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-
         /// <summary>
         /// Parses an array strings using the command.
         /// </summary>
         /// <param name="args">The string arguments to parse.</param>
+        /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(params string[] args) =>
-            new Parser(this).Parse(args);
+        public ParseResult Parse(string[]? args, CommandLineConfiguration? configuration = null)
+            => Parser.Parse(this, args, configuration);
 
         /// <summary>
         /// Parses a command line string value using the command.
         /// </summary>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
+        /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(string commandLine)
-            => new Parser(this).Parse(commandLine);
+        public ParseResult Parse(string commandLine, CommandLineConfiguration? configuration = null)
+            => Parser.Parse(this, commandLine, configuration);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

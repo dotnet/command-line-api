@@ -13,7 +13,7 @@ namespace System.CommandLine.Invocation
         {
             var commandLineToComplete = context.ParseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
-            var completionParseResult = context.Parser.Parse(commandLineToComplete);
+            var completionParseResult = context.ParseResult.RootCommandResult.Command.Parse(commandLineToComplete, context.ParseResult.Configuration);
 
             var completions = completionParseResult.GetCompletions(position);
 

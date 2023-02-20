@@ -302,7 +302,7 @@ namespace System.CommandLine.Tests
                     new Argument<string>()
                 };
 
-                var result = new Parser(command).Parse(providedArgs);
+                var result = Parser.Parse(command, providedArgs);
 
                 var numberOfMissingArgs =
                     result

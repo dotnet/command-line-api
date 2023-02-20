@@ -11,19 +11,19 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionShellScriptHandlerTest
     {
-        private readonly Parser _parser;
+        private readonly CommandLineConfiguration _configuration;
         private readonly TestConsole _console;
 
         public SuggestionShellScriptHandlerTest()
         {
-            _parser = new SuggestionDispatcher(new TestSuggestionRegistration()).Parser;
+            _configuration = new SuggestionDispatcher(new TestSuggestionRegistration()).Configuration;
             _console = new TestConsole();
         }
 
         [Fact]
         public async Task When_shell_type_is_not_supported_it_throws()
         {
-            await _parser.InvokeAsync(
+            await _configuration.InvokeAsync(
                 "script 123",
                 _console);
 
@@ -36,7 +36,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task It_should_print_bash_shell_script()
         {
-            await _parser.InvokeAsync(
+            await _configuration.InvokeAsync(
                 "script bash",
                 _console);
 
@@ -46,7 +46,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task It_should_print_powershell_shell_script()
         {
-            await _parser.InvokeAsync(
+            await _configuration.InvokeAsync(
                 "script powershell",
                 _console);
 
@@ -56,7 +56,7 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task It_should_print_zsh_shell_script()
         {
-            await _parser.InvokeAsync(
+            await _configuration.InvokeAsync(
                 "script zsh",
                 _console);
             

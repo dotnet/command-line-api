@@ -34,7 +34,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_middleware_exceptions_and_writes_details_to_standard_error()
         {
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              new Command("the-command")
                          })
@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests
                          .UseExceptionHandler()
                          .Build();
 
-            var resultCode = await parser.InvokeAsync("the-command", _console);
+            var resultCode = await config.InvokeAsync("the-command", _console);
 
             _console.Error.ToString().Should().Contain("Unhandled exception: System.Exception: oops!");
 
@@ -62,14 +62,14 @@ namespace System.CommandLine.Tests
 #pragma warning restore CS0162
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
                          .UseExceptionHandler()
                          .Build();
 
-            var resultCode = await parser.InvokeAsync("the-command", _console);
+            var resultCode = await config.InvokeAsync("the-command", _console);
 
             resultCode.Should().Be(1);
         }
@@ -87,14 +87,14 @@ namespace System.CommandLine.Tests
 #pragma warning restore CS0162
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
                          .UseExceptionHandler()
                          .Build();
 
-            await parser.InvokeAsync("the-command", _console);
+            await config.InvokeAsync("the-command", _console);
 
             _console.Error.ToString().Should().Contain("System.Exception: oops!");
         }

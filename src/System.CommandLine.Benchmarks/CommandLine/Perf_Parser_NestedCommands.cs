@@ -13,8 +13,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_NestedCommands
     {
         private string _testSymbolsAsString;
-        private Parser _testParser;
         private Command _rootCommand;
+        private CommandLineConfiguration _configuration;
 
         /// <remarks>
         /// 1 - cmd-root
@@ -45,7 +45,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             }
         }
 
-        [GlobalSetup(Target = nameof(ParserFromNestedCommands_Ctor))]
+        [GlobalSetup]
         public void SetupRootCommand()
         {
             string rootCommandName = "root";
@@ -62,19 +62,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
             }
 
             _rootCommand = rootCommand;
-        }
-
-        [GlobalSetup(Target = nameof(Parser_Parse))]
-        public void SetupParser()
-        {
-            SetupRootCommand();
-            _testParser = new Parser(_rootCommand);
+            _configuration = CommandLineConfiguration.CreateBuilder(rootCommand).UseDefaults().Build(); ;
         }
 
         [Benchmark]
-        public Parser ParserFromNestedCommands_Ctor() => new(_rootCommand);
-
-        [Benchmark]
-        public ParseResult Parser_Parse() => _testParser.Parse(_testSymbolsAsString);
+        public ParseResult Parser_Parse() => Parser.Parse(_rootCommand, _testSymbolsAsString, _configuration);
     }
 }

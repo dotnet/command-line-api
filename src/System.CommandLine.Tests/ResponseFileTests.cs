@@ -287,10 +287,10 @@ namespace System.CommandLine.Tests
                 optionOne,
                 optionTwo
             };
-            var parser = new CommandLineBuilder(rootCommand)
+            var config = new CommandLineBuilder(rootCommand)
                          .Build();
 
-            var result = parser.Parse($"@{responseFile}");
+            var result = rootCommand.Parse($"@{responseFile}", config);
 
             result.GetValue(optionOne).Should().Be("first value");
             result.GetValue(optionTwo).Should().Be(123);
@@ -307,9 +307,7 @@ namespace System.CommandLine.Tests
                 command,
                 enableTokenReplacement: false);
             
-            var parser = new Parser(configuration);
-
-            var result = parser.Parse("@file.rsp");
+            var result = Parser.Parse(command, "@file.rsp", configuration);
 
             result.Tokens
                   .Should()

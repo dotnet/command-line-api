@@ -114,6 +114,8 @@ namespace System.CommandLine
             ExceptionHandler = exceptionHandler;
         }
 
+        public static CommandLineBuilder CreateBuilder(Command rootCommand) => new CommandLineBuilder(rootCommand);
+
         internal static HelpBuilder DefaultHelpBuilderFactory(BindingContext context, int? requestedMaxWidth = null)
         {
             int maxWidth = requestedMaxWidth ?? int.MaxValue;

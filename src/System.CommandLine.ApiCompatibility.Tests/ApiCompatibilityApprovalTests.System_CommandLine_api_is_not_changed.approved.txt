@@ -54,17 +54,17 @@ System.CommandLine
     public System.Void Add(Symbol symbol)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
-    public ParseResult Parse(System.String[] args)
-    public ParseResult Parse(System.String commandLine)
+    public ParseResult Parse(System.String[] args, CommandLineConfiguration configuration = null)
+    public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
   public class CommandLineBuilder
-    .ctor(Command rootCommand = null)
+    .ctor(Command rootCommand)
     public Command Command { get; }
-    public System.CommandLine.Parsing.Parser Build()
+    public CommandLineConfiguration Build()
   public static class CommandLineBuilderExtensions
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
@@ -88,6 +88,7 @@ System.CommandLine
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
   public class CommandLineConfiguration
+    public static CommandLineBuilder CreateBuilder(Command rootCommand)
     .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Boolean EnableDirectives { get; }
     public System.Boolean EnablePosixBundling { get; }
@@ -208,9 +209,9 @@ System.CommandLine
     public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
   public class ParseResult
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
+    public CommandLineConfiguration Configuration { get; }
     public System.Collections.Generic.IReadOnlyDictionary<System.String,System.Collections.Generic.IReadOnlyList<System.String>> Directives { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
-    public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
@@ -326,7 +327,6 @@ System.CommandLine.Invocation
     public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }
     public System.Action<InvocationContext> InvocationResult { get; set; }
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
-    public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(Argument<T> argument)
@@ -383,6 +383,11 @@ System.CommandLine.Parsing
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
     public System.String ToString()
+  public static class CommandLineConfigurationExtensions
+    public static System.Int32 Invoke(this System.CommandLine.CommandLineConfiguration configuration, System.String commandLine, System.CommandLine.IConsole console = null)
+    public static System.Int32 Invoke(this System.CommandLine.CommandLineConfiguration configuration, System.String[] args, System.CommandLine.IConsole console = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.CommandLineConfiguration configuration, System.String commandLine, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.CommandLineConfiguration configuration, System.String[] args, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
   public class CommandLineStringSplitter
     public System.Collections.Generic.IEnumerable<System.String> Split(System.String commandLine)
   public class CommandResult : SymbolResult
@@ -399,22 +404,14 @@ System.CommandLine.Parsing
     public System.String Message { get; }
     public SymbolResult SymbolResult { get; }
     public System.String ToString()
-  public class Parser
-    .ctor(System.CommandLine.CommandLineConfiguration configuration)
-    .ctor(System.CommandLine.Command command)
-    public System.CommandLine.CommandLineConfiguration Configuration { get; }
-    public System.CommandLine.ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> arguments, System.String rawInput = null)
+  public static class Parser
+    public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.Collections.Generic.IReadOnlyList<System.String> arguments, System.CommandLine.CommandLineConfiguration configuration = null)
+    public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.String commandLine, System.CommandLine.CommandLineConfiguration configuration = null)
   public static class ParseResultExtensions
     public static System.String Diagram(this System.CommandLine.ParseResult parseResult)
     public static System.Boolean HasOption(this System.CommandLine.ParseResult parseResult, System.CommandLine.Option option)
     public static System.Int32 Invoke(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
-  public static class ParserExtensions
-    public static System.Int32 Invoke(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null)
-    public static System.Int32 Invoke(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String commandLine, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
-    public static System.CommandLine.ParseResult Parse(this Parser parser, System.String commandLine)
   public abstract class SymbolResult
     public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public SymbolResult Parent { get; }

@@ -20,16 +20,16 @@ namespace System.CommandLine.Tests
                 new Command("inner")
             };
 
-            var parser = new CommandLineBuilder(root)
+            var config = new CommandLineBuilder(root)
                          .UseParseErrorReporting()
                          .UseHelp()
                          .Build();
 
-            var parseResult = parser.Parse("");
+            var parseResult = root.Parse("", config);
 
             parseResult.Errors.Should().NotBeEmpty();
 
-            var result = parser.Invoke("");
+            var result = config.Invoke("");
 
             result.Should().Be(1);
         }
@@ -42,11 +42,11 @@ namespace System.CommandLine.Tests
                 new Command("inner")
             };
 
-            var parser = new CommandLineBuilder(root)
+            var config = new CommandLineBuilder(root)
                          .UseParseErrorReporting(errorExitCode: 42)
                          .Build();
 
-            int result = parser.Invoke("");
+            int result = config.Invoke("");
 
             result.Should().Be(42);
         }

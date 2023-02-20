@@ -15,16 +15,14 @@ namespace System.CommandLine.Tests.Invocation
         public async Task When_option_is_mistyped_it_is_suggested()
         {
             var option = new Option<string>("info");
+            RootCommand rootCommand = new () { option };
 
-            var parser =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        option
-                    })
+            var config =
+                new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
 
-            var result = parser.Parse("niof");
+            var result = rootCommand.Parse("niof", config);
 
             await result.InvokeAsync(_console);
 
@@ -35,16 +33,14 @@ namespace System.CommandLine.Tests.Invocation
         public async Task When_there_are_no_matches_then_nothing_is_suggested()
         {
             var option = new Option<bool>("info");
+            RootCommand rootCommand = new() { option };
 
-            var parser =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        option
-                    })
+            var configuration =
+                new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
 
-            var result = parser.Parse("zzzzzzz");
+            var result = rootCommand.Parse("zzzzzzz", configuration);
 
             await result.InvokeAsync(_console);
 
@@ -55,16 +51,14 @@ namespace System.CommandLine.Tests.Invocation
         public async Task When_command_is_mistyped_it_is_suggested()
         {
             var command = new Command("restore");
+            RootCommand rootCommand = new() { command };
 
-            var parser =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        command
-                    })
+            var configuration =
+                new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
 
-            var result = parser.Parse("sertor");
+            var result = rootCommand.Parse("sertor", configuration);
 
             await result.InvokeAsync(_console);
 
@@ -78,18 +72,19 @@ namespace System.CommandLine.Tests.Invocation
             var seenCommand = new Command("seen");
             var aOption = new Option<bool>("a");
             var beenOption = new Option<bool>("been");
-            var parser =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        fromCommand,
-                        seenCommand,
-                        aOption,
-                        beenOption
-                    })
+            RootCommand rootCommand = new ()
+            {
+                fromCommand,
+                seenCommand,
+                aOption,
+                beenOption
+            };
+            var configuration =
+                new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
 
-            var result = parser.Parse("een");
+            var result = rootCommand.Parse("een", configuration);
 
             await result.InvokeAsync(_console);
 
@@ -102,18 +97,19 @@ namespace System.CommandLine.Tests.Invocation
             var fromCommand = new Command("from");
             var seenCommand = new Command("seen") { IsHidden = true };
             var beenCommand = new Command("been");
+            RootCommand rootCommand = new RootCommand
+            {
+                fromCommand,
+                seenCommand,
+                beenCommand
+            };
 
-            var parser =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        fromCommand,
-                        seenCommand,
-                        beenCommand
-                    })
+            var configuration =
+                new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
 
-            var result = parser.Parse("een");
+            var result = rootCommand.Parse("een", configuration);
 
             await result.InvokeAsync(_console);
 
@@ -125,17 +121,17 @@ namespace System.CommandLine.Tests.Invocation
         {
             var argument = new Argument<string>("the-argument");
             var command = new Command("been");
-
-            var parser =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        argument,
-                        command
-                    })
+            var rootCommand = new RootCommand
+            {
+                argument,
+                command
+            };
+            var configuration =
+                new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
 
-            var result = parser.Parse("een");
+            var result = rootCommand.Parse("een", configuration);
 
             await result.InvokeAsync(_console);
 
@@ -148,17 +144,18 @@ namespace System.CommandLine.Tests.Invocation
             var fromOption = new Option<string>("from");
             var seenOption = new Option<string>("seen") { IsHidden = true };
             var beenOption = new Option<string>("been");
-
-            var parser =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        fromOption,
-                        seenOption,
-                        beenOption
-                    })
+            var rootCommand = new RootCommand
+            {
+                fromOption,
+                seenOption,
+                beenOption
+            };
+            var config =
+                new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
-            var result = parser.Parse("een");
+
+            var result = rootCommand.Parse("een", config);
 
             await result.InvokeAsync(_console);
 
@@ -168,15 +165,16 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Suggestions_favor_matches_with_prefix()
         {
-            var parser =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        new Option<string>(new[] { "/call", "-call", "--call" }),
-                        new Option<string>(new[] { "/email", "-email", "--email" })
-                    })
+            var rootCommand = new RootCommand
+            {
+                new Option<string>(new[] { "/call", "-call", "--call" }),
+                new Option<string>(new[] { "/email", "-email", "--email" })
+            };
+            var config =
+                new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
-            var result = parser.Parse("-all");
+            var result = rootCommand.Parse("-all", config);
 
             await result.InvokeAsync(_console);
 

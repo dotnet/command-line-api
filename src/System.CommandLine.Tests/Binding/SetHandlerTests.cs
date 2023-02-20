@@ -293,10 +293,7 @@ namespace System.CommandLine.Tests.Binding
 
             using CancellationTokenSource cts = new ();
 
-            Parser parser = new CommandLineBuilder(new RootCommand { command })
-                .Build();
-
-            Task<int> invokeResult = parser.InvokeAsync("the-command", null, cts.Token);
+            Task<int> invokeResult = command.InvokeAsync("the-command", null, cts.Token);
 
             cts.Cancel();
 

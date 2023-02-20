@@ -437,9 +437,7 @@ public class ParameterBindingTests
         var command = new Command("command");
         command.Handler = CommandHandler.Create(type.GetMethod(nameof(ICommandHandler.InvokeAsync)));
 
-        var parser = new Parser(command);
-
-        int result = await parser.InvokeAsync("command", _console);
+        int result = await command.InvokeAsync("command", _console);
 
         result.Should().Be(expectedResult);
     }

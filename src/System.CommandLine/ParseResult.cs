@@ -22,7 +22,7 @@ namespace System.CommandLine
         private ICommandHandler? _handler;
 
         internal ParseResult(
-            Parser parser,
+            CommandLineConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             Dictionary<string, IReadOnlyList<string>>? directives,
@@ -32,7 +32,7 @@ namespace System.CommandLine
             string? commandLineText = null,
             ICommandHandler? handler = null)
         {
-            Parser = parser;
+            Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             _directives = directives;
@@ -65,9 +65,9 @@ namespace System.CommandLine
         public CommandResult CommandResult { get; }
 
         /// <summary>
-        /// The parser used to produce the parse result.
+        /// The configuration used to produce the parse result.
         /// </summary>
-        public Parser Parser { get; }
+        public CommandLineConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the root command result.

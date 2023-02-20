@@ -17,13 +17,13 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_TypoCorrection
     {
         private readonly NullConsole _nullConsole = new();
-        private readonly Parser _testParser;
+        private readonly CommandLineConfiguration _configuration;
 
         public Perf_Parser_TypoCorrection()
         {
             var option = new Option<bool>("--0123456789");
 
-            _testParser = new CommandLineBuilder(new RootCommand { option })
+            _configuration = new CommandLineBuilder(new RootCommand { option })
                           .UseTypoCorrections()
                           .Build();
         }
@@ -49,7 +49,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                     "--1023546798",
                     "--1032546798"
                 }
-                .Select(opt => new BdnParam<ParseResult>(_testParser.Parse(opt), opt));
+                .Select(opt => new BdnParam<ParseResult>(_configuration.RootCommand.Parse(opt, _configuration), opt));
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]

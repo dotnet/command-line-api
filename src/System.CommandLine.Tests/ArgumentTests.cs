@@ -244,7 +244,8 @@ namespace System.CommandLine.Tests
                         }, isDefault: true)
                 };
 
-                command.Parse("");
+                CommandLineConfiguration simpleConfig = new (command);
+                command.Parse("", simpleConfig);
 
                 argumentResult
                     .Parent

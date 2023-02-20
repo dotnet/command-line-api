@@ -141,15 +141,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Directives_can_be_disabled()
         {
-            var parser = new Parser(
+            RootCommand rootCommand = new ()
+            {
+                new Argument<List<string>>()
+            };
+            var configuration =
                 new CommandLineConfiguration(
-                    new RootCommand
-                    {
-                        new Argument<List<string>>()
-                    },
-                    enableDirectives: false));
+                    rootCommand,
+                    enableDirectives: false);
 
-            var result = parser.Parse("[hello]");
+            var result = rootCommand.Parse("[hello]", configuration);
 
             result.Directives.Count().Should().Be(0);
             result.CommandResult

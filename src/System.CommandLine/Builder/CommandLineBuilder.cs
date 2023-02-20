@@ -52,9 +52,9 @@ namespace System.CommandLine
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <param name="rootCommand">The root command of the application.</param>
-        public CommandLineBuilder(Command? rootCommand = null)
+        public CommandLineBuilder(Command rootCommand)
         {
-            Command = rootCommand ?? new RootCommand();
+            Command = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
         }
 
         /// <summary>
@@ -101,26 +101,25 @@ namespace System.CommandLine
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
-        public Parser Build() =>
-            new(
-                new CommandLineConfiguration(
-                    Command,
-                    enablePosixBundling: EnablePosixBundling,
-                    enableDirectives: EnableDirectives,
-                    enableTokenReplacement: EnableTokenReplacement,
-                    enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
-                    parseDirectiveExitCode: ParseDirectiveExitCode,
-                    enableSuggestDirective: EnableSuggestDirective,
-                    parseErrorReportingExitCode: ParseErrorReportingExitCode,
-                    maxLevenshteinDistance: MaxLevenshteinDistance,
-                    exceptionHandler: ExceptionHandler,
-                    processTerminationTimeout: ProcessTerminationTimeout,
-                    resources: LocalizationResources,
-                    middlewarePipeline: _middlewareList is null
-                                            ? Array.Empty<InvocationMiddleware>()
-                                            : GetMiddleware(),
-                    helpBuilderFactory: GetHelpBuilderFactory(),
-                    tokenReplacer: TokenReplacer));
+        public CommandLineConfiguration Build() =>
+            new (
+                Command,
+                enablePosixBundling: EnablePosixBundling,
+                enableDirectives: EnableDirectives,
+                enableTokenReplacement: EnableTokenReplacement,
+                enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
+                parseDirectiveExitCode: ParseDirectiveExitCode,
+                enableSuggestDirective: EnableSuggestDirective,
+                parseErrorReportingExitCode: ParseErrorReportingExitCode,
+                maxLevenshteinDistance: MaxLevenshteinDistance,
+                exceptionHandler: ExceptionHandler,
+                processTerminationTimeout: ProcessTerminationTimeout,
+                resources: LocalizationResources,
+                middlewarePipeline: _middlewareList is null
+                                        ? Array.Empty<InvocationMiddleware>()
+                                        : GetMiddleware(),
+                helpBuilderFactory: GetHelpBuilderFactory(),
+                tokenReplacer: TokenReplacer);
 
         private IReadOnlyList<InvocationMiddleware> GetMiddleware()
         {

@@ -1229,11 +1229,11 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_option_is_shown_in_help()
         {
-            var parser = new CommandLineBuilder()
+            var configuration = new CommandLineBuilder(new RootCommand())
                          .UseHelp()
                          .Build();
 
-            _helpBuilder.Write(parser.Configuration.RootCommand, _console);
+            _helpBuilder.Write(configuration.RootCommand, _console);
 
             var help = _console.ToString();
 

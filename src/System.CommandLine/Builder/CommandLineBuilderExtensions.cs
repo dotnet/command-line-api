@@ -9,8 +9,6 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using static System.Environment;
 using Process = System.CommandLine.Invocation.Process;
 
 namespace System.CommandLine
@@ -284,7 +282,9 @@ ERR:
             if (builder.HelpOption is null)
             {
                 builder.HelpOption = helpOption;
-                builder.Command.Options.Add(helpOption);
+
+                OverwriteOrAdd(builder.Command, helpOption);
+
                 builder.MaxHelpWidth = maxWidth;
             }
             return builder;
@@ -454,8 +454,7 @@ ERR:
                 return builder;
             }
 
-            builder.VersionOption = new (builder);
-            builder.Command.Options.Add(builder.VersionOption);
+            OverwriteOrAdd(builder.Command, builder.VersionOption = new(builder));
 
             return builder;
         }
@@ -472,10 +471,33 @@ ERR:
                 return builder;
             }
 
-            builder.VersionOption = new (aliases, builder);
-            builder.Command.Options.Add(builder.VersionOption);
+            OverwriteOrAdd(builder.Command, builder.VersionOption = new(aliases, builder));
 
             return builder;
+        }
+
+        /// <summary>
+        /// Creating a config from Command might cause side effects for Command.
+        /// The config type may add Options to the Command.
+        /// Since single command can be parsed multiple times with different configs,
+        /// we need to handle it properly.
+        /// Ideally Config should not mutate Command at all.
+        /// </summary>
+        private static void OverwriteOrAdd<T>(Command command, T option) where T : Option
+        {
+            if (command.HasOptions)
+            {
+                for (int i = 0; i < command.Options.Count; i++)
+                {
+                    if (command.Options[i] is T)
+                    {
+                        command.Options[i] = option;
+                        return;
+                    }
+                }
+            }
+
+            command.Options.Add(option);
         }
     }
 }

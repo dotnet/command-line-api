@@ -311,16 +311,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(
+            var command =
                 new Command("the-command")
                 {
                     new Option<bool>("-x")
                     {
                         Arity = ArgumentArity.Zero
                     }
-                });
+                };
 
-            var result = parser.Parse("the-command -x some-arg");
+            var result = command.Parse("the-command -x some-arg");
 
             _output.WriteLine(result.ToString());
 

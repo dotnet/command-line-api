@@ -42,17 +42,12 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// Enables writing help output.
         /// </summary>
-        public HelpBuilder HelpBuilder => _helpBuilder ??= Parser.Configuration.HelpBuilderFactory(BindingContext);
-
-        /// <summary>
-        /// The parser used to create the <see cref="ParseResult"/>.
-        /// </summary>
-        public Parser Parser => ParseResult.Parser;
+        public HelpBuilder HelpBuilder => _helpBuilder ??= ParseResult.Configuration.HelpBuilderFactory(BindingContext);
 
         /// <summary>
         /// Provides localizable strings for help and error messages.
         /// </summary>
-        public LocalizationResources LocalizationResources => Parser.Configuration.LocalizationResources;
+        public LocalizationResources LocalizationResources => ParseResult.Configuration.LocalizationResources;
 
         /// <summary>
         /// The parse result for the current invocation.

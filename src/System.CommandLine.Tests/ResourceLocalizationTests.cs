@@ -20,8 +20,8 @@ namespace System.CommandLine.Tests
             {
                 new Argument<string>()
             };
-            var parser = new Parser(new CommandLineConfiguration(command, resources: messages));
-            var result = parser.Parse("the-command");
+            var config = new CommandLineConfiguration(command, resources: messages);
+            var result = Parser.Parse(command, "the-command", config);
 
             result.Errors
                   .Select(e => e.Message)
@@ -33,15 +33,16 @@ namespace System.CommandLine.Tests
         public void Default_validation_messages_can_be_replaced_using_CommandLineBuilder_in_order_to_add_localization_support()
         {
             var messages = new FakeLocalizationResources("the-message");
+            Command command = new ("the-command")
+            {
+                new Argument<string>()
+            };
 
-            var parser = new CommandLineBuilder(new Command("the-command")
-                         {
-                             new Argument<string>()
-                         })
+            var config = new CommandLineBuilder(command)
                          .UseLocalizationResources(messages)
                          .Build();
 
-            var result = parser.Parse("the-command");
+            var result = command.Parse("the-command", config);
 
             result.Errors
                   .Select(e => e.Message)

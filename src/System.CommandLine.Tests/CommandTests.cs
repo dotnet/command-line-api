@@ -10,18 +10,17 @@ namespace System.CommandLine.Tests
 {
     public class CommandTests : SymbolTests
     {
-        private readonly Parser _parser;
+        private readonly Command _parser;
 
         public CommandTests()
         {
-            _parser = new Parser(
-                new Command("outer")
+            _parser = new Command("outer")
+            {
+                new Command("inner")
                 {
-                    new Command("inner")
-                    {
-                        new Option<string>("--option")
-                    }
-                });
+                    new Option<string>("--option")
+                }
+            };
         }
 
         [Fact]
@@ -113,9 +112,7 @@ namespace System.CommandLine.Tests
                     new Argument<string[]>()
                 });
 
-            var parser = new Parser(outer);
-
-            var result = parser.Parse("outer arg1 inner arg2 arg3");
+            var result = outer.Parse("outer arg1 inner arg2 arg3");
 
             result.CommandResult
                   .Parent

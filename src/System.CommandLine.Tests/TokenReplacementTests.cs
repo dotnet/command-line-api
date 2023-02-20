@@ -19,7 +19,7 @@ public class TokenReplacementTests
 
         string receivedToken = null;
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          receivedToken = tokenToReplace;
@@ -29,7 +29,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        parser.Parse("@replace-me");
+        command.Parse("@replace-me", config);
 
         receivedToken.Should().Be("replace-me");
     }
@@ -41,7 +41,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          tokens = new[] { "123" };
@@ -50,7 +50,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        var result = parser.Parse("@replace-me");
+        var result = command.Parse("@replace-me", config);
 
         result.Errors.Should().BeEmpty();
 
@@ -64,7 +64,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { option };
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          tokens = new[] { "123" };
@@ -73,7 +73,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        var result = parser.Parse("-x @replace-me");
+        var result = command.Parse("-x @replace-me", config);
 
         result.Errors.Should().BeEmpty();
 
@@ -87,7 +87,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { new Command("subcommand") { option } };
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          tokens = new[] { "subcommand", "-x", "123" };
@@ -96,7 +96,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        var result = parser.Parse("@replace-me");
+        var result = command.Parse("@replace-me", config);
 
         result.Errors.Should().BeEmpty();
 
@@ -110,7 +110,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          tokens = new[] { "one two three" };
@@ -119,7 +119,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        var result = parser.Parse("@replace-me");
+        var result = command.Parse("@replace-me", config);
 
         result.GetValue(argument).Should().Be("one two three");
     }
@@ -131,7 +131,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          tokens = null;
@@ -140,7 +140,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        var result = parser.Parse("@replace-me");
+        var result = command.Parse("@replace-me", config);
 
         result.Errors
               .Should()
@@ -154,7 +154,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          tokens = null;
@@ -163,7 +163,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        var result = parser.Parse("@replace-me");
+        var result = command.Parse("@replace-me", config);
 
         result.Errors.Should().BeEmpty();
 
@@ -177,7 +177,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          tokens = null;
@@ -186,7 +186,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        var result = parser.Parse("@replace-me");
+        var result = command.Parse("@replace-me", config);
 
         result.Errors.Should().BeEmpty();
 
@@ -200,7 +200,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        var parser = new CommandLineBuilder(command)
+        var config = new CommandLineBuilder(command)
                      .UseTokenReplacer((string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
                      {
                          tokens = Array.Empty<string>();
@@ -209,7 +209,7 @@ public class TokenReplacementTests
                      })
                      .Build();
 
-        var result = parser.Parse("@replace-me");
+        var result = command.Parse("@replace-me", config);
 
         result.Errors.Should().BeEmpty();
 
