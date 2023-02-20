@@ -418,7 +418,7 @@ ERR:
         /// The config type may add Options to the Command.
         /// Since single command can be parsed multiple times with different configs,
         /// we need to handle it properly.
-        /// Ideally Config should not mutate Command at all.
+        /// Ideally config should not mutate Command at all.
         /// </summary>
         private static void OverwriteOrAdd<T>(Command command, T option) where T : Option
         {

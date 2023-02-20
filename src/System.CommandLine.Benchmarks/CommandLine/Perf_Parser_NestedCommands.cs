@@ -62,7 +62,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             }
 
             _rootCommand = rootCommand;
-            _configuration = CommandLineConfiguration.CreateBuilder(rootCommand).UseDefaults().Build(); ;
+            _configuration = CommandLineConfiguration.CreateBuilder(rootCommand).UseDefaults().Build();
         }
 
         [Benchmark]
