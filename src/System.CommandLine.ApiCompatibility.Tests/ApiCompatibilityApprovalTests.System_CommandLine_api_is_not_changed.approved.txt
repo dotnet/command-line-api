@@ -94,6 +94,10 @@ System.CommandLine
     public System.Boolean EnableTokenReplacement { get; }
     public LocalizationResources LocalizationResources { get; }
     public Command RootCommand { get; }
+    public System.Int32 Invoke(System.String commandLine, IConsole console = null)
+    public System.Int32 Invoke(System.String[] args, IConsole console = null)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public System.Void ThrowIfInvalid()
   public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
     .ctor(System.String message)
@@ -384,11 +388,6 @@ System.CommandLine.Parsing
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
     public System.String ToString()
-  public static class CommandLineConfigurationExtensions
-    public static System.Int32 Invoke(this System.CommandLine.CommandLineConfiguration configuration, System.String commandLine, System.CommandLine.IConsole console = null)
-    public static System.Int32 Invoke(this System.CommandLine.CommandLineConfiguration configuration, System.String[] args, System.CommandLine.IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.CommandLineConfiguration configuration, System.String commandLine, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this System.CommandLine.CommandLineConfiguration configuration, System.String[] args, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
   public class CommandLineStringSplitter
     public System.Collections.Generic.IEnumerable<System.String> Split(System.String commandLine)
   public class CommandResult : SymbolResult

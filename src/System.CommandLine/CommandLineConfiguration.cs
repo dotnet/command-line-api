@@ -8,6 +8,8 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace System.CommandLine
 {
@@ -174,6 +176,36 @@ namespace System.CommandLine
         /// Gets the root command.
         /// </summary>
         public Command RootCommand { get; }
+
+        /// <summary>
+        /// Parses a command line string value and invokes the handler for the indicated command.
+        /// </summary>
+        /// <returns>The exit code for the invocation.</returns>
+        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        public int Invoke(string commandLine, IConsole? console = null)
+            => RootCommand.Parse(commandLine, this).Invoke(console);
+
+        /// <summary>
+        /// Parses a command line string array and invokes the handler for the indicated command.
+        /// </summary>
+        /// <returns>The exit code for the invocation.</returns>
+        public int Invoke(string[] args, IConsole? console = null)
+            => RootCommand.Parse(args, this).Invoke(console);
+
+        /// <summary>
+        /// Parses a command line string value and invokes the handler for the indicated command.
+        /// </summary>
+        /// <returns>The exit code for the invocation.</returns>
+        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        public Task<int> InvokeAsync(string commandLine, IConsole? console = null, CancellationToken cancellationToken = default)
+            => RootCommand.Parse(commandLine, this).InvokeAsync(console, cancellationToken);
+
+        /// <summary>
+        /// Parses a command line string array and invokes the handler for the indicated command.
+        /// </summary>
+        /// <returns>The exit code for the invocation.</returns>
+        public Task<int> InvokeAsync(string[] args, IConsole? console = null, CancellationToken cancellationToken = default)
+            => RootCommand.Parse(args, this).InvokeAsync(console, cancellationToken);
 
         /// <summary>
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.
