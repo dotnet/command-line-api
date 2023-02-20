@@ -12,10 +12,10 @@ namespace System.CommandLine
     /// <summary>
     /// Enables composition of command line configurations.
     /// </summary>
-    public class CommandLineBuilder 
+    public partial class CommandLineBuilder 
     {
         /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
-        internal bool EnablePosixBundling = true;
+        internal bool EnablePosixBundlingFlag = true;
 
         /// <inheritdoc cref="CommandLineConfiguration.EnableTokenReplacement"/>
         internal bool EnableTokenReplacement = true;
@@ -24,7 +24,7 @@ namespace System.CommandLine
         internal int? ParseErrorReportingExitCode;
 
         /// <inheritdoc cref="CommandLineConfiguration.EnableDirectives"/>
-        internal bool EnableDirectives = true;
+        internal bool EnableDirectivesFlag = true;
 
         /// <inheritdoc cref="CommandLineConfiguration.EnableEnvironmentVariableDirective"/>
         internal bool EnableEnvironmentVariableDirective;
@@ -104,8 +104,8 @@ namespace System.CommandLine
         public CommandLineConfiguration Build() =>
             new (
                 Command,
-                enablePosixBundling: EnablePosixBundling,
-                enableDirectives: EnableDirectives,
+                enablePosixBundling: EnablePosixBundlingFlag,
+                enableDirectives: EnableDirectivesFlag,
                 enableTokenReplacement: EnableTokenReplacement,
                 enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
                 parseDirectiveExitCode: ParseDirectiveExitCode,
@@ -131,9 +131,6 @@ namespace System.CommandLine
             }
             return result;
         }
-
-        internal void AddMiddleware(InvocationMiddleware middleware, MiddlewareOrder order)
-            => AddMiddleware(middleware, (int)order);
 
         internal void AddMiddleware(InvocationMiddleware middleware, MiddlewareOrderInternal order)
             => AddMiddleware(middleware, (int)order);
