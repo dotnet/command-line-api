@@ -17,30 +17,6 @@ namespace System.CommandLine.Parsing
     public static class ParseResultExtensions
     {
         /// <summary>
-        /// Invokes the appropriate command handler for a parsed command line input.
-        /// </summary>
-        /// <param name="parseResult">A parse result on which the invocation is based.</param>
-        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
-        /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
-        /// <returns>A task whose result can be used as a process exit code.</returns>
-        public static Task<int> InvokeAsync(
-            this ParseResult parseResult,
-            IConsole? console = null,
-            CancellationToken cancellationToken = default) =>
-            InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
-
-        /// <summary>
-        /// Invokes the appropriate command handler for a parsed command line input.
-        /// </summary>
-        /// <param name="parseResult">A parse result on which the invocation is based.</param>
-        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
-        /// <returns>A value that can be used as a process exit code.</returns>
-        public static int Invoke(
-            this ParseResult parseResult,
-            IConsole? console = null) =>
-            InvocationPipeline.Invoke(parseResult, console);
-
-        /// <summary>
         /// Formats a string explaining a parse result.
         /// </summary>
         /// <param name="parseResult">The parse result to be diagrammed.</param>
@@ -83,7 +59,6 @@ namespace System.CommandLine.Parsing
             {
                 builder.Append("!");
             }
-
 
             switch (symbolResult)
             {
