@@ -51,6 +51,8 @@ namespace System.CommandLine
 
         internal readonly IReadOnlyList<InvocationMiddleware> Middleware;
 
+        internal readonly IReadOnlyList<Directive>? Directives;
+
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
         private TryReplaceToken? _tokenReplacer;
 

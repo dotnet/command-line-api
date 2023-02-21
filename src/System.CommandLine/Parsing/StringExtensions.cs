@@ -86,7 +86,7 @@ namespace System.CommandLine.Parsing
 
             var tokenList = new List<Token>(args.Count);
 
-            var knownTokens = configuration.RootCommand.ValidTokens();
+            var knownTokens = configuration.RootCommand.ValidTokens(configuration);
 
             int i = FirstArgumentIsRootCommand(args, configuration.RootCommand, inferRootCommand)
                 ? 0
@@ -121,7 +121,16 @@ namespace System.CommandLine.Parsing
                         arg[1] != ':' &&
                         arg[arg.Length - 1] == ']')
                     {
-                        tokenList.Add(Directive(arg));
+                        int colonIndex = arg.IndexOf(':', StringComparison.Ordinal);
+                        string directiveName = colonIndex > 0
+                            ? arg.Substring(1, colonIndex) // [name:value]
+                            : arg.Substring(1, arg.Length - 1); // [name] is a legal directive
+
+                        Directive? directive = knownTokens.TryGetValue(directiveName, out var directiveToken)
+                            ? (Directive)directiveToken.Symbol!
+                            : null;
+
+                        tokenList.Add(Directive(arg, directive));
                         continue;
                     }
 
@@ -175,7 +184,8 @@ namespace System.CommandLine.Parsing
                                 {
                                     if (cmd != configuration.RootCommand)
                                     {
-                                        knownTokens = cmd.ValidTokens();
+                                        knownTokens = cmd.ValidTokens(
+                                            configuration: null); // config contains Directives, they are allowed only for RootCommand
                                     }
                                     currentCommand = cmd;
                                     tokenList.Add(Command(arg, cmd));
@@ -219,7 +229,7 @@ namespace System.CommandLine.Parsing
 
                 Token DoubleDash() => new("--", TokenType.DoubleDash, default, i);
 
-                Token Directive(string value) => new(value, TokenType.Directive, default, i);
+                Token Directive(string value, Directive? directive) => new(value, TokenType.Directive, directive, i);
             }
 
             tokens = tokenList;
@@ -422,9 +432,20 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, Token> ValidTokens(this Command command)
+        private static Dictionary<string, Token> ValidTokens(this Command command, CommandLineConfiguration? configuration)
         {
             Dictionary<string, Token> tokens = new(StringComparer.Ordinal);
+
+            if (configuration?.Directives is not null)
+            {
+                for (int directiveIndex = 0; directiveIndex < configuration.Directives.Count; directiveIndex++)
+                {
+                    Directive directive = configuration.Directives[directiveIndex];
+                    tokens.Add(
+                        directive.Name,
+                        new Token(directive.Name, TokenType.Directive, directive, Token.ImplicitPosition));
+                }
+            }
 
             foreach (string commandAlias in command.Aliases)
             {
