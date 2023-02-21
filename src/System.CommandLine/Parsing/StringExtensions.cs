@@ -123,8 +123,8 @@ namespace System.CommandLine.Parsing
                     {
                         int colonIndex = arg.AsSpan().IndexOf(':');
                         string directiveName = colonIndex > 0
-                            ? arg.Substring(1, colonIndex) // [name:value]
-                            : arg.Substring(1, arg.Length - 1); // [name] is a legal directive
+                            ? arg.Substring(1, colonIndex - 1) // [name:value]
+                            : arg.Substring(1, arg.Length - 2); // [name] is a legal directive
 
                         Directive? directive = knownTokens.TryGetValue(directiveName, out var directiveToken)
                             ? (Directive)directiveToken.Symbol!

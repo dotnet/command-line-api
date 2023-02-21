@@ -12,11 +12,13 @@ namespace System.CommandLine.Tests
     public class DirectiveTests
     {
         [Fact]
-        public void Directives_should_not_be_considered_as_unmatched_tokens()
+        public void Directives_should_not_be_considered_as_unmatched_tokens_when_they_are_enabled()
         {
-            var option = new Option<bool>("-y");
+            RootCommand root = new () { new Option<bool>("-y") };
+            CommandLineBuilder builder = new (root);
+            builder.Directives.Add(new ("some"));
 
-            var result = option.Parse($"{RootCommand.ExecutableName} [parse] -y");
+            var result = builder.Build().Parse($"{RootCommand.ExecutableName} [parse] -y");
 
             result.UnmatchedTokens.Should().BeEmpty();
         }
@@ -24,43 +26,38 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Raw_tokens_still_hold_directives()
         {
-            var option = new Option<bool>("-y");
+            Directive directive = new ("parse");
 
-            var result = option.Parse("[parse] -y");
+            ParseResult result = Parse(new Option<bool>("-y"), directive, "[parse] -y");
 
-            result.Directives.ContainsKey("parse").Should().BeTrue();
+            result.FindResultFor(directive).Should().NotBeNull();
             result.Tokens.Should().Contain(t => t.Value == "[parse]");
-        }
-
-        [Fact]
-        public void Directives_should_parse_into_the_directives_collection()
-        {
-            var option = new Option<bool>("-y");
-
-            var result = option.Parse("[parse] -y");
-
-            result.Directives.ContainsKey("parse").Should().BeTrue();
         }
 
         [Fact]
         public void Multiple_directives_are_allowed()
         {
-            var option = new Option<bool>("-y");
+            RootCommand root = new() { new Option<bool>("-y") };
+            Directive parseDirective = new ("parse");
+            Directive suggestDirective = new ("suggest");
+            CommandLineBuilder builder = new(root);
+            builder.Directives.Add(parseDirective);
+            builder.Directives.Add(suggestDirective);
 
-            var result = option.Parse("[parse] [suggest] -y");
+            var result = builder.Build().Parse("[parse] [suggest] -y");
 
-            result.Directives.ContainsKey("parse").Should().BeTrue();
-            result.Directives.ContainsKey("suggest").Should().BeTrue();
+            result.FindResultFor(parseDirective).Should().NotBeNull();
+            result.FindResultFor(suggestDirective).Should().NotBeNull();
         }
 
         [Fact]
         public void Directives_must_be_the_first_argument()
         {
-            var option = new Option<bool>("-y");
+            Directive directive = new("parse");
 
-            var result = option.Parse("-y [suggest]");
+            ParseResult result = Parse(new Option<bool>("-y"), directive, "-y [parse]");
 
-            result.Directives.Should().BeEmpty();
+            result.FindResultFor(directive).Should().BeNull();
         }
 
         [Theory]
@@ -68,27 +65,25 @@ namespace System.CommandLine.Tests
         [InlineData("[key:value:more]", "key", "value:more")]
         [InlineData("[key:]", "key", "")]
         public void Directives_can_have_a_value_which_is_everything_after_the_first_colon(
-            string directive,
-            string expectedKey,
+            string wholeText,
+            string key,
             string expectedValue)
         {
-            var option = new Option<bool>("-y");
+            Directive directive = new(key);
 
-            var result = option.Parse($"{directive} -y");
+            ParseResult result = Parse(new Option<bool>("-y"), directive, $"{wholeText} -y");
 
-            result.Directives.TryGetValue(expectedKey, out var values).Should().BeTrue();
-            values.Should().BeEquivalentTo(expectedValue);
+            result.FindResultFor(directive).Value.Should().Be(expectedValue);
         }
 
         [Fact]
         public void Directives_without_a_value_specified_have_a_value_of_empty_string()
         {
-            var option = new Option<bool>("-y");
+            Directive directive = new("parse");
 
-            var result = option.Parse("[parse] -y");
+            ParseResult result = Parse(new Option<bool>("-y"), directive, "[parse] -y");
 
-            result.Directives.TryGetValue("parse", out var values).Should().BeTrue();
-            values.Should().BeEmpty();
+            result.FindResultFor(directive).Value.Should().BeEmpty();
         }
 
         [Theory]
@@ -100,7 +95,6 @@ namespace System.CommandLine.Tests
 
             var result = option.Parse($"{directive} -a");
 
-            result.Directives.Should().BeEmpty();
             result.UnmatchedTokens.Should().Contain(directive);
         }
 
@@ -108,38 +102,36 @@ namespace System.CommandLine.Tests
         [InlineData("[par se]")]
         [InlineData("[ parse]")]
         [InlineData("[parse ]")]
-        public void Directives_cannot_contain_spaces(object value)
+        public void Directives_cannot_contain_spaces(string value)
         {
-            var option = new Option<bool>("-a");
+            Action create = () => new Directive(value);
 
-            var result = option.Parse($"{value} -a");
-
-            result.Directives.Should().BeEmpty();
+            create.Should().Throw<ArgumentException>();
         }
 
+        //[Fact]
+        //public void When_a_directive_is_specified_more_than_once_then_its_values_are_aggregated()
+        //{
+        //    var option = new Option<bool>("-a");
+
+        //    var result = option.Parse("[directive:one] [directive:two] -a");
+
+        //    result.Directives.TryGetValue("directive", out var values).Should().BeTrue();
+        //    values.Should().BeEquivalentTo("one", "two");
+        //}
+
+        //[Fact]
+        //public void Directive_count_is_based_on_distinct_instances_of_directive_name()
+        //{
+        //    var command = new RootCommand();
+
+        //    var result = command.Parse("[one] [two] [one:a] [one:b]");
+
+        //    result.Directives.Should().HaveCount(2);
+        //}
+
         [Fact]
-        public void When_a_directive_is_specified_more_than_once_then_its_values_are_aggregated()
-        {
-            var option = new Option<bool>("-a");
-
-            var result = option.Parse("[directive:one] [directive:two] -a");
-
-            result.Directives.TryGetValue("directive", out var values).Should().BeTrue();
-            values.Should().BeEquivalentTo("one", "two");
-        }
-
-        [Fact]
-        public void Directive_count_is_based_on_distinct_instances_of_directive_name()
-        {
-            var command = new RootCommand();
-
-            var result = command.Parse("[one] [two] [one:a] [one:b]");
-
-            result.Directives.Should().HaveCount(2);
-        }
-
-        [Fact]
-        public void Directives_can_be_disabled()
+        public void When_directives_are_not_enabled_they_are_treated_as_regular_tokens()
         {
             var parser = new Parser(
                 new CommandLineConfiguration(
@@ -150,12 +142,20 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("[hello]");
 
-            result.Directives.Count().Should().Be(0);
             result.CommandResult
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("[hello]");
+        }
+
+        private static ParseResult Parse(Option option, Directive directive, string commandLine)
+        {
+            RootCommand root = new() { option };
+            CommandLineBuilder builder = new(root);
+            builder.Directives.Add(directive);
+
+            return builder.Build().Parse(commandLine);
         }
     }
 }

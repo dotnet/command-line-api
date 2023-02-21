@@ -1,4 +1,4 @@
-﻿using System.CommandLine.Invocation;
+﻿using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
@@ -7,27 +7,26 @@ namespace System.CommandLine
     /// </summary>
     public sealed class EnvironmentVariablesDirective : Directive
     {
-        public EnvironmentVariablesDirective() : base("env", syncHandler: SyncHandler)
+        public EnvironmentVariablesDirective() : base("env")
         {
         }
 
-        private static void SyncHandler(InvocationContext context)
+        public override void OnParsed(DirectiveResult directiveResult)
         {
-            EnvironmentVariablesDirective symbol = (EnvironmentVariablesDirective)context.ParseResult.Symbol;
-            string? parsedValues = context.ParseResult.FindResultFor(symbol)!.Value;
-
-            if (parsedValues is not null)
+            if (string.IsNullOrEmpty(directiveResult.Value))
             {
-                string[] components = parsedValues.Split(new[] { '=' }, count: 2);
-                string variable = components.Length > 0 ? components[0].Trim() : string.Empty;
-                if (string.IsNullOrEmpty(variable) || components.Length < 2)
-                {
-                    return;
-                }
-
-                string value = components[1].Trim();
-                Environment.SetEnvironmentVariable(variable, value);
+                return;
             }
+
+            string[] components = directiveResult.Value.Split(new[] { '=' }, count: 2);
+            string variable = components.Length > 0 ? components[0].Trim() : string.Empty;
+            if (string.IsNullOrEmpty(variable) || components.Length < 2)
+            {
+                return;
+            }
+
+            string value = components[1].Trim();
+            Environment.SetEnvironmentVariable(variable, value);
         }
     }
 }

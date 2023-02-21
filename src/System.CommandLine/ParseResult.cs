@@ -22,6 +22,7 @@ namespace System.CommandLine
 
         internal ParseResult(
             Parser parser,
+            Symbol symbol,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<Token> tokens,
@@ -31,6 +32,7 @@ namespace System.CommandLine
             ICommandHandler? handler = null)
         {
             Parser = parser;
+            Symbol = symbol;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             _handler = handler;
@@ -75,12 +77,6 @@ namespace System.CommandLine
         /// Gets the parse errors found while parsing command line input.
         /// </summary>
         public IReadOnlyList<ParseError> Errors => _errors;
-
-        /// <summary>
-        /// Gets the directives found while parsing command line input.
-        /// </summary>
-        /// <remarks>If <see cref="CommandLineConfiguration.EnableDirectives"/> is set to <see langword="false"/>, then this collection will be empty.</remarks>
-        public IReadOnlyDictionary<string, IReadOnlyList<string>> Directives => null!;
 
         /// <summary>
         /// Gets the tokens identified while parsing command line input.

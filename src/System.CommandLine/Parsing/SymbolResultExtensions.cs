@@ -25,6 +25,7 @@ namespace System.CommandLine.Parsing
             {
                 CommandResult commandResult => commandResult.Token,
                 OptionResult optionResult => optionResult.Token ?? CreateImplicitToken(optionResult.Option),
+                DirectiveResult directiveResult => directiveResult.Token,
                 _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
             };
 

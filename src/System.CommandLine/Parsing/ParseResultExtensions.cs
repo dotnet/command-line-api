@@ -85,9 +85,10 @@ namespace System.CommandLine.Parsing
                 builder.Append("!");
             }
 
-
             switch (symbolResult)
             {
+                case DirectiveResult:
+                    break;
                 case ArgumentResult argumentResult:
                 {
                     var includeArgumentName =

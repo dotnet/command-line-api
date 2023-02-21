@@ -21,7 +21,7 @@ namespace System.CommandLine
             string? parsedValues = context.ParseResult.FindResultFor(symbol)!.Value;
             string? rawInput = context.ParseResult.CommandLineText;
 
-            int position = parsedValues is not null ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
+            int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
 
             var commandLineToComplete = context.ParseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 

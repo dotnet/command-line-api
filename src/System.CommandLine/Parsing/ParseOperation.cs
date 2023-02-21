@@ -19,6 +19,7 @@ namespace System.CommandLine.Parsing
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested, _isParseRequested;
         private ICommandHandler? _handler;
+        private Symbol? _symbol;
 
         public ParseOperation(
             List<Token> tokens,
@@ -75,6 +76,7 @@ namespace System.CommandLine.Parsing
 
             return new (
                 parser,
+                _symbol ?? _innermostCommandResult.Command,
                 _rootCommandResult,
                 _innermostCommandResult,
                 _tokens,
@@ -294,21 +296,24 @@ namespace System.CommandLine.Parsing
             void ParseDirective()
             {
                 var token = CurrentToken;
+
+                if (token.Symbol is not Directive directive)
+                {
+                    // Directives_should_not_be_considered_as_unmatched_tokens
+                    return;
+                }
+
                 ReadOnlySpan<char> withoutBrackets = token.Value.AsSpan(1, token.Value.Length - 2);
                 int indexOfColon = withoutBrackets.IndexOf(':');
                 string? value = indexOfColon > 0
                     ? withoutBrackets.Slice(indexOfColon + 1).ToString()
-                    : null;
+                    : string.Empty; // Directives_without_a_value_specified_have_a_value_of_empty_string
 
-                if (token.Symbol is not Directive directive)
-                {
-                    _symbolResultTree.AddUnmatchedToken(token, commandResult: null);
-                    return;
-                }
-
-                DirectiveResult result = new (directive, token, value, _symbolResultTree, _rootCommandResult);
+                DirectiveResult result = new (directive, token, value, _symbolResultTree);
                 _symbolResultTree.Add(directive, result);
+                directive.OnParsed(result);
                 _handler = directive.Handler;
+                _symbol = directive;
 
                 if (directive is ParseDirective)
                 {

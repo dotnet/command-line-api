@@ -5,8 +5,8 @@
     /// </summary>
     public sealed class DirectiveResult : SymbolResult
     {
-        internal DirectiveResult(Directive directive, Token token, string? value, SymbolResultTree symbolResultTree, SymbolResult rootCommand)
-            : base(symbolResultTree, rootCommand)
+        internal DirectiveResult(Directive directive, Token token, string value, SymbolResultTree symbolResultTree)
+            : base(symbolResultTree, null) // directives don't belong to any command
         {
             Directive = directive;
             Token = token;
@@ -16,8 +16,8 @@
         /// <summary>
         /// Parsed value of an [name:value] directive.
         /// </summary>
-        /// <remarks>Can be null for [name] directives.</remarks>
-        public string? Value { get; }
+        /// <remarks>Can be empty for [name] directives.</remarks>
+        public string Value { get; }
 
         /// <summary>
         /// The directive to which the result applies.

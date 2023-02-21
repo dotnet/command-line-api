@@ -86,7 +86,10 @@ namespace System.CommandLine
 
         internal TryReplaceToken? TokenReplacer;
 
-        internal List<Directive>? Directives;
+        public List<Directive> Directives => _directives ??= new ();
+
+        private List<Directive>? _directives;
+
 
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
@@ -95,7 +98,7 @@ namespace System.CommandLine
             new(
                 new CommandLineConfiguration(
                     Command,
-                    Directives,
+                    _directives,
                     enablePosixBundling: EnablePosixBundling,
                     enableTokenReplacement: EnableTokenReplacement,
                     parseErrorReportingExitCode: ParseErrorReportingExitCode,

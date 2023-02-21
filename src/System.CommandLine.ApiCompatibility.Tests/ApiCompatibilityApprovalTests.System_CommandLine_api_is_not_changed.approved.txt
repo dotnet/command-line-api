@@ -66,6 +66,7 @@ System.CommandLine
   public class CommandLineBuilder
     .ctor(Command rootCommand = null)
     public Command Command { get; }
+    public System.Collections.Generic.List<Directive> Directives { get; }
     public System.CommandLine.Parsing.Parser Build()
   public static class CommandLineBuilderExtensions
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
@@ -109,8 +110,10 @@ System.CommandLine
   public class Directive : Symbol
     .ctor(System.String name, System.String description = null, System.Action<System.CommandLine.Invocation.InvocationContext> syncHandler = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> asyncHandler = null)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
+    public System.Void OnParsed(System.CommandLine.Parsing.DirectiveResult directiveResult)
   public class EnvironmentVariablesDirective : Directive
     .ctor()
+    public System.Void OnParsed(System.CommandLine.Parsing.DirectiveResult directiveResult)
   public static class Handler
     public static System.Void SetHandler(this Command command, System.Action<System.CommandLine.Invocation.InvocationContext> handle)
     public static System.Void SetHandler(this Command command, System.Action handle)
@@ -213,7 +216,6 @@ System.CommandLine
     .ctor(System.Int32 errorExitCode = 1)
   public class ParseResult
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
-    public System.Collections.Generic.IReadOnlyDictionary<System.String,System.Collections.Generic.IReadOnlyList<System.String>> Directives { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }

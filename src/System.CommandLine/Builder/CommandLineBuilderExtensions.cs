@@ -129,7 +129,7 @@ ERR:
         public static CommandLineBuilder UseEnvironmentVariableDirective(
             this CommandLineBuilder builder)
         {
-            (builder.Directives ??= new()).Add(new EnvironmentVariablesDirective());
+            builder.Directives.Add(new EnvironmentVariablesDirective());
 
             return builder;
         }
@@ -337,7 +337,7 @@ ERR:
             this CommandLineBuilder builder,
             int errorExitCode = 1)
         {
-            (builder.Directives ??= new()).Add(new ParseDirective(errorExitCode));
+            builder.Directives.Add(new ParseDirective(errorExitCode));
 
             return builder;
         }
@@ -363,7 +363,7 @@ ERR:
         public static CommandLineBuilder UseSuggestDirective(
             this CommandLineBuilder builder)
         {
-            (builder.Directives ??= new()).Add(new SuggestDirective());
+            builder.Directives.Add(new SuggestDirective());
 
             return builder;
         }

@@ -3,6 +3,7 @@ using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using System.Threading;
+using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
@@ -42,19 +43,29 @@ namespace System.CommandLine
                 }
             }
 
-            if (syncHandler is null && asyncHandler is null)
-            {
-                throw new ArgumentNullException(message: "A single handler needs to be provided", innerException: null);
-            }
-
             Name = name;
             Description = description;
-            Handler = syncHandler is not null
-                ? new AnonymousCommandHandler(syncHandler)
-                : new AnonymousCommandHandler(asyncHandler!);
+
+            if (syncHandler is not null)
+            {
+                Handler = new AnonymousCommandHandler(syncHandler);
+            }
+            else if (asyncHandler is not null)
+            {
+                Handler = new AnonymousCommandHandler(asyncHandler);
+            }
         }
 
-        internal ICommandHandler Handler { get; }
+        internal ICommandHandler? Handler { get; }
+
+        /// <summary>
+        /// Method executed when given Directive is being parsed.
+        /// Useful for Directives that want to perform an action without setting the Handler for ParseResult.
+        /// </summary>
+        /// <param name="directiveResult">Parsed directive result.</param>
+        public virtual void OnParsed(DirectiveResult directiveResult)
+        {
+        }
 
         private protected override string DefaultName => throw new NotImplementedException();
 
