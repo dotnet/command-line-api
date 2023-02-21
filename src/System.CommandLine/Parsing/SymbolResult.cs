@@ -65,6 +65,13 @@ namespace System.CommandLine.Parsing
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public OptionResult? FindResultFor(Option option) => SymbolResultTree.FindResultFor(option);
 
+        /// <summary>
+        /// Finds a result for the specific directive anywhere in the parse tree.
+        /// </summary>
+        /// <param name="directive">The directive for which to find a result.</param>
+        /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
+        public DirectiveResult? FindResultFor(Directive directive) => SymbolResultTree.FindResultFor(directive);
+
         /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
         public T? GetValue<T>(Argument<T> argument)
         {

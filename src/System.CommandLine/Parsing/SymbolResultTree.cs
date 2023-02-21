@@ -37,6 +37,9 @@ namespace System.CommandLine.Parsing
         internal OptionResult? FindResultFor(Option option)
             => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
+        internal DirectiveResult? FindResultFor(Directive directive)
+            => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
+
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
             if (parent is not ArgumentResult)

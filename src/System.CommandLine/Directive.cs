@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace System.CommandLine
 {
@@ -19,7 +22,12 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the directive. It can't contain whitespaces.</param>
         /// <param name="description">The description of the directive, shown in help.</param>
-        public Directive(string name, string? description)
+        /// <param name="syncHandler">The synchronous action that is invoked when directive is parsed.</param>
+        /// <param name="asyncHandler">The asynchronous action that is invoked when directive is parsed.</param>
+        public Directive(string name, 
+            string? description = null, 
+            Action<InvocationContext>? syncHandler = null,
+            Func<InvocationContext, CancellationToken, Task>? asyncHandler = null)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -34,9 +42,19 @@ namespace System.CommandLine
                 }
             }
 
+            if (syncHandler is null && asyncHandler is null)
+            {
+                throw new ArgumentNullException(message: "A single handler needs to be provided", innerException: null);
+            }
+
             Name = name;
             Description = description;
+            Handler = syncHandler is not null
+                ? new AnonymousCommandHandler(syncHandler)
+                : new AnonymousCommandHandler(asyncHandler!);
         }
+
+        internal ICommandHandler Handler { get; }
 
         private protected override string DefaultName => throw new NotImplementedException();
 

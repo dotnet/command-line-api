@@ -1,14 +1,16 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
+﻿using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 
-namespace System.CommandLine.Invocation
+namespace System.CommandLine
 {
-    internal static class ParseDirectiveResult
+    public sealed class ParseDirective : Directive
     {
-        internal static void Apply(InvocationContext context)
+        public ParseDirective() : base("parse", syncHandler: SyncHandler)
+        {
+        }
+
+        private static void SyncHandler(InvocationContext context)
         {
             var parseResult = context.ParseResult;
             context.Console.Out.WriteLine(parseResult.Diagram());

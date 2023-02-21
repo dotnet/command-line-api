@@ -121,7 +121,7 @@ namespace System.CommandLine.Parsing
                         arg[1] != ':' &&
                         arg[arg.Length - 1] == ']')
                     {
-                        int colonIndex = arg.IndexOf(':', StringComparison.Ordinal);
+                        int colonIndex = arg.AsSpan().IndexOf(':');
                         string directiveName = colonIndex > 0
                             ? arg.Substring(1, colonIndex) // [name:value]
                             : arg.Substring(1, arg.Length - 1); // [name] is a legal directive
