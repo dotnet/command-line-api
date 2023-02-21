@@ -23,18 +23,6 @@ namespace System.CommandLine
         /// <inheritdoc cref="CommandLineConfiguration.ParseErrorReportingExitCode"/>
         internal int? ParseErrorReportingExitCode;
 
-        /// <inheritdoc cref="CommandLineConfiguration.EnableDirectives"/>
-        internal bool EnableDirectives = true;
-
-        /// <inheritdoc cref="CommandLineConfiguration.EnableEnvironmentVariableDirective"/>
-        internal bool EnableEnvironmentVariableDirective;
-
-        /// <inheritdoc cref="CommandLineConfiguration.ParseDirectiveExitCode"/>
-        internal int? ParseDirectiveExitCode;
-
-        /// <inheritdoc cref="CommandLineConfiguration.EnableSuggestDirective"/>
-        internal bool EnableSuggestDirective;
-
         /// <inheritdoc cref="CommandLineConfiguration.MaxLevenshteinDistance"/>
         internal int MaxLevenshteinDistance;
 
@@ -98,6 +86,8 @@ namespace System.CommandLine
 
         internal TryReplaceToken? TokenReplacer;
 
+        internal List<Directive>? Directives;
+
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
@@ -105,12 +95,9 @@ namespace System.CommandLine
             new(
                 new CommandLineConfiguration(
                     Command,
+                    Directives,
                     enablePosixBundling: EnablePosixBundling,
-                    enableDirectives: EnableDirectives,
                     enableTokenReplacement: EnableTokenReplacement,
-                    enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
-                    parseDirectiveExitCode: ParseDirectiveExitCode,
-                    enableSuggestDirective: EnableSuggestDirective,
                     parseErrorReportingExitCode: ParseErrorReportingExitCode,
                     maxLevenshteinDistance: MaxLevenshteinDistance,
                     exceptionHandler: ExceptionHandler,

@@ -146,8 +146,7 @@ namespace System.CommandLine.Tests
                     new RootCommand
                     {
                         new Argument<List<string>>()
-                    },
-                    enableDirectives: false));
+                    }));
 
             var result = parser.Parse("[hello]");
 

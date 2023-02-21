@@ -283,7 +283,7 @@ namespace System.CommandLine.Parsing
         {
             while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Directive)
             {
-                if (_configuration.EnableDirectives)
+                if (_configuration.Directives.Count > 0)
                 {
                     ParseDirective(); // kept in separate method to avoid JIT
                 }

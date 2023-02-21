@@ -71,7 +71,6 @@ System.CommandLine
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder AddMiddleware(this CommandLineBuilder builder, System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public static CommandLineBuilder CancelOnProcessTermination(this CommandLineBuilder builder, System.Nullable<System.TimeSpan> timeout = null)
-    public static CommandLineBuilder EnableDirectives(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder EnablePosixBundling(this CommandLineBuilder builder, System.Boolean value = True)
     public static CommandLineBuilder RegisterWithDotnetSuggest(this CommandLineBuilder builder)
     public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
@@ -90,8 +89,8 @@ System.CommandLine
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
   public class CommandLineConfiguration
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
-    public System.Boolean EnableDirectives { get; }
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
+    public System.Collections.Generic.IReadOnlyList<Directive> Directives { get; }
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
     public LocalizationResources LocalizationResources { get; }
@@ -107,11 +106,11 @@ System.CommandLine
   public static class ConsoleExtensions
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)
-  public class DirectiveCollection, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>>, System.Collections.IEnumerable
+  public class Directive : Symbol
+    .ctor(System.String name, System.String description = null, System.Action<System.CommandLine.Invocation.InvocationContext> syncHandler = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> asyncHandler = null)
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
+  public class EnvironmentVariablesDirective : Directive
     .ctor()
-    public System.Boolean Contains(System.String name)
-    public System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<System.String,System.Collections.Generic.IEnumerable<System.String>>> GetEnumerator()
-    public System.Boolean TryGetValues(System.String name, ref System.Collections.Generic.IReadOnlyList<System.String> values)
   public static class Handler
     public static System.Void SetHandler(this Command command, System.Action<System.CommandLine.Invocation.InvocationContext> handle)
     public static System.Void SetHandler(this Command command, System.Action handle)
@@ -210,6 +209,8 @@ System.CommandLine
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
     public static Option<System.IO.FileSystemInfo> AcceptExistingOnly(this Option<System.IO.FileSystemInfo> option)
     public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
+  public class ParseDirective : Directive
+    .ctor(System.Int32 errorExitCode = 1)
   public class ParseResult
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
     public System.Collections.Generic.IReadOnlyDictionary<System.String,System.Collections.Generic.IReadOnlyList<System.String>> Directives { get; }
@@ -221,6 +222,7 @@ System.CommandLine
     public System.CommandLine.Parsing.ArgumentResult FindResultFor(Argument argument)
     public System.CommandLine.Parsing.CommandResult FindResultFor(Command command)
     public System.CommandLine.Parsing.OptionResult FindResultFor(Option option)
+    public System.CommandLine.Parsing.DirectiveResult FindResultFor(Directive directive)
     public System.CommandLine.Parsing.SymbolResult FindResultFor(Symbol symbol)
     public System.CommandLine.Completions.CompletionContext GetCompletionContext()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
@@ -231,6 +233,8 @@ System.CommandLine
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
+  public class SuggestDirective : Directive
+    .ctor()
   public abstract class Symbol
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
@@ -393,6 +397,10 @@ System.CommandLine.Parsing
     public System.Collections.Generic.IEnumerable<SymbolResult> Children { get; }
     public System.CommandLine.Command Command { get; }
     public Token Token { get; }
+  public class DirectiveResult : SymbolResult
+    public System.CommandLine.Directive Directive { get; }
+    public Token Token { get; }
+    public System.String Value { get; }
   public class OptionResult : SymbolResult
     public System.Boolean IsImplicit { get; }
     public System.CommandLine.Option Option { get; }
@@ -427,6 +435,7 @@ System.CommandLine.Parsing
     public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
     public CommandResult FindResultFor(System.CommandLine.Command command)
     public OptionResult FindResultFor(System.CommandLine.Option option)
+    public DirectiveResult FindResultFor(System.CommandLine.Directive directive)
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
     public System.String ToString()

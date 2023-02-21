@@ -82,7 +82,7 @@ namespace System.CommandLine.Parsing
 
             var currentCommand = configuration.RootCommand;
             var foundDoubleDash = false;
-            var foundEndOfDirectives = !configuration.EnableDirectives;
+            var foundEndOfDirectives = configuration.Directives.Count == 0;
 
             var tokenList = new List<Token>(args.Count);
 

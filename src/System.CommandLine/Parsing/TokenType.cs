@@ -30,11 +30,11 @@ namespace System.CommandLine.Parsing
         /// A double dash (<c>--</c>) token, which changes the meaning of subsequent tokens.
         /// </summary>
         DoubleDash,
-        
+
         /// <summary>
         /// A directive token.
         /// </summary>
-        /// <see cref="DirectiveCollection"/>
+        /// <see cref="System.CommandLine.Directive"/>
         Directive
     }
 }

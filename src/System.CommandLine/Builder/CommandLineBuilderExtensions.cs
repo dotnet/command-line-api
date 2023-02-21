@@ -9,8 +9,6 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using static System.Environment;
 using Process = System.CommandLine.Invocation.Process;
 
 namespace System.CommandLine
@@ -37,22 +35,6 @@ namespace System.CommandLine
         {
             builder.ProcessTerminationTimeout = timeout ?? TimeSpan.FromSeconds(2);
 
-            return builder;
-        }
-
-        /// <summary>
-        /// Enables the parser to recognize command line directives.
-        /// </summary>
-        /// <param name="builder">A command line builder.</param>
-        /// <param name="value"><see langword="true" /> to enable directives. <see langword="false" /> to parse directive-like tokens in the same way as any other token.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line directives</seealso> 
-        /// <seealso cref="DirectiveCollection"/>
-        public static CommandLineBuilder EnableDirectives(
-            this CommandLineBuilder builder,
-            bool value = true)
-        {
-            builder.EnableDirectives = value;
             return builder;
         }
 
@@ -141,15 +123,13 @@ ERR:
             return builder;
         }
 
-        /// <summary>
-        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
-        /// </summary>
+        /// <inheritdoc cref="EnvironmentVariablesDirective"/>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseEnvironmentVariableDirective(
             this CommandLineBuilder builder)
         {
-            builder.EnableEnvironmentVariableDirective = true;
+            (builder.Directives ??= new()).Add(new EnvironmentVariablesDirective());
 
             return builder;
         }
@@ -348,9 +328,8 @@ ERR:
             return builder;
         }
 
-        /// <summary>
-        /// Enables the use of the <c>[parse]</c> directive, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
-        /// </summary>
+
+        /// <inheritdoc cref="ParseDirective"/>
         /// <param name="builder">A command line builder.</param>
         /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
@@ -358,7 +337,7 @@ ERR:
             this CommandLineBuilder builder,
             int errorExitCode = 1)
         {
-            builder.ParseDirectiveExitCode = errorExitCode;
+            (builder.Directives ??= new()).Add(new ParseDirective(errorExitCode));
 
             return builder;
         }
@@ -378,16 +357,13 @@ ERR:
             return builder;
         }
 
-        /// <summary>
-        /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
-        /// </summary>
-        /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
+        /// <inheritdoc cref="SuggestDirective"/>
         /// <param name="builder">A command line builder.</param>
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseSuggestDirective(
             this CommandLineBuilder builder)
         {
-            builder.EnableSuggestDirective = true;
+            (builder.Directives ??= new()).Add(new SuggestDirective());
 
             return builder;
         }
