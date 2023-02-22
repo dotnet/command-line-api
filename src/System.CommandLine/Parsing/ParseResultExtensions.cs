@@ -3,11 +3,8 @@
 
 using System.Collections;
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.CommandLine.Parsing
 {
@@ -62,7 +59,7 @@ namespace System.CommandLine.Parsing
 
             switch (symbolResult)
             {
-                case DirectiveResult:
+                case DirectiveResult directiveResult when directiveResult.Directive is not ParseDirective:
                     break;
                 case ArgumentResult argumentResult:
                 {
