@@ -402,7 +402,7 @@ System.CommandLine.Parsing
   public class DirectiveResult : SymbolResult
     public System.CommandLine.Directive Directive { get; }
     public Token Token { get; }
-    public System.String Value { get; }
+    public System.Collections.Generic.IReadOnlyList<System.String> Values { get; }
   public class OptionResult : SymbolResult
     public System.Boolean IsImplicit { get; }
     public System.CommandLine.Option Option { get; }

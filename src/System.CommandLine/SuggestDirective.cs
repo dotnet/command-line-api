@@ -18,7 +18,7 @@ namespace System.CommandLine
         private static void SyncHandler(InvocationContext context)
         {
             SuggestDirective symbol = (SuggestDirective)context.ParseResult.Symbol;
-            string? parsedValues = context.ParseResult.FindResultFor(symbol)!.Value;
+            string? parsedValues = context.ParseResult.FindResultFor(symbol)!.Values.SingleOrDefault();
             string? rawInput = context.ParseResult.CommandLineText;
 
             int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;

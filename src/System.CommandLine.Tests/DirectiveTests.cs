@@ -73,17 +73,17 @@ namespace System.CommandLine.Tests
 
             ParseResult result = Parse(new Option<bool>("-y"), directive, $"{wholeText} -y");
 
-            result.FindResultFor(directive).Value.Should().Be(expectedValue);
+            result.FindResultFor(directive).Values.Single().Should().Be(expectedValue);
         }
 
         [Fact]
-        public void Directives_without_a_value_specified_have_a_value_of_empty_string()
+        public void Directives_without_a_value_specified_have_no_values()
         {
             Directive directive = new("parse");
 
             ParseResult result = Parse(new Option<bool>("-y"), directive, "[parse] -y");
 
-            result.FindResultFor(directive).Value.Should().BeEmpty();
+            result.FindResultFor(directive).Values.Should().BeEmpty();
         }
 
         [Theory]
@@ -109,26 +109,15 @@ namespace System.CommandLine.Tests
             create.Should().Throw<ArgumentException>();
         }
 
-        //[Fact]
-        //public void When_a_directive_is_specified_more_than_once_then_its_values_are_aggregated()
-        //{
-        //    var option = new Option<bool>("-a");
+        [Fact]
+        public void When_a_directive_is_specified_more_than_once_then_its_values_are_aggregated()
+        {
+            Directive directive = new("directive");
 
-        //    var result = option.Parse("[directive:one] [directive:two] -a");
+            ParseResult result = Parse(new Option<bool>("-a"), directive, "[directive:one] [directive:two] -a");
 
-        //    result.Directives.TryGetValue("directive", out var values).Should().BeTrue();
-        //    values.Should().BeEquivalentTo("one", "two");
-        //}
-
-        //[Fact]
-        //public void Directive_count_is_based_on_distinct_instances_of_directive_name()
-        //{
-        //    var command = new RootCommand();
-
-        //    var result = command.Parse("[one] [two] [one:a] [one:b]");
-
-        //    result.Directives.Should().HaveCount(2);
-        //}
+            result.FindResultFor(directive).Values.Should().BeEquivalentTo("one", "two");
+        }
 
         [Fact]
         public void When_directives_are_not_enabled_they_are_treated_as_regular_tokens()

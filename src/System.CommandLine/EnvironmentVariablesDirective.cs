@@ -13,20 +13,24 @@ namespace System.CommandLine
 
         public override void OnParsed(DirectiveResult directiveResult)
         {
-            if (string.IsNullOrEmpty(directiveResult.Value))
+            for (int i = 0; i < directiveResult.Values.Count; i++)
             {
-                return;
-            }
+                string parsedValue = directiveResult.Values[i];
 
-            string[] components = directiveResult.Value.Split(new[] { '=' }, count: 2);
-            string variable = components.Length > 0 ? components[0].Trim() : string.Empty;
-            if (string.IsNullOrEmpty(variable) || components.Length < 2)
-            {
-                return;
-            }
+                int indexOfSeparator = parsedValue.AsSpan().IndexOf('=');
+                
+                if (indexOfSeparator > 0)
+                {
+                    ReadOnlySpan<char> variable = parsedValue.AsSpan(0, indexOfSeparator).Trim();
 
-            string value = components[1].Trim();
-            Environment.SetEnvironmentVariable(variable, value);
+                    if (!variable.IsEmpty)
+                    {
+                        string value = parsedValue.AsSpan(indexOfSeparator + 1).Trim().ToString();
+
+                        Environment.SetEnvironmentVariable(variable.ToString(), value);
+                    }
+                }
+            }
         }
     }
 }

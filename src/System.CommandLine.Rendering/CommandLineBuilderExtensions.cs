@@ -31,9 +31,10 @@ namespace System.CommandLine.Rendering
 
         private static bool PreferVirtualTerminal(ParseResult parseResult, Directive enableVtDirective)
         {
-            if (parseResult.FindResultFor(enableVtDirective) is DirectiveResult result)
+            if (parseResult.FindResultFor(enableVtDirective) is DirectiveResult result
+                && result.Values.Count == 1)
             {
-                string trueOrFalse = result.Value;
+                string trueOrFalse = result.Values[0];
 
                 if (bool.TryParse(trueOrFalse, out var pvt))
                 {
@@ -47,7 +48,8 @@ namespace System.CommandLine.Rendering
         private static OutputMode OutputMode(ParseResult parseResult, Directive outputDirective)
         {
             if (parseResult.FindResultFor(outputDirective) is DirectiveResult result
-                && Enum.TryParse<OutputMode>(result.Value, true, out var mode))
+                && result.Values.Count == 1
+                && Enum.TryParse<OutputMode>(result.Values[0], true, out var mode))
             {
                 return mode;
             }

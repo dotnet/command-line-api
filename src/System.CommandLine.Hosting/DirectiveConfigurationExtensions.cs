@@ -17,11 +17,14 @@ namespace System.CommandLine.Hosting
             if (directive is null)
                 throw new ArgumentNullException(nameof(directive));
 
-            if (commandline.FindResultFor(directive) is not DirectiveResult result)
+            if (commandline.FindResultFor(directive) is not DirectiveResult result
+                || result.Values.Count == 0)
+            {
                 return config;
+            }
 
             var kvpSeparator = new[] { '=' };
-            return config.AddInMemoryCollection(new string[] { result.Value }.Select(s =>
+            return config.AddInMemoryCollection(result.Values.Select(s =>
             {
                 var parts = s.Split(kvpSeparator, count: 2);
                 var key = parts[0];

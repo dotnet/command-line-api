@@ -303,14 +303,25 @@ namespace System.CommandLine.Parsing
                     return;
                 }
 
+                DirectiveResult result;
+                if (_symbolResultTree.TryGetValue(directive, out var directiveResult))
+                {
+                    result = (DirectiveResult)directiveResult;
+                    result.AddToken(token);
+                }
+                else
+                {
+                    result = new (directive, token, _symbolResultTree);
+                    _symbolResultTree.Add(directive, result);
+                }
+
                 ReadOnlySpan<char> withoutBrackets = token.Value.AsSpan(1, token.Value.Length - 2);
                 int indexOfColon = withoutBrackets.IndexOf(':');
-                string? value = indexOfColon > 0
-                    ? withoutBrackets.Slice(indexOfColon + 1).ToString()
-                    : string.Empty; // Directives_without_a_value_specified_have_a_value_of_empty_string
+                if (indexOfColon > 0)
+                {
+                    result.AddValue(withoutBrackets.Slice(indexOfColon + 1).ToString());
+                }
 
-                DirectiveResult result = new (directive, token, value, _symbolResultTree);
-                _symbolResultTree.Add(directive, result);
                 directive.OnParsed(result);
                 _handler = directive.Handler;
                 _symbol = directive;
