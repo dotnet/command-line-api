@@ -135,11 +135,11 @@ namespace System.CommandLine
         /// <summary>
         /// Parses an array strings using the command.
         /// </summary>
-        /// <param name="arguments">The string arguments to parse.</param>
+        /// <param name="args">The string arguments to parse.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(IReadOnlyList<string> arguments, CommandLineConfiguration? configuration = null)
-            => Parser.Parse(this, arguments, configuration);
+        public ParseResult Parse(IReadOnlyList<string> args, CommandLineConfiguration? configuration = null)
+            => Parser.Parse(this, args, configuration);
 
         /// <summary>
         /// Parses a command line string value using the command.

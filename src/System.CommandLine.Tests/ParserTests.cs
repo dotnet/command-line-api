@@ -1321,7 +1321,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_can_not_be_called_with_null_args()
         {
-            Action passNull = () => new RootCommand().Parse(arguments: null);
+            Action passNull = () => new RootCommand().Parse(args: null);
 
             passNull.Should().Throw<ArgumentNullException>();
         }
