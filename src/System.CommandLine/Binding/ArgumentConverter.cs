@@ -186,9 +186,9 @@ namespace System.CommandLine.Binding
                     Success(conversionResult.ArgumentResult, true),
 
                 ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.Arity.MinimumNumberOfValues > 0 =>
-                    ArgumentConversionResult.Failure(
+                    Failure(
                         conversionResult.ArgumentResult,
-                        conversionResult.ArgumentResult.LocalizationResources.RequiredArgumentMissing(conversionResult.ArgumentResult.Parent!),
+                        LocalizationResources.RequiredArgumentMissing(conversionResult.ArgumentResult.Parent!),
                         ArgumentConversionResultType.FailedMissingArgument),
                         
                 _ => conversionResult

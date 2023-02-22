@@ -25,7 +25,7 @@ namespace System.CommandLine.Invocation
                 {
                     if (first)
                     {
-                        console.Out.WriteLine(result.CommandResult.LocalizationResources.SuggestionsTokenNotMatched(token));
+                        console.Out.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
                         first = false;
                     }
 

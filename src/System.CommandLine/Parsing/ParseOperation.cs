@@ -30,7 +30,7 @@ namespace System.CommandLine.Parsing
             _tokens = tokens;
             _configuration = configuration;
             _rawInput = rawInput;
-            _symbolResultTree = new(configuration.LocalizationResources, tokenizeErrors);
+            _symbolResultTree = new(tokenizeErrors);
             _innermostCommandResult = _rootCommandResult = new CommandResult(
                 _configuration.RootCommand,
                 CurrentToken,

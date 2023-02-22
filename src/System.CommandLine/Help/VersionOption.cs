@@ -10,14 +10,14 @@ namespace System.CommandLine.Help
 {
     internal class VersionOption : Option<bool>
     {
-        internal VersionOption(CommandLineBuilder builder)
-            : base("--version", builder.LocalizationResources.VersionOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
+        internal VersionOption()
+            : base("--version", LocalizationResources.VersionOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
         {
             AddValidators();
         }
 
-        internal VersionOption(string[] aliases, CommandLineBuilder builder)
-            : base(aliases, builder.LocalizationResources.VersionOptionDescription())
+        internal VersionOption(string[] aliases)
+            : base(aliases, LocalizationResources.VersionOptionDescription())
         {
             AddValidators();
         }
@@ -30,7 +30,7 @@ namespace System.CommandLine.Help
                     parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
                           .Any(IsNotImplicit))
                 {
-                    result.AddError(result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
+                    result.AddError(LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
                 }
             });
         }

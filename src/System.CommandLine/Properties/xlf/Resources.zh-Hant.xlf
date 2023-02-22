@@ -27,34 +27,19 @@
         <target state="new">Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</target>
         <note />
       </trans-unit>
-      <trans-unit id="CommandExpectsFewerArguments">
-        <source>Command '{0}' expects no more than {1} arguments, but {2} were provided.</source>
-        <target state="new">Command '{0}' expects no more than {1} arguments, but {2} were provided.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="CommandExpectsOneArgument">
-        <source>Command '{0}' expects a single argument but {1} were provided.</source>
-        <target state="new">Command '{0}' expects a single argument but {1} were provided.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="CommandNoArgumentProvided">
-        <source>No argument was provided for Command '{0}'.</source>
-        <target state="new">No argument was provided for Command '{0}'.</target>
-        <note />
-      </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
         <source>Required argument missing for command: '{0}'.</source>
-        <target state="new">Required argument missing for command: '{0}'.</target>
+        <target state="translated">命令遺漏必要引數: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">
         <source>Directory does not exist: '{0}'.</source>
-        <target state="new">Directory does not exist: '{0}'.</target>
+        <target state="translated">目錄不存在: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ErrorReadingResponseFile">
         <source>Error reading response file '{0}': {1}</source>
-        <target state="new">Error reading response file '{0}': {1}</target>
+        <target state="translated">讀取回應檔 '{0}' 時發生錯誤: {1}</target>
         <note />
       </trans-unit>
       <trans-unit id="ExceptionHandlerHeader">
@@ -64,12 +49,12 @@
       </trans-unit>
       <trans-unit id="FileDoesNotExist">
         <source>File does not exist: '{0}'.</source>
-        <target state="new">File does not exist: '{0}'.</target>
+        <target state="translated">檔案不存在: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="FileOrDirectoryDoesNotExist">
         <source>File or directory does not exist: '{0}'.</source>
-        <target state="new">File or directory does not exist: '{0}'.</target>
+        <target state="translated">檔案或目錄不存在: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsDescription">
@@ -79,7 +64,7 @@
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsTitle">
         <source>Additional Arguments:</source>
-        <target state="new">Additional Arguments:</target>
+        <target state="translated">其他引數:</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpArgumentDefaultValueLabel">
@@ -89,12 +74,12 @@
       </trans-unit>
       <trans-unit id="HelpArgumentsTitle">
         <source>Arguments:</source>
-        <target state="new">Arguments:</target>
+        <target state="translated">引數:</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpCommandsTitle">
         <source>Commands:</source>
-        <target state="new">Commands:</target>
+        <target state="translated">命令:</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpDescriptionTitle">
@@ -129,7 +114,7 @@
       </trans-unit>
       <trans-unit id="HelpOptionsTitle">
         <source>Options:</source>
-        <target state="new">Options:</target>
+        <target state="translated">選項:</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageAdditionalArguments">
@@ -139,17 +124,12 @@
       </trans-unit>
       <trans-unit id="HelpUsageTitle">
         <source>Usage:</source>
-        <target state="new">Usage:</target>
+        <target state="translated">使用方式:</target>
         <note />
       </trans-unit>
       <trans-unit id="InvalidCharactersInPath">
         <source>Character not allowed in a path: '{0}'.</source>
-        <target state="new">Character not allowed in a path: '{0}'.</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="OptionExpectsFewerArguments">
-        <source>Option '{0}' expects no more than {1} arguments, but {2} were provided.</source>
-        <target state="new">Option '{0}' expects no more than {1} arguments, but {2} were provided.</target>
+        <target state="translated">路徑中不允許的字元: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="OptionExpectsOneArgument">
@@ -157,19 +137,14 @@
         <target state="new">Option '{0}' expects a single argument but {1} were provided.</target>
         <note />
       </trans-unit>
-      <trans-unit id="OptionNoArgumentProvided">
-        <source>No argument was provided for Option '{0}'.</source>
-        <target state="new">No argument was provided for Option '{0}'.</target>
-        <note />
-      </trans-unit>
       <trans-unit id="OptionRequiredArgumentMissing">
         <source>Required argument missing for option: '{0}'.</source>
-        <target state="new">Required argument missing for option: '{0}'.</target>
+        <target state="translated">選項遺漏必要引數: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="RequiredCommandWasNotProvided">
         <source>Required command was not provided.</source>
-        <target state="new">Required command was not provided.</target>
+        <target state="translated">未提供所需的命令。.</target>
         <note />
       </trans-unit>
       <trans-unit id="RequiredOptionWasNotProvided">
@@ -179,7 +154,7 @@
       </trans-unit>
       <trans-unit id="ResponseFileNotFound">
         <source>Response file not found '{0}'.</source>
-        <target state="new">Response file not found '{0}'.</target>
+        <target state="translated">找不到回應檔 '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="SuggestionsTokenNotMatched">
@@ -189,12 +164,12 @@
       </trans-unit>
       <trans-unit id="UnrecognizedArgument">
         <source>Argument '{0}' not recognized. Must be one of:{1}</source>
-        <target state="new">Argument '{0}' not recognized. Must be one of:{1}</target>
+        <target state="translated">無法辨識引數 '{0}'。必須為下列之一: {1}</target>
         <note />
       </trans-unit>
       <trans-unit id="UnrecognizedCommandOrArgument">
         <source>Unrecognized command or argument '{0}'.</source>
-        <target state="new">Unrecognized command or argument '{0}'.</target>
+        <target state="translated">無法辨識的命令或引數 '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">
@@ -204,7 +179,7 @@
       </trans-unit>
       <trans-unit id="VersionOptionDescription">
         <source>Show version information</source>
-        <target state="new">Show version information</target>
+        <target state="translated">顯示版本資訊</target>
         <note />
       </trans-unit>
     </body>

@@ -8,20 +8,20 @@ namespace System.CommandLine.Help
 {
     internal class HelpOption : Option<bool>
     {
-        internal HelpOption(string[] aliases, LocalizationResources localizationResources)
-            : base(aliases, localizationResources.HelpOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
+        internal HelpOption(string[] aliases)
+            : base(aliases, LocalizationResources.HelpOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
         {
             AppliesToSelfAndChildren = true;
         }
 
-        internal HelpOption(LocalizationResources localizationResources) : this(new[]
+        internal HelpOption() : this(new[]
         {
             "-h",
             "/h",
             "--help",
             "-?",
             "/?"
-        }, localizationResources)
+        })
         {
         }
 

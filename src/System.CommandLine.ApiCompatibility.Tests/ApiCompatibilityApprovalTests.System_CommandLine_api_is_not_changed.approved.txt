@@ -81,7 +81,6 @@ System.CommandLine
     public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.String[] helpAliases)
     public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
     public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
-    public static CommandLineBuilder UseLocalizationResources(this CommandLineBuilder builder, LocalizationResources validationMessages)
     public static CommandLineBuilder UseParseDirective(this CommandLineBuilder builder, System.Int32 errorExitCode = 1)
     public static CommandLineBuilder UseParseErrorReporting(this CommandLineBuilder builder, System.Int32 errorExitCode = 1)
     public static CommandLineBuilder UseSuggestDirective(this CommandLineBuilder builder)
@@ -90,11 +89,10 @@ System.CommandLine
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder)
     public static CommandLineBuilder UseVersionOption(this CommandLineBuilder builder, System.String[] aliases)
   public class CommandLineConfiguration
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableTokenReplacement = True, LocalizationResources resources = null, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableTokenReplacement = True, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Boolean EnableDirectives { get; }
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
-    public LocalizationResources LocalizationResources { get; }
     public Command RootCommand { get; }
     public System.Void ThrowIfInvalid()
   public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
@@ -141,46 +139,6 @@ System.CommandLine
     public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
     public System.Void AddAlias(System.String alias)
     public System.Boolean HasAlias(System.String alias)
-  public class LocalizationResources
-    public static LocalizationResources Instance { get; }
-    public System.String ArgumentConversionCannotParse(System.String value, System.Type expectedType)
-    public System.String ArgumentConversionCannotParseForCommand(System.String value, System.String commandAlias, System.Type expectedType)
-    public System.String ArgumentConversionCannotParseForCommand(System.String value, System.String commandAlias, System.Type expectedType, System.Collections.Generic.IEnumerable<System.String> completions)
-    public System.String ArgumentConversionCannotParseForOption(System.String value, System.String optionAlias, System.Type expectedType)
-    public System.String ArgumentConversionCannotParseForOption(System.String value, System.String optionAlias, System.Type expectedType, System.Collections.Generic.IEnumerable<System.String> completions)
-    public System.String DirectoryDoesNotExist(System.String path)
-    public System.String ErrorReadingResponseFile(System.String filePath, System.IO.IOException e)
-    public System.String ExceptionHandlerHeader()
-    public System.String ExpectsFewerArguments(System.CommandLine.Parsing.Token token, System.Int32 providedNumberOfValues, System.Int32 maximumNumberOfValues)
-    public System.String ExpectsOneArgument(System.CommandLine.Parsing.SymbolResult symbolResult)
-    public System.String FileDoesNotExist(System.String filePath)
-    public System.String FileOrDirectoryDoesNotExist(System.String path)
-    protected System.String GetResourceString(System.String resourceString, System.Object[] formatArguments)
-    public System.String HelpAdditionalArgumentsDescription()
-    public System.String HelpAdditionalArgumentsTitle()
-    public System.String HelpArgumentDefaultValueLabel()
-    public System.String HelpArgumentsTitle()
-    public System.String HelpCommandsTitle()
-    public System.String HelpDescriptionTitle()
-    public System.String HelpOptionDescription()
-    public System.String HelpOptionsRequiredLabel()
-    public System.String HelpOptionsTitle()
-    public System.String HelpUsageAdditionalArguments()
-    public System.String HelpUsageCommand()
-    public System.String HelpUsageOptions()
-    public System.String HelpUsageTitle()
-    public System.String InvalidCharactersInFileName(System.Char invalidChar)
-    public System.String InvalidCharactersInPath(System.Char invalidChar)
-    public System.String NoArgumentProvided(System.CommandLine.Parsing.SymbolResult symbolResult)
-    public System.String RequiredArgumentMissing(System.CommandLine.Parsing.SymbolResult symbolResult)
-    public System.String RequiredCommandWasNotProvided()
-    public System.String RequiredOptionWasNotProvided(Option option)
-    public System.String ResponseFileNotFound(System.String filePath)
-    public System.String SuggestionsTokenNotMatched(System.String token)
-    public System.String UnrecognizedArgument(System.String unrecognizedArg, System.Collections.Generic.IReadOnlyCollection<System.String> allowedValues)
-    public System.String UnrecognizedCommandOrArgument(System.String arg)
-    public System.String VersionOptionCannotBeCombinedWithOtherArguments(System.String optionAlias)
-    public System.String VersionOptionDescription()
   public abstract class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.Boolean AppliesToSelfAndChildren { get; set; }
@@ -284,8 +242,7 @@ System.CommandLine.Completions
   public class TokenCompletionContext : CompletionContext
 System.CommandLine.Help
   public class HelpBuilder
-    .ctor(System.CommandLine.LocalizationResources localizationResources, System.Int32 maxWidth = 2147483647)
-    public System.CommandLine.LocalizationResources LocalizationResources { get; }
+    .ctor(System.Int32 maxWidth = 2147483647)
     public System.Int32 MaxWidth { get; }
     public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Action<HelpContext>>> getLayout)
     public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
@@ -329,7 +286,6 @@ System.CommandLine.Invocation
     public System.Int32 ExitCode { get; set; }
     public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }
     public System.Action<InvocationContext> InvocationResult { get; set; }
-    public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public System.CommandLine.Parsing.Parser Parser { get; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public T GetValue<T>(Option<T> option)
@@ -420,7 +376,6 @@ System.CommandLine.Parsing
     public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Parser parser, System.String[] args, System.CommandLine.IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public static System.CommandLine.ParseResult Parse(this Parser parser, System.String commandLine)
   public abstract class SymbolResult
-    public System.CommandLine.LocalizationResources LocalizationResources { get; }
     public SymbolResult Parent { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
     public System.Void AddError(System.String errorMessage)

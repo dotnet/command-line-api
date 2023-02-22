@@ -7,14 +7,11 @@ namespace System.CommandLine.Parsing
 {
     internal sealed class SymbolResultTree : Dictionary<Symbol, SymbolResult>
     {
-        internal readonly LocalizationResources LocalizationResources;
         internal List<ParseError>? Errors;
         internal List<Token>? UnmatchedTokens;
 
-        internal SymbolResultTree(LocalizationResources localizationResources, List<string>? tokenizeErrors)
+        internal SymbolResultTree(List<string>? tokenizeErrors)
         {
-            LocalizationResources = localizationResources;
-
             if (tokenizeErrors is not null)
             {
                 Errors = new List<ParseError>(tokenizeErrors.Count);
