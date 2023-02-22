@@ -110,10 +110,8 @@ System.CommandLine
   public class Directive : Symbol
     .ctor(System.String name, System.String description = null, System.Action<System.CommandLine.Invocation.InvocationContext> syncHandler = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> asyncHandler = null)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Void OnParsed(System.CommandLine.Parsing.DirectiveResult directiveResult)
   public class EnvironmentVariablesDirective : Directive
     .ctor()
-    public System.Void OnParsed(System.CommandLine.Parsing.DirectiveResult directiveResult)
   public static class Handler
     public static System.Void SetHandler(this Command command, System.Action<System.CommandLine.Invocation.InvocationContext> handle)
     public static System.Void SetHandler(this Command command, System.Action handle)

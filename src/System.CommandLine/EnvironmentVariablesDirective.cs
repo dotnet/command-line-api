@@ -1,4 +1,5 @@
-﻿using System.CommandLine.Parsing;
+﻿using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
@@ -7,12 +8,15 @@ namespace System.CommandLine
     /// </summary>
     public sealed class EnvironmentVariablesDirective : Directive
     {
-        public EnvironmentVariablesDirective() : base("env")
+        public EnvironmentVariablesDirective() : base("env", syncHandler: SyncHandler)
         {
         }
 
-        public override void OnParsed(DirectiveResult directiveResult)
+        private static void SyncHandler(InvocationContext context)
         {
+            EnvironmentVariablesDirective symbol = (EnvironmentVariablesDirective)context.ParseResult.Symbol;
+            DirectiveResult directiveResult = context.ParseResult.FindResultFor(symbol)!;
+
             for (int i = 0; i < directiveResult.Values.Count; i++)
             {
                 string parsedValue = directiveResult.Values[i];
@@ -31,6 +35,9 @@ namespace System.CommandLine
                     }
                 }
             }
+
+            // we need a cleaner, more flexible and intuitive way of continuing the execution
+            context.ParseResult.CommandResult.Command.Handler?.Invoke(context);
         }
     }
 }

@@ -322,7 +322,6 @@ namespace System.CommandLine.Parsing
                     result.AddValue(withoutBrackets.Slice(indexOfColon + 1).ToString());
                 }
 
-                directive.OnParsed(result);
                 _handler = directive.Handler;
                 _symbol = directive;
 

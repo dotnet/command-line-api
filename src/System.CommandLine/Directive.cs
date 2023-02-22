@@ -58,15 +58,6 @@ namespace System.CommandLine
 
         internal ICommandHandler? Handler { get; }
 
-        /// <summary>
-        /// Method executed when given Directive is being parsed.
-        /// Useful for Directives that want to perform an action without setting the Handler for ParseResult.
-        /// </summary>
-        /// <param name="directiveResult">Parsed directive result.</param>
-        public virtual void OnParsed(DirectiveResult directiveResult)
-        {
-        }
-
         private protected override string DefaultName => throw new NotImplementedException();
 
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
