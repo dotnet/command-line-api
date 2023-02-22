@@ -236,7 +236,7 @@ ERR:
         /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
         public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, int? maxWidth = null)
         {
-            return builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
+            return builder.UseHelp(new HelpOption(builder.LocalizationResources), maxWidth);
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ ERR:
             this CommandLineBuilder builder,
             params string[] helpAliases)
         {
-            return builder.UseHelp(new HelpOption(helpAliases, () => builder.LocalizationResources));
+            return builder.UseHelp(new HelpOption(helpAliases, builder.LocalizationResources));
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ ERR:
 
             if (builder.HelpOption is null)
             {
-                builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
+                builder.UseHelp(new HelpOption(builder.LocalizationResources), maxWidth);
             }
 
             return builder;

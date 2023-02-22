@@ -8,31 +8,21 @@ namespace System.CommandLine.Help
 {
     internal class HelpOption : Option<bool>
     {
-        private readonly Func<LocalizationResources> _localizationResources;
-        private string? _description;
-
-        public HelpOption(string[] aliases, Func<LocalizationResources> getLocalizationResources)
-            : base(aliases, null, new Argument<bool> { Arity = ArgumentArity.Zero })
+        internal HelpOption(string[] aliases, LocalizationResources localizationResources)
+            : base(aliases, localizationResources.HelpOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
         {
-            _localizationResources = getLocalizationResources;
             AppliesToSelfAndChildren = true;
         }
 
-        public HelpOption(Func<LocalizationResources> getLocalizationResources) : this(new[]
+        internal HelpOption(LocalizationResources localizationResources) : this(new[]
         {
             "-h",
             "/h",
             "--help",
             "-?",
             "/?"
-        }, getLocalizationResources)
+        }, localizationResources)
         {
-        }
-
-        public override string? Description
-        {
-            get => _description ??= _localizationResources().HelpOptionDescription();
-            set => _description = value;
         }
 
         internal override bool IsGreedy => false;
