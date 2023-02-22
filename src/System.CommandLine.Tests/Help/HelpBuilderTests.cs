@@ -33,9 +33,7 @@ namespace System.CommandLine.Tests.Help
             _executableName = RootCommand.ExecutableName;
         }
 
-        private HelpBuilder GetHelpBuilder(int maxWidth = SmallMaxWidth) =>
-            new(LocalizationResources.Instance,
-                maxWidth);
+        private HelpBuilder GetHelpBuilder(int maxWidth = SmallMaxWidth) => new(maxWidth);
 
         #region Synopsis
 
@@ -93,26 +91,6 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().NotContain(_executableName);
         }
 
-        [Fact]
-        public void Synopsis_section_properly_uses_localized_HelpDescriptionTitle()
-        {
-            var command = new RootCommand("test description");
-
-            var customLocalization = new CustomLocalizationResources
-            {
-                OverrideHelpDescriptionTitle = "Custom Description:"
-            };
-            HelpBuilder helpBuilder = new(
-                customLocalization,
-                LargeMaxWidth
-            );
-            helpBuilder.Write(command, _console);
-
-            var expected = $"Custom Description:{NewLine}{_indentation}test description{NewLine}";
-
-            _console.ToString().Should().Contain(expected);
-        }
-
         #endregion Synopsis
 
         #region Usage
@@ -146,7 +124,7 @@ namespace System.CommandLine.Tests.Help
             var rootCommand = new RootCommand();
             rootCommand.Subcommands.Add(command);
 
-            new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth).Write(command, _console);
+            new HelpBuilder(LargeMaxWidth).Write(command, _console);
 
             var expected =
                 $"Usage:{NewLine}" +
@@ -1229,11 +1207,11 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_option_is_shown_in_help()
         {
-            var parser = new CommandLineBuilder()
+            var configuration = new CommandLineBuilder(new RootCommand())
                          .UseHelp()
                          .Build();
 
-            _helpBuilder.Write(parser.Configuration.RootCommand, _console);
+            _helpBuilder.Write(configuration.RootCommand, _console);
 
             var help = _console.ToString();
 
@@ -1638,7 +1616,7 @@ namespace System.CommandLine.Tests.Help
         [InlineData(int.MinValue)]
         public void Constructor_ignores_non_positive_max_width(int maxWidth)
         {
-            var helpBuilder = new HelpBuilder(LocalizationResources.Instance, maxWidth);
+            var helpBuilder = new HelpBuilder(maxWidth);
             Assert.Equal(int.MaxValue, helpBuilder.MaxWidth);
         }
 
@@ -1651,14 +1629,13 @@ namespace System.CommandLine.Tests.Help
             };
 
             var helpBuilder = GetHelpBuilder();
-            var resources = helpBuilder.LocalizationResources;
 
             using var writer = new StringWriter();
             helpBuilder.Write(command, writer);
 
             var output = writer.ToString();
 
-            output.Should().Contain($"{resources.HelpUsageOptions()}{NewLine}{NewLine}{resources.HelpOptionsTitle()}");
+            output.Should().Contain($"{LocalizationResources.HelpUsageOptions()}{NewLine}{NewLine}{LocalizationResources.HelpOptionsTitle()}");
         }
     }
 }

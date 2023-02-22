@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
@@ -18,7 +17,7 @@ namespace System.CommandLine.Tests
             CommandLineBuilder builder = new (root);
             builder.Directives.Add(new ("some"));
 
-            var result = builder.Build().Parse($"{RootCommand.ExecutableName} [parse] -y");
+            var result = root.Parse($"{RootCommand.ExecutableName} [parse] -y", builder.Build());
 
             result.UnmatchedTokens.Should().BeEmpty();
         }
@@ -44,7 +43,7 @@ namespace System.CommandLine.Tests
             builder.Directives.Add(parseDirective);
             builder.Directives.Add(suggestDirective);
 
-            var result = builder.Build().Parse("[parse] [suggest] -y");
+            var result = root.Parse("[parse] [suggest] -y", builder.Build());
 
             result.FindResultFor(parseDirective).Should().NotBeNull();
             result.FindResultFor(suggestDirective).Should().NotBeNull();
@@ -91,9 +90,10 @@ namespace System.CommandLine.Tests
         [InlineData("[:value]")]
         public void Directives_must_have_a_non_empty_key(string directive)
         {
-            var option = new Option<bool>("-a");
+            Option<bool> option = new ("-a");
+            RootCommand root = new () { option };
 
-            var result = option.Parse($"{directive} -a");
+            var result = root.Parse($"{directive} -a");
 
             result.UnmatchedTokens.Should().Contain(directive);
         }
@@ -122,14 +122,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_directives_are_not_enabled_they_are_treated_as_regular_tokens()
         {
-            var parser = new Parser(
-                new CommandLineConfiguration(
+            var config = new CommandLineConfiguration(
                     new RootCommand
                     {
                         new Argument<List<string>>()
-                    }));
+                    });
 
-            var result = parser.Parse("[hello]");
+            var result = config.RootCommand.Parse("[hello]", config);
 
             result.CommandResult
                   .Tokens
@@ -144,7 +143,7 @@ namespace System.CommandLine.Tests
             CommandLineBuilder builder = new(root);
             builder.Directives.Add(directive);
 
-            return builder.Build().Parse(commandLine);
+            return root.Parse(commandLine, builder.Build());
         }
     }
 }

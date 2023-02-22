@@ -12,10 +12,10 @@ namespace System.CommandLine
     /// <summary>
     /// Enables composition of command line configurations.
     /// </summary>
-    public class CommandLineBuilder 
+    public partial class CommandLineBuilder 
     {
         /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
-        internal bool EnablePosixBundling = true;
+        internal bool EnablePosixBundlingFlag = true;
 
         /// <inheritdoc cref="CommandLineConfiguration.EnableTokenReplacement"/>
         internal bool EnableTokenReplacement = true;
@@ -35,14 +35,13 @@ namespace System.CommandLine
         // (because each struct is of a different size)
         // that is why we don't use List<ValueTuple> for middleware
         private List<Tuple<InvocationMiddleware, int>>? _middlewareList;
-        private LocalizationResources? _localizationResources;
         private Action<HelpContext>? _customizeHelpBuilder;
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <param name="rootCommand">The root command of the application.</param>
-        public CommandLineBuilder(Command? rootCommand = null)
+        public CommandLineBuilder(Command rootCommand)
         {
-            Command = rootCommand ?? new RootCommand();
+            Command = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
         }
 
         /// <summary>
@@ -78,12 +77,6 @@ namespace System.CommandLine
 
         internal int? MaxHelpWidth;
 
-        internal LocalizationResources LocalizationResources
-        {
-            get => _localizationResources ??= LocalizationResources.Instance;
-            set => _localizationResources = value;
-        }
-
         internal TryReplaceToken? TokenReplacer;
 
         public List<Directive> Directives => _directives ??= new ();
@@ -94,23 +87,21 @@ namespace System.CommandLine
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
-        public Parser Build() =>
-            new(
-                new CommandLineConfiguration(
-                    Command,
-                    _directives,
-                    enablePosixBundling: EnablePosixBundling,
-                    enableTokenReplacement: EnableTokenReplacement,
-                    parseErrorReportingExitCode: ParseErrorReportingExitCode,
-                    maxLevenshteinDistance: MaxLevenshteinDistance,
-                    exceptionHandler: ExceptionHandler,
-                    processTerminationTimeout: ProcessTerminationTimeout,
-                    resources: LocalizationResources,
-                    middlewarePipeline: _middlewareList is null
-                                            ? Array.Empty<InvocationMiddleware>()
-                                            : GetMiddleware(),
-                    helpBuilderFactory: GetHelpBuilderFactory(),
-                    tokenReplacer: TokenReplacer));
+        public CommandLineConfiguration Build() =>
+            new (
+                Command,
+                _directives,
+                enablePosixBundling: EnablePosixBundlingFlag,
+                enableTokenReplacement: EnableTokenReplacement,
+                parseErrorReportingExitCode: ParseErrorReportingExitCode,
+                maxLevenshteinDistance: MaxLevenshteinDistance,
+                exceptionHandler: ExceptionHandler,
+                processTerminationTimeout: ProcessTerminationTimeout,
+                middlewarePipeline: _middlewareList is null
+                                        ? Array.Empty<InvocationMiddleware>()
+                                        : GetMiddleware(),
+                helpBuilderFactory: GetHelpBuilderFactory(),
+                tokenReplacer: TokenReplacer);
 
         private IReadOnlyList<InvocationMiddleware> GetMiddleware()
         {
@@ -122,9 +113,6 @@ namespace System.CommandLine
             }
             return result;
         }
-
-        internal void AddMiddleware(InvocationMiddleware middleware, MiddlewareOrder order)
-            => AddMiddleware(middleware, (int)order);
 
         internal void AddMiddleware(InvocationMiddleware middleware, MiddlewareOrderInternal order)
             => AddMiddleware(middleware, (int)order);

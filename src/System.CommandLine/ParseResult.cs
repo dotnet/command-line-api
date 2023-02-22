@@ -4,8 +4,11 @@
 using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace System.CommandLine
 {
@@ -21,7 +24,7 @@ namespace System.CommandLine
         private ICommandHandler? _handler;
 
         internal ParseResult(
-            Parser parser,
+            CommandLineConfiguration configuration,
             Symbol symbol,
             CommandResult rootCommandResult,
             CommandResult commandResult,
@@ -31,7 +34,7 @@ namespace System.CommandLine
             string? commandLineText = null,
             ICommandHandler? handler = null)
         {
-            Parser = parser;
+            Configuration = configuration;
             Symbol = symbol;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
@@ -64,9 +67,9 @@ namespace System.CommandLine
         public CommandResult CommandResult { get; }
 
         /// <summary>
-        /// The parser used to produce the parse result.
+        /// The configuration used to produce the parse result.
         /// </summary>
-        public Parser Parser { get; }
+        public CommandLineConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the root command result.
@@ -224,6 +227,22 @@ namespace System.CommandLine
                     .SelectMany(c => c.Aliases)
                     .ToArray();
         }
+
+        /// <summary>
+        /// Invokes the appropriate command handler for a parsed command line input.
+        /// </summary>
+        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
+        /// <returns>A task whose result can be used as a process exit code.</returns>
+        public Task<int> InvokeAsync(IConsole? console = null, CancellationToken cancellationToken = default)
+            => InvocationPipeline.InvokeAsync(this, console, cancellationToken);
+
+        /// <summary>
+        /// Invokes the appropriate command handler for a parsed command line input.
+        /// </summary>
+        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
+        /// <returns>A value that can be used as a process exit code.</returns>
+        public int Invoke(IConsole? console = null) => InvocationPipeline.Invoke(this, console);
 
         internal ICommandHandler? Handler
         {

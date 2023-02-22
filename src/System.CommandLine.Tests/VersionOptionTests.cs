@@ -21,13 +21,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
-            var parser = new CommandLineBuilder()
+            var configuration = new CommandLineBuilder(new RootCommand())
                          .UseVersionOption()
                          .Build();
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync("--version", console);
+            await configuration.InvokeAsync("--version", console);
 
             console.Out.ToString().Should().Be($"{version}{NewLine}");
         }
@@ -39,13 +39,13 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand();
             rootCommand.SetHandler(() => wasCalled = true);
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var config = new CommandLineBuilder(rootCommand)
                          .UseVersionOption()
                          .Build();
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync("--version", console);
+            await config.InvokeAsync("--version", console);
 
             wasCalled.Should().BeFalse();
         }
@@ -53,14 +53,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_option_appears_in_help()
         {
-            var parser = new CommandLineBuilder()
+            var configuration = new CommandLineBuilder(new RootCommand())
                          .UseHelp()
                          .UseVersionOption()
                          .Build();
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync("--help", console);
+            await configuration.InvokeAsync("--help", console);
 
             console.Out
                    .ToString()
@@ -77,13 +77,13 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetHandler(() => { });
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
                 .Build();
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync("--version", console);
+            await configuration.InvokeAsync("--version", console);
 
             console.Out.ToString().Should().Be($"{version}{NewLine}");
         }
@@ -97,13 +97,13 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetHandler(() => { });
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
                 .Build();
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync("--version", console);
+            await configuration.InvokeAsync("--version", console);
 
             console.Out.ToString().Should().Be($"{version}{NewLine}");
         }
@@ -122,11 +122,11 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetHandler(() => { });
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
                 .Build();
 
-            var result = parser.Parse(commandLine);
+            var result = rootCommand.Parse(commandLine, configuration);
 
             result.Errors.Should().Contain(e => e.Message == "--version option cannot be combined with other arguments.");
         }
@@ -143,11 +143,11 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetHandler(() => { });
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var configuration = new CommandLineBuilder(rootCommand)
                          .UseVersionOption()
                          .Build();
 
-            parser.Configuration
+            configuration
                   .RootCommand
                   .Subcommands
                   .Single(c => c.Name == "subcommand")
@@ -163,14 +163,14 @@ namespace System.CommandLine.Tests
             // real world scenarios - invocation can be invoked twice
             // or the author may have their own version switch but
             // still want other defaults.
-            var parser = new CommandLineBuilder()
+            var configuration = new CommandLineBuilder(new RootCommand())
                          .UseVersionOption()
                          .UseVersionOption()
                          .Build();
 
             var console = new TestConsole();
 
-            await parser.InvokeAsync("--version", console);
+            await configuration.InvokeAsync("--version", console);
 
             console.Out.ToString().Should().Be($"{version}{NewLine}");
         }
@@ -178,16 +178,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_can_specify_additional_alias()
         {
-            var parser = new CommandLineBuilder()
+            var configuration = new CommandLineBuilder(new RootCommand())
                          .UseVersionOption("-v", "-version")
                          .Build();
 
             var console = new TestConsole();
-            await parser.InvokeAsync("-v", console);
+            await configuration.InvokeAsync("-v", console);
             console.Out.ToString().Should().Be($"{version}{NewLine}");
 
             console = new TestConsole();
-            await parser.InvokeAsync("-version", console);
+            await configuration.InvokeAsync("-version", console);
             console.Out.ToString().Should().Be($"{version}{NewLine}");
         }
 
@@ -202,11 +202,11 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetHandler(() => { });
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var configuration = new CommandLineBuilder(rootCommand)
                          .UseVersionOption("-v")
                          .Build();
 
-            var result = parser.Parse("-v subcommand");
+            var result = rootCommand.Parse("-v subcommand", configuration);
 
             result.Errors.Should().ContainSingle(e => e.Message == "-v option cannot be combined with other arguments.");
         }

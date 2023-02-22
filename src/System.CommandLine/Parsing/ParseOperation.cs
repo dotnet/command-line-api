@@ -30,7 +30,7 @@ namespace System.CommandLine.Parsing
             _tokens = tokens;
             _configuration = configuration;
             _rawInput = rawInput;
-            _symbolResultTree = new(configuration.LocalizationResources, tokenizeErrors);
+            _symbolResultTree = new(tokenizeErrors);
             _innermostCommandResult = _rootCommandResult = new CommandResult(
                 _configuration.RootCommand,
                 CurrentToken,
@@ -50,7 +50,7 @@ namespace System.CommandLine.Parsing
             return result;
         }
 
-        internal ParseResult Parse(Parser parser)
+        internal ParseResult Parse()
         {
             ParseDirectives();
 
@@ -75,7 +75,7 @@ namespace System.CommandLine.Parsing
             }
 
             return new (
-                parser,
+                _configuration,
                 _symbol ?? _innermostCommandResult.Command,
                 _rootCommandResult,
                 _innermostCommandResult,

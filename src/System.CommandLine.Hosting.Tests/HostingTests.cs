@@ -27,13 +27,13 @@ namespace System.CommandLine.Hosting.Tests
                 hostFromHandler = host;
             }
 
-            var parser = new CommandLineBuilder(
+            var config = new CommandLineBuilder(
                 new RootCommand { Handler = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost()
                 .Build();
 
-            parser.InvokeAsync(Array.Empty<string>())
+            config.InvokeAsync(Array.Empty<string>())
                 .GetAwaiter().GetResult();
 
             hostFromHandler.Should().NotBeNull();
@@ -44,7 +44,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             InvocationContext invocationContext = null;
 
-            var parser = new CommandLineBuilder()
+            var config = new CommandLineBuilder(new RootCommand())
                 .UseHost(host =>
                 {
                     if (host.Properties.TryGetValue(typeof(InvocationContext), out var ctx))
@@ -52,7 +52,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            parser.InvokeAsync(Array.Empty<string>())
+            config.InvokeAsync(Array.Empty<string>())
                 .GetAwaiter().GetResult();
 
             invocationContext.Should().NotBeNull();
@@ -75,13 +75,13 @@ namespace System.CommandLine.Hosting.Tests
                 console = services.GetRequiredService<IConsole>();
             }
 
-            var parser = new CommandLineBuilder(
+            var config = new CommandLineBuilder(
                 new RootCommand { Handler = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost()
                 .Build();
 
-            parser.InvokeAsync(Array.Empty<string>())
+            config.InvokeAsync(Array.Empty<string>())
                 .GetAwaiter().GetResult();
 
             invocationContext.Should().NotBeNull();
@@ -105,7 +105,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var parser = new CommandLineBuilder(
+            var config = new CommandLineBuilder(
                 new RootCommand
                 {
                     Handler = CommandHandler.Create<IHost>(Execute),
@@ -121,7 +121,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            parser.InvokeAsync(commandLineArgs)
+            config.InvokeAsync(commandLineArgs)
                 .GetAwaiter().GetResult();
 
             testConfigValue.Should().BeEquivalentTo(testArgument);
@@ -142,7 +142,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var parser = new CommandLineBuilder(
+            var config = new CommandLineBuilder(
                 new RootCommand
                 {
                     Handler = CommandHandler.Create<IHost>(Execute),
@@ -160,7 +160,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            parser.InvokeAsync(commandLineArgs)
+            config.InvokeAsync(commandLineArgs)
                 .GetAwaiter().GetResult();
 
             testConfigValue.Should().BeEquivalentTo(testArgument);
@@ -181,7 +181,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var parser = new CommandLineBuilder(
+            var config = new CommandLineBuilder(
                 new RootCommand
                 {
                     Handler = CommandHandler.Create<IHost>(Execute)
@@ -189,7 +189,7 @@ namespace System.CommandLine.Hosting.Tests
                 .UseHost()
                 .Build();
 
-            parser.InvokeAsync(commandLine).GetAwaiter().GetResult();
+            config.InvokeAsync(commandLine).GetAwaiter().GetResult();
 
             testConfigValue.Should().BeEquivalentTo(testValue);
         }
@@ -260,7 +260,7 @@ namespace System.CommandLine.Hosting.Tests
         public static void GetInvocationContext_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var parser = new CommandLineBuilder()
+            var config = new CommandLineBuilder(new RootCommand())
                 .UseHost(hostBuilder =>
                 {
                     InvocationContext ctx = hostBuilder.GetInvocationContext();
@@ -269,7 +269,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            _ = parser.Invoke(string.Empty);
+            _ = config.Invoke(string.Empty);
             ctxAsserted.Should().BeTrue();
         }
 
@@ -277,7 +277,7 @@ namespace System.CommandLine.Hosting.Tests
         public static void GetInvocationContext_in_ConfigureServices_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var parser = new CommandLineBuilder()
+            var config = new CommandLineBuilder(new RootCommand())
                 .UseHost(hostBuilder =>
                 {
                     hostBuilder.ConfigureServices((hostingCtx, services) =>
@@ -289,7 +289,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            _ = parser.Invoke(string.Empty);
+            _ = config.Invoke(string.Empty);
             ctxAsserted.Should().BeTrue();
         }
 
@@ -299,7 +299,7 @@ namespace System.CommandLine.Hosting.Tests
             InvocationContext ctxCustom = null;
             InvocationContext ctxHosting = null;
 
-            var parser = new CommandLineBuilder()
+            var config = new CommandLineBuilder(new RootCommand())
                 .AddMiddleware((context, cancellationToken, next) =>
                 {
                     ctxCustom = context;
@@ -311,7 +311,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            _ = parser.Invoke(string.Empty);
+            _ = config.Invoke(string.Empty);
 
             ctxHosting.Should().BeSameAs(ctxCustom);
         }
@@ -322,7 +322,7 @@ namespace System.CommandLine.Hosting.Tests
             InvocationContext ctxCustom = null;
             InvocationContext ctxConfigureServices = null;
 
-            var parser = new CommandLineBuilder()
+            var config = new CommandLineBuilder(new RootCommand())
                 .AddMiddleware((context, cancellationToken, next) =>
                 {
                     ctxCustom = context;
@@ -337,7 +337,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            _ = parser.Invoke(string.Empty);
+            _ = config.Invoke(string.Empty);
 
             ctxConfigureServices.Should().BeSameAs(ctxCustom);
         }
@@ -371,7 +371,7 @@ namespace System.CommandLine.Hosting.Tests
         public static void GetHost_returns_non_null_instance_in_subsequent_middleware()
         {
             bool hostAsserted = false;
-            var parser = new CommandLineBuilder()
+            var config = new CommandLineBuilder(new RootCommand())
                 .UseHost()
                 .AddMiddleware((invCtx, cancellationToken, next) =>
                 {
@@ -383,7 +383,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            _ = parser.Invoke(string.Empty);
+            _ = config.Invoke(string.Empty);
 
             hostAsserted.Should().BeTrue();
         }
@@ -392,7 +392,7 @@ namespace System.CommandLine.Hosting.Tests
         public static void GetHost_returns_null_when_no_host_in_invocation()
         {
             bool hostAsserted = false;
-            var parser = new CommandLineBuilder()
+            var config = new CommandLineBuilder(new RootCommand())
                 .AddMiddleware((invCtx, cancellationToken, next) =>
                 {
                     IHost host = invCtx.GetHost();
@@ -403,7 +403,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            _ = parser.Invoke(string.Empty);
+            _ = config.Invoke(string.Empty);
 
             hostAsserted.Should().BeTrue();
         }

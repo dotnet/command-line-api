@@ -7,7 +7,6 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Suggest
@@ -76,7 +75,7 @@ namespace System.CommandLine.Suggest
                 CompleteScriptCommand
             };
             root.TreatUnmatchedTokensAsErrors = false;
-            Parser = new CommandLineBuilder(root)
+            Configuration = new CommandLineBuilder(root)
                      .UseVersionOption()
                      .UseHelp()
                      .UseParseDirective()
@@ -108,12 +107,12 @@ namespace System.CommandLine.Suggest
 
         private Command RegisterCommand { get; }
 
-        public Parser Parser { get; }
+        public CommandLineConfiguration Configuration { get; }
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
         public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
-            Parser.InvokeAsync(args, console);
+            Configuration.InvokeAsync(args, console);
 
         private void Register(
             string commandPath,

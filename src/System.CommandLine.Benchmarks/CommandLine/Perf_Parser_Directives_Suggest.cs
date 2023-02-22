@@ -15,7 +15,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_Directives_Suggest
     {
         private NullConsole _nullConsole;
-        private Parser _testParser;
+        private CommandLineConfiguration _configuration;
 
         [GlobalSetup]
         public void Setup()
@@ -34,7 +34,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 vegetableOption
             };
 
-            _testParser = new CommandLineBuilder(eatCommand)
+            _configuration = new CommandLineBuilder(eatCommand)
                 .UseSuggestDirective()
                 .Build();
         }
@@ -47,7 +47,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         [Benchmark]
         public Task InvokeSuggest()
-            => _testParser.InvokeAsync(TestCmdArgs, _nullConsole);
+            => _configuration.InvokeAsync(TestCmdArgs, _nullConsole);
 
     }
 }

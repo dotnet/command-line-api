@@ -13,37 +13,30 @@ using Process = System.CommandLine.Invocation.Process;
 
 namespace System.CommandLine
 {
-    /// <summary>
-    /// Provides extension methods for <see cref="CommandLineBuilder"/>.
-    /// </summary>
-    public static class CommandLineBuilderExtensions
+    public partial class CommandLineBuilder
     {
         /// <summary>
         /// Enables signaling and handling of process termination via a <see cref="CancellationToken"/> that can be passed to a <see cref="ICommandHandler"/> during invocation.
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="timeout">
         /// Optional timeout for the command to process the exit cancellation.
         /// If not passed, a default timeout of 2 seconds is enforced.
         /// If positive value is passed - command is forcefully terminated after the timeout with exit code 130 (as if <see cref="CancelOnProcessTermination"/> was not called).
         /// Host enforced timeout for ProcessExit event cannot be extended - default is 2 seconds: https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-6.0.
         /// </param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder CancelOnProcessTermination(
-            this CommandLineBuilder builder,
-            TimeSpan? timeout = null)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder CancelOnProcessTermination(TimeSpan? timeout = null)
         {
-            builder.ProcessTerminationTimeout = timeout ?? TimeSpan.FromSeconds(2);
+            ProcessTerminationTimeout = timeout ?? TimeSpan.FromSeconds(2);
 
-            return builder;
+            return this;
         }
 
         /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="value"><see langword="true"/> to parse POSIX bundles; otherwise, <see langword="false"/>.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         /// <remarks>
         /// POSIX conventions recommend that single-character options be allowed to be specified together after a single <c>-</c> prefix. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, the following command lines are equivalent:
         /// 
@@ -60,24 +53,21 @@ namespace System.CommandLine
         /// </code>
         ///
         /// </remarks>
-        public static CommandLineBuilder EnablePosixBundling(
-            this CommandLineBuilder builder,
-            bool value = true)
+        public CommandLineBuilder EnablePosixBundling(bool value = true)
         {
-            builder.EnablePosixBundling = value;
-            return builder;
+            EnablePosixBundlingFlag = value;
+
+            return this;
         }
 
         /// <summary>
         /// Ensures that the application is registered with the <c>dotnet-suggest</c> tool to enable command line completions.
         /// </summary>
         /// <remarks>For command line completions to work, users must install the <c>dotnet-suggest</c> tool as well as the appropriate shim script for their shell.</remarks>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder RegisterWithDotnetSuggest(
-            this CommandLineBuilder builder)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder RegisterWithDotnetSuggest()
         {
-            builder.AddMiddleware(async (context, cancellationToken, next) =>
+            AddMiddleware(async (context, cancellationToken, next) =>
             {
                 var feature = new FeatureRegistration("dotnet-suggest-registration");
 
@@ -120,18 +110,16 @@ ERR:
                 await next(context, cancellationToken);
             }, MiddlewareOrderInternal.RegisterWithDotnetSuggest);
 
-            return builder;
+            return this;
         }
 
         /// <inheritdoc cref="EnvironmentVariablesDirective"/>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseEnvironmentVariableDirective(
-            this CommandLineBuilder builder)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseEnvironmentVariableDirective()
         {
-            builder.Directives.Add(new EnvironmentVariablesDirective());
+            Directives.Add(new EnvironmentVariablesDirective());
 
-            return builder;
+            return this;
         }
 
         /// <summary>
@@ -152,12 +140,10 @@ ERR:
         ///     .CancelOnProcessTermination();
         /// </code>
         /// </remarks>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseDefaults(this CommandLineBuilder builder)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseDefaults()
         {
-            return builder
-                   .UseVersionOption()
+            return UseVersionOption()
                    .UseHelp()
                    .UseEnvironmentVariableDirective()
                    .UseParseDirective()
@@ -172,18 +158,16 @@ ERR:
         /// <summary>
         /// Enables an exception handler to catch any unhandled exceptions thrown by a command handler during invocation.
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="onException">A delegate that will be called when an exception is thrown by a command handler.</param>
         /// <param name="errorExitCode">The exit code to be used when an exception is thrown.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseExceptionHandler(
-            this CommandLineBuilder builder,
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseExceptionHandler(
             Action<Exception, InvocationContext>? onException = null,
             int? errorExitCode = null)
         {
-            builder.ExceptionHandler = onException ?? Default;
+            ExceptionHandler = onException ?? Default;
 
-            return builder;
+            return this;
 
             void Default(Exception exception, InvocationContext context)
             {
@@ -192,7 +176,7 @@ ERR:
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();
 
-                    context.Console.Error.Write(context.LocalizationResources.ExceptionHandlerHeader());
+                    context.Console.Error.Write(LocalizationResources.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
                     context.Console.ResetTerminalForegroundColor();
@@ -211,100 +195,82 @@ ERR:
         ///    /?
         /// </code>
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="maxWidth">Maximum output width for default help builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseHelp(this CommandLineBuilder builder, int? maxWidth = null)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseHelp(int? maxWidth = null)
         {
-            return builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
+            return UseHelp(new HelpOption(), maxWidth);
         }
 
         /// <summary>
         /// Configures the application to show help when one of the specified option aliases are used on the command line.
         /// </summary>
         /// <remarks>The specified aliases will override the default values.</remarks>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="helpAliases">The set of aliases that can be specified on the command line to request help.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseHelp(
-            this CommandLineBuilder builder,
-            params string[] helpAliases)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseHelp(params string[] helpAliases)
         {
-            return builder.UseHelp(new HelpOption(helpAliases, () => builder.LocalizationResources));
+            return UseHelp(new HelpOption(helpAliases));
         }
 
         /// <summary>
         /// Configures the application to show help when one of the specified option aliases are used on the command line.
         /// </summary>
         /// <remarks>The specified aliases will override the default values.</remarks>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="customize">A delegate that will be called to customize help if help is requested.</param>
         /// <param name="maxWidth">Maximum output width for default help builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseHelp(
-            this CommandLineBuilder builder,
-            Action<HelpContext> customize,
-            int? maxWidth = null)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseHelp(Action<HelpContext> customize, int? maxWidth = null)
         {
-            builder.CustomizeHelpLayout(customize);
+            CustomizeHelpLayout(customize);
 
-            if (builder.HelpOption is null)
+            if (HelpOption is null)
             {
-                builder.UseHelp(new HelpOption(() => builder.LocalizationResources), maxWidth);
+                UseHelp(new HelpOption(), maxWidth);
             }
 
-            return builder;
+            return this;
         }
 
-        internal static CommandLineBuilder UseHelp(
-            this CommandLineBuilder builder,
-            HelpOption helpOption,
-            int? maxWidth = null)
+        internal CommandLineBuilder UseHelp(HelpOption helpOption, int? maxWidth = null)
         {
-            if (builder.HelpOption is null)
+            if (HelpOption is null)
             {
-                builder.HelpOption = helpOption;
-                builder.Command.Options.Add(helpOption);
-                builder.MaxHelpWidth = maxWidth;
+                HelpOption = helpOption;
+
+                OverwriteOrAdd(Command, helpOption);
+
+                MaxHelpWidth = maxWidth;
             }
-            return builder;
+            return this;
         }
 
         /// <summary>
         /// Specifies an <see cref="HelpBuilder"/> to be used to format help output when help is requested.
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="getHelpBuilder">A delegate that returns an instance of <see cref="HelpBuilder"/></param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static TBuilder UseHelpBuilder<TBuilder>(this TBuilder builder,
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseHelpBuilder(
             Func<BindingContext, HelpBuilder> getHelpBuilder)
-            where TBuilder : CommandLineBuilder
         {
-            if (builder is null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-            builder.UseHelpBuilderFactory(getHelpBuilder);
-            return builder;
+            UseHelpBuilderFactory(getHelpBuilder);
+
+            return this;
         }
 
         /// <summary>
         /// Adds a middleware delegate to the invocation pipeline called before a command handler is invoked.
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="middleware">A delegate that will be invoked before a call to a command handler.</param>
         /// <param name="order">A value indicating the order in which the added delegate will be invoked relative to others in the pipeline.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder AddMiddleware(
-            this CommandLineBuilder builder,
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder AddMiddleware(
             InvocationMiddleware middleware,
             MiddlewareOrder order = MiddlewareOrder.Default)
         {
-            builder.AddMiddleware(
-                middleware,
-                order);
+            AddMiddleware(middleware, (int)order);
 
-            return builder;
+            return this;
         }
 
         /// <summary>
@@ -312,70 +278,58 @@ ERR:
         /// </summary>
         /// <param name="onInvoke">A delegate that will be invoked before a call to a command handler.</param>
         /// <param name="order">A value indicating the order in which the added delegate will be invoked relative to others in the pipeline.</param>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder AddMiddleware(
-            this CommandLineBuilder builder,
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder AddMiddleware(
             Action<InvocationContext> onInvoke,
             MiddlewareOrder order = MiddlewareOrder.Default)
         {
-            builder.AddMiddleware(async (context, cancellationToken, next) =>
+            return AddMiddleware(async (context, cancellationToken, next) =>
             {
                 onInvoke(context);
                 await next(context, cancellationToken);
             }, order);
-
-            return builder;
         }
 
 
         /// <inheritdoc cref="ParseDirective"/>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseParseDirective(
-            this CommandLineBuilder builder,
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseParseDirective(
             int errorExitCode = 1)
         {
-            builder.Directives.Add(new ParseDirective(errorExitCode));
+            Directives.Add(new ParseDirective(errorExitCode));
 
-            return builder;
+            return this;
         }
 
         /// <summary>
         /// Configures the command line to write error information to standard error when there are errors parsing command line input.
         /// </summary>
         /// <param name="errorExitCode">The exit code to use when parser errors occur.</param>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseParseErrorReporting(
-            this CommandLineBuilder builder,
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseParseErrorReporting(
             int errorExitCode = 1)
         {
-            builder.ParseErrorReportingExitCode = errorExitCode;
+            ParseErrorReportingExitCode = errorExitCode;
 
-            return builder;
+            return this;
         }
 
         /// <inheritdoc cref="SuggestDirective"/>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseSuggestDirective(
-            this CommandLineBuilder builder)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseSuggestDirective()
         {
-            builder.Directives.Add(new SuggestDirective());
+            Directives.Add(new SuggestDirective());
 
-            return builder;
+            return this;
         }
 
         /// <summary>
         /// Configures the application to provide alternative suggestions when a parse error is detected.
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="maxLevenshteinDistance">The maximum Levenshtein distance for suggestions based on detected typos in command line input.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseTypoCorrections(
-            this CommandLineBuilder builder,
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseTypoCorrections(
             int maxLevenshteinDistance = 3)
         {
             if (maxLevenshteinDistance <= 0)
@@ -383,75 +337,73 @@ ERR:
                 throw new ArgumentOutOfRangeException(nameof(maxLevenshteinDistance));
             }
 
-            builder.MaxLevenshteinDistance = maxLevenshteinDistance;
+            MaxLevenshteinDistance = maxLevenshteinDistance;
 
-            return builder;
-        }
-
-        /// <summary>
-        /// Specifies localization resources to be used when displaying help, error messages, and other user-facing strings.
-        /// </summary>
-        /// <param name="builder">A command line builder.</param>
-        /// <param name="validationMessages">The localizations resources to use.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseLocalizationResources(
-            this CommandLineBuilder builder,
-            LocalizationResources validationMessages)
-        {
-            builder.LocalizationResources = validationMessages;
-            return builder;
+            return this;
         }
 
         /// <summary>
         /// Specifies a delegate used to replace any token prefixed with <code>@</code> with zero or more other tokens, prior to parsing. 
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
         /// <param name="replaceToken">Replaces the specified token with any number of other tokens.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseTokenReplacer(
-            this CommandLineBuilder builder,
-            TryReplaceToken? replaceToken)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseTokenReplacer(TryReplaceToken? replaceToken)
         {
-            builder.TokenReplacer = replaceToken;
+            EnableTokenReplacement = replaceToken is not null;
+            TokenReplacer = replaceToken;
 
-            return builder;
+            return this;
         }
 
         /// <summary>
         /// Enables the use of a option (defaulting to the alias <c>--version</c>) which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
-        /// <param name="builder">A command line builder.</param>
-        /// <returns>The same instance of <see cref="CommandLineBuilder"/>.</returns>
-        public static CommandLineBuilder UseVersionOption(
-            this CommandLineBuilder builder)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseVersionOption()
         {
-            if (builder.VersionOption is not null)
+            if (VersionOption is null)
             {
-                return builder;
+                OverwriteOrAdd(Command, VersionOption = new());
             }
 
-            builder.VersionOption = new (builder);
-            builder.Command.Options.Add(builder.VersionOption);
-
-            return builder;
+            return this;
         }
 
-        /// <inheritdoc cref="UseVersionOption(System.CommandLine.CommandLineBuilder)"/>
+        /// <inheritdoc cref="UseVersionOption()"/>
         /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
-        /// <param name="builder">A command line builder.</param>
-        public static CommandLineBuilder UseVersionOption(
-            this CommandLineBuilder builder,
-            params string[] aliases)
+        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
+        public CommandLineBuilder UseVersionOption(params string[] aliases)
         {
-            if (builder.VersionOption is not null)
+            if (VersionOption is null)
             {
-                return builder;
+                OverwriteOrAdd(Command, VersionOption = new(aliases));
             }
 
-            builder.VersionOption = new (aliases, builder);
-            builder.Command.Options.Add(builder.VersionOption);
+            return this;
+        }
 
-            return builder;
+        /// <summary>
+        /// Creating a config from Command might cause side effects for Command.
+        /// The config type may add Options to the Command.
+        /// Since single command can be parsed multiple times with different configs,
+        /// we need to handle it properly.
+        /// Ideally config should not mutate Command at all.
+        /// </summary>
+        private static void OverwriteOrAdd<T>(Command command, T option) where T : Option
+        {
+            if (command.HasOptions)
+            {
+                for (int i = 0; i < command.Options.Count; i++)
+                {
+                    if (command.Options[i] is T)
+                    {
+                        command.Options[i] = option;
+                        return;
+                    }
+                }
+            }
+
+            command.Options.Add(option);
         }
     }
 }

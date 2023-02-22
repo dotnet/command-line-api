@@ -369,7 +369,6 @@ namespace System.CommandLine.Parsing
 
         internal static bool TryReadResponseFile(
             string filePath,
-            LocalizationResources localizationResources,
             out IReadOnlyList<string>? newTokens,
             out string? error)
         {
@@ -381,11 +380,11 @@ namespace System.CommandLine.Parsing
             }
             catch (FileNotFoundException)
             {
-                error = localizationResources.ResponseFileNotFound(filePath);
+                error = LocalizationResources.ResponseFileNotFound(filePath);
             }
             catch (IOException e)
             {
-                error = localizationResources.ErrorReadingResponseFile(filePath, e);
+                error = LocalizationResources.ErrorReadingResponseFile(filePath, e);
             }
 
             newTokens = null;

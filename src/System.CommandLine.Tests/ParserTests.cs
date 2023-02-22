@@ -28,11 +28,11 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("--flag");
             var option2 = new Option<bool>("--flag2");
-            var result = new Parser(new RootCommand { option, option2 })
+            var result = new RootCommand { option, option2 }
                 .Parse("--flag");
 
-            result.HasOption(option).Should().BeTrue();
-            result.HasOption(option2).Should().BeFalse();
+            result.FindResultFor(option).Should().NotBeNull();
+            result.FindResultFor(option2).Should().BeNull();
         }
 
         [Fact]
@@ -42,16 +42,10 @@ namespace System.CommandLine.Tests
 
             var optionTwo = new Option<bool>(new[] { "-t", "--two" });
 
-            var result = new Parser(
-                    new RootCommand
-                    {
-                        optionOne,
-                        optionTwo
-                    })
-                .Parse("-o -t");
+            var result = new RootCommand { optionOne, optionTwo }.Parse("-o -t");
 
-            result.HasOption(optionOne).Should().BeTrue();
-            result.HasOption(optionTwo).Should().BeTrue();
+            result.FindResultFor(optionOne).Should().NotBeNull();
+            result.FindResultFor(optionTwo).Should().NotBeNull();
         }
 
         [Theory]
@@ -59,14 +53,12 @@ namespace System.CommandLine.Tests
         [InlineData("/")]
         public void When_a_token_is_just_a_prefix_then_an_error_is_returned(string prefix)
         {
-            var parser = new Parser(new RootCommand());
-
-            var result = parser.Parse(prefix);
+            var result = new RootCommand().Parse(prefix);
 
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.Instance.UnrecognizedCommandOrArgument(prefix));
+                  .Contain(LocalizationResources.UnrecognizedCommandOrArgument(prefix));
         }
 
         [Fact]
@@ -74,7 +66,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x");
 
-            var result = option.Parse("-x=some-value");
+            var result = new RootCommand { option }.Parse("-x=some-value");
 
             result.Errors.Should().BeEmpty();
 
@@ -86,7 +78,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("--hello");
 
-            var result = option.Parse("--hello=there");
+            var result = new RootCommand { option }.Parse("--hello=there");
 
             result.Errors.Should().BeEmpty();
 
@@ -98,7 +90,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x");
 
-            var result = option.Parse("-x:some-value");
+            var result = new RootCommand { option }.Parse("-x:some-value");
 
             result.Errors.Should().BeEmpty();
 
@@ -110,7 +102,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("--hello");
 
-            var result = option.Parse("--hello:there");
+            var result = new RootCommand { option }.Parse("--hello:there");
 
             result.Errors.Should().BeEmpty();
 
@@ -137,19 +129,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
         {
-            var parser = new CommandLineBuilder(new RootCommand
-                         {
-                             new Command("the-command")
-                             {
-                                 new Option<bool>("-x"),
-                                 new Option<bool>("-y"),
-                                 new Option<bool>("-z")
-                             }
-                         })
+            RootCommand rootCommand = new RootCommand()
+            {
+                new Command("the-command")
+                {
+                    new Option<bool>("-x"),
+                    new Option<bool>("-y"),
+                    new Option<bool>("-z")
+                }
+            };
+
+            var configuration = new CommandLineBuilder(rootCommand)
                          .EnablePosixBundling(false)
                          .Build();
 
-            var result = parser.Parse("the-command -xyz");
+            var result = rootCommand.Parse("the-command -xyz", configuration);
 
             result.UnmatchedTokens
                   .Should()
@@ -159,16 +153,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_long_forms_do_not_get_unbundled()
         {
-            var parser = new Parser(
+            Command command =
                 new Command("the-command")
                 {
                     new Option<bool>("--xyz"),
                     new Option<bool>("-x"),
                     new Option<bool>("-y"),
                     new Option<bool>("-z")
-                });
+                };
 
-            var result = parser.Parse("the-command --xyz");
+            var result = command.Parse("the-command --xyz");
 
             result.CommandResult
                   .Children
@@ -190,9 +184,7 @@ namespace System.CommandLine.Tests
             inner.Options.Add(new Option<bool>("-c"));
             outer.Subcommands.Add(inner);
 
-            var parser = new Parser(outer);
-
-            ParseResult result = parser.Parse("outer inner -abc");
+            ParseResult result = outer.Parse("outer inner -abc");
 
             result.CommandResult
                   .Tokens
@@ -238,8 +230,8 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abcvalue");
-            result.HasOption(optionA).Should().BeTrue();
-            result.HasOption(optionB).Should().BeTrue();
+            result.FindResultFor(optionA).Should().NotBeNull();
+            result.FindResultFor(optionB).Should().NotBeNull();
 
             result.FindResultFor(optionC)
                 .Tokens
@@ -262,8 +254,8 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abc=value");
-            result.HasOption(optionA).Should().BeTrue();
-            result.HasOption(optionB).Should().BeTrue();
+            result.FindResultFor(optionA).Should().NotBeNull();
+            result.FindResultFor(optionB).Should().NotBeNull();
 
             result.FindResultFor(optionC)
                 .Tokens
@@ -286,8 +278,8 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abc:value");
-            result.HasOption(optionA).Should().BeTrue();
-            result.HasOption(optionB).Should().BeTrue();
+            result.FindResultFor(optionA).Should().NotBeNull();
+            result.FindResultFor(optionB).Should().NotBeNull();
 
             result.FindResultFor(optionC)
                 .Tokens
@@ -310,15 +302,15 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abvcalue");
-            result.HasOption(optionA).Should().BeTrue();
-            result.HasOption(optionB).Should().BeTrue();
+            result.FindResultFor(optionA).Should().NotBeNull();
+            result.FindResultFor(optionB).Should().NotBeNull();
 
             result.FindResultFor(optionB)
                 .Tokens
                 .Should()
                 .ContainSingle(t => t.Value == "vcalue");
 
-            result.HasOption(optionC).Should().BeFalse();
+            result.FindResultFor(optionC).Should().BeNull();
         }
 
         [Fact]
@@ -353,13 +345,13 @@ namespace System.CommandLine.Tests
             var animalsOption = new Option<string[]>(new[] { "-a", "--animals" });
             animalsOption.AcceptOnlyFromAmong("dog", "cat", "sheep");
             var vegetablesOption = new Option<string[]>(new[] { "-v", "--vegetables" });
-            var parser = new Parser(
+            Command command =
                 new Command("the-command") {
                     animalsOption,
                     vegetablesOption
-                });
+                };
 
-            var result = parser.Parse("the-command -a cat -v carrot -a dog");
+            var result = command.Parse("the-command -a cat -v carrot -a dog");
 
             result.FindResultFor(animalsOption)
                   .Tokens
@@ -380,16 +372,16 @@ namespace System.CommandLine.Tests
             var animalsOption = new Option<string[]>(new[] { "-a", "--animals" });
 
             var vegetablesOption = new Option<string[]>(new[] { "-v", "--vegetables" });
-            
-            var parser = new Parser(
+
+            Command command = 
                 new Command("the-command")
                 {
                     animalsOption,
                     vegetablesOption,
                     new Argument<string[]>()
-                });
+                };
 
-            var result = parser.Parse("the-command -a cat some-arg -v carrot");
+            var result = command.Parse("the-command -a cat some-arg -v carrot");
 
             result.FindResultFor(animalsOption)
                   .Tokens
@@ -413,15 +405,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_with_multiple_options_is_parsed_correctly()
         {
-            var option = new Command("outer")
+            var command = new Command("outer")
             {
                 new Option<string>("--inner1"),
                 new Option<string>("--inner2")
             };
 
-            var parser = new Parser(option);
-
-            var result = parser.Parse("outer --inner1 argument1 --inner2 argument2");
+            var result = command.Parse("outer --inner1 argument1 --inner2 argument2");
 
             result.CommandResult
                   .Children
@@ -768,11 +758,11 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            ParseResult result = command.Parse("the-command",
+            ParseResult result = command.Parse(new[] { "the-command",
                                                "complete",
                                                "--position",
                                                "7",
-                                               "the-command");
+                                               "the-command" });
 
             CommandResult completeResult = result.CommandResult;
 
@@ -782,15 +772,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Absolute_unix_style_paths_are_lexed_correctly()
         {
-            var command =
+            const string commandText =
                 @"rm ""/temp/the file.txt""";
 
-            var parser = new Parser(new Command("rm")
+            Command command = new ("rm")
             {
                 new Argument<string[]>()
-            });
+            };
 
-            var result = parser.Parse(command);
+            var result = command.Parse(commandText);
 
             result.CommandResult
                   .Tokens
@@ -802,15 +792,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Absolute_Windows_style_paths_are_lexed_correctly()
         {
-            var command =
+            const string commandText =
                 @"rm ""c:\temp\the file.txt\""";
 
-            var parser = new Parser(new Command("rm")
+            Command command = new("rm")
             {
                 new Argument<string[]>()
-            });
+            };
 
-            ParseResult result = parser.Parse(command);
+            ParseResult result = command.Parse(commandText);
 
             result.CommandResult
                   .Tokens
@@ -844,7 +834,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("command");
 
-            result.HasOption(option).Should().BeTrue();
+            result.FindResultFor(option).Should().NotBeNull();
             result.GetValue(option).Should().Be("the-default");
         }
 
@@ -984,27 +974,25 @@ namespace System.CommandLine.Tests
                 new Argument<string[]>()
             };
 
-            var parser = new Parser(outerCommand);
-
-            parser.Parse("outer inner")
+            outerCommand.Parse("outer inner")
                   .CommandResult
                   .Command
                   .Should()
                   .BeSameAs(innerCommand);
 
-            parser.Parse("outer --inner")
+            outerCommand.Parse("outer --inner")
                   .CommandResult
                   .Command
                   .Should()
                   .BeSameAs(outerCommand);
 
-            parser.Parse("outer --inner inner")
+            outerCommand.Parse("outer --inner inner")
                   .CommandResult
                   .Command
                   .Should()
                   .BeSameAs(innerCommand);
 
-            parser.Parse("outer --inner inner")
+            outerCommand.Parse("outer --inner inner")
                   .CommandResult
                   .Parent
                   .Should()
@@ -1052,7 +1040,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string[]>("-x");
 
-            var parseResult = option.Parse(new[] { arg1, arg2 });
+            var parseResult = new RootCommand { option }.Parse(new[] { arg1, arg2 });
 
             parseResult
                 .FindResultFor(option)
@@ -1293,7 +1281,7 @@ namespace System.CommandLine.Tests
 
             var result = new RootCommand { option }.Parse("noprefix");
 
-            result.HasOption(option).Should().BeTrue();
+            result.FindResultFor(option).Should().NotBeNull();
         }
 
         [Fact]
@@ -1331,13 +1319,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Parse_can_be_called_with_null_args()
+        public void Parse_can_not_be_called_with_null_args()
         {
-            var parser = new Parser(new RootCommand());
+            Action passNull = () => new RootCommand().Parse(args: null);
 
-            var result = parser.Parse(null);
-
-            result.CommandResult.Command.Name.Should().Be(RootCommand.ExecutableName);
+            passNull.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
@@ -1410,7 +1396,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult));
+                  .Contain(LocalizationResources.RequiredArgumentMissing(result.CommandResult));
         }
 
         [Fact]
@@ -1430,7 +1416,7 @@ namespace System.CommandLine.Tests
                    .Errors
                    .Select(e => e.Message)
                    .Should()
-                   .Contain(LocalizationResources.Instance.UnrecognizedCommandOrArgument("4"));
+                   .Contain(LocalizationResources.UnrecognizedCommandOrArgument("4"));
         }
 
         [Fact]
@@ -1498,7 +1484,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
+                  .Contain(LocalizationResources.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
         }
 
         [Fact]
@@ -1513,7 +1499,7 @@ namespace System.CommandLine.Tests
                    .Errors
                    .Select(e => e.Message)
                    .Should()
-                   .Contain(LocalizationResources.Instance.UnrecognizedCommandOrArgument("4"));
+                   .Contain(LocalizationResources.UnrecognizedCommandOrArgument("4"));
         }
         
         [Fact]

@@ -302,12 +302,12 @@ namespace System.CommandLine.Tests
                     new Argument<string>()
                 };
 
-                var result = new Parser(command).Parse(providedArgs);
+                var result = Parser.Parse(command, providedArgs);
 
                 var numberOfMissingArgs =
                     result
                         .Errors
-                        .Count(e => e.Message == LocalizationResources.Instance.RequiredArgumentMissing(result.CommandResult));
+                        .Count(e => e.Message == LocalizationResources.RequiredArgumentMissing(result.CommandResult));
 
                 numberOfMissingArgs
                     .Should()

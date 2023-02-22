@@ -17,25 +17,15 @@ namespace System.CommandLine.Help
         private Dictionary<Symbol, Customization>? _customizationsBySymbol;
         private Func<HelpContext, IEnumerable<Action<HelpContext>>>? _getLayout;
 
-        /// <param name="localizationResources">Resources used to localize the help output.</param>
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
-        public HelpBuilder(
-            LocalizationResources localizationResources, 
-            int maxWidth = int.MaxValue)
+        public HelpBuilder(int maxWidth = int.MaxValue)
         {
-            LocalizationResources = localizationResources ?? throw new ArgumentNullException(nameof(localizationResources));
-
             if (maxWidth <= 0)
             {
                 maxWidth = int.MaxValue;
             }
             MaxWidth = maxWidth;
         }
-
-        /// <summary>
-        /// Provides localizable strings for help and error messages.
-        /// </summary>
-        public LocalizationResources LocalizationResources { get; }
 
         /// <summary>
         /// The maximum width for which to format help output.

@@ -17,15 +17,16 @@ namespace System.CommandLine
 
         private static void SyncHandler(InvocationContext context)
         {
-            SuggestDirective symbol = (SuggestDirective)context.ParseResult.Symbol;
-            string? parsedValues = context.ParseResult.FindResultFor(symbol)!.Values.SingleOrDefault();
-            string? rawInput = context.ParseResult.CommandLineText;
+            ParseResult parseResult = context.ParseResult;
+            SuggestDirective symbol = (SuggestDirective)parseResult.Symbol;
+            string? parsedValues = parseResult.FindResultFor(symbol)!.Values.SingleOrDefault();
+            string? rawInput = parseResult.CommandLineText;
 
             int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
 
-            var commandLineToComplete = context.ParseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
+            var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
-            var completionParseResult = context.Parser.Parse(commandLineToComplete);
+            var completionParseResult = parseResult.RootCommandResult.Command.Parse(commandLineToComplete, parseResult.Configuration);
 
             var completions = completionParseResult.GetCompletions(position);
 

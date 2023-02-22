@@ -20,7 +20,7 @@ namespace System.CommandLine.Invocation
 
             context.Console.Error.WriteLine();
 
-            context.ExitCode = context.Parser.Configuration.ParseErrorReportingExitCode!.Value;
+            context.ExitCode = context.ParseResult.Configuration.ParseErrorReportingExitCode!.Value;
 
             context.Console.ResetTerminalForegroundColor();
 

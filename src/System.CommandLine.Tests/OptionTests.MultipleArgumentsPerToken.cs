@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests
                         AllowMultipleArgumentsPerToken = true
                     };
 
-                    var result = option.Parse("-x 1 -x 2 -x 3 -x 4");
+                    var result = new RootCommand { option }.Parse("-x 1 -x 2 -x 3 -x 4");
 
                     _output.WriteLine(result.Diagram());
 
@@ -191,7 +191,7 @@ namespace System.CommandLine.Tests
                     var result = command.Parse("--option 1 2");
 
                     result.UnmatchedTokens.Should().BeEquivalentTo(new[] { "2" });
-                    result.Errors.Should().Contain(e => e.Message == LocalizationResources.Instance.UnrecognizedCommandOrArgument("2"));
+                    result.Errors.Should().Contain(e => e.Message == LocalizationResources.UnrecognizedCommandOrArgument("2"));
                 }
 
                 [Fact]

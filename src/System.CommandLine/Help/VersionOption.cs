@@ -10,20 +10,15 @@ namespace System.CommandLine.Help
 {
     internal class VersionOption : Option<bool>
     {
-        private readonly CommandLineBuilder _builder;
-        private string? _description;
-
-        public VersionOption(CommandLineBuilder builder) : base("--version", null, new Argument<bool> { Arity = ArgumentArity.Zero })
+        internal VersionOption()
+            : base("--version", LocalizationResources.VersionOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
         {
-            _builder = builder;
-            
             AddValidators();
         }
 
-        public VersionOption(string[] aliases, CommandLineBuilder builder) : base(aliases)
+        internal VersionOption(string[] aliases)
+            : base(aliases, LocalizationResources.VersionOptionDescription())
         {
-            _builder = builder;
-
             AddValidators();
         }
 
@@ -35,7 +30,7 @@ namespace System.CommandLine.Help
                     parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
                           .Any(IsNotImplicit))
                 {
-                    result.AddError(result.LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
+                    result.AddError(LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
                 }
             });
         }
@@ -48,12 +43,6 @@ namespace System.CommandLine.Help
                 OptionResult optionResult => !optionResult.IsImplicit,
                 _ => true
             };
-        }
-
-        public override string? Description
-        {
-            get => _description ??= _builder.LocalizationResources.VersionOptionDescription();
-            set => _description = value;
         }
 
         internal override bool IsGreedy => false;

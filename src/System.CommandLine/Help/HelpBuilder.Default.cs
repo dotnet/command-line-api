@@ -131,7 +131,7 @@ public partial class HelpBuilder
 
             if (symbol is Option { IsRequired: true })
             {
-                firstColumnText += $" {context.HelpBuilder.LocalizationResources.HelpOptionsRequiredLabel()}";
+                firstColumnText += $" {LocalizationResources.HelpOptionsRequiredLabel()}";
             }
 
             return firstColumnText;
@@ -156,7 +156,7 @@ public partial class HelpBuilder
         public static Action<HelpContext> SynopsisSection() =>
             ctx =>
             {
-                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
+                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
             };
 
         /// <summary>
@@ -165,7 +165,7 @@ public partial class HelpBuilder
         public static Action<HelpContext> CommandUsageSection() =>
             ctx =>
             {
-                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpUsageTitle(), ctx.HelpBuilder.GetUsage(ctx.Command), ctx.Output);
+                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpUsageTitle(), ctx.HelpBuilder.GetUsage(ctx.Command), ctx.Output);
             };
 
         ///  <summary>
@@ -182,7 +182,7 @@ public partial class HelpBuilder
                     return;
                 }
 
-                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
+                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
                 ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
             };
 
@@ -246,7 +246,7 @@ public partial class HelpBuilder
                     return;
                 }
 
-                ctx.HelpBuilder.WriteHeading(ctx.HelpBuilder.LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
+                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
                 ctx.HelpBuilder.WriteColumns(options, ctx);
                 ctx.Output.WriteLine();
             };

@@ -28,9 +28,7 @@ namespace System.CommandLine.Tests.Help
                 _indentation = new string(' ', IndentationWidth);
             }
 
-            private HelpBuilder GetHelpBuilder(int maxWidth) =>
-                new(LocalizationResources.Instance,
-                    maxWidth);
+            private HelpBuilder GetHelpBuilder(int maxWidth) => new (maxWidth);
 
             [Fact]
             public void Option_can_customize_default_value()
@@ -89,22 +87,22 @@ namespace System.CommandLine.Tests.Help
                 var optionAFirstColumnText = "option a help";
                 var optionBFirstColumnText = "option b help";
 
-                var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
+                var helpBuilder = new HelpBuilder(LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(option, firstColumnText: ctx =>
                                           ctx.Command.Equals(commandA) 
                                               ? optionAFirstColumnText
                                               : optionBFirstColumnText);
-                var parser = new CommandLineBuilder(command)
+                var config = new CommandLineBuilder(command)
                              .UseDefaults()
                              .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
-                parser.Invoke("root a -h", console);
+                config.Invoke("root a -h", console);
                 console.Out.ToString().Should().Contain(optionAFirstColumnText);
 
                 console = new TestConsole();
-                parser.Invoke("root b -h", console);
+                config.Invoke("root b -h", console);
                 console.Out.ToString().Should().Contain(optionBFirstColumnText);
             }
 
@@ -127,23 +125,23 @@ namespace System.CommandLine.Tests.Help
                 var optionADescription = "option a help";
                 var optionBDescription = "option b help";
 
-                var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
+                var helpBuilder = new HelpBuilder(LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(option, secondColumnText: ctx =>
                                           ctx.Command.Equals(commandA)
                                               ? optionADescription
                                               : optionBDescription);
 
-                var parser = new CommandLineBuilder(command)
+                var config = new CommandLineBuilder(command)
                              .UseDefaults()
                              .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
-                parser.Invoke("root a -h", console);
+                config.Invoke("root a -h", console);
                 console.Out.ToString().Should().Contain($"option          {optionADescription}");
 
                 console = new TestConsole();
-                parser.Invoke("root b -h", console);
+                config.Invoke("root b -h", console);
                 console.Out.ToString().Should().Contain($"option          {optionBDescription}");
             }
 
@@ -226,7 +224,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Customize_throws_when_symbol_is_null()
             {
-                Action action = () => new HelpBuilder(LocalizationResources.Instance).CustomizeSymbol(null!, "");
+                Action action = () => new HelpBuilder().CustomizeSymbol(null!, "");
                 action.Should().Throw<ArgumentNullException>();
             }
 
@@ -243,19 +241,19 @@ namespace System.CommandLine.Tests.Help
 
                 command.Options.Add(option);
 
-                var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
+                var helpBuilder = new HelpBuilder(LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(option,
                     firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetIdentifierSymbolUsageLabel(option, ctx),
                     secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetIdentifierSymbolDescription(option));
 
 
-                var parser = new CommandLineBuilder(command)
+                var config = new CommandLineBuilder(command)
                              .UseDefaults()
                              .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
-                parser.Invoke("test -h", console);
+                config.Invoke("test -h", console);
                 console.Out.ToString().Should().MatchRegex(expected);
             }
 
@@ -280,31 +278,21 @@ namespace System.CommandLine.Tests.Help
 
                 command.Arguments.Add(argument);
 
-                var helpBuilder = new HelpBuilder(LocalizationResources.Instance, LargeMaxWidth);
+                var helpBuilder = new HelpBuilder(LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(argument,
                     firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetArgumentUsageLabel(argument),
                     secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetArgumentDescription(argument),
                     defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
 
 
-                var parser = new CommandLineBuilder(command)
+                var config = new CommandLineBuilder(command)
                              .UseDefaults()
                              .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
-                parser.Invoke("test -h", console);
+                config.Invoke("test -h", console);
                 console.Out.ToString().Should().MatchRegex(expected);
-            }
-        }
-        
-        private class CustomLocalizationResources : LocalizationResources
-        {
-            public string OverrideHelpDescriptionTitle { get; set; }
-
-            public override string HelpDescriptionTitle()
-            {
-                return OverrideHelpDescriptionTitle ?? base.HelpDescriptionTitle();
             }
         }
     }

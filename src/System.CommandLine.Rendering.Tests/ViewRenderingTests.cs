@@ -31,7 +31,7 @@ namespace System.CommandLine.Rendering.Tests
                     })
             };
 
-            var parser = new CommandLineBuilder(command)
+            var config = new CommandLineBuilder(command)
                          .AddMiddleware(c =>
                          {
                              c.BindingContext
@@ -45,7 +45,7 @@ namespace System.CommandLine.Rendering.Tests
                 IsAnsiTerminal = false
             };
 
-            parser.Invoke("", terminal);
+            config.Invoke("", terminal);
 
             terminal.Out.ToString().Should().Contain(parseResult.Diagram());
         }

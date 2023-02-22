@@ -16,7 +16,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_Options_With_Arguments
     {
         private string _testSymbolsAsString;
-        private Parser _testParser;
+        private CommandLineConfiguration _configuration;
 
         private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
@@ -54,11 +54,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public void SetupParserFromOptionsWithArguments_Parse()
         {
             var testSymbolsArr = GenerateTestOptions(TestOptionsCount, ArgumentArity.OneOrMore).ToArray();
-            _testParser = testSymbolsArr.CreateParser();
+            _configuration = testSymbolsArr.CreateConfiguration();
             _testSymbolsAsString = GenerateTestOptionsWithArgumentsAsStringExpr(testSymbolsArr.Length, TestArgumentsCount);
         }
 
         [Benchmark]
-        public ParseResult ParserFromOptionsWithArguments_Parse() => _testParser.Parse(_testSymbolsAsString);
+        public ParseResult ParserFromOptionsWithArguments_Parse() => _configuration.RootCommand.Parse(_testSymbolsAsString, _configuration);
     }
 }

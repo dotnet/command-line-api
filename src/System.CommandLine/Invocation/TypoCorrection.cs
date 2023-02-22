@@ -13,7 +13,7 @@ namespace System.CommandLine.Invocation
         {
             ParseResult result = context.ParseResult;
             IConsole console = context.Console;
-            int maxLevenshteinDistance = context.Parser.Configuration.MaxLevenshteinDistance;
+            int maxLevenshteinDistance = result.Configuration.MaxLevenshteinDistance;
 
             var unmatchedTokens = result.UnmatchedTokens;
             for (var i = 0; i < unmatchedTokens.Count; i++)
@@ -25,7 +25,7 @@ namespace System.CommandLine.Invocation
                 {
                     if (first)
                     {
-                        console.Out.WriteLine(result.CommandResult.LocalizationResources.SuggestionsTokenNotMatched(token));
+                        console.Out.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
                         first = false;
                     }
 

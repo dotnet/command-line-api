@@ -16,12 +16,12 @@ namespace System.CommandLine.Invocation
 
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-            Task<int> startedInvocation = parseResult.Handler is not null && context.Parser.Configuration.Middleware.Count == 0
+            Task<int> startedInvocation = parseResult.Handler is not null && parseResult.Configuration.Middleware.Count == 0
                 ? parseResult.Handler.InvokeAsync(context, cts.Token)
                 : InvokeHandlerWithMiddleware(context, cts.Token);
 
-            ProcessTerminationHandler? terminationHandler = parseResult.Parser.Configuration.ProcessTerminationTimeout.HasValue
-                ? new (cts, startedInvocation, parseResult.Parser.Configuration.ProcessTerminationTimeout.Value)
+            ProcessTerminationHandler? terminationHandler = parseResult.Configuration.ProcessTerminationTimeout.HasValue
+                ? new (cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value)
                 : null;
 
             try
@@ -39,9 +39,9 @@ namespace System.CommandLine.Invocation
                     return await firstCompletedTask; // return the result or propagate the exception
                 }
             }
-            catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)
+            catch (Exception ex) when (parseResult.Configuration.ExceptionHandler is not null)
             {
-                context.Parser.Configuration.ExceptionHandler(ex, context);
+                parseResult.Configuration.ExceptionHandler(ex, context);
                 return context.ExitCode;
             }
             finally
@@ -65,16 +65,16 @@ namespace System.CommandLine.Invocation
 
             try
             {
-                if (context.Parser.Configuration.Middleware.Count == 0 && parseResult.Handler is not null)
+                if (parseResult.Configuration.Middleware.Count == 0 && parseResult.Handler is not null)
                 {
                     return parseResult.Handler.Invoke(context);
                 }
 
                 return InvokeHandlerWithMiddleware(context); // kept in a separate method to avoid JITting
             }
-            catch (Exception ex) when (context.Parser.Configuration.ExceptionHandler is not null)
+            catch (Exception ex) when (parseResult.Configuration.ExceptionHandler is not null)
             {
-                context.Parser.Configuration.ExceptionHandler(ex, context);
+                parseResult.Configuration.ExceptionHandler(ex, context);
                 return context.ExitCode;
             }
 
@@ -90,8 +90,8 @@ namespace System.CommandLine.Invocation
 
         private static InvocationMiddleware BuildInvocationChain(InvocationContext context, bool invokeAsync)
         {
-            var invocations = new List<InvocationMiddleware>(context.Parser.Configuration.Middleware.Count + 1);
-            invocations.AddRange(context.Parser.Configuration.Middleware);
+            var invocations = new List<InvocationMiddleware>(context.ParseResult.Configuration.Middleware.Count + 1);
+            invocations.AddRange(context.ParseResult.Configuration.Middleware);
 
             invocations.Add(async (invocationContext, cancellationToken, _) =>
             {
