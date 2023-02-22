@@ -203,7 +203,7 @@ namespace System.CommandLine.Tests
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
             result.GetValue(optionA).Should().Be("value-for-a");
-            result.HasOption(optionB).Should().BeFalse();
+            result.FindResultFor(optionB).Should().BeNull();
             result.GetValue(optionC).Should().Be("value-for-c");
         }
 
@@ -244,7 +244,7 @@ namespace System.CommandLine.Tests
                 parseArgument: parsed => 123,
                 isDefault: true);
 
-            option
+            new RootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
                 .GetValueOrDefault()
@@ -259,7 +259,7 @@ namespace System.CommandLine.Tests
 
             option.SetDefaultValue(123);
 
-            option
+            new RootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
                 .GetValueOrDefault()
@@ -274,7 +274,7 @@ namespace System.CommandLine.Tests
 
             option.SetDefaultValueFactory(() => 123);
 
-            option
+            new RootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
                 .GetValueOrDefault()
@@ -293,7 +293,7 @@ namespace System.CommandLine.Tests
                                                                 .Select(_ => "ERR")
                                                                 .First()));
 
-            option
+            new RootCommand { option }
                 .Parse("-x 123")
                 .Errors
                 .Select(e => e.Message)
@@ -306,10 +306,10 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x");
 
-            var result = option.Parse("");
-            result.HasOption(option)
+            var result = new RootCommand { option }.Parse("");
+            result.FindResultFor(option)
                 .Should()
-                .BeFalse();
+                .BeNull();
             result.GetValue(option)
                 .Should()
                 .BeNull();
@@ -335,7 +335,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>(new[] { "-o", "-option" });
 
-            var parseResult = option.Parse(parseInput);
+            var parseResult = new RootCommand { option }.Parse(parseInput);
 
             parseResult.GetValue(option).Should().Be("value");
         }
@@ -345,11 +345,11 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-x");
 
-            var result = option.Parse("");
+            var result = new RootCommand { option }.Parse("");
 
-            result.HasOption(option)
+            result.FindResultFor(option)
                 .Should()
-                .BeFalse();
+                .BeNull();
             result.GetValue(option)
                 .Should()
                 .BeFalse();
@@ -361,7 +361,7 @@ namespace System.CommandLine.Tests
             Option<ConsoleColor> option = new("--color");
             option.AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
 
-            var result = option.Parse("--color Fuschia");
+            var result = new RootCommand { option }.Parse("--color Fuschia");
 
             result.Errors
                 .Select(e => e.Message)

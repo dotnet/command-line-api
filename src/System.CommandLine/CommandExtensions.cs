@@ -26,7 +26,7 @@ namespace System.CommandLine
             string[] args,
             IConsole? console = null)
         {
-            ParseResult parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
+            ParseResult parseResult = command.Parse(args);
 
             return InvocationPipeline.Invoke(parseResult, console);
         }
@@ -59,7 +59,7 @@ namespace System.CommandLine
             IConsole? console = null, 
             CancellationToken cancellationToken = default)
         {
-            ParseResult parseResult = command.GetOrCreateDefaultInvocationParser().Parse(args);
+            ParseResult parseResult = command.Parse(args);
 
             return InvocationPipeline.InvokeAsync(parseResult, console, cancellationToken);
         }
@@ -79,28 +79,5 @@ namespace System.CommandLine
             IConsole? console = null,
             CancellationToken cancellationToken = default) =>
             command.InvokeAsync(CommandLineStringSplitter.Instance.Split(commandLine).ToArray(), console, cancellationToken);
-
-        /// <summary>
-        /// Parses an array strings using the specified command.
-        /// </summary>
-        /// <param name="command">The command to use to parse the command line input.</param>
-        /// <param name="args">The string arguments to parse.</param>
-        /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public static ParseResult Parse(
-            this Command command,
-            params string[] args) =>
-            command.GetOrCreateDefaultSimpleParser().Parse(args);
-
-        /// <summary>
-        /// Parses a command line string value using the specified command.
-        /// </summary>
-        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
-        /// <param name="command">The command to use to parse the command line input.</param>
-        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
-        /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public static ParseResult Parse(
-            this Command command,
-            string commandLine) =>
-            command.GetOrCreateDefaultSimpleParser().Parse(commandLine);
     }
 }

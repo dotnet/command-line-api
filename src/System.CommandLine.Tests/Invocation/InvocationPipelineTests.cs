@@ -22,12 +22,12 @@ namespace System.CommandLine.Tests.Invocation
         {
             var wasCalled = false;
 
-            var parser =
+            var config =
                 new CommandLineBuilder(new RootCommand { new Command("command") })
                     .AddMiddleware(_ => wasCalled = true)
                     .Build();
 
-            await parser.InvokeAsync("command", _console);
+            await config.InvokeAsync("command", _console);
 
             wasCalled.Should().BeTrue();
         }
@@ -44,14 +44,14 @@ namespace System.CommandLine.Tests.Invocation
             var second = new Command("second");
             second.SetHandler(() => secondWasCalled = true);
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              first,
                              second
                          })
                          .Build();
 
-            await parser.InvokeAsync("first", _console);
+            await config.InvokeAsync("first", _console);
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
@@ -69,14 +69,14 @@ namespace System.CommandLine.Tests.Invocation
             var second = new Command("second");
             second.SetHandler(() => secondWasCalled = true);
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              first,
                              second
                          })
                 .Build();
 
-            parser.Invoke("first", _console);
+            config.Invoke("first", _console);
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
@@ -85,14 +85,14 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void When_middleware_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              new Command("the-command")
                          })
                          .AddMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 
-            Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
+            Func<Task> invoke = async () => await config.InvokeAsync("the-command", _console);
 
             invoke.Should()
                   .Throw<Exception>()
@@ -102,14 +102,14 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void When_middleware_throws_then_Invoke_does_not_handle_the_exception()
         {
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              new Command("the-command")
                          })
                          .AddMiddleware(_ => throw new Exception("oops!"))
                          .Build();
 
-            Func<int> invoke = () => parser.Invoke("the-command", _console);
+            Func<int> invoke = () => config.Invoke("the-command", _console);
 
             invoke.Should()
                 .Throw<Exception>()
@@ -129,13 +129,13 @@ namespace System.CommandLine.Tests.Invocation
 #pragma warning restore CS0162
                 });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
                          .Build();
 
-            Func<Task> invoke = async () => await parser.InvokeAsync("the-command", _console);
+            Func<Task> invoke = async () => await config.InvokeAsync("the-command", _console);
 
             invoke.Should()
                   .Throw<Exception>()
@@ -158,13 +158,13 @@ namespace System.CommandLine.Tests.Invocation
 #pragma warning restore CS0162
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
                 .Build();
 
-            Func<int> invoke = () => parser.Invoke("the-command", _console);
+            Func<int> invoke = () => config.Invoke("the-command", _console);
 
             invoke.Should()
                 .Throw<Exception>()
@@ -188,7 +188,7 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromResult(0);
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var configuration = new CommandLineBuilder(new RootCommand
                          {
                             command
                          })
@@ -200,12 +200,12 @@ namespace System.CommandLine.Tests.Invocation
                                                  .Concat(new[] { "implicit-inner-command" })
                                                  .ToArray();
 
-                             context.ParseResult = context.Parser.Parse(tokens);
+                             context.ParseResult = context.ParseResult.Configuration.RootCommand.Parse(tokens);
                              await next(context, token);
                          })
                          .Build();
 
-            await parser.InvokeAsync("the-command", new TestConsole());
+            await configuration.InvokeAsync("the-command", new TestConsole());
 
             wasCalled.Should().BeTrue();
         }
@@ -224,7 +224,7 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromResult(0);
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
@@ -235,7 +235,7 @@ namespace System.CommandLine.Tests.Invocation
                          })
                          .Build();
 
-            await parser.InvokeAsync("the-command", new TestConsole());
+            await config.InvokeAsync("the-command", new TestConsole());
 
             middlewareWasCalled.Should().BeTrue();
             handlerWasCalled.Should().BeFalse();
@@ -255,7 +255,7 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromResult(0);
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
@@ -266,7 +266,7 @@ namespace System.CommandLine.Tests.Invocation
                          })
                          .Build();
 
-            parser.Invoke("the-command", new TestConsole());
+            config.Invoke("the-command", new TestConsole());
 
             middlewareWasCalled.Should().BeTrue();
             handlerWasCalled.Should().BeFalse();
@@ -285,13 +285,13 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromResult(0);
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
                          .Build();
 
-            await parser.InvokeAsync("help-command", new TestConsole());
+            await config.InvokeAsync("help-command", new TestConsole());
 
             handlerWasCalled.Should().BeTrue();
         }
@@ -313,7 +313,7 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromResult(0);
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
@@ -324,7 +324,7 @@ namespace System.CommandLine.Tests.Invocation
                          })
                          .Build();
 
-            await parser.InvokeAsync("help-command", new TestConsole());
+            await config.InvokeAsync("help-command", new TestConsole());
 
             handlerWasCalled.Should().BeTrue();
             factoryWasCalled.Should().BeTrue();
@@ -342,7 +342,7 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromResult(0);
             });
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
@@ -353,7 +353,7 @@ namespace System.CommandLine.Tests.Invocation
                          .UseExceptionHandler((ex, ctx) => ctx.ExitCode = ex is OperationCanceledException ? 123 : 456)
                          .Build();
 
-            int result = await parser.InvokeAsync("the-command");
+            int result = await config.InvokeAsync("the-command");
 
             // when the middleware throws, we never get to handler
             handlerWasCalled.Should().BeFalse();

@@ -13,23 +13,24 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_CustomScenarios
     {
         private string _testSymbolsAsString;
-        private Parser _testParser;
+        private Command _rootCommand;
+        private CommandLineConfiguration _configuration;
 
         [GlobalSetup(Target = nameof(OneOptWithNestedCommand_Parse))]
         public void SetupOneOptWithNestedCommand()
         {
-            var rootCommand = new Command("root_command");
+            _rootCommand = new Command("root_command");
             var nestedCommand = new Command("nested_command");
             var option = new Option<int>("-opt1", () => 123);
             nestedCommand.Options.Add(option);
-            rootCommand.Subcommands.Add(nestedCommand);
+            _rootCommand.Subcommands.Add(nestedCommand);
 
-            _testParser = new Parser(rootCommand);
             _testSymbolsAsString = "root_command nested_command -opt1 321";
+            _configuration = CommandLineConfiguration.CreateBuilder(_rootCommand).UseDefaults().Build();
         }
 
         [Benchmark]
         public ParseResult OneOptWithNestedCommand_Parse() 
-            => _testParser.Parse(_testSymbolsAsString);
+            => _rootCommand.Parse(_testSymbolsAsString, _configuration);
     }
 }

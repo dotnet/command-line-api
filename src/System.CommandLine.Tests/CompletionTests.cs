@@ -182,7 +182,8 @@ namespace System.CommandLine.Tests
                 new Command("andmyothersubcommand"),
             };
 
-            var completions = command.Parse("my").GetCompletions();
+            CommandLineConfiguration simpleConfig = new (command);
+            var completions = command.Parse("my", simpleConfig).GetCompletions();
 
             completions
                 .Select(item => item.Label)
@@ -193,14 +194,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_it_will_still_be_suggested()
         {
-            var parser = new RootCommand
+            var command = new RootCommand
             {
                 new Option<string>("--apple", defaultValueFactory: () => "cortland"),
                 new Option<string>("--banana"),
                 new Option<string>("--cherry")
             };
 
-            var result = parser.Parse("");
+            CommandLineConfiguration simpleConfig = new (command);
+            var result = command.Parse("", simpleConfig);
 
             _output.WriteLine(result.ToString());
 
@@ -224,14 +226,14 @@ namespace System.CommandLine.Tests
                 return !string.IsNullOrWhiteSpace(opt1Value) ? new[] { opt1Value } : Array.Empty<string>();
             });
 
-            var parser = new Parser(
-                new RootCommand
-                {
-                    originOption,
-                    cloneOption
-                });
+            RootCommand rootCommand = new RootCommand
+            {
+                originOption,
+                cloneOption
+            };
 
-            var result = parser.Parse("--origin test --clone ");
+            CommandLineConfiguration simpleConfig = new (rootCommand);
+            var result = rootCommand.Parse("--origin test --clone ", simpleConfig);
 
             _output.WriteLine(result.ToString());
 
@@ -244,15 +246,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_one_option_has_been_specified_then_it_and_its_siblings_will_still_be_suggested()
         {
-            var parser = new Command("command")
-                         {
-                             new Option<string>("--apple"),
-                             new Option<string>("--banana"),
-                             new Option<string>("--cherry")
-                         };
+            var command = new Command("command")
+            {
+                new Option<string>("--apple"),
+                new Option<string>("--banana"),
+                new Option<string>("--cherry")
+            };
 
             var commandLine = "--apple grannysmith";
-            var result = parser.Parse(commandLine);
+            CommandLineConfiguration simpleConfig = new (command);
+            var result = command.Parse(commandLine, simpleConfig);
 
             result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
@@ -279,8 +282,9 @@ namespace System.CommandLine.Tests
                     new Option<string>("--rainier")
                 }
             };
+            CommandLineConfiguration simpleConfig = new (rootCommand);
 
-            var result = rootCommand.Parse("cherry ");
+            var result = rootCommand.Parse("cherry ", simpleConfig);
 
             result.GetCompletions()
                   .Should()
@@ -307,8 +311,9 @@ namespace System.CommandLine.Tests
                 apple,
                 banana
             };
+            CommandLineConfiguration simpleConfig = new (rootCommand);
 
-            var result = rootCommand.Parse("banana ");
+            var result = rootCommand.Parse("banana ", simpleConfig);
 
             result.GetCompletions()
                   .Select(item => item.Label)
@@ -326,7 +331,8 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "child";
-            var parseResult = command.Parse(commandLine);
+            CommandLineConfiguration simpleConfig = new (command);
+            var parseResult = command.Parse(commandLine, simpleConfig);
 
             parseResult
                 .GetCompletions(commandLine.Length + 1)
@@ -346,7 +352,8 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "--parent-option 123 child";
-            var parseResult = command.Parse(commandLine);
+            CommandLineConfiguration simpleConfig = new (command);
+            var parseResult = command.Parse(commandLine, simpleConfig);
 
             parseResult
                 .GetCompletions(commandLine.Length + 1)
@@ -367,7 +374,8 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "child ";
-            var parseResult = command.Parse(commandLine);
+            CommandLineConfiguration simpleConfig = new (command);
+            var parseResult = command.Parse(commandLine, simpleConfig);
 
             parseResult
                 .GetCompletions(commandLine.Length + 1)
@@ -396,7 +404,8 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "cherry";
-            var result = rootCommand.Parse(commandLine);
+            CommandLineConfiguration simpleConfig = new (rootCommand);
+            var result = rootCommand.Parse(commandLine, simpleConfig);
 
             result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
@@ -415,7 +424,8 @@ namespace System.CommandLine.Tests
             };
 
             var input = "a";
-            var result = command.Parse(input);
+            CommandLineConfiguration simpleConfig = new (command);
+            var result = command.Parse(input, simpleConfig);
 
             result.GetCompletions(input.Length)
                   .Select(item => item.Label)
@@ -436,7 +446,8 @@ namespace System.CommandLine.Tests
                 new Option<string>("-n", "Not hidden")
             };
 
-            var completions = command.Parse("the-command ").GetCompletions();
+            CommandLineConfiguration simpleConfig = new (command);
+            var completions = command.Parse("the-command ", simpleConfig).GetCompletions();
 
             completions.Select(item => item.Label).Should().NotContain("--hide-me");
         }
@@ -444,14 +455,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parser_options_can_supply_context_sensitive_matches()
         {
-            var parser = new RootCommand
+            var command = new RootCommand
             {
                 CreateOptionWithAcceptOnlyFromAmong(name: "--bread", "wheat", "sourdough", "rye"),
                 CreateOptionWithAcceptOnlyFromAmong(name: "--cheese", "provolone", "cheddar", "cream cheese")
             };
 
             var commandLine = "--bread";
-            var result = parser.Parse(commandLine);
+            CommandLineConfiguration simpleConfig = new (command);
+            var result = command.Parse(commandLine, simpleConfig);
 
             result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
@@ -459,7 +471,7 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo("rye", "sourdough", "wheat");
 
             commandLine = "--bread wheat --cheese ";
-            result = parser.Parse(commandLine);
+            result = command.Parse(commandLine, simpleConfig);
 
             result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
@@ -478,7 +490,8 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "test";
-            command.Parse(commandLine)
+            CommandLineConfiguration simpleConfig = new (command);
+            command.Parse(commandLine, simpleConfig)
                    .GetCompletions(commandLine.Length + 1)
                    .Select(item => item.Label)
                    .Should()
@@ -496,8 +509,8 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "test";
-
-            command.Parse(commandLine)
+            CommandLineConfiguration simpleConfig = new (command);
+            command.Parse(commandLine, simpleConfig)
                    .GetCompletions(commandLine.Length + 1)
                    .Select(item => item.Label)
                    .Should()
@@ -516,9 +529,8 @@ namespace System.CommandLine.Tests
                 new Option<string>("--three")
             };
 
-            var parser = new Parser(command);
-
-            ParseResult result = parser.Parse(input);
+            CommandLineConfiguration simpleConfig = new (command);
+            ParseResult result = command.Parse(input, simpleConfig);
             result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
@@ -528,16 +540,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_GetCompletions_can_be_based_on_the_proximate_option()
         {
-            var parser = new Parser(
-                new Command("outer")
-                {
-                    new Option<string>("--one"),
-                    new Option<string>("--two"),
-                    new Option<string>("--three")
-                });
+            Command outer = new Command("outer")
+            {
+                new Option<string>("--one"),
+                new Option<string>("--two"),
+                new Option<string>("--three")
+            };
 
             var commandLine = "outer";
-            ParseResult result = parser.Parse(commandLine);
+            CommandLineConfiguration simpleConfig = new (outer);
+            ParseResult result = outer.Parse(commandLine, simpleConfig);
 
             result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
@@ -548,15 +560,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_completions_can_be_based_on_the_proximate_option()
         {
-            var parser = new Parser(
-                new Command("outer")
-                {
-                    CreateOptionWithAcceptOnlyFromAmong(name: "--one", "one-a", "one-b"),
-                    CreateOptionWithAcceptOnlyFromAmong(name: "--two", "two-a", "two-b")
-                });
+            var outer = new Command("outer")
+            {
+                CreateOptionWithAcceptOnlyFromAmong(name: "--one", "one-a", "one-b"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "--two", "two-a", "two-b")
+            };
 
             var commandLine = "outer --two";
-            ParseResult result = parser.Parse(commandLine);
+            CommandLineConfiguration simpleConfig = new (outer);
+            ParseResult result = outer.Parse(commandLine, simpleConfig);
 
             result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
@@ -567,15 +579,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_GetCompletions_can_be_based_on_the_proximate_option_and_partial_input()
         {
-            var parser = new Parser(
-                new Command("outer")
-                {
-                    new Command("one", "Command one"),
-                    new Command("two", "Command two"),
-                    new Command("three", "Command three")
-                });
+            var outer = new Command("outer")
+            {
+                new Command("one", "Command one"),
+                new Command("two", "Command two"),
+                new Command("three", "Command three")
+            };
 
-            ParseResult result = parser.Parse("outer o");
+            CommandLineConfiguration simpleConfig = new (outer);
+            ParseResult result = outer.Parse("outer o", simpleConfig);
 
             result.GetCompletions()
                   .Select(item => item.Label)
@@ -590,18 +602,19 @@ namespace System.CommandLine.Tests
             option.CompletionSources.Add("vegetable", "mineral", "animal");
 
             var command = new Command("the-command")
-                {
-                    option
-                };
+            {
+                option
+            };
 
-            command.Parse("the-command -t m")
+            CommandLineConfiguration simpleConfig = new (command);
+            command.Parse("the-command -t m", simpleConfig)
                    .GetCompletions()
                    .Select(item => item.Label)
                    .Should()
                    .BeEquivalentTo("animal",
                                    "mineral");
 
-            command.Parse("the-command -t something-else")
+            command.Parse("the-command -t something-else", simpleConfig)
                    .Errors
                    .Should()
                    .BeEmpty();
@@ -658,13 +671,13 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "three", "three-a", "three-b", "three-c")
             };
 
-            var parser = new CommandLineBuilder(new RootCommand
+            var configuration = new CommandLineBuilder(new RootCommand
                          {
                              command
                          })
                          .Build();
 
-            var result = parser.Parse("outer two b" );
+            var result = command.Parse("outer two b", configuration);
 
             result.GetCompletions()
                   .Select(item => item.Label)
@@ -753,8 +766,8 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
-            var parser = new CommandLineBuilder(command).Build();
-            var completions = parser.Parse("--framework net7.0 --l").GetCompletions();
+            var configuration = new CommandLineBuilder(command).Build();
+            var completions = command.Parse("--framework net7.0 --l", configuration).GetCompletions();
 
             completions.Select(item => item.Label)
                        .Should()
@@ -770,8 +783,8 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
-            var parser = new CommandLineBuilder(command).Build();
-            var completions = parser.Parse(new[]{"--framework","net7.0","--l"}).GetCompletions();
+            var configuration = new CommandLineBuilder(command).Build();
+            var completions = command.Parse(new[]{"--framework","net7.0","--l"}, configuration).GetCompletions();
 
             completions.Select(item => item.Label)
                        .Should()
@@ -805,7 +818,8 @@ namespace System.CommandLine.Tests
             };
 
             var commandLine = "--allows-one x";
-            var completions = command.Parse(commandLine).GetCompletions(commandLine.Length + 1);
+            CommandLineConfiguration simpleConfig = new (command);
+            var completions = command.Parse(commandLine, simpleConfig).GetCompletions(commandLine.Length + 1);
 
             completions.Select(item => item.Label)
                        .Should()
@@ -815,7 +829,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_completions_are_omitted()
         {
-            var parser = new CommandLineBuilder(new RootCommand
+            var configuration = new CommandLineBuilder(new RootCommand
                          {
                              new Option<string>("--allows-one"),
                              new Option<string[]>("--allows-many")
@@ -823,7 +837,7 @@ namespace System.CommandLine.Tests
                          .UseSuggestDirective()
                          .Build();
 
-            var completions = parser.Parse("--allows-one ").GetCompletions();
+            var completions = configuration.RootCommand.Parse("--allows-one ", configuration).GetCompletions();
 
             completions.Should().BeEmpty();
         }
@@ -884,8 +898,8 @@ namespace System.CommandLine.Tests
             {
                 argument
             };
-
-            var completions = command.Parse("the-command s")
+            CommandLineConfiguration simpleConfig = new (command);
+            var completions = command.Parse("the-command s", simpleConfig)
                                      .GetCompletions();
 
             completions.Select(item => item.Label)
@@ -904,7 +918,8 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var completions = command.Parse("the-command s")
+            CommandLineConfiguration simpleConfig = new (command);
+            var completions = command.Parse("the-command s", simpleConfig)
                                      .GetCompletions();
 
             completions
@@ -954,9 +969,11 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1629
         public void When_option_completions_are_available_then_they_are_suggested_when_a_validation_error_occurs()
         {
-            var option = new Option<DayOfWeek>("--day");
+            Option<DayOfWeek> option = new ("--day");
+            RootCommand rootCommand = new () { option };
+            CommandLineConfiguration simpleConfig = new (rootCommand);
 
-            var result = option.Parse("--day SleepyDay");
+            var result = rootCommand.Parse("--day SleepyDay", simpleConfig);
 
             result.Errors
                   .Should()

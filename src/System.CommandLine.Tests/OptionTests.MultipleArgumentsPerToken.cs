@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests
                         AllowMultipleArgumentsPerToken = true
                     };
 
-                    var result = option.Parse("-x 1 -x 2 -x 3 -x 4");
+                    var result = new RootCommand { option }.Parse("-x 1 -x 2 -x 3 -x 4");
 
                     _output.WriteLine(result.Diagram());
 

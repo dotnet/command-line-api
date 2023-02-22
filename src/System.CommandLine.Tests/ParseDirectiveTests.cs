@@ -28,11 +28,11 @@ namespace System.CommandLine.Tests
             var option = new Option<int>(new[] { "-c", "--count" });
             subcommand.Options.Add(option);
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var config = new CommandLineBuilder(rootCommand)
                          .UseParseDirective()
                          .Build();
 
-            var result = parser.Parse("[parse] subcommand -c 34 --nonexistent wat");
+            var result = rootCommand.Parse("[parse] subcommand -c 34 --nonexistent wat", config);
 
             output.WriteLine(result.Diagram());
 
@@ -51,13 +51,13 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand();
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var config = new CommandLineBuilder(rootCommand)
                          .UseParseDirective()
                          .UseVersionOption()
                          .UseHelp()
                          .Build();
 
-            var result = parser.Parse("[parse] --help");
+            var result = rootCommand.Parse("[parse] --help", config);
 
             output.WriteLine(result.Diagram());
 
@@ -76,13 +76,13 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand();
 
-            var parser = new CommandLineBuilder(rootCommand)
+            var config = new CommandLineBuilder(rootCommand)
                          .UseParseDirective()
                          .UseVersionOption()
                          .UseHelp()
                          .Build();
 
-            var result = parser.Parse("[parse] --version");
+            var result = rootCommand.Parse("[parse] --version", config);
 
             output.WriteLine(result.Diagram());
 

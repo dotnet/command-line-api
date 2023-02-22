@@ -64,7 +64,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var parseResult = command.Parse("verb", "-x", "123");
+            var parseResult = command.Parse(new[] { "verb", "-x", "123" });
 
             parseResult.GetCompletionContext()
                        .Should()
@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
                 new Option<string>("--option2")
             };
 
-            string textToMatch = command.Parse("the-command", "opt")
+            string textToMatch = command.Parse(new[] { "the-command", "opt" })
                                         .GetCompletionContext()
                                         .WordToComplete;
 
@@ -169,7 +169,7 @@ namespace System.CommandLine.Tests
                 new Option<string>("--option2")
             };
 
-            string textToMatch = command.Parse("the-command", "--option1")
+            string textToMatch = command.Parse(new[] { "the-command", "--option1" })
                                         .GetCompletionContext()
                                         .WordToComplete;
 
@@ -189,7 +189,7 @@ namespace System.CommandLine.Tests
                 new Argument<string>()
             };
 
-            string textToMatch = command.Parse("the-command", "--option1", "a")
+            string textToMatch = command.Parse(new[] { "the-command", "--option1", "a" })
                                         .GetCompletionContext()
                                         .WordToComplete;
 

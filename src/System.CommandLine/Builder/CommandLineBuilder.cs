@@ -12,10 +12,10 @@ namespace System.CommandLine
     /// <summary>
     /// Enables composition of command line configurations.
     /// </summary>
-    public class CommandLineBuilder 
+    public partial class CommandLineBuilder 
     {
         /// <inheritdoc cref="CommandLineConfiguration.EnablePosixBundling"/>
-        internal bool EnablePosixBundling = true;
+        internal bool EnablePosixBundlingFlag = true;
 
         /// <inheritdoc cref="CommandLineConfiguration.EnableTokenReplacement"/>
         internal bool EnableTokenReplacement = true;
@@ -24,7 +24,7 @@ namespace System.CommandLine
         internal int? ParseErrorReportingExitCode;
 
         /// <inheritdoc cref="CommandLineConfiguration.EnableDirectives"/>
-        internal bool EnableDirectives = true;
+        internal bool EnableDirectivesFlag = true;
 
         /// <inheritdoc cref="CommandLineConfiguration.EnableEnvironmentVariableDirective"/>
         internal bool EnableEnvironmentVariableDirective;
@@ -51,9 +51,9 @@ namespace System.CommandLine
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <param name="rootCommand">The root command of the application.</param>
-        public CommandLineBuilder(Command? rootCommand = null)
+        public CommandLineBuilder(Command rootCommand)
         {
-            Command = rootCommand ?? new RootCommand();
+            Command = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
         }
 
         /// <summary>
@@ -94,25 +94,24 @@ namespace System.CommandLine
         /// <summary>
         /// Creates a parser based on the configuration of the command line builder.
         /// </summary>
-        public Parser Build() =>
-            new(
-                new CommandLineConfiguration(
-                    Command,
-                    enablePosixBundling: EnablePosixBundling,
-                    enableDirectives: EnableDirectives,
-                    enableTokenReplacement: EnableTokenReplacement,
-                    enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
-                    parseDirectiveExitCode: ParseDirectiveExitCode,
-                    enableSuggestDirective: EnableSuggestDirective,
-                    parseErrorReportingExitCode: ParseErrorReportingExitCode,
-                    maxLevenshteinDistance: MaxLevenshteinDistance,
-                    exceptionHandler: ExceptionHandler,
-                    processTerminationTimeout: ProcessTerminationTimeout,
-                    middlewarePipeline: _middlewareList is null
-                                            ? Array.Empty<InvocationMiddleware>()
-                                            : GetMiddleware(),
-                    helpBuilderFactory: GetHelpBuilderFactory(),
-                    tokenReplacer: TokenReplacer));
+        public CommandLineConfiguration Build() =>
+            new (
+                Command,
+                enablePosixBundling: EnablePosixBundlingFlag,
+                enableDirectives: EnableDirectivesFlag,
+                enableTokenReplacement: EnableTokenReplacement,
+                enableEnvironmentVariableDirective: EnableEnvironmentVariableDirective,
+                parseDirectiveExitCode: ParseDirectiveExitCode,
+                enableSuggestDirective: EnableSuggestDirective,
+                parseErrorReportingExitCode: ParseErrorReportingExitCode,
+                maxLevenshteinDistance: MaxLevenshteinDistance,
+                exceptionHandler: ExceptionHandler,
+                processTerminationTimeout: ProcessTerminationTimeout,
+                middlewarePipeline: _middlewareList is null
+                                        ? Array.Empty<InvocationMiddleware>()
+                                        : GetMiddleware(),
+                helpBuilderFactory: GetHelpBuilderFactory(),
+                tokenReplacer: TokenReplacer);
 
         private IReadOnlyList<InvocationMiddleware> GetMiddleware()
         {
@@ -124,9 +123,6 @@ namespace System.CommandLine
             }
             return result;
         }
-
-        internal void AddMiddleware(InvocationMiddleware middleware, MiddlewareOrder order)
-            => AddMiddleware(middleware, (int)order);
 
         internal void AddMiddleware(InvocationMiddleware middleware, MiddlewareOrderInternal order)
             => AddMiddleware(middleware, (int)order);

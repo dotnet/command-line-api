@@ -92,17 +92,17 @@ namespace System.CommandLine.Tests.Help
                                           ctx.Command.Equals(commandA) 
                                               ? optionAFirstColumnText
                                               : optionBFirstColumnText);
-                var parser = new CommandLineBuilder(command)
+                var config = new CommandLineBuilder(command)
                              .UseDefaults()
                              .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
-                parser.Invoke("root a -h", console);
+                config.Invoke("root a -h", console);
                 console.Out.ToString().Should().Contain(optionAFirstColumnText);
 
                 console = new TestConsole();
-                parser.Invoke("root b -h", console);
+                config.Invoke("root b -h", console);
                 console.Out.ToString().Should().Contain(optionBFirstColumnText);
             }
 
@@ -131,17 +131,17 @@ namespace System.CommandLine.Tests.Help
                                               ? optionADescription
                                               : optionBDescription);
 
-                var parser = new CommandLineBuilder(command)
+                var config = new CommandLineBuilder(command)
                              .UseDefaults()
                              .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
-                parser.Invoke("root a -h", console);
+                config.Invoke("root a -h", console);
                 console.Out.ToString().Should().Contain($"option          {optionADescription}");
 
                 console = new TestConsole();
-                parser.Invoke("root b -h", console);
+                config.Invoke("root b -h", console);
                 console.Out.ToString().Should().Contain($"option          {optionBDescription}");
             }
 
@@ -247,13 +247,13 @@ namespace System.CommandLine.Tests.Help
                     secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetIdentifierSymbolDescription(option));
 
 
-                var parser = new CommandLineBuilder(command)
+                var config = new CommandLineBuilder(command)
                              .UseDefaults()
                              .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
-                parser.Invoke("test -h", console);
+                config.Invoke("test -h", console);
                 console.Out.ToString().Should().MatchRegex(expected);
             }
 
@@ -285,13 +285,13 @@ namespace System.CommandLine.Tests.Help
                     defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
 
 
-                var parser = new CommandLineBuilder(command)
+                var config = new CommandLineBuilder(command)
                              .UseDefaults()
                              .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
-                parser.Invoke("test -h", console);
+                config.Invoke("test -h", console);
                 console.Out.ToString().Should().MatchRegex(expected);
             }
         }

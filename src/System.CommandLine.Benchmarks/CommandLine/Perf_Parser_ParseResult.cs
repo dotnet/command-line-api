@@ -15,13 +15,13 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_ParseResult
     {
-        private readonly Parser _testParser;
+        private readonly CommandLineConfiguration _configuration;
 
         public Perf_Parser_ParseResult()
         {
             var option = new Option<bool>("-opt");
 
-            _testParser =
+            _configuration =
                 new CommandLineBuilder(new RootCommand { option })
                     .UseParseDirective()
                     .Build();
@@ -39,12 +39,12 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         public IEnumerable<object> GenerateTestParseResults()
             => GenerateTestInputs()
-               .Select(input => new BdnParam<ParseResult>(_testParser.Parse(input), input));
+               .Select(input => new BdnParam<ParseResult>(_configuration.RootCommand.Parse(input, _configuration), input));
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestInputs))]
         public IReadOnlyDictionary<string, IReadOnlyList<string>> ParseResult_Directives(string input)
-            => _testParser.Parse(input).Directives;
+            => _configuration.RootCommand.Parse(input, _configuration).Directives;
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]

@@ -17,7 +17,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     {
         private IEnumerable<Option> _testSymbols;
         private string _testSymbolsAsString;
-        private Parser _testParser;
+        private CommandLineConfiguration _testConfiguration;
 
         private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
@@ -49,20 +49,20 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Benchmark]
-        public Parser ParserFromOptions_Ctor()
+        public CommandLineConfiguration ParserFromOptions_Ctor()
         {
-            return _testSymbols.CreateParser();
+            return _testSymbols.CreateConfiguration();
         }
 
         [GlobalSetup(Target = nameof(ParserFromOptions_Parse))]
         public void SetupParserFromOptions_Parse()
         {
             var testSymbolsArr = GenerateTestOptions(TestSymbolsCount, ArgumentArity.Zero).ToArray();
-            _testParser = testSymbolsArr.CreateParser();
+            _testConfiguration = testSymbolsArr.CreateConfiguration();
             _testSymbolsAsString = GenerateTestOptionsAsStringExpr(testSymbolsArr.Length);
         }
 
         [Benchmark]
-        public ParseResult ParserFromOptions_Parse() => _testParser.Parse(_testSymbolsAsString);
+        public ParseResult ParserFromOptions_Parse() => _testConfiguration.RootCommand.Parse(_testSymbolsAsString, _testConfiguration);
     }
 }

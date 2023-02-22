@@ -23,11 +23,12 @@ namespace System.CommandLine.Tests
                     argument
                 };
 
-                var result = new CommandLineBuilder(rootCommand)
-                             .Build()
-                             .Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo");
+                var configuration = new CommandLineBuilder(rootCommand)
+                             .Build();
 
-                result.HasOption(option).Should().BeTrue();
+                var result = rootCommand.Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo", configuration);
+
+                result.FindResultFor(option).Should().NotBeNull();
 
                 result.GetValue(option).Should().BeEquivalentTo("some stuff");
 
@@ -47,9 +48,8 @@ namespace System.CommandLine.Tests
                     argument
                 };
 
-                var result = new CommandLineBuilder(rootCommand)
-                             .Build()
-                             .Parse("-o \"some stuff\" -- --one -x -y -z -o:foo");
+                var config = new CommandLineBuilder(rootCommand).Build();
+                var result = rootCommand.Parse("-o \"some stuff\" -- --one -x -y -z -o:foo", config);
 
                 result.UnmatchedTokens.Should().BeEmpty();
             }
@@ -64,10 +64,9 @@ namespace System.CommandLine.Tests
                     option,
                     argument
                 };
+                var config = new CommandLineBuilder(rootCommand).Build();
 
-                var result = new CommandLineBuilder(rootCommand)
-                             .Build()
-                             .Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo");
+                var result = rootCommand.Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo", config);
 
                 result.Errors.Should().BeEmpty();
             }
@@ -81,9 +80,9 @@ namespace System.CommandLine.Tests
                     argument
                 };
 
-                var result = new CommandLineBuilder(rootCommand)
-                             .Build()
-                             .Parse("a b c -- -- d");
+                var configuration = new CommandLineBuilder(rootCommand).Build();
+
+                var result = rootCommand.Parse("a b c -- -- d", configuration);
 
                 var strings = result.GetValue(argument);
 

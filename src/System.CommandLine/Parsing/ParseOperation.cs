@@ -50,7 +50,7 @@ namespace System.CommandLine.Parsing
             return result;
         }
 
-        internal ParseResult Parse(Parser parser)
+        internal ParseResult Parse()
         {
             ParseDirectives();
 
@@ -75,7 +75,7 @@ namespace System.CommandLine.Parsing
             }
 
             return new (
-                parser,
+                _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,
                 _directives,

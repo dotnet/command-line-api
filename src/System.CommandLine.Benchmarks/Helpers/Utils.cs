@@ -44,7 +44,7 @@ namespace System.CommandLine.Benchmarks.Helpers
             return pathToAssemblyFile;
         }
 
-        public static Parser CreateParser(this IEnumerable<Option> symbols)
+        public static CommandLineConfiguration CreateConfiguration(this IEnumerable<Option> symbols)
         {
             var rootCommand = new RootCommand();
 
@@ -53,7 +53,7 @@ namespace System.CommandLine.Benchmarks.Helpers
                 rootCommand.Add(symbol);
             }
 
-            return new Parser(rootCommand);
+            return CommandLineConfiguration.CreateBuilder(rootCommand).UseDefaults().Build();
         }
     }
 }

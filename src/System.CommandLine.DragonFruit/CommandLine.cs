@@ -86,9 +86,9 @@ namespace System.CommandLine.DragonFruit
             object target = null,
             IConsole console = null)
         {
-            Parser parser = BuildParser(method, xmlDocsFilePath, target);
+            CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
 
-            return parser.InvokeAsync(args, console);
+            return configuration.InvokeAsync(args, console);
         }
 
         public static int InvokeMethod(
@@ -98,22 +98,22 @@ namespace System.CommandLine.DragonFruit
             object target = null,
             IConsole console = null)
         {
-            Parser parser = BuildParser(method, xmlDocsFilePath, target);
+            CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
 
-            return parser.Invoke(args, console);
+            return configuration.Invoke(args, console);
         }
 
-        private static Parser BuildParser(MethodInfo method,
+        private static CommandLineConfiguration BuildConfiguration(MethodInfo method,
             string xmlDocsFilePath,
             object target)
         {
-            var builder = new CommandLineBuilder()
+            var builder = new CommandLineBuilder(new RootCommand())
                 .ConfigureRootCommandFromMethod(method, target)
                 .ConfigureHelpFromXmlComments(method, xmlDocsFilePath)
                 .UseDefaults()
                 .UseAnsiTerminalWhenAvailable();
 
-            return  builder.Build();
+            return builder.Build();
         }
 
         public static CommandLineBuilder ConfigureRootCommandFromMethod(

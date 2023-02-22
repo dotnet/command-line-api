@@ -10,24 +10,23 @@ namespace System.CommandLine.Tests
 {
     public class CommandTests : SymbolTests
     {
-        private readonly Parser _parser;
+        private readonly Command _outerCommand;
 
         public CommandTests()
         {
-            _parser = new Parser(
-                new Command("outer")
+            _outerCommand = new Command("outer")
+            {
+                new Command("inner")
                 {
-                    new Command("inner")
-                    {
-                        new Option<string>("--option")
-                    }
-                });
+                    new Option<string>("--option")
+                }
+            };
         }
 
         [Fact]
         public void Outer_command_is_identified_correctly_by_RootCommand()
         {
-            var result = _parser.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse("outer inner --option argument1");
 
             result
                 .RootCommandResult
@@ -40,7 +39,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Outer_command_is_identified_correctly_by_Parent_property()
         {
-            var result = _parser.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse("outer inner --option argument1");
 
             result
                 .CommandResult
@@ -57,7 +56,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_is_identified_correctly()
         {
-            var result = _parser.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse("outer inner --option argument1");
 
             result.CommandResult
                   .Should()
@@ -72,7 +71,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_option_is_identified_correctly()
         {
-            var result = _parser.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse("outer inner --option argument1");
 
             result.CommandResult
                   .Children
@@ -89,7 +88,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_option_argument_is_identified_correctly()
         {
-            var result = _parser.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse("outer inner --option argument1");
 
             result.CommandResult
                   .Children
@@ -113,9 +112,7 @@ namespace System.CommandLine.Tests
                     new Argument<string[]>()
                 });
 
-            var parser = new Parser(outer);
-
-            var result = parser.Parse("outer arg1 inner arg2 arg3");
+            var result = outer.Parse("outer arg1 inner arg2 arg3");
 
             result.CommandResult
                   .Parent

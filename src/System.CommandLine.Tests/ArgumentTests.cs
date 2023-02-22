@@ -128,7 +128,7 @@ namespace System.CommandLine.Tests
                     return null;
                 });
 
-                argument.Parse("x")
+                new RootCommand { argument }.Parse("x")
                         .Errors
                         .Should()
                         .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
@@ -147,7 +147,7 @@ namespace System.CommandLine.Tests
                     return null;
                 }, true);
 
-                argument.Parse("")
+                new RootCommand { argument }.Parse("")
                         .Errors
                         .Should()
                         .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests
                         return null;
                     }, true);
 
-                option.Parse("")
+                new RootCommand { option }.Parse("")
                       .Errors
                       .Should()
                       .ContainSingle()
@@ -183,7 +183,7 @@ namespace System.CommandLine.Tests
             {
                 var argument = new Argument<int>(result => int.Parse(result.Tokens.Single().Value));
 
-                argument.Parse("123")
+                new RootCommand { argument }.Parse("123")
                         .GetValue(argument)
                         .Should()
                         .Be(123);
@@ -194,7 +194,7 @@ namespace System.CommandLine.Tests
             {
                 var argument = new Argument<IEnumerable<int>>(result => result.Tokens.Single().Value.Split(',').Select(int.Parse));
 
-                argument.Parse("1,2,3")
+                new RootCommand { argument }.Parse("1,2,3")
                         .GetValue(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
@@ -208,7 +208,7 @@ namespace System.CommandLine.Tests
                     return result.Tokens.Select(t => int.Parse(t.Value)).ToArray();
                 });
 
-                argument.Parse("1 2 3")
+                new RootCommand { argument }.Parse("1 2 3")
                         .GetValue(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
@@ -222,7 +222,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrMore
                 };
 
-                argument.Parse("1 2 3")
+                new RootCommand { argument }.Parse("1 2 3")
                         .GetValue(argument)
                         .Should()
                         .Be(6);
@@ -244,7 +244,8 @@ namespace System.CommandLine.Tests
                         }, isDefault: true)
                 };
 
-                command.Parse("");
+                CommandLineConfiguration simpleConfig = new (command);
+                command.Parse("", simpleConfig);
 
                 argumentResult
                     .Parent
@@ -375,7 +376,7 @@ namespace System.CommandLine.Tests
                 var argument = new Argument<int>(_ => 789, true);
                 argument.SetDefaultValue(123);
 
-                var result = argument.Parse("");
+                var result = new RootCommand { argument }.Parse("");
 
                 result.GetValue(argument)
                       .Should()
@@ -653,7 +654,7 @@ namespace System.CommandLine.Tests
                         return null;
                     });
 
-                 argument.Invoking(a => a.Parse("1 2 3"))
+                 argument.Invoking(a => new RootCommand { a }.Parse("1 2 3"))
                          .Should()
                          .Throw<ArgumentOutOfRangeException>()
                          .Which
@@ -675,7 +676,7 @@ namespace System.CommandLine.Tests
                         return null;
                     });
 
-                 argument.Invoking(a => a.Parse("1 2 3"))
+                 argument.Invoking(a => new RootCommand { a }.Parse("1 2 3"))
                          .Should()
                          .Throw<InvalidOperationException>()
                          .Which

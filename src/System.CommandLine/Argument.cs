@@ -141,22 +141,5 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         string IValueDescriptor.ValueName => Name;
-
-        /// <summary>
-        /// Parses a command line string value using the argument.
-        /// </summary>
-        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
-        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
-        /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(string commandLine) =>
-            this.GetOrCreateDefaultSimpleParser().Parse(commandLine);
-
-        /// <summary>
-        /// Parses a command line string value using the argument.
-        /// </summary>
-        /// <param name="args">The string arguments to parse.</param>
-        /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(string[] args) =>
-            this.GetOrCreateDefaultSimpleParser().Parse(args);
     }
 }

@@ -19,7 +19,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
 
-            var parser = new CommandLineBuilder(
+            var config = new CommandLineBuilder(
                 new MyCommand()
                 )
                 .UseHost((builder) => {
@@ -31,7 +31,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            var result = await parser.InvokeAsync(new string[] { "--int-option", "54"});
+            var result = await config.InvokeAsync(new string[] { "--int-option", "54"});
 
             service.Value.Should().Be(54);
         }
@@ -39,7 +39,7 @@ namespace System.CommandLine.Hosting.Tests
         [Fact]
         public static async Task Parameter_is_available_in_property()
         {
-            var parser = new CommandLineBuilder(new MyCommand())
+            var config = new CommandLineBuilder(new MyCommand())
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -50,7 +50,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            var result = await parser.InvokeAsync(new string[] { "--int-option", "54"});
+            var result = await config.InvokeAsync(new string[] { "--int-option", "54"});
 
             result.Should().Be(54);
         }
@@ -62,7 +62,7 @@ namespace System.CommandLine.Hosting.Tests
 
             root.Subcommands.Add(new MyCommand());
             root.Subcommands.Add(new MyOtherCommand());
-            var parser = new CommandLineBuilder(root)
+            var config = new CommandLineBuilder(root)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -77,11 +77,11 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            var result = await parser.InvokeAsync(new string[] { "mycommand", "--int-option", "54" });
+            var result = await config.InvokeAsync(new string[] { "mycommand", "--int-option", "54" });
 
             result.Should().Be(54);
 
-            result = await parser.InvokeAsync(new string[] { "myothercommand", "--int-option", "54" });
+            result = await config.InvokeAsync(new string[] { "myothercommand", "--int-option", "54" });
 
             result.Should().Be(100);
         }
@@ -92,7 +92,7 @@ namespace System.CommandLine.Hosting.Tests
             var service = new MyService();
             var cmd = new RootCommand();
             cmd.Subcommands.Add(new MyOtherCommand());
-            var parser = new CommandLineBuilder(cmd)
+            var config = new CommandLineBuilder(cmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -103,7 +103,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            var result = await parser.InvokeAsync(new string[] { "myothercommand", "TEST" });
+            var result = await config.InvokeAsync(new string[] { "myothercommand", "TEST" });
 
             service.StringValue.Should().Be("TEST");
         }
@@ -116,7 +116,7 @@ namespace System.CommandLine.Hosting.Tests
             var cmd = new RootCommand();
             cmd.Subcommands.Add(new MyCommand());
             cmd.Subcommands.Add(new MyOtherCommand());
-            var parser = new CommandLineBuilder(cmd)
+            var config = new CommandLineBuilder(cmd)
                          .UseHost((builder) => {
                              builder.ConfigureServices(services =>
                              {
@@ -127,10 +127,10 @@ namespace System.CommandLine.Hosting.Tests
                          })
                          .Build();
 
-            await parser.InvokeAsync(new string[] { "mycommand", "--int-option", "54" });
+            await config.InvokeAsync(new string[] { "mycommand", "--int-option", "54" });
             service.Value.Should().Be(54);
 
-            await parser.InvokeAsync(new string[] { "myothercommand", "TEST" });
+            await config.InvokeAsync(new string[] { "myothercommand", "TEST" });
             service.StringValue.Should().Be("TEST");
         }
 

@@ -13,16 +13,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_result_diagram_helps_explain_parse_operation()
         {
-            var parser = new Parser(
+            Command command = 
                 new Command(
                     "the-command")
                 {
                     new Option<string>("-x"),
                     new Option<bool>("-y"),
                     new Argument<string[]>()
-                });
+                };
 
-            var result = parser.Parse("the-command -x one -y two three");
+            var result = command.Parse("the-command -x one -y two three");
 
             result.Diagram()
                   .Should()

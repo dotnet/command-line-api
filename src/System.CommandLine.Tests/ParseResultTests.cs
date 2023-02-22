@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasOption_can_be_used_to_check_the_presence_of_an_option()
+        public void FindResult_can_be_used_to_check_the_presence_of_an_option()
         {
             var option = new Option<bool>(new[] { "-h", "--help" });
 
@@ -36,11 +36,11 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -h");
 
-            result.HasOption(option).Should().BeTrue();
+            result.FindResultFor(option).Should().NotBeNull();
         }
 
         [Fact]
-        public void HasOption_can_be_used_to_check_the_presence_of_an_implicit_option()
+        public void FindResultFor_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
             var option = new Option<int>(new[] { "-c", "--count" }, () => 5);
             var command = new Command("the-command")
@@ -50,7 +50,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command");
 
-            result.HasOption(option).Should().BeTrue();
+            result.FindResultFor(option).Should().NotBeNull();
         }
 
         [Fact]
@@ -74,12 +74,12 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var result = new Parser(command).Parse("outer inner-one inner-two");
+            var result = Parser.Parse(command, "outer inner-one inner-two");
 
             result.CommandResult.Command.Name.Should().Be("inner-one");
             result.Errors.Count.Should().Be(1);
 
-            var result2 = new Parser(command).Parse("outer inner-two inner-one");
+            var result2 = Parser.Parse(command, "outer inner-two inner-one");
 
             result2.CommandResult.Command.Name.Should().Be("inner-two");
             result2.Errors.Count.Should().Be(1);
@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
                 midCommand2
             };
 
-            var result = new Parser(rootCommand).Parse("root midCommand2 leafCommand --");
+            var result = Parser.Parse(rootCommand, "root midCommand2 leafCommand --");
 
             var completions = result.GetCompletions();
 

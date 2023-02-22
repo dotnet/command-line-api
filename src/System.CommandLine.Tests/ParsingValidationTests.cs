@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("-x");
             option.AcceptOnlyFromAmong("this", "that", "the-other-thing");
 
-            var result = option.Parse("-x none-of-those");
+            var result = new RootCommand { option }.Parse("-x none-of-those");
 
             result.Errors
                   .Select(e => e.Message)
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests
             var option = new Option<string>("-x");
             option.AcceptOnlyFromAmong("this", "that");
 
-            var result = option.Parse("-x something_else");
+            var result = new RootCommand { option }.Parse("-x something_else");
 
             result.Errors
                   .Where(e => e.SymbolResult != null)
@@ -210,7 +210,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("-x");
 
-            var result = option.Parse("-x");
+            var result = new RootCommand { option }.Parse("-x");
 
             result.Errors
                   .Should()
@@ -311,16 +311,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
-            var parser = new Parser(
+            var command =
                 new Command("the-command")
                 {
                     new Option<bool>("-x")
                     {
                         Arity = ArgumentArity.Zero
                     }
-                });
+                };
 
-            var result = parser.Parse("the-command -x some-arg");
+            var result = command.Parse("the-command -x some-arg");
 
             _output.WriteLine(result.ToString());
 
@@ -561,7 +561,7 @@ namespace System.CommandLine.Tests
                 }
             });
 
-            var result = argument.Parse("-1");
+            var result = new RootCommand() { argument }.Parse("-1");
 
             result.Errors
                   .Should()
@@ -585,7 +585,7 @@ namespace System.CommandLine.Tests
                 }
             });
 
-            var result = option.Parse("-x -1");
+            var result = new RootCommand { option }.Parse("-x -1");
 
             result.Errors
                   .Should()
@@ -1162,7 +1162,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x", () => 123);
 
-            var result = option.Parse("-x");
+            var result = new RootCommand { option }.Parse("-x");
 
             result.Errors
                   .Select(e => e.Message)

@@ -79,39 +79,5 @@ namespace System.CommandLine.Tests
             
             console.Should().ShowHelp();
         }
-
-        [Fact]
-        public void Invoke_extension_method_reuses_implicit_parser_instance()
-        {
-            List<Parser> parsers = new();
-            var command = new Command("x");
-
-            command.SetHandler(context => parsers.Add(context.ParseResult.Parser));
-
-            command.Invoke("");
-            command.Invoke("");
-
-            var parser1 = parsers[0];
-            var parser2 = parsers[1];
-
-            parser1.Should().BeSameAs(parser2);
-        }
-
-        [Fact]
-        public void Parse_and_Invoke_extension_methods_use_different_implicit_parsers()
-        {
-            var command = new Command("x");
-
-            Parser implicitParserForInvoking = null;
-            Parser implicitParserForParsing = null;
-
-            command.SetHandler(context => implicitParserForInvoking = context.ParseResult.Parser);
-
-            command.Invoke("");
-
-            implicitParserForParsing = command.Parse("").Parser;
-
-            implicitParserForInvoking.Should().NotBeSameAs(implicitParserForParsing);
-        }
     }
 }
