@@ -453,12 +453,14 @@ namespace System.CommandLine.Tests
                    .BeEquivalentTo(
                        result2,
                        x => x.IgnoringCyclicReferences()
-                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal))
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.PrivateProtected)));
             result1.Should()
                    .BeEquivalentTo(
                        result3,
                        x => x.IgnoringCyclicReferences()
-                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal)));
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.Internal))
+                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.PrivateProtected)));
         }
 
         [Theory]
