@@ -18,7 +18,7 @@ namespace System.CommandLine.Parsing
         /// <param name="arguments">The string array typically passed to a program's <c>Main</c> method.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
-        public static ParseResult Parse(Command command, IReadOnlyList<string>? arguments, CommandLineConfiguration? configuration = null)
+        public static ParseResult Parse(Command command, IReadOnlyList<string> arguments, CommandLineConfiguration? configuration = null)
             => Parse(command, arguments, null, configuration);
 
         /// <summary>
@@ -40,11 +40,15 @@ namespace System.CommandLine.Parsing
 
         private static ParseResult Parse(
             Command command,
-            IReadOnlyList<string>? arguments,
+            IReadOnlyList<string> arguments,
             string? rawInput,
             CommandLineConfiguration? configuration)
         {
-            arguments ??= Array.Empty<string>();
+            if (arguments is null)
+            {
+                throw new ArgumentNullException(nameof(arguments));
+            }
+
             configuration ??= CommandLineConfiguration.CreateBuilder(command).UseDefaults().Build();
 
             arguments.Tokenize(

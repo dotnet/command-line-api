@@ -54,7 +54,7 @@ System.CommandLine
     public System.Void Add(Symbol symbol)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
-    public ParseResult Parse(System.String[] args, CommandLineConfiguration configuration = null)
+    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> arguments, CommandLineConfiguration configuration = null)
     public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
