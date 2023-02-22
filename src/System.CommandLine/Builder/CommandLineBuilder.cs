@@ -47,7 +47,6 @@ namespace System.CommandLine
         // (because each struct is of a different size)
         // that is why we don't use List<ValueTuple> for middleware
         private List<Tuple<InvocationMiddleware, int>>? _middlewareList;
-        private LocalizationResources? _localizationResources;
         private Action<HelpContext>? _customizeHelpBuilder;
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
 
@@ -90,12 +89,6 @@ namespace System.CommandLine
 
         internal int? MaxHelpWidth;
 
-        internal LocalizationResources LocalizationResources
-        {
-            get => _localizationResources ??= LocalizationResources.Instance;
-            set => _localizationResources = value;
-        }
-
         internal TryReplaceToken? TokenReplacer;
 
         /// <summary>
@@ -114,7 +107,6 @@ namespace System.CommandLine
                 maxLevenshteinDistance: MaxLevenshteinDistance,
                 exceptionHandler: ExceptionHandler,
                 processTerminationTimeout: ProcessTerminationTimeout,
-                resources: LocalizationResources,
                 middlewarePipeline: _middlewareList is null
                                         ? Array.Empty<InvocationMiddleware>()
                                         : GetMiddleware(),

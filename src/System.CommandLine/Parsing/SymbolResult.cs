@@ -31,11 +31,6 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public IReadOnlyList<Token> Tokens => _tokens is not null ? _tokens : Array.Empty<Token>();
 
-        /// <summary>
-        /// Localization resources used to produce messages for this symbol result.
-        /// </summary>
-        public LocalizationResources LocalizationResources => SymbolResultTree.LocalizationResources;
-
         internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
 
         /// <summary>

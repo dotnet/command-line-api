@@ -52,12 +52,12 @@ namespace System.CommandLine.Binding
 
                 if (completionItems.Length > 0)
                 {
-                    return argumentResult.LocalizationResources.ArgumentConversionCannotParseForCommand(
+                    return LocalizationResources.ArgumentConversionCannotParseForCommand(
                         value, alias, expectedType, completionItems.Select(ci => ci.Label));
                 }
                 else
                 {
-                    return argumentResult.LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
+                    return LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
                 }
             }
             else if (argumentResult.Parent is OptionResult optionResult)
@@ -67,17 +67,17 @@ namespace System.CommandLine.Binding
 
                 if (completionItems.Length > 0)
                 {
-                    return argumentResult.LocalizationResources.ArgumentConversionCannotParseForOption(
+                    return LocalizationResources.ArgumentConversionCannotParseForOption(
                         value, alias, expectedType, completionItems.Select(ci => ci.Label));
                 }
                 else
                 {
-                    return argumentResult.LocalizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
+                    return LocalizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
                 }
             }
 
             // fake ArgumentResults with no Parent
-            return argumentResult.LocalizationResources.ArgumentConversionCannotParse(value, expectedType);
+            return LocalizationResources.ArgumentConversionCannotParse(value, expectedType);
         }
     }
 }

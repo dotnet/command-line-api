@@ -63,7 +63,6 @@ namespace System.CommandLine
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
         /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
-        /// <param name="resources">Provide custom validation messages.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
         /// <param name="tokenReplacer">Replaces the specified token with any number of other tokens.</param>
@@ -72,12 +71,11 @@ namespace System.CommandLine
             bool enablePosixBundling = true,
             bool enableDirectives = true,
             bool enableTokenReplacement = true,
-            LocalizationResources? resources = null,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
             : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, null, false, null, 0, null,
-                  resources, middlewarePipeline, helpBuilderFactory, tokenReplacer, null)
+                  middlewarePipeline, helpBuilderFactory, tokenReplacer, null)
         {
         }
 
@@ -92,7 +90,6 @@ namespace System.CommandLine
             int? parseErrorReportingExitCode,
             int maxLevenshteinDistance,
             TimeSpan? processTerminationTimeout,
-            LocalizationResources? resources,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory,
             TryReplaceToken? tokenReplacer,
@@ -108,7 +105,6 @@ namespace System.CommandLine
             ParseErrorReportingExitCode = parseErrorReportingExitCode;
             MaxLevenshteinDistance = maxLevenshteinDistance;
             ProcessTerminationTimeout = processTerminationTimeout;
-            LocalizationResources = resources ?? LocalizationResources.Instance;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;
@@ -126,7 +122,7 @@ namespace System.CommandLine
                 maxWidth = systemConsole.GetWindowWidth();
             }
 
-            return new HelpBuilder(context.ParseResult.CommandResult.LocalizationResources, maxWidth);
+            return new HelpBuilder(maxWidth);
         }
 
         /// <summary>
@@ -150,11 +146,6 @@ namespace System.CommandLine
         /// </remarks>
         public bool EnableTokenReplacement { get; }
 
-        /// <summary>
-        /// Gets the localizable resources.
-        /// </summary>
-        public LocalizationResources LocalizationResources { get; }
-
         internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= context => DefaultHelpBuilderFactory(context);
 
         internal TryReplaceToken? TokenReplacer =>
@@ -168,7 +159,6 @@ namespace System.CommandLine
             out string? errorMessage) =>
             StringExtensions.TryReadResponseFile(
                 tokenToReplace,
-                LocalizationResources,
                 out replacementTokens,
                 out errorMessage);
 

@@ -46,7 +46,7 @@ public partial class ParserTests
             parserResult
                .Errors
                .Should()
-               .ContainSingle(e => e.Message == LocalizationResources.Instance.UnrecognizedCommandOrArgument(RootCommand.ExecutablePath));
+               .ContainSingle(e => e.Message == LocalizationResources.UnrecognizedCommandOrArgument(RootCommand.ExecutablePath));
         }
 
         [Fact]

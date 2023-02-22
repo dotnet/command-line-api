@@ -45,11 +45,6 @@ namespace System.CommandLine.Invocation
         public HelpBuilder HelpBuilder => _helpBuilder ??= ParseResult.Configuration.HelpBuilderFactory(BindingContext);
 
         /// <summary>
-        /// Provides localizable strings for help and error messages.
-        /// </summary>
-        public LocalizationResources LocalizationResources => ParseResult.Configuration.LocalizationResources;
-
-        /// <summary>
         /// The parse result for the current invocation.
         /// </summary>
         public ParseResult ParseResult { get; set; }

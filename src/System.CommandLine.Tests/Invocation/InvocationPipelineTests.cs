@@ -320,7 +320,7 @@ namespace System.CommandLine.Tests.Invocation
                          .UseHelpBuilder(context =>
                          {
                              factoryWasCalled = true;
-                             return createdHelpBuilder = new HelpBuilder(context.ParseResult.Configuration.LocalizationResources);
+                             return createdHelpBuilder = new HelpBuilder();
                          })
                          .Build();
 

@@ -192,7 +192,7 @@ ERR:
                     context.Console.ResetTerminalForegroundColor();
                     context.Console.SetTerminalForegroundRed();
 
-                    context.Console.Error.Write(context.LocalizationResources.ExceptionHandlerHeader());
+                    context.Console.Error.Write(LocalizationResources.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
                     context.Console.ResetTerminalForegroundColor();
@@ -215,7 +215,7 @@ ERR:
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         public CommandLineBuilder UseHelp(int? maxWidth = null)
         {
-            return UseHelp(new HelpOption(() => LocalizationResources), maxWidth);
+            return UseHelp(new HelpOption(), maxWidth);
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ ERR:
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         public CommandLineBuilder UseHelp(params string[] helpAliases)
         {
-            return UseHelp(new HelpOption(helpAliases, () => LocalizationResources));
+            return UseHelp(new HelpOption(helpAliases));
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ ERR:
 
             if (HelpOption is null)
             {
-                UseHelp(new HelpOption(() => LocalizationResources), maxWidth);
+                UseHelp(new HelpOption(), maxWidth);
             }
 
             return this;
@@ -363,17 +363,6 @@ ERR:
         }
 
         /// <summary>
-        /// Specifies localization resources to be used when displaying help, error messages, and other user-facing strings.
-        /// </summary>
-        /// <param name="validationMessages">The localizations resources to use.</param>
-        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder UseLocalizationResources(LocalizationResources validationMessages)
-        {
-            LocalizationResources = validationMessages;
-            return this;
-        }
-
-        /// <summary>
         /// Specifies a delegate used to replace any token prefixed with <code>@</code> with zero or more other tokens, prior to parsing. 
         /// </summary>
         /// <param name="replaceToken">Replaces the specified token with any number of other tokens.</param>
@@ -394,7 +383,7 @@ ERR:
         {
             if (VersionOption is null)
             {
-                OverwriteOrAdd(Command, VersionOption = new(this));
+                OverwriteOrAdd(Command, VersionOption = new());
             }
 
             return this;
@@ -407,7 +396,7 @@ ERR:
         {
             if (VersionOption is null)
             {
-                OverwriteOrAdd(Command, VersionOption = new(aliases, this));
+                OverwriteOrAdd(Command, VersionOption = new(aliases));
             }
 
             return this;
