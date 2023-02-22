@@ -10,20 +10,19 @@ namespace System.CommandLine
     public sealed class ParseDirective : Directive
     {
         /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
-        public ParseDirective(int errorExitCode = 1) : base("parse", syncHandler: SyncHandler)
+        public ParseDirective(int errorExitCode = 1) : base("parse")
         {
+            SetSynchronousHandler(SyncHandler);
             ErrorExitCode = errorExitCode;
         }
 
         internal int ErrorExitCode { get; }
 
-        private static void SyncHandler(InvocationContext context)
+        private void SyncHandler(InvocationContext context)
         {
-            ParseDirective symbol = (ParseDirective)context.ParseResult.Symbol;
-
             var parseResult = context.ParseResult;
             context.Console.Out.WriteLine(parseResult.Diagram());
-            context.ExitCode = parseResult.Errors.Count == 0 ? 0 : symbol.ErrorExitCode;
+            context.ExitCode = parseResult.Errors.Count == 0 ? 0 : ErrorExitCode;
         }
     }
 }

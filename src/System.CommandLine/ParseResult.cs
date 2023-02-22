@@ -25,7 +25,6 @@ namespace System.CommandLine
 
         internal ParseResult(
             CommandLineConfiguration configuration,
-            Symbol symbol,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<Token> tokens,
@@ -35,7 +34,6 @@ namespace System.CommandLine
             ICommandHandler? handler = null)
         {
             Configuration = configuration;
-            Symbol = symbol;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             _handler = handler;
@@ -85,11 +83,6 @@ namespace System.CommandLine
         /// Gets the tokens identified while parsing command line input.
         /// </summary>
         public IReadOnlyList<Token> Tokens { get; }
-
-        /// <summary>
-        /// Gets the parsed Symbol which provided Handler. Currently it can be only a Directive or a Command.
-        /// </summary>
-        internal Symbol Symbol { get; }
 
         /// <summary>
         /// Holds the value of a complete command line input prior to splitting and tokenization, when provided.

@@ -48,15 +48,35 @@ namespace System.CommandLine
 
             if (syncHandler is not null)
             {
-                Handler = new AnonymousCommandHandler(syncHandler);
+                SetSynchronousHandler(syncHandler);
             }
             else if (asyncHandler is not null)
             {
-                Handler = new AnonymousCommandHandler(asyncHandler);
+                SetAsynchronousHandler(asyncHandler);
             }
         }
 
-        internal ICommandHandler? Handler { get; }
+        public void SetAsynchronousHandler(Func<InvocationContext, CancellationToken, Task> handler)
+        {
+            if (handler is null)
+            {
+                throw new ArgumentNullException(nameof(handler));
+            }
+
+            Handler = new AnonymousCommandHandler(handler);
+        }
+
+        public void SetSynchronousHandler(Action<InvocationContext> handler)
+        {
+            if (handler is null)
+            {
+                throw new ArgumentNullException(nameof(handler));
+            }
+
+            Handler = new AnonymousCommandHandler(handler);
+        }
+
+        internal ICommandHandler? Handler { get; private set; }
 
         private protected override string DefaultName => throw new NotImplementedException();
 

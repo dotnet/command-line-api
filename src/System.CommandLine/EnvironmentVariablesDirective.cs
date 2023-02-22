@@ -8,14 +8,14 @@ namespace System.CommandLine
     /// </summary>
     public sealed class EnvironmentVariablesDirective : Directive
     {
-        public EnvironmentVariablesDirective() : base("env", syncHandler: SyncHandler)
+        public EnvironmentVariablesDirective() : base("env")
         {
+            SetSynchronousHandler(SyncHandler);
         }
 
-        private static void SyncHandler(InvocationContext context)
+        private void SyncHandler(InvocationContext context)
         {
-            EnvironmentVariablesDirective symbol = (EnvironmentVariablesDirective)context.ParseResult.Symbol;
-            DirectiveResult directiveResult = context.ParseResult.FindResultFor(symbol)!;
+            DirectiveResult directiveResult = context.ParseResult.FindResultFor(this)!;
 
             for (int i = 0; i < directiveResult.Values.Count; i++)
             {

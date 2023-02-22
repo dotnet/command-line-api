@@ -11,15 +11,15 @@ namespace System.CommandLine
     /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
     public sealed class SuggestDirective : Directive
     {
-        public SuggestDirective() : base("suggest", syncHandler: SyncHandler)
+        public SuggestDirective() : base("suggest")
         {
+            SetSynchronousHandler(SyncHandler);
         }
 
-        private static void SyncHandler(InvocationContext context)
+        private void SyncHandler(InvocationContext context)
         {
             ParseResult parseResult = context.ParseResult;
-            SuggestDirective symbol = (SuggestDirective)parseResult.Symbol;
-            string? parsedValues = parseResult.FindResultFor(symbol)!.Values.SingleOrDefault();
+            string? parsedValues = parseResult.FindResultFor(this)!.Values.SingleOrDefault();
             string? rawInput = parseResult.CommandLineText;
 
             int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;

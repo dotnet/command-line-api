@@ -19,7 +19,6 @@ namespace System.CommandLine.Parsing
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested, _isParseRequested;
         private ICommandHandler? _handler;
-        private Symbol? _symbol;
 
         public ParseOperation(
             List<Token> tokens,
@@ -76,7 +75,6 @@ namespace System.CommandLine.Parsing
 
             return new (
                 _configuration,
-                _symbol ?? _innermostCommandResult.Command,
                 _rootCommandResult,
                 _innermostCommandResult,
                 _tokens,
@@ -323,7 +321,6 @@ namespace System.CommandLine.Parsing
                 }
 
                 _handler = directive.Handler;
-                _symbol = directive;
 
                 if (directive is ParseDirective)
                 {
