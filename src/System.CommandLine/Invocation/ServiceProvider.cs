@@ -8,17 +8,16 @@ using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
-    internal class ServiceProvider : IServiceProvider
+    internal sealed class ServiceProvider : IServiceProvider
     {
         private readonly Dictionary<Type, Func<IServiceProvider, object?>> _services;
 
-        public ServiceProvider(BindingContext bindingContext)
+        internal ServiceProvider(BindingContext bindingContext)
         {
             _services = new Dictionary<Type, Func<IServiceProvider, object?>>
                         {
                             [typeof(ParseResult)] = _ => bindingContext.ParseResult,
                             [typeof(IConsole)] = _ => bindingContext.Console,
-                            [typeof(CancellationToken)] = _ => CancellationToken.None,
                             [typeof(HelpBuilder)] = _ => bindingContext.ParseResult.Parser.Configuration.HelpBuilderFactory(bindingContext),
                             [typeof(BindingContext)] = _ => bindingContext
                         };

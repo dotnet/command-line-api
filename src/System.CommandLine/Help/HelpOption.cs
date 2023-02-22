@@ -8,14 +8,13 @@ namespace System.CommandLine.Help
 {
     internal class HelpOption : Option<bool>
     {
-        private string? _description;
-
-        public HelpOption(string[] aliases)
-            : base(aliases, null, new Argument<bool> { Arity = ArgumentArity.Zero })
+        internal HelpOption(string[] aliases)
+            : base(aliases, LocalizationResources.HelpOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
         {
+            AppliesToSelfAndChildren = true;
         }
 
-        public HelpOption() : this(new[]
+        internal HelpOption() : this(new[]
         {
             "-h",
             "/h",
@@ -24,12 +23,6 @@ namespace System.CommandLine.Help
             "/?"
         })
         {
-        }
-
-        public override string? Description
-        {
-            get => _description ??= LocalizationResources.HelpOptionDescription();
-            set => _description = value;
         }
 
         internal override bool IsGreedy => false;
@@ -42,14 +35,12 @@ namespace System.CommandLine.Help
         {
             var output = context.Console.Out.CreateTextWriter();
 
-            var helpContext = new HelpContext(context.BindingContext.HelpBuilder,
+            var helpContext = new HelpContext(context.HelpBuilder,
                                               context.ParseResult.CommandResult.Command,
                                               output,
                                               context.ParseResult);
 
-            context.BindingContext
-                   .HelpBuilder
-                   .Write(helpContext);
+            context.HelpBuilder.Write(helpContext);
         }
     }
 }

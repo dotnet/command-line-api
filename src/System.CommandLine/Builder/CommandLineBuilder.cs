@@ -41,6 +41,8 @@ namespace System.CommandLine
         /// <inheritdoc cref="CommandLineConfiguration.ExceptionHandler"/>
         internal Action<Exception, InvocationContext>? ExceptionHandler;
 
+        internal TimeSpan? ProcessTerminationTimeout;
+
         // for every generic type with type argument being struct JIT needs to compile a dedicated version
         // (because each struct is of a different size)
         // that is why we don't use List<ValueTuple> for middleware
@@ -105,6 +107,7 @@ namespace System.CommandLine
                     parseErrorReportingExitCode: ParseErrorReportingExitCode,
                     maxLevenshteinDistance: MaxLevenshteinDistance,
                     exceptionHandler: ExceptionHandler,
+                    processTerminationTimeout: ProcessTerminationTimeout,
                     middlewarePipeline: _middlewareList is null
                                             ? Array.Empty<InvocationMiddleware>()
                                             : GetMiddleware(),

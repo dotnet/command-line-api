@@ -21,7 +21,6 @@ namespace System.CommandLine.Binding
             InvocationContext = invocationContext;
             ServiceProvider = new ServiceProvider(this);
             ServiceProvider.AddService(_ => InvocationContext);
-            ServiceProvider.AddService(_ => InvocationContext.GetCancellationToken());
         }
 
         internal InvocationContext InvocationContext { get; }

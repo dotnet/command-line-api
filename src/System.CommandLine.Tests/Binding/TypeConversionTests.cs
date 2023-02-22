@@ -238,21 +238,6 @@ namespace System.CommandLine.Tests.Binding
                 .Be(null);
         }
 
-        [Fact] // https://github.com/dotnet/command-line-api/issues/1647
-        public void Generic_option_bool_parses_when_passed_to_non_generic_GetValueForOption()
-        {
-            var option = new Option<bool>("-b");
-
-            var cmd = new RootCommand
-            {
-                option
-            };
-
-            var parseResult = cmd.Parse("-b");
-
-            parseResult.GetValue((Option)option).Should().Be(true);
-        }
-
         [Fact]
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {

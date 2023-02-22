@@ -115,10 +115,10 @@ namespace System.CommandLine
             }
 
             builder.Append($@"
-            public int Invoke(global::System.CommandLine.Invocation.InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();");
+            public int Invoke(global::System.CommandLine.Invocation.InvocationContext context) => InvokeAsync(context, global::System.Threading.CancellationToken.None).GetAwaiter().GetResult();");
 
             builder.Append($@"
-            public async global::System.Threading.Tasks.Task<int> InvokeAsync(global::System.CommandLine.Invocation.InvocationContext context)
+            public async global::System.Threading.Tasks.Task<int> InvokeAsync(global::System.CommandLine.Invocation.InvocationContext context, global::System.Threading.CancellationToken cancellationToken)
             {{");
             builder.Append($@"
                 {invocation.InvokeContents()}");

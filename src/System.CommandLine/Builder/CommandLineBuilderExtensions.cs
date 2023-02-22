@@ -26,7 +26,7 @@ namespace System.CommandLine
         /// <param name="builder">A command line builder.</param>
         /// <param name="timeout">
         /// Optional timeout for the command to process the exit cancellation.
-        /// If not passed, or passed null or non-positive timeout (including <see cref="Timeout.InfiniteTimeSpan"/>), no timeout is enforced.
+        /// If not passed, a default timeout of 2 seconds is enforced.
         /// If positive value is passed - command is forcefully terminated after the timeout with exit code 130 (as if <see cref="CancelOnProcessTermination"/> was not called).
         /// Host enforced timeout for ProcessExit event cannot be extended - default is 2 seconds: https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-6.0.
         /// </param>
@@ -35,87 +35,7 @@ namespace System.CommandLine
             this CommandLineBuilder builder,
             TimeSpan? timeout = null)
         {
-            // https://tldp.org/LDP/abs/html/exitcodes.html - 130 - script terminated by ctrl-c
-            const int SIGINT_EXIT_CODE = 130;
-
-            if (timeout == null || timeout.Value < TimeSpan.Zero)
-            {
-                timeout = Timeout.InfiniteTimeSpan;
-            }
-
-            builder.AddMiddleware(async (context, next) =>
-            {
-                ConsoleCancelEventHandler? consoleHandler = null;
-                EventHandler? processExitHandler = null;
-                ManualResetEventSlim blockProcessExit = new(initialState: false);
-
-                processExitHandler = (_, _) =>
-                {
-                    // Cancel asynchronously not to block the handler (as then the process might possibly run longer then what was the requested timeout)
-                    Task timeoutTask = Task.Delay(timeout.Value);
-                    Task cancelTask = Task.Factory.StartNew(context.Cancel);
-
-                    // The process exits as soon as the event handler returns.
-                    // We provide a return value using Environment.ExitCode
-                    // because Main will not finish executing.
-                    // Wait for the invocation to finish.
-                    if (!blockProcessExit.Wait(timeout > TimeSpan.Zero
-                            ? timeout.Value
-                            : Timeout.InfiniteTimeSpan))
-                    {
-                        context.ExitCode = SIGINT_EXIT_CODE;
-                    }
-                    // Let's block here (to prevent process bailing out) for the rest of the timeout (if any), for cancellation to finish (if it hasn't yet)
-                    else if (Task.WaitAny(timeoutTask, cancelTask) == 0)
-                    {
-                        // The async cancellation didn't finish in timely manner
-                        context.ExitCode = SIGINT_EXIT_CODE;
-                    }
-                    ExitCode = context.ExitCode;
-                };
-                // Default limit for ProcesExit handler is 2 seconds
-                //  https://docs.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-6.0
-                consoleHandler = (_, args) =>
-                {
-                    // Stop the process from terminating.
-                    // Since the context was cancelled, the invocation should
-                    // finish and Main will return.
-                    args.Cancel = true;
-
-                    // If timeout was requested - make sure cancellation processing (or any other activity within the current process)
-                    //  doesn't keep the process running after the timeout
-                    if (timeout! > TimeSpan.Zero)
-                    {
-                        Task
-                            .Delay(timeout.Value, default)
-                            .ContinueWith(t =>
-                            {
-                                // Prevent our ProcessExit from intervene and block the exit
-                                AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
-                                Environment.Exit(SIGINT_EXIT_CODE);
-                            }, (CancellationToken)default);
-                    }
-
-                    // Cancel synchronously here - no need to perform it asynchronously as the timeout is already running (and would kill the process if needed),
-                    //  plus we cannot wait only on the cancellation (e.g. via `Task.Factory.StartNew(cts.Cancel).Wait(cancelationProcessingTimeout.Value)`)
-                    //  as we need to abort any other possible execution within the process - even outside the context of cancellation processing
-                    context.Cancel();
-                };
-
-                Console.CancelKeyPress += consoleHandler;
-                AppDomain.CurrentDomain.ProcessExit += processExitHandler;
-
-                try
-                {
-                    await next(context);
-                }
-                finally
-                {
-                    Console.CancelKeyPress -= consoleHandler;
-                    AppDomain.CurrentDomain.ProcessExit -= processExitHandler;
-                    blockProcessExit?.Set();
-                }
-            }, MiddlewareOrderInternal.Startup);
+            builder.ProcessTerminationTimeout = timeout ?? TimeSpan.FromSeconds(2);
 
             return builder;
         }
@@ -175,7 +95,7 @@ namespace System.CommandLine
         public static CommandLineBuilder RegisterWithDotnetSuggest(
             this CommandLineBuilder builder)
         {
-            builder.AddMiddleware(async (context, next) =>
+            builder.AddMiddleware(async (context, cancellationToken, next) =>
             {
                 var feature = new FeatureRegistration("dotnet-suggest-registration");
 
@@ -195,7 +115,7 @@ namespace System.CommandLine
                             stdOut: value => stdOut.Append(value),
                             stdErr: value => stdOut.Append(value));
 
-                        await dotnetSuggestProcess.CompleteAsync();
+                        await dotnetSuggestProcess.CompleteAsync(cancellationToken);
 
                         return $@"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}
 OUT:
@@ -215,7 +135,7 @@ ERR:
                     }
                 });
 
-                await next(context);
+                await next(context, cancellationToken);
             }, MiddlewareOrderInternal.RegisterWithDotnetSuggest);
 
             return builder;
@@ -364,7 +284,7 @@ ERR:
             if (builder.HelpOption is null)
             {
                 builder.HelpOption = helpOption;
-                builder.Command.AddGlobalOption(helpOption);
+                builder.Command.Options.Add(helpOption);
                 builder.MaxHelpWidth = maxWidth;
             }
             return builder;
@@ -419,10 +339,10 @@ ERR:
             Action<InvocationContext> onInvoke,
             MiddlewareOrder order = MiddlewareOrder.Default)
         {
-            builder.AddMiddleware(async (context, next) =>
+            builder.AddMiddleware(async (context, cancellationToken, next) =>
             {
                 onInvoke(context);
-                await next(context);
+                await next(context, cancellationToken);
             }, order);
 
             return builder;
@@ -520,7 +440,7 @@ ERR:
                 return builder;
             }
 
-            builder.VersionOption = new (builder);
+            builder.VersionOption = new ();
             builder.Command.Options.Add(builder.VersionOption);
 
             return builder;
@@ -538,7 +458,7 @@ ERR:
                 return builder;
             }
 
-            builder.VersionOption = new (aliases, builder);
+            builder.VersionOption = new (aliases);
             builder.Command.Options.Add(builder.VersionOption);
 
             return builder;

@@ -281,9 +281,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void AddGlobalOption_updates_Options_property()
         {
-            var option = new Option<string>("-x");
+            var option = new Option<string>("-x") { AppliesToSelfAndChildren = true };
             var command = new Command("mycommand");
-            command.AddGlobalOption(option);
+            command.Options.Add(option);
 
             command.Options
                    .Should()
@@ -303,7 +303,8 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEmpty();
 
-            command.AddGlobalOption(option);
+            option.AppliesToSelfAndChildren = true;
+            command.Options.Add(option);
 
             command.Options
                 .Should()

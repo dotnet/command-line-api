@@ -453,7 +453,7 @@ namespace System.CommandLine.Parsing
                     Option option = options[childIndex];
                     foreach (string childAlias in option.Aliases)
                     {
-                        if (!option.IsGlobal || !tokens.ContainsKey(childAlias))
+                        if (!option.AppliesToSelfAndChildren || !tokens.ContainsKey(childAlias))
                         {
                             tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
                         }
@@ -475,7 +475,7 @@ namespace System.CommandLine.Parsing
                             for (var i = 0; i < parentCommand.Options.Count; i++)
                             {
                                 Option option = parentCommand.Options[i];
-                                if (option.IsGlobal)
+                                if (option.AppliesToSelfAndChildren)
                                 {
                                     foreach (var childAlias in option.Aliases)
                                     {

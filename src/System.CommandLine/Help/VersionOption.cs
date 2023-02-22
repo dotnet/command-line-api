@@ -10,20 +10,15 @@ namespace System.CommandLine.Help
 {
     internal class VersionOption : Option<bool>
     {
-        private readonly CommandLineBuilder _builder;
-        private string? _description;
-
-        public VersionOption(CommandLineBuilder builder) : base("--version", null, new Argument<bool> { Arity = ArgumentArity.Zero })
+        internal VersionOption()
+            : base("--version", LocalizationResources.VersionOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
         {
-            _builder = builder;
-            
             AddValidators();
         }
 
-        public VersionOption(string[] aliases, CommandLineBuilder builder) : base(aliases)
+        internal VersionOption(string[] aliases)
+            : base(aliases, LocalizationResources.VersionOptionDescription())
         {
-            _builder = builder;
-
             AddValidators();
         }
 
@@ -48,12 +43,6 @@ namespace System.CommandLine.Help
                 OptionResult optionResult => !optionResult.IsImplicit,
                 _ => true
             };
-        }
-
-        public override string? Description
-        {
-            get => _description ??= LocalizationResources.VersionOptionDescription();
-            set => _description = value;
         }
 
         internal override bool IsGreedy => false;

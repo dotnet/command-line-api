@@ -47,6 +47,8 @@ namespace System.CommandLine
         /// </summary>
         internal readonly int MaxLevenshteinDistance;
 
+        internal readonly TimeSpan? ProcessTerminationTimeout;
+
         internal readonly IReadOnlyList<InvocationMiddleware> Middleware;
 
         private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
@@ -70,7 +72,7 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
-            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, null, false, null, 0,
+            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, null, false, null, 0, null,
                   middlewarePipeline, helpBuilderFactory, tokenReplacer, null)
         {
         }
@@ -85,6 +87,7 @@ namespace System.CommandLine
             bool enableSuggestDirective,
             int? parseErrorReportingExitCode,
             int maxLevenshteinDistance,
+            TimeSpan? processTerminationTimeout,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory,
             TryReplaceToken? tokenReplacer,
@@ -99,6 +102,7 @@ namespace System.CommandLine
             EnableSuggestDirective = enableSuggestDirective;
             ParseErrorReportingExitCode = parseErrorReportingExitCode;
             MaxLevenshteinDistance = maxLevenshteinDistance;
+            ProcessTerminationTimeout = processTerminationTimeout;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;

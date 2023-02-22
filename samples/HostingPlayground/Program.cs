@@ -12,7 +12,7 @@ namespace HostingPlayground
 {
     class Program
     {
-        static async Task Main(string[] args) => await BuildCommandLine()
+        static Task Main(string[] args) => BuildCommandLine()
             .UseHost(_ => Host.CreateDefaultBuilder(),
                 host =>
                 {

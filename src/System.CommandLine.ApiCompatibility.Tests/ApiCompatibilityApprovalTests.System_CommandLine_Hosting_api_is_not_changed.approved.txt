@@ -12,7 +12,7 @@ System.CommandLine.Hosting
     public static System.CommandLine.CommandLineBuilder UseHost(this System.CommandLine.CommandLineBuilder builder, System.Func<System.String[],Microsoft.Extensions.Hosting.IHostBuilder> hostBuilderFactory, System.Action<Microsoft.Extensions.Hosting.IHostBuilder> configureHost = null)
     public static Microsoft.Extensions.Hosting.IHostBuilder UseInvocationLifetime(this Microsoft.Extensions.Hosting.IHostBuilder host, System.CommandLine.Invocation.InvocationContext invocation, System.Action<InvocationLifetimeOptions> configureOptions = null)
   public class InvocationLifetime, Microsoft.Extensions.Hosting.IHostLifetime
-    .ctor(Microsoft.Extensions.Options.IOptions<InvocationLifetimeOptions> options, Microsoft.Extensions.Hosting.IHostEnvironment environment, Microsoft.Extensions.Hosting.IHostApplicationLifetime applicationLifetime, System.CommandLine.Invocation.InvocationContext context = null, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory = null)
+    .ctor(Microsoft.Extensions.Options.IOptions<InvocationLifetimeOptions> options, Microsoft.Extensions.Hosting.IHostEnvironment environment, Microsoft.Extensions.Hosting.IHostApplicationLifetime applicationLifetime, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory = null)
     public Microsoft.Extensions.Hosting.IHostApplicationLifetime ApplicationLifetime { get; }
     public Microsoft.Extensions.Hosting.IHostEnvironment Environment { get; }
     public InvocationLifetimeOptions Options { get; }

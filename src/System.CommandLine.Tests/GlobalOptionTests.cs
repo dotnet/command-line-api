@@ -13,9 +13,9 @@ namespace System.CommandLine.Tests
         {
             var root = new Command("parent");
 
-            var option = new Option<int>("--global");
+            var option = new Option<int>("--global") { AppliesToSelfAndChildren = true };
 
-            root.AddGlobalOption(option);
+            root.Options.Add(option);
 
             var child = new Command("child");
 
@@ -32,9 +32,10 @@ namespace System.CommandLine.Tests
             command.SetHandler(() => { });
             var requiredOption = new Option<bool>("--i-must-be-set")
             {
-                IsRequired = true
+                IsRequired = true,
+                AppliesToSelfAndChildren = true
             };
-            rootCommand.AddGlobalOption(requiredOption);
+            rootCommand.Options.Add(requiredOption);
 
             var result = rootCommand.Parse("child");
 
@@ -50,9 +51,10 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand();
             var requiredOption = new Option<bool>(new[] { "-i", "--i-must-be-set" })
             {
-                IsRequired = true
+                IsRequired = true,
+                AppliesToSelfAndChildren = true
             };
-            rootCommand.AddGlobalOption(requiredOption);
+            rootCommand.Options.Add(requiredOption);
 
             var result = rootCommand.Parse("");
 
@@ -70,9 +72,10 @@ namespace System.CommandLine.Tests
             command.SetHandler(() => { });
             var requiredOption = new Option<bool>("--i-must-be-set")
             {
-                IsRequired = true
+                IsRequired = true,
+                AppliesToSelfAndChildren = true
             };
-            rootCommand.AddGlobalOption(requiredOption);
+            rootCommand.Options.Add(requiredOption);
 
             var result = rootCommand.Parse("child --i-must-be-set");
 
@@ -84,9 +87,9 @@ namespace System.CommandLine.Tests
         {
             var root = new Command("parent");
 
-            var option = new Option<int>("--global");
+            var option = new Option<int>("--global") { AppliesToSelfAndChildren = true };
 
-            root.AddGlobalOption(option);
+            root.Options.Add(option);
 
             var child = new Command("child");
 
@@ -106,9 +109,9 @@ namespace System.CommandLine.Tests
             
             root.Subcommands.Add(firstChild);
             
-            var option = new Option<int>("--global");
+            var option = new Option<int>("--global") { AppliesToSelfAndChildren = true };
             
-            firstChild.AddGlobalOption(option);
+            firstChild.Options.Add(option);
             
             var secondChild = new Command("second");
             
