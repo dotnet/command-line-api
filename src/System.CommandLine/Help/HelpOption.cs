@@ -42,5 +42,15 @@ namespace System.CommandLine.Help
 
             context.HelpBuilder.Write(helpContext);
         }
+
+        internal HelpAction Action => new HelpAction(this);
+    }
+
+    internal class HelpAction : CliAction
+    {
+        public HelpAction(HelpOption helpOption) : base(new AnonymousCommandHandler(HelpOption.Handler))
+        {
+            
+        }
     }
 }

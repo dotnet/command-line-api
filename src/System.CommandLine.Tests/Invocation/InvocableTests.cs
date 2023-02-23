@@ -61,16 +61,18 @@ public class InvocableTests
 
         await parseResult.Action.RunAsync(_console);
 
-
-
-        // TODO (help_option_base_case) write test
-        throw new NotImplementedException();
+        _console.Out.ToString().Should().Match($"*Usage:*{RootCommand.ExecutableName}*");
     }
 
     [Fact]
-    public void subcommand_help_option_base_case()
+    public async Task subcommand_help_option_base_case()
     {
-        // TODO (help_option_base_case) write test
-        throw new NotImplementedException();
+        var root = CreateRootCommand();
+
+        var parseResult = root.Parse("one -h");
+
+        await parseResult.Action.RunAsync(_console);
+
+        _console.Out.ToString().Should().Match("*Usage:*one*");
     }
 }
