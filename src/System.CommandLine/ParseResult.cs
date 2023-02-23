@@ -255,12 +255,22 @@ namespace System.CommandLine
 
                 if (CommandResult.Command is { } command)
                 {
-                    return command.Handler;
+                    return _handler ??=command.Handler;
                 }
 
                 return null;
             }
             set => _handler = value;
+        }
+
+        public CliAction Action
+        {
+            get
+            {
+                var plan = new CliAction(Handler);
+                plan.ParseResult = this;
+                return plan;
+            }
         }
 
         private SymbolResult SymbolToComplete(int? position = null)

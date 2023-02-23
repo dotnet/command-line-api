@@ -6,7 +6,7 @@
     <TargetFrameworks>net7.0;netstandard2.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>10</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Description>This package includes a powerful command line parser and other tools for building command line applications, including:
     
     * Shell-agnostic support for command line completions

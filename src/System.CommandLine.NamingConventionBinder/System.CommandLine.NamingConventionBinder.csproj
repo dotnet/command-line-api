@@ -4,7 +4,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>System.CommandLine.NamingConventionBinder</PackageId>
     <TargetFrameworks>net7.0;netstandard2.0</TargetFrameworks>
-    <LangVersion>10</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Description>This package provides command handler support for System.CommandLine performs parameter and model binding by matching option and argument names to parameter and property names.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
