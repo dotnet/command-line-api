@@ -2,6 +2,7 @@
 using System.Linq;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
@@ -13,10 +14,21 @@ namespace System.CommandLine
     {
         public SuggestDirective() : base("suggest")
         {
-            SetSynchronousHandler(SyncHandler);
+            SetSynchronousHandler(ProvideCompletionsAndQuit);
+            SetAsynchronousHandler((context, next, cancellationToken) =>
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return Task.FromCanceled(cancellationToken);
+                }
+
+                ProvideCompletionsAndQuit(context, null);
+
+                return Task.CompletedTask;
+            });
         }
 
-        private void SyncHandler(InvocationContext context)
+        private void ProvideCompletionsAndQuit(InvocationContext context, ICommandHandler? next)
         {
             ParseResult parseResult = context.ParseResult;
             string? parsedValues = parseResult.FindResultFor(this)!.Values.SingleOrDefault();

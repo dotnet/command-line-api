@@ -108,10 +108,10 @@ System.CommandLine
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)
   public class Directive : Symbol
-    .ctor(System.String name, System.String description = null, System.Action<System.CommandLine.Invocation.InvocationContext> syncHandler = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> asyncHandler = null)
+    .ctor(System.String name, System.String description = null, System.Action<System.CommandLine.Invocation.InvocationContext,ICommandHandler> syncHandler = null, System.Func<System.CommandLine.Invocation.InvocationContext,ICommandHandler,System.Threading.CancellationToken,System.Threading.Tasks.Task> asyncHandler = null)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Void SetAsynchronousHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> handler)
-    public System.Void SetSynchronousHandler(System.Action<System.CommandLine.Invocation.InvocationContext> handler)
+    public System.Void SetAsynchronousHandler(System.Func<System.CommandLine.Invocation.InvocationContext,ICommandHandler,System.Threading.CancellationToken,System.Threading.Tasks.Task> handler)
+    public System.Void SetSynchronousHandler(System.Action<System.CommandLine.Invocation.InvocationContext,ICommandHandler> handler)
   public class EnvironmentVariablesDirective : Directive
     .ctor()
   public static class Handler

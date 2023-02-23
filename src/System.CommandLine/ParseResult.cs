@@ -22,6 +22,7 @@ namespace System.CommandLine
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private CompletionContext? _completionContext;
         private ICommandHandler? _handler;
+        private bool _useChainedHandler;
 
         internal ParseResult(
             CommandLineConfiguration configuration,
@@ -30,13 +31,15 @@ namespace System.CommandLine
             List<Token> tokens,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
-            string? commandLineText = null,
-            ICommandHandler? handler = null)
+            string? commandLineText,
+            ICommandHandler? handler,
+            bool useChainedHandler)
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             _handler = handler;
+            _useChainedHandler = useChainedHandler;
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
@@ -241,21 +244,18 @@ namespace System.CommandLine
         {
             get
             {
-                if (_handler is not null)
+                _handler ??= CommandResult.Command.Handler;
+
+                if (_useChainedHandler && _handler is not ChainedCommandHandler)
                 {
-                    return _handler;
+                    // we can't create it when creating a ParseResult, because some Hosting extensions
+                    // set Command.Handler via middleware, which is executed after parsing
+                    _handler = new ChainedCommandHandler(_rootCommandResult.SymbolResultTree, _handler);
                 }
 
-                if (CommandResult.Command is { } command)
-                {
-                    return command.Handler;
-                }
-
-                return null;
+                return _handler;
             }
-            set => _handler = value;
         }
-
         private SymbolResult SymbolToComplete(int? position = null)
         {
             var commandResult = CommandResult;

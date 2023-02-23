@@ -1,5 +1,5 @@
-﻿using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
+﻿using System.CommandLine.Parsing;
+using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
@@ -10,12 +10,28 @@ namespace System.CommandLine
     {
         public EnvironmentVariablesDirective() : base("env")
         {
-            SetSynchronousHandler(SyncHandler);
+            SetSynchronousHandler((context, next) =>
+            {
+                SetEnvVars(context.ParseResult);
+
+                next?.Invoke(context);
+            });
+            SetAsynchronousHandler((context, next, cancellationToken) =>
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return Task.FromCanceled(cancellationToken);
+                }
+
+                SetEnvVars(context.ParseResult);
+
+                return next?.InvokeAsync(context, cancellationToken) ?? Task.CompletedTask;
+            });
         }
 
-        private void SyncHandler(InvocationContext context)
+        private void SetEnvVars(ParseResult parseResult)
         {
-            DirectiveResult directiveResult = context.ParseResult.FindResultFor(this)!;
+            DirectiveResult directiveResult = parseResult.FindResultFor(this)!;
 
             for (int i = 0; i < directiveResult.Values.Count; i++)
             {
@@ -35,9 +51,6 @@ namespace System.CommandLine
                     }
                 }
             }
-
-            // we need a cleaner, more flexible and intuitive way of continuing the execution
-            context.ParseResult.CommandResult.Command.Handler?.Invoke(context);
         }
     }
 }
