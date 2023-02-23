@@ -23,6 +23,7 @@ namespace System.CommandLine
         private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CompletionContext? _completionContext;
         private ICommandHandler? _handler;
+        private CliAction? _action;
 
         internal ParseResult(
             CommandLineConfiguration configuration,
@@ -255,21 +256,34 @@ namespace System.CommandLine
 
                 if (CommandResult.Command is { } command)
                 {
-                    return _handler ??=command.Handler;
+                    return _handler ??= command.Handler;
                 }
 
                 return null;
             }
-            set => _handler = value;
         }
 
         public CliAction Action
         {
             get
             {
-                var plan = new CliAction(Handler);
-                plan.ParseResult = this;
-                return plan;
+                if (_action is null)
+                {
+                    var handler = Handler;
+
+                    if (handler is null)
+                    {
+                        return null;
+                    }
+
+                    if (handler is CliAction action)
+                    {
+                        _action = action;
+                        _action.ParseResult = this;
+                    }
+                }
+
+                return _action;
             }
         }
 

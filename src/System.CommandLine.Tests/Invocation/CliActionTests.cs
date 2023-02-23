@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests.Invocation;
 
-public class InvocableTests
+public class CliActionTests
 {
     private readonly TestConsole _console = new();
 
@@ -22,8 +23,8 @@ public class InvocableTests
             subcommandOne
         };
 
-        subcommandOne.SetHandler(CliAction.Create(ctx => ctx.Console.Write("hello from one")));
-        root.SetHandler(CliAction.Create(ctx => ctx.Console.Write("hello from root")));
+        subcommandOne.SetAction(ctx => ctx.Console.Write("hello from one"));
+        root.SetAction(ctx => ctx.Console.Write("hello from root"));
 
         return root;
     }
@@ -75,4 +76,54 @@ public class InvocableTests
 
         _console.Out.ToString().Should().Match("*Usage:*one*");
     }
+
+    [Fact]
+    public async Task instead_of_middleware_a_switch_statement_can_be_used_to_intercept_default_behaviors()
+    {
+        var root = CreateRootCommand();
+
+        var parseResult = root.Parse("one -h");
+
+        switch (parseResult.Action)
+        {
+            case HelpAction helpAction:
+                _console.WriteLine("START");
+                await helpAction.RunAsync(_console);
+                _console.WriteLine("END");
+                break;
+
+            default:
+                await parseResult.Action.RunAsync(_console);
+                break;
+        }
+
+        _console.Out.ToString().Should().Match("START*Usage:*one*END*");
+    }
+
+    [Fact]
+    public void user_defined_types_can_be_used()
+    {
+        var commandOne = new Command("one");
+
+        var commandTwo = new Command("two");
+
+        var root = new RootCommand
+        {
+            commandOne,
+            commandTwo
+        };
+
+        commandOne.SetAction(new CustomActionOne());
+        commandTwo.SetAction(new CustomActionTwo());
+
+        root.Parse("one").Action.Should().BeOfType<CustomActionOne>();
+    }
+}
+
+public class CustomActionOne : CommandAction
+{
+}
+
+public class CustomActionTwo : CommandAction
+{
 }

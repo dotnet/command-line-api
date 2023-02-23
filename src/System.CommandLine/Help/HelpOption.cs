@@ -31,7 +31,7 @@ namespace System.CommandLine.Help
 
         public override int GetHashCode() => typeof(HelpOption).GetHashCode();
 
-        internal static void Handler(InvocationContext context)
+        internal void Handler(InvocationContext context)
         {
             var output = context.Console.Out.CreateTextWriter();
 
@@ -43,14 +43,13 @@ namespace System.CommandLine.Help
             context.HelpBuilder.Write(helpContext);
         }
 
-        internal HelpAction Action => new HelpAction(this);
+        internal HelpAction Action => new(this);
     }
 
-    internal class HelpAction : CliAction
+    public class HelpAction : CliAction
     {
-        public HelpAction(HelpOption helpOption) : base(new AnonymousCommandHandler(HelpOption.Handler))
+        internal HelpAction(HelpOption helpOption) : base(new AnonymousCommandHandler(helpOption.Handler))
         {
-            
         }
     }
 }
