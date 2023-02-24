@@ -144,7 +144,7 @@ namespace System.CommandLine
 
         internal static ArgumentArity Default(Type type, Argument argument, ParentNode? firstParent)
         {
-            if (type == typeof(bool) || type == typeof(bool?))
+            if (argument.IsBoolean())
             {
                 return ZeroOrOne;
             }

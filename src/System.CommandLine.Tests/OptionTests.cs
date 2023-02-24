@@ -218,12 +218,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_retains_name_when_it_is_provided()
         {
-            var option = new Option<string>("-alias")
-            {
-                ArgumentHelpName = "arg"
-            };
+            var option = new Option<string>("arg", new string[] { "-alias" });
 
-            option.ArgumentHelpName.Should().Be("arg");
+            option.Name.Should().Be("arg");
         }
 
         [Fact]

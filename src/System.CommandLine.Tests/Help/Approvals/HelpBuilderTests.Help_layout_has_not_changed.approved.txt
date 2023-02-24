@@ -2,25 +2,32 @@
   Test description
 
 Usage:
-  testhost <the-root-arg-no-description-no-default> [<the-root-arg-no-description-default> <the-root-arg-no-default> [<the-root-arg> [<the-root-arg-enum-default>]]] [options]
+  testhost <arg-just-name> <arg-name-and-description> [<arg-name-and-default-value-string> [<arg-name-and-default-value-enum> [<arg-name-and-description-and-default-value>]]] [options]
 
 Arguments:
-  <the-root-arg-no-description-no-default>
-  <the-root-arg-no-description-default>     [default: the-root-arg-no-description-default-value]
-  <the-root-arg-no-default>                 the-root-arg-no-default-description
-  <the-root-arg>                            the-root-arg-description [default: the-root-arg-one-value]
-  <Read|ReadWrite|Write>                    the-root-arg-enum-default-description [default: Read]
+  <arg-just-name>
+  <arg-name-and-description>                    description1
+  <arg-name-and-default-value-string>           [default: default2]
+  <arg-name-and-default-value-enum>             Read|ReadWrite|Write [default: Read]
+  <arg-name-and-description-and-default-value>  description4 [default: default4]
 
 Options:
-  -trna, --the-root-option-no-arg (REQUIRED)                                                           the-root-option-no-arg-description
-  -trondda, --the-root-option-no-description-default-arg <the-root-option-no-description-default-arg>  [default: the-root-option--no-description-default-arg-value]
-  -tronda, --the-root-option-no-default-arg <the-root-option-arg-no-default-arg> (REQUIRED)            the-root-option-no-default-description
-  -troda, --the-root-option-default-arg <the-root-option-arg>                                          the-root-option-default-arg-description [default: the-root-option-arg-value]
-  -troea, --the-root-option-enum-arg <Read|ReadWrite|Write>                                            the-root-option-description [default: Read]
-  -trorea, --the-root-option-required-enum-arg <Read|ReadWrite|Write> (REQUIRED)                       the-root-option-description [default: Read]
-  -tromld, --the-root-option-multi-line-description                                                    the-root-option
-                                                                                                       multi-line
-                                                                                                       description
+  -a, --alias-a <option-just-name>
+  -b, --alias-b <option-name-and-description>                               description6
+  -c, --alias-c <option-name-and-default-value-string>                      [default: default7]
+  -d, --alias-d <option-name-and-default-value-enum>                        Read|ReadWrite|Write [default: Read]
+  -e, --alias-e <option-name-and-description-and-default-value>             description9 [default: default9]
+  -f, --alias-f                                                             option-and-
+                                                                            multi-line
+                                                                            description
+  -r, --alias-r <option-just-name> (REQUIRED)
+  -s, --alias-s <option-name-and-description> (REQUIRED)                    description6
+  -t, --alias-t <option-name-and-default-value-string> (REQUIRED)           [default: default7]
+  -u, --alias-u <option-name-and-default-value-enum> (REQUIRED)             Read|ReadWrite|Write [default: Read]
+  -v, --alias-v <option-name-and-description-and-default-value> (REQUIRED)  description9 [default: default9]
+  -w, --alias-w (REQUIRED)                                                  option-and-
+                                                                            multi-line
+                                                                            description
 
 
 

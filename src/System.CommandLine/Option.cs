@@ -46,18 +46,6 @@ namespace System.CommandLine
         internal abstract Argument Argument { get; }
 
         /// <summary>
-        /// Gets or sets the name of the argument when displayed in help.
-        /// </summary>
-        /// <value>
-        /// The name of the argument when displayed in help.
-        /// </value>
-        public string? ArgumentHelpName
-        {
-            get => Argument.HelpName;
-            set => Argument.HelpName = value;
-        }
-
-        /// <summary>
         /// Gets or sets the arity of the option.
         /// </summary>
         public ArgumentArity Arity

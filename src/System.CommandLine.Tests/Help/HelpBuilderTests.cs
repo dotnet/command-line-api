@@ -396,9 +396,6 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("command")
             {
                 new Option<string>("-v", "Sets the verbosity.")
-                {
-                    ArgumentHelpName = "argument for options"
-                }
             };
 
             _helpBuilder.Write(command, _console);
@@ -411,9 +408,8 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "command help")
             {
-                new Option<string>("--verbosity", new[] { "-v", "--verbosity" })
+                new Option<string>("LEVEL", new[] { "-v", "--verbosity" })
                 {
-                    ArgumentHelpName = "LEVEL",
                     Description = "Sets the verbosity."
                 }
             };
@@ -438,10 +434,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command")
             {
-                new Option<VerbosityOptions>("--verbosity", new[] { "-v", "--verbosity" })
-                {
-                    ArgumentHelpName = "LEVEL"
-                }
+                new Option<VerbosityOptions>("LEVEL", new[] { "-v", "--verbosity" })
             };
 
             _helpBuilder.Write(command, _console);
@@ -642,14 +635,14 @@ namespace System.CommandLine.Tests.Help
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void Command_argument_usage_indicates_enums_values(bool nullable)
+        public void Command_argument_usage_indicates_enums_values_when_no_description_is_provided(bool nullable)
         {
-            var description = "This is the argument description";
+            const string name = "arg";
+            const string expectedDescription = "Read|ReadWrite|Write";
 
             Argument argument = nullable
-                               ? new Argument<FileAccess?>("arg")
-                               : new Argument<FileAccess>("arg");
-            argument.Description = description;
+                               ? new Argument<FileAccess?>(name)
+                               : new Argument<FileAccess>(name);
 
             var command = new Command("outer", "Help text for the outer command")
             {
@@ -662,7 +655,7 @@ namespace System.CommandLine.Tests.Help
 
             var expected =
                 $"Arguments:{NewLine}" +
-                $"{_indentation}<Read|ReadWrite|Write>{_columnPadding}{description}";
+                $"{_indentation}<{name}>{_columnPadding}{expectedDescription}";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -715,13 +708,13 @@ namespace System.CommandLine.Tests.Help
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void Option_argument_first_column_indicates_enums_values(bool nullable)
+        public void Option_argument_first_column_indicates_name(bool nullable)
         {
             var description = "This is the argument description";
 
             Option option = nullable
-                                ? new Option<FileAccess?>("--opt", description)
-                                : new Option<FileAccess>("--opt", description);
+                                ? new Option<FileAccess?>("name", new[] { "--opt" }, description)
+                                : new Option<FileAccess>("name", new[] { "--opt" }, description);
 
             var command = new Command(
                 "outer", "Help text for the outer command")
@@ -733,7 +726,51 @@ namespace System.CommandLine.Tests.Help
 
             helpBuilder.Write(command, _console);
 
-            _console.ToString().Should().Contain($"--opt <Read|ReadWrite|Write>{_columnPadding}{description}");
+            _console.ToString().Should().Contain($"--opt <name>{_columnPadding}{description}");
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Argument_default_description_indicates_enums_values(bool nullable)
+        {
+            Argument argument = nullable
+                                ? new Argument<FileAccess?>("name", description: null)
+                                : new Argument<FileAccess>("name", description: null);
+
+            var command = new Command(
+                "outer", "Help text for the outer command")
+            {
+                argument
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command, _console);
+
+            _console.ToString().Should().Contain($"<name>{_columnPadding}Read|ReadWrite|Write");
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Option_default_description_indicates_enums_values(bool nullable)
+        {
+            Option option = nullable
+                                ? new Option<FileAccess?>("name", new[] { "--opt" }, description: null)
+                                : new Option<FileAccess>("name", new[] { "--opt" }, description: null);
+
+            var command = new Command(
+                "outer", "Help text for the outer command")
+            {
+                option
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command, _console);
+
+            _console.ToString().Should().Contain($"--opt <name>{_columnPadding}Read|ReadWrite|Write");
         }
 
         [Fact]
@@ -1118,10 +1155,9 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new RootCommand
             {
-                new Option<string>("--required", new[] {"-r", "--required" })
+                new Option<string>("ARG", new[] {"-r", "--required" })
                 {
                     IsRequired = true,
-                    ArgumentHelpName = "ARG"
                 }
             };
 
@@ -1220,10 +1256,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("the-command", "command help")
             {
-                new Option<string>("-arg", new[] { "-arg"}, defaultValueFactory: () => "the-arg-value")
-                {
-                    ArgumentHelpName = "the-arg"
-                }
+                new Option<string>("the-arg", new[] { "-arg"}, defaultValueFactory: () => "the-arg-value")
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);

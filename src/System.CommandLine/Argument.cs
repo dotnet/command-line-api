@@ -48,11 +48,6 @@ namespace System.CommandLine
             set => _arity = value;
         }
 
-        /// <summary>
-        /// The name used in help output to describe the argument. 
-        /// </summary>
-        public string? HelpName { get; set; }
-
         internal TryConvertArgument? ConvertArguments
         {
             get => _convertArguments ??= ArgumentConverter.GetConverter(this);
@@ -72,6 +67,8 @@ namespace System.CommandLine
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
         public abstract Type ValueType { get; }
+
+        internal bool IsBoolean() => ValueType == typeof(bool) || ValueType == typeof(bool?);
 
         /// <summary>
         /// Provides a list of argument validators. Validators can be used

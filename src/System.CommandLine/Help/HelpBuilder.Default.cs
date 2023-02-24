@@ -43,60 +43,39 @@ public partial class HelpBuilder
         /// <summary>
         /// Gets the description for an argument (typically used in the second column text in the arguments section).
         /// </summary>
-        public static string GetArgumentDescription(Argument argument) => argument.Description ?? string.Empty;
+        public static string GetArgumentDescription(Argument argument)
+        {
+            if (argument.Description is not null)
+            {
+                return argument.Description;
+            }
+
+            if (!argument.IsBoolean())
+            {
+                var completions = argument
+                    .GetCompletions(CompletionContext.Empty)
+                    .Select(item => item.Label);
+
+                return string.Join("|", completions);
+            }
+
+            return "";
+        }
 
         /// <summary>
         /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
         /// </summary>
         public static string GetArgumentUsageLabel(Argument argument)
-        {
-            if (argument.ValueType == typeof(bool) ||
-                argument.ValueType == typeof(bool?))
-            {
-                if (argument.FirstParent?.Symbol is Command)
-                {
-                    return $"<{argument.Name}>";
-                }
-                else
-                {
-                    return "";
-                }
-            }
-
-            string firstColumn;
-            var completions = argument
-                .GetCompletions(CompletionContext.Empty)
-                .Select(item => item.Label)
-                .ToArray();
-
-            var arg = argument;
-            var helpName = arg?.HelpName ?? string.Empty;
-
-            if (!string.IsNullOrEmpty(helpName))
-            {
-                firstColumn = helpName!;
-            }
-            else if (completions.Length > 0)
-            {
-                firstColumn = string.Join("|", completions);
-            }
-            else
-            {
-                firstColumn = argument.Name;
-            }
-
-            if (!string.IsNullOrWhiteSpace(firstColumn))
-            {
-                return $"<{firstColumn}>";
-            }
-            return firstColumn;
-        }
+            => !argument.IsBoolean() || argument.FirstParent?.Symbol is Command 
+                    ? $"<{argument.Name}>" 
+                    : "";
 
         /// <summary>
         /// Gets the description for the specified symbol (typically the used as the second column in help text).
         /// </summary>
         /// <param name="symbol">The symbol to get the description for.</param>
-        public static string GetIdentifierSymbolDescription(IdentifierSymbol symbol) => symbol.Description ?? string.Empty;
+        public static string GetIdentifierSymbolDescription(IdentifierSymbol symbol)
+            => symbol.Description ?? (symbol is Option option ? GetArgumentDescription(option.Argument) : string.Empty);
 
         /// <summary>
         /// Gets the usage label for the specified symbol (typically used as the first column text in help output).
