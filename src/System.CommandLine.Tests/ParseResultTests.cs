@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void FindResult_can_be_used_to_check_the_presence_of_an_option()
         {
-            var option = new Option<bool>(new[] { "-h", "--help" });
+            var option = new Option<bool>("--help", new[] { "-h", "--help" });
 
             var command = new Command("the-command")
             {
@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void FindResultFor_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
-            var option = new Option<int>(new[] { "-c", "--count" }, () => 5);
+            var option = new Option<int>("--count", new[] { "-c", "--count" }, () => 5);
             var command = new Command("the-command")
             {
                 option
@@ -60,14 +60,14 @@ namespace System.CommandLine.Tests
             {
                 new Command("inner-one")
                 {
-                    new Argument<bool>
+                    new Argument<bool>("inner-one-arg")
                     {
                         Arity = ArgumentArity.Zero
                     }
                 },
                 new Command("inner-two")
                 {
-                    new Argument<bool>
+                    new Argument<bool>("inner-two-arg")
                     {
                         Arity = ArgumentArity.Zero
                     }

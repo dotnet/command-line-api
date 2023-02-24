@@ -11,7 +11,7 @@ internal static class OptionBuilder
 
     static OptionBuilder()
     {
-        _ctor = typeof(Option<string>).GetConstructor(new[] { typeof(string), typeof(string) });
+        _ctor = typeof(Option<string>).GetConstructor(new[] { typeof(string), typeof(string[]), typeof(string) });
     }
 
     public static Option CreateOption(string name, Type valueType, string description = null)
@@ -21,10 +21,10 @@ internal static class OptionBuilder
 #if NET6_0_OR_GREATER
         var ctor = (ConstructorInfo)optionType.GetMemberWithSameMetadataDefinitionAs(_ctor);
 #else
-        var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(string) });
+        var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(string[]), typeof(string) });
 #endif
 
-        var option = (Option)ctor.Invoke(new object[] { name, description });
+        var option = (Option)ctor.Invoke(new object[] { name.Replace("--", ""), new[] { name }, description });
 
         return option;
     }
@@ -48,7 +48,7 @@ internal static class OptionBuilder
     private class Bridge<T> : Option<T>
     {
         public Bridge(string name, Func<object> defaultValueFactory, string description)
-            : base(name, 
+            : base(name.Replace("--", ""), new[] { name },
                   () => (T)defaultValueFactory(), // this type exists only for an easy Func<object> => Func<T> transformation
                   description)
         {

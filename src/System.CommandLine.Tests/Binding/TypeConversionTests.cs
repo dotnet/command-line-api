@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_defaults_arity_to_One_for_non_IEnumerable_types()
         {
-            var argument = new Argument<int>();
+            var argument = new Argument<int>("arg");
 
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_defaults_arity_to_ExactlyOne_for_string()
         {
-            var argument = new Argument<string>();
+            var argument = new Argument<string>("arg");
 
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
@@ -117,7 +117,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var command = new Command("the-command")
             {
-                new Argument<int?>()
+                new Argument<int?>("arg")
             };
 
             command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
@@ -947,7 +947,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void String_defaults_to_null_when_not_specified()
         {
-            var argument = new Argument<string>();
+            var argument = new Argument<string>("arg");
             var command = new Command("mycommand")
             {
                 argument
@@ -980,7 +980,7 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(IList))]
         public void Sequence_type_defaults_to_empty_when_not_specified(Type sequenceType)
         {
-            var argument = Activator.CreateInstance(typeof(Argument<>).MakeGenericType(sequenceType));
+            var argument = Activator.CreateInstance(typeof(Argument<>).MakeGenericType(sequenceType), new object[] { "argName", "description" });
 
             AssertParsedValueIsEmpty((dynamic)argument);
         }

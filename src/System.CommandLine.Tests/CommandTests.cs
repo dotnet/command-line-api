@@ -8,7 +8,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class CommandTests : SymbolTests
+    public class CommandTests
     {
         private readonly Command _outerCommand;
 
@@ -82,7 +82,7 @@ namespace System.CommandLine.Tests
                   .Option
                   .Name
                   .Should()
-                  .Be("option");
+                  .Be("--option");
         }
 
         [Fact]
@@ -104,12 +104,12 @@ namespace System.CommandLine.Tests
         {
             var outer = new Command("outer")
             {
-                new Argument<string>()
+                new Argument<string>("outerArg")
             };
             outer.Subcommands.Add(
                 new Command("inner")
                 {
-                    new Argument<string[]>()
+                    new Argument<string[]>("innerArgs")
                 });
 
             var result = outer.Parse("outer arg1 inner arg2 arg3");
@@ -144,17 +144,17 @@ namespace System.CommandLine.Tests
         [InlineData("aa ")]
         [InlineData(" aa")]
         [InlineData("aa aa")]
-        public void When_a_command_is_created_with_an_alias_that_contains_whitespace_then_an_informative_error_is_returned(
-            string alias)
+        public void When_a_command_is_created_with_a_name_that_contains_whitespace_then_an_informative_error_is_returned(
+            string name)
         {
-            Action create = () => new Command(alias);
+            Action create = () => new Command(name);
 
             create.Should()
                   .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
-                  .Contain($"Alias cannot contain whitespace: \"{alias}\"");
+                  .Contain($"Name cannot contain whitespace: \"{name}\"");
         }
 
         [Theory]
@@ -254,25 +254,10 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("-alias")
             {
-                new Argument<bool>
-                {
-                    Name = "arg"
-                }
+                new Argument<bool>("arg")
             };
 
             command.Arguments.Single().Name.Should().Be("arg");
-        }
-
-        [Fact]
-        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
-        {
-            var command = new Command("name");
-
-            command.Name = "name";
-
-            command.HasAlias("name").Should().BeTrue();
-            command.Aliases.Should().Contain("name");
-            command.Aliases.Should().Contain("name");
         }
 
         [Fact]
@@ -307,7 +292,5 @@ namespace System.CommandLine.Tests
                 .Should()
                 .Contain(option);
         }
-
-        protected override Symbol CreateSymbol(string name) => new Command(name);
     }
 }

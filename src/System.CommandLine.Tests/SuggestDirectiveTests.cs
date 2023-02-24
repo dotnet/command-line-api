@@ -228,7 +228,7 @@ namespace System.CommandLine.Tests
                               new Command("child"),
                               new Option<bool>("--option1"),
                               new Option<bool>("--option2"),
-                              new Argument<string>()
+                              new Argument<string>("arg")
                           })
                           .UseSuggestDirective()
                           .Build();

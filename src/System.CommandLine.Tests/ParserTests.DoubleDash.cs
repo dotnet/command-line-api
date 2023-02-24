@@ -15,8 +15,8 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1238
             public void Subsequent_tokens_are_parsed_as_arguments_even_if_they_match_option_identifiers()
             {
-                var option = new Option<string[]>(new[] { "-o", "--one" });
-                var argument = new Argument<string[]>();
+                var option = new Option<string[]>("--one", new[] { "-o", "--one" });
+                var argument = new Argument<string[]>("args");
                 var rootCommand = new RootCommand
                 {
                     option,
@@ -40,8 +40,8 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Unmatched_tokens_is_empty()
             {
-                var option = new Option<string[]>(new[] { "-o", "--one" });
-                var argument = new Argument<string[]>();
+                var option = new Option<string[]>("--one", new[] { "-o", "--one" });
+                var argument = new Argument<string[]>("args");
                 var rootCommand = new RootCommand
                 {
                     option,
@@ -57,8 +57,8 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1631
             public void No_errors_are_generated()
             {
-                var option = new Option<string[]>(new[] { "-o", "--one" });
-                var argument = new Argument<string[]>();
+                var option = new Option<string[]>("--one", new[] { "-o", "--one" });
+                var argument = new Argument<string[]>("args");
                 var rootCommand = new RootCommand
                 {
                     option,
@@ -74,7 +74,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_second_double_dash_is_parsed_as_an_argument()
             {
-                var argument = new Argument<string[]>();
+                var argument = new Argument<string[]>("args");
                 var rootCommand = new RootCommand
                 {
                     argument

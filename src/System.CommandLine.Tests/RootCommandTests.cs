@@ -17,10 +17,10 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_Name_is_set_then_executable_name_is_still_an_alias()
+        public void When_alias_is_added_then_executable_name_is_still_an_alias()
         {
             var rootCommand = new RootCommand();
-            rootCommand.Name = "custom";
+            rootCommand.AddAlias("custom");
 
             rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);
             rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);

@@ -124,8 +124,8 @@ public class ParameterBindingTests
 
         var command = new Command("command")
         {
-            new Option<string>(new[] { "-n", "--NAME" }),
-            new Option<int>(new[] { "-a", "--age" })
+            new Option<string>("--NAME", new[] { "-n", "--NAME" }),
+            new Option<int>("--age", new[] { "-a", "--age" })
         };
         command.Handler = CommandHandler.Create<string, int>(Execute);
 

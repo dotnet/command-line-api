@@ -2,37 +2,27 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.CommandLine.Completions;
-using System.CommandLine.Parsing;
 using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public partial class OptionTests : SymbolTests
+    public partial class OptionTests
     {
         [Fact]
-        public void When_an_option_has_only_one_alias_then_that_alias_is_its_name()
+        public void Aliases_do_not_affect_length()
         {
-            var option = new Option<string>(new[] { "myname" });
+            var option = new Option<string>("short", new[] { "looooooong", "m" });
 
-            option.Name.Should().Be("myname");
+            option.Name.Should().Be("short");
         }
 
         [Fact]
-        public void When_an_option_has_several_aliases_then_the_longest_alias_is_its_name()
+        public void Option_names_can_contain_prefixes()
         {
-            var option = new Option<string>(new[] { "myname", "m" });
+            var option = new Option<string>("--myname", new[] { "myname", "m" });
 
-            option.Name.Should().Be("myname");
-        }
-
-        [Fact]
-        public void Option_names_do_not_contain_prefix_characters()
-        {
-            var option = new Option<string>(new[] { "--myname", "m" });
-
-            option.Name.Should().Be("myname");
+            option.Name.Should().Be("--myname");
         }
 
         [Fact]
@@ -70,7 +60,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_aliases_are_case_sensitive()
         {
-            var option = new Option<string>(new[] { "-o" });
+            var option = new Option<string>("-o", new[] { "-o" });
 
             option.HasAlias("O").Should().BeFalse();
         }
@@ -78,7 +68,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_prefixed_short_value()
         {
-            var option = new Option<string>(new[] { "-o", "--option" });
+            var option = new Option<string>("--option", new[] { "-o", "--option" });
 
             option.HasAlias("-o").Should().BeTrue();
         }
@@ -86,7 +76,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_prefixed_long_value()
         {
-            var option = new Option<string>(new[] { "-o", "--option" });
+            var option = new Option<string>("--option", new[] { "-o", "--option" });
 
             option.HasAlias("--option").Should().BeTrue();
         }
@@ -94,7 +84,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_is_not_necessary_to_specify_a_prefix_when_adding_an_option()
         {
-            var option = new Option<string>(new[] { "o" });
+            var option = new Option<string>("option", new[] { "o" });
 
             option.HasAlias("o").Should().BeTrue();
         }
@@ -102,7 +92,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_must_have_at_least_one_alias()
         {
-            Action create = () => new Option<string>(Array.Empty<string>());
+            Action create = () => new Option<string>("name", Array.Empty<string>());
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -115,7 +105,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new Option<string>(new[] { "" });
+            Action create = () => new Option<string>("name", new[] { "" });
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -128,7 +118,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new Option<string>(new[] { "  \t" });
+            Action create = () => new Option<string>("name", new[] { "  \t" });
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -141,7 +131,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Raw_aliases_are_exposed_by_an_option()
         {
-            var option = new Option<string>(new[] { "-h", "--help", "/?" });
+            var option = new Option<string>("--help", new[] { "-h", "--help", "/?" });
 
             option.Aliases
                   .Should()
@@ -152,17 +142,17 @@ namespace System.CommandLine.Tests
         [InlineData("-x ")]
         [InlineData(" -x")]
         [InlineData("--aa aa")]
-        public void When_an_option_is_created_with_an_alias_that_contains_whitespace_then_an_informative_error_is_returned(
-            string alias)
+        public void When_an_option_is_created_with_a_name_that_contains_whitespace_then_an_informative_error_is_returned(
+            string name)
         {
-            Action create = () => new Option<string>(alias);
+            Action create = () => new Option<string>(name);
 
             create.Should()
                   .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
-                  .Contain($"Alias cannot contain whitespace: \"{alias}\"");
+                  .Contain($"Name cannot contain whitespace: \"{name}\"");
         }
 
         [Theory]
@@ -210,7 +200,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_not_explicitly_provides_help_will_use_default_help()
         {
-            var option = new Option<string>(new[] { "-o", "--option" }, "desc");
+            var option = new Option<string>("option", new[] { "-o", "--option" }, "desc");
 
             option.Name.Should().Be("option");
             option.Description.Should().Be("desc");
@@ -218,11 +208,11 @@ namespace System.CommandLine.Tests
         }
         
         [Fact]
-        public void Argument_takes_option_alias_as_its_name_when_it_is_not_provided()
+        public void Option_name_is_used_as_explicit_alias()
         {
             var command = new Option<string>("--alias");
 
-            command.Name.Should().Be("alias");
+            command.Name.Should().Be("--alias");
         }
 
         [Fact]
@@ -315,25 +305,13 @@ namespace System.CommandLine.Tests
                 .BeNull();
         }
         
-        [Fact]
-        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
-        {
-            var option = new Option<string>("--name");
-
-            option.Name = "name";
-
-            option.HasAlias("name").Should().BeTrue();
-            option.HasAlias("--name").Should().BeTrue();
-            option.Aliases.Should().Contain("--name");
-            option.Aliases.Should().Contain("name");
-        }
 
         [Theory]
         [InlineData("-option value")]
         [InlineData("-option:value")]
         public void When_aliases_overlap_the_longer_alias_is_chosen(string parseInput)
         {
-            var option = new Option<string>(new[] { "-o", "-option" });
+            var option = new Option<string>("-option", new[] { "-o", "-option" });
 
             var parseResult = new RootCommand { option }.Parse(parseInput);
 
@@ -368,7 +346,5 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
         }
-        
-        protected override Symbol CreateSymbol(string name) => new Option<string>(name);
     }
 }

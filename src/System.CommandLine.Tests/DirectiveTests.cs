@@ -143,7 +143,7 @@ namespace System.CommandLine.Tests
         {
             RootCommand rootCommand = new ()
             {
-                new Argument<List<string>>()
+                new Argument<List<string>>("args")
             };
             var configuration =
                 new CommandLineConfiguration(

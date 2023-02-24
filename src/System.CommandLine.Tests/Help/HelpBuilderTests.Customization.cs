@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Option_can_customize_default_value()
             {
-                var option = new Option<string>("--the-option", defaultValueFactory: () => "not 42");
+                var option = new Option<string>("the-option", new[] { "--the-option" }, defaultValueFactory: () => "not 42");
                 var command = new Command("the-command", "command help")
                 {
                     option
@@ -237,7 +237,7 @@ namespace System.CommandLine.Tests.Help
             public void Option_can_fallback_to_default_when_customizing(bool conditionA, bool conditionB, string expected)
             {
                 var command = new Command("test");
-                var option = new Option<string>("--option", "description");
+                var option = new Option<string>("option", new[] { "--option" }, "description");
 
                 command.Options.Add(option);
 

@@ -306,10 +306,7 @@ public class ModelBinderTests
     {
         var parentCommand = new Command("parent-command")
         {
-            new Argument<int>
-            {
-                Name = nameof(ClassWithMultiLetterSetters.IntOption)
-            },
+            new Argument<int>(nameof(ClassWithMultiLetterSetters.IntOption)),
             new Command("child-command")
         };
 
@@ -329,10 +326,7 @@ public class ModelBinderTests
     {
         var parentCommand = new Command("parent-command")
         {
-            new Argument<int>(() => 123)
-            {
-                Name = nameof(ClassWithMultiLetterSetters.IntOption)
-            },
+            new Argument<int>(nameof(ClassWithMultiLetterSetters.IntOption), () => 123),
             new Command("child-command")
         };
 
@@ -415,7 +409,7 @@ public class ModelBinderTests
     public void PropertyInfo_can_be_bound_to_argument()
     {
         var command = new Command("the-command");
-        var argument = new Argument<int> { Arity = ArgumentArity.ExactlyOne };
+        var argument = new Argument<int>("arg") { Arity = ArgumentArity.ExactlyOne };
         command.Arguments.Add(argument);
 
         var type = typeof(ClassWithMultiLetterSetters);
@@ -455,7 +449,7 @@ public class ModelBinderTests
     public void PropertyExpression_can_be_bound_to_argument()
     {
         var command = new Command("the-command");
-        var argument = new Argument<int> { Arity = ArgumentArity.ExactlyOne };
+        var argument = new Argument<int>("arg") { Arity = ArgumentArity.ExactlyOne };
         command.Arguments.Add(argument);
 
         var binder = new ModelBinder<ClassWithMultiLetterSetters>();
@@ -488,7 +482,7 @@ public class ModelBinderTests
     public void Command_argument_is_bound_to_longest_constructor()
     {
         var rootCommand = new RootCommand();
-        rootCommand.Arguments.Add(new Argument<int> { Name = nameof(ClassWithMultipleCtor.IntProperty) });
+        rootCommand.Arguments.Add(new Argument<int>(nameof(ClassWithMultipleCtor.IntProperty)));
 
         var bindingContext = new InvocationContext(rootCommand.Parse("42")).BindingContext;
         var binder = new ModelBinder<ClassWithMultipleCtor>();
@@ -633,7 +627,7 @@ public class ModelBinderTests
 
         var rootCommand = new RootCommand
         {
-            new Argument<int>()
+            new Argument<int>("arg")
         };
 
         rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
@@ -746,10 +740,10 @@ public class ModelBinderTests
     {
         var rootCommand = new RootCommand
         {
-            new Option<string>(
+            new Option<string>("--bundle",
                 new[] { "-b", "--bundle" },
                 "the path to the app bundle to be installed"),
-            new Option<string>(
+            new Option<string>("--bundle-id",
                 new[] { "-1", "--bundle_id", "--bundle-id" },
                 "specify bundle id for list and upload")
         };
@@ -787,7 +781,7 @@ public class ModelBinderTests
     [Fact]
     public void InvocationContext_GetValue_with_generic_argument_returns_value()
     {
-        Argument<int> option = new();
+        Argument<int> option = new("arg");
         Command command = new("the-command")
         {
             option

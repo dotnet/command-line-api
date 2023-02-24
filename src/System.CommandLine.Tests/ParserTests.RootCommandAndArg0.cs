@@ -92,7 +92,7 @@ public partial class ParserTests
                     new Option<string>("-x")
                 }
             };
-            rootCommand.Name = "outer";
+            rootCommand.AddAlias("outer");
 
             var result1 = rootCommand.Parse("inner -x hello");
             var result2 = rootCommand.Parse("outer inner -x hello");

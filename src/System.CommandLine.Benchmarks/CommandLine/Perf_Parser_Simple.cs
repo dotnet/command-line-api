@@ -24,8 +24,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         private static RootCommand BuildCommand()
         {
-            Option<bool> boolOption = new(new[] { "--bool", "-b" }, "Bool option");
-            Option<string> stringOption = new(new[] { "--string", "-s" }, "String option");
+            Option<bool> boolOption = new("--bool", new[] { "--bool", "-b" }, "Bool option");
+            Option<string> stringOption = new("--string", new[] { "--string", "-s" }, "String option");
 
             RootCommand command = new()
             {

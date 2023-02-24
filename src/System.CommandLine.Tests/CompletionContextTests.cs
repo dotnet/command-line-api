@@ -114,7 +114,7 @@ namespace System.CommandLine.Tests
 
             var command = new Command("the-command")
             {
-                new Argument<string>(),
+                new Argument<string>("arg"),
                 option1,
                 new Option<string>("--option2")
             };
@@ -186,7 +186,7 @@ namespace System.CommandLine.Tests
             {
                 option1,
                 new Option<string>("--option2"),
-                new Argument<string>()
+                new Argument<string>("arg")
             };
 
             string textToMatch = command.Parse(new[] { "the-command", "--option1", "a" })
@@ -210,7 +210,7 @@ namespace System.CommandLine.Tests
             var command =
                 new Command("the-command")
                 {
-                    new Argument<string[]>()
+                    new Argument<string[]>("args")
                 };
 
             var position = commandLine.IndexOf("$", StringComparison.Ordinal);

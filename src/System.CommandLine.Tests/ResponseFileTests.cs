@@ -83,7 +83,7 @@ namespace System.CommandLine.Tests
 
             var result = new RootCommand
                          {
-                             new Argument<string[]>()
+                             new Argument<string[]>("args")
                          }
                 .Parse($"@{responseFile}");
 
@@ -106,7 +106,7 @@ namespace System.CommandLine.Tests
                          {
                              new Command("subcommand")
                              {
-                                 new Argument<string[]>()
+                                 new Argument<string[]>("args")
                              }
                          }
                 .Parse($"subcommand @{responseFile}");
@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests
                          {
                              new Command("subcommand")
                              {
-                                 new Argument<string[]>()
+                                 new Argument<string[]>("args")
                              }
                          }
                 .Parse($"@{responseFile} one two three");
@@ -151,7 +151,7 @@ namespace System.CommandLine.Tests
                          {
                              new Command("subcommand")
                              {
-                                 new Argument<string[]>()
+                                 new Argument<string[]>("args")
                              }
                          }
                 .Parse($"subcommand @{responseFile}");
@@ -301,7 +301,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Argument<List<string>>()
+                new Argument<List<string>>("args")
             };
             var configuration = new CommandLineConfiguration(
                 command,
