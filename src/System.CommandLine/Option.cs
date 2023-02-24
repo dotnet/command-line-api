@@ -17,17 +17,12 @@ namespace System.CommandLine
     {
         private List<Action<OptionResult>>? _validators;
 
-        private protected Option(string name, string? description) : base(description)
+        private protected Option(string name, string? description) : base(name, description)
         {
-            if (name is null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            AddAlias(name);
+            AddAlias(name ?? throw new ArgumentNullException(nameof(name)));
         }
 
-        private protected Option(string[] aliases, string? description) : base(description)
+        private protected Option(string name, string[] aliases, string? description) : base(name, description)
         {
             if (aliases is null)
             {
@@ -123,8 +118,6 @@ namespace System.CommandLine
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
-
-        private protected override string DefaultName => GetLongestAlias(true);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

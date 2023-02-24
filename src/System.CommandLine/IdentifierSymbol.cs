@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Parsing;
 using System.Diagnostics;
 
 namespace System.CommandLine
@@ -17,46 +16,16 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the <see cref="IdentifierSymbol"/> class.
         /// </summary>
-        /// <param name="description">The description of the symbol, which is displayed in command line help.</param>
-        protected IdentifierSymbol(string? description = null)
-        {
-            Description = description;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="IdentifierSymbol"/> class.
-        /// </summary>
         /// <param name="name">The name of the symbol.</param>
         /// <param name="description">The description of the symbol, which is displayed in command line help.</param>
-        protected IdentifierSymbol(string name, string? description = null) 
+        private protected IdentifierSymbol(string name, string? description = null) : base(name, description, allowWhiteSpacesInName: false)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Description = description;
         }
 
         /// <summary>
         /// Gets the set of strings that can be used on the command line to specify the symbol.
         /// </summary>
         public IReadOnlyCollection<string> Aliases => _aliases;
-
-        /// <inheritdoc/>
-        public override string Name
-        {
-            set
-            {
-                if (_name is null || !string.Equals(_name, value, StringComparison.Ordinal))
-                {
-                    AddAlias(value);
-
-                    if (_name != null)
-                    {
-                        RemoveAlias(_name);
-                    }
-
-                    _name = value;
-                }
-            }
-        }
 
         /// <summary>
         /// Adds an <see href="/dotnet/standard/commandline/syntax#aliases">alias</see>.
@@ -80,19 +49,6 @@ namespace System.CommandLine
         /// <param name="alias">The alias to search for.</param>
         /// <returns><see langword="true" /> if the alias has already been defined; otherwise <see langword="false" />.</returns>
         public bool HasAlias(string alias) => _aliases.Contains(alias);
-
-        internal string GetLongestAlias(bool removePrefix)
-        {
-            string max = "";
-            foreach (string alias in _aliases)
-            {
-                if (alias.Length > max.Length)
-                {
-                    max = alias;
-                }
-            }
-            return removePrefix ? max.RemovePrefix() : max;
-        }
 
         [DebuggerStepThrough]
         private void ThrowIfAliasIsInvalid(string alias)

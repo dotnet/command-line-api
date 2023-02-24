@@ -10,13 +10,11 @@ System.CommandLine
     public System.Object GetDefaultValue()
     public System.String ToString()
   public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
-    .ctor()
     .ctor(System.String name, System.String description = null)
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
     .ctor(System.String name, T defaultValue, System.String description = null)
-    .ctor(Func<T> defaultValueFactory)
+    .ctor(System.String name, Func<T> defaultValueFactory)
     .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False, System.String description = null)
-    .ctor(Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False)
     public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; }
     public System.Void AcceptLegalFileNamesOnly()
@@ -153,11 +151,11 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
     .ctor(System.String name, System.String description = null)
-    .ctor(System.String[] aliases, System.String description = null)
+    .ctor(System.String name, System.String[] aliases, System.String description = null)
     .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
-    .ctor(System.String[] aliases, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
+    .ctor(System.String name, System.String[] aliases, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
     .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
-    .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
+    .ctor(System.String name, System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
     public System.Void AcceptLegalFileNamesOnly()
     public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
@@ -194,7 +192,7 @@ System.CommandLine
   public abstract class Symbol
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
-    public System.String Name { get; set; }
+    public System.String Name { get; }
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()

@@ -11,11 +11,28 @@ namespace System.CommandLine
     /// </summary>
     public abstract class Symbol
     {
-        private protected string? _name;
         private ParentNode? _firstParent;
 
-        private protected Symbol()
+        private protected Symbol(string name, string? description, bool allowWhiteSpacesInName)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("A name cannot be null, empty, or consist entirely of whitespace.");
+            }
+
+            if (!allowWhiteSpacesInName)
+            {
+                for (var i = 0; i < name.Length; i++)
+                {
+                    if (char.IsWhiteSpace(name[i]))
+                    {
+                        throw new ArgumentException($"Name cannot contain whitespace: \"{name}\"", nameof(name));
+                    }
+                }
+            }
+
+            Name = name;
+            Description = description;
         }
 
         /// <summary>
@@ -24,15 +41,9 @@ namespace System.CommandLine
         public string? Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the symbol.
+        /// Gets the name of the symbol.
         /// </summary>
-        public virtual string Name
-        {
-            get => _name ??= DefaultName;
-            set => _name = value;
-        }
-
-        private protected abstract string DefaultName { get; }
+        public string Name { get; }
 
         /// <summary>
         /// Represents the first parent node.

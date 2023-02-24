@@ -22,19 +22,10 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        protected Argument()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the Argument class.
-        /// </summary>
         /// <param name="name">The name of the argument.</param>
         /// <param name="description">The description of the argument, shown in help.</param>
-        protected Argument(string? name = null, string? description = null)
+        protected Argument(string name, string? description = null) : base(name, description, allowWhiteSpacesInName: true)
         {
-            Name = name!;
-            Description = description;
         }
 
         /// <summary>
@@ -81,25 +72,6 @@ namespace System.CommandLine
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
         /// </summary>
         public abstract Type ValueType { get; }
-
-        private protected override string DefaultName
-        {
-            get
-            {
-                if (FirstParent is not null && FirstParent.Next is null)
-                {
-                    switch (FirstParent.Symbol)
-                    {
-                        case Option option:
-                            return option.Name;
-                        case Command _:
-                            return ValueType.Name.ToLowerInvariant();
-                    }
-                }
-
-                return "";
-            }
-        }
 
         /// <summary>
         /// Provides a list of argument validators. Validators can be used

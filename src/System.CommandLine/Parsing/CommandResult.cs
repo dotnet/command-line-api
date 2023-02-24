@@ -96,7 +96,7 @@ namespace System.CommandLine.Parsing
                 {
                     if (option.IsRequired)
                     {
-                        AddError(LocalizationResources.RequiredOptionWasNotProvided(option.GetLongestAlias(removePrefix: false)));
+                        AddError(LocalizationResources.RequiredOptionWasNotProvided(option.Name));
                         continue;
                     }
                     else if (option.Argument.HasDefaultValue)

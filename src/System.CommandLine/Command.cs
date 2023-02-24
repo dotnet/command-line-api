@@ -32,6 +32,7 @@ namespace System.CommandLine
         /// <param name="description">The description of the command, shown in help.</param>
         public Command(string name, string? description = null) : base(name, description)
         {
+            AddAlias(name);
         }
 
         /// <summary>
@@ -105,8 +106,6 @@ namespace System.CommandLine
                     throw new NotSupportedException();
             }
         }
-
-        private protected override string DefaultName => throw new NotImplementedException();
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,

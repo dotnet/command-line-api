@@ -16,14 +16,16 @@ namespace System.CommandLine
         public Option(
             string name,
             string? description = null) 
-            : this(name, description, new Argument<T>())
-        { }
+            : this(name, description, new Argument<T>(name))
+        {
+        }
 
         /// <inheritdoc/>
         public Option(
+            string name,
             string[] aliases,
             string? description = null) 
-            : this(aliases, description, new Argument<T>())
+            : this(name, aliases, description, new Argument<T>(name))
         { }
 
         /// <inheritdoc/>
@@ -33,16 +35,17 @@ namespace System.CommandLine
             bool isDefault = false,
             string? description = null) 
             : this(name, description, 
-                  new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
+                  new Argument<T>(name, parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
         { }
 
         /// <inheritdoc/>
         public Option(
+            string name,
             string[] aliases,
             Func<ArgumentResult, T> parseArgument,
             bool isDefault = false,
             string? description = null) 
-            : this(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
+            : this(name, aliases, description, new Argument<T>(name, parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
         { }
 
         /// <inheritdoc/>
@@ -51,15 +54,16 @@ namespace System.CommandLine
             Func<T> defaultValueFactory,
             string? description = null) 
             : this(name, description, 
-                  new Argument<T>(defaultValueFactory))
+                  new Argument<T>(name, defaultValueFactory))
         { }
 
         /// <inheritdoc/>
         public Option(
+            string name,
             string[] aliases,
             Func<T> defaultValueFactory,
             string? description = null)
-            : this(aliases, description, new Argument<T>(defaultValueFactory))
+            : this(name, aliases, description, new Argument<T>(name, defaultValueFactory))
         {
         }
 
@@ -74,10 +78,11 @@ namespace System.CommandLine
         }
 
         private protected Option(
+            string name,
             string[] aliases,
             string? description,
             Argument<T> argument)
-            : base(aliases, description)
+            : base(name, aliases, description)
         {
             argument.AddParent(this);
             _argument = argument;

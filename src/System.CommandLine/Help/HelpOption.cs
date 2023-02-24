@@ -9,7 +9,11 @@ namespace System.CommandLine.Help
     internal class HelpOption : Option<bool>
     {
         internal HelpOption(string[] aliases)
-            : base(aliases, LocalizationResources.HelpOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
+            : base(
+                  "--help", 
+                  aliases, 
+                  LocalizationResources.HelpOptionDescription(), 
+                  new Argument<bool>("--help") { Arity = ArgumentArity.Zero })
         {
             AppliesToSelfAndChildren = true;
         }

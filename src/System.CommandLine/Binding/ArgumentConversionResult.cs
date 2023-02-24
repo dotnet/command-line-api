@@ -47,32 +47,32 @@ namespace System.CommandLine.Binding
         {
             if (argumentResult.Parent is CommandResult commandResult)
             {
-                string alias = commandResult.Command.GetLongestAlias(removePrefix: false);
+                string name = commandResult.Command.Name;
                 CompletionItem[] completionItems = argumentResult.Argument.GetCompletions(CompletionContext.Empty).ToArray();
 
                 if (completionItems.Length > 0)
                 {
                     return LocalizationResources.ArgumentConversionCannotParseForCommand(
-                        value, alias, expectedType, completionItems.Select(ci => ci.Label));
+                        value, name, expectedType, completionItems.Select(ci => ci.Label));
                 }
                 else
                 {
-                    return LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
+                    return LocalizationResources.ArgumentConversionCannotParseForCommand(value, name, expectedType);
                 }
             }
             else if (argumentResult.Parent is OptionResult optionResult)
             {
-                string alias = optionResult.Option.GetLongestAlias(removePrefix: false);
+                string name = optionResult.Option.Name;
                 CompletionItem[] completionItems = optionResult.Option.GetCompletions(CompletionContext.Empty).ToArray();
 
                 if (completionItems.Length > 0)
                 {
                     return LocalizationResources.ArgumentConversionCannotParseForOption(
-                        value, alias, expectedType, completionItems.Select(ci => ci.Label));
+                        value, name, expectedType, completionItems.Select(ci => ci.Label));
                 }
                 else
                 {
-                    return LocalizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
+                    return LocalizationResources.ArgumentConversionCannotParseForOption(value, name, expectedType);
                 }
             }
 
