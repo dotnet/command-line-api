@@ -297,7 +297,7 @@ namespace System.CommandLine.Parsing
 
                 if (token.Symbol is not Directive directive)
                 {
-                    // Directives_should_not_be_considered_as_unmatched_tokens
+                    AddCurrentTokenToUnmatched();
                     return;
                 }
 

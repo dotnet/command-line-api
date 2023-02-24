@@ -11,15 +11,13 @@ namespace System.CommandLine.Tests
     public class DirectiveTests
     {
         [Fact]
-        public void Directives_should_not_be_considered_as_unmatched_tokens_when_they_are_enabled()
+        public void Directives_should_be_considered_as_unmatched_tokens_when_they_are_not_matched()
         {
-            RootCommand root = new () { new Option<bool>("-y") };
-            CommandLineBuilder builder = new (root);
-            builder.Directives.Add(new ("some"));
+            Directive directive = new("parse");
 
-            var result = root.Parse($"{RootCommand.ExecutableName} [parse] -y", builder.Build());
+            ParseResult result = Parse(new Option<bool>("-y"), directive, $"{RootCommand.ExecutableName} [nonExisting] -y");
 
-            result.UnmatchedTokens.Should().BeEmpty();
+            result.UnmatchedTokens.Should().ContainSingle("[nonExisting]");
         }
 
         [Fact]
@@ -99,14 +97,19 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("[par se]")]
-        [InlineData("[ parse]")]
-        [InlineData("[parse ]")]
-        public void Directives_cannot_contain_spaces(string value)
+        [InlineData("[par se]", "[par", "se]")]
+        [InlineData("[ parse]", "[", "parse]")]
+        [InlineData("[parse ]", "[parse", "]")]
+        public void Directives_cannot_contain_spaces(string value, string firstUnmatchedToken, string secondUnmatchedToken)
         {
             Action create = () => new Directive(value);
-
             create.Should().Throw<ArgumentException>();
+
+            Directive directive = new("parse");
+            ParseResult result = Parse(new Option<bool>("-y"), directive, $"{value} -y");
+            result.FindResultFor(directive).Should().BeNull();
+
+            result.UnmatchedTokens.Should().BeEquivalentTo(firstUnmatchedToken, secondUnmatchedToken);
         }
 
         [Fact]
@@ -117,24 +120,6 @@ namespace System.CommandLine.Tests
             ParseResult result = Parse(new Option<bool>("-a"), directive, "[directive:one] [directive:two] -a");
 
             result.FindResultFor(directive).Values.Should().BeEquivalentTo("one", "two");
-        }
-
-        [Fact]
-        public void When_directives_are_not_enabled_they_are_treated_as_regular_tokens()
-        {
-            var config = new CommandLineConfiguration(
-                    new RootCommand
-                    {
-                        new Argument<List<string>>()
-                    });
-
-            var result = config.RootCommand.Parse("[hello]", config);
-
-            result.CommandResult
-                  .Tokens
-                  .Select(t => t.Value)
-                  .Should()
-                  .BeEquivalentTo("[hello]");
         }
 
         private static ParseResult Parse(Option option, Directive directive, string commandLine)

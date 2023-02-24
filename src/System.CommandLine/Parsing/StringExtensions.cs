@@ -82,11 +82,11 @@ namespace System.CommandLine.Parsing
 
             var currentCommand = configuration.RootCommand;
             var foundDoubleDash = false;
-            var foundEndOfDirectives = configuration.Directives.Count == 0;
+            var foundEndOfDirectives = false;
 
             var tokenList = new List<Token>(args.Count);
 
-            var knownTokens = configuration.RootCommand.ValidTokens(configuration);
+            var knownTokens = configuration.RootCommand.ValidTokens(configuration.Directives);
 
             int i = FirstArgumentIsRootCommand(args, configuration.RootCommand, inferRootCommand)
                 ? 0
@@ -185,7 +185,7 @@ namespace System.CommandLine.Parsing
                                     if (cmd != configuration.RootCommand)
                                     {
                                         knownTokens = cmd.ValidTokens(
-                                            configuration: null); // config contains Directives, they are allowed only for RootCommand
+                                            directives: null); // config contains Directives, they are allowed only for RootCommand
                                     }
                                     currentCommand = cmd;
                                     tokenList.Add(Command(arg, cmd));
@@ -431,15 +431,15 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, Token> ValidTokens(this Command command, CommandLineConfiguration? configuration)
+        private static Dictionary<string, Token> ValidTokens(this Command command, IReadOnlyList<Directive>? directives)
         {
             Dictionary<string, Token> tokens = new(StringComparer.Ordinal);
 
-            if (configuration?.Directives is not null)
+            if (directives is not null)
             {
-                for (int directiveIndex = 0; directiveIndex < configuration.Directives.Count; directiveIndex++)
+                for (int directiveIndex = 0; directiveIndex < directives.Count; directiveIndex++)
                 {
-                    Directive directive = configuration.Directives[directiveIndex];
+                    Directive directive = directives[directiveIndex];
                     tokens.Add(
                         directive.Name,
                         new Token(directive.Name, TokenType.Directive, directive, Token.ImplicitPosition));
