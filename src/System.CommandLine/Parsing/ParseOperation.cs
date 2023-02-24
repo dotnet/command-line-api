@@ -17,8 +17,8 @@ namespace System.CommandLine.Parsing
 
         private int _index;
         private CommandResult _innermostCommandResult;
-        private bool _isHelpRequested, _useChainedHandler;
-        private ICommandHandler? _commandHandler;
+        private bool _isHelpRequested, _isParseRequested;
+        private ICommandHandler? _handler;
 
         public ParseOperation(
             List<Token> tokens,
@@ -60,20 +60,20 @@ namespace System.CommandLine.Parsing
                 Validate();
             }
 
-            if (_commandHandler is null)
+            if (_handler is null)
             {
                 if (_configuration.ParseErrorReportingExitCode.HasValue && _symbolResultTree.ErrorCount > 0)
                 {
-                    _commandHandler = new AnonymousCommandHandler(ParseErrorResult.Apply);
+                    _handler = new AnonymousCommandHandler(ParseErrorResult.Apply);
                 }
                 else if (_configuration.MaxLevenshteinDistance > 0 && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
                     && _symbolResultTree.UnmatchedTokens is not null)
                 {
-                    _commandHandler = new AnonymousCommandHandler(TypoCorrection.ProvideSuggestions);
+                    _handler = new AnonymousCommandHandler(TypoCorrection.ProvideSuggestions);
                 }
             }
 
-            return new(
+            return new (
                 _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,
@@ -81,8 +81,7 @@ namespace System.CommandLine.Parsing
                 _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
                 _rawInput,
-                _commandHandler,
-                _useChainedHandler);
+                _handler);
         }
 
         private void ParseSubcommand()
@@ -188,15 +187,19 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
-                if (option is HelpOption)
+                // parse directive has a precedence over --help and --version
+                if (!_isParseRequested)
                 {
-                    _isHelpRequested = true;
+                    if (option is HelpOption)
+                    {
+                        _isHelpRequested = true;
 
-                    _commandHandler = new AnonymousCommandHandler(HelpOption.Handler);
-                }
-                else if (option is VersionOption)
-                {
-                    _commandHandler = new AnonymousCommandHandler(VersionOption.Handler);
+                        _handler = new AnonymousCommandHandler(HelpOption.Handler);
+                    }
+                    else if (option is VersionOption)
+                    {
+                        _handler = new AnonymousCommandHandler(VersionOption.Handler);
+                    }
                 }
 
                 optionResult = new OptionResult(
@@ -308,10 +311,6 @@ namespace System.CommandLine.Parsing
                 {
                     result = new (directive, token, _symbolResultTree);
                     _symbolResultTree.Add(directive, result);
-                    if (directive.HasHandler)
-                    {
-                        _useChainedHandler = true;
-                    }
                 }
 
                 ReadOnlySpan<char> withoutBrackets = token.Value.AsSpan(1, token.Value.Length - 2);
@@ -319,6 +318,13 @@ namespace System.CommandLine.Parsing
                 if (indexOfColon > 0)
                 {
                     result.AddValue(withoutBrackets.Slice(indexOfColon + 1).ToString());
+                }
+
+                _handler = directive.Handler;
+
+                if (directive is ParseDirective)
+                {
+                    _isParseRequested = true;
                 }
             }
         }

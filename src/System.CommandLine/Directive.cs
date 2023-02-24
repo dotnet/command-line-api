@@ -3,6 +3,7 @@ using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using System.Threading;
+using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
@@ -17,9 +18,6 @@ namespace System.CommandLine
     /// </summary>
     public class Directive : Symbol
     {
-        internal Action<InvocationContext, ICommandHandler?>? SyncHandler;
-        internal Func<InvocationContext, ICommandHandler?, CancellationToken, Task>? AsyncHandler;
-
         /// <summary>
         /// Initializes a new instance of the Directive class.
         /// </summary>
@@ -27,12 +25,10 @@ namespace System.CommandLine
         /// <param name="description">The description of the directive, shown in help.</param>
         /// <param name="syncHandler">The synchronous action that is invoked when directive is parsed.</param>
         /// <param name="asyncHandler">The asynchronous action that is invoked when directive is parsed.</param>
-        /// <remarks>The second argument of both handlers is next handler than can be invoked.
-        /// Example: a custom directive might just change current culture and run actual command afterwards.</remarks>
         public Directive(string name, 
             string? description = null, 
-            Action<InvocationContext, ICommandHandler?>? syncHandler = null,
-            Func<InvocationContext, ICommandHandler?, CancellationToken, Task>? asyncHandler = null)
+            Action<InvocationContext>? syncHandler = null,
+            Func<InvocationContext, CancellationToken, Task>? asyncHandler = null)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -50,17 +46,37 @@ namespace System.CommandLine
             Name = name;
             Description = description;
 
-            SyncHandler = syncHandler;
-            AsyncHandler = asyncHandler;
+            if (syncHandler is not null)
+            {
+                SetSynchronousHandler(syncHandler);
+            }
+            else if (asyncHandler is not null)
+            {
+                SetAsynchronousHandler(asyncHandler);
+            }
         }
 
-        internal bool HasHandler => SyncHandler != null || AsyncHandler != null;
+        public void SetAsynchronousHandler(Func<InvocationContext, CancellationToken, Task> handler)
+        {
+            if (handler is null)
+            {
+                throw new ArgumentNullException(nameof(handler));
+            }
 
-        public void SetAsynchronousHandler(Func<InvocationContext, ICommandHandler?, CancellationToken, Task> handler)
-            => AsyncHandler = handler ?? throw new ArgumentNullException(nameof(handler));
+            Handler = new AnonymousCommandHandler(handler);
+        }
 
-        public void SetSynchronousHandler(Action<InvocationContext, ICommandHandler?> handler)
-            => SyncHandler = handler ?? throw new ArgumentNullException(nameof(handler));
+        public void SetSynchronousHandler(Action<InvocationContext> handler)
+        {
+            if (handler is null)
+            {
+                throw new ArgumentNullException(nameof(handler));
+            }
+
+            Handler = new AnonymousCommandHandler(handler);
+        }
+
+        internal ICommandHandler? Handler { get; private set; }
 
         private protected override string DefaultName => throw new NotImplementedException();
 

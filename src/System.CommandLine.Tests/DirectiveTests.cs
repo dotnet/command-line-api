@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -139,50 +137,6 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo("[hello]");
         }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public async Task Directive_can_restore_the_state_after_running_continuation(bool async)
-        {
-            const string plCulture = "pl-PL", enUsCulture = "en-US";
-            const string envVarName = "uniqueName", envVarValue = "just";
-
-            var before = CultureInfo.CurrentUICulture;
-
-            try
-            {
-                CultureInfo.CurrentUICulture = new(enUsCulture);
-
-                bool invoked = false;
-                Option<bool> option = new("-a");
-                RootCommand root = new() { option };
-                CommandLineBuilder builder = new(root);
-                builder.Directives.Add(new EnvironmentVariablesDirective());
-                builder.Directives.Add(new CultureDirective());
-                root.SetHandler(ctx =>
-                {
-                    invoked = true;
-                    CultureInfo.CurrentUICulture.Name.Should().Be(plCulture);
-                    Environment.GetEnvironmentVariable(envVarName).Should().Be(envVarValue);
-                });
-
-                if (async)
-                {
-                    await builder.Build().InvokeAsync($"[culture:{plCulture}] [env:{envVarName}={envVarValue}]");
-                }
-                else
-                {
-                    builder.Build().Invoke($"[culture:{plCulture}] [env:{envVarName}={envVarValue}]");
-                }
-
-                invoked.Should().BeTrue();
-            }
-            finally
-            {
-                CultureInfo.CurrentUICulture = before;
-            }
-        }
-
         private static ParseResult Parse(Option option, Directive directive, string commandLine)
         {
             RootCommand root = new() { option };
@@ -191,47 +145,5 @@ namespace System.CommandLine.Tests
 
             return root.Parse(commandLine, builder.Build());
         }
-
-        private sealed class CultureDirective : Directive
-        {
-            public CultureDirective() : base("culture")
-            {
-                SetSynchronousHandler((ctx, next) =>
-                {
-                    CultureInfo cultureBefore = CultureInfo.CurrentUICulture;
-
-                    try
-                    {
-                        string cultureName = ctx.ParseResult.FindResultFor(this).Values.Single();
-
-                        CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
-
-                        next?.Invoke(ctx);
-                    }
-                    finally
-                    {
-                        CultureInfo.CurrentUICulture = cultureBefore;
-                    }
-                });
-                SetAsynchronousHandler(async (ctx, next, ct) =>
-                {
-                    CultureInfo cultureBefore = CultureInfo.CurrentUICulture;
-
-                    try
-                    {
-                        string cultureName = ctx.ParseResult.FindResultFor(this).Values.Single();
-
-                        CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
-
-                        await next?.InvokeAsync(ctx, ct);
-                    }
-                    finally
-                    {
-                        CultureInfo.CurrentUICulture = cultureBefore;
-                    }
-                });
-            }
-        }
-
     }
 }
