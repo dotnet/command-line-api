@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests.Help
         [UseReporter(typeof(DiffReporter))]
         public void Help_layout_has_not_changed()
         {
-            var command = new RootCommand(description: "Test description")
+            var command = new Command("the-root-command", "Test description")
             {
                 new Argument<string>("arg-just-name"),
                 new Argument<string>("arg-name-and-description", "description1"),

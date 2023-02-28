@@ -2,7 +2,7 @@
   Test description
 
 Usage:
-  testhost <arg-just-name> <arg-name-and-description> [<arg-name-and-default-value-string> [<arg-name-and-default-value-enum> [<arg-name-and-description-and-default-value>]]] [options]
+  the-root-command <arg-just-name> <arg-name-and-description> [<arg-name-and-default-value-string> [<arg-name-and-default-value-enum> [<arg-name-and-description-and-default-value>]]] [options]
 
 Arguments:
   <arg-just-name>
