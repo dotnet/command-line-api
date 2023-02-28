@@ -36,7 +36,7 @@ public partial class ModelBindingCommandHandlerTests
 
             var command = new Command("the-command")
             {
-                OptionBuilder.CreateOption("--value", type)
+                OptionBuilder.CreateOption("value", "--value", type)
             };
 
             var console = new TestConsole();
@@ -69,7 +69,7 @@ public partial class ModelBindingCommandHandlerTests
 
             var command = new Command("the-command")
             {
-                OptionBuilder.CreateOption("--value", type)
+                OptionBuilder.CreateOption("value", "--value", type)
             };
 
             var console = new TestConsole();
@@ -102,7 +102,7 @@ public partial class ModelBindingCommandHandlerTests
 
             var command = new Command("the-command")
             {
-                OptionBuilder.CreateOption("--value", type)
+                OptionBuilder.CreateOption("value", "--value", type)
             };
 
             var console = new TestConsole();

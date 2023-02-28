@@ -272,6 +272,7 @@ namespace System.CommandLine.DragonFruit
 
         public static Option BuildOption(this ParameterDescriptor parameter)
             => OptionBuilder.CreateOption(
+                parameter.ValueName,
                 parameter.BuildAlias(),
                 parameter.ValueType,
                 parameter.ValueName,

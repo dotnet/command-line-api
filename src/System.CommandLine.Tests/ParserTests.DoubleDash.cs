@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1238
             public void Subsequent_tokens_are_parsed_as_arguments_even_if_they_match_option_identifiers()
             {
-                var option = new Option<string[]>("--one", new[] { "-o", "--one" });
+                var option = new Option<string[]>("one", new[] { "-o", "--one" });
                 var argument = new Argument<string[]>("args");
                 var rootCommand = new RootCommand
                 {
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Unmatched_tokens_is_empty()
             {
-                var option = new Option<string[]>("--one", new[] { "-o", "--one" });
+                var option = new Option<string[]>("one", new[] { "-o", "--one" });
                 var argument = new Argument<string[]>("args");
                 var rootCommand = new RootCommand
                 {
@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1631
             public void No_errors_are_generated()
             {
-                var option = new Option<string[]>("--one", new[] { "-o", "--one" });
+                var option = new Option<string[]>("one", new[] { "-o", "--one" });
                 var argument = new Argument<string[]>("args");
                 var rootCommand = new RootCommand
                 {

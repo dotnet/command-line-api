@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Benchmarks.CommandLine
@@ -24,8 +23,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         private static RootCommand BuildCommand()
         {
-            Option<bool> boolOption = new("--bool", new[] { "--bool", "-b" }, "Bool option");
-            Option<string> stringOption = new("--string", new[] { "--string", "-s" }, "String option");
+            Option<bool> boolOption = new("bool", new[] { "--bool", "-b" }, "Bool option");
+            Option<string> stringOption = new("string", new[] { "--string", "-s" }, "String option");
 
             RootCommand command = new()
             {

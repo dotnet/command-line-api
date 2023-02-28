@@ -10,17 +10,12 @@ namespace System.CommandLine.Help
 {
     internal class VersionOption : Option<bool>
     {
-        internal VersionOption()
-            : base(
-                  "--version",
-                  LocalizationResources.VersionOptionDescription(),
-                  new Argument<bool>("--help") { Arity = ArgumentArity.Zero })
+        internal VersionOption() : this (new[] { "--version" })
         {
-            AddValidators();
         }
 
         internal VersionOption(string[] aliases)
-            : base("--version", aliases, LocalizationResources.VersionOptionDescription())
+            : base("version", aliases, LocalizationResources.VersionOptionDescription())
         {
             AddValidators();
         }

@@ -122,7 +122,7 @@ namespace System.CommandLine.Parsing
         }
 
         /// <inheritdoc/>
-        public override string ToString() => $"{GetType().Name} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
+        public override string ToString() => $"{nameof(ArgumentResult)} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
         /// <inheritdoc/>
         public override void AddError(string errorMessage)

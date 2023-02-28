@@ -108,7 +108,7 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("the-command", "command help")
             {
                 argument,
-                new Option<string>("--verbosity", new[]
+                new Option<string>("verbosity", new[]
                 {
                     "-v",
                     "--verbosity"
@@ -156,7 +156,7 @@ namespace System.CommandLine.Tests.Help
             {
                 arg1,
                 arg2,
-                new Option<string>("--verbosity", new[] { "-v", "--verbosity" }, "Sets the verbosity")
+                new Option<string>("verbosity", new[] { "-v", "--verbosity" }, "Sets the verbosity")
             };
 
             var rootCommand = new RootCommand();
@@ -382,7 +382,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new RootCommand
             {
-                new Option<string>("--verbosity", new[] { "-v", "--verbosity" }, "Sets the verbosity.")
+                new Option<string>("verbosity", new[] { "-v", "--verbosity" }, "Sets the verbosity.")
             };
 
             _helpBuilder.Write(command, _console);
@@ -983,9 +983,9 @@ namespace System.CommandLine.Tests.Help
                               "the-command",
                               "Help text for the command")
                           {
-                              new Option<string>("--aaa", new[] { "-a", "--aaa" },
+                              new Option<string>("aaa", new[] { "-a", "--aaa" },
                                          "An option with 8 characters"),
-                              new Option<string>("--bbbbbbbbbb", new[] { "-b", "--bbbbbbbbbb" },
+                              new Option<string>("bbbbbbbbbb", new[] { "-b", "--bbbbbbbbbb" },
                                          "An option with 15 characters")
                           };
 
@@ -1007,7 +1007,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("command", "Help Test")
                           {
-                              new Option<string>("--alt-option",
+                              new Option<string>("name",
                                   new[] { "-multi", "--alt-option" },
                                   "HelpDetail for option")
                           };
@@ -1024,7 +1024,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new Command("command", "Help Test")
                           {
-                              new Option<string>("--alt-option",
+                              new Option<string>("name",
                                   new[] { "--m", "--alt-option" },
                                   "HelpDetail for option")
                           };
@@ -1042,7 +1042,7 @@ namespace System.CommandLine.Tests.Help
                     "test-command",
                     "Help text for the command")
                 {
-                    new Option<bool>("--aaa",
+                    new Option<bool>("aaa",
                         new[] { "-a", "--aaa" },
                         $"Help{NewLine}for \r\n the\noption")
                 };
@@ -1068,7 +1068,7 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("test-command", "Help text for the command")
             {
                 new Option<string>("-x", "Option with a short description"),
-                new Option<bool>("--aaa", new[] { "-a", "--aaa" }, longOptionText),
+                new Option<bool>("aaa", new[] { "-a", "--aaa" }, longOptionText),
                 new Option<string>("-y", "Option with a short description"),
             };
 
@@ -1243,7 +1243,7 @@ namespace System.CommandLine.Tests.Help
         {
             var command = new RootCommand
             {
-                new Option<string>("--zzz", new[] { "-z", "-a", "--zzz", "--aaa" })
+                new Option<string>("name", new[] { "-z", "-a", "--zzz", "--aaa" })
             };
 
             _helpBuilder.Write(command, _console);

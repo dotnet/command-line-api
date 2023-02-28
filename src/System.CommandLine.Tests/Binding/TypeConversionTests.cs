@@ -836,7 +836,7 @@ namespace System.CommandLine.Tests.Binding
             int maxArity,
             Type argumentType)
         {
-            var option = OptionBuilder.CreateOption("--items", valueType: argumentType);
+            var option = OptionBuilder.CreateOption("items", "--items", valueType: argumentType);
             option.Arity = new ArgumentArity(minArity, maxArity);
 
             var command = new RootCommand

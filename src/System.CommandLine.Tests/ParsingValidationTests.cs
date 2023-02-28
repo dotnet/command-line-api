@@ -244,11 +244,11 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_a_required_option_has_multiple_aliases_the_error_message_uses_longest()
+        public void When_a_required_option_has_multiple_aliases_the_error_message_uses_the_name()
         {
             var command = new Command("command")
             {
-                new Option<string>("--xray", new[] {"-x", "--xray" })
+                new Option<string>("theName", new[] {"-x", "--xray" })
                 {
                     IsRequired = true
                 }
@@ -264,7 +264,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("Option '--xray' is required.");
+                  .Be("Option 'theName' is required.");
         }
 
         [Theory]

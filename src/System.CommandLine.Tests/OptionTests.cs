@@ -10,7 +10,7 @@ namespace System.CommandLine.Tests
     public partial class OptionTests
     {
         [Fact]
-        public void Aliases_do_not_affect_length()
+        public void Aliases_do_not_affect_name()
         {
             var option = new Option<string>("short", new[] { "looooooong", "m" });
 
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_prefixed_short_value()
         {
-            var option = new Option<string>("--option", new[] { "-o", "--option" });
+            var option = new Option<string>("option", new[] { "-o", "--option" });
 
             option.HasAlias("-o").Should().BeTrue();
         }
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_prefixed_long_value()
         {
-            var option = new Option<string>("--option", new[] { "-o", "--option" });
+            var option = new Option<string>("option", new[] { "-o", "--option" });
 
             option.HasAlias("--option").Should().BeTrue();
         }

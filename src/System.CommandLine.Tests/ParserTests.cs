@@ -38,9 +38,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Two_options_are_parsed_correctly()
         {
-            var optionOne = new Option<bool>("--one", new[] { "-o", "--one" });
+            var optionOne = new Option<bool>("one", new[] { "-o", "--one" });
 
-            var optionTwo = new Option<bool>("--two", new[] { "-t", "--two" });
+            var optionTwo = new Option<bool>("two", new[] { "-t", "--two" });
 
             var result = new RootCommand { optionOne, optionTwo }.Parse("-o -t");
 
@@ -316,8 +316,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parser_root_Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option<string[]>("--animals", new[] { "-a", "--animals" });
-            var vegetablesOption = new Option<string[]>("--vegetables", new[] { "-v", "--vegetables" });
+            var animalsOption = new Option<string[]>("animals", new[] { "-a", "--animals" });
+            var vegetablesOption = new Option<string[]>("vegetables", new[] { "-v", "--vegetables" });
             var parser = new RootCommand
             {
                 animalsOption,
@@ -342,9 +342,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
-            var animalsOption = new Option<string[]>("--animals", new[] { "-a", "--animals" });
+            var animalsOption = new Option<string[]>("animals", new[] { "-a", "--animals" });
             animalsOption.AcceptOnlyFromAmong("dog", "cat", "sheep");
-            var vegetablesOption = new Option<string[]>("--vegetables", new[] { "-v", "--vegetables" });
+            var vegetablesOption = new Option<string[]>("vegetables", new[] { "-v", "--vegetables" });
             Command command =
                 new Command("the-command") {
                     animalsOption,
@@ -369,9 +369,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
         {
-            var animalsOption = new Option<string[]>("--animals", new[] { "-a", "--animals" });
+            var animalsOption = new Option<string[]>("animals", new[] { "-a", "--animals" });
 
-            var vegetablesOption = new Option<string[]>("--vegetables", new[] { "-v", "--vegetables" });
+            var vegetablesOption = new Option<string[]>("vegetables", new[] { "-v", "--vegetables" });
 
             Command command = 
                 new Command("the-command")
@@ -407,8 +407,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("outer")
             {
-                new Option<string>("--inner1"),
-                new Option<string>("--inner2")
+                new Option<string>("inner1", new [] { "--inner1" }),
+                new Option<string>("inner2", new [] { "--inner2" }),
             };
 
             var result = command.Parse("outer --inner1 argument1 --inner2 argument2");
@@ -417,13 +417,13 @@ namespace System.CommandLine.Tests
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     ((OptionResult)o).Option.Name == "--inner1" &&
+                                     ((OptionResult)o).Option.Name == "inner1" &&
                                      o.Tokens.Single().Value == "argument1");
             result.CommandResult
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     ((OptionResult)o).Option.Name == "--inner2" &&
+                                     ((OptionResult)o).Option.Name == "inner2" &&
                                      o.Tokens.Single().Value == "argument2");
         }
 
@@ -671,9 +671,9 @@ namespace System.CommandLine.Tests
         public void When_options_with_the_same_name_are_defined_on_parent_and_child_commands_and_specified_in_between_then_it_attaches_to_the_outer_command()
         {
             var outer = new Command("outer");
-            outer.Options.Add(new Option<bool>("-x"));
+            outer.Options.Add(new Option<bool>("x", new [] { "-x"}));
             var inner = new Command("inner");
-            inner.Options.Add(new Option<bool>("-x"));
+            inner.Options.Add(new Option<bool>("x", new[] { "-x" }));
             outer.Subcommands.Add(inner);
 
             var result = outer.Parse("outer -x inner");
@@ -689,7 +689,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Children
                   .Should()
-                  .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "-x");
+                  .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "x");
         }
 
         [Fact]
@@ -827,7 +827,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
         {
             var command = new Command("command");
-            var option = new Option<string>("--option", new[] { "-o", "--option" }, () => "the-default");
+            var option = new Option<string>("option", new[] { "-o", "--option" }, () => "the-default");
             command.Options.Add(option);
 
             ParseResult result = command.Parse("command");
@@ -839,7 +839,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
         {
-            var option = new Option<string>("--option", new[]{ "-o", "--option" }, () => "the-default");
+            var option = new Option<string>("option", new[]{ "-o", "--option" }, () => "the-default");
 
             var command = new Command("command")
             {
@@ -1500,8 +1500,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Tokens_are_not_split_if_the_part_before_the_delimiter_is_not_an_option()
         {
-            var rootCommand = new RootCommand();
-            rootCommand.AddAlias("jdbc");
+            var rootCommand = new Command("jdbc");
 
             rootCommand.Add(new Option<string>("url"));
             var result = rootCommand.Parse("jdbc url \"jdbc:sqlserver://10.0.0.2;databaseName=main\"");

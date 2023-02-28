@@ -90,7 +90,7 @@ namespace System.CommandLine.Suggest
 
         private static Option<FileInfo> GetExecutableOption()
         {
-            var option = new Option<FileInfo>("--executable", new[] { "-e", "--executable" }, "The executable to call for suggestions");
+            var option = new Option<FileInfo>("executable", new[] { "-e", "--executable" }, "The executable to call for suggestions");
             option.AcceptLegalFilePathsOnly();
 
             return option;
@@ -98,7 +98,7 @@ namespace System.CommandLine.Suggest
 
         private Command ListCommand { get; }
 
-        private Option<int> PositionOption { get; } = new("--position", new[] { "-p", "--position" },
+        private Option<int> PositionOption { get; } = new("position", new[] { "-p", "--position" },
                                                           description: "The current character position on the command line",
                                                           defaultValueFactory: () => short.MaxValue);
 

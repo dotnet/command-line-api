@@ -10,10 +10,10 @@ namespace System.CommandLine.Help
     {
         internal HelpOption(string[] aliases)
             : base(
-                  "--help", 
+                  "help", 
                   aliases, 
                   LocalizationResources.HelpOptionDescription(), 
-                  new Argument<bool>("--help") { Arity = ArgumentArity.Zero })
+                  new Argument<bool>("help") { Arity = ArgumentArity.Zero })
         {
             AppliesToSelfAndChildren = true;
         }

@@ -346,12 +346,14 @@ System.CommandLine.Parsing
     public System.Collections.Generic.IEnumerable<SymbolResult> Children { get; }
     public System.CommandLine.Command Command { get; }
     public Token Token { get; }
+    public System.String ToString()
   public class OptionResult : SymbolResult
     public System.Boolean IsImplicit { get; }
     public System.CommandLine.Option Option { get; }
     public Token Token { get; }
     public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
+    public System.String ToString()
   public class ParseError
     public System.String Message { get; }
     public SymbolResult SymbolResult { get; }
@@ -370,7 +372,6 @@ System.CommandLine.Parsing
     public OptionResult FindResultFor(System.CommandLine.Option option)
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
-    public System.String ToString()
   public class Token, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)
     public static System.Boolean op_Inequality(Token left, Token right)

@@ -125,13 +125,20 @@ namespace System.CommandLine.Parsing
 
                 default:
                 {
+                    string tokenValue = symbolResult switch
+                    {
+                        CommandResult commandResult => commandResult.Token.Value,
+                        OptionResult optionResult => optionResult.Token?.Value ?? GetLongestAlias(optionResult.Option),
+                        _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
+                    };
+
                     if (symbolResult is OptionResult { IsImplicit: true })
                     {
                         builder.Append("*");
                     }
 
                     builder.Append("[ ");
-                    builder.Append(symbolResult.Token().Value);
+                    builder.Append(tokenValue);
 
                     foreach (SymbolResult child in symbolResult.SymbolResultTree.GetChildren(symbolResult))
                     {
@@ -151,6 +158,21 @@ namespace System.CommandLine.Parsing
                     break;
                 }
             }
+        }
+
+        private static string GetLongestAlias(Option option)
+        {
+            string longestAlias = "";
+
+            foreach (string alias in option.Aliases)
+            {
+                if (alias.Length > longestAlias.Length)
+                {
+                    longestAlias = alias;
+                }
+            }
+
+            return longestAlias;
         }
     }
 }

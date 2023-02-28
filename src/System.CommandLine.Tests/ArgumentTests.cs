@@ -439,7 +439,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
             {
-                var option = new Option<int>("--one", new[] { "-o", "--one" }, argumentResult =>
+                var option = new Option<int>("one", new[] { "-o", "--one" }, argumentResult =>
                 {
                     if (int.TryParse(argumentResult.Tokens.Select(t => t.Value).Single(), out var value))
                     {
@@ -792,6 +792,25 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
+        }
+
+        [Fact]
+        public void ArgumentResult_ToString_DoesNotThrow()
+        {
+            var argument = new Argument<string>("text");
+            argument.Validators.Add(argumentResult => argumentResult.AddError(argumentResult.ToString()));
+
+            Command command = new("command")
+            {
+                argument
+            };
+
+            var result = command.Parse("command test");
+
+            result.Errors
+                .Select(e => e.Message)
+                .Should()
+                .NotBeEmpty();
         }
     }
 }

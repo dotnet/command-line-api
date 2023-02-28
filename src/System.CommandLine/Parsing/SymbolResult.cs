@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -85,8 +84,5 @@ namespace System.CommandLine.Parsing
         }
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;
-
-        /// <inheritdoc/>
-        public override string ToString() => $"{GetType().Name}: {this.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}";
     }
 }

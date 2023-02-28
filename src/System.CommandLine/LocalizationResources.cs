@@ -66,8 +66,8 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to Option '{0}' is required.
         /// </summary>
-        internal static string RequiredOptionWasNotProvided(string longestAliasWithPrefix) =>
-            GetResourceString(Properties.Resources.RequiredOptionWasNotProvided, longestAliasWithPrefix);
+        internal static string RequiredOptionWasNotProvided(string optionName) =>
+            GetResourceString(Properties.Resources.RequiredOptionWasNotProvided, optionName);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to Argument &apos;{0}&apos; not recognized. Must be one of:{1}.

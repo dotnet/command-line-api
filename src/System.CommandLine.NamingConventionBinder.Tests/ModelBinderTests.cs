@@ -30,7 +30,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            OptionBuilder.CreateOption("--value", type)
+            OptionBuilder.CreateOption("value", "--value", type)
         };
 
         var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
@@ -126,7 +126,7 @@ public class ModelBinderTests
 
         var command = new Command("the-command")
         {
-            OptionBuilder.CreateOption("--value", type)
+            OptionBuilder.CreateOption("value", "--value", type)
         };
 
         var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
@@ -740,10 +740,10 @@ public class ModelBinderTests
     {
         var rootCommand = new RootCommand
         {
-            new Option<string>("--bundle",
+            new Option<string>("bundle",
                 new[] { "-b", "--bundle" },
                 "the path to the app bundle to be installed"),
-            new Option<string>("--bundle-id",
+            new Option<string>("bundle-id",
                 new[] { "-1", "--bundle_id", "--bundle-id" },
                 "specify bundle id for list and upload")
         };

@@ -67,9 +67,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Option<int>("--height", new[] { "-h", "--height" }, () => 10),
-                new Option<int>("--width",  new[] { "-w", "--width" }, () => 15),
-                new Option<ConsoleColor>("--color",  new[] { "-c", "--color" }, () => ConsoleColor.Cyan)
+                new Option<int>("height", new[] { "-h", "--height" }, () => 10),
+                new Option<int>("width",  new[] { "-w", "--width" }, () => 15),
+                new Option<ConsoleColor>("color",  new[] { "-c", "--color" }, () => ConsoleColor.Cyan)
             };
 
             var result = rootCommand.Parse("-w 9000");

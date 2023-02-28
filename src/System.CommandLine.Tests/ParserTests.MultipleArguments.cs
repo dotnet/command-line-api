@@ -77,9 +77,9 @@ namespace System.CommandLine.Tests
             [InlineData("one two three four five --verbose true")]
             public void When_multiple_arguments_are_present_then_their_order_relative_to_sibling_options_is_not_significant(string commandLine)
             {
-                var first = new Argument<string> ("first");
-                var second = new Argument<string> ("second");
-                var third = new Argument<string[]> ("third");
+                var first = new Argument<string>("first");
+                var second = new Argument<string>("second");
+                var third = new Argument<string[]>("third");
                 var verbose = new Option<bool>("--verbose");
 
                 var command = new Command("the-command")
