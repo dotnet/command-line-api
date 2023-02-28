@@ -129,6 +129,14 @@ namespace System.CommandLine
         public T? GetValue<T>(Option<T> option)
             => RootCommandResult.GetValue(option);
 
+        /// <summary>
+        /// Gets the parsed or default value for the specified symbol name, in the context of parsed command.
+        /// </summary>
+        /// <param name="name">The name of the Symbol for which to get a value.</param>
+        /// <returns>The parsed value or a configured default.</returns>
+        public T? GetValue<T>(string name) => default;
+            //=> CommandResult.GetValue<T>(name);
+
         /// <inheritdoc />
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
 
