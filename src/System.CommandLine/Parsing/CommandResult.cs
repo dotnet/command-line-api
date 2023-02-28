@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.Linq;
 
@@ -12,6 +13,8 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public sealed class CommandResult : SymbolResult
     {
+        private Dictionary<string, SymbolResult>? _namedResults;
+
         internal CommandResult(
             Command command,
             Token token,
@@ -40,6 +43,33 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(CommandResult)}: {Token.Value} {string.Join(" ", Tokens.Select(t => t.Value))}";
+
+        internal T? GetValue<T>(string name)
+        {
+            if (_namedResults is null)
+            {
+                Dictionary<string, SymbolResult> cache = new (StringComparer.Ordinal);
+
+                foreach (KeyValuePair<Symbol, SymbolResult> pair in SymbolResultTree)
+                {
+                    if (ReferenceEquals(pair.Value.Parent, this))
+                    {
+                        cache.Add(pair.Key.Name, pair.Value);
+                    }
+                }
+
+                _namedResults = cache;
+            }
+
+            _namedResults.TryGetValue(name, out SymbolResult? symbolResult);
+
+            return symbolResult switch
+            {
+                ArgumentResult argumentResult => argumentResult.GetValueOrDefault<T>(),
+                OptionResult optionResult => optionResult.GetValueOrDefault<T>(),
+                _ => (T?)ArgumentConverter.GetDefaultValue(typeof(T))
+            };
+        }
 
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;

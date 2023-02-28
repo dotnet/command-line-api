@@ -134,8 +134,19 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the Symbol for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public T? GetValue<T>(string name) => default;
-            //=> CommandResult.GetValue<T>(name);
+        /// <exception cref="InvalidOperationException">Thrown when parsing resulted in parsing errors.</exception>
+        public T? GetValue<T>(string name)
+        {
+            if (Errors.Count > 0)
+            {
+                Throw(Errors);
+            }
+
+            return CommandResult.GetValue<T>(name);
+
+            static void Throw(IReadOnlyList<ParseError> errors)
+                => throw new InvalidOperationException(string.Join(Environment.NewLine, errors.Select(e => e.Message)));
+        }
 
         /// <inheritdoc />
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
