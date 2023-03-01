@@ -6,15 +6,15 @@ using System.CommandLine.IO;
 
 namespace System.CommandLine.Help
 {
-    internal class HelpOption : Option<bool>
+    public class HelpOption : Option<bool>
     {
-        internal HelpOption(string[] aliases)
+        public HelpOption(string[] aliases)
             : base(aliases, LocalizationResources.HelpOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
         {
             AppliesToSelfAndChildren = true;
         }
 
-        internal HelpOption() : this(new[]
+        public HelpOption() : this(new[]
         {
             "-h",
             "/h",
@@ -48,7 +48,7 @@ namespace System.CommandLine.Help
 
     public class HelpAction : CliAction
     {
-        internal HelpAction(HelpOption helpOption) : base(new AnonymousCommandHandler(helpOption.Handler))
+        public HelpAction(HelpOption helpOption) : base(new AnonymousCommandHandler(helpOption.Handler))
         {
         }
     }

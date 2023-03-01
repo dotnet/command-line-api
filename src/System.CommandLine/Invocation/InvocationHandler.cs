@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation;
 
+/// <summary>
+/// An action that will be taken based on command line input.
+/// </summary>
 public abstract class CliAction : ICommandHandler
 {
     private readonly ICommandHandler _innerHandler;
@@ -49,13 +52,6 @@ public abstract class CliAction : ICommandHandler
     }
 }
 
-internal class AnonymousCommandAction : CommandAction
-{
-    public AnonymousCommandAction(Action<InvocationContext> invoke) : base(new AnonymousCommandHandler(invoke))
-    {
-    }
-}
-
 public abstract class CommandAction : CliAction
 {
     protected CommandAction()
@@ -63,6 +59,13 @@ public abstract class CommandAction : CliAction
     }
 
     protected CommandAction(ICommandHandler innerHandler) : base(innerHandler)
+    {
+    }
+}
+
+internal class AnonymousCommandAction : CommandAction
+{
+    public AnonymousCommandAction(Action<InvocationContext> invoke) : base(new AnonymousCommandHandler(invoke))
     {
     }
 }

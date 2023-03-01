@@ -4,6 +4,7 @@
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -30,7 +31,7 @@ public class CliActionTests
     }
 
     [Fact]
-    public async Task root_command_handler_base_case()
+    public async Task when_root_command_is_indicated_then_ParseResult_Action_RunAsync_calls_its_handler()
     {
         var root = CreateRootCommand();
 
@@ -42,7 +43,7 @@ public class CliActionTests
     }
 
     [Fact]
-    public async Task subcommand_handler_base_case()
+    public async Task when_subcommand_is_indicated_then_ParseResult_Action_RunAsync_calls_its_handler()
     {
         var root = CreateRootCommand();
 
@@ -54,7 +55,7 @@ public class CliActionTests
     }
 
     [Fact]
-    public async Task root_command_help_option_base_case()
+    public async Task when_root_command_help_is_indicated_then_ParseResult_Action_RunAsync_calls_its_handler()
     {
         var root = CreateRootCommand();
 
@@ -66,7 +67,7 @@ public class CliActionTests
     }
 
     [Fact]
-    public async Task subcommand_help_option_base_case()
+    public async Task when_subcommand_help_is_indicated_then_ParseResult_Action_RunAsync_calls_its_handler()
     {
         var root = CreateRootCommand();
 
@@ -75,6 +76,25 @@ public class CliActionTests
         await parseResult.Action.RunAsync(_console);
 
         _console.Out.ToString().Should().Match("*Usage:*one*");
+    }
+
+    [Fact]
+    public void user_defined_types_can_be_used()
+    {
+        var commandOne = new Command("one");
+
+        var commandTwo = new Command("two");
+
+        var root = new RootCommand
+        {
+            commandOne,
+            commandTwo
+        };
+
+        commandOne.SetAction(new CustomActionOne());
+        commandTwo.SetAction(new CustomActionTwo());
+
+        root.Parse("one").Action.Should().BeOfType<CustomActionOne>();
     }
 
     [Fact]
@@ -101,22 +121,23 @@ public class CliActionTests
     }
 
     [Fact]
-    public void user_defined_types_can_be_used()
+    public async Task instead_of_middleware_a_switch_statement_can_be_used_to_redirect_default_behaviors()
     {
-        var commandOne = new Command("one");
+        var root = CreateRootCommand();
 
-        var commandTwo = new Command("two");
+        var parseResult = root.Parse("one");
 
-        var root = new RootCommand
+        switch (parseResult.Action)
         {
-            commandOne,
-            commandTwo
-        };
+            default:
+                await new HelpAction(new HelpOption()).RunAsync(_console);
 
-        commandOne.SetAction(new CustomActionOne());
-        commandTwo.SetAction(new CustomActionTwo());
+                await parseResult.Action.RunAsync(_console);
 
-        root.Parse("one").Action.Should().BeOfType<CustomActionOne>();
+                break;
+        }
+
+        _console.Out.ToString().Should().Match("*Usage:*one*");
     }
 }
 
