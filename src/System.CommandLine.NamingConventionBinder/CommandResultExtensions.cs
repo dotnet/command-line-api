@@ -72,7 +72,7 @@ internal static class CommandResultExtensions
             IValueDescriptor valueDescriptor,
             Option option)
         {
-            if (option.HasAlias(valueDescriptor.ValueName))
+            if (option.Name == valueDescriptor.ValueName || option.Aliases.Contains(valueDescriptor.ValueName))
             {
                 return true;
             }

@@ -30,9 +30,8 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command, shown in help.</param>
-        public Command(string name, string? description = null) : base(name, description)
-        {
-        }
+        public Command(string name, string? description = null) : base(name)
+            => Description = description;
 
         /// <summary>
         /// Gets the child symbols.
@@ -106,8 +105,6 @@ namespace System.CommandLine
             }
         }
 
-        private protected override string DefaultName => throw new NotImplementedException();
-
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
         /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
@@ -163,7 +160,7 @@ namespace System.CommandLine
                     var commands = Subcommands;
                     for (int i = 0; i < commands.Count; i++)
                     {
-                        AddCompletionsFor(commands[i]);
+                        AddCompletionsFor(commands[i], commands[i]._aliases);
                     }
                 }
 
@@ -172,7 +169,7 @@ namespace System.CommandLine
                     var options = Options;
                     for (int i = 0; i < options.Count; i++)
                     {
-                        AddCompletionsFor(options[i]);
+                        AddCompletionsFor(options[i], options[i]._aliases);
                     }
                 }
 
@@ -207,7 +204,7 @@ namespace System.CommandLine
 
                                 if (option.AppliesToSelfAndChildren)
                                 {
-                                    AddCompletionsFor(option);
+                                    AddCompletionsFor(option, option._aliases);
                                 }
                             }
                         }
@@ -224,16 +221,23 @@ namespace System.CommandLine
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
 
-            void AddCompletionsFor(IdentifierSymbol identifier)
+            void AddCompletionsFor(Symbol identifier, AliasSet? aliases)
             {
                 if (!identifier.IsHidden)
                 {
-                    foreach (var alias in identifier.Aliases)
+                    if (identifier.Name.ContainsCaseInsensitive(textToMatch))
                     {
-                        if (alias is { } &&
-                            alias.ContainsCaseInsensitive(textToMatch))
+                        completions.Add(new CompletionItem(identifier.Name, CompletionItemKind.Keyword, detail: identifier.Description));
+                    }
+
+                    if (aliases is not null)
+                    {
+                        foreach (string alias in aliases)
                         {
-                            completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: identifier.Description));
+                            if (alias.ContainsCaseInsensitive(textToMatch))
+                            {
+                                completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: identifier.Description));
+                            }
                         }
                     }
                 }

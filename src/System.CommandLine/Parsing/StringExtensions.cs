@@ -24,31 +24,6 @@ namespace System.CommandLine.Parsing
                                 value,
                                 CompareOptions.OrdinalIgnoreCase);
 
-        internal static string RemovePrefix(this string alias)
-        {
-            int prefixLength = GetPrefixLength(alias);
-            return prefixLength > 0
-                       ? alias.Substring(prefixLength)
-                       : alias;
-        }
-
-        private static int GetPrefixLength(this string alias)
-        {
-            if (alias[0] == '-')
-            {
-                return alias.Length > 1 && alias[1] == '-'
-                           ? 2
-                           : 1;
-            }
-
-            if (alias[0] == '/')
-            {
-                return 1;
-            }
-
-            return 0;
-        }
-
         internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
         {
             if (rawAlias[0] == '/')
@@ -125,7 +100,7 @@ namespace System.CommandLine.Parsing
                         continue;
                     }
 
-                    if (!configuration.RootCommand.HasAlias(arg))
+                    if (!configuration.RootCommand.EqualsNameOrAlias(arg))
                     {
                         foundEndOfDirectives = true;
                     }
@@ -314,7 +289,7 @@ namespace System.CommandLine.Parsing
                 {
                     var potentialRootCommand = Path.GetFileName(args[0]);
 
-                    if (rootCommand.HasAlias(potentialRootCommand))
+                    if (rootCommand.EqualsNameOrAlias(potentialRootCommand))
                     {
                         return true;
                     }
@@ -425,23 +400,14 @@ namespace System.CommandLine.Parsing
         {
             Dictionary<string, Token> tokens = new(StringComparer.Ordinal);
 
-            foreach (string commandAlias in command.Aliases)
-            {
-                tokens.Add(
-                    commandAlias,
-                    new Token(commandAlias, TokenType.Command, command, Token.ImplicitPosition));
-            }
+            AddCommandTokens(tokens, command);
 
             if (command.HasSubcommands)
             {
                 var subCommands = command.Subcommands;
                 for (int childIndex = 0; childIndex < subCommands.Count; childIndex++)
                 {
-                    Command cmd = subCommands[childIndex];
-                    foreach (string childAlias in cmd.Aliases)
-                    {
-                        tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
-                    }
+                    AddCommandTokens(tokens, subCommands[childIndex]);
                 }
             }
 
@@ -451,12 +417,10 @@ namespace System.CommandLine.Parsing
                 for (int childIndex = 0; childIndex < options.Count; childIndex++)
                 {
                     Option option = options[childIndex];
-                    foreach (string childAlias in option.Aliases)
+
+                    if (!option.AppliesToSelfAndChildren)
                     {
-                        if (!option.AppliesToSelfAndChildren || !tokens.ContainsKey(childAlias))
-                        {
-                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
-                        }
+                        AddOptionTokens(tokens, option);
                     }
                 }
             }
@@ -477,13 +441,7 @@ namespace System.CommandLine.Parsing
                                 Option option = parentCommand.Options[i];
                                 if (option.AppliesToSelfAndChildren)
                                 {
-                                    foreach (var childAlias in option.Aliases)
-                                    {
-                                        if (!tokens.ContainsKey(childAlias))
-                                        {
-                                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
-                                        }
-                                    }
+                                    AddOptionTokens(tokens, option);
                                 }
                             }
                         }
@@ -496,6 +454,38 @@ namespace System.CommandLine.Parsing
             }
 
             return tokens;
+
+            static void AddCommandTokens(Dictionary<string, Token> tokens, Command cmd)
+            {
+                tokens.Add(cmd.Name, new Token(cmd.Name, TokenType.Command, cmd, Token.ImplicitPosition));
+
+                if (cmd._aliases is not null)
+                {
+                    foreach (string childAlias in cmd._aliases)
+                    {
+                        tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                    }
+                }
+            }
+
+            static void AddOptionTokens(Dictionary<string, Token> tokens, Option option)
+            {
+                if (!tokens.ContainsKey(option.Name))
+                {
+                    tokens.Add(option.Name, new Token(option.Name, TokenType.Option, option, Token.ImplicitPosition));
+                }
+
+                if (option._aliases is not null)
+                {
+                    foreach (string childAlias in option._aliases)
+                    {
+                        if (!tokens.ContainsKey(childAlias))
+                        {
+                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                        }
+                    }
+                }
+            }
         }
     }
 }

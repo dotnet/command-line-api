@@ -30,7 +30,7 @@ namespace System.CommandLine.Parsing
 
             static Token CreateImplicitToken(Option option)
             {
-                return new Token(option.GetLongestAlias(removePrefix: false), TokenType.Option, option, Parsing.Token.ImplicitPosition);
+                return new Token(option.Name, TokenType.Option, option, Parsing.Token.ImplicitPosition);
             }
         }
     }

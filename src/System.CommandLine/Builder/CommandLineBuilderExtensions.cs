@@ -222,11 +222,12 @@ ERR:
         /// Configures the application to show help when one of the specified option aliases are used on the command line.
         /// </summary>
         /// <remarks>The specified aliases will override the default values.</remarks>
+        /// <param name="name">The name of the help option.</param>
         /// <param name="helpAliases">The set of aliases that can be specified on the command line to request help.</param>
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder UseHelp(params string[] helpAliases)
+        public CommandLineBuilder UseHelp(string name, params string[] helpAliases)
         {
-            return UseHelp(new HelpOption(helpAliases));
+            return UseHelp(new HelpOption(name, helpAliases));
         }
 
         /// <summary>
@@ -390,13 +391,14 @@ ERR:
         }
 
         /// <inheritdoc cref="UseVersionOption()"/>
+        /// <param name="name">The name of the version option.</param>
         /// <param name="aliases">One or more aliases to use instead of the default to signal that version information should be displayed.</param>
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder UseVersionOption(params string[] aliases)
+        public CommandLineBuilder UseVersionOption(string name, params string[] aliases)
         {
             if (VersionOption is null)
             {
-                OverwriteOrAdd(Command, VersionOption = new(aliases));
+                OverwriteOrAdd(Command, VersionOption = new(name, aliases));
             }
 
             return this;

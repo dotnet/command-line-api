@@ -12,92 +12,39 @@ namespace System.CommandLine
     {
         private readonly Argument<T> _argument;
 
-        /// <inheritdoc/>
-        public Option(
-            string name,
-            string? description = null) 
-            : this(name, description, new Argument<T>())
-        { }
-
-        /// <inheritdoc/>
-        public Option(
-            string[] aliases,
-            string? description = null) 
-            : this(aliases, description, new Argument<T>())
-        { }
-
-        /// <inheritdoc/>
-        public Option(
-            string name,
-            Func<ArgumentResult, T> parseArgument,
-            bool isDefault = false,
-            string? description = null) 
-            : this(name, description, 
-                  new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
-        { }
-
-        /// <inheritdoc/>
-        public Option(
-            string[] aliases,
-            Func<ArgumentResult, T> parseArgument,
-            bool isDefault = false,
-            string? description = null) 
-            : this(aliases, description, new Argument<T>(parseArgument ?? throw new ArgumentNullException(nameof(parseArgument)), isDefault))
-        { }
-
-        /// <inheritdoc/>
-        public Option(
-            string name,
-            Func<T> defaultValueFactory,
-            string? description = null) 
-            : this(name, description, 
-                  new Argument<T>(defaultValueFactory))
-        { }
-
-        /// <inheritdoc/>
-        public Option(
-            string[] aliases,
-            Func<T> defaultValueFactory,
-            string? description = null)
-            : this(aliases, description, new Argument<T>(defaultValueFactory))
+        public Option(string name, params string[] aliases) 
+            : this(name, aliases, new Argument<T>(name))
         {
         }
 
-        private protected Option(
-            string name,
-            string? description,
-            Argument<T> argument)
-            : base(name, description)
+        private protected Option(string name, Argument<T> argument) : base(name)
         {
             argument.AddParent(this);
             _argument = argument;
         }
 
-        private protected Option(
-            string[] aliases,
-            string? description,
-            Argument<T> argument)
-            : base(aliases, description)
+        private protected Option(string name, string[] aliases, Argument<T> argument)
+            : base(name, aliases)
         {
             argument.AddParent(this);
             _argument = argument;
+        }
+
+        /// <inheritdoc cref="Argument{T}.DefaultValueFactory" />
+        public Func<ArgumentResult, T>? DefaultValueFactory
+        {
+            get => _argument.DefaultValueFactory;
+            set => _argument.DefaultValueFactory = value;
+        }
+
+        /// <inheritdoc cref="Argument{T}.CustomParser" />
+        public Func<ArgumentResult, T>? CustomParser
+        {
+            get => _argument.CustomParser;
+            set => _argument.CustomParser = value;
         }
 
         internal sealed override Argument Argument => _argument;
-
-        /// <summary>
-        /// Sets the default value for the option.
-        /// </summary>
-        /// <param name="value">The default value for the option.</param>
-        public void SetDefaultValue(T value) => _argument.SetDefaultValue(value);
-
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the option is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<T> defaultValueFactory) =>
-            _argument.SetDefaultValueFactory(defaultValueFactory);
 
         /// <summary>
         /// Configures the option to accept only the specified values, and to suggest them as command line completions.

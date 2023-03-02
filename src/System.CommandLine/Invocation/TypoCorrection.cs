@@ -45,9 +45,8 @@ namespace System.CommandLine.Invocation
                 .Children
                 .OfType<IdentifierSymbol>()
                 .Where(x => !x.IsHidden)
-                .Where(x => x.Aliases.Count > 0)
-                .Select(symbol => 
-                    symbol.Aliases
+                .Select(symbol =>
+                    new[] { symbol.Name }.Concat(symbol.Aliases)
                         .OrderBy(x => GetDistance(token, x))
                         .ThenByDescending(x => GetStartsWithDistance(token, x))
                         .First()

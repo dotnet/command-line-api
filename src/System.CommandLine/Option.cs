@@ -17,32 +17,12 @@ namespace System.CommandLine
     {
         private List<Action<OptionResult>>? _validators;
 
-        private protected Option(string name, string? description) : base(description)
+        private protected Option(string name) : base(name)
         {
-            if (name is null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            AddAlias(name);
         }
 
-        private protected Option(string[] aliases, string? description) : base(description)
+        private protected Option(string name, string[] aliases) : base(name, aliases)
         {
-            if (aliases is null)
-            {
-                throw new ArgumentNullException(nameof(aliases));
-            }
-
-            if (aliases.Length == 0)
-            {
-                throw new ArgumentException("An option must have at least one alias.", nameof(aliases));
-            }
-
-            for (var i = 0; i < aliases.Length; i++)
-            {
-                AddAlias(aliases[i]);
-            }
         }
 
         /// <summary>
@@ -51,12 +31,12 @@ namespace System.CommandLine
         internal abstract Argument Argument { get; }
 
         /// <summary>
-        /// Gets or sets the name of the argument when displayed in help.
+        /// Gets or sets the name of the option when displayed in help.
         /// </summary>
         /// <value>
-        /// The name of the argument when displayed in help.
+        /// The name of the option when displayed in help.
         /// </value>
-        public string? ArgumentHelpName
+        public string? HelpName
         {
             get => Argument.HelpName;
             set => Argument.HelpName = value;
@@ -123,8 +103,6 @@ namespace System.CommandLine
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
-
-        private protected override string DefaultName => GetLongestAlias(true);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

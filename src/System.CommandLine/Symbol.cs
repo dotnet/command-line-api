@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Completions;
+using System.Diagnostics;
 
 namespace System.CommandLine
 {
@@ -11,11 +12,11 @@ namespace System.CommandLine
     /// </summary>
     public abstract class Symbol
     {
-        private protected string? _name;
         private ParentNode? _firstParent;
 
-        private protected Symbol()
+        private protected Symbol(string name)
         {
+            Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name));
         }
 
         /// <summary>
@@ -24,15 +25,9 @@ namespace System.CommandLine
         public string? Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the symbol.
+        /// Gets the name of the symbol.
         /// </summary>
-        public virtual string Name
-        {
-            get => _name ??= DefaultName;
-            set => _name = value;
-        }
-
-        private protected abstract string DefaultName { get; }
+        public string Name { get; }
 
         /// <summary>
         /// Represents the first parent node.
@@ -84,5 +79,24 @@ namespace System.CommandLine
 
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";
+
+        [DebuggerStepThrough]
+        internal static string ThrowIfEmptyOrWithWhitespaces(string value, string paramName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("Names and aliases cannot be null, empty, or consist entirely of whitespace.");
+            }
+
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (char.IsWhiteSpace(value[i]))
+                {
+                    throw new ArgumentException($"Names and aliases cannot contain whitespace: \"{value}\"", paramName);
+                }
+            }
+
+            return value;
+        }
     }
 }

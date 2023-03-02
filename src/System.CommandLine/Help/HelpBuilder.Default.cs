@@ -106,7 +106,7 @@ public partial class HelpBuilder
         /// <returns>Text to display.</returns>
         public static string GetIdentifierSymbolUsageLabel(IdentifierSymbol symbol, HelpContext context)
         {
-            var aliases = symbol.Aliases
+            var aliases = new [] {symbol.Name}.Concat(symbol.Aliases)
                                 .Select(r => r.SplitPrefix())
                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
                                 .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)

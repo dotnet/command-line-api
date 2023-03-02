@@ -310,6 +310,11 @@ namespace System.CommandLine.DragonFruit
         {
             ReadOnlySpan<char> rawAlias = alias.AsSpan(GetPrefixLength(alias));
 
+            if (MemoryExtensions.Equals(option.Name.AsSpan(GetPrefixLength(option.Name)), rawAlias, StringComparison.CurrentCulture))
+            {
+                return true;
+            }
+
             foreach (string existingAlias in option.Aliases)
             {
                 if (MemoryExtensions.Equals(existingAlias.AsSpan(GetPrefixLength(existingAlias)), rawAlias, StringComparison.CurrentCulture))

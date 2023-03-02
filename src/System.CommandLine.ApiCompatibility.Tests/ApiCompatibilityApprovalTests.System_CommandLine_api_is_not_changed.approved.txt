@@ -10,21 +10,14 @@ System.CommandLine
     public System.Object GetDefaultValue()
     public System.String ToString()
   public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
-    .ctor()
-    .ctor(System.String name, System.String description = null)
-    .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
-    .ctor(System.String name, T defaultValue, System.String description = null)
-    .ctor(Func<T> defaultValueFactory)
-    .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False, System.String description = null)
-    .ctor(Func<System.CommandLine.Parsing.ArgumentResult,T> parse, System.Boolean isDefault = False)
+    .ctor(System.String name)
+    public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
+    public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
     public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; }
     public System.Void AcceptLegalFileNamesOnly()
     public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
-    public System.Void SetDefaultValue(T value)
-    public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
-    public System.Void SetDefaultValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> defaultValueFactory)
   public struct ArgumentArity : System.ValueType, System.IEquatable<ArgumentArity>
     public static ArgumentArity ExactlyOne { get; }
     public static ArgumentArity OneOrMore { get; }
@@ -75,7 +68,7 @@ System.CommandLine
     public CommandLineBuilder UseEnvironmentVariableDirective()
     public CommandLineBuilder UseExceptionHandler(System.Action<System.Exception,System.CommandLine.Invocation.InvocationContext> onException = null, System.Nullable<System.Int32> errorExitCode = null)
     public CommandLineBuilder UseHelp(System.Nullable<System.Int32> maxWidth = null)
-    public CommandLineBuilder UseHelp(System.String[] helpAliases)
+    public CommandLineBuilder UseHelp(System.String name, System.String[] helpAliases)
     public CommandLineBuilder UseHelp(System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
     public CommandLineBuilder UseHelpBuilder(System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
     public CommandLineBuilder UseParseDirective(System.Int32 errorExitCode = 1)
@@ -84,7 +77,7 @@ System.CommandLine
     public CommandLineBuilder UseTokenReplacer(System.CommandLine.Parsing.TryReplaceToken replaceToken)
     public CommandLineBuilder UseTypoCorrections(System.Int32 maxLevenshteinDistance = 3)
     public CommandLineBuilder UseVersionOption()
-    public CommandLineBuilder UseVersionOption(System.String[] aliases)
+    public CommandLineBuilder UseVersionOption(System.String name, System.String[] aliases)
   public class CommandLineConfiguration
     public static CommandLineBuilder CreateBuilder(Command rootCommand)
     .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableDirectives = True, System.Boolean enableTokenReplacement = True, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
@@ -138,31 +131,24 @@ System.CommandLine
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
   public abstract class IdentifierSymbol : Symbol
-    public System.Collections.Generic.IReadOnlyCollection<System.String> Aliases { get; }
-    public System.Void AddAlias(System.String alias)
-    public System.Boolean HasAlias(System.String alias)
+    public System.Collections.Generic.ICollection<System.String> Aliases { get; }
   public abstract class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.Boolean AppliesToSelfAndChildren { get; set; }
-    public System.String ArgumentHelpName { get; set; }
     public ArgumentArity Arity { get; set; }
     public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
+    public System.String HelpName { get; set; }
     public System.Boolean IsRequired { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
   public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
-    .ctor(System.String name, System.String description = null)
-    .ctor(System.String[] aliases, System.String description = null)
-    .ctor(System.String name, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
-    .ctor(System.String[] aliases, Func<System.CommandLine.Parsing.ArgumentResult,T> parseArgument, System.Boolean isDefault = False, System.String description = null)
-    .ctor(System.String name, Func<T> defaultValueFactory, System.String description = null)
-    .ctor(System.String[] aliases, Func<T> defaultValueFactory, System.String description = null)
+    .ctor(System.String name, System.String[] aliases)
+    public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
+    public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
     public System.Void AcceptLegalFileNamesOnly()
     public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
-    public System.Void SetDefaultValue(T value)
-    public System.Void SetDefaultValueFactory(Func<T> defaultValueFactory)
   public static class OptionValidation
     public static Option<System.IO.FileInfo> AcceptExistingOnly(this Option<System.IO.FileInfo> option)
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
@@ -194,7 +180,7 @@ System.CommandLine
   public abstract class Symbol
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
-    public System.String Name { get; set; }
+    public System.String Name { get; }
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()

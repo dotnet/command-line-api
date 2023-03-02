@@ -48,10 +48,11 @@ internal static class OptionBuilder
     private class Bridge<T> : Option<T>
     {
         public Bridge(string name, Func<object> defaultValueFactory, string description)
-            : base(name, 
-                  () => (T)defaultValueFactory(), // this type exists only for an easy Func<object> => Func<T> transformation
-                  description)
+            : base(name)
         {
+            // this type exists only for an easy Func<object> => Func<T> transformation
+            DefaultValueFactory = (_) => (T)defaultValueFactory();
+            Description = description;
         }
     }
 }

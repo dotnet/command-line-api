@@ -10,165 +10,72 @@ namespace System.CommandLine
     /// <inheritdoc cref="Argument" />
     public class Argument<T> : Argument, IValueDescriptor<T>
     {
-        private Func<ArgumentResult, T>? _defaultValueFactory;
-        private readonly bool _hasCustomParser;
+        private Func<ArgumentResult, T>? _customParser;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        public Argument()
-        {
-        }
-
-        /// <inheritdoc />
-        public Argument(
-            string? name, 
-            string? description = null) : base(name, description)
+        /// <param name="name">The name of the argument.</param>>
+        public Argument(string name) : base(name)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the Argument class.
+        /// The delegate to invoke to return the default value.
         /// </summary>
-        /// <param name="name">The name of the argument.</param>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <param name="description">The description of the argument, shown in help.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
-        public Argument(
-            string name, 
-            Func<T> defaultValueFactory, 
-            string? description = null) : this(name, description)
-        {
-            SetDefaultValueFactory(defaultValueFactory);
-        }
+        public Func<ArgumentResult, T>? DefaultValueFactory { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the Argument class.
+        /// A custom argument parser.
         /// </summary>
-        /// <param name="name">The name of the argument.</param>
-        /// <param name="defaultValue">The default value.</param>
-        /// <param name="description">The description of the argument, shown in help.</param>
-        public Argument(
-            string name,
-            T defaultValue,
-            string? description = null) : this(name, description)
+        public Func<ArgumentResult, T>? CustomParser
         {
-            SetDefaultValue(defaultValue);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the Argument class.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
-        public Argument(Func<T> defaultValueFactory) : this()
-        {
-            SetDefaultValueFactory(defaultValueFactory);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the Argument class.
-        /// </summary>
-        /// <param name="name">The name of the argument.</param>
-        /// <param name="parse">A custom argument parser.</param>
-        /// <param name="isDefault"><see langword="true"/> to use the <paramref name="parse"/> result as default value.</param>
-        /// <param name="description">The description of the argument, shown in help.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="parse"/> is null.</exception>
-        public Argument(
-            string? name,
-            Func<ArgumentResult, T> parse,
-            bool isDefault = false,
-            string? description = null) : this(name, description)
-        {
-            if (parse is null)
+            get => _customParser;
+            set
             {
-                throw new ArgumentNullException(nameof(parse));
-            }
+                _customParser = value;
 
-            if (isDefault)
-            {
-                SetDefaultValueFactory(parse);
-            }
-
-            ConvertArguments = (ArgumentResult argumentResult, out object? value) =>
-            {
-                int errorsBefore = argumentResult.SymbolResultTree.ErrorCount;
-                var result = parse(argumentResult);
-
-                if (errorsBefore == argumentResult.SymbolResultTree.ErrorCount)
+                if (value is not null)
                 {
-                    value = result;
-                    return true;
-                }
-                else
-                {
-                    value = default(T)!;
-                    return false;
-                }
-            };
+                    // TODO: remove the following code or move it to the parsing logic
+                    ConvertArguments = (ArgumentResult argumentResult, out object? parsedValue) =>
+                    {
+                        int errorsBefore = argumentResult.SymbolResultTree.ErrorCount;
+                        var result = value(argumentResult);
 
-            _hasCustomParser = true;
+                        if (errorsBefore == argumentResult.SymbolResultTree.ErrorCount)
+                        {
+                            parsedValue = result;
+                            return true;
+                        }
+                        else
+                        {
+                            parsedValue = default(T)!;
+                            return false;
+                        }
+                    };
+                }
+            }
         }
 
-        /// <summary>
-        /// Initializes a new instance of the Argument class.
-        /// </summary>
-        /// <param name="parse">A custom argument parser.</param>
-        /// <param name="isDefault"><see langword="true"/> to use the <paramref name="parse"/> result as default value.</param>
-        public Argument(Func<ArgumentResult, T> parse, bool isDefault = false) : this(null!, parse, isDefault)
-        {
-        }
-
-        internal override bool HasCustomParser => _hasCustomParser;
+        // TODO: try removing it
+        internal override bool HasCustomParser => _customParser is not null;
 
         /// <inheritdoc />
         public override Type ValueType => typeof(T);
 
+        // TODO: try removing it, or at least make it internal
         /// <inheritdoc />
-        public override bool HasDefaultValue => _defaultValueFactory is not null;
-
-        /// <summary>
-        /// Sets the default value for the argument.
-        /// </summary>
-        /// <param name="value">The default value for the argument.</param>
-        public void SetDefaultValue(T value)
-        {
-            SetDefaultValueFactory(_ => value);
-        }
-
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the argument is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="defaultValueFactory"/> is null.</exception>
-        public void SetDefaultValueFactory(Func<T> defaultValueFactory)
-        {
-            if (defaultValueFactory is null)
-            {
-                throw new ArgumentNullException(nameof(defaultValueFactory));
-            }
-
-            SetDefaultValueFactory(_ => defaultValueFactory());
-        }
-
-        /// <summary>
-        /// Sets a delegate to invoke when the default value for the argument is required.
-        /// </summary>
-        /// <param name="defaultValueFactory">The delegate to invoke to return the default value.</param>
-        /// <remarks>In this overload, the <see cref="ArgumentResult"/> is provided to the delegate.</remarks>
-        public void SetDefaultValueFactory(Func<ArgumentResult, T> defaultValueFactory)
-        {
-            _defaultValueFactory = defaultValueFactory ?? throw new ArgumentNullException(nameof(defaultValueFactory));
-        }
+        public override bool HasDefaultValue => DefaultValueFactory is not null;
 
         internal override object? GetDefaultValue(ArgumentResult argumentResult)
         {
-            if (_defaultValueFactory is null)
+            if (DefaultValueFactory is null)
             {
                 throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
             }
 
-            return _defaultValueFactory.Invoke(argumentResult);
+            return DefaultValueFactory.Invoke(argumentResult);
         }
 
         /// <summary>
