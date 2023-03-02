@@ -13,7 +13,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_value_and_no_explicitly_provided_argument_has_an_empty_arguments_property()
         {
-            var option = new Option<string>("-x", () => "default");
+            var option = new Option<string>("-x") { DefaultValueFactory = (_) => "default" };
 
             var result = new RootCommand
             {
@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void FindResult_can_be_used_to_check_the_presence_of_an_option()
         {
-            var option = new Option<bool>(new[] { "-h", "--help" });
+            var option = new Option<bool>("-h", "--help");
 
             var command = new Command("the-command")
             {
@@ -42,7 +42,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void FindResultFor_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
-            var option = new Option<int>(new[] { "-c", "--count" }, () => 5);
+            var option = new Option<int>("-c", "--count") { DefaultValueFactory = (_) => 5 };
             var command = new Command("the-command")
             {
                 option
@@ -60,14 +60,14 @@ namespace System.CommandLine.Tests
             {
                 new Command("inner-one")
                 {
-                    new Argument<bool>
+                    new Argument<bool>("arg1")
                     {
                         Arity = ArgumentArity.Zero
                     }
                 },
                 new Command("inner-two")
                 {
-                    new Argument<bool>
+                    new Argument<bool>("arg2")
                     {
                         Arity = ArgumentArity.Zero
                     }
@@ -90,8 +90,8 @@ namespace System.CommandLine.Tests
         {
             var leafCommand = new Command("leafCommand")
             {
-                new Option<string>("--one", "option one"),
-                new Option<string>("--two", "option two")
+                new Option<string>("--one") { Description = "option one" },
+                new Option<string>("--two") { Description = "option two" }
             };
 
             var midCommand1 = new Command("midCommand1")

@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_defaults_arity_to_One_for_non_IEnumerable_types()
         {
-            var argument = new Argument<int>();
+            var argument = new Argument<int>("arg");
 
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_defaults_arity_to_ExactlyOne_for_string()
         {
-            var argument = new Argument<string>();
+            var argument = new Argument<string>("arg");
 
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
@@ -117,7 +117,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var command = new Command("the-command")
             {
-                new Argument<int?>()
+                new Argument<int?>("arg")
             };
 
             command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Argument_parses_as_the_default_value_when_the_option_has_not_been_applied()
         {
-            var option = new Option<int>("-x", () => 123);
+            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
 
             var command = new Command("something")
             {
@@ -152,7 +152,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Option_does_not_parse_as_the_default_value_when_the_option_has_been_applied()
         {
-            var option = new Option<int>("-x", () => 123);
+            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
 
             var command = new Command("something")
             {
@@ -322,7 +322,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void An_option_with_a_default_value_parses_as_the_default_value_when_the_option_has_not_been_applied()
         {
-            var option = new Option<string>("-x", () => "123");
+            var option = new Option<string>("-x") { DefaultValueFactory = (_) => "123" };
 
             var command = new Command("something")
             {
@@ -339,7 +339,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void An_option_with_a_default_value_of_null_parses_as_null_when_the_option_has_not_been_applied()
         {
-            var option = new Option<string>("-x", () => null);
+            var option = new Option<string>("-x") { DefaultValueFactory = (_) => null };
 
             var command = new Command("something")
             {
@@ -356,7 +356,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void A_default_value_of_a_non_string_type_can_be_specified()
         {
-            var option = new Option<int>("-x", () => 123);
+            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
 
             var command = new Command("something")
             {
@@ -374,7 +374,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            var option = new Option<DirectoryInfo>("-x", () => directoryInfo);
+            var option = new Option<DirectoryInfo>("-x") { DefaultValueFactory = (_) => directoryInfo };
 
             var command = new Command("something")
             {
@@ -391,7 +391,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            var argument = new Argument<DirectoryInfo>("the-arg", () => directoryInfo);
+            var argument = new Argument<DirectoryInfo>("the-arg") { DefaultValueFactory = (_) => directoryInfo };
 
             var command = new Command("something")
             {
@@ -410,7 +410,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Specifying_an_option_argument_overrides_the_default_value()
         {
-            var option = new Option<int>("-x", () => 123);
+            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
 
             var command = new Command("something")
             {
@@ -947,7 +947,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void String_defaults_to_null_when_not_specified()
         {
-            var argument = new Argument<string>();
+            var argument = new Argument<string>("arg");
             var command = new Command("mycommand")
             {
                 argument

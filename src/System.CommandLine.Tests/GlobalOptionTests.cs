@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests
         public void When_a_required_global_option_has_multiple_aliases_the_error_message_uses_longest()
         {
             var rootCommand = new RootCommand();
-            var requiredOption = new Option<bool>(new[] { "-i", "--i-must-be-set" })
+            var requiredOption = new Option<bool>("-i", "--i-must-be-set")
             {
                 IsRequired = true,
                 AppliesToSelfAndChildren = true

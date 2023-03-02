@@ -21,7 +21,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             _rootCommand = new Command("root_command");
             var nestedCommand = new Command("nested_command");
-            var option = new Option<int>("-opt1", () => 123);
+            var option = new Option<int>("-opt1") { DefaultValueFactory = (_) => 123 };
             nestedCommand.Options.Add(option);
             _rootCommand.Subcommands.Add(nestedCommand);
 

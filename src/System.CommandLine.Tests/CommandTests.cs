@@ -8,7 +8,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public class CommandTests : SymbolTests
+    public class CommandTests
     {
         private readonly Command _outerCommand;
 
@@ -104,12 +104,12 @@ namespace System.CommandLine.Tests
         {
             var outer = new Command("outer")
             {
-                new Argument<string>()
+                new Argument<string>("outer_arg")
             };
             outer.Subcommands.Add(
                 new Command("inner")
                 {
-                    new Argument<string[]>()
+                    new Argument<string[]>("inner_arg")
                 });
 
             var result = outer.Parse("outer arg1 inner arg2 arg3");
@@ -133,10 +133,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("original");
 
-            command.AddAlias("added");
+            command.Aliases.Add("added");
 
             command.Aliases.Should().Contain("added");
-            command.HasAlias("added").Should().BeTrue();
         }
 
 
@@ -166,7 +165,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("-x");
 
-            Action addAlias = () => command.AddAlias(alias);
+            Action addAlias = () => command.Aliases.Add(alias);
 
             addAlias
                 .Should()
@@ -208,7 +207,7 @@ namespace System.CommandLine.Tests
         public void Commands_can_have_aliases()
         {
             var command = new Command("this");
-            command.AddAlias("that");
+            command.Aliases.Add("that");
             command.Aliases.Should().BeEquivalentTo("this", "that");
             command.Aliases.Should().BeEquivalentTo("this", "that");
 
@@ -222,7 +221,7 @@ namespace System.CommandLine.Tests
         public void RootCommand_can_have_aliases()
         {
             var command = new RootCommand();
-            command.AddAlias("that");
+            command.Aliases.Add("that");
             command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
             command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
 
@@ -236,7 +235,7 @@ namespace System.CommandLine.Tests
         public void Subcommands_can_have_aliases()
         {
             var subcommand = new Command("this");
-            subcommand.AddAlias("that");
+            subcommand.Aliases.Add("that");
 
             var rootCommand = new RootCommand
             {
@@ -254,25 +253,10 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("-alias")
             {
-                new Argument<bool>
-                {
-                    Name = "arg"
-                }
+                new Argument<bool>("arg")
             };
 
             command.Arguments.Single().Name.Should().Be("arg");
-        }
-
-        [Fact]
-        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
-        {
-            var command = new Command("name");
-
-            command.Name = "name";
-
-            command.HasAlias("name").Should().BeTrue();
-            command.Aliases.Should().Contain("name");
-            command.Aliases.Should().Contain("name");
         }
 
         [Fact]
@@ -307,7 +291,5 @@ namespace System.CommandLine.Tests
                 .Should()
                 .Contain(option);
         }
-
-        protected override Symbol CreateSymbol(string name) => new Command(name);
     }
 }

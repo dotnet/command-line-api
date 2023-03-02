@@ -29,7 +29,7 @@ namespace System.CommandLine.Generator.Tests
                 boundAge = age;
             }
 
-            var nameArgument = new Argument<string>();
+            var nameArgument = new Argument<string>("arg");
             var ageOption = new Option<int>("--age");
 
             var command = new Command("command")
@@ -55,7 +55,7 @@ namespace System.CommandLine.Generator.Tests
             int boundAge = default;
             IConsole? boundConsole = null;
 
-            var nameArgument = new Argument<string>();
+            var nameArgument = new Argument<string>("arg");
             var ageOption = new Option<int>("--age");
 
             var command = new Command("command")
@@ -180,7 +180,7 @@ namespace System.CommandLine.Generator.Tests
                 boundAge = age;
             }
 
-            var nameArgument = new Argument<string>();
+            var nameArgument = new Argument<string>("arg");
             var ageOption = new Option<int>("--age");
 
             var command = new Command("command")
@@ -272,7 +272,7 @@ namespace System.CommandLine.Generator.Tests
                 boundAge = age;
             }
 
-            var nameArgument = new Argument<string>();
+            var nameArgument = new Argument<string>("arg");
             var ageOption = new Option<int>("--age");
 
             var command = new Command("command")
@@ -297,7 +297,7 @@ namespace System.CommandLine.Generator.Tests
             int boundAge = default;
             IConsole? boundConsole = null;
 
-            var nameArgument = new Argument<string>();
+            var nameArgument = new Argument<string>("arg");
             var ageOption = new Option<int>("--age");
 
             var command = new Command("command")
@@ -327,7 +327,7 @@ namespace System.CommandLine.Generator.Tests
             int boundAge = default;
             IConsole? boundConsole = null;
 
-            var nameArgument = new Argument<string>();
+            var nameArgument = new Argument<string>("arg");
             var ageOption = new Option<int>("--age");
 
             var command = new Command("command")

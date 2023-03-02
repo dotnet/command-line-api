@@ -21,7 +21,7 @@ namespace System.CommandLine.ApiCompatibility.Tests
 
                 Command command = new(CommandName)
                 {
-                    new Argument<string>()
+                    new Argument<string>("arg")
                 };
 
                 ParseResult parseResult = command.Parse(CommandName);

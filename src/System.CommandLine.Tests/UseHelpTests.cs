@@ -260,8 +260,8 @@ namespace System.CommandLine.Tests
         public void Individual_symbols_can_be_customized()
         {
             var subcommand = new Command("subcommand", "The default command description");
-            var option = new Option<int>("-x", "The default option description");
-            var argument = new Argument<int>("int-value", "The default argument description");
+            var option = new Option<int>("-x") { Description = "The default option description" };
+            var argument = new Argument<int>("int-value") { Description = "The default argument description" };
 
             var rootCommand = new RootCommand
             {
@@ -381,7 +381,7 @@ namespace System.CommandLine.Tests
         {
             Command command = new("test")
             {
-                new Option<string>("--option", "option description")
+                new Option<string>("--option") { Description = "option description" }
             };
 
             var config = new CommandLineBuilder(command)

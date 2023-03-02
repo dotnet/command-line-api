@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
                 {
                     new Option<string>("-x"),
                     new Option<bool>("-y"),
-                    new Argument<string[]>()
+                    new Argument<string[]>("arg")
                 };
 
             var result = command.Parse("the-command -x one -y two three");
@@ -67,9 +67,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Option<int>(new[] { "-h", "--height" }, () => 10),
-                new Option<int>(new[] { "-w", "--width" }, () => 15),
-                new Option<ConsoleColor>(new[] { "-c", "--color" }, () => ConsoleColor.Cyan)
+                new Option<int>("-h", "--height") { DefaultValueFactory = (_) => 10 },
+                new Option<int>("-w", "--width") { DefaultValueFactory = (_) => 15 },
+                new Option<ConsoleColor>("-c", "--color") { DefaultValueFactory = (_) => ConsoleColor.Cyan }
             };
 
             var result = rootCommand.Parse("-w 9000");
@@ -85,9 +85,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Argument<string> { Name = "first" },
-                new Argument<string> { Name = "second" },
-                new Argument<string[]> { Name = "third" }
+                new Argument<string>("first"),
+                new Argument<string> ("second"),
+                new Argument<string[]> ("third")
             };
 
             var result = command.Parse("one two three four five");
@@ -102,9 +102,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Argument<FileInfo> { Name = "first" },
-                new Argument<FileInfo> { Name = "second" },
-                new Argument<FileInfo[]> { Name = "third" }
+                new Argument<FileInfo> ("first"),
+                new Argument<FileInfo> ("second"),
+                new Argument<FileInfo[]> ("third")
             };
 
             var result = command.Parse("one two three four five");
