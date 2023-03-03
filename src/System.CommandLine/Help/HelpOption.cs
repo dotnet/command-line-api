@@ -15,14 +15,7 @@ namespace System.CommandLine.Help
             Description = LocalizationResources.HelpOptionDescription();
         }
 
-        internal HelpOption() : this("--help", new[]
-        {
-            "-h",
-            "/h",
-            "--help",
-            "-?",
-            "/?"
-        })
+        internal HelpOption() : this("--help", new[] { "-h", "/h", "-?", "/?" })
         {
         }
 

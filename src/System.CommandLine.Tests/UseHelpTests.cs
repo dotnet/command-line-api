@@ -381,7 +381,11 @@ namespace System.CommandLine.Tests
         {
             Command command = new("test")
             {
-                new Option<string>("--option") { Description = "option description" }
+                new Option<string>("--option") 
+                { 
+                    Description = "option description",
+                    HelpName = "option"
+                }
             };
 
             var config = new CommandLineBuilder(command)

@@ -123,7 +123,7 @@ namespace System.CommandLine.Tests
                   .Children
                   .Select(o => ((OptionResult)o).Option.Name)
                   .Should()
-                  .BeEquivalentTo("x", "y", "z");
+                  .BeEquivalentTo("-x", "-y", "-z");
         }
 
         [Fact]
@@ -168,7 +168,7 @@ namespace System.CommandLine.Tests
                   .Children
                   .Select(o => ((OptionResult)o).Option.Name)
                   .Should()
-                  .BeEquivalentTo("xyz");
+                  .BeEquivalentTo("--xyz");
         }
 
         [Fact]
@@ -417,13 +417,13 @@ namespace System.CommandLine.Tests
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     ((OptionResult)o).Option.Name == "inner1" &&
+                                     ((OptionResult)o).Option.Name == "--inner1" &&
                                      o.Tokens.Single().Value == "argument1");
             result.CommandResult
                   .Children
                   .Should()
                   .ContainSingle(o =>
-                                     ((OptionResult)o).Option.Name == "inner2" &&
+                                     ((OptionResult)o).Option.Name == "--inner2" &&
                                      o.Tokens.Single().Value == "argument2");
         }
 
@@ -664,7 +664,7 @@ namespace System.CommandLine.Tests
             result.CommandResult
                   .Children
                   .Should()
-                  .ContainSingle(o => ((OptionResult)o).Option.Name == "x");
+                  .ContainSingle(o => ((OptionResult)o).Option.Name == "-x");
         }
 
         [Fact]
@@ -689,7 +689,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Children
                   .Should()
-                  .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "x");
+                  .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "-x");
         }
 
         [Fact]

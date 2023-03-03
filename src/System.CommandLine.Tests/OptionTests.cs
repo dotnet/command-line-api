@@ -117,7 +117,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("An alias cannot be null, empty, or consist entirely of whitespace.");
+                  .Be("Names and aliases cannot be null, empty, or consist entirely of whitespace.");
         }
 
         [Fact]
@@ -130,7 +130,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be("An alias cannot be null, empty, or consist entirely of whitespace.");
+                  .Be("Names and aliases cannot be null, empty, or consist entirely of whitespace.");
         }
 
         [Fact]

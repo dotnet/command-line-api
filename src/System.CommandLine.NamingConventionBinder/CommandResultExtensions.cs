@@ -18,7 +18,7 @@ internal static class CommandResultExtensions
         {
             var argument = arguments[i];
 
-            if (valueDescriptor.ValueName.IsMatch(argument.Name))
+            if (valueDescriptor.ValueName.IsMatch(RemovePrefix(argument.Name)))
             {
                 if (commandResult.FindResultFor(argument) is { } argumentResult)
                 {
@@ -72,7 +72,8 @@ internal static class CommandResultExtensions
             IValueDescriptor valueDescriptor,
             Option option)
         {
-            if (option.Name == valueDescriptor.ValueName || option.Aliases.Contains(valueDescriptor.ValueName))
+            string nameWithoutPrefix = RemovePrefix(option.Name);
+            if (valueDescriptor.ValueName.Equals(nameWithoutPrefix, StringComparison.OrdinalIgnoreCase) || valueDescriptor.ValueName.IsMatch(nameWithoutPrefix))
             {
                 return true;
             }
@@ -145,6 +146,31 @@ internal static class CommandResultExtensions
                     case '/':
                         return 1;
                 }
+            }
+
+            return 0;
+        }
+    }
+
+    private static string RemovePrefix(string name)
+    {
+        int prefixLength = GetPrefixLength(name);
+        return prefixLength > 0
+                   ? name.Substring(prefixLength)
+                   : name;
+
+        static int GetPrefixLength(string name)
+        {
+            if (name[0] == '-')
+            {
+                return name.Length > 1 && name[1] == '-'
+                           ? 2
+                           : 1;
+            }
+
+            if (name[0] == '/')
+            {
+                return 1;
             }
 
             return 0;

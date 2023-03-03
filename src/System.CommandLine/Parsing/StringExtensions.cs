@@ -416,12 +416,7 @@ namespace System.CommandLine.Parsing
                 var options = command.Options;
                 for (int childIndex = 0; childIndex < options.Count; childIndex++)
                 {
-                    Option option = options[childIndex];
-
-                    if (!option.AppliesToSelfAndChildren)
-                    {
-                        AddOptionTokens(tokens, option);
-                    }
+                    AddOptionTokens(tokens, options[childIndex]);
                 }
             }
 

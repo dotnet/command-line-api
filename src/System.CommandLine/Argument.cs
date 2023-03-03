@@ -19,7 +19,7 @@ namespace System.CommandLine
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
-        private protected Argument(string name) : base(name)
+        private protected Argument(string name) : base(name, canContainWhitespaces: true)
         {
         }
 
@@ -32,10 +32,7 @@ namespace System.CommandLine
             {
                 if (!_arity.IsNonDefault)
                 {
-                    _arity = ArgumentArity.Default(
-                        ValueType, 
-                        this, 
-                        FirstParent);
+                    _arity = ArgumentArity.Default(this, FirstParent);
                 }
 
                 return _arity;
@@ -108,5 +105,7 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         string IValueDescriptor.ValueName => Name;
+
+        internal bool IsBoolean() => ValueType == typeof(bool) || ValueType == typeof(bool?);
     }
 }

@@ -82,7 +82,7 @@ namespace System.CommandLine.Tests
                   .Option
                   .Name
                   .Should()
-                  .Be("option");
+                  .Be("--option");
         }
 
         [Fact]
@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Contain($"Alias cannot contain whitespace: \"{alias}\"");
+                  .Contain($"Names and aliases cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -173,7 +173,7 @@ namespace System.CommandLine.Tests
                 .Which
                 .Message
                 .Should()
-                .Contain($"Alias cannot contain whitespace: \"{alias}\"");
+                .Contain($"Names and aliases cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -208,8 +208,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("this");
             command.Aliases.Add("that");
-            command.Aliases.Should().BeEquivalentTo("this", "that");
-            command.Aliases.Should().BeEquivalentTo("this", "that");
+            command.Name.Should().Be("this");
+            command.Aliases.Should().BeEquivalentTo("that");
+            command.Aliases.Should().BeEquivalentTo("that");
 
             var result = command.Parse("that");
 
@@ -222,8 +223,8 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand();
             command.Aliases.Add("that");
-            command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
-            command.Aliases.Should().BeEquivalentTo(RootCommand.ExecutableName, "that");
+            command.Aliases.Should().BeEquivalentTo("that");
+            command.Aliases.Should().BeEquivalentTo("that");
 
             var result = command.Parse("that");
 

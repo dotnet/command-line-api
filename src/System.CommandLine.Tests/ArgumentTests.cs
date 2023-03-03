@@ -275,7 +275,7 @@ namespace System.CommandLine.Tests
                 {
                     new Option<string>("-x")
                     {
-                        CustomParser = argResult =>
+                        DefaultValueFactory = argResult =>
                         {
                             argumentResult = argResult;
                             return null;
@@ -342,7 +342,7 @@ namespace System.CommandLine.Tests
                 {
                     new Argument<string>("arg")
                     {
-                        CustomParser = argResult =>
+                        DefaultValueFactory = argResult =>
                         {
                             argumentResult = argResult;
                             return null;
@@ -499,7 +499,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void Parse_delegate_is_called_once_per_parse_operation()
+            public void Parse_delegate_is_called_once_per_parse_operation_when_input_is_provided()
             {
                 var i = 0;
 
@@ -508,6 +508,25 @@ namespace System.CommandLine.Tests
                     new Option<int>("-x")
                     {
                         CustomParser = result => ++i,
+                    }
+                };
+
+                command.Parse("-x 123");
+                command.Parse("-x 123");
+
+                i.Should().Be(2);
+            }
+
+            [Fact]
+            public void Default_value_factory_is_called_once_per_parse_operation_when_no_input_is_provided()
+            {
+                var i = 0;
+
+                var command = new RootCommand
+                {
+                    new Option<int>("-x")
+                    {
+                        DefaultValueFactory = result => ++i,
                     }
                 };
 
@@ -521,26 +540,29 @@ namespace System.CommandLine.Tests
             [InlineData("", "option-is-implicit")]
             [InlineData("--bananas", "argument-is-implicit")]
             [InlineData("--bananas argument-is-specified", "argument-is-specified")]
-            public void Parse_delegate_is_called_when_Option_Arity_allows_zero_tokens(string commandLine, string expectedValue)
+            public void Custom_parser_when_configured_as_default_value_factory_is_called_when_Option_Arity_allows_zero_tokens(string commandLine, string expectedValue)
             {
+                Func<ArgumentResult, string> both = (result) =>
+                {
+                    if (result.Tokens.Count == 0)
+                    {
+                        if (result.Parent is OptionResult { IsImplicit: true })
+                        {
+                            return "option-is-implicit";
+                        }
+
+                        return "argument-is-implicit";
+                    }
+                    else
+                    {
+                        return result.Tokens[0].Value;
+                    }
+                };
+
                 var opt = new Option<string>("--bananas")
                 {
-                    CustomParser = result =>
-                    {
-                        if (result.Tokens.Count == 0)
-                        {
-                            if (result.Parent is OptionResult { IsImplicit: true })
-                            {
-                                return "option-is-implicit";
-                            }
-
-                            return "argument-is-implicit";
-                        }
-                        else
-                        {
-                            return result.Tokens[0].Value;
-                        }
-                    },
+                    DefaultValueFactory = both,
+                    CustomParser = both,
                     Arity = ArgumentArity.ZeroOrOne
                 };
 

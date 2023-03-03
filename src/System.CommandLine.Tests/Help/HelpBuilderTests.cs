@@ -1104,9 +1104,9 @@ namespace System.CommandLine.Tests.Help
             helpBuilder.Write(command, _console);
 
             var expected =
-                $"{_indentation}-a, --aaa <aaa>{_columnPadding}The option whose description is long enough that {NewLine}" +
-                $"{_indentation}               {_columnPadding}it wraps to a new line [default: the quick brown {NewLine}" +
-                $"{_indentation}               {_columnPadding}fox jumps over the lazy dog]{NewLine}";
+                $"{_indentation}-a, --aaa{_columnPadding}The option whose description is long enough that it {NewLine}" +
+                $"{_indentation}         {_columnPadding}wraps to a new line [default: the quick brown fox jumps {NewLine}" +
+                $"{_indentation}         {_columnPadding}over the lazy dog]{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -1291,7 +1291,7 @@ namespace System.CommandLine.Tests.Help
             _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}--filter-size <filter-size>{_columnPadding}[default: 0|2|4]{NewLine}{NewLine}";
+                $"{_indentation}--filter-size{_columnPadding}[default: 0|2|4]{NewLine}{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -1310,7 +1310,7 @@ namespace System.CommandLine.Tests.Help
             _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}--prefixes <prefixes>{_columnPadding}[default: ^(TODO|BUG)|^HACK]{NewLine}{NewLine}";
+                $"{_indentation}--prefixes{_columnPadding}[default: ^(TODO|BUG)|^HACK]{NewLine}{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }

@@ -14,9 +14,9 @@ namespace System.CommandLine
     {
         private ParentNode? _firstParent;
 
-        private protected Symbol(string name)
+        private protected Symbol(string name, bool canContainWhitespaces = false)
         {
-            Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name));
+            Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), canContainWhitespaces);
         }
 
         /// <summary>
@@ -81,18 +81,21 @@ namespace System.CommandLine
         public override string ToString() => $"{GetType().Name}: {Name}";
 
         [DebuggerStepThrough]
-        internal static string ThrowIfEmptyOrWithWhitespaces(string value, string paramName)
+        internal static string ThrowIfEmptyOrWithWhitespaces(string value, string paramName, bool canContainWhitespaces = false)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
                 throw new ArgumentException("Names and aliases cannot be null, empty, or consist entirely of whitespace.");
             }
 
-            for (var i = 0; i < value.Length; i++)
+            if (!canContainWhitespaces)
             {
-                if (char.IsWhiteSpace(value[i]))
+                for (var i = 0; i < value.Length; i++)
                 {
-                    throw new ArgumentException($"Names and aliases cannot contain whitespace: \"{value}\"", paramName);
+                    if (char.IsWhiteSpace(value[i]))
+                    {
+                        throw new ArgumentException($"Names and aliases cannot contain whitespace: \"{value}\"", paramName);
+                    }
                 }
             }
 

@@ -46,7 +46,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact] 
-        public void When_a_required_global_option_has_multiple_aliases_the_error_message_uses_longest()
+        public void When_a_required_global_option_has_multiple_aliases_the_error_message_uses_the_name()
         {
             var rootCommand = new RootCommand();
             var requiredOption = new Option<bool>("-i", "--i-must-be-set")
@@ -61,7 +61,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Should()
                   .ContainSingle()
-                  .Which.Message.Should().Be("Option '--i-must-be-set' is required.");
+                  .Which.Message.Should().Be("Option '-i' is required.");
         }
 
         [Fact]

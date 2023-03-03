@@ -50,46 +50,27 @@ public partial class HelpBuilder
         /// </summary>
         public static string GetArgumentUsageLabel(Argument argument)
         {
-            if (argument.ValueType == typeof(bool) ||
-                argument.ValueType == typeof(bool?))
+            // Argument.HelpName is always first choice
+            if (!string.IsNullOrWhiteSpace(argument.HelpName))
             {
-                if (argument.FirstParent?.Symbol is Command)
+                return $"<{argument.HelpName}>";
+            }
+            else if (!argument.IsBoolean() && argument.CompletionSources.Count > 0)
+            {
+                IEnumerable<string> completions = argument
+                    .GetCompletions(CompletionContext.Empty)
+                    .Select(item => item.Label);
+
+                string joined = string.Join("|", completions);
+
+                if (!string.IsNullOrEmpty(joined))
                 {
-                    return $"<{argument.Name}>";
-                }
-                else
-                {
-                    return "";
+                    return $"<{joined}>";
                 }
             }
 
-            string firstColumn;
-            var completions = argument
-                .GetCompletions(CompletionContext.Empty)
-                .Select(item => item.Label)
-                .ToArray();
-
-            var arg = argument;
-            var helpName = arg?.HelpName ?? string.Empty;
-
-            if (!string.IsNullOrEmpty(helpName))
-            {
-                firstColumn = helpName!;
-            }
-            else if (completions.Length > 0)
-            {
-                firstColumn = string.Join("|", completions);
-            }
-            else
-            {
-                firstColumn = argument.Name;
-            }
-
-            if (!string.IsNullOrWhiteSpace(firstColumn))
-            {
-                return $"<{firstColumn}>";
-            }
-            return firstColumn;
+            // By default Option.Name == Argument.Name, don't repeat it
+            return argument.FirstParent?.Symbol is not Option ? $"<{argument.Name}>" : "";
         }
 
         /// <summary>

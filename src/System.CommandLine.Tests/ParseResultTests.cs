@@ -98,13 +98,13 @@ namespace System.CommandLine.Tests
             {
                 leafCommand
             };
-            midCommand1.Options.Add(new Option<string>("--three1", "option three 1") { AppliesToSelfAndChildren = true });
+            midCommand1.Options.Add(new Option<string>("--three1") { Description = "option three 1", AppliesToSelfAndChildren = true });
 
             var midCommand2 = new Command("midCommand2")
             {
                 leafCommand
             };
-            midCommand2.Options.Add(new Option<string>("--three2", "option three 2") { AppliesToSelfAndChildren = true });
+            midCommand2.Options.Add(new Option<string>("--three2") { Description = "option three 2", AppliesToSelfAndChildren = true });
 
             var rootCommand = new Command("root")
             {

@@ -67,9 +67,9 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Option<int>("-h", "--height") { DefaultValueFactory = (_) => 10 },
+                new Option<int>("--height", "-h") { DefaultValueFactory = (_) => 10 },
                 new Option<int>("-w", "--width") { DefaultValueFactory = (_) => 15 },
-                new Option<ConsoleColor>("-c", "--color") { DefaultValueFactory = (_) => ConsoleColor.Cyan }
+                new Option<ConsoleColor>("--color", "-c") { DefaultValueFactory = (_) => ConsoleColor.Cyan }
             };
 
             var result = rootCommand.Parse("-w 9000");

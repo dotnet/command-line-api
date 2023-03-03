@@ -11,25 +11,27 @@ internal static class OptionBuilder
 
     static OptionBuilder()
     {
-        _ctor = typeof(Option<string>).GetConstructor(new[] { typeof(string), typeof(string) });
+        _ctor = typeof(Option<string>).GetConstructor(new[] { typeof(string), typeof(string[]) });
     }
 
-    public static Option CreateOption(string name, Type valueType, string description = null)
+    internal static Option CreateOption(string name, Type valueType, string description = null)
     {
         var optionType = typeof(Option<>).MakeGenericType(valueType);
 
 #if NET6_0_OR_GREATER
         var ctor = (ConstructorInfo)optionType.GetMemberWithSameMetadataDefinitionAs(_ctor);
 #else
-        var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(string) });
+        var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(string[]) });
 #endif
 
-        var option = (Option)ctor.Invoke(new object[] { name, description });
+        var option = (Option)ctor.Invoke(new object[] { name, Array.Empty<string>() });
+
+        option.Description = description;
 
         return option;
     }
 
-    public static Option CreateOption(string name, Type valueType, string description, Func<object> defaultValueFactory)
+    internal static Option CreateOption(string name, Type valueType, string description, Func<object> defaultValueFactory)
     {
         if (defaultValueFactory == null)
         {
@@ -45,7 +47,7 @@ internal static class OptionBuilder
         return option;
     }
 
-    private class Bridge<T> : Option<T>
+    private sealed class Bridge<T> : Option<T>
     {
         public Bridge(string name, Func<object> defaultValueFactory, string description)
             : base(name)
