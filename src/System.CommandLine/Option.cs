@@ -35,11 +35,12 @@ namespace System.CommandLine
         internal abstract Argument Argument { get; }
 
         /// <summary>
-        /// Gets or sets the name of the option when displayed in help.
+        /// Gets or sets the name of the Option when displayed in help.
         /// </summary>
         /// <value>
         /// The name of the option when displayed in help.
         /// </value>
+        /// <remarks>Useful for localization, as it's not used for actual parsing.</remarks>
         public string? HelpName
         {
             get => Argument.HelpName;

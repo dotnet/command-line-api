@@ -89,8 +89,6 @@ namespace System.CommandLine
         /// </summary>
         public abstract bool HasDefaultValue { get; }
 
-        internal virtual bool HasCustomParser => false;
-
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {

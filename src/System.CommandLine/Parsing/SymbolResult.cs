@@ -85,8 +85,5 @@ namespace System.CommandLine.Parsing
         }
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;
-
-        /// <inheritdoc/>
-        public override string ToString() => $"{GetType().Name}: {this.Token()} {string.Join(" ", Tokens.Select(t => t.Value))}";
     }
 }

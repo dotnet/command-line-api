@@ -12,6 +12,11 @@ namespace System.CommandLine
     {
         private readonly Argument<T> _argument;
 
+        /// <summary>
+        /// Initializes a new instance of the Option class.
+        /// </summary>
+        /// <param name="name">The name of the option. It's used for parsing, displaying Help and creating parse errors.</param>>
+        /// <param name="aliases">Optional aliases. Used for parsing, suggestions and displayed in Help.</param>
         public Option(string name, params string[] aliases) 
             : this(name, aliases, new Argument<T>(name))
         {

@@ -18,20 +18,5 @@ namespace System.CommandLine.Parsing
                 yield return item;
             }
         }
-
-        internal static Token Token(this SymbolResult symbolResult)
-        {
-            return symbolResult switch
-            {
-                CommandResult commandResult => commandResult.Token,
-                OptionResult optionResult => optionResult.Token ?? CreateImplicitToken(optionResult.Option),
-                _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
-            };
-
-            static Token CreateImplicitToken(Option option)
-            {
-                return new Token(option.Name, TokenType.Option, option, Parsing.Token.ImplicitPosition);
-            }
-        }
     }
 }

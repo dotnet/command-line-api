@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Help;
+using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -36,6 +37,9 @@ namespace System.CommandLine.Parsing
         /// Child symbol results in the parse tree.
         /// </summary>
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
+
+        /// <inheritdoc/>
+        public override string ToString() => $"{nameof(CommandResult)}: {Token.Value} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;

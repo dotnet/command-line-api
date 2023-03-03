@@ -4,7 +4,6 @@ using System.Collections.Generic;
 namespace System.CommandLine
 {
     // this types exists only because we need to validate the added aliases ;)
-    // TODO: add struct enumerator
     internal sealed class AliasSet : ICollection<string>
     {
         private readonly HashSet<string> _aliases;
@@ -23,12 +22,15 @@ namespace System.CommandLine
 
         public int Count => _aliases.Count;
 
-        public bool IsReadOnly => throw new NotImplementedException();
+        public bool IsReadOnly => false;
 
         public void Add(string item)
             => _aliases.Add(Symbol.ThrowIfEmptyOrWithWhitespaces(item, nameof(item)));
 
         internal bool Overlaps(AliasSet other) => _aliases.Overlaps(other._aliases);
+
+        // a struct based enumerator for avoiding allocations
+        public HashSet<string>.Enumerator GetEnumerator() => _aliases.GetEnumerator();
 
         public void Clear() => _aliases.Clear();
 
@@ -36,9 +38,9 @@ namespace System.CommandLine
 
         public void CopyTo(string[] array, int arrayIndex) => _aliases.CopyTo(array, arrayIndex);
 
-        public IEnumerator<string> GetEnumerator() => _aliases.GetEnumerator();
-
         public bool Remove(string item) => _aliases.Remove(item);
+
+        IEnumerator<string> IEnumerable<string>.GetEnumerator() => _aliases.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _aliases.GetEnumerator();
     }

@@ -15,19 +15,29 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        /// <param name="name">The name of the argument.</param>>
+        /// <param name="name">The name of the argument. It's not used for parsing, only when displaying Help or creating parse errors.</param>>
         public Argument(string name) : base(name)
         {
         }
 
         /// <summary>
-        /// The delegate to invoke to return the default value.
+        /// The delegate to invoke to create the default value.
         /// </summary>
+        /// <remarks>
+        /// It's invoked when there was no parse input provided for given Argument.
+        /// The same instance can be set as <see cref="CustomParser"/>, in such case
+        /// the delegate is also invoked when an input was provided.
+        /// </remarks>
         public Func<ArgumentResult, T>? DefaultValueFactory { get; set; }
 
         /// <summary>
         /// A custom argument parser.
         /// </summary>
+        /// <remarks>
+        /// It's invoked when there was parse input provided for given Argument.
+        /// The same instance can be set as <see cref="DefaultValueFactory"/>, in such case
+        /// the delegate is also invoked when no input was provided.
+        /// </remarks>
         public Func<ArgumentResult, T>? CustomParser
         {
             get => _customParser;
@@ -37,7 +47,6 @@ namespace System.CommandLine
 
                 if (value is not null)
                 {
-                    // TODO: remove the following code or move it to the parsing logic
                     ConvertArguments = (ArgumentResult argumentResult, out object? parsedValue) =>
                     {
                         int errorsBefore = argumentResult.SymbolResultTree.ErrorCount;
@@ -58,13 +67,9 @@ namespace System.CommandLine
             }
         }
 
-        // TODO: try removing it
-        internal override bool HasCustomParser => _customParser is not null;
-
         /// <inheritdoc />
         public override Type ValueType => typeof(T);
 
-        // TODO: try removing it, or at least make it internal
         /// <inheritdoc />
         public override bool HasDefaultValue => DefaultValueFactory is not null;
 
