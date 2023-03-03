@@ -74,20 +74,22 @@ public partial class HelpBuilder
         }
 
         /// <summary>
-        /// Gets the description for the specified symbol (typically the used as the second column in help text).
-        /// </summary>
-        /// <param name="symbol">The symbol to get the description for.</param>
-        public static string GetIdentifierSymbolDescription(IdentifierSymbol symbol) => symbol.Description ?? string.Empty;
-
-        /// <summary>
         /// Gets the usage label for the specified symbol (typically used as the first column text in help output).
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
-        /// <param name="context">The help context, used for localization purposes.</param>
         /// <returns>Text to display.</returns>
-        public static string GetIdentifierSymbolUsageLabel(IdentifierSymbol symbol, HelpContext context)
+        public static string GetIdentifierSymbolUsageLabel(Command symbol)
+            => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
+
+        /// <inheritdoc cref="GetIdentifierSymbolUsageLabel(Command)"/>
+        public static string GetIdentifierSymbolUsageLabel(Option symbol)
+            => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
+
+        private static string GetIdentifierSymbolUsageLabel(Symbol symbol, AliasSet? aliasSet)
         {
-            var aliases = new [] {symbol.Name}.Concat(symbol.Aliases)
+            var aliases =  aliasSet is null
+                ? new [] { symbol.Name }
+                : new [] {symbol.Name}.Concat(aliasSet)
                                 .Select(r => r.SplitPrefix())
                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
                                 .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)

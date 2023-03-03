@@ -12,17 +12,21 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    /// <seealso cref="IdentifierSymbol" />
-    public abstract class Option : IdentifierSymbol, IValueDescriptor
+    public abstract class Option : Symbol, IValueDescriptor
     {
+        internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
 
         private protected Option(string name) : base(name)
         {
         }
 
-        private protected Option(string name, string[] aliases) : base(name, aliases)
+        private protected Option(string name, string[] aliases) : base(name)
         {
+            if (aliases != null && aliases.Length > 0) 
+            {
+                _aliases = new(aliases);
+            }
         }
 
         /// <summary>
@@ -92,6 +96,12 @@ namespace System.CommandLine
         /// </summary>
         /// <remarks>When an option is required and its parent command is invoked without it, an error results.</remarks>
         public bool IsRequired { get; set; }
+
+        /// <summary>
+        /// Gets the unique set of strings that can be used on the command line to specify the Option.
+        /// </summary>
+        /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Option.</remarks>
+        public ICollection<string> Aliases => _aliases ??= new();
 
         string IValueDescriptor.ValueName => Name;
 

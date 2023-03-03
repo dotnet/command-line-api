@@ -402,9 +402,9 @@ namespace System.CommandLine.Help
                 _customizationsBySymbol.TryGetValue(symbol, out customization);
             }
 
-            if (symbol is IdentifierSymbol identifierSymbol)
+            if (symbol is Option or Command)
             {
-                return GetIdentifierSymbolRow();
+                return GetOptionOrCommandRow();
             }
             else if (symbol is Argument argument)
             {
@@ -415,20 +415,21 @@ namespace System.CommandLine.Help
                 throw new NotSupportedException($"Symbol type {symbol.GetType()} is not supported.");
             }
 
-            TwoColumnHelpRow GetIdentifierSymbolRow()
+            TwoColumnHelpRow GetOptionOrCommandRow()
             {
-                var firstColumnText =
-                    customization?.GetFirstColumn?.Invoke(context) ?? Default.GetIdentifierSymbolUsageLabel(identifierSymbol, context);
+                var firstColumnText = customization?.GetFirstColumn?.Invoke(context) 
+                    ?? (symbol is Option option
+                            ? Default.GetIdentifierSymbolUsageLabel(option)
+                            : Default.GetIdentifierSymbolUsageLabel((Command)symbol));
 
                 var customizedSymbolDescription = customization?.GetSecondColumn?.Invoke(context);
 
-                var symbolDescription =
-                    customizedSymbolDescription ?? Default.GetIdentifierSymbolDescription(identifierSymbol);
+                var symbolDescription = customizedSymbolDescription ?? symbol.Description ?? string.Empty;
 
                 //in case symbol description is customized, do not output default value
                 //default value output is not customizable for identifier symbols
                 var defaultValueDescription = customizedSymbolDescription == null
-                    ? GetSymbolDefaultValue(identifierSymbol)
+                    ? GetSymbolDefaultValue(symbol)
                     : string.Empty;
 
                 var secondColumnText = $"{symbolDescription} {defaultValueDescription}".Trim();
@@ -454,7 +455,7 @@ namespace System.CommandLine.Help
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
 
-            string GetSymbolDefaultValue(IdentifierSymbol symbol)
+            string GetSymbolDefaultValue(Symbol symbol)
             {
                 IList<Argument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.IsHidden && x.HasDefaultValue).ToArray();
@@ -469,7 +470,7 @@ namespace System.CommandLine.Help
         }
 
         private string GetArgumentDefaultValue(
-            IdentifierSymbol parent,
+            Symbol parent,
             Argument argument,
             bool displayArgumentName,
             HelpContext context)

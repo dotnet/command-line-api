@@ -18,8 +18,9 @@ namespace System.CommandLine
     /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class Command : IdentifierSymbol, IEnumerable<Symbol>
+    public class Command : Symbol, IEnumerable<Symbol>
     {
+        internal AliasSet? _aliases;
         private ChildList<Argument>? _arguments;
         private ChildList<Option>? _options;
         private ChildList<Command>? _subcommands;
@@ -79,6 +80,12 @@ namespace System.CommandLine
         public List<Action<CommandResult>> Validators => _validators ??= new ();
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
+
+        /// <summary>
+        /// Gets the unique set of strings that can be used on the command line to specify the command.
+        /// </summary>
+        /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Command.</remarks>
+        public ICollection<string> Aliases => _aliases ??= new();
 
         /// <summary>
         /// Adds a <see cref="Symbol"/> to the command.
@@ -243,5 +250,8 @@ namespace System.CommandLine
                 }
             }
         }
+
+        internal bool EqualsNameOrAlias(string name)
+            => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
     }
 }

@@ -35,8 +35,9 @@ System.CommandLine
     public static Argument<System.IO.DirectoryInfo> AcceptExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
     public static Argument<System.IO.FileSystemInfo> AcceptExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
     public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
-  public class Command : IdentifierSymbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
+  public class Command : Symbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
     .ctor(System.String name, System.String description = null)
+    public System.Collections.Generic.ICollection<System.String> Aliases { get; }
     public System.Collections.Generic.IList<Argument> Arguments { get; }
     public System.Collections.Generic.IEnumerable<Symbol> Children { get; }
     public ICommandHandler Handler { get; set; }
@@ -130,9 +131,8 @@ System.CommandLine
     public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
-  public abstract class IdentifierSymbol : Symbol
+  public abstract class Option : Symbol, System.CommandLine.Binding.IValueDescriptor
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
-  public abstract class Option : IdentifierSymbol, System.CommandLine.Binding.IValueDescriptor
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public System.Boolean AppliesToSelfAndChildren { get; set; }
     public ArgumentArity Arity { get; set; }
@@ -244,8 +244,8 @@ System.CommandLine.Help
     public static System.String GetArgumentDefaultValue(System.CommandLine.Argument argument)
     public static System.String GetArgumentDescription(System.CommandLine.Argument argument)
     public static System.String GetArgumentUsageLabel(System.CommandLine.Argument argument)
-    public static System.String GetIdentifierSymbolDescription(System.CommandLine.IdentifierSymbol symbol)
-    public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.IdentifierSymbol symbol, HelpContext context)
+    public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.Command symbol)
+    public static System.String GetIdentifierSymbolUsageLabel(System.CommandLine.Option symbol)
     public static System.Collections.Generic.IEnumerable<System.Action<HelpContext>> GetLayout()
     public static System.Action<HelpContext> OptionsSection()
     public static System.Action<HelpContext> SubcommandsSection()

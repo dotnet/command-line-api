@@ -250,8 +250,8 @@ namespace System.CommandLine.Tests.Help
 
                 var helpBuilder = new HelpBuilder(LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(option,
-                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetIdentifierSymbolUsageLabel(option, ctx),
-                    secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetIdentifierSymbolDescription(option));
+                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetIdentifierSymbolUsageLabel(option),
+                    secondColumnText: ctx => conditionB ? "custom 2nd" : option.Description ?? string.Empty);
 
 
                 var config = new CommandLineBuilder(command)
