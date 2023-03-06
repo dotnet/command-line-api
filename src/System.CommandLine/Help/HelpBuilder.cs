@@ -419,8 +419,8 @@ namespace System.CommandLine.Help
             {
                 var firstColumnText = customization?.GetFirstColumn?.Invoke(context) 
                     ?? (symbol is Option option
-                            ? Default.GetIdentifierSymbolUsageLabel(option)
-                            : Default.GetIdentifierSymbolUsageLabel((Command)symbol));
+                            ? Default.GetOptionUsageLabel(option)
+                            : Default.GetCommandUsageLabel((Command)symbol));
 
                 var customizedSymbolDescription = customization?.GetSecondColumn?.Invoke(context);
 

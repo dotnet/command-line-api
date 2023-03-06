@@ -78,11 +78,11 @@ public partial class HelpBuilder
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <returns>Text to display.</returns>
-        public static string GetIdentifierSymbolUsageLabel(Command symbol)
+        public static string GetCommandUsageLabel(Command symbol)
             => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
 
-        /// <inheritdoc cref="GetIdentifierSymbolUsageLabel(Command)"/>
-        public static string GetIdentifierSymbolUsageLabel(Option symbol)
+        /// <inheritdoc cref="GetCommandUsageLabel(Command)"/>
+        public static string GetOptionUsageLabel(Option symbol)
             => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
 
         private static string GetIdentifierSymbolUsageLabel(Symbol symbol, AliasSet? aliasSet)

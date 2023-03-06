@@ -250,7 +250,7 @@ namespace System.CommandLine.Tests.Help
 
                 var helpBuilder = new HelpBuilder(LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(option,
-                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetIdentifierSymbolUsageLabel(option),
+                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetOptionUsageLabel(option),
                     secondColumnText: ctx => conditionB ? "custom 2nd" : option.Description ?? string.Empty);
 
 

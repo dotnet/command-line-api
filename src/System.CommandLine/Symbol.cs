@@ -14,9 +14,9 @@ namespace System.CommandLine
     {
         private ParentNode? _firstParent;
 
-        private protected Symbol(string name, bool canContainWhitespaces = false)
+        private protected Symbol(string name, bool allowWhitespace = false)
         {
-            Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), canContainWhitespaces);
+            Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
         }
 
         /// <summary>

@@ -19,7 +19,7 @@ namespace System.CommandLine
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
-        private protected Argument(string name) : base(name, canContainWhitespaces: true)
+        private protected Argument(string name) : base(name, allowWhitespace: true)
         {
         }
 
