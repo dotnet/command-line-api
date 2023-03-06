@@ -100,7 +100,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void An_option_doesno_not_need_to_have_at_least_one_alias()
+        public void An_option_does_not_need_to_have_at_any_aliases()
         {
             var option = new Option<string>("justName");
 
