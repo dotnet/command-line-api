@@ -233,7 +233,7 @@ namespace System.CommandLine
                         if (alias is { } &&
                             alias.ContainsCaseInsensitive(textToMatch))
                         {
-                            completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: identifier.Description));
+                            completions.Add(new CompletionItem(alias, CompletionItem.KindKeyword, detail: identifier.Description));
                         }
                     }
                 }
