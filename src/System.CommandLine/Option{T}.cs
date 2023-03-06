@@ -10,7 +10,7 @@ namespace System.CommandLine
     /// <typeparam name="T">The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.</typeparam>
     public class Option<T> : Option, IValueDescriptor<T>
     {
-        private readonly Argument<T> _argument;
+        internal readonly Argument<T> _argument;
 
         /// <inheritdoc/>
         public Option(
