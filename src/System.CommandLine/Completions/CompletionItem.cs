@@ -8,7 +8,7 @@ namespace System.CommandLine.Completions
     /// </summary>
     public class CompletionItem : IEquatable<CompletionItem>
     {
-        // reference: https://microsoft.github.io/language-server-protocol/specifications/specification-3-17/#textDocument_completion
+        // reference: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_completion
         internal const string KindKeyword = "Keyword";
         internal const string KindValue = "Value";
 
