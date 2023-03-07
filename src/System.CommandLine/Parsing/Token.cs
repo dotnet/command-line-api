@@ -59,21 +59,5 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc />
         public override string ToString() => Value;
-
-        /// <summary>
-        /// Checks if two specified <see cref="Token"/> instances have the same value.
-        /// </summary>
-        /// <param name="left">The first <see cref="Token"/>.</param>
-        /// <param name="right">The second <see cref="Token"/>.</param>
-        /// <returns><see langword="true" /> if the objects are equal.</returns>
-        public static bool operator ==(Token? left, Token? right) => left is null ? right is null : left.Equals(right);
-
-        /// <summary>
-        /// Checks if two specified <see cref="Token"/> instances have different values.
-        /// </summary>
-        /// <param name="left">The first <see cref="Token"/>.</param>
-        /// <param name="right">The second <see cref="Token"/>.</param>
-        /// <returns><see langword="true" /> if the objects are not equal.</returns>
-        public static bool operator !=(Token? left, Token? right) => left is null ? right is not null : !left.Equals(right);
     }
 }

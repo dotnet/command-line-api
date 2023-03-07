@@ -374,8 +374,6 @@ System.CommandLine.Parsing
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
   public class Token, System.IEquatable<Token>
-    public static System.Boolean op_Equality(Token left, Token right)
-    public static System.Boolean op_Inequality(Token left, Token right)
     .ctor(System.String value, TokenType type, System.CommandLine.Symbol symbol)
     public TokenType Type { get; }
     public System.String Value { get; }
