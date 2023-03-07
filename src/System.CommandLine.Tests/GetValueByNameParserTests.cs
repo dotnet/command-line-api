@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -46,20 +45,20 @@ namespace System.CommandLine.Tests
         {
             RootCommand command = new()
             {
-                new Option<int>("opt", new[] { "-i", "--integer" }),
+                new Option<int>("--integer", "-i"),
                 new Command("inner1")
                 {
-                    new Option<int>("opt", new[] { "-i", "--integer" }),
+                    new Option<int>("--integer", "-i"),
                     new Command("inner2")
                     {
-                        new Option<int>("opt", new[] { "-i", "--integer" })
+                        new Option<int>("--integer", "-i")
                     }
                 }
             };
 
             ParseResult parseResult = command.Parse("-i 1 inner1 --integer 2 inner2 -i 3");
 
-            parseResult.GetValue<int>("opt").Should().Be(3);
+            parseResult.GetValue<int>("--integer").Should().Be(3);
         }
 
         [Fact]
@@ -67,20 +66,23 @@ namespace System.CommandLine.Tests
         {
             RootCommand command = new()
             {
-                new Option<int>("opt", new[] { "-i", "--integer" })
+                new Option<int>("--integer", "-i")
             };
 
             ParseResult parseResult = command.Parse("");
 
-            parseResult.GetValue<int>("opt").Should().Be(default);
+            parseResult.GetValue<int>("--integer").Should().Be(default);
         }
 
         [Fact]
-        public void When_argument_value_is_not_parsed_then_default_value_is_returned()
+        public void When_optional_argument_is_not_parsed_then_default_value_is_returned()
         {
             RootCommand command = new()
             {
                 new Argument<int>("arg")
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                }
             };
 
             ParseResult parseResult = command.Parse("");
@@ -93,7 +95,7 @@ namespace System.CommandLine.Tests
         {
             RootCommand command = new()
             {
-                new Option<int>("required", new[] { "-i", "--integer" })
+                new Option<int>("--required")
                 {
                     IsRequired = true
                 }
@@ -101,12 +103,12 @@ namespace System.CommandLine.Tests
 
             ParseResult parseResult = command.Parse("");
 
-            Action getRequired = () => parseResult.GetValue<int>("required");
+            Action getRequired = () => parseResult.GetValue<int>("--required");
 
             getRequired
                 .Should()
                 .Throw<InvalidOperationException>()
-                .Where(ex => ex.Message == LocalizationResources.RequiredOptionWasNotProvided("required"));
+                .Where(ex => ex.Message == LocalizationResources.RequiredOptionWasNotProvided("--required"));
         }
 
         [Fact]
@@ -116,7 +118,7 @@ namespace System.CommandLine.Tests
             {
                 new Argument<int>("required")
                 {
-                    Arity = new ArgumentArity(1, 1)
+                    Arity = ArgumentArity.ExactlyOne
                 }
             };
 
@@ -127,7 +129,20 @@ namespace System.CommandLine.Tests
             getRequired
                 .Should()
                 .Throw<InvalidOperationException>()
-                .Where(ex => ex.Message == LocalizationResources.RequiredOptionWasNotProvided("required"));
+                .Where(ex => ex.Message == LocalizationResources.RequiredArgumentMissing(parseResult.FindResultFor(command.Arguments[0])));
+        }
+
+        [Fact]
+        public void When_non_existing_name_is_used_then_exception_is_thrown()
+        {
+            ParseResult parseResult = new Command("noSymbols").Parse("");
+
+            Action getRequired = () => parseResult.GetValue<int>("required");
+
+            getRequired
+                .Should()
+                .Throw<InvalidOperationException>()
+                .Where(ex => ex.Message == LocalizationResources.RequiredArgumentMissing(parseResult.FindResultFor(command.Arguments[0])));
         }
     }
 }

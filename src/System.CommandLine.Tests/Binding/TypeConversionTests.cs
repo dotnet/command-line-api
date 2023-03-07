@@ -733,8 +733,12 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void String_defaults_to_null_when_not_specified()
-            => GetValue(new Argument<string>("arg"), "").Should().BeNull();
+        public void String_defaults_to_null_when_not_specified_only_for_not_required_arguments()
+            => GetValue(
+                new Argument<string>("arg")
+                { 
+                    Arity = ArgumentArity.ZeroOrMore
+                }, "").Should().BeNull();
 
         [Theory]
         [InlineData(typeof(List<string>))]

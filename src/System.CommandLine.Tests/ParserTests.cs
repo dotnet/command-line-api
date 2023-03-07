@@ -1409,7 +1409,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.RequiredArgumentMissing(result.CommandResult));
+                  .Contain(LocalizationResources.RequiredArgumentMissing(result.FindResultFor(command.Arguments[0])));
         }
 
         [Fact]
@@ -1485,7 +1485,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
-            var option = new Option<int[]>("-x") { Arity = new ArgumentArity(2, 3) };
+            var option = new Option<int[]>("-x") 
+            { 
+                Arity = new ArgumentArity(2, 3)
+            };
 
             var command = new Command("the-command")
             {
@@ -1497,7 +1500,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.RequiredArgumentMissing(result.CommandResult.FindResultFor(option)));
+                  .Contain(LocalizationResources.RequiredArgumentMissing(result.FindResultFor(option)));
         }
 
         [Fact]

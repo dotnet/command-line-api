@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public sealed class CommandResult : SymbolResult
     {
-        private Dictionary<string, SymbolResult>? _namedResults;
+        private Dictionary<string, SymbolResult?>? _namedResults;
 
         internal CommandResult(
             Command command,
@@ -48,20 +48,34 @@ namespace System.CommandLine.Parsing
         {
             if (_namedResults is null)
             {
-                Dictionary<string, SymbolResult> cache = new (StringComparer.Ordinal);
+                // A null value means that given name exists, but was not parsed
+                Dictionary<string, SymbolResult?> cache = new (StringComparer.Ordinal);
 
-                foreach (KeyValuePair<Symbol, SymbolResult> pair in SymbolResultTree)
+                if (Command.HasArguments)
                 {
-                    if (ReferenceEquals(pair.Value.Parent, this))
+                    for (int i = 0; i < Command.Arguments.Count; i++)
                     {
-                        cache.Add(pair.Key.Name, pair.Value);
+                        SymbolResultTree.TryGetValue(Command.Arguments[i], out SymbolResult? parsedResult);
+                        cache.Add(Command.Arguments[i].Name, parsedResult);
+                    }
+                }
+
+                if (Command.HasOptions)
+                {
+                    for (int i = 0; i < Command.Options.Count; i++)
+                    {
+                        SymbolResultTree.TryGetValue(Command.Options[i], out SymbolResult? parsedResult);
+                        cache.Add(Command.Options[i].Name, parsedResult);
                     }
                 }
 
                 _namedResults = cache;
             }
 
-            _namedResults.TryGetValue(name, out SymbolResult? symbolResult);
+            if (!_namedResults.TryGetValue(name, out SymbolResult? symbolResult))
+            {
+                throw new InvalidOperationException($"No symbol result found for \"{name}\" for command {Command.Name}.");
+            }
 
             return symbolResult switch
             {
@@ -118,7 +132,7 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-                if (!completeValidation && !(option.AppliesToSelfAndChildren || option.Argument.HasDefaultValue || (option is HelpOption or VersionOption)))
+                if (!completeValidation && !(option.AppliesToSelfAndChildren || option.Argument.HasDefaultValue || option is VersionOption))
                 {
                     continue;
                 }
@@ -128,18 +142,19 @@ namespace System.CommandLine.Parsing
 
                 if (!SymbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
                 {
-                    if (option.IsRequired)
-                    {
-                        AddError(LocalizationResources.RequiredOptionWasNotProvided(option.Name));
-                        continue;
-                    }
-                    else if (option.Argument.HasDefaultValue)
+                    if (option.IsRequired || option.Argument.HasDefaultValue)
                     {
                         optionResult = new(option, SymbolResultTree, null, this);
                         SymbolResultTree.Add(optionResult.Option, optionResult);
 
                         argumentResult = new(optionResult.Option.Argument, SymbolResultTree, optionResult);
                         SymbolResultTree.Add(optionResult.Option.Argument, argumentResult);
+
+                        if (option.IsRequired && !option.Argument.HasDefaultValue)
+                        {
+                            argumentResult.AddError(LocalizationResources.RequiredOptionWasNotProvided(option.Name));
+                            continue;
+                        }
                     }
                     else
                     {
@@ -195,15 +210,16 @@ namespace System.CommandLine.Parsing
                 {
                     argumentResult = (ArgumentResult)symbolResult;
                 }
-                else if (argument.HasDefaultValue)
+                else if (argument.HasDefaultValue || argument.Arity.MinimumNumberOfValues > 0)
                 {
                     argumentResult = new ArgumentResult(argument, SymbolResultTree, this);
                     SymbolResultTree[argument] = argumentResult;
-                }
-                else if (argument.Arity.MinimumNumberOfValues > 0)
-                {
-                    AddError(LocalizationResources.RequiredArgumentMissing(this));
-                    continue;
+
+                    if (!argument.HasDefaultValue && argument.Arity.MinimumNumberOfValues > 0)
+                    {
+                        argumentResult.AddError(LocalizationResources.RequiredArgumentMissing(argumentResult));
+                        continue;
+                    }
                 }
                 else
                 {

@@ -257,7 +257,7 @@ namespace System.CommandLine.Tests
 
                 var result = rootCommand.Parse("");
 
-                result.FindResultFor(arg1).Should().BeNull();
+                result.FindResultFor(arg1).Should().NotBeNull();
                 result.GetValue(arg2).Should().Be("the-default");
             }
 
@@ -299,12 +299,9 @@ namespace System.CommandLine.Tests
 
                 var result = Parser.Parse(command, providedArgs);
 
-                var numberOfMissingArgs =
-                    result
-                        .Errors
-                        .Count(e => e.Message == LocalizationResources.RequiredArgumentMissing(result.CommandResult));
-
-                numberOfMissingArgs
+                result
+                    .Errors
+                    .Count
                     .Should()
                     .Be(4 - providedArgs.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length);
             }
