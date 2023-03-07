@@ -332,7 +332,6 @@ System.CommandLine.Parsing
   public class ArgumentResult : SymbolResult
     public System.CommandLine.Argument Argument { get; }
     public System.Void AddError(System.String errorMessage)
-    public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
     public System.String ToString()
@@ -351,7 +350,6 @@ System.CommandLine.Parsing
     public System.Boolean IsImplicit { get; }
     public System.CommandLine.Option Option { get; }
     public Token Token { get; }
-    public System.Object GetValueOrDefault()
     public T GetValueOrDefault<T>()
     public System.String ToString()
   public class ParseError

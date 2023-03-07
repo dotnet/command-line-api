@@ -237,7 +237,7 @@ namespace System.CommandLine.Tests
             new RootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
-                .GetValueOrDefault()
+                .GetValueOrDefault<int>()
                 .Should()
                 .Be(123);
         }
@@ -253,7 +253,7 @@ namespace System.CommandLine.Tests
             new RootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
-                .GetValueOrDefault()
+                .GetValueOrDefault<int>()
                 .Should()
                 .Be(123);
         }
@@ -268,7 +268,7 @@ namespace System.CommandLine.Tests
             new RootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
-                .GetValueOrDefault()
+                .GetValueOrDefault<int>()
                 .Should()
                 .Be(123);
         }

@@ -22,7 +22,7 @@ internal static class CommandResultExtensions
             {
                 if (commandResult.FindResultFor(argument) is { } argumentResult)
                 {
-                    value = argumentResult.GetValueOrDefault();
+                    value = argumentResult.GetValueOrDefault<object>();
                 }
                 else
                 {
@@ -57,7 +57,7 @@ internal static class CommandResultExtensions
 
                     if (optionResult is not null)
                     {
-                        value = optionResult.GetValueOrDefault();
+                        value = optionResult.GetValueOrDefault<object>();
 
                         return true;
                     }

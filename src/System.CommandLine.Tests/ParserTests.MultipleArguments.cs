@@ -127,12 +127,12 @@ namespace System.CommandLine.Tests
                 var result = root.Parse("src.txt dest.txt");
 
                 result.FindResultFor(sourceArg)
-                      .GetValueOrDefault()
+                      .GetValueOrDefault<string>()
                       .Should()
                       .Be("src.txt");
                 
                 result.FindResultFor(destinationArg)
-                      .GetValueOrDefault()
+                      .GetValueOrDefault<string>()
                       .Should()
                       .Be("dest.txt");
             }

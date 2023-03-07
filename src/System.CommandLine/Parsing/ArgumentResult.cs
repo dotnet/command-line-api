@@ -34,10 +34,6 @@ namespace System.CommandLine.Parsing
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= ValidateAndConvert(useValidators: true);
 
-        /// <inheritdoc cref="GetValueOrDefault{T}"/>
-        public object? GetValueOrDefault() =>
-            GetValueOrDefault<object?>();
-
         /// <summary>
         /// Gets the parsed value or the default value for <see cref="Argument"/>.
         /// </summary>

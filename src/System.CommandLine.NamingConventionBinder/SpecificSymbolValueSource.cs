@@ -25,7 +25,7 @@ internal class SpecificSymbolValueSource : IValueSource
                 var optionResult = bindingContext?.ParseResult.FindResultFor(option);
                 if (optionResult is not null)
                 {
-                    boundValue = optionResult.GetValueOrDefault();
+                    boundValue = optionResult.GetValueOrDefault<object>();
                     return true;
                 }
                 break;
@@ -33,7 +33,7 @@ internal class SpecificSymbolValueSource : IValueSource
                 var argumentResult = bindingContext?.ParseResult.FindResultFor(argument);
                 if (argumentResult is not null)
                 {
-                    boundValue = argumentResult.GetValueOrDefault();
+                    boundValue = argumentResult.GetValueOrDefault<object>();
                     return true;
                 }
                 break;

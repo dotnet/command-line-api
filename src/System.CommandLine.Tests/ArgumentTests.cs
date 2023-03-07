@@ -608,13 +608,13 @@ namespace System.CommandLine.Tests
                 var parseResult = command.Parse(commandLine);
 
                 parseResult.FindResultFor(argument1)
-                           .GetValueOrDefault()
+                           .GetValueOrDefault<int[]>()
                            .Should()
                            .BeEquivalentTo(new[] { 1, 2, 3 },
                                                     options => options.WithStrictOrdering());
 
                 parseResult.FindResultFor(argument2)
-                           .GetValueOrDefault()
+                           .GetValueOrDefault<int[]>()
                            .Should()
                            .BeEquivalentTo(new[] { 4, 5, 6, 7, 8 },
                                                     options => options.WithStrictOrdering());
