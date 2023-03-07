@@ -18,5 +18,6 @@ namespace System.CommandLine.Parsing
                 yield return item;
             }
         }
+
     }
 }

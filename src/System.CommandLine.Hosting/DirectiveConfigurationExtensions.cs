@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.Linq;
 
 using Microsoft.Extensions.Configuration;
@@ -9,18 +10,21 @@ namespace System.CommandLine.Hosting
     {
         public static IConfigurationBuilder AddCommandLineDirectives(
             this IConfigurationBuilder config, ParseResult commandline,
-            string name)
+            Directive directive)
         {
             if (commandline is null)
                 throw new ArgumentNullException(nameof(commandline));
-            if (name is null)
-                throw new ArgumentNullException(nameof(name));
+            if (directive is null)
+                throw new ArgumentNullException(nameof(directive));
 
-            if (!commandline.Directives.TryGetValue(name, out var directives))
+            if (commandline.FindResultFor(directive) is not DirectiveResult result
+                || result.Values.Count == 0)
+            {
                 return config;
+            }
 
             var kvpSeparator = new[] { '=' };
-            return config.AddInMemoryCollection(directives.Select(s =>
+            return config.AddInMemoryCollection(result.Values.Select(s =>
             {
                 var parts = s.Split(kvpSeparator, count: 2);
                 var key = parts[0];

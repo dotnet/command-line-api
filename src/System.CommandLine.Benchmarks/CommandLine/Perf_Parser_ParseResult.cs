@@ -43,8 +43,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestInputs))]
-        public IReadOnlyDictionary<string, IReadOnlyList<string>> ParseResult_Directives(string input)
-            => _configuration.RootCommand.Parse(input, _configuration).Directives;
+        public ParseResult ParseResult_Directives(string input)
+            => _configuration.RootCommand.Parse(input, _configuration);
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]

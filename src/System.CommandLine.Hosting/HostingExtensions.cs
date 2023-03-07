@@ -13,12 +13,14 @@ namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
-        private const string ConfigurationDirectiveName = "config";
-
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
-            Action<IHostBuilder> configureHost = null) =>
-            builder.AddMiddleware(async (invocation, cancellationToken, next) =>
+            Action<IHostBuilder> configureHost = null)
+        {
+            Directive configurationDirective = new("config");
+            builder.Directives.Add(configurationDirective);
+
+            return builder.AddMiddleware(async (invocation, cancellationToken, next) =>
             {
                 var argsRemaining = invocation.ParseResult.UnmatchedTokens.ToArray();
                 var hostBuilder = hostBuilderFactory?.Invoke(argsRemaining)
@@ -27,7 +29,7 @@ namespace System.CommandLine.Hosting
 
                 hostBuilder.ConfigureHostConfiguration(config =>
                 {
-                    config.AddCommandLineDirectives(invocation.ParseResult, ConfigurationDirectiveName);
+                    config.AddCommandLineDirectives(invocation.ParseResult, configurationDirective);
                 });
                 hostBuilder.ConfigureServices(services =>
                 {
@@ -50,6 +52,7 @@ namespace System.CommandLine.Hosting
 
                 await host.StopAsync(cancellationToken);
             });
+        }
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
             Action<IHostBuilder> configureHost = null

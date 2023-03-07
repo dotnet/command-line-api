@@ -16,7 +16,6 @@ namespace System.CommandLine.Parsing
         private readonly CommandResult _rootCommandResult;
 
         private int _index;
-        private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested, _isParseRequested;
         private ICommandHandler? _handler;
@@ -78,7 +77,6 @@ namespace System.CommandLine.Parsing
                 _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,
-                _directives,
                 _tokens,
                 _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
@@ -285,7 +283,7 @@ namespace System.CommandLine.Parsing
         {
             while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Directive)
             {
-                if (_configuration.EnableDirectives)
+                if (_configuration.Directives.Count > 0)
                 {
                     ParseDirective(); // kept in separate method to avoid JIT
                 }
@@ -296,28 +294,38 @@ namespace System.CommandLine.Parsing
             void ParseDirective()
             {
                 var token = CurrentToken;
+
+                if (token.Symbol is not Directive directive)
+                {
+                    AddCurrentTokenToUnmatched();
+                    return;
+                }
+
+                DirectiveResult result;
+                if (_symbolResultTree.TryGetValue(directive, out var directiveResult))
+                {
+                    result = (DirectiveResult)directiveResult;
+                    result.AddToken(token);
+                }
+                else
+                {
+                    result = new (directive, token, _symbolResultTree);
+                    _symbolResultTree.Add(directive, result);
+                }
+
                 ReadOnlySpan<char> withoutBrackets = token.Value.AsSpan(1, token.Value.Length - 2);
                 int indexOfColon = withoutBrackets.IndexOf(':');
-                string key = indexOfColon >= 0 
-                    ? withoutBrackets.Slice(0, indexOfColon).ToString()
-                    : withoutBrackets.ToString();
-                string? value = indexOfColon > 0
-                    ? withoutBrackets.Slice(indexOfColon + 1).ToString()
-                    : null;
-
-                if (_directives is null || !_directives.TryGetValue(key, out var values))
+                if (indexOfColon > 0)
                 {
-                    values = new List<string>();
-
-                    (_directives ??= new()).Add(key, values);
+                    result.AddValue(withoutBrackets.Slice(indexOfColon + 1).ToString());
                 }
 
-                if (value is not null)
-                {
-                    ((List<string>)values).Add(value);
-                }
+                _handler = directive.Handler;
 
-                OnDirectiveParsed(key, value);
+                if (directive is ParseDirective)
+                {
+                    _isParseRequested = true;
+                }
             }
         }
 
@@ -344,36 +352,6 @@ namespace System.CommandLine.Parsing
                 currentResult.Validate(completeValidation: false);
 
                 currentResult = currentResult.Parent as CommandResult;
-            }
-        }
-
-        private void OnDirectiveParsed(string directiveKey, string? parsedValues)
-        {
-            if (_configuration.EnableEnvironmentVariableDirective && directiveKey == "env")
-            {
-                if (parsedValues is not null)
-                {
-                    var components = parsedValues.Split(new[] { '=' }, count: 2);
-                    var variable = components.Length > 0 ? components[0].Trim() : string.Empty;
-                    if (string.IsNullOrEmpty(variable) || components.Length < 2)
-                    {
-                        return;
-                    }
-
-                    var value = components[1].Trim();
-                    Environment.SetEnvironmentVariable(variable, value);
-                }
-            }
-            else if (_configuration.ParseDirectiveExitCode.HasValue && directiveKey == "parse")
-            {
-                _isParseRequested = true;
-                _handler = new AnonymousCommandHandler(ParseDirectiveResult.Apply);
-            }
-            else if (_configuration.EnableSuggestDirective && directiveKey == "suggest")
-            {
-                int position = parsedValues is not null ? int.Parse(parsedValues) : _rawInput?.Length ?? 0;
-
-                _handler = new AnonymousCommandHandler(ctx => SuggestDirectiveResult.Apply(ctx, position));
             }
         }
     }

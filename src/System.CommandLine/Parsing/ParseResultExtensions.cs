@@ -59,6 +59,8 @@ namespace System.CommandLine.Parsing
 
             switch (symbolResult)
             {
+                case DirectiveResult directiveResult when directiveResult.Directive is not ParseDirective:
+                    break;
                 case ArgumentResult argumentResult:
                 {
                     var includeArgumentName =

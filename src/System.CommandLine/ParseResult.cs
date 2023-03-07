@@ -20,7 +20,6 @@ namespace System.CommandLine
         private readonly IReadOnlyList<ParseError> _errors;
         private readonly CommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
-        private Dictionary<string, IReadOnlyList<string>>? _directives;
         private CompletionContext? _completionContext;
         private ICommandHandler? _handler;
 
@@ -28,7 +27,6 @@ namespace System.CommandLine
             CommandLineConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
-            Dictionary<string, IReadOnlyList<string>>? directives,
             List<Token> tokens,
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
@@ -38,7 +36,6 @@ namespace System.CommandLine
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
-            _directives = directives;
             _handler = handler;
 
             // skip the root command when populating Tokens property
@@ -81,12 +78,6 @@ namespace System.CommandLine
         /// Gets the parse errors found while parsing command line input.
         /// </summary>
         public IReadOnlyList<ParseError> Errors => _errors;
-
-        /// <summary>
-        /// Gets the directives found while parsing command line input.
-        /// </summary>
-        /// <remarks>If <see cref="CommandLineConfiguration.EnableDirectives"/> is set to <see langword="false"/>, then this collection will be empty.</remarks>
-        public IReadOnlyDictionary<string, IReadOnlyList<string>> Directives => _directives ??= new ();
 
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
@@ -166,18 +157,19 @@ namespace System.CommandLine
             _rootCommandResult.FindResultFor(option);
 
         /// <summary>
+        /// Gets the result, if any, for the specified directive.
+        /// </summary>
+        /// <param name="directive">The directive for which to find a result.</param>
+        /// <returns>A result for the specified directive, or <see langword="null"/> if it was not provided.</returns>
+        public DirectiveResult? FindResultFor(Directive directive) => _rootCommandResult.FindResultFor(directive);
+
+        /// <summary>
         /// Gets the result, if any, for the specified symbol.
         /// </summary>
         /// <param name="symbol">The symbol for which to find a result.</param>
         /// <returns>A result for the specified symbol, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public SymbolResult? FindResultFor(Symbol symbol) =>
-            symbol switch
-            {
-                Argument argument => FindResultFor(argument),
-                Command command => FindResultFor(command),
-                Option option => FindResultFor(option),
-                _ => throw new ArgumentOutOfRangeException(nameof(symbol))
-            };
+        public SymbolResult? FindResultFor(Symbol symbol)
+            => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out SymbolResult? result) ? result : null;
 
         /// <summary>
         /// Gets completions based on a given parse result.
@@ -193,6 +185,7 @@ namespace System.CommandLine
             {
                 ArgumentResult argumentResult => argumentResult.Argument,
                 OptionResult optionResult => optionResult.Option,
+                DirectiveResult directiveResult => directiveResult.Directive,
                 _ => ((CommandResult)currentSymbolResult).Command
             };
 

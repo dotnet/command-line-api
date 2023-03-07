@@ -24,22 +24,6 @@ namespace System.CommandLine
         internal readonly Action<Exception, InvocationContext>? ExceptionHandler;
 
         /// <summary>
-        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
-        /// </summary>
-        internal readonly bool EnableEnvironmentVariableDirective;
-
-        /// <summary>
-        /// If the parse result contains errors, this exit code will be used when the process exits.
-        /// </summary>
-        internal readonly int? ParseDirectiveExitCode;
-
-        /// <summary>
-        /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
-        /// </summary>
-        /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
-        internal readonly bool EnableSuggestDirective;
-
-        /// <summary>
         /// The exit code to use when parser errors occur.
         /// </summary>
         internal readonly int? ParseErrorReportingExitCode;
@@ -61,7 +45,6 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The root command for the parser.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
-        /// <param name="enableDirectives"><see langword="true"/> to enable directive parsing; otherwise, <see langword="false"/>.</param>
         /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
@@ -69,24 +52,30 @@ namespace System.CommandLine
         public CommandLineConfiguration(
             Command command,
             bool enablePosixBundling = true,
-            bool enableDirectives = true,
             bool enableTokenReplacement = true,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
-            : this(command, enablePosixBundling, enableDirectives, enableTokenReplacement, false, null, false, null, 0, null,
-                  middlewarePipeline, helpBuilderFactory, tokenReplacer, null)
+            : this(
+                  command,
+                  directives: null,
+                  enablePosixBundling: enablePosixBundling,
+                  enableTokenReplacement: enableTokenReplacement,
+                  parseErrorReportingExitCode: null,
+                  maxLevenshteinDistance: 0,
+                  processTerminationTimeout: null,
+                  middlewarePipeline: middlewarePipeline,
+                  helpBuilderFactory: helpBuilderFactory,
+                  tokenReplacer: tokenReplacer,
+                  exceptionHandler: null)
         {
         }
 
         internal CommandLineConfiguration(
             Command command,
+            List<Directive>? directives,
             bool enablePosixBundling,
-            bool enableDirectives,
             bool enableTokenReplacement,
-            bool enableEnvironmentVariableDirective,
-            int? parseDirectiveExitCode,
-            bool enableSuggestDirective,
             int? parseErrorReportingExitCode,
             int maxLevenshteinDistance,
             TimeSpan? processTerminationTimeout,
@@ -96,12 +85,9 @@ namespace System.CommandLine
             Action<Exception, InvocationContext>? exceptionHandler)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
+            Directives = directives is not null ? directives : Array.Empty<Directive>();
             EnableTokenReplacement = enableTokenReplacement;
             EnablePosixBundling = enablePosixBundling;
-            EnableDirectives = enableDirectives || enableEnvironmentVariableDirective || parseDirectiveExitCode.HasValue || enableSuggestDirective;
-            EnableEnvironmentVariableDirective = enableEnvironmentVariableDirective;
-            ParseDirectiveExitCode = parseDirectiveExitCode;
-            EnableSuggestDirective = enableSuggestDirective;
             ParseErrorReportingExitCode = parseErrorReportingExitCode;
             MaxLevenshteinDistance = maxLevenshteinDistance;
             ProcessTerminationTimeout = processTerminationTimeout;
@@ -126,9 +112,9 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets whether directives are enabled.
+        /// Gets the enabled directives.
         /// </summary>
-        public bool EnableDirectives { get; }
+        public IReadOnlyList<Directive> Directives { get; }
 
         /// <summary>
         /// Gets a value indicating whether POSIX bundling is enabled.

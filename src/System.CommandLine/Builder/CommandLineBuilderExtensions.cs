@@ -33,20 +33,6 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Enables the parser to recognize command line directives.
-        /// </summary>
-        /// <param name="value"><see langword="true" /> to enable directives. <see langword="false" /> to parse directive-like tokens in the same way as any other token.</param>
-        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        /// <seealso href="/dotnet/standard/commandline/syntax#directives">Command-line directives</seealso> 
-        /// <seealso cref="DirectiveCollection"/>
-        public CommandLineBuilder EnableDirectives(bool value = true)
-        {
-            EnableDirectivesFlag = value;
-
-            return this;
-        }
-
-        /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.
         /// </summary>
         /// <param name="value"><see langword="true"/> to parse POSIX bundles; otherwise, <see langword="false"/>.</param>
@@ -127,13 +113,11 @@ ERR:
             return this;
         }
 
-        /// <summary>
-        /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
-        /// </summary>
+        /// <inheritdoc cref="EnvironmentVariablesDirective"/>
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         public CommandLineBuilder UseEnvironmentVariableDirective()
         {
-            EnableEnvironmentVariableDirective = true;
+            Directives.Add(new EnvironmentVariablesDirective());
 
             return this;
         }
@@ -307,15 +291,14 @@ ERR:
             }, order);
         }
 
-        /// <summary>
-        /// Enables the use of the <c>[parse]</c> directive, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
-        /// </summary>
+
+        /// <inheritdoc cref="ParseDirective"/>
         /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         public CommandLineBuilder UseParseDirective(
             int errorExitCode = 1)
         {
-            ParseDirectiveExitCode = errorExitCode;
+            Directives.Add(new ParseDirective(errorExitCode));
 
             return this;
         }
@@ -333,14 +316,11 @@ ERR:
             return this;
         }
 
-        /// <summary>
-        /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
-        /// </summary>
-        /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
+        /// <inheritdoc cref="SuggestDirective"/>
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         public CommandLineBuilder UseSuggestDirective()
         {
-            EnableSuggestDirective = true;
+            Directives.Add(new SuggestDirective());
 
             return this;
         }

@@ -1,8 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Binding;
-using System.Linq;
+using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Rendering
 {
@@ -11,13 +10,18 @@ namespace System.CommandLine.Rendering
         public static CommandLineBuilder UseAnsiTerminalWhenAvailable(
             this CommandLineBuilder builder)
         {
+            Directive enableVtDirective = new ("enable-vt");
+            Directive outputDirective = new ("output");
+            builder.Directives.Add(enableVtDirective);
+            builder.Directives.Add(outputDirective);
+
             builder.AddMiddleware(context =>
             {
                 var console = context.Console;
 
                 var terminal = console.GetTerminal(
-                    PreferVirtualTerminal(context.BindingContext),
-                    OutputMode(context.BindingContext));
+                    PreferVirtualTerminal(context.ParseResult, enableVtDirective),
+                    OutputMode(context.ParseResult, outputDirective));
 
                 context.Console = terminal ?? console;
             });
@@ -25,16 +29,14 @@ namespace System.CommandLine.Rendering
             return builder;
         }
 
-        internal static bool PreferVirtualTerminal(
-            this BindingContext context)
+        private static bool PreferVirtualTerminal(ParseResult parseResult, Directive enableVtDirective)
         {
-            if (context.ParseResult.Directives.TryGetValue(
-                "enable-vt",
-                out var trueOrFalse))
+            if (parseResult.FindResultFor(enableVtDirective) is DirectiveResult result
+                && result.Values.Count == 1)
             {
-                if (bool.TryParse(
-                    trueOrFalse.FirstOrDefault(),
-                    out var pvt))
+                string trueOrFalse = result.Values[0];
+
+                if (bool.TryParse(trueOrFalse, out var pvt))
                 {
                     return pvt;
                 }
@@ -43,15 +45,11 @@ namespace System.CommandLine.Rendering
             return true;
         }
 
-        public static OutputMode OutputMode(this BindingContext context)
+        private static OutputMode OutputMode(ParseResult parseResult, Directive outputDirective)
         {
-            if (context.ParseResult.Directives.TryGetValue(
-                    "output",
-                    out var modeString) &&
-                Enum.TryParse<OutputMode>(
-                    modeString.FirstOrDefault(),
-                    true,
-                    out var mode))
+            if (parseResult.FindResultFor(outputDirective) is DirectiveResult result
+                && result.Values.Count == 1
+                && Enum.TryParse<OutputMode>(result.Values[0], true, out var mode))
             {
                 return mode;
             }

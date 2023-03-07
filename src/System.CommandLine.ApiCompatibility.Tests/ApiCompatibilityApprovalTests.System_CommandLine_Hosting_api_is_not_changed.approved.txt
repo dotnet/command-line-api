@@ -1,6 +1,6 @@
 System.CommandLine.Hosting
   public static class DirectiveConfigurationExtensions
-    public static Microsoft.Extensions.Configuration.IConfigurationBuilder AddCommandLineDirectives(this Microsoft.Extensions.Configuration.IConfigurationBuilder config, System.CommandLine.ParseResult commandline, System.String name)
+    public static Microsoft.Extensions.Configuration.IConfigurationBuilder AddCommandLineDirectives(this Microsoft.Extensions.Configuration.IConfigurationBuilder config, System.CommandLine.ParseResult commandline, System.CommandLine.Directive directive)
   public static class HostingExtensions
     public static OptionsBuilder<TOptions> BindCommandLine<TOptions>(this OptionsBuilder<TOptions> optionsBuilder)
     public static Microsoft.Extensions.Hosting.IHost GetHost(this System.CommandLine.Invocation.InvocationContext invocationContext)
