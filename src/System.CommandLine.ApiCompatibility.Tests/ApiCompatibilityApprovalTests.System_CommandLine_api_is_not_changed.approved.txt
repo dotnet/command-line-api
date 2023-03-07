@@ -375,6 +375,7 @@ System.CommandLine.Parsing
     public T GetValue<T>(Option<T> option)
   public class Token, System.IEquatable<Token>
     .ctor(System.String value, TokenType type, System.CommandLine.Symbol symbol)
+    public System.CommandLine.Symbol Symbol { get; }
     public TokenType Type { get; }
     public System.String Value { get; }
     public System.Boolean Equals(System.Object obj)
