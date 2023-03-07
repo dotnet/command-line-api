@@ -11,14 +11,16 @@ namespace System.CommandLine.Help
     internal class VersionOption : Option<bool>
     {
         internal VersionOption()
-            : base("--version", LocalizationResources.VersionOptionDescription(), new Argument<bool> { Arity = ArgumentArity.Zero })
+            : base("--version", new Argument<bool>("--version") { Arity = ArgumentArity.Zero })
         {
+            Description = LocalizationResources.VersionOptionDescription();
             AddValidators();
         }
 
-        internal VersionOption(string[] aliases)
-            : base(aliases, LocalizationResources.VersionOptionDescription())
+        internal VersionOption(string name, string[] aliases)
+            : base(name, aliases)
         {
+            Description = LocalizationResources.VersionOptionDescription();
             AddValidators();
         }
 

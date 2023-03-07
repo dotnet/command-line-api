@@ -3,11 +3,8 @@
 
 using System.Collections;
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.CommandLine.Parsing
 {
@@ -125,13 +122,24 @@ namespace System.CommandLine.Parsing
 
                 default:
                 {
-                    if (symbolResult is OptionResult { IsImplicit: true })
+                    OptionResult? optionResult = symbolResult as OptionResult;
+
+                    if (optionResult is { IsImplicit: true })
                     {
                         builder.Append("*");
                     }
 
                     builder.Append("[ ");
-                    builder.Append(symbolResult.Token().Value);
+
+                    if (optionResult is not null)
+                    {
+                        builder.Append(optionResult.Token?.Value ?? optionResult.Option.Name);
+                    }
+                    else
+                    {
+                        builder.Append(((CommandResult)symbolResult).Token.Value);
+                    }
+                    
 
                     foreach (SymbolResult child in symbolResult.SymbolResultTree.GetChildren(symbolResult))
                     {

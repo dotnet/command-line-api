@@ -18,8 +18,9 @@ namespace System.CommandLine
     /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class Command : IdentifierSymbol, IEnumerable<Symbol>
+    public class Command : Symbol, IEnumerable<Symbol>
     {
+        internal AliasSet? _aliases;
         private ChildList<Argument>? _arguments;
         private ChildList<Option>? _options;
         private ChildList<Command>? _subcommands;
@@ -30,9 +31,8 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command, shown in help.</param>
-        public Command(string name, string? description = null) : base(name, description)
-        {
-        }
+        public Command(string name, string? description = null) : base(name)
+            => Description = description;
 
         /// <summary>
         /// Gets the child symbols.
@@ -82,6 +82,12 @@ namespace System.CommandLine
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
         /// <summary>
+        /// Gets the unique set of strings that can be used on the command line to specify the command.
+        /// </summary>
+        /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Command.</remarks>
+        public ICollection<string> Aliases => _aliases ??= new();
+
+        /// <summary>
         /// Adds a <see cref="Symbol"/> to the command.
         /// </summary>
         /// <param name="symbol">The symbol to add to the command.</param>
@@ -105,8 +111,6 @@ namespace System.CommandLine
                     throw new NotSupportedException();
             }
         }
-
-        private protected override string DefaultName => throw new NotImplementedException();
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
@@ -163,7 +167,7 @@ namespace System.CommandLine
                     var commands = Subcommands;
                     for (int i = 0; i < commands.Count; i++)
                     {
-                        AddCompletionsFor(commands[i]);
+                        AddCompletionsFor(commands[i], commands[i]._aliases);
                     }
                 }
 
@@ -172,7 +176,7 @@ namespace System.CommandLine
                     var options = Options;
                     for (int i = 0; i < options.Count; i++)
                     {
-                        AddCompletionsFor(options[i]);
+                        AddCompletionsFor(options[i], options[i]._aliases);
                     }
                 }
 
@@ -207,7 +211,7 @@ namespace System.CommandLine
 
                                 if (option.AppliesToSelfAndChildren)
                                 {
-                                    AddCompletionsFor(option);
+                                    AddCompletionsFor(option, option._aliases);
                                 }
                             }
                         }
@@ -224,20 +228,30 @@ namespace System.CommandLine
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
 
-            void AddCompletionsFor(IdentifierSymbol identifier)
+            void AddCompletionsFor(Symbol identifier, AliasSet? aliases)
             {
                 if (!identifier.IsHidden)
                 {
-                    foreach (var alias in identifier.Aliases)
+                    if (identifier.Name.ContainsCaseInsensitive(textToMatch))
                     {
-                        if (alias is { } &&
-                            alias.ContainsCaseInsensitive(textToMatch))
+                        completions.Add(new CompletionItem(identifier.Name, CompletionItem.KindKeyword, detail: identifier.Description));
+                    }
+
+                    if (aliases is not null)
+                    {
+                        foreach (string alias in aliases)
                         {
-                            completions.Add(new CompletionItem(alias, CompletionItem.KindKeyword, detail: identifier.Description));
+                            if (alias.ContainsCaseInsensitive(textToMatch))
+                            {
+                                completions.Add(new CompletionItem(alias, CompletionItem.KindKeyword, detail: identifier.Description));
+                            }
                         }
                     }
                 }
             }
         }
+
+        internal bool EqualsNameOrAlias(string name)
+            => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
     }
 }

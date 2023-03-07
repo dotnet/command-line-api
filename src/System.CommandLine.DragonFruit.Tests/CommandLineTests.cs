@@ -63,7 +63,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 .Contain("<args>  These are arguments")
                 .And.Contain("Arguments:");
             stdOut.Should()
-                .ContainAll("--name <name>", "Specifies the name option")
+                .ContainAll("--name", "Specifies the name option")
                 .And.Contain("Options:");
             stdOut.Should()
                 .Contain($"Description:{Environment.NewLine}  Normal summary");
@@ -87,7 +87,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 .Contain("<args>  These are arguments")
                 .And.Contain("Arguments:");
             stdOut.Should()
-                .ContainAll("--name <name>", "Specifies the name option")
+                .ContainAll("--name", "Specifies the name option")
                 .And.Contain("Options:");
             stdOut.Should()
                 .Contain($"Description:{Environment.NewLine}  Help for the test program{Environment.NewLine}  More help for the test program{Environment.NewLine}");
@@ -111,7 +111,7 @@ namespace System.CommandLine.DragonFruit.Tests
                 .Contain("<args>  These are arguments")
                 .And.Contain("Arguments:");
             stdOut.Should()
-                .ContainAll("--name <name>", "Specifies the name option")
+                .ContainAll("--name", "Specifies the name option")
                 .And.Contain("Options:");
             stdOut.Should()
                 .Contain($"Description:{Environment.NewLine}  Help for the test program{Environment.NewLine}  More help for the test program{Environment.NewLine}");
@@ -132,7 +132,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var stdOut = _terminal.Out.ToString();
 
             stdOut.Should()
-                .ContainAll("--name <name>","name [default: Bruce]")
+                .ContainAll("--name","name [default: Bruce]")
                 .And.Contain("Options:");
         }
 

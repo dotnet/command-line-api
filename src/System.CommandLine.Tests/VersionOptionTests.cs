@@ -73,7 +73,10 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Option<bool>("-x", defaultValueFactory: () => true)
+                new Option<bool>("-x")
+                {
+                    DefaultValueFactory = (_) => true
+                }
             };
             rootCommand.SetHandler(() => { });
 
@@ -93,7 +96,7 @@ namespace System.CommandLine.Tests
         {
             var rootCommand = new RootCommand
             {
-                new Argument<bool>("x", defaultValueFactory: () => true)
+                new Argument<bool>("x") { DefaultValueFactory =(_) => true }
             };
             rootCommand.SetHandler(() => { });
 

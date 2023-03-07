@@ -7,8 +7,8 @@ public class Program
 {
     private static int Main(string[] args)
     {
-        Option<bool> boolOption = new Option<bool>(new[] { "--bool", "-b" }, "Bool option");
-        Option<string> stringOption = new Option<string>(new[] { "--string", "-s" }, "String option");
+        Option<bool> boolOption = new Option<bool>("--bool", "-b") { Description = "Bool option" };
+        Option<string> stringOption = new Option<string>("--string", "-s") { Description = "String option" };
 
         RootCommand command = new RootCommand
         {
