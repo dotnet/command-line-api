@@ -234,7 +234,7 @@ namespace System.CommandLine
                 {
                     if (identifier.Name.ContainsCaseInsensitive(textToMatch))
                     {
-                        completions.Add(new CompletionItem(identifier.Name, CompletionItemKind.Keyword, detail: identifier.Description));
+                        completions.Add(new CompletionItem(identifier.Name, CompletionItem.KindKeyword, detail: identifier.Description));
                     }
 
                     if (aliases is not null)
@@ -243,7 +243,7 @@ namespace System.CommandLine
                         {
                             if (alias.ContainsCaseInsensitive(textToMatch))
                             {
-                                completions.Add(new CompletionItem(alias, CompletionItemKind.Keyword, detail: identifier.Description));
+                                completions.Add(new CompletionItem(alias, CompletionItem.KindKeyword, detail: identifier.Description));
                             }
                         }
                     }
