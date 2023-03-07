@@ -17,10 +17,7 @@ namespace System.CommandLine.Tests
             [InlineData("outer inner xyz")]
             public void An_argument_can_be_specified_in_more_than_one_position(string commandLine)
             {
-                var argument = new Argument<string>
-                {
-                    Name = "the-argument"
-                };
+                var argument = new Argument<string>("the-argument");
 
                 var command = new Command("outer")
                 {
@@ -48,10 +45,7 @@ namespace System.CommandLine.Tests
             [InlineData("outer inner xyz")]
             public void When_an_argument_is_shared_between_an_outer_and_inner_command_then_specifying_in_one_does_not_result_in_error_on_other(string commandLine)
             {
-                var argument = new Argument<string>
-                {
-                    Name = "the-argument"
-                };
+                var argument = new Argument<string>("the-argument");
 
                 var command = new Command("outer")
                 {

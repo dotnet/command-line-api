@@ -9,30 +9,31 @@ using Xunit;
 
 namespace System.CommandLine.Tests
 {
-    public partial class OptionTests : SymbolTests
+    public partial class OptionTests
     {
         [Fact]
-        public void When_an_option_has_only_one_alias_then_that_alias_is_its_name()
+        public void When_an_option_has_only_name_then_it_has_no_aliases()
         {
-            var option = new Option<string>(new[] { "myname" });
+            var option = new Option<string>("myname");
 
             option.Name.Should().Be("myname");
+            option.Aliases.Should().BeEmpty();
         }
 
         [Fact]
-        public void When_an_option_has_several_aliases_then_the_longest_alias_is_its_name()
+        public void When_an_option_has_several_aliases_then_they_do_not_affect_its_name()
         {
-            var option = new Option<string>(new[] { "myname", "m" });
+            var option = new Option<string>(name: "m", aliases: new[] { "longer" });
 
-            option.Name.Should().Be("myname");
+            option.Name.Should().Be("m");
         }
 
         [Fact]
-        public void Option_names_do_not_contain_prefix_characters()
+        public void Option_names_can_contain_prefix_characters()
         {
-            var option = new Option<string>(new[] { "--myname", "m" });
+            var option = new Option<string>("--myname");
 
-            option.Name.Should().Be("myname");
+            option.Name.Should().Be("--myname");
         }
 
         [Fact]
@@ -40,10 +41,9 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("--original");
 
-            option.AddAlias("--added");
+            option.Aliases.Add("--added");
 
             option.Aliases.Should().Contain("--added");
-            option.HasAlias("--added").Should().BeTrue();
         }
 
         [Fact]
@@ -51,10 +51,9 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("--original");
 
-            option.AddAlias("--added");
+            option.Aliases.Add("--added");
 
             option.Aliases.Should().Contain("--added");
-            option.HasAlias("--added").Should().BeTrue();
         }
 
         [Fact]
@@ -62,107 +61,103 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string>("--apple");
 
-            option.AddAlias("-a");
+            option.Aliases.Add("-a");
 
-            option.HasAlias("-a").Should().BeTrue();
+            option.Aliases.Contains("-a").Should().BeTrue();
         }
 
         [Fact]
         public void Option_aliases_are_case_sensitive()
         {
-            var option = new Option<string>(new[] { "-o" });
+            var option = new Option<string>("name", "o");
 
-            option.HasAlias("O").Should().BeFalse();
+            option.Aliases.Contains("O").Should().BeFalse();
         }
 
         [Fact]
-        public void HasAlias_accepts_prefixed_short_value()
+        public void Aliases_accepts_prefixed_short_value()
         {
-            var option = new Option<string>(new[] { "-o", "--option" });
+            var option = new Option<string>("--option", "-o");
 
-            option.HasAlias("-o").Should().BeTrue();
+            option.Aliases.Contains("-o").Should().BeTrue();
         }
 
         [Fact]
         public void HasAlias_accepts_prefixed_long_value()
         {
-            var option = new Option<string>(new[] { "-o", "--option" });
+            var option = new Option<string>("-o", "--option");
 
-            option.HasAlias("--option").Should().BeTrue();
+            option.Aliases.Contains("--option").Should().BeTrue();
         }
 
         [Fact]
         public void It_is_not_necessary_to_specify_a_prefix_when_adding_an_option()
         {
-            var option = new Option<string>(new[] { "o" });
+            var option = new Option<string>("o");
 
-            option.HasAlias("o").Should().BeTrue();
+            option.Name.Should().Be("o");
+            option.Aliases.Should().BeEmpty();
         }
 
         [Fact]
-        public void An_option_must_have_at_least_one_alias()
+        public void An_option_does_not_need_to_have_at_any_aliases()
         {
-            Action create = () => new Option<string>(Array.Empty<string>());
+            var option = new Option<string>("justName");
 
-            create.Should()
-                  .Throw<ArgumentException>()
-                  .Which
-                  .Message
-                  .Should()
-                  .Contain("An option must have at least one alias");
+            option.Aliases.Should().BeEmpty();
         }
 
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new Option<string>(new[] { "" });
+            Action create = () => new Option<string>("name", "");
 
             create.Should()
                   .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
-                  .Be("An alias cannot be null, empty, or consist entirely of whitespace.");
+                  .Be("Names and aliases cannot be null, empty, or consist entirely of whitespace.");
         }
 
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new Option<string>(new[] { "  \t" });
+            Action create = () => new Option<string>("name", "  \t");
 
             create.Should()
                   .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
-                  .Be("An alias cannot be null, empty, or consist entirely of whitespace.");
+                  .Be("Names and aliases cannot be null, empty, or consist entirely of whitespace.");
         }
 
         [Fact]
         public void Raw_aliases_are_exposed_by_an_option()
         {
-            var option = new Option<string>(new[] { "-h", "--help", "/?" });
+            var option = new Option<string>("--help", "-h", "/?");
 
             option.Aliases
                   .Should()
-                  .BeEquivalentTo("-h", "--help", "/?");
+                  .BeEquivalentTo("-h", "/?");
         }
 
         [Theory]
         [InlineData("-x ")]
         [InlineData(" -x")]
         [InlineData("--aa aa")]
-        public void When_an_option_is_created_with_an_alias_that_contains_whitespace_then_an_informative_error_is_returned(
-            string alias)
+        public void When_an_option_is_created_with_a_name_that_contains_whitespace_then_an_informative_error_is_returned(
+            string name)
         {
-            Action create = () => new Option<string>(alias);
+            Action create = () => new Option<string>(name);
 
             create.Should()
                   .Throw<ArgumentException>()
                   .Which
                   .Message
                   .Should()
-                  .Contain($"Alias cannot contain whitespace: \"{alias}\"");
+                  .Contain($"Names and aliases cannot contain whitespace: \"{name}\"");
         }
 
         [Theory]
@@ -173,14 +168,14 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<bool>("-x");
 
-            Action addAlias = () => option.AddAlias(alias);
+            Action addAlias = () => option.Aliases.Add(alias);
 
             addAlias.Should()
                     .Throw<ArgumentException>()
                     .Which
                     .Message
                     .Should()
-                    .Contain($"Alias cannot contain whitespace: \"{alias}\"");
+                    .Contain($"Names and aliases cannot contain whitespace: \"{alias}\"");
         }
 
         [Theory]
@@ -210,39 +205,34 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_not_explicitly_provides_help_will_use_default_help()
         {
-            var option = new Option<string>(new[] { "-o", "--option" }, "desc");
+            var option = new Option<string>("--option", "-o")
+            {
+                Description = "desc"
+            };
 
-            option.Name.Should().Be("option");
+            option.Name.Should().Be("--option");
             option.Description.Should().Be("desc");
             option.IsHidden.Should().BeFalse();
         }
         
         [Fact]
-        public void Argument_takes_option_alias_as_its_name_when_it_is_not_provided()
-        {
-            var command = new Option<string>("--alias");
-
-            command.Name.Should().Be("alias");
-        }
-
-        [Fact]
         public void Argument_retains_name_when_it_is_provided()
         {
             var option = new Option<string>("-alias")
             {
-                ArgumentHelpName = "arg"
+                HelpName = "arg"
             };
 
-            option.ArgumentHelpName.Should().Be("arg");
+            option.HelpName.Should().Be("arg");
         }
 
         [Fact]
         public void Option_T_default_value_can_be_set_via_the_constructor()
         {
-            var option = new Option<int>(
-                "-x",
-                parseArgument: parsed => 123,
-                isDefault: true);
+            var option = new Option<int>("-x")
+            {
+                DefaultValueFactory = _ => 123
+            };
 
             new RootCommand { option }
                 .Parse("")
@@ -255,9 +245,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_T_default_value_can_be_set_after_instantiation()
         {
-            var option = new Option<int>("-x");
-
-            option.SetDefaultValue(123);
+            var option = new Option<int>("-x")
+            {
+                DefaultValueFactory = (_) => 123
+            };
 
             new RootCommand { option }
                 .Parse("")
@@ -272,7 +263,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x");
 
-            option.SetDefaultValueFactory(() => 123);
+            option.DefaultValueFactory = (_) => 123;
 
             new RootCommand { option }
                 .Parse("")
@@ -285,7 +276,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_T_default_value_is_validated()
         {
-            var option = new Option<int>("-x", () => 123);
+            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
             option.Validators.Add(symbol =>
                                     symbol.AddError(symbol.Tokens
                                                                 .Select(t => t.Value)
@@ -315,25 +306,12 @@ namespace System.CommandLine.Tests
                 .BeNull();
         }
         
-        [Fact]
-        public void When_Name_is_set_to_its_current_value_then_it_is_not_removed_from_aliases()
-        {
-            var option = new Option<string>("--name");
-
-            option.Name = "name";
-
-            option.HasAlias("name").Should().BeTrue();
-            option.HasAlias("--name").Should().BeTrue();
-            option.Aliases.Should().Contain("--name");
-            option.Aliases.Should().Contain("name");
-        }
-
         [Theory]
         [InlineData("-option value")]
         [InlineData("-option:value")]
         public void When_aliases_overlap_the_longer_alias_is_chosen(string parseInput)
         {
-            var option = new Option<string>(new[] { "-o", "-option" });
+            var option = new Option<string>("-o", "-option");
 
             var parseResult = new RootCommand { option }.Parse(parseInput);
 
@@ -368,7 +346,5 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
         }
-        
-        protected override Symbol CreateSymbol(string name) => new Option<string>(name);
     }
 }

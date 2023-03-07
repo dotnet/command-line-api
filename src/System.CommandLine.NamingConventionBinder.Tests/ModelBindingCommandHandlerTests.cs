@@ -136,9 +136,7 @@ public partial class ModelBindingCommandHandlerTests
     {
         string[] received = { "this should get overwritten" };
 
-        var o = new Option<string[]>(
-            new[] { "-i" },
-            "Path to an image or directory of supported images");
+        var o = new Option<string[]>("-i") { Description = "Path to an image or directory of supported images" };
 
         var command = new Command("command") { o };
         command.Handler = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) => received = nameDoesNotMatch);

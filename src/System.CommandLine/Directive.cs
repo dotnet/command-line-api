@@ -3,7 +3,6 @@ using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using System.Threading;
-using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
@@ -22,30 +21,13 @@ namespace System.CommandLine
         /// Initializes a new instance of the Directive class.
         /// </summary>
         /// <param name="name">The name of the directive. It can't contain whitespaces.</param>
-        /// <param name="description">The description of the directive, shown in help.</param>
         /// <param name="syncHandler">The synchronous action that is invoked when directive is parsed.</param>
         /// <param name="asyncHandler">The asynchronous action that is invoked when directive is parsed.</param>
         public Directive(string name, 
-            string? description = null, 
             Action<InvocationContext>? syncHandler = null,
             Func<InvocationContext, CancellationToken, Task>? asyncHandler = null)
+            : base(name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Name cannot be null, empty, or consist entirely of whitespace.");
-            }
-
-            for (var i = 0; i < name.Length; i++)
-            {
-                if (char.IsWhiteSpace(name[i]))
-                {
-                    throw new ArgumentException($"Name cannot contain whitespace: \"{name}\"", nameof(name));
-                }
-            }
-
-            Name = name;
-            Description = description;
-
             if (syncHandler is not null)
             {
                 SetSynchronousHandler(syncHandler);
@@ -77,8 +59,6 @@ namespace System.CommandLine
         }
 
         internal ICommandHandler? Handler { get; private set; }
-
-        private protected override string DefaultName => throw new NotImplementedException();
 
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
             => Array.Empty<CompletionItem>();

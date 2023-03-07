@@ -217,7 +217,7 @@ namespace System.CommandLine
                     .OfType<OptionResult>()
                     .Where(c => c.IsArgumentLimitReached)
                     .Select(o => o.Option)
-                    .SelectMany(c => c.Aliases)
+                    .SelectMany(c => new[] { c.Name }.Concat(c.Aliases))
                     .ToArray();
         }
 

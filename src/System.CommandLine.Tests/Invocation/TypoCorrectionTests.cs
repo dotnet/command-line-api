@@ -167,8 +167,8 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new RootCommand
             {
-                new Option<string>(new[] { "/call", "-call", "--call" }),
-                new Option<string>(new[] { "/email", "-email", "--email" })
+                new Option<string>("/call", "-call", "--call"),
+                new Option<string>("/email", "-email", "--email")
             };
             var config =
                 new CommandLineBuilder(rootCommand)

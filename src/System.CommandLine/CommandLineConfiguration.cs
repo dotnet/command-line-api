@@ -202,32 +202,55 @@ namespace System.CommandLine
                 int count = command.Subcommands.Count + command.Options.Count;
                 for (var i = 0; i < count; i++)
                 {
-                    IdentifierSymbol symbol1AsIdentifier = GetChild(i, command);
+                    Symbol symbol1 = GetChild(i, command, out AliasSet? aliases1);
                     for (var j = i + 1; j < count; j++)
                     {
-                        IdentifierSymbol symbol2AsIdentifier = GetChild(j, command);
+                        Symbol symbol2 = GetChild(j, command, out AliasSet? aliases2);
 
-                        foreach (var symbol2Alias in symbol2AsIdentifier.Aliases)
+                        if (symbol1.Name.Equals(symbol2.Name, StringComparison.Ordinal)
+                            || (aliases1 is not null && aliases1.Contains(symbol2.Name)))
                         {
-                            if (symbol1AsIdentifier.Name.Equals(symbol2Alias, StringComparison.Ordinal) ||
-                                symbol1AsIdentifier.Aliases.Contains(symbol2Alias))
+                            throw new CommandLineConfigurationException($"Duplicate alias '{symbol2.Name}' found on command '{command.Name}'.");
+                        }
+                        else if (aliases2 is not null && aliases2.Contains(symbol1.Name))
+                        {
+                            throw new CommandLineConfigurationException($"Duplicate alias '{symbol1.Name}' found on command '{command.Name}'.");
+                        }
+
+                        if (aliases1 is not null && aliases2 is not null)
+                        {
+                            // take advantage of the fact that we are dealing with two hash sets
+                            if (aliases1.Overlaps(aliases2))
                             {
-                                throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
+                                foreach (string symbol2Alias in aliases2)
+                                {
+                                    if (aliases1.Contains(symbol2Alias))
+                                    {
+                                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
+                                    }
+                                }
                             }
                         }
                     }
 
-                    if (symbol1AsIdentifier is Command childCommand)
+                    if (symbol1 is Command childCommand)
                     {
                         ThrowIfInvalid(childCommand);
                     }
                 }
             }
 
-            static IdentifierSymbol GetChild(int index, Command command)
-                => index < command.Subcommands.Count
-                    ? command.Subcommands[index]
-                    : command.Options[index - command.Subcommands.Count];
+            static Symbol GetChild(int index, Command command, out AliasSet? aliases)
+            {
+                if (index < command.Subcommands.Count)
+                {
+                    aliases = command.Subcommands[index]._aliases;
+                    return command.Subcommands[index];
+                }
+
+                aliases = command.Options[index - command.Subcommands.Count]._aliases;
+                return command.Options[index - command.Subcommands.Count];
+            }
         }
     }
 }

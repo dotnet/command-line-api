@@ -47,7 +47,7 @@ namespace System.CommandLine.Binding
         {
             if (argumentResult.Parent is CommandResult commandResult)
             {
-                string alias = commandResult.Command.GetLongestAlias(removePrefix: false);
+                string alias = commandResult.Command.Name;
                 CompletionItem[] completionItems = argumentResult.Argument.GetCompletions(CompletionContext.Empty).ToArray();
 
                 if (completionItems.Length > 0)
@@ -62,7 +62,7 @@ namespace System.CommandLine.Binding
             }
             else if (argumentResult.Parent is OptionResult optionResult)
             {
-                string alias = optionResult.Option.GetLongestAlias(removePrefix: false);
+                string alias = optionResult.Option.Name;
                 CompletionItem[] completionItems = optionResult.Option.GetCompletions(CompletionContext.Empty).ToArray();
 
                 if (completionItems.Length > 0)

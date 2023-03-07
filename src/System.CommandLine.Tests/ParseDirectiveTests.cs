@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand();
             var subcommand = new Command("subcommand");
             rootCommand.Subcommands.Add(subcommand);
-            var option = new Option<int>(new[] { "-c", "--count" });
+            var option = new Option<int>("-c", "--count");
             subcommand.Options.Add(option);
 
             var config = new CommandLineBuilder(rootCommand)

@@ -43,15 +43,21 @@ namespace System.CommandLine.Invocation
 
             IEnumerable<string> possibleMatches = targetSymbol
                 .Children
-                .OfType<IdentifierSymbol>()
-                .Where(x => !x.IsHidden)
-                .Where(x => x.Aliases.Count > 0)
-                .Select(symbol => 
-                    symbol.Aliases
+                .Where(x => !x.IsHidden && x is Option or Command)
+                .Select(symbol =>
+                {
+                    AliasSet? aliasSet = symbol is Option option ? option._aliases : ((Command)symbol)._aliases; 
+
+                    if (aliasSet is null)
+                    {
+                        return symbol.Name;
+                    }
+
+                    return new[] { symbol.Name }.Concat(aliasSet)
                         .OrderBy(x => GetDistance(token, x))
                         .ThenByDescending(x => GetStartsWithDistance(token, x))
-                        .First()
-                );
+                        .First();
+                });
             
             int? bestDistance = null;
             return possibleMatches

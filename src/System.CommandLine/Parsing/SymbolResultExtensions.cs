@@ -19,20 +19,5 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        internal static Token Token(this SymbolResult symbolResult)
-        {
-            return symbolResult switch
-            {
-                CommandResult commandResult => commandResult.Token,
-                OptionResult optionResult => optionResult.Token ?? CreateImplicitToken(optionResult.Option),
-                DirectiveResult directiveResult => directiveResult.Token,
-                _ => throw new ArgumentOutOfRangeException(nameof(symbolResult))
-            };
-
-            static Token CreateImplicitToken(Option option)
-            {
-                return new Token(option.GetLongestAlias(removePrefix: false), TokenType.Option, option, Parsing.Token.ImplicitPosition);
-            }
-        }
     }
 }

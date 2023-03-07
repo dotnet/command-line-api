@@ -3,6 +3,7 @@
 
 using System.CommandLine.Binding;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -39,6 +40,9 @@ namespace System.CommandLine.Parsing
         /// The token that was parsed to specify the option.
         /// </summary>
         public Token? Token { get; }
+
+        /// <inheritdoc/>
+        public override string ToString() => $"{nameof(OptionResult)}: {Token?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
         /// <inheritdoc cref="GetValueOrDefault{T}"/>
         public object? GetValueOrDefault() =>
