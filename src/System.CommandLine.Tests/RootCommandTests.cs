@@ -15,15 +15,5 @@ namespace System.CommandLine.Tests
 
             rootCommand.Name.Should().Be(RootCommand.ExecutableName);
         }
-
-        [Fact]
-        public void When_Name_is_set_then_executable_name_is_still_an_alias()
-        {
-            var rootCommand = new RootCommand();
-            rootCommand.Name = "custom";
-
-            rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);
-            rootCommand.Aliases.Should().BeEquivalentTo("custom", RootCommand.ExecutableName);
-        }
     }
 }

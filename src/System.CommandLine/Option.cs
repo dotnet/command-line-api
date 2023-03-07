@@ -12,36 +12,20 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    /// <seealso cref="IdentifierSymbol" />
-    public abstract class Option : IdentifierSymbol, IValueDescriptor
+    public abstract class Option : Symbol, IValueDescriptor
     {
+        internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
 
-        private protected Option(string name, string? description) : base(description)
+        private protected Option(string name) : base(name)
         {
-            if (name is null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            AddAlias(name);
         }
 
-        private protected Option(string[] aliases, string? description) : base(description)
+        private protected Option(string name, string[] aliases) : base(name)
         {
-            if (aliases is null)
+            if (aliases != null && aliases.Length > 0) 
             {
-                throw new ArgumentNullException(nameof(aliases));
-            }
-
-            if (aliases.Length == 0)
-            {
-                throw new ArgumentException("An option must have at least one alias.", nameof(aliases));
-            }
-
-            for (var i = 0; i < aliases.Length; i++)
-            {
-                AddAlias(aliases[i]);
+                _aliases = new(aliases);
             }
         }
 
@@ -51,12 +35,13 @@ namespace System.CommandLine
         internal abstract Argument Argument { get; }
 
         /// <summary>
-        /// Gets or sets the name of the argument when displayed in help.
+        /// Gets or sets the name of the Option when displayed in help.
         /// </summary>
         /// <value>
-        /// The name of the argument when displayed in help.
+        /// The name of the option when displayed in help.
         /// </value>
-        public string? ArgumentHelpName
+        /// <remarks>Useful for localization, as it's not used for actual parsing.</remarks>
+        public string? HelpName
         {
             get => Argument.HelpName;
             set => Argument.HelpName = value;
@@ -113,6 +98,12 @@ namespace System.CommandLine
         /// <remarks>When an option is required and its parent command is invoked without it, an error results.</remarks>
         public bool IsRequired { get; set; }
 
+        /// <summary>
+        /// Gets the unique set of strings that can be used on the command line to specify the Option.
+        /// </summary>
+        /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Option.</remarks>
+        public ICollection<string> Aliases => _aliases ??= new();
+
         string IValueDescriptor.ValueName => Name;
 
         /// <summary>
@@ -123,8 +114,6 @@ namespace System.CommandLine
         bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
 
         object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
-
-        private protected override string DefaultName => GetLongestAlias(true);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

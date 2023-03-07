@@ -50,63 +50,46 @@ public partial class HelpBuilder
         /// </summary>
         public static string GetArgumentUsageLabel(Argument argument)
         {
-            if (argument.ValueType == typeof(bool) ||
-                argument.ValueType == typeof(bool?))
+            // Argument.HelpName is always first choice
+            if (!string.IsNullOrWhiteSpace(argument.HelpName))
             {
-                if (argument.FirstParent?.Symbol is Command)
+                return $"<{argument.HelpName}>";
+            }
+            else if (!argument.IsBoolean() && argument.CompletionSources.Count > 0)
+            {
+                IEnumerable<string> completions = argument
+                    .GetCompletions(CompletionContext.Empty)
+                    .Select(item => item.Label);
+
+                string joined = string.Join("|", completions);
+
+                if (!string.IsNullOrEmpty(joined))
                 {
-                    return $"<{argument.Name}>";
-                }
-                else
-                {
-                    return "";
+                    return $"<{joined}>";
                 }
             }
 
-            string firstColumn;
-            var completions = argument
-                .GetCompletions(CompletionContext.Empty)
-                .Select(item => item.Label)
-                .ToArray();
-
-            var arg = argument;
-            var helpName = arg?.HelpName ?? string.Empty;
-
-            if (!string.IsNullOrEmpty(helpName))
-            {
-                firstColumn = helpName!;
-            }
-            else if (completions.Length > 0)
-            {
-                firstColumn = string.Join("|", completions);
-            }
-            else
-            {
-                firstColumn = argument.Name;
-            }
-
-            if (!string.IsNullOrWhiteSpace(firstColumn))
-            {
-                return $"<{firstColumn}>";
-            }
-            return firstColumn;
+            // By default Option.Name == Argument.Name, don't repeat it
+            return argument.FirstParent?.Symbol is not Option ? $"<{argument.Name}>" : "";
         }
-
-        /// <summary>
-        /// Gets the description for the specified symbol (typically the used as the second column in help text).
-        /// </summary>
-        /// <param name="symbol">The symbol to get the description for.</param>
-        public static string GetIdentifierSymbolDescription(IdentifierSymbol symbol) => symbol.Description ?? string.Empty;
 
         /// <summary>
         /// Gets the usage label for the specified symbol (typically used as the first column text in help output).
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
-        /// <param name="context">The help context, used for localization purposes.</param>
         /// <returns>Text to display.</returns>
-        public static string GetIdentifierSymbolUsageLabel(IdentifierSymbol symbol, HelpContext context)
+        public static string GetCommandUsageLabel(Command symbol)
+            => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
+
+        /// <inheritdoc cref="GetCommandUsageLabel(Command)"/>
+        public static string GetOptionUsageLabel(Option symbol)
+            => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
+
+        private static string GetIdentifierSymbolUsageLabel(Symbol symbol, AliasSet? aliasSet)
         {
-            var aliases = symbol.Aliases
+            var aliases =  aliasSet is null
+                ? new [] { symbol.Name }
+                : new [] {symbol.Name}.Concat(aliasSet)
                                 .Select(r => r.SplitPrefix())
                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
                                 .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)

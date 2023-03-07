@@ -98,7 +98,10 @@ public class ModelBinderTests
     [Fact]
     public void Explicitly_configured_default_values_can_be_bound_by_name_to_constructor_parameters()
     {
-        var option = new Option<string>("--string-option", () => "the default");
+        var option = new Option<string>("--string-option")
+        {
+            DefaultValueFactory = (_) => "the default",
+        };
 
         var command = new Command("the-command");
         command.Options.Add(option);
@@ -185,7 +188,7 @@ public class ModelBinderTests
     [Fact]
     public void Explicitly_configured_default_values_can_be_bound_by_name_to_property_setters()
     {
-        var option = new Option<string>("--value", () => "the default");
+        var option = new Option<string>("--value") { DefaultValueFactory = (_) => "the default" };
 
         var command = new Command("the-command");
         command.Options.Add(option);
@@ -286,7 +289,10 @@ public class ModelBinderTests
     {
         var parentCommand = new Command("parent-command")
         {
-            new Option<int>("--int-option", () => 123),
+            new Option<int>("--int-option")
+            { 
+                DefaultValueFactory = (_) => 123,
+            },
             new Command("child-command")
         };
 
@@ -306,10 +312,7 @@ public class ModelBinderTests
     {
         var parentCommand = new Command("parent-command")
         {
-            new Argument<int>
-            {
-                Name = nameof(ClassWithMultiLetterSetters.IntOption)
-            },
+            new Argument<int>(nameof(ClassWithMultiLetterSetters.IntOption)),
             new Command("child-command")
         };
 
@@ -329,9 +332,9 @@ public class ModelBinderTests
     {
         var parentCommand = new Command("parent-command")
         {
-            new Argument<int>(() => 123)
+            new Argument<int>(nameof(ClassWithMultiLetterSetters.IntOption))
             {
-                Name = nameof(ClassWithMultiLetterSetters.IntOption)
+                DefaultValueFactory = (_) => 123
             },
             new Command("child-command")
         };
@@ -415,7 +418,7 @@ public class ModelBinderTests
     public void PropertyInfo_can_be_bound_to_argument()
     {
         var command = new Command("the-command");
-        var argument = new Argument<int> { Arity = ArgumentArity.ExactlyOne };
+        var argument = new Argument<int>("arg") { Arity = ArgumentArity.ExactlyOne };
         command.Arguments.Add(argument);
 
         var type = typeof(ClassWithMultiLetterSetters);
@@ -455,7 +458,7 @@ public class ModelBinderTests
     public void PropertyExpression_can_be_bound_to_argument()
     {
         var command = new Command("the-command");
-        var argument = new Argument<int> { Arity = ArgumentArity.ExactlyOne };
+        var argument = new Argument<int>("arg") { Arity = ArgumentArity.ExactlyOne };
         command.Arguments.Add(argument);
 
         var binder = new ModelBinder<ClassWithMultiLetterSetters>();
@@ -488,7 +491,7 @@ public class ModelBinderTests
     public void Command_argument_is_bound_to_longest_constructor()
     {
         var rootCommand = new RootCommand();
-        rootCommand.Arguments.Add(new Argument<int> { Name = nameof(ClassWithMultipleCtor.IntProperty) });
+        rootCommand.Arguments.Add(new Argument<int>(nameof(ClassWithMultipleCtor.IntProperty)));
 
         var bindingContext = new InvocationContext(rootCommand.Parse("42")).BindingContext;
         var binder = new ModelBinder<ClassWithMultipleCtor>();
@@ -633,7 +636,7 @@ public class ModelBinderTests
 
         var rootCommand = new RootCommand
         {
-            new Argument<int>()
+            new Argument<int>("arg")
         };
 
         rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
@@ -661,8 +664,8 @@ public class ModelBinderTests
 
         var rootCommand = new RootCommand
         {
-            new Option<int>("one", () => 1),
-            new Option<int>("two", () => 2)
+            new Option<int>("one") { DefaultValueFactory = (_) => 1 },
+            new Option<int>("two") { DefaultValueFactory = (_) => 2 }
         };
         rootCommand.Handler = CommandHandler.Create<int, int>((one, two) =>
         {
@@ -746,12 +749,14 @@ public class ModelBinderTests
     {
         var rootCommand = new RootCommand
         {
-            new Option<string>(
-                new[] { "-b", "--bundle" },
-                "the path to the app bundle to be installed"),
-            new Option<string>(
-                new[] { "-1", "--bundle_id", "--bundle-id" },
-                "specify bundle id for list and upload")
+            new Option<string>("--bundle", "-b")
+            { 
+                Description = "the path to the app bundle to be installed"
+            },
+            new Option<string>("--bundle-id", "--bundle_id", "-1")
+            {
+                Description = "specify bundle id for list and upload"
+            }
         };
 
         DeployOptions boundOptions = null;
@@ -787,15 +792,15 @@ public class ModelBinderTests
     [Fact]
     public void InvocationContext_GetValue_with_generic_argument_returns_value()
     {
-        Argument<int> option = new();
+        Argument<int> argument = new("arg");
         Command command = new("the-command")
         {
-            option
+            argument
         };
 
         InvocationContext invocationContext = new(command.Parse("the-command 42"));
 
-        invocationContext.GetValue(option)
+        invocationContext.GetValue(argument)
             .Should()
             .Be(42);
     }

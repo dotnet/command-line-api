@@ -33,7 +33,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Option_can_customize_default_value()
             {
-                var option = new Option<string>("--the-option", defaultValueFactory: () => "not 42");
+                var option = new Option<string>("--the-option") { DefaultValueFactory = (_) => "not 42" };
                 var command = new Command("the-command", "command help")
                 {
                     option
@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests.Help
                 _helpBuilder.Write(command, _console);
                 var expected =
                     $"Options:{NewLine}" +
-                    $"{_indentation}--the-option <the-option>{_columnPadding}[default: 42]{NewLine}{NewLine}";
+                    $"{_indentation}--the-option{_columnPadding}[default: 42]{NewLine}{NewLine}";
 
                 _console.ToString().Should().Contain(expected);
             }
@@ -52,7 +52,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Option_can_customize_first_column_text()
             {
-                var option = new Option<string>("--the-option", "option description");
+                var option = new Option<string>("--the-option") { Description = "option description" };
                 var command = new Command("the-command", "command help")
                 {
                     option
@@ -167,7 +167,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Command_arguments_can_customize_first_column_text()
             {
-                var argument = new Argument<string>("arg-name", "arg description");
+                var argument = new Argument<string>("arg-name") { Description = "arg description" };
                 var command = new Command("the-command", "command help")
                 {
                     argument
@@ -186,7 +186,11 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Command_arguments_can_customize_second_column_text()
             {
-                var argument = new Argument<string>("some-arg", description: "Default description", defaultValueFactory: () => "not 42");
+                var argument = new Argument<string>("some-arg")
+                {
+                    Description = "Default description",
+                    DefaultValueFactory = (_) => "not 42"
+                };
                 var command = new Command("the-command", "command help")
                 {
                     argument
@@ -205,7 +209,10 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Command_arguments_can_customize_default_value()
             {
-                var argument = new Argument<string>("some-arg", defaultValueFactory: () => "not 42");
+                var argument = new Argument<string>("some-arg")
+                {
+                    DefaultValueFactory = (_) => "not 42"
+                };
                 var command = new Command("the-command", "command help")
                 {
                     argument
@@ -230,21 +237,21 @@ namespace System.CommandLine.Tests.Help
 
 
             [Theory]
-            [InlineData(false, false, "--option <option>\\s*description")]
+            [InlineData(false, false, "--option \\s*description")]
             [InlineData(true, false, "custom 1st\\s*description")]
-            [InlineData(false, true, "--option <option>\\s*custom 2nd")]
+            [InlineData(false, true, "--option \\s*custom 2nd")]
             [InlineData(true, true, "custom 1st\\s*custom 2nd")]
             public void Option_can_fallback_to_default_when_customizing(bool conditionA, bool conditionB, string expected)
             {
                 var command = new Command("test");
-                var option = new Option<string>("--option", "description");
+                var option = new Option<string>("--option") { Description = "description" };
 
                 command.Options.Add(option);
 
                 var helpBuilder = new HelpBuilder(LargeMaxWidth);
                 helpBuilder.CustomizeSymbol(option,
-                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetIdentifierSymbolUsageLabel(option, ctx),
-                    secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetIdentifierSymbolDescription(option));
+                    firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetOptionUsageLabel(option),
+                    secondColumnText: ctx => conditionB ? "custom 2nd" : option.Description ?? string.Empty);
 
 
                 var config = new CommandLineBuilder(command)
@@ -273,8 +280,11 @@ namespace System.CommandLine.Tests.Help
                 string expected)
             {
                 var command = new Command("test");
-                var argument = new Argument<string>("arg", "description");
-                argument.SetDefaultValue("default");
+                var argument = new Argument<string>("arg")
+                {
+                    Description = "description",
+                    DefaultValueFactory = _ => "default"
+                };
 
                 command.Arguments.Add(argument);
 

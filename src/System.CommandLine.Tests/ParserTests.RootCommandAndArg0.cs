@@ -85,14 +85,13 @@ public partial class ParserTests
         [Fact]
         public void When_parsing_an_unsplit_string_then_a_renamed_RootCommand_can_be_omitted_from_the_parsed_args()
         {
-            var rootCommand = new RootCommand
+            var rootCommand = new Command("outer")
             {
                 new Command("inner")
                 {
                     new Option<string>("-x")
                 }
             };
-            rootCommand.Name = "outer";
 
             var result1 = rootCommand.Parse("inner -x hello");
             var result2 = rootCommand.Parse("outer inner -x hello");

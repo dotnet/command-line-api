@@ -13,7 +13,7 @@ public class CommandLineConfigurationTests
     {
         var option1 = new Option<string>("--dupe");
         var option2 = new Option<string>("-y");
-        option2.AddAlias("--dupe");
+        option2.Aliases.Add("--dupe");
 
         var command = new RootCommand
         {
@@ -38,7 +38,7 @@ public class CommandLineConfigurationTests
     {
         var option1 = new Option<string>("--dupe");
         var option2 = new Option<string>("--ok");
-        option2.AddAlias("--dupe");
+        option2.Aliases.Add("--dupe");
 
         var command = new RootCommand
         {
@@ -66,7 +66,7 @@ public class CommandLineConfigurationTests
     {
         var command1 = new Command("dupe");
         var command2 = new Command("not-a-dupe");
-        command2.AddAlias("dupe");
+        command2.Aliases.Add("dupe");
 
         var rootCommand = new RootCommand
         {
@@ -89,16 +89,12 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_subcommand_aliases_on_a_subcommand()
     {
-        var command1 = new Command("dupe");
-        var command2 = new Command("not-a-dupe");
-        command2.AddAlias("dupe");
-
         var command = new RootCommand
         {
             new Command("subcommand")
             {
-                command1,
-                command2
+                new Command("dupe"),
+                new Command("not-a-dupe") { Aliases = { "dupe" } }
             }
         };
 
@@ -119,7 +115,7 @@ public class CommandLineConfigurationTests
     {
         var option = new Option<string>("dupe");
         var command = new Command("not-a-dupe");
-        command.AddAlias("dupe");
+        command.Aliases.Add("dupe");
 
         var rootCommand = new RootCommand
         {
@@ -144,7 +140,7 @@ public class CommandLineConfigurationTests
     {
         var option = new Option<string>("dupe");
         var command = new Command("not-a-dupe");
-        command.AddAlias("dupe");
+        command.Aliases.Add("dupe");
 
         var rootCommand = new RootCommand
         {
@@ -172,7 +168,7 @@ public class CommandLineConfigurationTests
     {
         var option1 = new Option<string>("--dupe") { AppliesToSelfAndChildren = true };
         var option2 = new Option<string>("-y") { AppliesToSelfAndChildren = true };
-        option2.AddAlias("--dupe");
+        option2.Aliases.Add("--dupe");
 
         var command = new RootCommand();
         command.Options.Add(option1);

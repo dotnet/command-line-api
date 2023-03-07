@@ -22,10 +22,7 @@ namespace System.CommandLine.Suggest
 
             _suggestionStore = suggestionStore ?? new SuggestionStore();
 
-            var shellTypeArgument = new Argument<ShellType>
-            {
-                Name = nameof(ShellType)
-            };
+            var shellTypeArgument = new Argument<ShellType>(nameof(ShellType));
 
             CompleteScriptCommand = new Command("script", "Print complete script for specific shell")
             {
@@ -53,12 +50,12 @@ namespace System.CommandLine.Suggest
             };
             GetCommand.SetHandler(context => Get(context));
 
-            var commandPathOption = new Option<string>("--command-path", "The path to the command for which to register suggestions");
+            var commandPathOption = new Option<string>("--command-path") { Description = "The path to the command for which to register suggestions" };
 
             RegisterCommand = new Command("register", "Registers an app for suggestions")
             {
                 commandPathOption,
-                new Option<string>("--suggestion-command", "The command to invoke to retrieve suggestions")
+                new Option<string>("--suggestion-command") { Description = "The command to invoke to retrieve suggestions" }
             };
 
             RegisterCommand.SetHandler((context, cancellationToken) =>
@@ -93,7 +90,7 @@ namespace System.CommandLine.Suggest
 
         private static Option<FileInfo> GetExecutableOption()
         {
-            var option = new Option<FileInfo>(new[] { "-e", "--executable" }, "The executable to call for suggestions");
+            var option = new Option<FileInfo>("--executable", "-e") { Description = "The executable to call for suggestions" };
             option.AcceptLegalFilePathsOnly();
 
             return option;
@@ -101,9 +98,11 @@ namespace System.CommandLine.Suggest
 
         private Command ListCommand { get; }
 
-        private Option<int> PositionOption { get; } = new(new[] { "-p", "--position" },
-                                                          description: "The current character position on the command line",
-                                                          defaultValueFactory: () => short.MaxValue);
+        private Option<int> PositionOption { get; } = new("--position", "-p")
+        {
+            Description = "The current character position on the command line",
+            DefaultValueFactory = (_) => short.MaxValue
+        };
 
         private Command RegisterCommand { get; }
 

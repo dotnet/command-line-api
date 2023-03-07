@@ -41,9 +41,9 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command")
             {
-                new Option<string>("--one", "option one"),
-                new Option<string>("--two", "option two"),
-                new Option<string>("--three", "option three")
+                new Option<string>("--one") { Description = "option one" },
+                new Option<string>("--two") { Description = "option two" },
+                new Option<string>("--three") { Description = "option three" },
             };
 
             var completions = command.GetCompletions(CompletionContext.Empty);
@@ -59,8 +59,8 @@ namespace System.CommandLine.Tests
         {
             var subcommand2 = new Command("command2")
             {
-                new Option<string>("--one", "option one"),
-                new Option<string>("--two", "option two")
+                new Option<string>("--one") { Description = "option one" },
+                new Option<string>("--two") { Description = "option two" }
             };
 
             var subcommand1 = new Command("command1")
@@ -73,7 +73,11 @@ namespace System.CommandLine.Tests
                 subcommand1
             };
 
-            rootCommand.Options.Add(new Option<string>("--three", "option three") { AppliesToSelfAndChildren = true });
+            rootCommand.Options.Add(new Option<string>("--three") 
+            { 
+                Description = "option three",
+                AppliesToSelfAndChildren = true
+            });
 
             var completions = subcommand2.GetCompletions(CompletionContext.Empty);
 
@@ -123,8 +127,8 @@ namespace System.CommandLine.Tests
             var command = new Command("command")
             {
                 new Command("subcommand", "subcommand"),
-                new Option<bool>("--option", "option"),
-                new Argument<string[]>
+                new Option<bool>("--option") { Description = "option" },
+                new Argument<string[]>("args")
                 {
                     Arity = ArgumentArity.OneOrMore,
                     CompletionSources = { "command-argument" }
@@ -196,7 +200,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                new Option<string>("--apple", defaultValueFactory: () => "cortland"),
+                new Option<string>("--apple") { DefaultValueFactory = (_) => "cortland" },
                 new Option<string>("--banana"),
                 new Option<string>("--cherry")
             };
@@ -298,13 +302,13 @@ namespace System.CommandLine.Tests
             {
                 new Option<string>("--cortland")
             };
-            apple.AddAlias("apl");
+            apple.Aliases.Add("apl");
 
             var banana = new Command("banana")
             {
                 new Option<string>("--cavendish")
             };
-            banana.AddAlias("bnn");
+            banana.Aliases.Add("bnn");
 
             var rootCommand = new RootCommand
             {
@@ -348,7 +352,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("child"),
                 new Option<string>("--parent-option"),
-                new Argument<string>()
+                new Argument<string>("arg")
             };
 
             var commandLine = "--parent-option 123 child";
@@ -366,7 +370,7 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand("parent")
             {
-                new Argument<string>(),
+                new Argument<string>("arg"),
                 new Command("child")
                 {
                     new Option<string>("--child-option")
@@ -443,7 +447,7 @@ namespace System.CommandLine.Tests
                 {
                     IsHidden = true
                 },
-                new Option<string>("-n", "Not hidden")
+                new Option<string>("-n") { Description = "Not hidden" }
             };
 
             CommandLineConfiguration simpleConfig = new (command);
@@ -486,7 +490,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("one", "Command one"),
                 new Command("two", "Command two"),
-                new Argument<string>()
+                new Argument<string>("arg")
             };
 
             var commandLine = "test";
@@ -505,7 +509,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("one"),
                 new Option<string>("--one"),
-                new Argument<string>()
+                new Argument<string>("arg")
             };
 
             var commandLine = "test";
@@ -627,7 +631,7 @@ namespace System.CommandLine.Tests
             {
                 new Command("one")
                 {
-                    new Argument<string>
+                    new Argument<string>("arg")
                         {
                             CompletionSources = { _ => new[] { "vegetable", "mineral", "animal" } }
                         }
@@ -796,7 +800,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Argument<FileMode>()
+                new Argument<FileMode>("arg")
             };
 
             var completions = command.Parse("the-command create")
@@ -847,8 +851,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Option<string>("--implicit", () => "the-default"),
-                new Option<string>("--not", () => "the-default")
+                new Option<string>("--implicit") { DefaultValueFactory = (_) => "the-default" },
+                new Option<string>("--not") { DefaultValueFactory = (_) => "the-default" }
             };
 
             var completions = command.Parse("m").GetCompletions();
@@ -870,7 +874,7 @@ namespace System.CommandLine.Tests
                 "\"nuget:Microsoft.DotNet.Interactive\""
             };
 
-            var argument = new Argument<string>();
+            var argument = new Argument<string>("arg");
             argument.CompletionSources.Add(expectedSuggestions);
 
             var r = new Command("#r")
@@ -891,7 +895,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Default_completions_can_be_cleared_and_replaced()
         {
-            var argument = new Argument<DayOfWeek>();
+            var argument = new Argument<DayOfWeek>("day");
             argument.CompletionSources.Clear();
             argument.CompletionSources.Add(new[] { "mon", "tues", "wed", "thur", "fri", "sat", "sun" });
             var command = new Command("the-command")
@@ -912,7 +916,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("the-command")
             {
-                new Argument<DayOfWeek>
+                new Argument<DayOfWeek>("day")
                 {
                     CompletionSources = { "mon", "tues", "wed", "thur", "fri", "sat", "sun" }
                 }
@@ -940,7 +944,7 @@ namespace System.CommandLine.Tests
         public void Completions_for_options_provide_a_description()
         {
             var description = "The option before -y.";
-            var option = new Option<string>("-x", description);
+            var option = new Option<string>("-x") { Description = description };
 
             var completions = new RootCommand { option }.GetCompletions(CompletionContext.Empty);
 
@@ -987,7 +991,7 @@ namespace System.CommandLine.Tests
 
         private static Argument<string> CreateArgumentWithAcceptOnlyFromAmong(params string[] values)
         {
-            Argument<string> argument = new();
+            Argument<string> argument = new("arg");
             argument.AcceptOnlyFromAmong(values);
             return argument;
         }

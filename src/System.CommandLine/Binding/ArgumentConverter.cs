@@ -180,9 +180,7 @@ namespace System.CommandLine.Binding
                                   toType,
                                   conversionResult.Value),
 
-                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.ValueType == typeof(bool) =>
-                    Success(conversionResult.ArgumentResult, true),
-                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.ValueType == typeof(bool?) =>
+                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.IsBoolean() =>
                     Success(conversionResult.ArgumentResult, true),
 
                 ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.Arity.MinimumNumberOfValues > 0 =>
