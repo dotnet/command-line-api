@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Parsing;
 using System.IO;
 
 namespace System.CommandLine
@@ -18,7 +19,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<FileInfo> AcceptExistingOnly(this Argument<FileInfo> argument)
         {
-            argument.Validators.Add(Validate.FileExists);
+            argument.Validators.Add(FileOrDirectoryExists<FileInfo>);
             return argument;
         }
 
@@ -29,7 +30,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<DirectoryInfo> AcceptExistingOnly(this Argument<DirectoryInfo> argument)
         {
-            argument.Validators.Add(Validate.DirectoryExists);
+            argument.Validators.Add(FileOrDirectoryExists<DirectoryInfo>);
             return argument;
         }
 
@@ -40,7 +41,7 @@ namespace System.CommandLine
         /// <returns>The configured argument.</returns>
         public static Argument<FileSystemInfo> AcceptExistingOnly(this Argument<FileSystemInfo> argument)
         {
-            argument.Validators.Add(Validate.FileOrDirectoryExists);
+            argument.Validators.Add(FileOrDirectoryExists<FileSystemInfo>);
             return argument;
         }
 
@@ -54,18 +55,51 @@ namespace System.CommandLine
         {
             if (typeof(IEnumerable<FileInfo>).IsAssignableFrom(typeof(T)))
             {
-                argument.Validators.Add(Validate.FileExists);
+                argument.Validators.Add(FileOrDirectoryExists<FileInfo>);
             }
             else if (typeof(IEnumerable<DirectoryInfo>).IsAssignableFrom(typeof(T)))
             {
-                argument.Validators.Add(Validate.DirectoryExists);
+                argument.Validators.Add(FileOrDirectoryExists<DirectoryInfo>);
             }
             else
             {
-                argument.Validators.Add(Validate.FileOrDirectoryExists);
+                argument.Validators.Add(FileOrDirectoryExists<FileSystemInfo>);
             }
 
             return argument;
+        }
+
+        private static void FileOrDirectoryExists<T>(ArgumentResult result)
+            where T : FileSystemInfo
+        {
+            // both FileInfo and DirectoryInfo are sealed so following checks are enough
+            bool checkFile = typeof(T) != typeof(DirectoryInfo);
+            bool checkDirectory = typeof(T) != typeof(FileInfo);
+
+            for (var i = 0; i < result.Tokens.Count; i++)
+            {
+                var token = result.Tokens[i];
+
+                if (checkFile && checkDirectory)
+                {
+#if NET7_0_OR_GREATER
+                    if (!Path.Exists(token.Value))
+#else
+                    if (!Directory.Exists(token.Value) && !File.Exists(token.Value))
+#endif
+                    {
+                        result.AddError(LocalizationResources.FileOrDirectoryDoesNotExist(token.Value));
+                    }
+                }
+                else if (checkDirectory && !Directory.Exists(token.Value))
+                {
+                    result.AddError(LocalizationResources.DirectoryDoesNotExist(token.Value));
+                }
+                else if (checkFile && !Directory.Exists(token.Value) && !File.Exists(token.Value))
+                {
+                    result.AddError(LocalizationResources.FileDoesNotExist(token.Value));
+                }
+            }
         }
     }
 }
