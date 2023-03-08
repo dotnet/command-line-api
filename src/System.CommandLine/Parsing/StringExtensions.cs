@@ -399,7 +399,7 @@ namespace System.CommandLine.Parsing
                     yield break;
                 }
 
-                foreach (var word in Parser.Split(arg))
+                foreach (var word in Parser.SplitCommandLine(arg))
                 {
                     yield return word;
                 }

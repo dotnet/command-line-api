@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
             var commandLine = "one two\tthree   four ";
 
             Parser
-                .Split(commandLine)
+                .SplitCommandLine(commandLine)
                 .Should()
                 .BeEquivalentSequenceTo("one", "two", "three", "four");
         }
@@ -36,7 +36,7 @@ namespace System.CommandLine.Tests
             var commandLine = @"rm -r ""c:\temp files\""";
 
             Parser
-                .Split(commandLine)
+                .SplitCommandLine(commandLine)
                 .Should()
                 .BeEquivalentSequenceTo("rm", "-r", @"c:\temp files\");
         }
@@ -57,7 +57,7 @@ namespace System.CommandLine.Tests
             var commandLine = $"the-command {optionAndArgument}";
 
             Parser
-                .Split(commandLine)
+                .SplitCommandLine(commandLine)
                 .Should()
                 .BeEquivalentSequenceTo("the-command", optionAndArgument.Replace("\"", ""));
         }
@@ -70,7 +70,7 @@ namespace System.CommandLine.Tests
 
             var commandLine = $"move --from \"{source}\" --to \"{destination}\"";
 
-            var tokenized = Parser.Split(commandLine);
+            var tokenized = Parser.SplitCommandLine(commandLine);
 
             _output.WriteLine(commandLine);
 

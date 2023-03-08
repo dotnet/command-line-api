@@ -43,7 +43,7 @@ namespace System.CommandLine
             this Command command,
             string commandLine,
             IConsole? console = null) =>
-            command.Invoke(Parser.Split(commandLine).ToArray(), console);
+            command.Invoke(Parser.SplitCommandLine(commandLine).ToArray(), console);
 
         /// <summary>
         /// Parses and invokes a command.
@@ -78,6 +78,6 @@ namespace System.CommandLine
             string commandLine,
             IConsole? console = null,
             CancellationToken cancellationToken = default) =>
-            command.InvokeAsync(Parser.Split(commandLine).ToArray(), console, cancellationToken);
+            command.InvokeAsync(Parser.SplitCommandLine(commandLine).ToArray(), console, cancellationToken);
     }
 }

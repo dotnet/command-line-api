@@ -30,14 +30,14 @@ namespace System.CommandLine.Parsing
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
         public static ParseResult Parse(Command command, string commandLine, CommandLineConfiguration? configuration = null)
-            => Parse(command, Split(commandLine).ToArray(), commandLine, configuration);
+            => Parse(command, SplitCommandLine(commandLine).ToArray(), commandLine, configuration);
 
         /// <summary>
         /// Splits a string into a sequence of strings based on whitespace and quotation marks.
         /// </summary>
         /// <param name="commandLine">A command line input string.</param>
         /// <returns>A sequence of strings.</returns>
-        public static IEnumerable<string> Split(string commandLine)
+        public static IEnumerable<string> SplitCommandLine(string commandLine)
         {
             var memory = commandLine.AsMemory();
 

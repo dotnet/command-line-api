@@ -359,7 +359,7 @@ System.CommandLine.Parsing
   public static class Parser
     public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.Collections.Generic.IReadOnlyList<System.String> args, System.CommandLine.CommandLineConfiguration configuration = null)
     public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.String commandLine, System.CommandLine.CommandLineConfiguration configuration = null)
-    public static System.Collections.Generic.IEnumerable<System.String> Split(System.String commandLine)
+    public static System.Collections.Generic.IEnumerable<System.String> SplitCommandLine(System.String commandLine)
   public static class ParseResultExtensions
     public static System.String Diagram(this System.CommandLine.ParseResult parseResult)
   public abstract class SymbolResult
