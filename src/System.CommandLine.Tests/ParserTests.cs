@@ -473,7 +473,7 @@ namespace System.CommandLine.Tests
         [InlineData("not a valid command line --one 1")]
         public void Original_order_of_tokens_is_preserved_in_ParseResult_Tokens(string commandLine)
         {
-            var rawSplit = CommandLineStringSplitter.Instance.Split(commandLine);
+            var rawSplit = Parser.SplitCommandLine(commandLine);
 
             var command = new Command("the-command")
                           {

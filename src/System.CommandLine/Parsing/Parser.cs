@@ -30,12 +30,109 @@ namespace System.CommandLine.Parsing
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
         public static ParseResult Parse(Command command, string commandLine, CommandLineConfiguration? configuration = null)
+            => Parse(command, SplitCommandLine(commandLine).ToArray(), commandLine, configuration);
+
+        /// <summary>
+        /// Splits a string into a sequence of strings based on whitespace and quotation marks.
+        /// </summary>
+        /// <param name="commandLine">A command line input string.</param>
+        /// <returns>A sequence of strings.</returns>
+        public static IEnumerable<string> SplitCommandLine(string commandLine)
         {
-            var splitter = CommandLineStringSplitter.Instance;
+            var memory = commandLine.AsMemory();
 
-            var readOnlyCollection = splitter.Split(commandLine).ToArray();
+            var startTokenIndex = 0;
 
-            return Parse(command, readOnlyCollection, commandLine, configuration);
+            var pos = 0;
+
+            var seeking = Boundary.TokenStart;
+            var seekingQuote = Boundary.QuoteStart;
+
+            while (pos < memory.Length)
+            {
+                var c = memory.Span[pos];
+
+                if (char.IsWhiteSpace(c))
+                {
+                    if (seekingQuote == Boundary.QuoteStart)
+                    {
+                        switch (seeking)
+                        {
+                            case Boundary.WordEnd:
+                                yield return CurrentToken();
+                                startTokenIndex = pos;
+                                seeking = Boundary.TokenStart;
+                                break;
+
+                            case Boundary.TokenStart:
+                                startTokenIndex = pos;
+                                break;
+                        }
+                    }
+                }
+                else if (c == '\"')
+                {
+                    if (seeking == Boundary.TokenStart)
+                    {
+                        switch (seekingQuote)
+                        {
+                            case Boundary.QuoteEnd:
+                                yield return CurrentToken();
+                                startTokenIndex = pos;
+                                seekingQuote = Boundary.QuoteStart;
+                                break;
+
+                            case Boundary.QuoteStart:
+                                startTokenIndex = pos + 1;
+                                seekingQuote = Boundary.QuoteEnd;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (seekingQuote)
+                        {
+                            case Boundary.QuoteEnd:
+                                seekingQuote = Boundary.QuoteStart;
+                                break;
+
+                            case Boundary.QuoteStart:
+                                seekingQuote = Boundary.QuoteEnd;
+                                break;
+                        }
+                    }
+                }
+                else if (seeking == Boundary.TokenStart && seekingQuote == Boundary.QuoteStart)
+                {
+                    seeking = Boundary.WordEnd;
+                    startTokenIndex = pos;
+                }
+
+                Advance();
+
+                if (IsAtEndOfInput())
+                {
+                    switch (seeking)
+                    {
+                        case Boundary.TokenStart:
+                            break;
+                        default:
+                            yield return CurrentToken();
+                            break;
+                    }
+                }
+            }
+
+            void Advance() => pos++;
+
+            string CurrentToken()
+            {
+                return memory.Slice(startTokenIndex, IndexOfEndOfToken()).ToString().Replace("\"", "");
+            }
+
+            int IndexOfEndOfToken() => pos - startTokenIndex;
+
+            bool IsAtEndOfInput() => pos == memory.Length;
         }
 
         private static ParseResult Parse(
@@ -64,6 +161,14 @@ namespace System.CommandLine.Parsing
                 rawInput);
 
             return operation.Parse();
+        }
+
+        private enum Boundary
+        {
+            TokenStart,
+            WordEnd,
+            QuoteStart,
+            QuoteEnd
         }
     }
 }
