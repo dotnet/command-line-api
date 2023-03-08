@@ -15,7 +15,7 @@ namespace System.CommandLine
     /// <summary>
     /// Describes the results of parsing a command line input based on a specific parser configuration.
     /// </summary>
-    public class ParseResult
+    public sealed class ParseResult
     {
         private readonly IReadOnlyList<ParseError> _errors;
         private readonly CommandResult _rootCommandResult;
