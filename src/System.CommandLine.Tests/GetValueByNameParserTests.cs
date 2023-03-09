@@ -135,14 +135,88 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_non_existing_name_is_used_then_exception_is_thrown()
         {
-            ParseResult parseResult = new Command("noSymbols").Parse("");
+            const string nonExistingName = "nonExisting";
+            Command command = new ("noSymbols");
+            ParseResult parseResult = command.Parse("");
 
-            Action getRequired = () => parseResult.GetValue<int>("required");
+            Action getRequired = () => parseResult.GetValue<int>(nonExistingName);
 
             getRequired
                 .Should()
                 .Throw<InvalidOperationException>()
-                .Where(ex => ex.Message == LocalizationResources.RequiredArgumentMissing(parseResult.FindResultFor(command.Arguments[0])));
+                .Where(ex => ex.Message == $"No symbol result found for \"{nonExistingName}\" for command \"{command.Name}\".");
+        }
+
+        [Fact]
+        public void When_an_option_and_argument_use_same_name_on_the_same_level_of_the_tree_an_exception_is_thrown()
+        {
+            const string sameName = "same";
+
+            RootCommand command = new()
+            {
+                new Argument<int>(sameName)
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                },
+                new Option<int>(sameName)
+            };
+
+            ParseResult parseResult = command.Parse("");
+
+            Action getConflicted = () => parseResult.GetValue<int>(sameName);
+
+            getConflicted
+                .Should()
+                .Throw<NotSupportedException>()
+                .Where(ex => ex.Message == $"More than one symbol uses name \"{sameName}\" for command \"{command.Name}\".");
+        }
+
+        [Fact]
+        public void When_an_option_and_argument_use_same_name_on_different_levels_of_the_tree_the_value_which_belongs_to_parsed_command_is_returned()
+        {
+            const string sameName = "same";
+
+            Command command = new("outer")
+            {
+                new Argument<int>(sameName),
+                new Command("inner")
+                {
+                    new Option<int>(sameName)
+                }
+            };
+
+            ParseResult parseResult = command.Parse($"outer 123 inner {sameName} 456");
+            parseResult.GetValue<int>(sameName).Should().Be(456);
+
+            parseResult = command.Parse($"outer 123");
+            parseResult.GetValue<int>(sameName).Should().Be(123);
+        }
+
+        [Fact]
+        public void When_an_option_and_argument_use_same_name_on_different_levels_of_the_tree_the_default_value_which_belongs_to_parsed_command_is_returned()
+        {
+            const string sameName = "same";
+
+            Command command = new("outer")
+            {
+                new Argument<int>(sameName)
+                {
+                    DefaultValueFactory = (_) => 123
+                },
+                new Command("inner")
+                {
+                    new Option<int>(sameName)
+                    {
+                        DefaultValueFactory = (_) => 456
+                    }
+                }
+            };
+
+            ParseResult parseResult = command.Parse($"outer inner 456");
+            parseResult.GetValue<int>(sameName).Should().Be(456);
+
+            parseResult = command.Parse($"outer 123");
+            parseResult.GetValue<int>(sameName).Should().Be(123);
         }
     }
 }

@@ -53,20 +53,12 @@ namespace System.CommandLine.Parsing
 
                 if (Command.HasArguments)
                 {
-                    for (int i = 0; i < Command.Arguments.Count; i++)
-                    {
-                        SymbolResultTree.TryGetValue(Command.Arguments[i], out SymbolResult? parsedResult);
-                        cache.Add(Command.Arguments[i].Name, parsedResult);
-                    }
+                    Populate(cache, Command.Arguments);
                 }
 
                 if (Command.HasOptions)
                 {
-                    for (int i = 0; i < Command.Options.Count; i++)
-                    {
-                        SymbolResultTree.TryGetValue(Command.Options[i], out SymbolResult? parsedResult);
-                        cache.Add(Command.Options[i].Name, parsedResult);
-                    }
+                    Populate(cache, Command.Options);
                 }
 
                 _namedResults = cache;
@@ -74,7 +66,7 @@ namespace System.CommandLine.Parsing
 
             if (!_namedResults.TryGetValue(name, out SymbolResult? symbolResult))
             {
-                throw new InvalidOperationException($"No symbol result found for \"{name}\" for command {Command.Name}.");
+                throw new InvalidOperationException($"No symbol result found for \"{name}\" for command \"{Command.Name}\".");
             }
 
             return symbolResult switch
@@ -83,6 +75,20 @@ namespace System.CommandLine.Parsing
                 OptionResult optionResult => optionResult.GetValueOrDefault<T>(),
                 _ => (T?)ArgumentConverter.GetDefaultValue(typeof(T))
             };
+
+            void Populate<TSymbol>(Dictionary<string, SymbolResult?> cache, IList<TSymbol> symbols) where TSymbol : Symbol
+            {
+                for (int i = 0; i < symbols.Count; i++)
+                {
+                    if (cache.ContainsKey(symbols[i].Name))
+                    {
+                        throw new NotSupportedException($"More than one symbol uses name \"{symbols[i].Name}\" for command \"{Command.Name}\".");
+                    }
+
+                    SymbolResultTree.TryGetValue(symbols[i], out SymbolResult? parsedSymbol);
+                    cache.Add(symbols[i].Name, parsedSymbol);
+                }
+            }
         }
 
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
