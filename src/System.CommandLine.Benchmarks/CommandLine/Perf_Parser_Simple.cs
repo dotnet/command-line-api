@@ -33,7 +33,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 stringOption
             };
 
-            command.SetHandler(static (bool _, string _) => { }, boolOption, stringOption);
+            command.SetHandler(ctx => 
+            {
+                bool boolean = ctx.ParseResult.GetValue(boolOption);
+                string text = ctx.ParseResult.GetValue(stringOption);
+            });
 
             return command;
         }

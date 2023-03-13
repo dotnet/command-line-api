@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using System.Threading;
@@ -22,12 +23,15 @@ namespace EndToEndTestApp
                 durianOption,          
             };
 
-            rootCommand.SetHandler(
-                (string apple, string banana, string cherry, string durian, CancellationToken cancellationToken) => Task.CompletedTask,
-                appleOption,
-                bananaOption,
-                cherryOption,
-                durianOption);
+            rootCommand.SetHandler((InvocationContext ctx, CancellationToken cancellationToken) =>
+            {
+                string apple = ctx.ParseResult.GetValue(appleOption);
+                string banana = ctx.ParseResult.GetValue(bananaOption);
+                string cherry = ctx.ParseResult.GetValue(cherryOption);
+                string durian = ctx.ParseResult.GetValue(durianOption);
+
+                return Task.CompletedTask;
+            });
 
             var commandLine = new CommandLineBuilder(rootCommand)
                 .UseDefaults()

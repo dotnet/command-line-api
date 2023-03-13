@@ -39,10 +39,10 @@ namespace System.CommandLine.Tests.Invocation
             var secondWasCalled = false;
 
             var first = new Command("first");
-            first.SetHandler(() => firstWasCalled = true);
+            first.SetHandler((_) => firstWasCalled = true);
 
             var second = new Command("second");
-            second.SetHandler(() => secondWasCalled = true);
+            second.SetHandler((_) => secondWasCalled = true);
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -64,10 +64,10 @@ namespace System.CommandLine.Tests.Invocation
             var secondWasCalled = false;
 
             var first = new Command("first");
-            first.SetHandler(() => firstWasCalled = true);
+            first.SetHandler((_) => firstWasCalled = true);
 
             var second = new Command("second");
-            second.SetHandler(() => secondWasCalled = true);
+            second.SetHandler((_) => secondWasCalled = true);
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -120,14 +120,14 @@ namespace System.CommandLine.Tests.Invocation
         public void When_command_handler_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.SetHandler(_ =>
-                {
-                    throw new Exception("oops!");
-                    // Help the compiler pick a CommandHandler.Create overload.
+            command.SetHandler((_, __) =>
+            {
+                throw new Exception("oops!");
+                // Help the compiler pick a CommandHandler.Create overload.
 #pragma warning disable CS0162 // Unreachable code detected
-                    return Task.FromResult(0);
+                return Task.FromResult(0);
 #pragma warning restore CS0162
-                });
+            });
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -149,7 +149,7 @@ namespace System.CommandLine.Tests.Invocation
         public void When_command_handler_throws_then_Invoke_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.SetHandler(_ =>
+            command.SetHandler((_, __) =>
             {
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.
