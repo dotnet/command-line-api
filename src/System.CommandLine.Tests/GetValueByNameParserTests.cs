@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -143,7 +144,7 @@ namespace System.CommandLine.Tests
 
             getRequired
                 .Should()
-                .Throw<InvalidOperationException>()
+                .Throw<ArgumentException>()
                 .Where(ex => ex.Message == $"No symbol result found for \"{nonExistingName}\" for command \"{command.Name}\".");
         }
 
@@ -217,6 +218,73 @@ namespace System.CommandLine.Tests
 
             parseResult = command.Parse($"outer 123");
             parseResult.GetValue<int>(sameName).Should().Be(123);
+        }
+
+        [Fact]
+        public void T_can_be_casted_to_nullable_of_T()
+        {
+            RootCommand command = new()
+            {
+                new Argument<int>("name")
+            };
+
+            ParseResult parseResult = command.Parse("123");
+
+            parseResult.GetValue<int?>("name").Should().Be(123);
+        }
+
+        [Fact]
+        public void Array_of_T_can_be_casted_to_ienumerable_of_T()
+        {
+            RootCommand command = new()
+            {
+                new Argument<int[]>("name")
+            };
+
+            ParseResult parseResult = command.Parse("1 2 3");
+
+            parseResult.GetValue<IEnumerable<int>>("name").Should().BeEquivalentTo(new int[] { 1, 2, 3 });
+        }
+
+        [Fact]
+        public void When_casting_is_not_allowed_an_exception_is_thrown()
+        {
+            const string Name = "name";
+
+            RootCommand command = new()
+            {
+                new Argument<int>(Name)
+            };
+
+            ParseResult parseResult = command.Parse("123");
+
+            Assert(() => parseResult.GetValue<double>(Name));
+            Assert(() => parseResult.GetValue<int[]>(Name));
+            Assert(() => parseResult.GetValue<string>(Name));
+
+            static void Assert(Action invalidCast)
+                => invalidCast.Should().Throw<InvalidCastException>();
+        }
+
+        [Fact]
+        public void Parse_errors_have_precedence_over_type_mismatch()
+        {
+            RootCommand command = new()
+            {
+                new Option<int>("--required")
+                {
+                    IsRequired = true
+                }
+            };
+
+            ParseResult parseResult = command.Parse("");
+
+            Action getRequiredWithTypeMismatch = () => parseResult.GetValue<double>("--required");
+
+            getRequiredWithTypeMismatch
+                .Should()
+                .Throw<InvalidOperationException>()
+                .Where(ex => ex.Message == LocalizationResources.RequiredOptionWasNotProvided("--required"));
         }
     }
 }

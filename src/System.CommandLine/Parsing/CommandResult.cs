@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.Linq;
 
@@ -13,8 +12,6 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public sealed class CommandResult : SymbolResult
     {
-        private Dictionary<string, SymbolResult?>? _namedResults;
-
         internal CommandResult(
             Command command,
             Token token,
@@ -43,53 +40,6 @@ namespace System.CommandLine.Parsing
 
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(CommandResult)}: {Token.Value} {string.Join(" ", Tokens.Select(t => t.Value))}";
-
-        internal T? GetValue<T>(string name)
-        {
-            if (_namedResults is null)
-            {
-                // A null value means that given name exists, but was not parsed
-                Dictionary<string, SymbolResult?> cache = new (StringComparer.Ordinal);
-
-                if (Command.HasArguments)
-                {
-                    Populate(cache, Command.Arguments);
-                }
-
-                if (Command.HasOptions)
-                {
-                    Populate(cache, Command.Options);
-                }
-
-                _namedResults = cache;
-            }
-
-            if (!_namedResults.TryGetValue(name, out SymbolResult? symbolResult))
-            {
-                throw new InvalidOperationException($"No symbol result found for \"{name}\" for command \"{Command.Name}\".");
-            }
-
-            return symbolResult switch
-            {
-                ArgumentResult argumentResult => argumentResult.GetValueOrDefault<T>(),
-                OptionResult optionResult => optionResult.GetValueOrDefault<T>(),
-                _ => (T?)ArgumentConverter.GetDefaultValue(typeof(T))
-            };
-
-            void Populate<TSymbol>(Dictionary<string, SymbolResult?> cache, IList<TSymbol> symbols) where TSymbol : Symbol
-            {
-                for (int i = 0; i < symbols.Count; i++)
-                {
-                    if (cache.ContainsKey(symbols[i].Name))
-                    {
-                        throw new NotSupportedException($"More than one symbol uses name \"{symbols[i].Name}\" for command \"{Command.Name}\".");
-                    }
-
-                    SymbolResultTree.TryGetValue(symbols[i], out SymbolResult? parsedSymbol);
-                    cache.Add(symbols[i].Name, parsedSymbol);
-                }
-            }
-        }
 
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;
