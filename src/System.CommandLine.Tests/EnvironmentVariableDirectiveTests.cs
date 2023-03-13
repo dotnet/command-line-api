@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
             string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests
             string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests
             string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
             string variable = test_variable;
             const string value = "This is = a test containing equals";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
@@ -106,7 +106,7 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string variable = test_variable;
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().BeNull();
@@ -127,7 +127,7 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string value = $"This is a test, random: {randomizer.Next()}";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler((_) =>
             {
                 asserted = true;
                 var env = Environment.GetEnvironmentVariables();
@@ -149,7 +149,7 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string value = $"This is a test, random: {randomizer.Next()}";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler(() =>
+            rootCommand.SetHandler((_) =>
             {
                 asserted = true;
                 var env = Environment.GetEnvironmentVariables();

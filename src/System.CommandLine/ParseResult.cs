@@ -105,14 +105,6 @@ namespace System.CommandLine
                     ? new TokenCompletionContext(this)
                     : new TextCompletionContext(this, CommandLineText);
 
-        internal T? GetValueFor<T>(IValueDescriptor<T> symbol) =>
-            symbol switch
-            {
-                Argument<T> argument => GetValue(argument),
-                Option<T> option => GetValue(option),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
         /// <summary>
         /// Gets the parsed or default value for the specified argument.
         /// </summary>

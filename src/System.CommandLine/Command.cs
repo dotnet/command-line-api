@@ -4,9 +4,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace System.CommandLine
 {
@@ -123,7 +126,7 @@ namespace System.CommandLine
         /// that will be performed when the command is invoked.
         /// </summary>
         /// <remarks>
-        /// <para>Use one of the <see cref="Handler.SetHandler(Command, Action)" /> overloads to construct a handler.</para>
+        /// <para>Use one of the <see cref="SetHandler(Action{InvocationContext})" /> overloads to construct a handler.</para>
         /// <para>If the handler is not specified, parser errors will be generated for command line input that
         /// invokes this command.</para></remarks>
         public ICommandHandler? Handler { get; set; }
@@ -250,6 +253,18 @@ namespace System.CommandLine
                 }
             }
         }
+
+        /// <summary>
+        /// Sets a command's handler based on an <see cref="Action{InvocationContext}"/>.
+        /// </summary>
+        public void SetHandler(Action<InvocationContext> handle)
+            => Handler = new AnonymousCommandHandler(handle);
+
+        /// <summary>
+        /// Sets a command's handler based on a <see cref="Func{InvocationContext,CancellationToken,Task}"/>.
+        /// </summary>
+        public void SetHandler(Func<InvocationContext, CancellationToken, Task> handle)
+            => Handler = new AnonymousCommandHandler(handle);
 
         internal bool EqualsNameOrAlias(string name)
             => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));

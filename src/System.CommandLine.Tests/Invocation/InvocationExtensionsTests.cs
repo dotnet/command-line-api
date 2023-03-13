@@ -52,7 +52,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler(() => wasCalled = true);
+            rootCommand.SetHandler((_) => wasCalled = true);
 
             var result = await rootCommand.InvokeAsync("");
 
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler(() => wasCalled = true);
+            rootCommand.SetHandler((_) => wasCalled = true);
 
             int result = rootCommand.Invoke("");
 
@@ -80,7 +80,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler(_ =>
+            rootCommand.SetHandler((_, __) =>
             {
                 wasCalled = true;
                 throw new Exception("oops!");
@@ -103,7 +103,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler(_ =>
+            rootCommand.SetHandler((_, __) =>
             {
                 wasCalled = true;
                 throw new Exception("oops!");

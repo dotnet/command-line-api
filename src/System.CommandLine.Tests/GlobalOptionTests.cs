@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("child");
             var rootCommand = new RootCommand { command };
-            command.SetHandler(() => { });
+            command.SetHandler((_) => { });
             var requiredOption = new Option<bool>("--i-must-be-set")
             {
                 IsRequired = true,
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("child");
             var rootCommand = new RootCommand { command };
-            command.SetHandler(() => { });
+            command.SetHandler((_) => { });
             var requiredOption = new Option<bool>("--i-must-be-set")
             {
                 IsRequired = true,

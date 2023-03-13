@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler(() => wasCalled = true);
+            rootCommand.SetHandler((_) => wasCalled = true);
 
             var config = new CommandLineBuilder(rootCommand)
                          .UseVersionOption()
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests
                     DefaultValueFactory = (_) => true
                 }
             };
-            rootCommand.SetHandler(() => { });
+            rootCommand.SetHandler((_) => { });
 
             var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
@@ -98,7 +98,7 @@ namespace System.CommandLine.Tests
             {
                 new Argument<bool>("x") { DefaultValueFactory =(_) => true }
             };
-            rootCommand.SetHandler(() => { });
+            rootCommand.SetHandler((_) => { });
 
             var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
@@ -117,13 +117,13 @@ namespace System.CommandLine.Tests
         public void Version_is_not_valid_with_other_tokens(string commandLine)
         {
             var subcommand = new Command("subcommand");
-            subcommand.SetHandler(() => { });
+            subcommand.SetHandler((_) => { });
             var rootCommand = new RootCommand
             {
                 subcommand,
                 new Option<bool>("-x")
             };
-            rootCommand.SetHandler(() => { });
+            rootCommand.SetHandler((_) => { });
 
             var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
@@ -138,13 +138,13 @@ namespace System.CommandLine.Tests
         public void Version_option_is_not_added_to_subcommands()
         {
             var childCommand = new Command("subcommand");
-            childCommand.SetHandler(() => { });
+            childCommand.SetHandler((_) => { });
 
             var rootCommand = new RootCommand
             {
                 childCommand,
             };
-            rootCommand.SetHandler(() => { });
+            rootCommand.SetHandler((_) => { });
 
             var configuration = new CommandLineBuilder(rootCommand)
                          .UseVersionOption()
@@ -198,12 +198,12 @@ namespace System.CommandLine.Tests
         public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
         {
             var childCommand = new Command("subcommand");
-            childCommand.SetHandler(() => { });
+            childCommand.SetHandler((_) => { });
             var rootCommand = new RootCommand
             {
                 childCommand
             };
-            rootCommand.SetHandler(() => { });
+            rootCommand.SetHandler((_) => { });
 
             var configuration = new CommandLineBuilder(rootCommand)
                          .UseVersionOption("-v")
