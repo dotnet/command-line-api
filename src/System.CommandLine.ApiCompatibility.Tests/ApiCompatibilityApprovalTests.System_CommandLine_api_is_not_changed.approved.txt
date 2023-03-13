@@ -172,8 +172,6 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
 System.CommandLine.Binding
-  public abstract class BinderBase<T>, IValueDescriptor, IValueSource
-    protected T GetBoundValue(BindingContext bindingContext)
   public class BindingContext, System.IServiceProvider
     public System.CommandLine.IConsole Console { get; }
     public System.CommandLine.ParseResult ParseResult { get; }

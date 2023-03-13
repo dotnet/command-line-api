@@ -16,37 +16,6 @@ namespace System.CommandLine.Tests.Binding
 {
     public class SetHandlerTests
     {
-        public class CustomType
-        {
-            public string StringValue { get; set; }
-
-            public int IntValue { get; set; }
-
-            public IConsole Console { get; set; }
-        }
-
-        public class CustomBinder : BinderBase<CustomType>
-        {
-            private readonly Option<int> _intOption;
-            private readonly Argument<string> _stringArg;
-
-            public CustomBinder(Option<int> intOption, Argument<string> stringArg)
-            {
-                _intOption = intOption;
-                _stringArg = stringArg;
-            }
-
-            protected override CustomType GetBoundValue(BindingContext bindingContext)
-            {
-                return new CustomType
-                {
-                    Console = bindingContext.Console,
-                    IntValue = bindingContext.ParseResult.GetValue(_intOption),
-                    StringValue = bindingContext.ParseResult.GetValue(_stringArg),
-                };
-            }
-        }
-
         [Fact]
         public async Task Unexpected_return_types_result_in_exit_code_0_if_no_exception_was_thrown()
         {
