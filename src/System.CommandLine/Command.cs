@@ -261,7 +261,7 @@ namespace System.CommandLine
             => Handler = new AnonymousCommandHandler(handle);
 
         /// <summary>
-        /// Sets a command's handler based on a <see cref="Func{Task,InvocationContext}"/>.
+        /// Sets a command's handler based on a <see cref="Func{InvocationContext,CancellationToken,Task}"/>.
         /// </summary>
         public void SetHandler(Func<InvocationContext, CancellationToken, Task> handle)
             => Handler = new AnonymousCommandHandler(handle);
