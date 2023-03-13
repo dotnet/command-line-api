@@ -5,7 +5,7 @@
 /// </summary>
 /// <typeparam name="T">The type to be bound.</typeparam>
 public abstract class BinderBase<T> :
-    IValueDescriptor<T>,
+    IValueDescriptor,
     IValueSource
 {
     /// <summary>

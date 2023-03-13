@@ -9,7 +9,7 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
     public System.String ToString()
-  public class Argument<T> : Argument, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
+  public class Argument<T> : Argument, System.CommandLine.Binding.IValueDescriptor
     .ctor(System.String name)
     public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
@@ -125,7 +125,7 @@ System.CommandLine
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-  public class Option<T> : Option, IValueDescriptor<T>, System.CommandLine.Binding.IValueDescriptor
+  public class Option<T> : Option, System.CommandLine.Binding.IValueDescriptor
     .ctor(System.String name, System.String[] aliases)
     public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
@@ -172,7 +172,7 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
 System.CommandLine.Binding
-  public abstract class BinderBase<T>, IValueDescriptor<T>, IValueDescriptor, IValueSource
+  public abstract class BinderBase<T>, IValueDescriptor, IValueSource
     protected T GetBoundValue(BindingContext bindingContext)
   public class BindingContext, System.IServiceProvider
     public System.CommandLine.IConsole Console { get; }
@@ -190,7 +190,6 @@ System.CommandLine.Binding
     public System.String ValueName { get; }
     public System.Type ValueType { get; }
     public System.Object GetDefaultValue()
-  public interface IValueDescriptor<out T> : IValueDescriptor
   public interface IValueSource
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Completions
