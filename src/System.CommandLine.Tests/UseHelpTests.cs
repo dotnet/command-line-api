@@ -46,7 +46,7 @@ namespace System.CommandLine.Tests
             var wasCalled = false;
             var command = new Command("command");
             var subcommand = new Command("subcommand");
-            subcommand.SetHandler((_) => wasCalled = true);
+            subcommand.SetHandler((_) => { wasCalled = true; return 0; });
             command.Subcommands.Add(subcommand);
 
             var config =

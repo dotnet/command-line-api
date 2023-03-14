@@ -17,26 +17,6 @@ namespace System.CommandLine.Tests.Binding
     public class SetHandlerTests
     {
         [Fact]
-        public async Task Unexpected_return_types_result_in_exit_code_0_if_no_exception_was_thrown()
-        {
-            var wasCalled = false;
-
-            var command = new Command("wat");
-
-            var handle = (InvocationContext ctx, CancellationToken cancellationToken) =>
-            {
-                wasCalled = true;
-                return Task.FromResult(new { NovelType = true });
-            };
-
-            command.SetHandler(handle);
-
-            var exitCode = await command.InvokeAsync("");
-            wasCalled.Should().BeTrue();
-            exitCode.Should().Be(0);
-        }
-
-        [Fact]
         public async Task When_User_Requests_Cancellation_Its_Reflected_By_The_Token_Passed_To_Handler()
         {
             const int ExpectedExitCode = 123;
@@ -47,11 +27,11 @@ namespace System.CommandLine.Tests.Binding
                 try
                 {
                     await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
-                    context.ExitCode = ExpectedExitCode * -1;
+                    return ExpectedExitCode * -1;
                 }
                 catch (OperationCanceledException)
                 {
-                    context.ExitCode = ExpectedExitCode;
+                    return ExpectedExitCode;
                 }
             });
 

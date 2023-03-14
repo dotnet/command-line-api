@@ -66,10 +66,12 @@ namespace System.CommandLine.Tests.Invocation
                     // and reason why we need a timeout on termination processing.
                     CancellationToken token = infiniteDelay ? CancellationToken.None : cancellationToken;
                     await Task.Delay(Timeout.InfiniteTimeSpan, token);
+
+                    return 0;
                 }
                 catch (OperationCanceledException)
                 {
-                    context.ExitCode = GracefulExitCode;
+                    return GracefulExitCode;
                 }
             });
 

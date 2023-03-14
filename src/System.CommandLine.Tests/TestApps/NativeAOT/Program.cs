@@ -20,10 +20,12 @@ public class Program
 
         return new CommandLineBuilder(command).Build().Invoke(args);
 
-        void Run(InvocationContext context)
+        int Run(InvocationContext context)
         {
             context.Console.WriteLine($"Bool option: {context.ParseResult.GetValue(boolOption)}");
             context.Console.WriteLine($"String option: {context.ParseResult.GetValue(stringOption)}");
+
+            return 0;
         }
     }
 }
