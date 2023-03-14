@@ -44,12 +44,6 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(OptionResult)}: {Token?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
-        /// <inheritdoc cref="GetValueOrDefault{T}"/>
-        public object? GetValueOrDefault() =>
-            Option.ValueType == typeof(bool)
-                ? GetValueOrDefault<bool>()
-                : GetValueOrDefault<object?>();
-
         /// <summary>
         /// Gets the parsed value or the default value for <see cref="Option"/>.
         /// </summary>
