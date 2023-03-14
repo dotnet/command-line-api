@@ -50,11 +50,6 @@ namespace System.CommandLine.Invocation
         public ParseResult ParseResult { get; set; }
 
         /// <summary>
-        /// A value that can be used to set the exit code for the process.
-        /// </summary>
-        public int ExitCode { get; set; }
-
-        /// <summary>
         /// The result of the current invocation.
         /// </summary>
         /// <remarks>As the <see cref="InvocationContext"/> is passed through the invocation pipeline to the <see cref="ICommandHandler"/> associated with the invoked command, only the last value of this property will be the one applied.</remarks>

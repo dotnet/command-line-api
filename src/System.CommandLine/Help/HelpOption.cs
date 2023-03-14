@@ -25,7 +25,7 @@ namespace System.CommandLine.Help
 
         public override int GetHashCode() => typeof(HelpOption).GetHashCode();
 
-        internal static void Handler(InvocationContext context)
+        internal static int Handler(InvocationContext context)
         {
             var output = context.Console.Out.CreateTextWriter();
 
@@ -35,6 +35,8 @@ namespace System.CommandLine.Help
                                               context.ParseResult);
 
             context.HelpBuilder.Write(helpContext);
+
+            return 0;
         }
     }
 }

@@ -24,8 +24,8 @@ namespace System.CommandLine
         /// <param name="syncHandler">The synchronous action that is invoked when directive is parsed.</param>
         /// <param name="asyncHandler">The asynchronous action that is invoked when directive is parsed.</param>
         public Directive(string name, 
-            Action<InvocationContext>? syncHandler = null,
-            Func<InvocationContext, CancellationToken, Task>? asyncHandler = null)
+            Func<InvocationContext, int>? syncHandler = null,
+            Func<InvocationContext, CancellationToken, Task<int>>? asyncHandler = null)
             : base(name)
         {
             if (syncHandler is not null)
@@ -38,7 +38,7 @@ namespace System.CommandLine
             }
         }
 
-        public void SetAsynchronousHandler(Func<InvocationContext, CancellationToken, Task> handler)
+        public void SetAsynchronousHandler(Func<InvocationContext, CancellationToken, Task<int>> handler)
         {
             if (handler is null)
             {
@@ -48,7 +48,7 @@ namespace System.CommandLine
             Handler = new AnonymousCommandHandler(handler);
         }
 
-        public void SetSynchronousHandler(Action<InvocationContext> handler)
+        public void SetSynchronousHandler(Func<InvocationContext, int> handler)
         {
             if (handler is null)
             {

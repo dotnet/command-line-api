@@ -13,7 +13,7 @@ namespace System.CommandLine
             SetSynchronousHandler(SyncHandler);
         }
 
-        private void SyncHandler(InvocationContext context)
+        private int SyncHandler(InvocationContext context)
         {
             DirectiveResult directiveResult = context.ParseResult.FindResultFor(this)!;
 
@@ -37,7 +37,7 @@ namespace System.CommandLine
             }
 
             // we need a cleaner, more flexible and intuitive way of continuing the execution
-            context.ParseResult.CommandResult.Command.Handler?.Invoke(context);
+            return context.ParseResult.CommandResult.Command.Handler?.Invoke(context) ?? 0;
         }
     }
 }

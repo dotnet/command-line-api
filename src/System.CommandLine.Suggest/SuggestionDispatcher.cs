@@ -7,6 +7,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Suggest
@@ -31,6 +32,7 @@ namespace System.CommandLine.Suggest
             CompleteScriptCommand.SetHandler(context =>
             {
                 SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValue(shellTypeArgument));
+                return 0;
             });
 
             ListCommand = new Command("list")
@@ -48,7 +50,7 @@ namespace System.CommandLine.Suggest
                 ExecutableOption,
                 PositionOption
             };
-            GetCommand.SetHandler(context => Get(context));
+            GetCommand.SetHandler(Get);
 
             var commandPathOption = new Option<string>("--command-path") { Description = "The path to the command for which to register suggestions" };
 
@@ -132,7 +134,7 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        private Task<int> Get(InvocationContext context)
+        private Task<int> Get(InvocationContext context, CancellationToken cancellationToken)
         {
             var parseResult = context.ParseResult;
             var commandPath = parseResult.GetValue(ExecutableOption);

@@ -611,13 +611,10 @@ public static class CommandHandler
         {
             case Task<int> exitCodeTask:
                 return await exitCodeTask;
-            case Task task:
-                await task;
-                return context.ExitCode;
             case int exitCode:
                 return exitCode;
             default:
-                return context.ExitCode;
+                return 0;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace System.CommandLine
         /// <summary>
         /// A delegate that will be called when an exception is thrown by a command handler.
         /// </summary>
-        internal readonly Action<Exception, InvocationContext>? ExceptionHandler;
+        internal readonly Func<Exception, InvocationContext, int>? ExceptionHandler;
 
         /// <summary>
         /// The exit code to use when parser errors occur.
@@ -82,7 +82,7 @@ namespace System.CommandLine
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<BindingContext, HelpBuilder>? helpBuilderFactory,
             TryReplaceToken? tokenReplacer,
-            Action<Exception, InvocationContext>? exceptionHandler)
+            Func<Exception, InvocationContext, int>? exceptionHandler)
         {
             RootCommand = command ?? throw new ArgumentNullException(nameof(command));
             Directives = directives is not null ? directives : Array.Empty<Directive>();
