@@ -36,7 +36,6 @@ namespace System.CommandLine.Hosting
                     services.AddSingleton(invocation);
                     services.AddSingleton(invocation.BindingContext);
                     services.AddSingleton(invocation.Console);
-                    services.AddTransient(_ => invocation.InvocationResult);
                     services.AddTransient(_ => invocation.ParseResult);
                 });
                 hostBuilder.UseInvocationLifetime(invocation);

@@ -256,7 +256,6 @@ System.CommandLine.Invocation
     public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; set; }
     public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }
-    public System.Action<InvocationContext> InvocationResult { get; set; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(Argument<T> argument)

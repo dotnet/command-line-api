@@ -49,12 +49,6 @@ namespace System.CommandLine.Invocation
         /// </summary>
         public ParseResult ParseResult { get; set; }
 
-        /// <summary>
-        /// The result of the current invocation.
-        /// </summary>
-        /// <remarks>As the <see cref="InvocationContext"/> is passed through the invocation pipeline to the <see cref="ICommandHandler"/> associated with the invoked command, only the last value of this property will be the one applied.</remarks>
-        public Action<InvocationContext>? InvocationResult { get; set; }
-
         /// <inheritdoc cref="ParseResult.GetValue{T}(Option{T})"/>
         public T? GetValue<T>(Option<T> option)
             => ParseResult.GetValue(option);
