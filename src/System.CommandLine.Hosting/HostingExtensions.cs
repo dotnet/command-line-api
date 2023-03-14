@@ -109,13 +109,14 @@ namespace System.CommandLine.Hosting
                 && invocation.ParseResult.CommandResult.Command is Command command
                 && command.GetType() == commandType)
             {
-                invocation.BindingContext.AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
                 builder.ConfigureServices(services =>
                 {
                     services.AddTransient(handlerType);
                 });
 
-                command.Handler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+                BindingHandler bindingHandler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+                command.Handler = bindingHandler;
+                bindingHandler.GetBindingContext(invocation).AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
             }
 
             return builder;
