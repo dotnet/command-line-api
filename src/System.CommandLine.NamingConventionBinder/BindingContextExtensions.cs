@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.NamingConventionBinder;
 
@@ -10,6 +11,16 @@ namespace System.CommandLine.NamingConventionBinder;
 /// </summary>
 public static class BindingContextExtensions
 {
+    public static BindingContext GetBindingContext(this InvocationContext ctx)
+    {
+        if (ctx.ParseResult.CommandResult.Command.Handler is BindingHandler bindingHandler)
+        {
+            return bindingHandler.GetBindingContext(ctx);
+        }
+
+        return new BindingContext(ctx);
+    }
+
     /// <summary>
     /// Adds a model binder which can be used to bind a specific type.
     /// </summary>

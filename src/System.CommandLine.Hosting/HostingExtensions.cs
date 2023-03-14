@@ -31,10 +31,11 @@ namespace System.CommandLine.Hosting
                 {
                     config.AddCommandLineDirectives(invocation.ParseResult, configurationDirective);
                 });
+                var bindingContext = invocation.GetBindingContext();
                 hostBuilder.ConfigureServices(services =>
                 {
                     services.AddSingleton(invocation);
-                    services.AddSingleton(invocation.BindingContext);
+                    services.AddSingleton(bindingContext);
                     services.AddSingleton(invocation.Console);
                     services.AddTransient(_ => invocation.InvocationResult);
                     services.AddTransient(_ => invocation.ParseResult);
@@ -44,7 +45,7 @@ namespace System.CommandLine.Hosting
 
                 using var host = hostBuilder.Build();
 
-                invocation.BindingContext.AddService(typeof(IHost), _ => host);
+                bindingContext.AddService(typeof(IHost), _ => host);
 
                 await host.StartAsync(cancellationToken);
 
@@ -148,7 +149,7 @@ namespace System.CommandLine.Hosting
         {
             _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
             var hostModelBinder = new ModelBinder<IHost>();
-            return (IHost)hostModelBinder.CreateInstance(invocationContext.BindingContext);
+            return (IHost)hostModelBinder.CreateInstance(invocationContext.GetBindingContext());
         }
     }
 }
