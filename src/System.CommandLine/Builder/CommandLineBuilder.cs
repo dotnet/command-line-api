@@ -36,7 +36,7 @@ namespace System.CommandLine
         // that is why we don't use List<ValueTuple> for middleware
         private List<Tuple<InvocationMiddleware, int>>? _middlewareList;
         private Action<HelpContext>? _customizeHelpBuilder;
-        private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
+        private Func<InvocationContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command rootCommand)
@@ -52,18 +52,18 @@ namespace System.CommandLine
         internal void CustomizeHelpLayout(Action<HelpContext> customize) => 
             _customizeHelpBuilder = customize;
 
-        internal void UseHelpBuilderFactory(Func<BindingContext, HelpBuilder> factory) =>
+        internal void UseHelpBuilderFactory(Func<InvocationContext, HelpBuilder> factory) =>
             _helpBuilderFactory = factory;
 
-        private Func<BindingContext, HelpBuilder> GetHelpBuilderFactory()
+        private Func<InvocationContext, HelpBuilder> GetHelpBuilderFactory()
         {
             return CreateHelpBuilder;
 
-            HelpBuilder CreateHelpBuilder(BindingContext bindingContext)
+            HelpBuilder CreateHelpBuilder(InvocationContext invocationContext)
             {
                 var helpBuilder = _helpBuilderFactory is { }
-                                             ? _helpBuilderFactory(bindingContext)
-                                             : CommandLineConfiguration.DefaultHelpBuilderFactory(bindingContext, MaxHelpWidth);
+                                             ? _helpBuilderFactory(invocationContext)
+                                             : CommandLineConfiguration.DefaultHelpBuilderFactory(invocationContext, MaxHelpWidth);
 
                 helpBuilder.OnCustomize = _customizeHelpBuilder;
 

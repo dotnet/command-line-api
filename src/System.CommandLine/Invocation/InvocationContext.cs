@@ -14,7 +14,6 @@ namespace System.CommandLine.Invocation
     public sealed class InvocationContext
     {
         private HelpBuilder? _helpBuilder;
-        private BindingContext? _bindingContext;
         private IConsole? _console;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
@@ -24,11 +23,6 @@ namespace System.CommandLine.Invocation
             ParseResult = parseResult;
             _console = console;
         }
-
-        /// <summary>
-        /// The binding context for the current invocation.
-        /// </summary>
-        public BindingContext BindingContext => _bindingContext ??= new BindingContext(this);
 
         /// <summary>
         /// The console to which output should be written during the current invocation.
@@ -42,7 +36,7 @@ namespace System.CommandLine.Invocation
         /// <summary>
         /// Enables writing help output.
         /// </summary>
-        public HelpBuilder HelpBuilder => _helpBuilder ??= ParseResult.Configuration.HelpBuilderFactory(BindingContext);
+        public HelpBuilder HelpBuilder => _helpBuilder ??= ParseResult.Configuration.HelpBuilderFactory(this);
 
         /// <summary>
         /// The parse result for the current invocation.
