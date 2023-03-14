@@ -14,6 +14,8 @@ namespace System.CommandLine.NamingConventionBinder
         /// </summary>
         public BindingContext GetBindingContext(InvocationContext invocationContext) => _bindingContext ??= new BindingContext(invocationContext);
 
+        public BindingContext SetBindingContext(BindingContext bindingContext) => _bindingContext = bindingContext;
+
         public abstract int Invoke(InvocationContext context);
 
         public abstract Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default);

@@ -3,6 +3,8 @@
 
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.NamingConventionBinder;
 
@@ -11,14 +13,22 @@ namespace System.CommandLine.NamingConventionBinder;
 /// </summary>
 public static class BindingContextExtensions
 {
+    private sealed class DummyStateHoldingHandler : BindingHandler
+    {
+        public override int Invoke(InvocationContext context) => 0;
+
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default) => Task.FromResult(0);
+    }
+
     public static BindingContext GetBindingContext(this InvocationContext ctx)
     {
-        if (ctx.ParseResult.CommandResult.Command.Handler is BindingHandler bindingHandler)
+        // parsing resulted with no handler or it was not created yet, we fake it to just store the BindingContext between the calls
+        if (ctx.ParseResult.CommandResult.Command.Handler is null)
         {
-            return bindingHandler.GetBindingContext(ctx);
+            ctx.ParseResult.CommandResult.Command.Handler = new DummyStateHoldingHandler();
         }
 
-        return new BindingContext(ctx);
+        return ((BindingHandler)ctx.ParseResult.CommandResult.Command.Handler).GetBindingContext(ctx);
     }
 
     /// <summary>

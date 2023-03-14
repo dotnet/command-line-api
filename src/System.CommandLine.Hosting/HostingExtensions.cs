@@ -116,6 +116,8 @@ namespace System.CommandLine.Hosting
                 });
 
                 BindingHandler bindingHandler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+                // NullBindingHandler that accumulated services registered so far, before handler creation
+                bindingHandler.SetBindingContext(command.Handler is BindingHandler pre ? pre.GetBindingContext(invocation) : null);
                 command.Handler = bindingHandler;
                 bindingHandler.GetBindingContext(invocation).AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
             }
