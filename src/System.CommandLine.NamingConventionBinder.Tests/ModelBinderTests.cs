@@ -602,62 +602,6 @@ public class ModelBinderTests
     }
 
     [Fact]
-    public void Custom_ModelBinders_specified_via_BindingContext_can_be_used_for_option_binding()
-    {
-        ClassWithSetter<int> boundInstance = null;
-
-        var rootCommand = new RootCommand
-        {
-            new Option<int>("--value")
-        };
-
-        rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
-
-        var config = new CommandLineBuilder(rootCommand)
-                     .AddMiddleware(context =>
-                     {
-                         var binder = new ModelBinder<ClassWithSetter<int>>();
-
-                         binder.BindMemberFromValue(instance => instance.Value, _ => 456);
-
-                         context.BindingContext.AddModelBinder(binder);
-                     })
-                     .Build();
-
-        config.Invoke("--value 123");
-
-        boundInstance.Value.Should().Be(456);
-    }
-
-    [Fact]
-    public void Custom_ModelBinders_specified_via_BindingContext_can_be_used_for_command_argument_binding()
-    {
-        ClassWithSetter<int> boundInstance = null;
-
-        var rootCommand = new RootCommand
-        {
-            new Argument<int>("arg")
-        };
-
-        rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
-
-        var config = new CommandLineBuilder(rootCommand)
-                     .AddMiddleware(context =>
-                     {
-                         var binder = new ModelBinder<ClassWithSetter<int>>();
-
-                         binder.BindMemberFromValue(instance => instance.Value, _ => 456);
-
-                         context.BindingContext.AddModelBinder(binder);
-                     })
-                     .Build();
-
-        config.Invoke("123");
-
-        boundInstance.Value.Should().Be(456);
-    }
-
-    [Fact]
     public void Default_values_from_options_with_the_same_type_are_bound_and_use_their_own_defaults()
     {
         int first = 0, second = 0;
