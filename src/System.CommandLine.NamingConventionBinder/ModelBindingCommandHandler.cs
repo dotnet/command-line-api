@@ -14,7 +14,7 @@ namespace System.CommandLine.NamingConventionBinder;
 /// <summary>
 /// Instantiates values to be passed to a user-defined command handler method.
 /// </summary>
-public class ModelBindingCommandHandler : ICommandHandler
+public class ModelBindingCommandHandler : BindingHandler
 {
     private readonly Delegate? _handlerDelegate;
     private readonly object? _invocationTarget;
@@ -57,9 +57,9 @@ public class ModelBindingCommandHandler : ICommandHandler
     /// <param name="context">The current invocation context.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the invocation.</param>
     /// <returns>A task whose value can be used to set the process exit code.</returns>
-    public async Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+    public override async Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
     {
-        var bindingContext = context.BindingContext;
+        var bindingContext = GetBindingContext(context);
 
         var (boundValues, _) = ModelBinder.GetBoundValues(
             _invokeArgumentBindingSources,
@@ -132,5 +132,5 @@ public class ModelBindingCommandHandler : ICommandHandler
                                                        x.ValueType == param.ParameterType);
 
     /// <inheritdoc />
-    public int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+    public override int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 }

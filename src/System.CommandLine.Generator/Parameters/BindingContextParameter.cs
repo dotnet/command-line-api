@@ -10,7 +10,7 @@ namespace System.CommandLine.Generator.Parameters
         }
 
         public override string GetValueFromContext()
-            => "context.BindingContext";
+            => "context.GetBindingContext()";
 
         public override int GetHashCode()
             => base.GetHashCode();

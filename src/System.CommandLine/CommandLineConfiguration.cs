@@ -37,7 +37,7 @@ namespace System.CommandLine
 
         internal readonly IReadOnlyList<InvocationMiddleware> Middleware;
 
-        private Func<BindingContext, HelpBuilder>? _helpBuilderFactory;
+        private Func<InvocationContext, HelpBuilder>? _helpBuilderFactory;
         private TryReplaceToken? _tokenReplacer;
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace System.CommandLine
             bool enablePosixBundling = true,
             bool enableTokenReplacement = true,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
-            Func<BindingContext, HelpBuilder>? helpBuilderFactory = null,
+            Func<InvocationContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
             : this(
                   command,
@@ -80,7 +80,7 @@ namespace System.CommandLine
             int maxLevenshteinDistance,
             TimeSpan? processTerminationTimeout,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
-            Func<BindingContext, HelpBuilder>? helpBuilderFactory,
+            Func<InvocationContext, HelpBuilder>? helpBuilderFactory,
             TryReplaceToken? tokenReplacer,
             Action<Exception, InvocationContext>? exceptionHandler)
         {
@@ -100,7 +100,7 @@ namespace System.CommandLine
 
         public static CommandLineBuilder CreateBuilder(Command rootCommand) => new CommandLineBuilder(rootCommand);
 
-        internal static HelpBuilder DefaultHelpBuilderFactory(BindingContext context, int? requestedMaxWidth = null)
+        internal static HelpBuilder DefaultHelpBuilderFactory(InvocationContext context, int? requestedMaxWidth = null)
         {
             int maxWidth = requestedMaxWidth ?? int.MaxValue;
             if (requestedMaxWidth is null && context.Console is SystemConsole systemConsole)
@@ -132,7 +132,7 @@ namespace System.CommandLine
         /// </remarks>
         public bool EnableTokenReplacement { get; }
 
-        internal Func<BindingContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= context => DefaultHelpBuilderFactory(context);
+        internal Func<InvocationContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= context => DefaultHelpBuilderFactory(context);
 
         internal TryReplaceToken? TokenReplacer =>
             EnableTokenReplacement

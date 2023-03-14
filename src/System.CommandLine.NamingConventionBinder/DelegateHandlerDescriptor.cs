@@ -15,7 +15,7 @@ internal class DelegateHandlerDescriptor : HandlerDescriptor
         _handlerDelegate = handlerDelegate;
     }
 
-    public override ICommandHandler GetCommandHandler()
+    public override BindingHandler GetCommandHandler()
     {
         return new ModelBindingCommandHandler(
             _handlerDelegate,

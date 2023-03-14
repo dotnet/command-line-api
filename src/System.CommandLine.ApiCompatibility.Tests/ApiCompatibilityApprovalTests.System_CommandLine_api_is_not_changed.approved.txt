@@ -73,7 +73,7 @@ System.CommandLine
     public CommandLineBuilder UseHelp(System.Nullable<System.Int32> maxWidth = null)
     public CommandLineBuilder UseHelp(System.String name, System.String[] helpAliases)
     public CommandLineBuilder UseHelp(System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
-    public CommandLineBuilder UseHelpBuilder(System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
+    public CommandLineBuilder UseHelpBuilder(System.Func<System.CommandLine.Invocation.InvocationContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
     public CommandLineBuilder UseParseDirective(System.Int32 errorExitCode = 1)
     public CommandLineBuilder UseParseErrorReporting(System.Int32 errorExitCode = 1)
     public CommandLineBuilder UseSuggestDirective()
@@ -83,7 +83,7 @@ System.CommandLine
     public CommandLineBuilder UseVersionOption(System.String name, System.String[] aliases)
   public class CommandLineConfiguration
     public static CommandLineBuilder CreateBuilder(Command rootCommand)
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableTokenReplacement = True, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Binding.BindingContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableTokenReplacement = True, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Collections.Generic.IReadOnlyList<Directive> Directives { get; }
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
@@ -172,24 +172,11 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
 System.CommandLine.Binding
-  public class BindingContext, System.IServiceProvider
-    public System.CommandLine.IConsole Console { get; }
-    public System.CommandLine.ParseResult ParseResult { get; }
-    public System.Void AddService(System.Type serviceType, System.Func<System.IServiceProvider,System.Object> factory)
-    public System.Void AddService<T>(Func<System.IServiceProvider,T> factory)
-    public System.Object GetService(System.Type serviceType)
-  public struct BoundValue : System.ValueType
-    public System.Object Value { get; }
-    public IValueDescriptor ValueDescriptor { get; }
-    public IValueSource ValueSource { get; }
-    public System.String ToString()
   public interface IValueDescriptor
     public System.Boolean HasDefaultValue { get; }
     public System.String ValueName { get; }
     public System.Type ValueType { get; }
     public System.Object GetDefaultValue()
-  public interface IValueSource
-    public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.Completions
   public abstract class CompletionContext
     public static CompletionContext Empty { get; }
@@ -253,7 +240,6 @@ System.CommandLine.Help
 System.CommandLine.Invocation
   public class InvocationContext
     .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
-    public System.CommandLine.Binding.BindingContext BindingContext { get; }
     public System.CommandLine.IConsole Console { get; set; }
     public System.Int32 ExitCode { get; set; }
     public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }

@@ -33,7 +33,7 @@ public class ModelBinderTests
             OptionBuilder.CreateOption("--value", type)
         };
 
-        var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse(commandLine)).GetBindingContext();
 
         var instance = binder.CreateInstance(bindingContext);
 
@@ -60,7 +60,7 @@ public class ModelBinderTests
             ArgumentBuilder.CreateArgument(type)
         };
 
-        var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse(commandLine)).GetBindingContext();
 
         var instance = binder.CreateInstance(bindingContext);
 
@@ -83,7 +83,7 @@ public class ModelBinderTests
             ArgumentBuilder.CreateArgument(type)
         };
 
-        var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse(commandLine)).GetBindingContext();
 
         var instance = binder.CreateInstance(bindingContext);
 
@@ -107,7 +107,7 @@ public class ModelBinderTests
         command.Options.Add(option);
         var binder = new ModelBinder(typeof(ClassWithMultiLetterCtorParameters));
 
-        var bindingContext = new InvocationContext(Parser.Parse(command, "")).BindingContext;
+        var bindingContext = new InvocationContext(Parser.Parse(command, "")).GetBindingContext();
 
         var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(bindingContext);
 
@@ -132,7 +132,7 @@ public class ModelBinderTests
             OptionBuilder.CreateOption("--value", type)
         };
 
-        var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse(commandLine)).GetBindingContext();
 
         var instance = binder.CreateInstance(bindingContext);
 
@@ -159,7 +159,7 @@ public class ModelBinderTests
             ArgumentBuilder.CreateArgument(type)
         };
 
-        var bindingContext = new InvocationContext(command.Parse(commandLine)).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse(commandLine)).GetBindingContext();
 
         var instance = binder.CreateInstance(bindingContext);
 
@@ -178,7 +178,7 @@ public class ModelBinderTests
         var command = new Command("the-command");
         command.Options.Add(option);
         var binder = new ModelBinder(typeof(ClassWithCtorParameter<DirectoryInfo>));
-        var bindingContext = new InvocationContext(command.Parse($"--value \"{tempPath}\"")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse($"--value \"{tempPath}\"")).GetBindingContext();
 
         var instance = (ClassWithCtorParameter<DirectoryInfo>)binder.CreateInstance(bindingContext);
 
@@ -194,7 +194,7 @@ public class ModelBinderTests
         command.Options.Add(option);
         var binder = new ModelBinder(typeof(ClassWithSetter<string>));
 
-        var bindingContext = new InvocationContext(command.Parse("")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse("")).GetBindingContext();
 
         var instance = (ClassWithSetter<string>)binder.CreateInstance(bindingContext);
 
@@ -212,7 +212,7 @@ public class ModelBinderTests
         var binder = new ModelBinder(typeof(ClassWithSettersAndCtorParametersWithDifferentNames));
 
         var bindingContext = new InvocationContext(
-            command.Parse("")).BindingContext;
+            command.Parse("")).GetBindingContext();
 
         var instance = (ClassWithSettersAndCtorParametersWithDifferentNames)binder.CreateInstance(bindingContext);
 
@@ -226,7 +226,7 @@ public class ModelBinderTests
         {
             new Option<int>("--int-option")
         };
-        var bindingContext = new InvocationContext(command.Parse("the-command --int-option 123")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse("the-command --int-option 123")).GetBindingContext();
         var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
@@ -242,7 +242,7 @@ public class ModelBinderTests
             new Option<int>("--int-option")
         };
         var instance = new ClassWithMultiLetterSetters();
-        var bindingContext = new InvocationContext(command.Parse("the-command --int-option 123")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse("the-command --int-option 123")).GetBindingContext();
         var binder = new ModelBinder(typeof(ClassWithMultiLetterSetters));
 
         binder.UpdateInstance(instance, bindingContext);
@@ -256,7 +256,7 @@ public class ModelBinderTests
         Command parser = new ("the-command");
 
         var instance = new ClassWithComplexTypes();
-        var bindingContext = new InvocationContext(parser.Parse("the-command")).BindingContext;
+        var bindingContext = new InvocationContext(parser.Parse("the-command")).GetBindingContext();
         var binder = new ModelBinder(typeof(ClassWithComplexTypes));
 
         binder.UpdateInstance(instance, bindingContext);
@@ -277,7 +277,7 @@ public class ModelBinderTests
 
         var parseResult = parentCommand.Parse("parent-command --int-option 123 child-command");
 
-        var bindingContext = new InvocationContext(parseResult).BindingContext;
+        var bindingContext = new InvocationContext(parseResult).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -300,7 +300,7 @@ public class ModelBinderTests
 
         var parseResult = parentCommand.Parse("parent-command child-command");
 
-        var bindingContext = new InvocationContext(parseResult).BindingContext;
+        var bindingContext = new InvocationContext(parseResult).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -320,7 +320,7 @@ public class ModelBinderTests
 
         var parseResult = parentCommand.Parse("parent-command 123 child-command");
 
-        var bindingContext = new InvocationContext(parseResult).BindingContext;
+        var bindingContext = new InvocationContext(parseResult).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -343,7 +343,7 @@ public class ModelBinderTests
 
         var parseResult = parentCommand.Parse("parent-command child-command");
 
-        var bindingContext = new InvocationContext(parseResult).BindingContext;
+        var bindingContext = new InvocationContext(parseResult).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -367,7 +367,7 @@ public class ModelBinderTests
             c => c.IntOption,
             option);
 
-        var bindingContext = new InvocationContext(parentCommand.Parse("parent-command -x 123 child-command")).BindingContext;
+        var bindingContext = new InvocationContext(parentCommand.Parse("parent-command -x 123 child-command")).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -385,7 +385,7 @@ public class ModelBinderTests
             c => c.IntOption,
             _ => 123);
 
-        var bindingContext = new InvocationContext(command.Parse("the-command")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse("the-command")).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -407,7 +407,7 @@ public class ModelBinderTests
             propertyInfo,
             option);
 
-        var bindingContext = new InvocationContext(command.Parse("the-command --fred 42")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse("the-command --fred 42")).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -427,7 +427,7 @@ public class ModelBinderTests
 
         binder.BindMemberFromValue(propertyInfo, argument);
 
-        var bindingContext = new InvocationContext(command.Parse("the-command 42")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse("the-command 42")).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -447,7 +447,7 @@ public class ModelBinderTests
             i => i.IntOption,
             option);
 
-        var bindingContext = new InvocationContext(command.Parse("the-command --fred 42")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse("the-command --fred 42")).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -467,7 +467,7 @@ public class ModelBinderTests
             i => i.IntOption,
             argument);
 
-        var bindingContext = new InvocationContext(command.Parse("the-command 42")).BindingContext;
+        var bindingContext = new InvocationContext(command.Parse("the-command 42")).GetBindingContext();
 
         var instance = (ClassWithMultiLetterSetters)binder.CreateInstance(bindingContext);
 
@@ -479,7 +479,7 @@ public class ModelBinderTests
     {
         var option = new Option<int>("--int-property");
 
-        var bindingContext = new InvocationContext(new RootCommand { option }.Parse("--int-property 42")).BindingContext;
+        var bindingContext = new InvocationContext(new RootCommand { option }.Parse("--int-property 42")).GetBindingContext();
         var binder = new ModelBinder<ClassWithMultipleCtor>();
         var instance = binder.CreateInstance(bindingContext) as ClassWithMultipleCtor;
 
@@ -493,7 +493,7 @@ public class ModelBinderTests
         var rootCommand = new RootCommand();
         rootCommand.Arguments.Add(new Argument<int>(nameof(ClassWithMultipleCtor.IntProperty)));
 
-        var bindingContext = new InvocationContext(rootCommand.Parse("42")).BindingContext;
+        var bindingContext = new InvocationContext(rootCommand.Parse("42")).GetBindingContext();
         var binder = new ModelBinder<ClassWithMultipleCtor>();
         var instance = binder.CreateInstance(bindingContext) as ClassWithMultipleCtor;
 
@@ -508,7 +508,7 @@ public class ModelBinderTests
         var stringOption = new Option<string>("--string-property");
         RootCommand rootCommand = new RootCommand { intOption, stringOption };
 
-        var bindingContext = new InvocationContext(rootCommand.Parse("--int-property 42 --string-property Hello")).BindingContext;
+        var bindingContext = new InvocationContext(rootCommand.Parse("--int-property 42 --string-property Hello")).GetBindingContext();
         var binder = new ModelBinder<ClassWithMultiLetterSetters>
         {
             EnforceExplicitBinding = true
@@ -599,62 +599,6 @@ public class ModelBinderTests
             passedNames = names;
             return 0;
         }
-    }
-
-    [Fact]
-    public void Custom_ModelBinders_specified_via_BindingContext_can_be_used_for_option_binding()
-    {
-        ClassWithSetter<int> boundInstance = null;
-
-        var rootCommand = new RootCommand
-        {
-            new Option<int>("--value")
-        };
-
-        rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
-
-        var config = new CommandLineBuilder(rootCommand)
-                     .AddMiddleware(context =>
-                     {
-                         var binder = new ModelBinder<ClassWithSetter<int>>();
-
-                         binder.BindMemberFromValue(instance => instance.Value, _ => 456);
-
-                         context.BindingContext.AddModelBinder(binder);
-                     })
-                     .Build();
-
-        config.Invoke("--value 123");
-
-        boundInstance.Value.Should().Be(456);
-    }
-
-    [Fact]
-    public void Custom_ModelBinders_specified_via_BindingContext_can_be_used_for_command_argument_binding()
-    {
-        ClassWithSetter<int> boundInstance = null;
-
-        var rootCommand = new RootCommand
-        {
-            new Argument<int>("arg")
-        };
-
-        rootCommand.Handler = CommandHandler.Create<ClassWithSetter<int>>(x => boundInstance = x);
-
-        var config = new CommandLineBuilder(rootCommand)
-                     .AddMiddleware(context =>
-                     {
-                         var binder = new ModelBinder<ClassWithSetter<int>>();
-
-                         binder.BindMemberFromValue(instance => instance.Value, _ => 456);
-
-                         context.BindingContext.AddModelBinder(binder);
-                     })
-                     .Build();
-
-        config.Invoke("123");
-
-        boundInstance.Value.Should().Be(456);
     }
 
     [Fact]

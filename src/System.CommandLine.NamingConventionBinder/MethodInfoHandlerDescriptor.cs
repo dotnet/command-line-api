@@ -21,7 +21,7 @@ internal class MethodInfoHandlerDescriptor : HandlerDescriptor
         _invocationTarget = target;
     }
 
-    public override ICommandHandler GetCommandHandler()
+    public override BindingHandler GetCommandHandler()
     {
         if (_invocationTarget is null)
         {

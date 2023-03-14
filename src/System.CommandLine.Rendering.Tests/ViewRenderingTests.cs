@@ -17,28 +17,18 @@ namespace System.CommandLine.Rendering.Tests
         private readonly TestTerminal _terminal = new();
 
         [Fact]
-        public void Views_can_be_registered_for_specific_types()
+        public void Views_can_be_used_for_specific_types()
         {
             ParseResult parseResult = null;
 
-            var command = new RootCommand
+            var command = new RootCommand();
+            command.SetHandler(ctx =>
             {
-                Handler = CommandHandler.Create<ParseResult, IConsole>(
-                    (r, c) =>
-                    {
-                        parseResult = r;
-                        c.Append(new ParseResultView(r));
-                    })
-            };
+                parseResult = ctx.ParseResult;
+                ctx.Console.Append(new ParseResultView(parseResult));
+            });
 
-            var config = new CommandLineBuilder(command)
-                         .AddMiddleware(c =>
-                         {
-                             c.BindingContext
-                              .AddService(
-                                  s => new ParseResultView(s.GetService<ParseResult>()));
-                         })
-                         .Build();
+            var config = new CommandLineBuilder(command).Build();
 
             var terminal = new TestTerminal
             {

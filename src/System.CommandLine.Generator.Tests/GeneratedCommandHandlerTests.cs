@@ -136,25 +136,22 @@ namespace System.CommandLine.Generator.Tests
             IConsole? boundConsole = null;
             ParseResult? boundParseResult = null;
             HelpBuilder? boundHelpBuilder = null;
-            BindingContext? boundBindingContext = null;
 
             void Execute(
                 InvocationContext invocationContext,
                 IConsole console,
                 ParseResult parseResult,
-                HelpBuilder helpBuilder,
-                BindingContext bindingContext)
+                HelpBuilder helpBuilder)
             {
                 boundInvocationContext = invocationContext;
                 boundConsole = console;
                 boundParseResult = parseResult;
                 boundHelpBuilder = helpBuilder;
-                boundBindingContext = bindingContext;
             }
 
             var command = new Command("command");
 
-            command.SetHandler<Action<InvocationContext, IConsole, ParseResult, HelpBuilder, BindingContext>>(Execute);
+            command.SetHandler<Action<InvocationContext, IConsole, ParseResult, HelpBuilder>>(Execute);
 
             await command.InvokeAsync("command", _console);
 
@@ -162,7 +159,6 @@ namespace System.CommandLine.Generator.Tests
             boundConsole.Should().Be(_console);
             boundParseResult.Should().NotBeNull();
             boundHelpBuilder.Should().NotBeNull();
-            boundBindingContext.Should().NotBeNull();
         }
 
         [Fact]

@@ -14,7 +14,7 @@ public abstract class HandlerDescriptor : IMethodDescriptor
     /// <summary>
     /// Gets a command handler that can bind to the specifications of the descriptor.
     /// </summary>
-    public abstract ICommandHandler GetCommandHandler();
+    public abstract BindingHandler GetCommandHandler();
 
     /// <inheritdoc />
     public abstract ModelDescriptor? Parent { get; }

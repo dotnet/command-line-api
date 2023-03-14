@@ -252,7 +252,7 @@ ERR:
         /// <param name="getHelpBuilder">A delegate that returns an instance of <see cref="HelpBuilder"/></param>
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         public CommandLineBuilder UseHelpBuilder(
-            Func<BindingContext, HelpBuilder> getHelpBuilder)
+            Func<InvocationContext, HelpBuilder> getHelpBuilder)
         {
             UseHelpBuilderFactory(getHelpBuilder);
 

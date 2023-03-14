@@ -31,10 +31,11 @@ namespace System.CommandLine.Hosting
                 {
                     config.AddCommandLineDirectives(invocation.ParseResult, configurationDirective);
                 });
+                var bindingContext = invocation.GetBindingContext();
                 hostBuilder.ConfigureServices(services =>
                 {
                     services.AddSingleton(invocation);
-                    services.AddSingleton(invocation.BindingContext);
+                    services.AddSingleton(bindingContext);
                     services.AddSingleton(invocation.Console);
                     services.AddTransient(_ => invocation.InvocationResult);
                     services.AddTransient(_ => invocation.ParseResult);
@@ -44,7 +45,7 @@ namespace System.CommandLine.Hosting
 
                 using var host = hostBuilder.Build();
 
-                invocation.BindingContext.AddService(typeof(IHost), _ => host);
+                bindingContext.AddService(typeof(IHost), _ => host);
 
                 await host.StartAsync(cancellationToken);
 
@@ -109,13 +110,16 @@ namespace System.CommandLine.Hosting
                 && invocation.ParseResult.CommandResult.Command is Command command
                 && command.GetType() == commandType)
             {
-                invocation.BindingContext.AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
                 builder.ConfigureServices(services =>
                 {
                     services.AddTransient(handlerType);
                 });
 
-                command.Handler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+                BindingHandler bindingHandler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+                // NullBindingHandler that accumulated services registered so far, before handler creation
+                bindingHandler.SetBindingContext(command.Handler is BindingHandler pre ? pre.GetBindingContext(invocation) : null);
+                command.Handler = bindingHandler;
+                bindingHandler.GetBindingContext(invocation).AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
             }
 
             return builder;
@@ -147,7 +151,7 @@ namespace System.CommandLine.Hosting
         {
             _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
             var hostModelBinder = new ModelBinder<IHost>();
-            return (IHost)hostModelBinder.CreateInstance(invocationContext.BindingContext);
+            return (IHost)hostModelBinder.CreateInstance(invocationContext.GetBindingContext());
         }
     }
 }
