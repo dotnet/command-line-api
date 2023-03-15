@@ -4,12 +4,22 @@
 using System.Collections.Generic;
 using System.CommandLine.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal static class TypoCorrection
+    internal sealed class TypoCorrection : CliAction
     {
-        internal static int ProvideSuggestions(InvocationContext context)
+        public override int Invoke(InvocationContext context)
+            => ProvideSuggestions(context);
+
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            => cancellationToken.IsCancellationRequested
+                ? Task.FromCanceled<int>(cancellationToken)
+                : Task.FromResult(ProvideSuggestions(context));
+
+        private static int ProvideSuggestions(InvocationContext context)
         {
             ParseResult result = context.ParseResult;
             IConsole console = context.Console;

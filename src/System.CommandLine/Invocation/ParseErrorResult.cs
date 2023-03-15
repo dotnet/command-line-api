@@ -3,11 +3,21 @@
 
 using System.CommandLine.Help;
 using System.CommandLine.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal static class ParseErrorResult
+    internal sealed class ParseErrorResult : CliAction
     {
+        public override int Invoke(InvocationContext context)
+            => Apply(context);
+
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            => cancellationToken.IsCancellationRequested
+                ? Task.FromCanceled<int>(cancellationToken)
+                : Task.FromResult(Apply(context));
+
         internal static int Apply(InvocationContext context)
         {
             context.Console.ResetTerminalForegroundColor();
