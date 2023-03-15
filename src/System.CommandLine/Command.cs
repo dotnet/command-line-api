@@ -122,16 +122,6 @@ namespace System.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the <see cref="CliAction"/> for the command. The handler represents the action
-        /// that will be performed when the command is invoked.
-        /// </summary>
-        /// <remarks>
-        /// <para>Use one of the <see cref="SetHandler(Func{InvocationContext, Int32})" /> overloads to construct a handler.</para>
-        /// <para>If the handler is not specified, parser errors will be generated for command line input that
-        /// invokes this command.</para></remarks>
-        public CliAction? Handler { get; set; }
-
-        /// <summary>
         /// Represents all of the symbols for the command.
         /// </summary>
         public IEnumerator<Symbol> GetEnumerator() => Children.GetEnumerator();
@@ -253,18 +243,6 @@ namespace System.CommandLine
                 }
             }
         }
-
-        /// <summary>
-        /// Sets a synchronous command handler. The handler should return an exit code.
-        /// </summary>
-        public void SetHandler(Func<InvocationContext, int> handler)
-            => Handler = new AnonymousCliAction(handler);
-
-        /// <summary>
-        /// Sets an asynchronous command handler. The handler should return an exit code.
-        /// </summary>
-        public void SetHandler(Func<InvocationContext, CancellationToken, Task<int>> handler)
-            => Handler = new AnonymousCliAction(handler);
 
         internal bool EqualsNameOrAlias(string name)
             => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));

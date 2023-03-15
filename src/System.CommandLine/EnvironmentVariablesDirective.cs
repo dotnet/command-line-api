@@ -10,7 +10,7 @@ namespace System.CommandLine
     {
         public EnvironmentVariablesDirective() : base("env")
         {
-            SetSynchronousHandler(SyncHandler);
+            SetHandler(SyncHandler);
         }
 
         private int SyncHandler(InvocationContext context)

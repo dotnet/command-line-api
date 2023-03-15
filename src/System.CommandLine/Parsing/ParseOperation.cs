@@ -190,15 +190,14 @@ namespace System.CommandLine.Parsing
                 // parse directive has a precedence over --help and --version
                 if (!_isParseRequested)
                 {
-                    if (option is HelpOption)
+                    if (option.Handler is not null)
                     {
-                        _isHelpRequested = true;
+                        if (option is HelpOption)
+                        {
+                            _isHelpRequested = true;
+                        }
 
-                        _handler = new AnonymousCliAction(HelpOption.Handler);
-                    }
-                    else if (option is VersionOption)
-                    {
-                        _handler = new AnonymousCliAction(VersionOption.Handler);
+                        _handler = option.Handler;
                     }
                 }
 

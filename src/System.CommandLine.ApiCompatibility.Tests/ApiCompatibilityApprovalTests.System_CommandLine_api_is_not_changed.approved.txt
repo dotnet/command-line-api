@@ -43,7 +43,6 @@ System.CommandLine
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
     public System.Collections.Generic.IList<Argument> Arguments { get; }
     public System.Collections.Generic.IEnumerable<Symbol> Children { get; }
-    public CliAction Handler { get; set; }
     public System.Collections.Generic.IList<Option> Options { get; }
     public System.Collections.Generic.IList<Command> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
@@ -53,8 +52,6 @@ System.CommandLine
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CommandLineConfiguration configuration = null)
     public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
-    public System.Void SetHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> handler)
-    public System.Void SetHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> handler)
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
@@ -109,8 +106,6 @@ System.CommandLine
   public class Directive : Symbol
     .ctor(System.String name, System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> syncHandler = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> asyncHandler = null)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Void SetAsynchronousHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> handler)
-    public System.Void SetSynchronousHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> handler)
   public class EnvironmentVariablesDirective : Directive
     .ctor()
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
@@ -166,10 +161,13 @@ System.CommandLine
     .ctor()
   public abstract class Symbol
     public System.String Description { get; set; }
+    public CliAction Handler { get; set; }
     public System.Boolean IsHidden { get; set; }
     public System.String Name { get; }
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
+    public System.Void SetHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> handler)
+    public System.Void SetHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> handler)
     public System.String ToString()
 System.CommandLine.Binding
   public interface IValueDescriptor

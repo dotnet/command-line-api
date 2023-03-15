@@ -30,35 +30,13 @@ namespace System.CommandLine
         {
             if (syncHandler is not null)
             {
-                SetSynchronousHandler(syncHandler);
+                SetHandler(syncHandler);
             }
             else if (asyncHandler is not null)
             {
-                SetAsynchronousHandler(asyncHandler);
+                SetHandler(asyncHandler);
             }
         }
-
-        public void SetAsynchronousHandler(Func<InvocationContext, CancellationToken, Task<int>> handler)
-        {
-            if (handler is null)
-            {
-                throw new ArgumentNullException(nameof(handler));
-            }
-
-            Handler = new AnonymousCliAction(handler);
-        }
-
-        public void SetSynchronousHandler(Func<InvocationContext, int> handler)
-        {
-            if (handler is null)
-            {
-                throw new ArgumentNullException(nameof(handler));
-            }
-
-            Handler = new AnonymousCliAction(handler);
-        }
-
-        internal CliAction? Handler { get; private set; }
 
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
             => Array.Empty<CompletionItem>();

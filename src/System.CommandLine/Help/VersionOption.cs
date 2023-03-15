@@ -15,6 +15,7 @@ namespace System.CommandLine.Help
         {
             Description = LocalizationResources.VersionOptionDescription();
             AddValidators();
+            SetHandler(Display);
         }
 
         internal VersionOption(string name, string[] aliases)
@@ -22,6 +23,7 @@ namespace System.CommandLine.Help
         {
             Description = LocalizationResources.VersionOptionDescription();
             AddValidators();
+            SetHandler(Display);
         }
 
         private void AddValidators()
@@ -53,7 +55,7 @@ namespace System.CommandLine.Help
 
         public override int GetHashCode() => typeof(VersionOption).GetHashCode();
 
-        internal static int Handler(InvocationContext context)
+        private static int Display(InvocationContext context)
         {
             context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
             return 0;

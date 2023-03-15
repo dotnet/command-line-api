@@ -13,7 +13,7 @@ namespace System.CommandLine
     {
         public SuggestDirective() : base("suggest")
         {
-            SetSynchronousHandler(SyncHandler);
+            SetHandler(SyncHandler);
         }
 
         private int SyncHandler(InvocationContext context)

@@ -11,11 +11,11 @@ namespace System.CommandLine.Invocation
         private readonly Func<InvocationContext, CancellationToken, Task<int>>? _asyncHandle;
         private readonly Func<InvocationContext, int>? _syncHandle;
 
-        internal AnonymousCliAction(Func<InvocationContext, CancellationToken, Task<int>> handle)
-            => _asyncHandle = handle ?? throw new ArgumentNullException(nameof(handle));
+        internal AnonymousCliAction(Func<InvocationContext, CancellationToken, Task<int>> handler)
+            => _asyncHandle = handler ?? throw new ArgumentNullException(nameof(handler));
 
-        internal AnonymousCliAction(Func<InvocationContext, int> handle)
-            => _syncHandle = handle ?? throw new ArgumentNullException(nameof(handle));
+        internal AnonymousCliAction(Func<InvocationContext, int> handler)
+            => _syncHandle = handler ?? throw new ArgumentNullException(nameof(handler));
 
         public override int Invoke(InvocationContext context)
         {

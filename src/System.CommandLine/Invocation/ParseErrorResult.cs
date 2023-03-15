@@ -22,7 +22,7 @@ namespace System.CommandLine.Invocation
 
             context.Console.ResetTerminalForegroundColor();
 
-            HelpOption.Handler(context);
+            HelpOption.Display(context);
 
             return context.ParseResult.Configuration.ParseErrorReportingExitCode!.Value;
         }

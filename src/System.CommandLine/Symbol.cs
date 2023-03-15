@@ -3,7 +3,10 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace System.CommandLine
 {
@@ -71,6 +74,28 @@ namespace System.CommandLine
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CliAction"/> for the symbol. The handler represents the action
+        /// that will be performed when the symbol is invoked.
+        /// </summary>
+        /// <remarks>
+        /// <para>Use one of the <see cref="SetHandler(Func{InvocationContext, Int32})" /> overloads to construct a handler.</para>
+        /// <para>If the handler is not specified, parser errors will be generated for command line input that
+        /// invokes this symbol.</para></remarks>
+        public CliAction? Handler { get; set; }
+
+        /// <summary>
+        /// Sets a synchronous symbol handler. The handler should return an exit code.
+        /// </summary>
+        public void SetHandler(Func<InvocationContext, int> handler)
+            => Handler = new AnonymousCliAction(handler);
+
+        /// <summary>
+        /// Sets an asynchronous symbol handler. The handler should return an exit code.
+        /// </summary>
+        public void SetHandler(Func<InvocationContext, CancellationToken, Task<int>> handler)
+            => Handler = new AnonymousCliAction(handler);
 
         /// <summary>
         /// Gets completions for the symbol.

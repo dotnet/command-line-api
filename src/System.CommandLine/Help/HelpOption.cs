@@ -13,6 +13,7 @@ namespace System.CommandLine.Help
         {
             AppliesToSelfAndChildren = true;
             Description = LocalizationResources.HelpOptionDescription();
+            SetHandler(Display);
         }
 
         internal HelpOption() : this("--help", new[] { "-h", "/h", "-?", "/?" })
@@ -25,7 +26,7 @@ namespace System.CommandLine.Help
 
         public override int GetHashCode() => typeof(HelpOption).GetHashCode();
 
-        internal static int Handler(InvocationContext context)
+        internal static int Display(InvocationContext context)
         {
             var output = context.Console.Out.CreateTextWriter();
 

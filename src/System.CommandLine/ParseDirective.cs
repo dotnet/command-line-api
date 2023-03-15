@@ -12,7 +12,7 @@ namespace System.CommandLine
         /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
         public ParseDirective(int errorExitCode = 1) : base("parse")
         {
-            SetSynchronousHandler(SyncHandler);
+            SetHandler(SyncHandler);
             ErrorExitCode = errorExitCode;
         }
 
