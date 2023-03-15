@@ -1,13 +1,11 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.CommandLine.Rendering.Views;
 using System.CommandLine.Tests.Utility;
 using System.Drawing;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace System.CommandLine.Rendering.Tests
@@ -26,6 +24,7 @@ namespace System.CommandLine.Rendering.Tests
             {
                 parseResult = ctx.ParseResult;
                 ctx.Console.Append(new ParseResultView(parseResult));
+                return 0;
             });
 
             var config = new CommandLineBuilder(command).Build();
