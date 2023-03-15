@@ -236,7 +236,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => ((CommandResult)e.SymbolResult).Command == command)
+                  .ContainSingle()
                   .Which
                   .Message
                   .Should()
@@ -260,7 +260,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => ((CommandResult)e.SymbolResult).Command == command)
+                  .ContainSingle()
                   .Which
                   .Message
                   .Should()

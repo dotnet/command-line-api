@@ -14,15 +14,26 @@ namespace System.CommandLine.Tests.Binding
 {
     public class TypeConversionTests
     {
+        protected virtual T GetValue<T>(Option<T> option, string commandLine)
+        {
+            var result = new RootCommand { option }.Parse(commandLine);
+            return result.GetValue(option);
+        }
+
+        protected virtual T GetValue<T>(Argument<T> argument, string commandLine)
+        {
+            var result = new RootCommand { argument }.Parse(commandLine);
+            return result.GetValue(argument);
+        }
+
         [Fact]
         public void Option_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
         {
             var option = new Option<FileInfo>("--file");
 
             var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
-            var result = new RootCommand { option }.Parse($"--file {file.FullName}");
 
-            result.GetValue(option)
+            GetValue(option, $"--file {file.FullName}")
                   .Name
                   .Should()
                   .Be("the-file.txt");
@@ -88,12 +99,11 @@ namespace System.CommandLine.Tests.Binding
 
             var file1 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file1.txt"));
             var file2 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file2.txt"));
-            var result = new RootCommand { option }.Parse($"--file {file1.FullName} --file {file2.FullName}");
 
-            result.GetValue(option)
-                  .Select(fi => fi.Name)
-                  .Should()
-                  .BeEquivalentTo("file1.txt", "file2.txt");
+            GetValue(option, $"--file {file1.FullName} --file {file2.FullName}")
+                .Select(fi => fi.Name)
+                .Should()
+                .BeEquivalentTo("file1.txt", "file2.txt");
         }
 
         [Fact]
@@ -231,9 +241,7 @@ namespace System.CommandLine.Tests.Binding
         {
             var option = new Option<bool?>("-x");
 
-            new RootCommand { option }
-                .Parse("")
-                .GetValue(option)
+            GetValue(option, "")
                 .Should()
                 .Be(null);
         }
@@ -431,9 +439,8 @@ namespace System.CommandLine.Tests.Binding
             var option = new Option<DateTime>("-x");
 
             var dateString = "2022-02-06T01:46:03.0000000-08:00";
-            var value = new RootCommand { option }.Parse($"-x {dateString}").GetValue(option);
 
-            value.Should().Be(DateTime.Parse(dateString));
+            GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
         }
 
 
@@ -443,9 +450,8 @@ namespace System.CommandLine.Tests.Binding
             var option = new Option<DateTime?>("-x");
 
             var dateString = "2022-02-06T01:46:03.0000000-08:00";
-            var value = new RootCommand { option }.Parse($"-x {dateString}").GetValue(option);
 
-            value.Should().Be(DateTime.Parse(dateString));
+            GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
         }
 
         [Fact]
@@ -454,9 +460,8 @@ namespace System.CommandLine.Tests.Binding
             var option = new Option<DateTimeOffset>("-x");
 
             var dateString = "2022-02-06T09:52:54.5275055-08:00";
-            var value = new RootCommand { option }.Parse($"-x {dateString}").GetValue(option);
 
-            value.Should().Be(DateTime.Parse(dateString));
+            GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
         }
 
         [Fact]
@@ -465,349 +470,164 @@ namespace System.CommandLine.Tests.Binding
             var option = new Option<DateTimeOffset?>("-x");
 
             var dateString = "2022-02-06T09:52:54.5275055-08:00";
-            var value = new RootCommand { option }.Parse($"-x {dateString}").GetValue(option);
 
-            value.Should().Be(DateTime.Parse(dateString));
+            GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
         }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<decimal>("-x");
-
-            var result = new RootCommand { option }.Parse("-x 123.456");
-
-            var value = result.GetValue(option);
-
-            value.Should().Be(123.456m);
-        }
+            => GetValue(new Option<decimal>("-x"), "-x 123.456").Should().Be(123.456m);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_decimal_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<decimal?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 123.456").GetValue(option);
-
-            value.Should().Be(123.456m);
-        }
+            => GetValue(new Option<decimal?>("-x"), "-x 123.456").Should().Be(123.456m);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<double>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 123.456").GetValue(option);
-
-            value.Should().Be(123.456d);
-        }
+            => GetValue(new Option<double>("-x"), "-x 123.456").Should().Be(123.456d);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_double_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<double?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 123.456").GetValue(option);
-
-            value.Should().Be(123.456d);
-        }
+            => GetValue(new Option<double?>("-x"), "-x 123.456").Should().Be(123.456d);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<float>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 123.456").GetValue(option);
-
-            value.Should().Be(123.456f);
-        }
+            => GetValue(new Option<float>("-x"), "-x 123.456").Should().Be(123.456f);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_float_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<float?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 123.456").GetValue(option);
-
-            value.Should().Be(123.456f);
-        }
+            => GetValue(new Option<float?>("-x"), "-x 123.456").Should().Be(123.456f);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_Guid_without_the_parser_specifying_a_custom_converter()
         {
-            var guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
-            var option = new Option<Guid>("-x");
+            const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
 
-            var value = new RootCommand { option }.Parse($"-x {guidString}").GetValue(option);
-
-            value.Should().Be(Guid.Parse(guidString));
+            GetValue(new Option<Guid>("-x"), $"-x {guidString}").Should().Be(Guid.Parse(guidString));
         }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_Guid_without_the_parser_specifying_a_custom_converter()
         {
-            var guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
-            var option = new Option<Guid?>("-x");
+            const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
 
-            var value = new RootCommand { option }.Parse($"-x {guidString}").GetValue(option);
-
-            value.Should().Be(Guid.Parse(guidString));
+            GetValue(new Option<Guid?>("-x"), $"-x {guidString}").Should().Be(Guid.Parse(guidString));
         }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_TimeSpan_without_the_parser_specifying_a_custom_converter()
         {
-            var timeSpanString = "30";
-            var option = new Option<TimeSpan>("-x");
+            const string timeSpanString = "30";
 
-            var value = new RootCommand { option }.Parse($"-x {timeSpanString}").GetValue(option);
-
-            value.Should().Be(TimeSpan.Parse(timeSpanString));
+            GetValue(new Option<TimeSpan>("-x"), $"-x {timeSpanString}").Should().Be(TimeSpan.Parse(timeSpanString));
         }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_TimeSpan_without_the_parser_specifying_a_custom_converter()
         {
-            var timeSpanString = "30";
-            var option = new Option<TimeSpan?>("-x");
+            const string timeSpanString = "30";
 
-            var value = new RootCommand { option }.Parse($"-x {timeSpanString}").GetValue(option);
-
-            value.Should().Be(TimeSpan.Parse(timeSpanString));
+            GetValue(new Option<TimeSpan?>("-x"), $"-x {timeSpanString}").Should().Be(TimeSpan.Parse(timeSpanString));
         }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<Uri>("-x");
-
-            var value = new RootCommand { option }.Parse("-x http://example.com").GetValue(option);
-
-            value.Should().BeEquivalentTo(new Uri("http://example.com"));
-        }
+            => GetValue(new Option<Uri>("-x"), "-x http://example.com").Should().BeEquivalentTo(new Uri("http://example.com"));
 
         [Fact]
         public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
         {
-            var option = new Option<bool>("-x");
-
-            new RootCommand { option }.Parse("-x false").GetValue(option).Should().BeFalse();
-            new RootCommand { option }.Parse("-x true").GetValue(option).Should().BeTrue();
+            GetValue(new Option<bool>("-x"), "-x false").Should().BeFalse();
+            GetValue(new Option<bool>("-x"), "-x true").Should().BeTrue();
         }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_long_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<long>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 123456790").GetValue(option);
-
-            value.Should().Be(123456790L);
-        }
+            => GetValue(new Option<long>("-x"), "-x 123456790").Should().Be(123456790L);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_long_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<long?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1234567890").GetValue(option);
-
-            value.Should().Be(1234567890L);
-        }
+            => GetValue(new Option<long?>("-x"), "-x 123456790").Should().Be(123456790L);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_short_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<short>("-s");
-
-            var value = new RootCommand { option }.Parse("-s 1234").GetValue(option);
-
-            value.Should().Be(1234);
-        }
+            => GetValue(new Option<short>("-s"), "-s 1234").Should().Be(1234);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_short_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<short?>("-s");
-
-            var value = new RootCommand { option }.Parse("-s 1234").GetValue(option);
-
-            value.Should().Be(1234);
-        }
+            => GetValue(new Option<short?>("-s"), "-s 1234").Should().Be(1234);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_ulong_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<ulong>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1234").GetValue(option);
-
-            value.Should().Be(1234);
-        }
+            => GetValue(new Option<ulong>("-x"), "-x 1234").Should().Be(1234);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_ulong_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<ulong?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1234").GetValue(option);
-
-            value.Should().Be(1234);
-        }
+            => GetValue(new Option<ulong?>("-x"), "-x 1234").Should().Be(1234);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_ushort_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<ushort>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1234").GetValue(option);
-
-            value.Should().Be(1234);
-        }
+            => GetValue(new Option<ushort>("-s"), "-s 1234").Should().Be(1234);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_ushort_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<ushort?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1234").GetValue(option);
-
-            value.Should().Be(1234);
-        }
+            => GetValue(new Option<ushort?>("-s"), "-s 1234").Should().Be(1234);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_sbyte_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<sbyte>("-us");
-
-            var value = new RootCommand { option }.Parse("-us 123").GetValue(option);
-
-            value.Should().Be(123);
-        }
+            => GetValue(new Option<sbyte>("-us"), "-us 123").Should().Be(123);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_sbyte_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<sbyte?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 123").GetValue(option);
-
-            value.Should().Be(123);
-        }
+            => GetValue(new Option<sbyte?>("-us"), "-us 123").Should().Be(123);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_ipaddress_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<IPAddress>("-us");
-
-            var value = new RootCommand { option }.Parse("-us 1.2.3.4").GetValue(option);
-
-            value.Should().Be(IPAddress.Parse("1.2.3.4"));
-        }
+            => GetValue(new Option<IPAddress>("-us"), "-us 1.2.3.4").Should().Be(IPAddress.Parse("1.2.3.4"));
 
 #if NETCOREAPP3_0_OR_GREATER
         [Fact]
         public void Values_can_be_correctly_converted_to_ipendpoint_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<IPEndPoint>("-us");
-
-            var value = new RootCommand { option }.Parse("-us 1.2.3.4:56").GetValue(option);
-
-            value.Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
-        }
+            => GetValue(new Option<IPEndPoint>("-us"), "-us 1.2.3.4:56").Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
 #endif
 
 #if NET6_0_OR_GREATER
         [Fact]
         public void Values_can_be_correctly_converted_to_dateonly_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<DateOnly>("-us");
-
-            var value = new RootCommand { option }.Parse("-us 2022-03-02").GetValue(option);
-
-            value.Should().Be(DateOnly.Parse("2022-03-02"));
-        }
+            => GetValue(new Option<DateOnly>("-us"), "-us 2022-03-02").Should().Be(DateOnly.Parse("2022-03-02"));
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_dateonly_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<DateOnly?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 2022-03-02").GetValue(option);
-
-            value.Should().Be(DateOnly.Parse("2022-03-02"));
-        }
+            => GetValue(new Option<DateOnly?>("-x"), "-x 2022-03-02").Should().Be(DateOnly.Parse("2022-03-02"));
 
         [Fact]
         public void Values_can_be_correctly_converted_to_timeonly_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<TimeOnly>("-us");
-
-            var value = new RootCommand { option }.Parse("-us 12:34:56").GetValue(option);
-
-            value.Should().Be(TimeOnly.Parse("12:34:56"));
-        }
+            => GetValue(new Option<TimeOnly>("-us"), "-us 12:34:56").Should().Be(TimeOnly.Parse("12:34:56"));
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_timeonly_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<TimeOnly?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 12:34:56").GetValue(option);
-
-            value.Should().Be(TimeOnly.Parse("12:34:56"));
-        }
+            => GetValue(new Option<TimeOnly?>("-x"), "-x 12:34:56").Should().Be(TimeOnly.Parse("12:34:56"));
 #endif
 
         [Fact]
         public void Values_can_be_correctly_converted_to_byte_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<byte>("-us");
-
-            var value = new RootCommand { option }.Parse("-us 123").GetValue(option);
-
-            value.Should().Be(123);
-        }
+            => GetValue(new Option<byte>("-us"), "-us 123").Should().Be(123);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_byte_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<byte?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 123").GetValue(option);
-
-            value.Should().Be(123);
-        }
+            => GetValue(new Option<byte?>("-us"), "-us 123").Should().Be(123);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_uint_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<uint>("-us");
-
-            var value = new RootCommand { option }.Parse("-us 1234").GetValue(option);
-
-            value.Should().Be(1234);
-        }
+            => GetValue(new Option<uint>("-us"), "-us 1234").Should().Be(1234);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_uint_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<uint?>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1234").GetValue(option);
-
-            value.Should().Be(1234);
-        }
+            => GetValue(new Option<uint?>("-us"), "-us 1234").Should().Be(1234);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<int[]>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1 -x 2 -x 3").GetValue(option);
-
-            value.Should().BeEquivalentTo(1, 2, 3);
-        }
+            => GetValue(new Option<int[]>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(1, 2, 3);
 
         [Theory]
         [InlineData(0, 100_000, typeof(string[]))]
@@ -852,47 +672,19 @@ namespace System.CommandLine.Tests.Binding
 
         [Fact]
         public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<List<int>>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1 -x 2 -x 3").GetValue(option);
-
-            value.Should().BeEquivalentTo(1, 2, 3);
-        }
+            => GetValue(new Option<List<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(1, 2, 3);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_IEnumerable_of_int_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<IEnumerable<int>>("-x");
-
-            var value = new RootCommand { option }.Parse("-x 1 -x 2 -x 3").GetValue(option);
-
-            value.Should().BeEquivalentTo(1, 2, 3);
-        }
+            => GetValue(new Option<IEnumerable<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(1, 2, 3);
 
         [Fact]
         public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<DayOfWeek>("-x");
-
-            var parseResult = new RootCommand { option }.Parse("-x Monday");
-
-            var value = parseResult.GetValue(option);
-
-            value.Should().Be(DayOfWeek.Monday);
-        }
+            => GetValue(new Option<DayOfWeek>("-x"), "-x Monday").Should().Be(DayOfWeek.Monday);
 
         [Fact]
         public void Nullable_enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<DayOfWeek?>("-x");
-
-            var parseResult = new RootCommand { option }.Parse("-x Monday");
-
-            var value = parseResult.GetValue(option);
-
-            value.Should().Be(DayOfWeek.Monday);
-        }
+            => GetValue(new Option<DayOfWeek?>("-x"), "-x Monday").Should().Be(DayOfWeek.Monday);
 
         [Fact]
         public void Enum_values_that_cannot_be_parsed_result_in_an_informative_error()
@@ -930,11 +722,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void When_getting_an_array_of_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
         {
-            var option = new Option<int[]>("-x");
-
-            var result = new RootCommand { option }.Parse("-x not-an-int -x 2");
-
-            Action getValue = () => result.GetValue(option);
+            Action getValue = () => GetValue(new Option<int[]>("-x"), "-x not-an-int -x 2");
 
             getValue.Should()
                     .Throw<InvalidOperationException>()
@@ -945,19 +733,12 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void String_defaults_to_null_when_not_specified()
-        {
-            var argument = new Argument<string>("arg");
-            var command = new Command("mycommand")
-            {
-                argument
-            };
-
-            var result = command.Parse("mycommand");
-            result.GetValue(argument)
-                  .Should()
-                  .BeNull();
-        }
+        public void String_defaults_to_null_when_not_specified_only_for_not_required_arguments()
+            => GetValue(
+                new Argument<string>("arg")
+                { 
+                    Arity = ArgumentArity.ZeroOrMore
+                }, "").Should().BeNull();
 
         [Theory]
         [InlineData(typeof(List<string>))]
@@ -986,12 +767,6 @@ namespace System.CommandLine.Tests.Binding
         }
 
         private void AssertParsedValueIsEmpty<T>(Argument<T> argument) where T : IEnumerable
-        {
-            var result = new RootCommand { argument }.Parse("");
-
-            result.GetValue(argument)
-                  .Should()
-                  .BeEmpty();
-        }
+            => GetValue(argument, "").Should().BeEmpty();
     }
 }

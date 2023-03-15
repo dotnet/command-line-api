@@ -156,6 +156,7 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
+    public T GetValue<T>(System.String name)
     public System.Int32 Invoke(IConsole console = null)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
     public System.String ToString()

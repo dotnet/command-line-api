@@ -186,7 +186,7 @@ namespace System.CommandLine.Binding
                 ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.Arity.MinimumNumberOfValues > 0 =>
                     Failure(
                         conversionResult.ArgumentResult,
-                        LocalizationResources.RequiredArgumentMissing(conversionResult.ArgumentResult.Parent!),
+                        LocalizationResources.RequiredArgumentMissing(conversionResult.ArgumentResult),
                         ArgumentConversionResultType.FailedMissingArgument),
                         
                 _ => conversionResult

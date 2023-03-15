@@ -22,6 +22,7 @@ namespace System.CommandLine
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private CompletionContext? _completionContext;
         private CliAction? _action;
+        private Dictionary<string, SymbolResult?>? _namedResults;
 
         internal ParseResult(
             CommandLineConfiguration configuration,
@@ -120,6 +121,77 @@ namespace System.CommandLine
         /// <returns>The parsed value or a configured default.</returns>
         public T? GetValue<T>(Option<T> option)
             => RootCommandResult.GetValue(option);
+
+        /// <summary>
+        /// Gets the parsed or default value for the specified symbol name, in the context of parsed command (not entire symbol tree).
+        /// </summary>
+        /// <param name="name">The name of the Symbol for which to get a value.</param>
+        /// <returns>The parsed value or a configured default.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when parsing resulted in parse error(s).</exception>
+        /// <exception cref="ArgumentException">Thrown when there was no symbol defined for given name for the parsed command.</exception>
+        /// <exception cref="InvalidCastException">Thrown when parsed result can not be casted to <typeparamref name="T"/>.</exception>
+        public T? GetValue<T>(string name)
+        {
+            var command = CommandResult.Command;
+            if (_namedResults is null)
+            {
+                // A null value means that given name exists, but was not parsed
+                Dictionary<string, SymbolResult?> cache = new(StringComparer.Ordinal);
+
+                if (command.HasArguments)
+                {
+                    Populate(cache, command.Arguments);
+                }
+
+                if (command.HasOptions)
+                {
+                    Populate(cache, command.Options);
+                }
+
+                _namedResults = cache;
+            }
+
+            if (!_namedResults.TryGetValue(name, out SymbolResult? symbolResult))
+            {
+                throw new ArgumentException($"No symbol result found for \"{name}\" for command \"{command.Name}\".");
+            }
+
+            return symbolResult switch
+            {
+                ArgumentResult argumentResult => Convert(argumentResult.GetArgumentConversionResult()),
+                OptionResult optionResult => Convert(optionResult.ArgumentConversionResult),
+                _ => (T?)ArgumentConverter.GetDefaultValue(typeof(T))
+            };
+
+            void Populate<TSymbol>(Dictionary<string, SymbolResult?> cache, IList<TSymbol> symbols) where TSymbol : Symbol
+            {
+                var symbolResultTree = CommandResult.SymbolResultTree;
+                for (int i = 0; i < symbols.Count; i++)
+                {
+                    if (cache.ContainsKey(symbols[i].Name))
+                    {
+                        throw new NotSupportedException($"More than one symbol uses name \"{symbols[i].Name}\" for command \"{command.Name}\".");
+                    }
+
+                    symbolResultTree.TryGetValue(symbols[i], out SymbolResult? parsedSymbol);
+                    cache.Add(symbols[i].Name, parsedSymbol);
+                }
+            }
+
+            static T? Convert(ArgumentConversionResult validatedResult)
+            {
+                var convertedResult = validatedResult.ConvertIfNeeded(typeof(T));
+
+                if (validatedResult.Result == ArgumentConversionResultType.Successful
+                    && convertedResult.Result == ArgumentConversionResultType.NoArgument)
+                {
+                    // invalid cast has been detected, InvalidCastException will be thrown
+                    return (T)validatedResult.Value!;
+                }
+
+                return convertedResult.GetValueOrDefault<T>();
+            }
+        }
 
         /// <inheritdoc />
         public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
