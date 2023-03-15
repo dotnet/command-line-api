@@ -92,7 +92,7 @@ namespace System.CommandLine
 
                 error = ArgumentConversionResult.Failure(
                     argumentResult,
-                    LocalizationResources.RequiredArgumentMissing(argumentResult.Parent),
+                    LocalizationResources.RequiredArgumentMissing(argumentResult),
                     ArgumentConversionResultType.FailedMissingArgument);
 
                 return false;

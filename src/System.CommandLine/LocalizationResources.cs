@@ -52,10 +52,16 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to Required argument missing for command: {0}.
         /// </summary>
-        internal static string RequiredArgumentMissing(SymbolResult symbolResult) =>
-            symbolResult is CommandResult commandResult
+        internal static string RequiredArgumentMissing(ArgumentResult argumentResult) =>
+            argumentResult.Parent is CommandResult commandResult
                 ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, commandResult.Token.Value)
-                : GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, GetOptionName((OptionResult)symbolResult));
+                : RequiredArgumentMissing((OptionResult)argumentResult.Parent!);
+
+        /// <summary>
+        ///   Interpolates values into a localized string similar to Required argument missing for option: {0}.
+        /// </summary>
+        internal static string RequiredArgumentMissing(OptionResult optionResult) =>
+            GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, GetOptionName(optionResult));
 
         /// <summary>
         ///   Interpolates values into a localized string similar to Required command was not provided.

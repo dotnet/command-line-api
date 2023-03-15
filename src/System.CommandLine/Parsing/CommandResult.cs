@@ -88,7 +88,7 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-                if (!completeValidation && !(option.AppliesToSelfAndChildren || option.Argument.HasDefaultValue || (option is HelpOption or VersionOption)))
+                if (!completeValidation && !(option.AppliesToSelfAndChildren || option.Argument.HasDefaultValue || option is VersionOption))
                 {
                     continue;
                 }
@@ -98,18 +98,19 @@ namespace System.CommandLine.Parsing
 
                 if (!SymbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
                 {
-                    if (option.IsRequired)
-                    {
-                        AddError(LocalizationResources.RequiredOptionWasNotProvided(option.Name));
-                        continue;
-                    }
-                    else if (option.Argument.HasDefaultValue)
+                    if (option.IsRequired || option.Argument.HasDefaultValue)
                     {
                         optionResult = new(option, SymbolResultTree, null, this);
                         SymbolResultTree.Add(optionResult.Option, optionResult);
 
                         argumentResult = new(optionResult.Option.Argument, SymbolResultTree, optionResult);
                         SymbolResultTree.Add(optionResult.Option.Argument, argumentResult);
+
+                        if (option.IsRequired && !option.Argument.HasDefaultValue)
+                        {
+                            argumentResult.AddError(LocalizationResources.RequiredOptionWasNotProvided(option.Name));
+                            continue;
+                        }
                     }
                     else
                     {
@@ -165,15 +166,16 @@ namespace System.CommandLine.Parsing
                 {
                     argumentResult = (ArgumentResult)symbolResult;
                 }
-                else if (argument.HasDefaultValue)
+                else if (argument.HasDefaultValue || argument.Arity.MinimumNumberOfValues > 0)
                 {
                     argumentResult = new ArgumentResult(argument, SymbolResultTree, this);
                     SymbolResultTree[argument] = argumentResult;
-                }
-                else if (argument.Arity.MinimumNumberOfValues > 0)
-                {
-                    AddError(LocalizationResources.RequiredArgumentMissing(this));
-                    continue;
+
+                    if (!argument.HasDefaultValue && argument.Arity.MinimumNumberOfValues > 0)
+                    {
+                        argumentResult.AddError(LocalizationResources.RequiredArgumentMissing(argumentResult));
+                        continue;
+                    }
                 }
                 else
                 {
