@@ -138,6 +138,7 @@ System.CommandLine
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
     public CommandLineConfiguration Configuration { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
+    public CliAction Handler { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }

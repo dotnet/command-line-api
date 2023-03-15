@@ -346,5 +346,38 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
         }
+
+        [Fact]
+        public void Every_option_can_provide_a_handler_and_it_takes_precedence_over_command_handler()
+        {
+            bool optionHandlerWasCalled = false;
+            bool commandHandlerWasCalled = false;
+
+            Option<bool> option = new("--test");
+            option.SetHandler((_) =>
+            {
+                optionHandlerWasCalled = true;
+                return 100;
+            });
+            Command command = new Command("cmd")
+            {
+                option
+            };
+            command.SetHandler((_) =>
+            {
+                commandHandlerWasCalled = true;
+                return 200;
+            });
+
+            ParseResult parseResult = command.Parse("cmd --test true");
+
+            parseResult.Handler.Should().NotBeNull();
+            optionHandlerWasCalled.Should().BeFalse();
+            commandHandlerWasCalled.Should().BeFalse();
+
+            parseResult.Invoke().Should().Be(100);
+            optionHandlerWasCalled.Should().BeTrue();
+            commandHandlerWasCalled.Should().BeFalse();
+        }
     }
 }

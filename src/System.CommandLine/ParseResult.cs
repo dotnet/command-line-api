@@ -229,24 +229,11 @@ namespace System.CommandLine
         /// <returns>A value that can be used as a process exit code.</returns>
         public int Invoke(IConsole? console = null) => InvocationPipeline.Invoke(this, console);
 
-        internal CliAction? Handler
-        {
-            get
-            {
-                if (_handler is not null)
-                {
-                    return _handler;
-                }
-
-                if (CommandResult.Command is { } command)
-                {
-                    return command.Handler;
-                }
-
-                return null;
-            }
-            set => _handler = value;
-        }
+        /// <summary>
+        /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
+        /// that will be performed when the parse result is invoked.
+        /// </summary>
+        public CliAction? Handler => _handler ?? CommandResult.Command.Handler;
 
         private SymbolResult SymbolToComplete(int? position = null)
         {
