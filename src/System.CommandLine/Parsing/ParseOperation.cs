@@ -18,7 +18,7 @@ namespace System.CommandLine.Parsing
         private int _index;
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested, _isParseRequested;
-        private CliAction? _handler;
+        private CliAction? _action;
 
         public ParseOperation(
             List<Token> tokens,
@@ -60,16 +60,16 @@ namespace System.CommandLine.Parsing
                 Validate();
             }
 
-            if (_handler is null)
+            if (_action is null)
             {
                 if (_configuration.ParseErrorReportingExitCode.HasValue && _symbolResultTree.ErrorCount > 0)
                 {
-                    _handler = new ParseErrorResult();
+                    _action = new ParseErrorResult();
                 }
                 else if (_configuration.MaxLevenshteinDistance > 0 && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
                     && _symbolResultTree.UnmatchedTokens is not null)
                 {
-                    _handler = new TypoCorrection();
+                    _action = new TypoCorrection();
                 }
             }
 
@@ -81,7 +81,7 @@ namespace System.CommandLine.Parsing
                 _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
                 _rawInput,
-                _handler);
+                _action);
         }
 
         private void ParseSubcommand()
@@ -190,14 +190,14 @@ namespace System.CommandLine.Parsing
                 // parse directive has a precedence over --help and --version
                 if (!_isParseRequested)
                 {
-                    if (option.Handler is not null)
+                    if (option.Action is not null)
                     {
                         if (option is HelpOption)
                         {
                             _isHelpRequested = true;
                         }
 
-                        _handler = option.Handler;
+                        _action = option.Action;
                     }
                 }
 
@@ -319,7 +319,7 @@ namespace System.CommandLine.Parsing
                     result.AddValue(withoutBrackets.Slice(indexOfColon + 1).ToString());
                 }
 
-                _handler = directive.Handler;
+                _action = directive.Action;
 
                 if (directive is ParseDirective)
                 {

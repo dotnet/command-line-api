@@ -514,9 +514,9 @@ namespace System.CommandLine.Tests
 
             rootCommand.Options.Add(globalOption);
 
-            rootCommand.SetHandler((ctx) => { handlerWasCalled = true; return 0; });
-            childCommand.SetHandler((ctx) => { handlerWasCalled = true; return 0; });
-            grandchildCommand.SetHandler((ctx) => { handlerWasCalled = true; return 0; });
+            rootCommand.SetAction((ctx) => handlerWasCalled = true);
+            childCommand.SetAction((ctx) => handlerWasCalled = true);
+            grandchildCommand.SetAction((ctx) => handlerWasCalled = true);
 
             var result = await rootCommand.InvokeAsync(commandLine);
 
@@ -1145,7 +1145,7 @@ namespace System.CommandLine.Tests
         {
             var outer = new Command("outer");
             var inner = new Command("inner");
-            inner.SetHandler((_) => 0);
+            inner.SetAction((_) => { });
             var innerer = new Command("inner-er");
             outer.Subcommands.Add(inner);
             inner.Subcommands.Add(innerer);

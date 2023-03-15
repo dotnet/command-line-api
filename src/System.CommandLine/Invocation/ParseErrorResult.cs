@@ -11,14 +11,6 @@ namespace System.CommandLine.Invocation
     internal sealed class ParseErrorResult : CliAction
     {
         public override int Invoke(InvocationContext context)
-            => Apply(context);
-
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
-            => cancellationToken.IsCancellationRequested
-                ? Task.FromCanceled<int>(cancellationToken)
-                : Task.FromResult(Apply(context));
-
-        internal static int Apply(InvocationContext context)
         {
             context.Console.ResetTerminalForegroundColor();
             context.Console.SetTerminalForegroundRed();
@@ -32,9 +24,14 @@ namespace System.CommandLine.Invocation
 
             context.Console.ResetTerminalForegroundColor();
 
-            HelpOption.Display(context);
+            new HelpOption().Action!.Invoke(context);
 
             return context.ParseResult.Configuration.ParseErrorReportingExitCode!.Value;
         }
+
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            => cancellationToken.IsCancellationRequested
+                ? Task.FromCanceled<int>(cancellationToken)
+                : Task.FromResult(Invoke(context));
     }
 }

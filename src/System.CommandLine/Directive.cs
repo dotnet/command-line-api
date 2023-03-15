@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.CommandLine.Completions;
-using System.CommandLine.Invocation;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace System.CommandLine
 {
@@ -21,22 +18,16 @@ namespace System.CommandLine
         /// Initializes a new instance of the Directive class.
         /// </summary>
         /// <param name="name">The name of the directive. It can't contain whitespaces.</param>
-        /// <param name="syncHandler">The synchronous action that is invoked when directive is parsed.</param>
-        /// <param name="asyncHandler">The asynchronous action that is invoked when directive is parsed.</param>
-        public Directive(string name, 
-            Func<InvocationContext, int>? syncHandler = null,
-            Func<InvocationContext, CancellationToken, Task<int>>? asyncHandler = null)
+        public Directive(string name)
             : base(name)
         {
-            if (syncHandler is not null)
-            {
-                SetHandler(syncHandler);
-            }
-            else if (asyncHandler is not null)
-            {
-                SetHandler(asyncHandler);
-            }
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CliAction"/> for the Directive. The handler represents the action
+        /// that will be performed when the Directive is invoked.
+        /// </summary>
+        public CliAction? Action { get; set; }
 
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
             => Array.Empty<CompletionItem>();

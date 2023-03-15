@@ -170,7 +170,7 @@ namespace System.CommandLine
             builder.Append(@"
         {");
             builder.Append($@"
-            command.Handler = new GeneratedHandler_{handlerCount}(method");
+            command.Action = new GeneratedHandler_{handlerCount}(method");
 
             if (methodParameters.Length > 0)
             {

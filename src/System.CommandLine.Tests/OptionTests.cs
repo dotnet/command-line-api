@@ -3,8 +3,11 @@
 
 using FluentAssertions;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -350,34 +353,45 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Every_option_can_provide_a_handler_and_it_takes_precedence_over_command_handler()
         {
-            bool optionHandlerWasCalled = false;
+            OptionAction optionAction = new();
             bool commandHandlerWasCalled = false;
 
-            Option<bool> option = new("--test");
-            option.SetHandler((_) =>
+            Option<bool> option = new("--test")
             {
-                optionHandlerWasCalled = true;
-                return 100;
-            });
+                Action = optionAction,
+            };
             Command command = new Command("cmd")
             {
                 option
             };
-            command.SetHandler((_) =>
+            command.SetAction((_) =>
             {
                 commandHandlerWasCalled = true;
-                return 200;
             });
 
             ParseResult parseResult = command.Parse("cmd --test true");
 
-            parseResult.Handler.Should().NotBeNull();
-            optionHandlerWasCalled.Should().BeFalse();
+            parseResult.Action.Should().NotBeNull();
+            optionAction.WasCalled.Should().BeFalse();
             commandHandlerWasCalled.Should().BeFalse();
 
-            parseResult.Invoke().Should().Be(100);
-            optionHandlerWasCalled.Should().BeTrue();
+            parseResult.Invoke().Should().Be(0);
+            optionAction.WasCalled.Should().BeTrue();
             commandHandlerWasCalled.Should().BeFalse();
+        }
+
+        internal sealed class OptionAction : CliAction
+        {
+            internal bool WasCalled = false;
+
+            public override int Invoke(InvocationContext context)
+            {
+                WasCalled = true;
+                return 0;
+            }
+
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+                => Task.FromResult(Invoke(context));
         }
     }
 }

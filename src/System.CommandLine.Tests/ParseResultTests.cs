@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests
 
         [Fact]
         public void Handler_is_null_when_parsed_command_did_not_specify_handler()
-            => new RootCommand().Parse("").Handler.Should().BeNull();
+            => new RootCommand().Parse("").Action.Should().BeNull();
 
         [Fact]
         public void Handler_is_not_null_when_parsed_command_specified_handler()
@@ -132,18 +132,14 @@ namespace System.CommandLine.Tests
             bool handlerWasCalled = false;
 
             RootCommand command = new();
-            command.SetHandler((_) =>
-            {
-                handlerWasCalled = true;
-                return 123;
-            });
+            command.SetAction((_) => handlerWasCalled = true);
 
             ParseResult parseResult = command.Parse("");
 
-            parseResult.Handler.Should().NotBeNull();
+            parseResult.Action.Should().NotBeNull();
             handlerWasCalled.Should().BeFalse();
 
-            parseResult.Handler.Invoke(null!).Should().Be(123);
+            parseResult.Action.Invoke(null!).Should().Be(0);
             handlerWasCalled.Should().BeTrue();
         }
     }

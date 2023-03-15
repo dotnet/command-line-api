@@ -39,7 +39,7 @@ public partial class ModelBindingCommandHandlerTests
             OptionBuilder.CreateOption("-x", parameterType)
         };
 
-        command.Handler = handler;
+        command.Action = handler;
 
         var parseResult = command.Parse("");
 
@@ -115,7 +115,7 @@ public partial class ModelBindingCommandHandlerTests
         {
             OptionBuilder.CreateOption("--value", testCase.ParameterType)
         };
-        command.Handler = handler;
+        command.Action = handler;
 
         var commandLine = string.Join(" ", testCase.CommandLineTokens.Select(t => $"--value {t}"));
         var parseResult = command.Parse(commandLine);
@@ -139,7 +139,7 @@ public partial class ModelBindingCommandHandlerTests
         var o = new Option<string[]>("-i") { Description = "Path to an image or directory of supported images" };
 
         var command = new Command("command") { o };
-        command.Handler = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
+        command.Action = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
 
         var testConsole = new TestConsole();
         var commandLine = "command -i 1 -i 2 -i 3 ";
@@ -176,7 +176,7 @@ public partial class ModelBindingCommandHandlerTests
         {
             ArgumentBuilder.CreateArgument(type)
         };
-        command.Handler = handler;
+        command.Action = handler;
 
         var commandLine = string.Join(" ", testCase.CommandLineTokens);
         var parseResult = command.Parse(commandLine);
@@ -228,7 +228,7 @@ public partial class ModelBindingCommandHandlerTests
             throw new InvalidOperationException("Cannot bind to this type of handler");
         }
         bindingHandler.BindParameter(parameter, argument);
-        command.Handler = handler;
+        command.Action = handler;
 
         var commandLine = string.Join(" ", testCase.CommandLineTokens);
         var parseResult = command.Parse(commandLine);
@@ -281,7 +281,7 @@ public partial class ModelBindingCommandHandlerTests
             throw new InvalidOperationException("Cannot bind to this type of handler");
         }
         bindingHandler.BindParameter(parameter, option);
-        command.Handler = handler;
+        command.Action = handler;
 
         var commandLine = string.Join(" ", testCase.CommandLineTokens.Select(t => $"--value {t}"));
         var parseResult = command.Parse(commandLine);
@@ -310,7 +310,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var command = new Command("wat")
         {
-            Handler = CommandHandler.Create(@delegate)
+            Action = CommandHandler.Create(@delegate)
         };
 
         var exitCode = await command.InvokeAsync("");

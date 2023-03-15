@@ -42,7 +42,7 @@ namespace System.CommandLine.Rendering.Tests
             OutputMode detectedOutputMode = OutputMode.Auto;
 
             var command = new Command("hello");
-            command.SetHandler((ctx, cancellationToken) =>
+            command.SetAction((ctx, cancellationToken) =>
             {
                 detectedOutputMode = ctx.Console.DetectOutputMode();
                 return Task.FromResult(0);

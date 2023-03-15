@@ -1,6 +1,8 @@
 ﻿using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
@@ -11,18 +13,25 @@ namespace System.CommandLine
     {
         /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
         public ParseDirective(int errorExitCode = 1) : base("parse")
-        {
-            SetHandler(SyncHandler);
-            ErrorExitCode = errorExitCode;
-        }
+            => Action = new ParseDirectiveAction(errorExitCode);
 
-        internal int ErrorExitCode { get; }
-
-        private int SyncHandler(InvocationContext context)
+        private sealed class ParseDirectiveAction : CliAction
         {
-            var parseResult = context.ParseResult;
-            context.Console.Out.WriteLine(parseResult.Diagram());
-            return parseResult.Errors.Count == 0 ? 0 : ErrorExitCode;
+            private readonly int _errorExitCode;
+
+            internal ParseDirectiveAction(int errorExitCode) => _errorExitCode = errorExitCode;
+
+            public override int Invoke(InvocationContext context)
+            {
+                var parseResult = context.ParseResult;
+                context.Console.Out.WriteLine(parseResult.Diagram());
+                return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
+            }
+
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+                => cancellationToken.IsCancellationRequested
+                    ? Task.FromCanceled<int>(cancellationToken)
+                    : Task.FromResult(Invoke(context));
         }
     }
 }

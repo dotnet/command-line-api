@@ -21,7 +21,7 @@ namespace System.CommandLine
         private readonly CommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private CompletionContext? _completionContext;
-        private CliAction? _handler;
+        private CliAction? _action;
 
         internal ParseResult(
             CommandLineConfiguration configuration,
@@ -36,7 +36,7 @@ namespace System.CommandLine
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
-            _handler = handler;
+            _action = handler;
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
@@ -233,7 +233,7 @@ namespace System.CommandLine
         /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
         /// that will be performed when the parse result is invoked.
         /// </summary>
-        public CliAction? Handler => _handler ?? CommandResult.Command.Handler;
+        public CliAction? Action => _action ?? CommandResult.Command.Action;
 
         private SymbolResult SymbolToComplete(int? position = null)
         {

@@ -168,7 +168,7 @@ namespace System.CommandLine.DragonFruit
                 command.Arguments.Add(ArgumentBuilder.CreateArgument(argsParam));
             }
 
-            command.Handler = CommandHandler.Create(method, target);
+            command.Action = CommandHandler.Create(method, target);
         }
 
         public static CommandLineBuilder ConfigureHelpFromXmlComments(

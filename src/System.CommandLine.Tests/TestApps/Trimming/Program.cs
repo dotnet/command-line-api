@@ -9,11 +9,9 @@ var command = new RootCommand
     fileArgument
 };
 
-command.SetHandler(context =>
+command.SetAction(context =>
 {
     context.Console.Write($"The file you chose was: {context.ParseResult.GetValue(fileArgument)}");
-
-    return 0;
 });
 
 command.Invoke(args);

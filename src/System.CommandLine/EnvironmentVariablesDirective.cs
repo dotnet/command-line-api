@@ -11,21 +11,19 @@ namespace System.CommandLine
     public sealed class EnvironmentVariablesDirective : Directive
     {
         public EnvironmentVariablesDirective() : base("env")
-        {
-            Handler = new SetEnvVarsAction(this);
-        }
+            => Action = new EnvironmentVariablesDirectiveAction(this);
 
-        private sealed class SetEnvVarsAction : CliAction
+        private sealed class EnvironmentVariablesDirectiveAction : CliAction
         {
             private readonly EnvironmentVariablesDirective _directive;
 
-            internal SetEnvVarsAction(EnvironmentVariablesDirective directive) => _directive = directive;
+            internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive) => _directive = directive;
 
             public override int Invoke(InvocationContext context)
             {
                 SetEnvVars(context);
 
-                return context.ParseResult.CommandResult.Command.Handler?.Invoke(context) ?? 0;
+                return context.ParseResult.CommandResult.Command.Action?.Invoke(context) ?? 0;
             }
 
             public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
@@ -37,8 +35,8 @@ namespace System.CommandLine
 
                 SetEnvVars(context);
 
-                return context.ParseResult.CommandResult.Command.Handler is not null
-                    ? context.ParseResult.CommandResult.Command.Handler.InvokeAsync(context, cancellationToken)
+                return context.ParseResult.CommandResult.Command.Action is not null
+                    ? context.ParseResult.CommandResult.Command.Action.InvokeAsync(context, cancellationToken)
                     : Task.FromResult(0);
             }
 

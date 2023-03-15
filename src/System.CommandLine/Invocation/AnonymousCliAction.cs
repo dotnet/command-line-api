@@ -8,31 +8,44 @@ namespace System.CommandLine.Invocation
 {
     internal sealed class AnonymousCliAction : CliAction
     {
-        private readonly Func<InvocationContext, CancellationToken, Task<int>>? _asyncHandle;
-        private readonly Func<InvocationContext, int>? _syncHandle;
+        private readonly Func<InvocationContext, CancellationToken, Task>? _asyncAction;
+        private readonly Action<InvocationContext>? _syncAction;
 
-        internal AnonymousCliAction(Func<InvocationContext, CancellationToken, Task<int>> handler)
-            => _asyncHandle = handler ?? throw new ArgumentNullException(nameof(handler));
+        internal AnonymousCliAction(Action<InvocationContext> action)
+            => _syncAction = action ?? throw new ArgumentNullException(nameof(action));
 
-        internal AnonymousCliAction(Func<InvocationContext, int> handler)
-            => _syncHandle = handler ?? throw new ArgumentNullException(nameof(handler));
+        internal AnonymousCliAction(Func<InvocationContext, CancellationToken, Task> action)
+            => _asyncAction = action ?? throw new ArgumentNullException(nameof(action));
 
         public override int Invoke(InvocationContext context)
         {
-            if (_syncHandle is not null)
+            if (_syncAction is not null)
             {
-                return _syncHandle(context);
+                _syncAction(context);
+            }
+            else
+            {
+                SyncUsingAsync(context); // kept in a separate method to avoid JITting
             }
 
-            return SyncUsingAsync(context); // kept in a separate method to avoid JITting
+            return 0;
 
-            int SyncUsingAsync(InvocationContext context)
-                => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+            void SyncUsingAsync(InvocationContext context)
+                => _asyncAction!(context, CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
-            => _asyncHandle is not null
-                ? _asyncHandle(context, cancellationToken)
-                : Task.FromResult(Invoke(context));
+        public async override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+        {
+            if (_asyncAction is not null)
+            {
+                await _asyncAction(context, cancellationToken);
+            }
+            else
+            {
+                _syncAction!(context);
+            }
+
+            return 0;
+        }
     }
 }

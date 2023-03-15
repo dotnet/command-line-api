@@ -33,12 +33,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 stringOption
             };
 
-            command.SetHandler(ctx => 
+            command.SetAction(ctx => 
             {
                 bool boolean = ctx.ParseResult.GetValue(boolOption);
                 string text = ctx.ParseResult.GetValue(stringOption);
-
-                return 0;
             });
 
             return command;

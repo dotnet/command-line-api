@@ -28,7 +28,7 @@ namespace System.CommandLine.Hosting.Tests
             }
 
             var config = new CommandLineBuilder(
-                new RootCommand { Handler = CommandHandler.Create<IHost>(Execute) }
+                new RootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost()
                 .Build();
@@ -76,7 +76,7 @@ namespace System.CommandLine.Hosting.Tests
             }
 
             var config = new CommandLineBuilder(
-                new RootCommand { Handler = CommandHandler.Create<IHost>(Execute) }
+                new RootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost()
                 .Build();
@@ -108,7 +108,7 @@ namespace System.CommandLine.Hosting.Tests
             var config = new CommandLineBuilder(
                 new RootCommand
                 {
-                    Handler = CommandHandler.Create<IHost>(Execute),
+                    Action = CommandHandler.Create<IHost>(Execute),
                 })
                 .UseHost(host =>
                 {
@@ -145,7 +145,7 @@ namespace System.CommandLine.Hosting.Tests
             var config = new CommandLineBuilder(
                 new RootCommand
                 {
-                    Handler = CommandHandler.Create<IHost>(Execute),
+                    Action = CommandHandler.Create<IHost>(Execute),
                 })
                 .UseHost(args =>
                 {
@@ -184,7 +184,7 @@ namespace System.CommandLine.Hosting.Tests
             var config = new CommandLineBuilder(
                 new RootCommand
                 {
-                    Handler = CommandHandler.Create<IHost>(Execute)
+                    Action = CommandHandler.Create<IHost>(Execute)
                 })
                 .UseHost()
                 .Build();
@@ -203,7 +203,7 @@ namespace System.CommandLine.Hosting.Tests
 
             var rootCmd = new RootCommand();
             rootCmd.Options.Add(new Option<int>($"-{nameof(MyOptions.MyArgument)}"));
-            rootCmd.Handler = CommandHandler.Create((IHost host) =>
+            rootCmd.Action = CommandHandler.Create((IHost host) =>
             {
                 options = host.Services
                     .GetRequiredService<IOptions<MyOptions>>()

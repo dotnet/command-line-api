@@ -104,6 +104,12 @@ namespace System.CommandLine
         /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Option.</remarks>
         public ICollection<string> Aliases => _aliases ??= new();
 
+        /// <summary>
+        /// Gets or sets the <see cref="CliAction"/> for the Option. The handler represents the action
+        /// that will be performed when the Option is invoked.
+        /// </summary>
+        public CliAction? Action { get; set; }
+
         string IValueDescriptor.ValueName => Name;
 
         /// <summary>

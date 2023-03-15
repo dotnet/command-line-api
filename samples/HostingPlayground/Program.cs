@@ -32,7 +32,7 @@ namespace HostingPlayground
                     IsRequired = true
                 }
             };
-            root.Handler = CommandHandler.Create<GreeterOptions, IHost>(Run);
+            root.Action = CommandHandler.Create<GreeterOptions, IHost>(Run);
             return new CommandLineBuilder(root);
         }
 

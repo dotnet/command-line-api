@@ -23,14 +23,14 @@ namespace EndToEndTestApp
                 durianOption,          
             };
 
-            rootCommand.SetHandler((InvocationContext ctx, CancellationToken cancellationToken) =>
+            rootCommand.SetAction((InvocationContext ctx, CancellationToken cancellationToken) =>
             {
                 string apple = ctx.ParseResult.GetValue(appleOption);
                 string banana = ctx.ParseResult.GetValue(bananaOption);
                 string cherry = ctx.ParseResult.GetValue(cherryOption);
                 string durian = ctx.ParseResult.GetValue(durianOption);
 
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             });
 
             var commandLine = new CommandLineBuilder(rootCommand)

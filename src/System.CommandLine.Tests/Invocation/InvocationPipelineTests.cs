@@ -39,10 +39,10 @@ namespace System.CommandLine.Tests.Invocation
             var secondWasCalled = false;
 
             var first = new Command("first");
-            first.SetHandler((_) => { firstWasCalled = true; return 0; });
+            first.SetAction((_) => firstWasCalled = true);
 
             var second = new Command("second");
-            second.SetHandler((_) => { secondWasCalled = true; return 0; });
+            second.SetAction((_) => secondWasCalled = true);
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -64,10 +64,10 @@ namespace System.CommandLine.Tests.Invocation
             var secondWasCalled = false;
 
             var first = new Command("first");
-            first.SetHandler((_) => { firstWasCalled = true; return 0; });
+            first.SetAction((_) => firstWasCalled = true);
 
             var second = new Command("second");
-            second.SetHandler((_) => { secondWasCalled = true; return 0; });
+            second.SetAction((_) => secondWasCalled = true);
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -120,7 +120,7 @@ namespace System.CommandLine.Tests.Invocation
         public void When_command_handler_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.SetHandler((_, __) =>
+            command.SetAction((_, __) =>
             {
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.
@@ -149,7 +149,7 @@ namespace System.CommandLine.Tests.Invocation
         public void When_command_handler_throws_then_Invoke_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.SetHandler((_, __) =>
+            command.SetAction((_, __) =>
             {
                 throw new Exception("oops!");
                 // Help the compiler pick a CommandHandler.Create overload.
@@ -181,7 +181,7 @@ namespace System.CommandLine.Tests.Invocation
             var command = new Command("the-command");
             var implicitInnerCommand = new Command("implicit-inner-command");
             command.Subcommands.Add(implicitInnerCommand);
-            implicitInnerCommand.SetHandler((context, cancellationToken) =>
+            implicitInnerCommand.SetAction((context, cancellationToken) =>
             {
                 wasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -217,7 +217,7 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.SetHandler((context, cancellationToken) =>
+            command.SetAction((context, cancellationToken) =>
             {
                 handlerWasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -248,7 +248,7 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.SetHandler((context, cancellationToken) =>
+            command.SetAction((context, cancellationToken) =>
             {
                 handlerWasCalled = true;
                 context.ParseResult.Errors.Should().BeEmpty();
@@ -278,7 +278,7 @@ namespace System.CommandLine.Tests.Invocation
             bool handlerWasCalled = false;
 
             var command = new Command("help-command");
-            command.SetHandler((context, cancellationToken) =>
+            command.SetAction((context, cancellationToken) =>
             {
                 handlerWasCalled = true;
                 context.HelpBuilder.Should().NotBeNull();
@@ -305,7 +305,7 @@ namespace System.CommandLine.Tests.Invocation
             HelpBuilder createdHelpBuilder = null;
 
             var command = new Command("help-command");
-            command.SetHandler((context, cancellationToken) =>
+            command.SetAction((context, cancellationToken) =>
             {
                 handlerWasCalled = true;
                 context.HelpBuilder.Should().Be(createdHelpBuilder);
@@ -336,7 +336,7 @@ namespace System.CommandLine.Tests.Invocation
             var handlerWasCalled = false;
 
             var command = new Command("the-command");
-            command.SetHandler((InvocationContext context, CancellationToken cancellationToken) =>
+            command.SetAction((InvocationContext context, CancellationToken cancellationToken) =>
             {
                 handlerWasCalled = true;
                 return Task.FromResult(0);

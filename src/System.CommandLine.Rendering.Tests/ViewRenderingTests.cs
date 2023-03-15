@@ -20,11 +20,10 @@ namespace System.CommandLine.Rendering.Tests
             ParseResult parseResult = null;
 
             var command = new RootCommand();
-            command.SetHandler(ctx =>
+            command.SetAction(ctx =>
             {
                 parseResult = ctx.ParseResult;
                 ctx.Console.Append(new ParseResultView(parseResult));
-                return 0;
             });
 
             var config = new CommandLineBuilder(command).Build();
