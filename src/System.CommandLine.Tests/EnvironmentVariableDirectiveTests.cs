@@ -23,6 +23,7 @@ namespace System.CommandLine.Tests
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
+                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -45,6 +46,7 @@ namespace System.CommandLine.Tests
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
+                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -67,6 +69,7 @@ namespace System.CommandLine.Tests
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
+                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -89,6 +92,7 @@ namespace System.CommandLine.Tests
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
+                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -110,6 +114,7 @@ namespace System.CommandLine.Tests
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().BeNull();
+                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -132,6 +137,7 @@ namespace System.CommandLine.Tests
                 asserted = true;
                 var env = Environment.GetEnvironmentVariables();
                 env.Values.Cast<string>().Should().NotContain(value);
+                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -154,6 +160,7 @@ namespace System.CommandLine.Tests
                 asserted = true;
                 var env = Environment.GetEnvironmentVariables();
                 env.Values.Cast<string>().Should().NotContain(value);
+                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)

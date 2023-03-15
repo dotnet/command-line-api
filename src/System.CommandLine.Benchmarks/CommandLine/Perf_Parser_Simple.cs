@@ -37,6 +37,8 @@ namespace System.CommandLine.Benchmarks.CommandLine
             {
                 bool boolean = ctx.ParseResult.GetValue(boolOption);
                 string text = ctx.ParseResult.GetValue(stringOption);
+
+                return 0;
             });
 
             return command;

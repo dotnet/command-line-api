@@ -27,7 +27,7 @@ namespace System.CommandLine
         internal int MaxLevenshteinDistance;
 
         /// <inheritdoc cref="CommandLineConfiguration.ExceptionHandler"/>
-        internal Action<Exception, InvocationContext>? ExceptionHandler;
+        internal Func<Exception, InvocationContext, int>? ExceptionHandler;
 
         internal TimeSpan? ProcessTerminationTimeout;
 

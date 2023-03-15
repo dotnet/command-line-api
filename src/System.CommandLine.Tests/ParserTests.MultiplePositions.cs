@@ -118,7 +118,7 @@ namespace System.CommandLine.Tests
                 string expectedParent)
             {
                 var reusedCommand = new Command("reused");
-                reusedCommand.SetHandler((_) => { });
+                reusedCommand.SetHandler((_) => 0);
                 reusedCommand.Add(new Option<string>("--the-option"));
 
                 var outer = new Command("outer")

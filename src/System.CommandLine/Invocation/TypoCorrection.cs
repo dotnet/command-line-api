@@ -9,7 +9,7 @@ namespace System.CommandLine.Invocation
 {
     internal static class TypoCorrection
     {
-        internal static void ProvideSuggestions(InvocationContext context)
+        internal static int ProvideSuggestions(InvocationContext context)
         {
             ParseResult result = context.ParseResult;
             IConsole console = context.Console;
@@ -32,6 +32,8 @@ namespace System.CommandLine.Invocation
                     console.Out.WriteLine(suggestion);
                 }
             }
+
+            return 0;
         }
 
         private static IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token, int maxLevenshteinDistance)

@@ -50,8 +50,8 @@ System.CommandLine
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CommandLineConfiguration configuration = null)
     public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
-    public System.Void SetHandler(System.Action<System.CommandLine.Invocation.InvocationContext> handle)
-    public System.Void SetHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> handle)
+    public System.Void SetHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> handler)
+    public System.Void SetHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> handler)
   public static class CommandExtensions
     public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
     public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
@@ -69,7 +69,7 @@ System.CommandLine
     public CommandLineBuilder RegisterWithDotnetSuggest()
     public CommandLineBuilder UseDefaults()
     public CommandLineBuilder UseEnvironmentVariableDirective()
-    public CommandLineBuilder UseExceptionHandler(System.Action<System.Exception,System.CommandLine.Invocation.InvocationContext> onException = null, System.Nullable<System.Int32> errorExitCode = null)
+    public CommandLineBuilder UseExceptionHandler(System.Func<System.Exception,System.CommandLine.Invocation.InvocationContext,System.Int32> onException = null, System.Int32 errorExitCode = 1)
     public CommandLineBuilder UseHelp(System.Nullable<System.Int32> maxWidth = null)
     public CommandLineBuilder UseHelp(System.String name, System.String[] helpAliases)
     public CommandLineBuilder UseHelp(System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
@@ -104,10 +104,10 @@ System.CommandLine
     public static System.Void Write(this IConsole console, System.String value)
     public static System.Void WriteLine(this IConsole console, System.String value)
   public class Directive : Symbol
-    .ctor(System.String name, System.Action<System.CommandLine.Invocation.InvocationContext> syncHandler = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> asyncHandler = null)
+    .ctor(System.String name, System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> syncHandler = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> asyncHandler = null)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Void SetAsynchronousHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> handler)
-    public System.Void SetSynchronousHandler(System.Action<System.CommandLine.Invocation.InvocationContext> handler)
+    public System.Void SetAsynchronousHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> handler)
+    public System.Void SetSynchronousHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> handler)
   public class EnvironmentVariablesDirective : Directive
     .ctor()
   public interface ICommandHandler
@@ -241,9 +241,7 @@ System.CommandLine.Invocation
   public class InvocationContext
     .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.IConsole Console { get; set; }
-    public System.Int32 ExitCode { get; set; }
     public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }
-    public System.Action<InvocationContext> InvocationResult { get; set; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(Argument<T> argument)

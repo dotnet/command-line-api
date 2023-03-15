@@ -53,14 +53,7 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
             var command = new Command("the-command");
-            command.SetHandler((_, __) =>
-            {
-                throw new Exception("oops!");
-                // Help the compiler pick a CommandHandler.Create overload.
-#pragma warning disable CS0162 // Unreachable code detected
-                return Task.FromResult(0);
-#pragma warning restore CS0162
-            });
+            command.SetHandler((_, __) => Task.FromException<int>(new Exception("oops!")));
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -78,14 +71,7 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
         {
             var command = new Command("the-command");
-            command.SetHandler((_, __) =>
-            {
-                throw new Exception("oops!");
-                // Help the compiler pick a CommandHandler.Create overload.
-#pragma warning disable CS0162 // Unreachable code detected
-                return Task.FromResult(0);
-#pragma warning restore CS0162
-            });
+            command.SetHandler((_, __) => Task.FromException<int>(new Exception("oops!")));
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -143,7 +129,7 @@ namespace System.CommandLine.Tests
                                    .UseExceptionHandler((exception, context) =>
                                    {
                                        context.Console.Out.Write("Well that's awkward.");
-                                       context.ExitCode = 22;
+                                       return 22;
                                    })
                                    .AddMiddleware(_ => throw new Exception("oops!"))
                                    .Build()

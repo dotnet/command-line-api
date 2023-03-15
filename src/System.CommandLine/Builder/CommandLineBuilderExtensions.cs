@@ -158,18 +158,17 @@ ERR:
         /// <summary>
         /// Enables an exception handler to catch any unhandled exceptions thrown by a command handler during invocation.
         /// </summary>
-        /// <param name="onException">A delegate that will be called when an exception is thrown by a command handler.</param>
+        /// <param name="onException">A delegate that will be called when an exception is thrown by a command handler.
+        /// It needs to return an exit code to be used when an exception is thrown.</param>
         /// <param name="errorExitCode">The exit code to be used when an exception is thrown.</param>
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder UseExceptionHandler(
-            Action<Exception, InvocationContext>? onException = null,
-            int? errorExitCode = null)
+        public CommandLineBuilder UseExceptionHandler(Func<Exception, InvocationContext, int>? onException = null, int errorExitCode = 1)
         {
             ExceptionHandler = onException ?? Default;
 
             return this;
 
-            void Default(Exception exception, InvocationContext context)
+            int Default(Exception exception, InvocationContext context)
             {
                 if (exception is not OperationCanceledException)
                 {
@@ -181,7 +180,7 @@ ERR:
 
                     context.Console.ResetTerminalForegroundColor();
                 }
-                context.ExitCode = errorExitCode ?? 1;
+                return errorExitCode;
             }
         }
 

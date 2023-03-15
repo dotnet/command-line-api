@@ -8,7 +8,7 @@ namespace System.CommandLine.Invocation
 {
     internal static class ParseErrorResult
     {
-        internal static void Apply(InvocationContext context)
+        internal static int Apply(InvocationContext context)
         {
             context.Console.ResetTerminalForegroundColor();
             context.Console.SetTerminalForegroundRed();
@@ -20,11 +20,11 @@ namespace System.CommandLine.Invocation
 
             context.Console.Error.WriteLine();
 
-            context.ExitCode = context.ParseResult.Configuration.ParseErrorReportingExitCode!.Value;
-
             context.Console.ResetTerminalForegroundColor();
 
             HelpOption.Handler(context);
+
+            return context.ParseResult.Configuration.ParseErrorReportingExitCode!.Value;
         }
     }
 }

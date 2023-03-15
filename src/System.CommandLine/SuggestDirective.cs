@@ -16,7 +16,7 @@ namespace System.CommandLine
             SetSynchronousHandler(SyncHandler);
         }
 
-        private void SyncHandler(InvocationContext context)
+        private int SyncHandler(InvocationContext context)
         {
             ParseResult parseResult = context.ParseResult;
             string? parsedValues = parseResult.FindResultFor(this)!.Values.SingleOrDefault();
@@ -34,6 +34,8 @@ namespace System.CommandLine
                 string.Join(
                     Environment.NewLine,
                     completions));
+
+            return 0;
         }
     }
 }

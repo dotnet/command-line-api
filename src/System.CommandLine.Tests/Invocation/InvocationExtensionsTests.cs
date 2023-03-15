@@ -52,7 +52,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler((_) => wasCalled = true);
+            rootCommand.SetHandler((_) => { wasCalled = true; return 0; });
 
             var result = await rootCommand.InvokeAsync("");
 
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler((_) => wasCalled = true);
+            rootCommand.SetHandler((_) => { wasCalled = true; return 0; });
 
             int result = rootCommand.Invoke("");
 
@@ -127,8 +127,7 @@ namespace System.CommandLine.Tests.Invocation
 
             rootCommand.SetHandler((context, cancellationToken) =>
             {
-                context.ExitCode = 123;
-                return Task.CompletedTask;
+                return Task.FromResult(123);
             });
 
             var resultCode = await rootCommand.InvokeAsync("");
@@ -143,8 +142,7 @@ namespace System.CommandLine.Tests.Invocation
 
             rootCommand.SetHandler((context, cancellationToken) =>
             {
-                context.ExitCode = 123;
-                return Task.CompletedTask;
+                return Task.FromResult(123);
             });
 
             int resultCode = rootCommand.Invoke("");

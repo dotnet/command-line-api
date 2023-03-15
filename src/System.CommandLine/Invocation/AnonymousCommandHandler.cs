@@ -8,21 +8,20 @@ namespace System.CommandLine.Invocation
 {
     internal sealed class AnonymousCommandHandler : ICommandHandler
     {
-        private readonly Func<InvocationContext, CancellationToken, Task>? _asyncHandle;
-        private readonly Action<InvocationContext>? _syncHandle;
+        private readonly Func<InvocationContext, CancellationToken, Task<int>>? _asyncHandle;
+        private readonly Func<InvocationContext, int>? _syncHandle;
 
-        internal AnonymousCommandHandler(Func<InvocationContext, CancellationToken, Task> handle)
+        internal AnonymousCommandHandler(Func<InvocationContext, CancellationToken, Task<int>> handle)
             => _asyncHandle = handle ?? throw new ArgumentNullException(nameof(handle));
 
-        internal AnonymousCommandHandler(Action<InvocationContext> handle)
+        internal AnonymousCommandHandler(Func<InvocationContext, int> handle)
             => _syncHandle = handle ?? throw new ArgumentNullException(nameof(handle));
 
         public int Invoke(InvocationContext context)
         {
             if (_syncHandle is not null)
             {
-                _syncHandle(context);
-                return context.ExitCode;
+                return _syncHandle(context);
             }
 
             return SyncUsingAsync(context); // kept in a separate method to avoid JITting
@@ -31,21 +30,9 @@ namespace System.CommandLine.Invocation
                 => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        public async Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
-        {
-            if (_syncHandle is not null)
-            {
-                return Invoke(context);
-            }
-
-            Task handler = _asyncHandle!(context, cancellationToken);
-            if (handler is Task<int> intReturning)
-            {
-                return await intReturning;
-            }
-
-            await handler;
-            return context.ExitCode;
-        }
+        public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+            => _asyncHandle is not null
+                ? _asyncHandle(context, cancellationToken)
+                : Task.FromResult(Invoke(context));
     }
 }

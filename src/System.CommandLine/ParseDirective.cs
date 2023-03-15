@@ -18,11 +18,11 @@ namespace System.CommandLine
 
         internal int ErrorExitCode { get; }
 
-        private void SyncHandler(InvocationContext context)
+        private int SyncHandler(InvocationContext context)
         {
             var parseResult = context.ParseResult;
             context.Console.Out.WriteLine(parseResult.Diagram());
-            context.ExitCode = parseResult.Errors.Count == 0 ? 0 : ErrorExitCode;
+            return parseResult.Errors.Count == 0 ? 0 : ErrorExitCode;
         }
     }
 }

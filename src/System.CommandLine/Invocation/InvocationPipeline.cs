@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,20 +11,24 @@ namespace System.CommandLine.Invocation
     {
         internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console, CancellationToken cancellationToken)
         {
+            if (parseResult.Handler is null && parseResult.Configuration.Middleware.Count == 0)
+            {
+                return 0;
+            }
+
             InvocationContext context = new (parseResult, console);
-
+            ProcessTerminationHandler? terminationHandler = null;
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-            Task<int> startedInvocation = parseResult.Handler is not null && parseResult.Configuration.Middleware.Count == 0
-                ? parseResult.Handler.InvokeAsync(context, cts.Token)
-                : InvokeHandlerWithMiddleware(context, cts.Token);
-
-            ProcessTerminationHandler? terminationHandler = parseResult.Configuration.ProcessTerminationTimeout.HasValue
-                ? new (cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value)
-                : null;
 
             try
             {
+                Task<int> startedInvocation = parseResult.Handler is not null && parseResult.Configuration.Middleware.Count == 0
+                    ? parseResult.Handler.InvokeAsync(context, cts.Token)
+                    : InvokeHandlerWithMiddleware(context, cts.Token);
+
+                if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
+                    terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
+
                 if (terminationHandler is null)
                 {
                     return await startedInvocation;
@@ -41,8 +44,7 @@ namespace System.CommandLine.Invocation
             }
             catch (Exception ex) when (parseResult.Configuration.ExceptionHandler is not null)
             {
-                parseResult.Configuration.ExceptionHandler(ex, context);
-                return context.ExitCode;
+                return parseResult.Configuration.ExceptionHandler(ex, context);
             }
             finally
             {
@@ -51,16 +53,27 @@ namespace System.CommandLine.Invocation
 
             static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context, CancellationToken token)
             {
-                InvocationMiddleware invocationChain = BuildInvocationChain(context, true);
+                int exitCode = 0;
+                InvocationMiddleware invocationChain = BuildInvocationChain(context);
+                await invocationChain(context, token, async (ctx, token) =>
+                {
+                    if (ctx.ParseResult.Handler is { } handler)
+                    {
+                        exitCode = await handler.InvokeAsync(ctx, token);
+                    }
+                });
 
-                await invocationChain(context, token, (_, _) => Task.CompletedTask);
-
-                return GetExitCode(context);
+                return exitCode;
             }
         }
 
         internal static int Invoke(ParseResult parseResult, IConsole? console = null)
         {
+            if (parseResult.Handler is null && parseResult.Configuration.Middleware.Count == 0)
+            {
+                return 0;
+            }
+
             InvocationContext context = new (parseResult, console);
 
             try
@@ -74,47 +87,33 @@ namespace System.CommandLine.Invocation
             }
             catch (Exception ex) when (parseResult.Configuration.ExceptionHandler is not null)
             {
-                parseResult.Configuration.ExceptionHandler(ex, context);
-                return context.ExitCode;
+                return parseResult.Configuration.ExceptionHandler(ex, context);
             }
 
             static int InvokeHandlerWithMiddleware(InvocationContext context)
             {
-                InvocationMiddleware invocationChain = BuildInvocationChain(context, false);
+                int exitCode = 0;
+                InvocationMiddleware invocationChain = BuildInvocationChain(context);
+                invocationChain(context, CancellationToken.None, (ctx, token) =>
+                {
+                    if (ctx.ParseResult.Handler is { } handler)
+                    {
+                        exitCode = handler.Invoke(ctx);
+                    }
 
-                invocationChain(context, CancellationToken.None, static (_, _) => Task.CompletedTask).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                return GetExitCode(context);
+                    return Task.CompletedTask;
+                }).GetAwaiter().GetResult();
+                return exitCode;
             }
         }
 
-        private static InvocationMiddleware BuildInvocationChain(InvocationContext context, bool invokeAsync)
+        private static InvocationMiddleware BuildInvocationChain(InvocationContext context)
         {
-            var invocations = new List<InvocationMiddleware>(context.ParseResult.Configuration.Middleware.Count + 1);
-            invocations.AddRange(context.ParseResult.Configuration.Middleware);
-
-            invocations.Add(async (invocationContext, cancellationToken, _) =>
-            {
-                if (invocationContext.ParseResult.Handler is { } handler)
-                {
-                    context.ExitCode = invokeAsync
-                                           ? await handler.InvokeAsync(invocationContext, cancellationToken)
-                                           : handler.Invoke(invocationContext);
-                }
-            });
-
-            return invocations.Aggregate(
+            return context.ParseResult.Configuration.Middleware.Aggregate(
                 (first, second) =>
                     (ctx, token, next) =>
                         first(ctx, token,
                               (c, t) => second(c, t, next)));
-        }
-
-        private static int GetExitCode(InvocationContext context)
-        {
-            context.InvocationResult?.Invoke(context);
-
-            return context.ExitCode;
         }
     }
 }

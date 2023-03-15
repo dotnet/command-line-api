@@ -30,7 +30,7 @@ namespace EndToEndTestApp
                 string cherry = ctx.ParseResult.GetValue(cherryOption);
                 string durian = ctx.ParseResult.GetValue(durianOption);
 
-                return Task.CompletedTask;
+                return Task.FromResult(0);
             });
 
             var commandLine = new CommandLineBuilder(rootCommand)

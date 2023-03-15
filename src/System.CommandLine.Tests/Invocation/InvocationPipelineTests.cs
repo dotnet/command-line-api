@@ -39,10 +39,10 @@ namespace System.CommandLine.Tests.Invocation
             var secondWasCalled = false;
 
             var first = new Command("first");
-            first.SetHandler((_) => firstWasCalled = true);
+            first.SetHandler((_) => { firstWasCalled = true; return 0; });
 
             var second = new Command("second");
-            second.SetHandler((_) => secondWasCalled = true);
+            second.SetHandler((_) => { secondWasCalled = true; return 0; });
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -64,10 +64,10 @@ namespace System.CommandLine.Tests.Invocation
             var secondWasCalled = false;
 
             var first = new Command("first");
-            first.SetHandler((_) => firstWasCalled = true);
+            first.SetHandler((_) => { firstWasCalled = true; return 0; });
 
             var second = new Command("second");
-            second.SetHandler((_) => secondWasCalled = true);
+            second.SetHandler((_) => { secondWasCalled = true; return 0; });
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -350,7 +350,7 @@ namespace System.CommandLine.Tests.Invocation
                          {
                              throw new OperationCanceledException(cancellationToken);
                          })
-                         .UseExceptionHandler((ex, ctx) => ctx.ExitCode = ex is OperationCanceledException ? 123 : 456)
+                         .UseExceptionHandler((ex, ctx) => ex is OperationCanceledException ? 123 : 456)
                          .Build();
 
             int result = await config.InvokeAsync("the-command");

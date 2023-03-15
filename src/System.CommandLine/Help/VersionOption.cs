@@ -53,7 +53,10 @@ namespace System.CommandLine.Help
 
         public override int GetHashCode() => typeof(VersionOption).GetHashCode();
 
-        internal static void Handler(InvocationContext context)
-            => context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
+        internal static int Handler(InvocationContext context)
+        {
+            context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
+            return 0;
+        }
     }
 }

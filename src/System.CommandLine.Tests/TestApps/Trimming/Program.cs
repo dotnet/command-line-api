@@ -12,6 +12,8 @@ var command = new RootCommand
 command.SetHandler(context =>
 {
     context.Console.Write($"The file you chose was: {context.ParseResult.GetValue(fileArgument)}");
+
+    return 0;
 });
 
 command.Invoke(args);

@@ -321,16 +321,12 @@ public partial class ModelBindingCommandHandlerTests
     private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
     {
         BoundValueCapturer.Capture(value, invocationContext);
-
-        invocationContext.InvocationResult = ctx => BoundValueCapturer.Apply(ctx);
     }
 
     private static Action<T, InvocationContext> CaptureDelegate<T>()
         => (value, invocationContext) =>
         {
             BoundValueCapturer.Capture(value, invocationContext);
-
-            invocationContext.InvocationResult = ctx => BoundValueCapturer.Apply(ctx);
         };
 
     private static class BoundValueCapturer
