@@ -90,10 +90,10 @@ namespace System.CommandLine.Suggest.Tests
         [ReleaseBuildOnlyFact]
         public void Dotnet_suggest_provides_suggestions_for_app()
         {
-            // run once to trigger a call to dotnet-suggest register
+            // run "dotnet-suggest register" in explicit way
             Process.RunToCompletion(
-                _endToEndTestApp.FullName,
-                "-h",
+                _dotnetSuggest.FullName,
+                $"register --command-path \"{_endToEndTestApp.FullName}\"",
                 stdOut: s => _output.WriteLine(s),
                 stdErr: s => _output.WriteLine(s),
                 environmentVariables: _environmentVariables).Should().Be(0);
@@ -125,10 +125,10 @@ namespace System.CommandLine.Suggest.Tests
         [ReleaseBuildOnlyFact]
         public void Dotnet_suggest_provides_suggestions_for_app_with_only_commandname()
         {
-            // run once to trigger a call to dotnet-suggest register
+            // run "dotnet-suggest register" in explicit way
             Process.RunToCompletion(
-                _endToEndTestApp.FullName,
-                "-h",
+                _dotnetSuggest.FullName,
+                $"register --command-path \"{_endToEndTestApp.FullName}\"",
                 stdOut: s => _output.WriteLine(s),
                 stdErr: s => _output.WriteLine(s),
                 environmentVariables: _environmentVariables).Should().Be(0);
