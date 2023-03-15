@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal sealed class TypoCorrection : CliAction
+    internal sealed class TypoCorrectionAction : CliAction
     {
         public override int Invoke(InvocationContext context)
             => ProvideSuggestions(context);

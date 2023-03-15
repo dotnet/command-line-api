@@ -3,10 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Completions;
-using System.CommandLine.Invocation;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace System.CommandLine
 {

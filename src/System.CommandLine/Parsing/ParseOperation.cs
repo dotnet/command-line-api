@@ -64,12 +64,12 @@ namespace System.CommandLine.Parsing
             {
                 if (_configuration.ParseErrorReportingExitCode.HasValue && _symbolResultTree.ErrorCount > 0)
                 {
-                    _action = new ParseErrorResult();
+                    _action = new ParseErrorResultAction();
                 }
                 else if (_configuration.MaxLevenshteinDistance > 0 && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
                     && _symbolResultTree.UnmatchedTokens is not null)
                 {
-                    _action = new TypoCorrection();
+                    _action = new TypoCorrectionAction();
                 }
             }
 

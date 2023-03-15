@@ -31,12 +31,12 @@ namespace System.CommandLine
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null,
-            CliAction? handler = null)
+            CliAction? action = null)
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
-            _action = handler;
+            _action = action;
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
