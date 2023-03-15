@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal sealed class AnonymousCommandHandler : ICommandHandler
+    internal sealed class AnonymousCliAction : CliAction
     {
         private readonly Func<InvocationContext, CancellationToken, Task<int>>? _asyncHandle;
         private readonly Func<InvocationContext, int>? _syncHandle;
 
-        internal AnonymousCommandHandler(Func<InvocationContext, CancellationToken, Task<int>> handle)
+        internal AnonymousCliAction(Func<InvocationContext, CancellationToken, Task<int>> handle)
             => _asyncHandle = handle ?? throw new ArgumentNullException(nameof(handle));
 
-        internal AnonymousCommandHandler(Func<InvocationContext, int> handle)
+        internal AnonymousCliAction(Func<InvocationContext, int> handle)
             => _syncHandle = handle ?? throw new ArgumentNullException(nameof(handle));
 
-        public int Invoke(InvocationContext context)
+        public override int Invoke(InvocationContext context)
         {
             if (_syncHandle is not null)
             {
@@ -30,7 +30,7 @@ namespace System.CommandLine.Invocation
                 => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
             => _asyncHandle is not null
                 ? _asyncHandle(context, cancellationToken)
                 : Task.FromResult(Invoke(context));

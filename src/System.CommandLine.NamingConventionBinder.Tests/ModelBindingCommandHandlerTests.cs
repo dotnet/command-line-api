@@ -91,7 +91,7 @@ public partial class ModelBindingCommandHandlerTests
     {
         var testCase = BindingCases[(type, variation)];
 
-        ICommandHandler handler;
+        CliAction handler;
         if (!useDelegate)
         {
             var captureMethod = GetType()

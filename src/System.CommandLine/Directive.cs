@@ -45,7 +45,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(handler));
             }
 
-            Handler = new AnonymousCommandHandler(handler);
+            Handler = new AnonymousCliAction(handler);
         }
 
         public void SetSynchronousHandler(Func<InvocationContext, int> handler)
@@ -55,10 +55,10 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(handler));
             }
 
-            Handler = new AnonymousCommandHandler(handler);
+            Handler = new AnonymousCliAction(handler);
         }
 
-        internal ICommandHandler? Handler { get; private set; }
+        internal CliAction? Handler { get; private set; }
 
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
             => Array.Empty<CompletionItem>();

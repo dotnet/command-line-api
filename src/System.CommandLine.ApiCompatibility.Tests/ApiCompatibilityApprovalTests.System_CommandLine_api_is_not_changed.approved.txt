@@ -35,12 +35,15 @@ System.CommandLine
     public static Argument<System.IO.DirectoryInfo> AcceptExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
     public static Argument<System.IO.FileSystemInfo> AcceptExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
     public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
+  public abstract class CliAction
+    public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
   public class Command : Symbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
     .ctor(System.String name, System.String description = null)
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
     public System.Collections.Generic.IList<Argument> Arguments { get; }
     public System.Collections.Generic.IEnumerable<Symbol> Children { get; }
-    public ICommandHandler Handler { get; set; }
+    public CliAction Handler { get; set; }
     public System.Collections.Generic.IList<Option> Options { get; }
     public System.Collections.Generic.IList<Command> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
@@ -110,9 +113,6 @@ System.CommandLine
     public System.Void SetSynchronousHandler(System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> handler)
   public class EnvironmentVariablesDirective : Directive
     .ctor()
-  public interface ICommandHandler
-    public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
   public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
   public abstract class Option : Symbol, System.CommandLine.Binding.IValueDescriptor
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }

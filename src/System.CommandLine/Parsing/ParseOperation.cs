@@ -18,7 +18,7 @@ namespace System.CommandLine.Parsing
         private int _index;
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested, _isParseRequested;
-        private ICommandHandler? _handler;
+        private CliAction? _handler;
 
         public ParseOperation(
             List<Token> tokens,
@@ -64,12 +64,12 @@ namespace System.CommandLine.Parsing
             {
                 if (_configuration.ParseErrorReportingExitCode.HasValue && _symbolResultTree.ErrorCount > 0)
                 {
-                    _handler = new AnonymousCommandHandler(ParseErrorResult.Apply);
+                    _handler = new AnonymousCliAction(ParseErrorResult.Apply);
                 }
                 else if (_configuration.MaxLevenshteinDistance > 0 && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
                     && _symbolResultTree.UnmatchedTokens is not null)
                 {
-                    _handler = new AnonymousCommandHandler(TypoCorrection.ProvideSuggestions);
+                    _handler = new AnonymousCliAction(TypoCorrection.ProvideSuggestions);
                 }
             }
 
@@ -194,11 +194,11 @@ namespace System.CommandLine.Parsing
                     {
                         _isHelpRequested = true;
 
-                        _handler = new AnonymousCommandHandler(HelpOption.Handler);
+                        _handler = new AnonymousCliAction(HelpOption.Handler);
                     }
                     else if (option is VersionOption)
                     {
-                        _handler = new AnonymousCommandHandler(VersionOption.Handler);
+                        _handler = new AnonymousCliAction(VersionOption.Handler);
                     }
                 }
 

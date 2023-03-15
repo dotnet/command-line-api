@@ -21,7 +21,7 @@ namespace System.CommandLine
         private readonly CommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private CompletionContext? _completionContext;
-        private ICommandHandler? _handler;
+        private CliAction? _handler;
 
         internal ParseResult(
             CommandLineConfiguration configuration,
@@ -31,7 +31,7 @@ namespace System.CommandLine
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null,
-            ICommandHandler? handler = null)
+            CliAction? handler = null)
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
@@ -229,7 +229,7 @@ namespace System.CommandLine
         /// <returns>A value that can be used as a process exit code.</returns>
         public int Invoke(IConsole? console = null) => InvocationPipeline.Invoke(this, console);
 
-        internal ICommandHandler? Handler
+        internal CliAction? Handler
         {
             get
             {

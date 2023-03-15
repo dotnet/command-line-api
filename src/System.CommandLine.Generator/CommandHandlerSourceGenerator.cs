@@ -11,7 +11,7 @@ namespace System.CommandLine.Generator
     [Generator]
     public class CommandHandlerSourceGenerator : ISourceGenerator
     {
-        private const string ICommandHandlerType = "System.CommandLine.ICommandHandler";
+        private const string CliActionType = "System.CommandLine.CliAction";
 
         public void Execute(GeneratorExecutionContext context)
         {
@@ -74,7 +74,7 @@ namespace System.CommandLine
             int handlerCount)
         {
             builder.Append($@"
-        private class GeneratedHandler_{handlerCount} : {ICommandHandlerType}
+        private class GeneratedHandler_{handlerCount} : {CliActionType}
         {{
             public GeneratedHandler_{handlerCount}(
                 {invocation.DelegateType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} method");
@@ -115,10 +115,10 @@ namespace System.CommandLine
             }
 
             builder.Append($@"
-            public int Invoke(global::System.CommandLine.Invocation.InvocationContext context) => InvokeAsync(context, global::System.Threading.CancellationToken.None).GetAwaiter().GetResult();");
+            public override int Invoke(global::System.CommandLine.Invocation.InvocationContext context) => InvokeAsync(context, global::System.Threading.CancellationToken.None).GetAwaiter().GetResult();");
 
             builder.Append($@"
-            public async global::System.Threading.Tasks.Task<int> InvokeAsync(global::System.CommandLine.Invocation.InvocationContext context, global::System.Threading.CancellationToken cancellationToken)
+            public override async global::System.Threading.Tasks.Task<int> InvokeAsync(global::System.CommandLine.Invocation.InvocationContext context, global::System.Threading.CancellationToken cancellationToken)
             {{");
             builder.Append($@"
                 {invocation.InvokeContents()}");
