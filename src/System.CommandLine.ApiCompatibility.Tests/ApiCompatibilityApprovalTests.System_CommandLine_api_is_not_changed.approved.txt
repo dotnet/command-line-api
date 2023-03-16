@@ -145,7 +145,7 @@ System.CommandLine
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
-    public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
+    public System.String[] UnmatchedTokens { get; }
     public System.CommandLine.Parsing.ArgumentResult FindResultFor(Argument argument)
     public System.CommandLine.Parsing.CommandResult FindResultFor(Command command)
     public System.CommandLine.Parsing.OptionResult FindResultFor(Option option)

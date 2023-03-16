@@ -22,7 +22,7 @@ namespace System.CommandLine.Hosting
 
             return builder.AddMiddleware(async (invocation, cancellationToken, next) =>
             {
-                var argsRemaining = invocation.ParseResult.UnmatchedTokens.ToArray();
+                var argsRemaining = invocation.ParseResult.UnmatchedTokens;
                 var hostBuilder = hostBuilderFactory?.Invoke(argsRemaining)
                     ?? new HostBuilder();
                 hostBuilder.Properties[typeof(InvocationContext)] = invocation;
