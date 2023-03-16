@@ -20,31 +20,24 @@ namespace System.CommandLine.Parsing
         /// <returns>A string containing a diagram of the parse result.</returns>
         public static string Diagram(this ParseResult parseResult)
         {
-            var builder = StringBuilderPool.Default.Rent();
+            var builder = new StringBuilder(100);
 
-            try
+            builder.Diagram(parseResult.RootCommandResult, parseResult);
+
+            var unmatchedTokens = parseResult.UnmatchedTokens;
+            if (unmatchedTokens.Count > 0)
             {
-                builder.Diagram(parseResult.RootCommandResult, parseResult);
+                builder.Append("   ???-->");
 
-                var unmatchedTokens = parseResult.UnmatchedTokens;
-                if (unmatchedTokens.Count > 0)
+                for (var i = 0; i < unmatchedTokens.Count; i++)
                 {
-                    builder.Append("   ???-->");
-
-                    for (var i = 0; i < unmatchedTokens.Count; i++)
-                    {
-                        var error = unmatchedTokens[i];
-                        builder.Append(" ");
-                        builder.Append(error);
-                    }
+                    var error = unmatchedTokens[i];
+                    builder.Append(" ");
+                    builder.Append(error);
                 }
+            }
 
-                return builder.ToString();
-            }
-            finally
-            {
-                StringBuilderPool.Default.ReturnToPool(builder);
-            }
+            return builder.ToString();
         }
 
         private static void Diagram(

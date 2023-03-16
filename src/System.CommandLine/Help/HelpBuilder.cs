@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace System.CommandLine.Help
 {
@@ -265,59 +266,52 @@ namespace System.CommandLine.Help
 
         private string FormatArgumentUsage(IList<Argument> arguments)
         {
-            var sb = StringBuilderPool.Default.Rent();
+            var sb = new StringBuilder(arguments.Count * 100);
 
-            try
+            var end = default(Stack<char>);
+
+            for (var i = 0; i < arguments.Count; i++)
             {
-                var end = default(Stack<char>);
-
-                for (var i = 0; i < arguments.Count; i++)
+                var argument = arguments[i];
+                if (argument.IsHidden)
                 {
-                    var argument = arguments[i];
-                    if (argument.IsHidden)
-                    {
-                        continue;
-                    }
-
-                    var arityIndicator =
-                        argument.Arity.MaximumNumberOfValues > 1
-                            ? "..."
-                            : "";
-
-                    var isOptional = IsOptional(argument);
-
-                    if (isOptional)
-                    {
-                        sb.Append($"[<{argument.Name}>{arityIndicator}");
-                        (end ??= new Stack<char>()).Push(']');
-                    }
-                    else
-                    {
-                        sb.Append($"<{argument.Name}>{arityIndicator}");
-                    }
-
-                    sb.Append(' ');
+                    continue;
                 }
 
-                if (sb.Length > 0)
-                {
-                    sb.Length--;
+                var arityIndicator =
+                    argument.Arity.MaximumNumberOfValues > 1
+                        ? "..."
+                        : "";
 
-                    if (end is { })
-                    {
-                        while (end.Count > 0)
-                        {
-                            sb.Append(end.Pop());
-                        }
-                    }
+                var isOptional = IsOptional(argument);
+
+                if (isOptional)
+                {
+                    sb.Append($"[<{argument.Name}>{arityIndicator}");
+                    (end ??= new Stack<char>()).Push(']');
+                }
+                else
+                {
+                    sb.Append($"<{argument.Name}>{arityIndicator}");
                 }
 
-                return sb.ToString();
+                sb.Append(' ');
             }
-            finally
+
+            if (sb.Length > 0)
             {
-                StringBuilderPool.Default.ReturnToPool(sb);
+                sb.Length--;
+
+                if (end is { })
+                {
+                    while (end.Count > 0)
+                    {
+                        sb.Append(end.Pop());
+                    }
+                }
             }
+
+            return sb.ToString();
             
             bool IsOptional(Argument argument) =>
                 argument.Arity.MinimumNumberOfValues == 0;

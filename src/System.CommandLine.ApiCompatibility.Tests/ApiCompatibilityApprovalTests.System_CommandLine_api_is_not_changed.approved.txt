@@ -69,7 +69,6 @@ System.CommandLine
     public CommandLineConfiguration Build()
     public CommandLineBuilder CancelOnProcessTermination(System.Nullable<System.TimeSpan> timeout = null)
     public CommandLineBuilder EnablePosixBundling(System.Boolean value = True)
-    public CommandLineBuilder RegisterWithDotnetSuggest()
     public CommandLineBuilder UseDefaults()
     public CommandLineBuilder UseEnvironmentVariableDirective()
     public CommandLineBuilder UseExceptionHandler(System.Func<System.Exception,System.CommandLine.Invocation.InvocationContext,System.Int32> onException = null, System.Int32 errorExitCode = 1)

@@ -2,14 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine;
-using System.CommandLine.Binding;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.IO;
 using System.Threading;
-using Process = System.CommandLine.Invocation.Process;
 
 namespace System.CommandLine
 {
@@ -60,59 +57,6 @@ namespace System.CommandLine
             return this;
         }
 
-        /// <summary>
-        /// Ensures that the application is registered with the <c>dotnet-suggest</c> tool to enable command line completions.
-        /// </summary>
-        /// <remarks>For command line completions to work, users must install the <c>dotnet-suggest</c> tool as well as the appropriate shim script for their shell.</remarks>
-        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder RegisterWithDotnetSuggest()
-        {
-            AddMiddleware(async (context, cancellationToken, next) =>
-            {
-                var feature = new FeatureRegistration("dotnet-suggest-registration");
-
-                await feature.EnsureRegistered(async () =>
-                {
-                    var stdOut = StringBuilderPool.Default.Rent();
-                    var stdErr = StringBuilderPool.Default.Rent();
-
-                    try
-                    {
-                        var currentProcessFullPath = Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
-                        var currentProcessFileNameWithoutExtension = Path.GetFileNameWithoutExtension(currentProcessFullPath);
-
-                        var dotnetSuggestProcess = Process.StartProcess(
-                            command: "dotnet-suggest",
-                            args: $"register --command-path \"{currentProcessFullPath}\" --suggestion-command \"{currentProcessFileNameWithoutExtension}\"",
-                            stdOut: value => stdOut.Append(value),
-                            stdErr: value => stdOut.Append(value));
-
-                        await dotnetSuggestProcess.CompleteAsync(cancellationToken);
-
-                        return $@"{dotnetSuggestProcess.StartInfo.FileName} exited with code {dotnetSuggestProcess.ExitCode}
-OUT:
-{stdOut}
-ERR:
-{stdErr}";
-                    }
-                    catch (Exception exception)
-                    {
-                        return $@"Exception during registration:
-{exception}";
-                    }
-                    finally
-                    {
-                        StringBuilderPool.Default.ReturnToPool(stdOut);
-                        StringBuilderPool.Default.ReturnToPool(stdErr);
-                    }
-                });
-
-                await next(context, cancellationToken);
-            }, MiddlewareOrderInternal.RegisterWithDotnetSuggest);
-
-            return this;
-        }
-
         /// <inheritdoc cref="EnvironmentVariablesDirective"/>
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         public CommandLineBuilder UseEnvironmentVariableDirective()
@@ -148,7 +92,6 @@ ERR:
                    .UseEnvironmentVariableDirective()
                    .UseParseDirective()
                    .UseSuggestDirective()
-                   .RegisterWithDotnetSuggest()
                    .UseTypoCorrections()
                    .UseParseErrorReporting()
                    .UseExceptionHandler()
