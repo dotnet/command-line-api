@@ -12,13 +12,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 using Xunit;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Hosting.Tests
 {
     public static class HostingTests
     {
         [Fact]
-        public static void UseHost_registers_IHost_to_binding_context()
+        public async static Task UseHost_registers_IHost_to_binding_context()
         {
             IHost hostFromHandler = null;
 
@@ -33,14 +34,13 @@ namespace System.CommandLine.Hosting.Tests
                 .UseHost()
                 .Build();
 
-            config.InvokeAsync(Array.Empty<string>())
-                .GetAwaiter().GetResult();
+            await config.InvokeAsync(Array.Empty<string>());
 
             hostFromHandler.Should().NotBeNull();
         }
 
         [Fact]
-        public static void UseHost_adds_invocation_context_to_HostBuilder_Properties()
+        public async static Task UseHost_adds_invocation_context_to_HostBuilder_Properties()
         {
             InvocationContext invocationContext = null;
 
@@ -52,14 +52,13 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            config.InvokeAsync(Array.Empty<string>())
-                .GetAwaiter().GetResult();
+            await config.InvokeAsync(Array.Empty<string>());
 
             invocationContext.Should().NotBeNull();
         }
 
         [Fact]
-        public static void UseHost_adds_invocation_context_to_Host_Services()
+        public async static Task UseHost_adds_invocation_context_to_Host_Services()
         {
             InvocationContext invocationContext = null;
             BindingContext bindingContext = null;
@@ -81,8 +80,7 @@ namespace System.CommandLine.Hosting.Tests
                 .UseHost()
                 .Build();
 
-            config.InvokeAsync(Array.Empty<string>())
-                .GetAwaiter().GetResult();
+            await config.InvokeAsync(Array.Empty<string>());
 
             invocationContext.Should().NotBeNull();
             bindingContext.Should().NotBeNull();
@@ -91,7 +89,7 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public static void UseHost_UnmatchedTokens_can_propagate_to_Host_Configuration()
+        public static async Task UseHost_UnmatchedTokens_can_propagate_to_Host_Configuration()
         {
             const string testArgument = "test";
             const string testKey = "unmatched-config";
@@ -121,14 +119,13 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            config.InvokeAsync(commandLineArgs)
-                .GetAwaiter().GetResult();
+            await config.InvokeAsync(commandLineArgs);
 
             testConfigValue.Should().BeEquivalentTo(testArgument);
         }
 
         [Fact]
-        public static void UseHost_UnmatchedTokens_are_available_in_HostBuilder_factory()
+        public async static Task UseHost_UnmatchedTokens_are_available_in_HostBuilder_factory()
         {
             const string testArgument = "test";
             const string testKey = "unmatched-config";
@@ -160,14 +157,13 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            config.InvokeAsync(commandLineArgs)
-                .GetAwaiter().GetResult();
+            await config.InvokeAsync(commandLineArgs);
 
             testConfigValue.Should().BeEquivalentTo(testArgument);
         }
 
         [Fact]
-        public static void UseHost_flows_config_directives_to_HostConfiguration()
+        public async static Task UseHost_flows_config_directives_to_HostConfiguration()
         {
             const string testKey = "Test";
             const string testValue = "Value";
@@ -189,7 +185,7 @@ namespace System.CommandLine.Hosting.Tests
                 .UseHost()
                 .Build();
 
-            config.InvokeAsync(commandLine).GetAwaiter().GetResult();
+            await config.InvokeAsync(commandLine);
 
             testConfigValue.Should().BeEquivalentTo(testValue);
         }
@@ -257,7 +253,7 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public static void GetInvocationContext_returns_non_null_instance()
+        public async static Task GetInvocationContext_returns_non_null_instance()
         {
             bool ctxAsserted = false;
             var config = new CommandLineBuilder(new RootCommand())
@@ -269,12 +265,12 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            _ = config.Invoke(string.Empty);
+            await config.InvokeAsync(string.Empty);
             ctxAsserted.Should().BeTrue();
         }
 
         [Fact]
-        public static void GetInvocationContext_in_ConfigureServices_returns_non_null_instance()
+        public async static Task GetInvocationContext_in_ConfigureServices_returns_non_null_instance()
         {
             bool ctxAsserted = false;
             var config = new CommandLineBuilder(new RootCommand())
@@ -289,7 +285,7 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .Build();
 
-            _ = config.Invoke(string.Empty);
+            await config.InvokeAsync(string.Empty);
             ctxAsserted.Should().BeTrue();
         }
 
