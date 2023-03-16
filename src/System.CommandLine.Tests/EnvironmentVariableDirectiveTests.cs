@@ -19,11 +19,10 @@ namespace System.CommandLine.Tests
             string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler((_) =>
+            rootCommand.SetAction((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
-                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -42,11 +41,10 @@ namespace System.CommandLine.Tests
             string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler((_) =>
+            rootCommand.SetAction((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
-                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -65,11 +63,10 @@ namespace System.CommandLine.Tests
             string variable = test_variable;
             const string value = "This is a test";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler((_) =>
+            rootCommand.SetAction((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
-                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -88,11 +85,10 @@ namespace System.CommandLine.Tests
             string variable = test_variable;
             const string value = "This is = a test containing equals";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler((_) =>
+            rootCommand.SetAction((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
-                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -110,11 +106,10 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string variable = test_variable;
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler((_) =>
+            rootCommand.SetAction((_) =>
             {
                 asserted = true;
                 Environment.GetEnvironmentVariable(variable).Should().BeNull();
-                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -132,12 +127,11 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string value = $"This is a test, random: {randomizer.Next()}";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler((_) =>
+            rootCommand.SetAction((_) =>
             {
                 asserted = true;
                 var env = Environment.GetEnvironmentVariables();
                 env.Values.Cast<string>().Should().NotContain(value);
-                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)
@@ -155,12 +149,11 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string value = $"This is a test, random: {randomizer.Next()}";
             var rootCommand = new RootCommand();
-            rootCommand.SetHandler((_) =>
+            rootCommand.SetAction((_) =>
             {
                 asserted = true;
                 var env = Environment.GetEnvironmentVariables();
                 env.Values.Cast<string>().Should().NotContain(value);
-                return 0;
             });
 
             var config = new CommandLineBuilder(rootCommand)

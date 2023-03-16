@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.Diagnostics;
@@ -19,6 +20,8 @@ namespace System.CommandLine.Tests.Invocation
         private const int SIGINT_EXIT_CODE = 130;
         private const int SIGTERM_EXIT_CODE = 143;
         private const int GracefulExitCode = 42;
+
+        private static readonly Option<bool> InfiniteDelayOption = new("--infiniteDelay");
 
         public enum Signals
         {
@@ -48,17 +51,27 @@ namespace System.CommandLine.Tests.Invocation
 
         private static Task<int> Program(string[] args)
         {
-            Option<bool> infiniteDelayOption = new ("--infiniteDelay");
             RootCommand command = new ()
             {
-                infiniteDelayOption
+                InfiniteDelayOption
             };
+            command.Action = new CustomCliAction();
 
-            command.SetHandler(async (context, cancellationToken) =>
+            return new CommandLineBuilder(command)
+                .CancelOnProcessTermination()
+                .Build()
+                .InvokeAsync(args);
+        }
+
+        private sealed class CustomCliAction : CliAction
+        {
+            public override int Invoke(InvocationContext context) => throw new NotImplementedException();
+
+            public async override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
             {
                 context.Console.WriteLine(ChildProcessWaiting);
 
-                bool infiniteDelay = context.GetValue(infiniteDelayOption);
+                bool infiniteDelay = context.GetValue(InfiniteDelayOption);
 
                 try
                 {
@@ -73,14 +86,9 @@ namespace System.CommandLine.Tests.Invocation
                 {
                     return GracefulExitCode;
                 }
-            });
-
-            return new CommandLineBuilder(command)
-                .CancelOnProcessTermination()
-                .Build()
-                .InvokeAsync(args);
+            }
         }
-        
+
         private async Task StartKillAndVerify(string[] args, Signals signal, int expectedExitCode)
         {
             using RemoteExecution program = RemoteExecutor.Execute(

@@ -3,12 +3,14 @@
 
 using System.CommandLine.Help;
 using System.CommandLine.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal static class ParseErrorResult
+    internal sealed class ParseErrorResultAction : CliAction
     {
-        internal static int Apply(InvocationContext context)
+        public override int Invoke(InvocationContext context)
         {
             context.Console.ResetTerminalForegroundColor();
             context.Console.SetTerminalForegroundRed();
@@ -22,9 +24,14 @@ namespace System.CommandLine.Invocation
 
             context.Console.ResetTerminalForegroundColor();
 
-            HelpOption.Handler(context);
+            new HelpOption().Action!.Invoke(context);
 
             return context.ParseResult.Configuration.ParseErrorReportingExitCode!.Value;
         }
+
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            => cancellationToken.IsCancellationRequested
+                ? Task.FromCanceled<int>(cancellationToken)
+                : Task.FromResult(Invoke(context));
     }
 }

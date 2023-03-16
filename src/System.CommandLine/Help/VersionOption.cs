@@ -5,6 +5,8 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Help
 {
@@ -14,6 +16,7 @@ namespace System.CommandLine.Help
             : base("--version", new Argument<bool>("--version") { Arity = ArgumentArity.Zero })
         {
             Description = LocalizationResources.VersionOptionDescription();
+            Action = new VersionOptionAction();
             AddValidators();
         }
 
@@ -21,6 +24,7 @@ namespace System.CommandLine.Help
             : base(name, aliases)
         {
             Description = LocalizationResources.VersionOptionDescription();
+            Action = new VersionOptionAction();
             AddValidators();
         }
 
@@ -53,10 +57,18 @@ namespace System.CommandLine.Help
 
         public override int GetHashCode() => typeof(VersionOption).GetHashCode();
 
-        internal static int Handler(InvocationContext context)
+        private sealed class VersionOptionAction : CliAction
         {
-            context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
-            return 0;
+            public override int Invoke(InvocationContext context)
+            {
+                context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
+                return 0;
+            }
+
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+                => cancellationToken.IsCancellationRequested
+                    ? Task.FromCanceled<int>(cancellationToken)
+                    : Task.FromResult(Invoke(context));
         }
     }
 }

@@ -29,20 +29,19 @@ namespace System.CommandLine.Suggest
             {
                 shellTypeArgument
             };
-            CompleteScriptCommand.SetHandler(context =>
+            CompleteScriptCommand.SetAction(context =>
             {
                 SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValue(shellTypeArgument));
-                return 0;
             });
 
             ListCommand = new Command("list")
             {
                 Description = "Lists apps registered for suggestions",
             };
-            ListCommand.SetHandler((ctx, cancellationToken) =>
+            ListCommand.SetAction((ctx, cancellationToken) =>
             {
                 ctx.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             });
 
             GetCommand = new Command("get", "Gets suggestions from the specified executable")
@@ -50,7 +49,7 @@ namespace System.CommandLine.Suggest
                 ExecutableOption,
                 PositionOption
             };
-            GetCommand.SetHandler(Get);
+            GetCommand.SetAction(Get);
 
             var commandPathOption = new Option<string>("--command-path") { Description = "The path to the command for which to register suggestions" };
 
@@ -60,10 +59,10 @@ namespace System.CommandLine.Suggest
                 new Option<string>("--suggestion-command") { Description = "The command to invoke to retrieve suggestions" }
             };
 
-            RegisterCommand.SetHandler((context, cancellationToken) =>
+            RegisterCommand.SetAction((context, cancellationToken) =>
             {
                 Register(context.ParseResult.GetValue(commandPathOption), context.Console);
-                return Task.FromResult(0);
+                return Task.CompletedTask;
             });
 
             var root = new RootCommand

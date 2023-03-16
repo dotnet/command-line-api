@@ -23,12 +23,12 @@ public static class BindingContextExtensions
     public static BindingContext GetBindingContext(this InvocationContext ctx)
     {
         // parsing resulted with no handler or it was not created yet, we fake it to just store the BindingContext between the calls
-        if (ctx.ParseResult.CommandResult.Command.Handler is null)
+        if (ctx.ParseResult.CommandResult.Command.Action is null)
         {
-            ctx.ParseResult.CommandResult.Command.Handler = new DummyStateHoldingHandler();
+            ctx.ParseResult.CommandResult.Command.Action = new DummyStateHoldingHandler();
         }
 
-        return ((BindingHandler)ctx.ParseResult.CommandResult.Command.Handler).GetBindingContext(ctx);
+        return ((BindingHandler)ctx.ParseResult.CommandResult.Command.Action).GetBindingContext(ctx);
     }
 
     /// <summary>

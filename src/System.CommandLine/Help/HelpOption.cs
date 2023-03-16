@@ -3,6 +3,8 @@
 
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine.Help
 {
@@ -13,6 +15,7 @@ namespace System.CommandLine.Help
         {
             AppliesToSelfAndChildren = true;
             Description = LocalizationResources.HelpOptionDescription();
+            Action = new HelpOptionAction();
         }
 
         internal HelpOption() : this("--help", new[] { "-h", "/h", "-?", "/?" })
@@ -25,18 +28,33 @@ namespace System.CommandLine.Help
 
         public override int GetHashCode() => typeof(HelpOption).GetHashCode();
 
-        internal static int Handler(InvocationContext context)
+        private sealed class HelpOptionAction : CliAction
         {
-            var output = context.Console.Out.CreateTextWriter();
+            private static void Display(InvocationContext context)
+            {
+                var output = context.Console.Out.CreateTextWriter();
 
-            var helpContext = new HelpContext(context.HelpBuilder,
-                                              context.ParseResult.CommandResult.Command,
-                                              output,
-                                              context.ParseResult);
+                var helpContext = new HelpContext(context.HelpBuilder,
+                                                  context.ParseResult.CommandResult.Command,
+                                                  output,
+                                                  context.ParseResult);
 
-            context.HelpBuilder.Write(helpContext);
+                context.HelpBuilder.Write(helpContext);
+            }
 
-            return 0;
+            public override int Invoke(InvocationContext context)
+            {
+                Display(context);
+
+                return 0;
+            }
+
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+                => cancellationToken.IsCancellationRequested 
+                    ? Task.FromCanceled<int>(cancellationToken)
+                    : Task.FromResult(Invoke(context));
         }
+
+        
     }
 }

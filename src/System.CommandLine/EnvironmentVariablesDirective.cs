@@ -1,5 +1,7 @@
 ﻿using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
@@ -9,35 +11,58 @@ namespace System.CommandLine
     public sealed class EnvironmentVariablesDirective : Directive
     {
         public EnvironmentVariablesDirective() : base("env")
-        {
-            SetSynchronousHandler(SyncHandler);
-        }
+            => Action = new EnvironmentVariablesDirectiveAction(this);
 
-        private int SyncHandler(InvocationContext context)
+        private sealed class EnvironmentVariablesDirectiveAction : CliAction
         {
-            DirectiveResult directiveResult = context.ParseResult.FindResultFor(this)!;
+            private readonly EnvironmentVariablesDirective _directive;
 
-            for (int i = 0; i < directiveResult.Values.Count; i++)
+            internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive) => _directive = directive;
+
+            public override int Invoke(InvocationContext context)
             {
-                string parsedValue = directiveResult.Values[i];
+                SetEnvVars(context);
 
-                int indexOfSeparator = parsedValue.AsSpan().IndexOf('=');
-                
-                if (indexOfSeparator > 0)
+                return context.ParseResult.CommandResult.Command.Action?.Invoke(context) ?? 0;
+            }
+
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            {
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    ReadOnlySpan<char> variable = parsedValue.AsSpan(0, indexOfSeparator).Trim();
+                    return Task.FromCanceled<int>(cancellationToken);
+                }
 
-                    if (!variable.IsEmpty)
+                SetEnvVars(context);
+
+                return context.ParseResult.CommandResult.Command.Action is not null
+                    ? context.ParseResult.CommandResult.Command.Action.InvokeAsync(context, cancellationToken)
+                    : Task.FromResult(0);
+            }
+
+            private void SetEnvVars(InvocationContext context)
+            {
+                DirectiveResult directiveResult = context.ParseResult.FindResultFor(_directive)!;
+
+                for (int i = 0; i < directiveResult.Values.Count; i++)
+                {
+                    string parsedValue = directiveResult.Values[i];
+
+                    int indexOfSeparator = parsedValue.AsSpan().IndexOf('=');
+
+                    if (indexOfSeparator > 0)
                     {
-                        string value = parsedValue.AsSpan(indexOfSeparator + 1).Trim().ToString();
+                        ReadOnlySpan<char> variable = parsedValue.AsSpan(0, indexOfSeparator).Trim();
 
-                        Environment.SetEnvironmentVariable(variable.ToString(), value);
+                        if (!variable.IsEmpty)
+                        {
+                            string value = parsedValue.AsSpan(indexOfSeparator + 1).Trim().ToString();
+
+                            Environment.SetEnvironmentVariable(variable.ToString(), value);
+                        }
                     }
                 }
             }
-
-            // we need a cleaner, more flexible and intuitive way of continuing the execution
-            return context.ParseResult.CommandResult.Command.Handler?.Invoke(context) ?? 0;
         }
     }
 }

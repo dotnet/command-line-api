@@ -151,7 +151,7 @@ public partial class ModelBindingCommandHandlerTests
             {
                 new Option<DirectoryInfo>("-f")
             };
-            root.Handler = CommandHandler.Create<FileSystemInfo>(f => received = f);
+            root.Action = CommandHandler.Create<FileSystemInfo>(f => received = f);
             var path = $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}";
 
             root.Invoke($"-f {path}");

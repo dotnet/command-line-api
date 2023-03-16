@@ -49,7 +49,7 @@ namespace System.CommandLine.Parsing
         {
             if (completeValidation)
             {
-                if (Command.Handler is null && Command.HasSubcommands)
+                if (Command.Action is null && Command.HasSubcommands)
                 {
                     SymbolResultTree.InsertFirstError(
                         new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));

@@ -21,7 +21,7 @@ namespace System.CommandLine
         private readonly CommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private CompletionContext? _completionContext;
-        private ICommandHandler? _handler;
+        private CliAction? _action;
         private Dictionary<string, SymbolResult?>? _namedResults;
 
         internal ParseResult(
@@ -32,12 +32,12 @@ namespace System.CommandLine
             IReadOnlyList<Token>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null,
-            ICommandHandler? handler = null)
+            CliAction? action = null)
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
-            _handler = handler;
+            _action = action;
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
@@ -301,24 +301,11 @@ namespace System.CommandLine
         /// <returns>A value that can be used as a process exit code.</returns>
         public int Invoke(IConsole? console = null) => InvocationPipeline.Invoke(this, console);
 
-        internal ICommandHandler? Handler
-        {
-            get
-            {
-                if (_handler is not null)
-                {
-                    return _handler;
-                }
-
-                if (CommandResult.Command is { } command)
-                {
-                    return command.Handler;
-                }
-
-                return null;
-            }
-            set => _handler = value;
-        }
+        /// <summary>
+        /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
+        /// that will be performed when the parse result is invoked.
+        /// </summary>
+        public CliAction? Action => _action ?? CommandResult.Command.Action;
 
         private SymbolResult SymbolToComplete(int? position = null)
         {

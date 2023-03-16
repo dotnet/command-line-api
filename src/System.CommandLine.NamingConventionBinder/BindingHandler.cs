@@ -1,11 +1,9 @@
 ﻿using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.CommandLine.NamingConventionBinder
 {
-    public abstract class BindingHandler : ICommandHandler
+    public abstract class BindingHandler : CliAction
     {
         private BindingContext? _bindingContext;
 
@@ -15,9 +13,5 @@ namespace System.CommandLine.NamingConventionBinder
         public BindingContext GetBindingContext(InvocationContext invocationContext) => _bindingContext ??= new BindingContext(invocationContext);
 
         public BindingContext SetBindingContext(BindingContext bindingContext) => _bindingContext = bindingContext;
-
-        public abstract int Invoke(InvocationContext context);
-
-        public abstract Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default);
     }
 }

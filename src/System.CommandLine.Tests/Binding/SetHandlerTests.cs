@@ -16,13 +16,30 @@ namespace System.CommandLine.Tests.Binding
 {
     public class SetHandlerTests
     {
+        const int ExpectedExitCode = 123;
+
         [Fact]
         public async Task When_User_Requests_Cancellation_Its_Reflected_By_The_Token_Passed_To_Handler()
         {
-            const int ExpectedExitCode = 123;
+            Command command = new("the-command")
+            {
+                Action = new CustomCliAction()
+            };
 
-            Command command = new ("the-command");
-            command.SetHandler(async (context, cancellationToken) =>
+            using CancellationTokenSource cts = new ();
+
+            Task<int> invokeResult = command.InvokeAsync("the-command", null, cts.Token);
+
+            cts.Cancel();
+
+            (await invokeResult).Should().Be(ExpectedExitCode);
+        }
+
+        private sealed class CustomCliAction : CliAction
+        {
+            public override int Invoke(InvocationContext context) => throw new NotImplementedException();
+
+            public async override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
             {
                 try
                 {
@@ -33,15 +50,7 @@ namespace System.CommandLine.Tests.Binding
                 {
                     return ExpectedExitCode;
                 }
-            });
-
-            using CancellationTokenSource cts = new ();
-
-            Task<int> invokeResult = command.InvokeAsync("the-command", null, cts.Token);
-
-            cts.Cancel();
-
-            (await invokeResult).Should().Be(ExpectedExitCode);
+            }
         }
     }
 }

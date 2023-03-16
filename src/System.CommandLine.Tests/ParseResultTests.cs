@@ -121,5 +121,26 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("--one", "--two", "--three2");
         }
+
+        [Fact]
+        public void Handler_is_null_when_parsed_command_did_not_specify_handler()
+            => new RootCommand().Parse("").Action.Should().BeNull();
+
+        [Fact]
+        public void Handler_is_not_null_when_parsed_command_specified_handler()
+        {
+            bool handlerWasCalled = false;
+
+            RootCommand command = new();
+            command.SetAction((_) => handlerWasCalled = true);
+
+            ParseResult parseResult = command.Parse("");
+
+            parseResult.Action.Should().NotBeNull();
+            handlerWasCalled.Should().BeFalse();
+
+            parseResult.Action.Invoke(null!).Should().Be(0);
+            handlerWasCalled.Should().BeTrue();
+        }
     }
 }

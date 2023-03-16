@@ -88,7 +88,7 @@ namespace System.CommandLine.Hosting
 
         public static IHostBuilder UseCommandHandler<TCommand, THandler>(this IHostBuilder builder)
             where TCommand : Command
-            where THandler : ICommandHandler
+            where THandler : CliAction
         {
             return builder.UseCommandHandler(typeof(TCommand), typeof(THandler));
         }
@@ -100,9 +100,9 @@ namespace System.CommandLine.Hosting
                 throw new ArgumentException($"{nameof(commandType)} must be a type of {nameof(Command)}", nameof(handlerType));
             }
 
-            if (!typeof(ICommandHandler).IsAssignableFrom(handlerType))
+            if (!typeof(CliAction).IsAssignableFrom(handlerType))
             {
-                throw new ArgumentException($"{nameof(handlerType)} must implement {nameof(ICommandHandler)}", nameof(handlerType));
+                throw new ArgumentException($"{nameof(handlerType)} must implement {nameof(CliAction)}", nameof(handlerType));
             }
 
             if (builder.Properties[typeof(InvocationContext)] is InvocationContext invocation 
@@ -114,10 +114,10 @@ namespace System.CommandLine.Hosting
                     services.AddTransient(handlerType);
                 });
 
-                BindingHandler bindingHandler = CommandHandler.Create(handlerType.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+                BindingHandler bindingHandler = CommandHandler.Create(handlerType.GetMethod(nameof(CliAction.InvokeAsync)));
                 // NullBindingHandler that accumulated services registered so far, before handler creation
-                bindingHandler.SetBindingContext(command.Handler is BindingHandler pre ? pre.GetBindingContext(invocation) : null);
-                command.Handler = bindingHandler;
+                bindingHandler.SetBindingContext(command.Action is BindingHandler pre ? pre.GetBindingContext(invocation) : null);
+                command.Action = bindingHandler;
                 bindingHandler.GetBindingContext(invocation).AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
             }
 

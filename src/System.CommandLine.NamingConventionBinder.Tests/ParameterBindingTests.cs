@@ -33,7 +33,7 @@ public class ParameterBindingTests
         var command = new Command("command");
         command.Options.Add(new Option<string>("--name"));
         command.Options.Add(new Option<int>("--age"));
-        command.Handler = CommandHandler.Create<string, int>(Execute);
+        command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command --age 425 --name Gandalf", _console);
 
@@ -55,7 +55,7 @@ public class ParameterBindingTests
         {
             new Option<string>("--first-name")
         };
-        command.Handler = CommandHandler.Create<string>(Execute);
+        command.Action = CommandHandler.Create<string>(Execute);
 
         await command.InvokeAsync("command --first-name Gandalf", _console);
 
@@ -77,7 +77,7 @@ public class ParameterBindingTests
         var command = new Command("command");
         command.Options.Add(new Option<string>("--NAME"));
         command.Options.Add(new Option<int>("--age"));
-        command.Handler = CommandHandler.Create<string, int>(Execute);
+        command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command --age 425 --NAME Gandalf", _console);
 
@@ -102,7 +102,7 @@ public class ParameterBindingTests
             new Option<string>("--name"),
             new Option<int>("--age")
         };
-        command.Handler = CommandHandler.Create<string, int>(Execute);
+        command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command", _console);
 
@@ -127,7 +127,7 @@ public class ParameterBindingTests
             new Option<string>("--NAME", "-n"),
             new Option<int>("--age", "-a")
         };
-        command.Handler = CommandHandler.Create<string, int>(Execute);
+        command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command -a 425 -n Gandalf", _console);
 
@@ -146,7 +146,7 @@ public class ParameterBindingTests
             new Option<string>("--name"),
             new Option<int>("--age")
         };
-        command.Handler = CommandHandler.Create<string, int>((name, age) =>
+        command.Action = CommandHandler.Create<string, int>((name, age) =>
         {
             boundName = name;
             boundAge = age;
@@ -167,7 +167,7 @@ public class ParameterBindingTests
         {
             new Option<int?>("--age")
         };
-        command.Handler = CommandHandler.Create<int?>(age =>
+        command.Action = CommandHandler.Create<int?>(age =>
         {
             boundAge = age;
         });
@@ -187,7 +187,7 @@ public class ParameterBindingTests
         {
             new Option<int?>("--age")
         };
-        command.Handler = CommandHandler.Create<int?>(age =>
+        command.Action = CommandHandler.Create<int?>(age =>
         {
             wasCalled = true;
             boundAge = age;
@@ -209,7 +209,7 @@ public class ParameterBindingTests
         {
             new Option<DirectoryInfo>("--dir")
         };
-        command.Handler = CommandHandler.Create<DirectoryInfo>(dir =>
+        command.Action = CommandHandler.Create<DirectoryInfo>(dir =>
         {
             boundDirectoryInfo = dir;
         });
@@ -230,7 +230,7 @@ public class ParameterBindingTests
         {
             option
         };
-        command.Handler = CommandHandler.Create<ParseResult>(result => { boundParseResult = result; });
+        command.Action = CommandHandler.Create<ParseResult>(result => { boundParseResult = result; });
 
         await command.InvokeAsync("command -x 123", _console);
 
@@ -247,7 +247,7 @@ public class ParameterBindingTests
         {
             option
         };
-        command.Handler = CommandHandler.Create<BindingContext>(context => { boundContext = context; });
+        command.Action = CommandHandler.Create<BindingContext>(context => { boundContext = context; });
 
         await command.InvokeAsync("command -x 123", _console);
 
@@ -261,7 +261,7 @@ public class ParameterBindingTests
         {
             new Option<int>("-x")
         };
-        command.Handler = CommandHandler.Create<IConsole>(console => { console.Out.Write("Hello!"); });
+        command.Action = CommandHandler.Create<IConsole>(console => { console.Out.Write("Hello!"); });
 
         await command.InvokeAsync("command", _console);
 
@@ -279,7 +279,7 @@ public class ParameterBindingTests
         {
             option
         };
-        command.Handler = CommandHandler.Create<InvocationContext>(context => { boundContext = context; });
+        command.Action = CommandHandler.Create<InvocationContext>(context => { boundContext = context; });
 
         await command.InvokeAsync("command -x 123", _console);
 
@@ -310,7 +310,7 @@ public class ParameterBindingTests
             new Option<string>("--name"),
             new Option<int>("--age")
         };
-        command.Handler = CommandHandler.Create((ExecuteTestDelegate)testClass.Execute);
+        command.Action = CommandHandler.Create((ExecuteTestDelegate)testClass.Execute);
 
         await command.InvokeAsync("command --age 425 --name Gandalf", _console);
 
@@ -328,7 +328,7 @@ public class ParameterBindingTests
             new Option<string>("--name"),
             new Option<int>("--age")
         };
-        command.Handler = CommandHandler.Create(
+        command.Action = CommandHandler.Create(
             testClass.GetType().GetMethod(nameof(ExecuteTestClass.Execute)),
             testClass);
 
@@ -353,7 +353,7 @@ public class ParameterBindingTests
         var command = new Command("command");
         command.Arguments.Add(new Argument<int>("age"));
         command.Arguments.Add(new Argument<string>("name"));
-        command.Handler = CommandHandler.Create<string, int>(Execute);
+        command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command 425 Gandalf", _console);
 
@@ -375,7 +375,7 @@ public class ParameterBindingTests
         {
             new Argument<string>("first-name")
         };
-        command.Handler = CommandHandler.Create<string>(Execute);
+        command.Action = CommandHandler.Create<string>(Execute);
 
         await command.InvokeAsync("command Gandalf", _console);
 
@@ -397,7 +397,7 @@ public class ParameterBindingTests
         var command = new Command("command");
         command.Arguments.Add(new Argument<int>("AGE"));
         command.Arguments.Add(new Argument<string>("Name"));
-        command.Handler = CommandHandler.Create<string, int>(Execute);
+        command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command 425 Gandalf", _console);
 
@@ -420,7 +420,7 @@ public class ParameterBindingTests
         var command = new Command("command");
         command.Arguments.Add(new Argument<int>("age"));
         command.Arguments.Add(new Argument<string>("fullname|nickname"));
-        command.Handler = CommandHandler.Create<string, int>(Execute);
+        command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.InvokeAsync("command 425 Gandalf", _console);
 
@@ -435,20 +435,20 @@ public class ParameterBindingTests
     public async Task Method_invoked_is_matching_to_the_interface_implementation(Type type, int expectedResult)
     {
         var command = new Command("command");
-        command.Handler = CommandHandler.Create(type.GetMethod(nameof(ICommandHandler.InvokeAsync)));
+        command.Action = CommandHandler.Create(type.GetMethod(nameof(CliAction.InvokeAsync)));
 
         int result = await command.InvokeAsync("command", _console);
 
         result.Should().Be(expectedResult);
     }
 
-    public abstract class AbstractTestCommandHandler : ICommandHandler
+    public abstract class AbstractTestCommandHandler : CliAction
     {
         public abstract Task<int> DoJobAsync();
 
-        public int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+        public override int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 
-        public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
             => DoJobAsync();
     }
 
@@ -458,11 +458,11 @@ public class ParameterBindingTests
             => Task.FromResult(42);
     }
 
-    public class VirtualTestCommandHandler : ICommandHandler
+    public class VirtualTestCommandHandler : CliAction
     {
-        public int Invoke(InvocationContext context) => 42;
+        public override int Invoke(InvocationContext context) => 42;
 
-        public virtual Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
             => Task.FromResult(42);
     }
 

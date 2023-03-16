@@ -53,7 +53,7 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
             var command = new Command("the-command");
-            command.SetHandler((_, __) => Task.FromException<int>(new Exception("oops!")));
+            command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
         {
             var command = new Command("the-command");
-            command.SetHandler((_, __) => Task.FromException<int>(new Exception("oops!")));
+            command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
             var config = new CommandLineBuilder(new RootCommand
                          {

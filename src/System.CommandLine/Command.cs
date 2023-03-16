@@ -91,6 +91,28 @@ namespace System.CommandLine
         public ICollection<string> Aliases => _aliases ??= new();
 
         /// <summary>
+        /// Gets or sets the <see cref="CliAction"/> for the Command. The handler represents the action
+        /// that will be performed when the Command is invoked.
+        /// </summary>
+        /// <remarks>
+        /// <para>Use one of the <see cref="SetAction(Action{InvocationContext})" /> overloads to construct a handler.</para>
+        /// <para>If the handler is not specified, parser errors will be generated for command line input that
+        /// invokes this Command.</para></remarks>
+        public CliAction? Action { get; set; }
+
+        /// <summary>
+        /// Sets a synchronous action.
+        /// </summary>
+        public void SetAction(Action<InvocationContext> action)
+            => Action = new AnonymousCliAction(action);
+
+        /// <summary>
+        /// Sets an asynchronous action.
+        /// </summary>
+        public void SetAction(Func<InvocationContext, CancellationToken, Task> action)
+            => Action = new AnonymousCliAction(action);
+
+        /// <summary>
         /// Adds a <see cref="Symbol"/> to the command.
         /// </summary>
         /// <param name="symbol">The symbol to add to the command.</param>
@@ -120,16 +142,6 @@ namespace System.CommandLine
         /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
         /// </summary>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets the <see cref="ICommandHandler"/> for the command. The handler represents the action
-        /// that will be performed when the command is invoked.
-        /// </summary>
-        /// <remarks>
-        /// <para>Use one of the <see cref="SetHandler(Func{InvocationContext, Int32})" /> overloads to construct a handler.</para>
-        /// <para>If the handler is not specified, parser errors will be generated for command line input that
-        /// invokes this command.</para></remarks>
-        public ICommandHandler? Handler { get; set; }
 
         /// <summary>
         /// Represents all of the symbols for the command.
@@ -253,18 +265,6 @@ namespace System.CommandLine
                 }
             }
         }
-
-        /// <summary>
-        /// Sets a synchronous command handler. The handler should return an exit code.
-        /// </summary>
-        public void SetHandler(Func<InvocationContext, int> handler)
-            => Handler = new AnonymousCommandHandler(handler);
-
-        /// <summary>
-        /// Sets an asynchronous command handler. The handler should return an exit code.
-        /// </summary>
-        public void SetHandler(Func<InvocationContext, CancellationToken, Task<int>> handler)
-            => Handler = new AnonymousCommandHandler(handler);
 
         internal bool EqualsNameOrAlias(string name)
             => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));

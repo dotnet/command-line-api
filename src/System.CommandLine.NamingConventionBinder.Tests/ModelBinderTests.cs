@@ -528,7 +528,7 @@ public class ModelBinderTests
         {
             new Argument<string[]>("names")
         };
-        rootCommand.Handler = CommandHandler.Create<string[]>(Handler);
+        rootCommand.Action = CommandHandler.Create<string[]>(Handler);
         string[] passedNames = null;
         await rootCommand.InvokeAsync("");
 
@@ -548,7 +548,7 @@ public class ModelBinderTests
         {
             new Argument<IEnumerable<string>>("names")
         };
-        rootCommand.Handler = CommandHandler.Create<IEnumerable<string>>(Handler);
+        rootCommand.Action = CommandHandler.Create<IEnumerable<string>>(Handler);
         IEnumerable<string> passedNames = null;
         await rootCommand.InvokeAsync("");
 
@@ -568,7 +568,7 @@ public class ModelBinderTests
         {
             new Option<string[]>("--names")
         };
-        rootCommand.Handler = CommandHandler.Create<string[]>(Handler);
+        rootCommand.Action = CommandHandler.Create<string[]>(Handler);
         string[] passedNames = null;
         await rootCommand.InvokeAsync("");
 
@@ -588,7 +588,7 @@ public class ModelBinderTests
         {
             new Option<IEnumerable<string>>("--names"),
         };
-        rootCommand.Handler = CommandHandler.Create<IEnumerable<string>>(Handler);
+        rootCommand.Action = CommandHandler.Create<IEnumerable<string>>(Handler);
         IEnumerable<string> passedNames = null;
         await rootCommand.InvokeAsync("");
 
@@ -611,7 +611,7 @@ public class ModelBinderTests
             new Option<int>("one") { DefaultValueFactory = (_) => 1 },
             new Option<int>("two") { DefaultValueFactory = (_) => 2 }
         };
-        rootCommand.Handler = CommandHandler.Create<int, int>((one, two) =>
+        rootCommand.Action = CommandHandler.Create<int, int>((one, two) =>
         {
             first = one;
             second = two;
@@ -636,7 +636,7 @@ public class ModelBinderTests
 
         ClassWithOnePropertyNameThatIsSubstringOfAnother boundValue = default;
 
-        command.Handler = CommandHandler.Create(
+        command.Action = CommandHandler.Create(
             (ClassWithOnePropertyNameThatIsSubstringOfAnother s) => { boundValue = s; }
         );
 
@@ -657,7 +657,7 @@ public class ModelBinderTests
 
         var cmd = new RootCommand
         {
-            Handler = CommandHandler.Create((ClassWithListTypePropertiesAndDefaultCtor value) => { boundInstance = value; })
+            Action = CommandHandler.Create((ClassWithListTypePropertiesAndDefaultCtor value) => { boundInstance = value; })
         };
 
         var result = cmd.Parse(string.Empty);
@@ -676,7 +676,7 @@ public class ModelBinderTests
         {
             new Option<decimal>("--opt-decimal")
         };
-        rootCommand.Handler = CommandHandler.Create((ComplexType options) => { receivedValue = options.OptDecimal; });
+        rootCommand.Action = CommandHandler.Create((ComplexType options) => { receivedValue = options.OptDecimal; });
 
         await rootCommand.InvokeAsync("");
 
@@ -705,7 +705,7 @@ public class ModelBinderTests
 
         DeployOptions boundOptions = null;
 
-        rootCommand.Handler = CommandHandler.Create<DeployOptions>(options =>
+        rootCommand.Action = CommandHandler.Create<DeployOptions>(options =>
         {
             boundOptions = options;
             return 0;
@@ -770,7 +770,7 @@ public class ModelBinderTests
 
         var handlerWasCalled = false;
 
-        root.Handler = CommandHandler.Create<ClassWithSpanConstructor, int>((spanCtor, intValue) =>
+        root.Action = CommandHandler.Create<ClassWithSpanConstructor, int>((spanCtor, intValue) =>
         {
             handlerWasCalled = true;
         });

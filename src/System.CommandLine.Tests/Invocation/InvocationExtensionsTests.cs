@@ -52,7 +52,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler((_) => { wasCalled = true; return 0; });
+            rootCommand.SetAction((_) => wasCalled = true);
 
             var result = await rootCommand.InvokeAsync("");
 
@@ -66,7 +66,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler((_) => { wasCalled = true; return 0; });
+            rootCommand.SetAction((_) => wasCalled = true);
 
             int result = rootCommand.Invoke("");
 
@@ -80,15 +80,11 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler((_, __) =>
+            rootCommand.SetAction((_, __) =>
             {
                 wasCalled = true;
-                throw new Exception("oops!");
 
-                // Help the compiler pick a CommandHandler.Create overload.
-#pragma warning disable CS0162 // Unreachable code detected
-                return Task.FromResult(0);
-#pragma warning restore CS0162
+                return Task.FromException(new Exception("oops!"));
             });
 
             var resultCode = await rootCommand.InvokeAsync("");
@@ -103,7 +99,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new RootCommand();
 
-            rootCommand.SetHandler((_, __) =>
+            rootCommand.SetAction((_, __) =>
             {
                 wasCalled = true;
                 throw new Exception("oops!");
@@ -121,55 +117,39 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public async Task RootCommand_InvokeAsync_can_set_custom_result_code()
+        public async Task RootCommand_Action_can_set_custom_result_code()
         {
-            var rootCommand = new RootCommand();
-
-            rootCommand.SetHandler((context, cancellationToken) =>
+            var rootCommand = new RootCommand()
             {
-                return Task.FromResult(123);
-            });
+                Action = new CustomExitCodeAction()
+            };
 
-            var resultCode = await rootCommand.InvokeAsync("");
-
-            resultCode.Should().Be(123);
+            rootCommand.Invoke("").Should().Be(123);
+            (await rootCommand.InvokeAsync("")).Should().Be(456);
         }
 
-        [Fact]
-        public void RootCommand_Invoke_can_set_custom_result_code()
+        internal sealed class CustomExitCodeAction : CliAction
         {
-            var rootCommand = new RootCommand();
+            public override int Invoke(InvocationContext context)
+                => 123;
 
-            rootCommand.SetHandler((context, cancellationToken) =>
-            {
-                return Task.FromResult(123);
-            });
-
-            int resultCode = rootCommand.Invoke("");
-
-            resultCode.Should().Be(123);
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+                => Task.FromResult(456);
         }
 
         [Fact]
         public async Task Command_InvokeAsync_with_cancelation_token_invokes_command_handler()
         {
-            CancellationTokenSource cts = new();
+            using CancellationTokenSource cts = new();
             var command = new Command("test");
-            command.SetHandler((InvocationContext context, CancellationToken cancellationToken) =>
+            command.SetAction((InvocationContext context, CancellationToken cancellationToken) =>
             {
-                Assert.True(cancellationToken.CanBeCanceled);
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return Task.FromResult(42);
-                }
-
-                return Task.FromResult(0);
+                cancellationToken.Should().Be(cts.Token);
+                return Task.CompletedTask;
             });
 
             cts.Cancel();
-            int rv = await command.InvokeAsync("test", cancellationToken: cts.Token);
-
-            rv.Should().Be(42);
+            await command.InvokeAsync("test", cancellationToken: cts.Token);
         }
     }
 }

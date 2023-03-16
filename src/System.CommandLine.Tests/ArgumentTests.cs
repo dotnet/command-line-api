@@ -378,7 +378,7 @@ namespace System.CommandLine.Tests
                 };
 
                 var command = new RootCommand();
-                command.SetHandler((ctx) => { handlerWasCalled = true; return 0; });
+                command.SetAction((ctx) => handlerWasCalled = true);
                 command.Options.Add(option);
 
                 await command.InvokeAsync("--value 42");

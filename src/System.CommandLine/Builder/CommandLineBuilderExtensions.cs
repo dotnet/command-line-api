@@ -16,7 +16,7 @@ namespace System.CommandLine
     public partial class CommandLineBuilder
     {
         /// <summary>
-        /// Enables signaling and handling of process termination via a <see cref="CancellationToken"/> that can be passed to a <see cref="ICommandHandler"/> during invocation.
+        /// Enables signaling and handling of process termination via a <see cref="CancellationToken"/> that can be passed to a <see cref="CliAction"/> during invocation.
         /// </summary>
         /// <param name="timeout">
         /// Optional timeout for the command to process the exit cancellation.

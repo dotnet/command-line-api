@@ -134,17 +134,17 @@ namespace System.CommandLine.Hosting.Tests
             service.StringValue.Should().Be("TEST");
         }
 
-        public abstract class MyBaseHandler : ICommandHandler
+        public abstract class MyBaseHandler : CliAction
         {
             public int IntOption { get; set; } // bound from option
             public IConsole Console { get; set; } // bound from DI
 
-            public int Invoke(InvocationContext context)
+            public override int Invoke(InvocationContext context)
             {
                 return Act();
             }
 
-            public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
             {
                 return Task.FromResult(Act());
             }
@@ -159,7 +159,7 @@ namespace System.CommandLine.Hosting.Tests
                 Options.Add(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
 
-            public class MyHandler : ICommandHandler
+            public class MyHandler : CliAction
             {
                 private readonly MyService service;
 
@@ -171,13 +171,13 @@ namespace System.CommandLine.Hosting.Tests
                 public int IntOption { get; set; } // bound from option
                 public IConsole Console { get; set; } // bound from DI
 
-                public int Invoke(InvocationContext context)
+                public override int Invoke(InvocationContext context)
                 {
                     service.Value = IntOption;
                     return IntOption;
                 }
 
-                public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+                public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
                     return Task.FromResult(IntOption);
@@ -209,7 +209,7 @@ namespace System.CommandLine.Hosting.Tests
                 Arguments.Add(new Argument<string>("One") {  Arity = ArgumentArity.ZeroOrOne });
             }
 
-            public class MyHandler : ICommandHandler
+            public class MyHandler : CliAction
             {
                 private readonly MyService service;
 
@@ -223,9 +223,9 @@ namespace System.CommandLine.Hosting.Tests
 
                 public string One { get; set; }
 
-                public int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+                public override int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 
-                public Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+                public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
                     service.StringValue = One;

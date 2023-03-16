@@ -2,9 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.CommandLine.Completions;
-using System.CommandLine.Parsing;
+using System.CommandLine.Invocation;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -345,6 +346,74 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
+        }
+
+        [Fact]
+        public void Every_option_can_provide_a_handler_and_it_takes_precedence_over_command_handler()
+        {
+            OptionAction optionAction = new();
+            bool commandHandlerWasCalled = false;
+
+            Option<bool> option = new("--test")
+            {
+                Action = optionAction,
+            };
+            Command command = new Command("cmd")
+            {
+                option
+            };
+            command.SetAction((_) =>
+            {
+                commandHandlerWasCalled = true;
+            });
+
+            ParseResult parseResult = command.Parse("cmd --test true");
+
+            parseResult.Action.Should().NotBeNull();
+            optionAction.WasCalled.Should().BeFalse();
+            commandHandlerWasCalled.Should().BeFalse();
+
+            parseResult.Invoke().Should().Be(0);
+            optionAction.WasCalled.Should().BeTrue();
+            commandHandlerWasCalled.Should().BeFalse();
+        }
+
+        internal sealed class OptionAction : CliAction
+        {
+            internal bool WasCalled = false;
+
+            public override int Invoke(InvocationContext context)
+            {
+                WasCalled = true;
+                return 0;
+            }
+
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+                => Task.FromResult(Invoke(context));
+        }
+
+        [Fact]
+        public void When_multiple_options_with_handlers_are_parsed_only_the_last_one_is_effective()
+        {
+            OptionAction optionAction1 = new();
+            OptionAction optionAction2 = new();
+            OptionAction optionAction3 = new();
+            
+            Command command = new Command("cmd")
+            {
+                new Option<bool>("--1") { Action = optionAction1 },
+                new Option<bool>("--2") { Action = optionAction2 },
+                new Option<bool>("--3") { Action = optionAction3 }
+            };
+
+            ParseResult parseResult = command.Parse("cmd --1 true --3 false --2 true ");
+
+            parseResult.Action.Should().Be(optionAction2);
+
+            parseResult.Invoke().Should().Be(0);
+            optionAction1.WasCalled.Should().BeFalse();
+            optionAction2.WasCalled.Should().BeTrue();
+            optionAction3.WasCalled.Should().BeFalse();
         }
     }
 }

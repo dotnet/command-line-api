@@ -2,6 +2,8 @@
 using System.Linq;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace System.CommandLine
 {
@@ -12,30 +14,40 @@ namespace System.CommandLine
     public sealed class SuggestDirective : Directive
     {
         public SuggestDirective() : base("suggest")
+            => Action = new SuggestDirectiveAction(this);
+
+        private sealed class SuggestDirectiveAction : CliAction
         {
-            SetSynchronousHandler(SyncHandler);
-        }
+            private readonly SuggestDirective _directive;
 
-        private int SyncHandler(InvocationContext context)
-        {
-            ParseResult parseResult = context.ParseResult;
-            string? parsedValues = parseResult.FindResultFor(this)!.Values.SingleOrDefault();
-            string? rawInput = parseResult.CommandLineText;
+            internal SuggestDirectiveAction(SuggestDirective suggestDirective) => _directive = suggestDirective;
 
-            int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
+            public override int Invoke(InvocationContext context)
+            {
+                ParseResult parseResult = context.ParseResult;
+                string? parsedValues = parseResult.FindResultFor(_directive)!.Values.SingleOrDefault();
+                string? rawInput = parseResult.CommandLineText;
 
-            var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
+                int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
 
-            var completionParseResult = parseResult.RootCommandResult.Command.Parse(commandLineToComplete, parseResult.Configuration);
+                var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
-            var completions = completionParseResult.GetCompletions(position);
+                var completionParseResult = parseResult.RootCommandResult.Command.Parse(commandLineToComplete, parseResult.Configuration);
 
-            context.Console.Out.WriteLine(
-                string.Join(
-                    Environment.NewLine,
-                    completions));
+                var completions = completionParseResult.GetCompletions(position);
 
-            return 0;
+                context.Console.Out.WriteLine(
+                    string.Join(
+                        Environment.NewLine,
+                        completions));
+
+                return 0;
+            }
+
+            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+                => cancellationToken.IsCancellationRequested
+                    ? Task.FromCanceled<int>(cancellationToken)
+                    : Task.FromResult(Invoke(context));
         }
     }
 }
