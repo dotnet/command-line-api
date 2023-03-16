@@ -18,21 +18,6 @@ namespace System.CommandLine.Tests.Invocation
         private readonly TestConsole _console = new();
 
         [Fact]
-        public async Task General_invocation_middleware_can_be_specified_in_the_CommandLineBuilder()
-        {
-            var wasCalled = false;
-
-            var config =
-                new CommandLineBuilder(new RootCommand { new Command("command") })
-                    .AddMiddleware(_ => wasCalled = true)
-                    .Build();
-
-            await config.InvokeAsync("command", _console);
-
-            wasCalled.Should().BeTrue();
-        }
-
-        [Fact]
         public async Task InvokeAsync_chooses_the_appropriate_command()
         {
             var firstWasCalled = false;
@@ -80,40 +65,6 @@ namespace System.CommandLine.Tests.Invocation
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
-        }
-
-        [Fact]
-        public void When_middleware_throws_then_InvokeAsync_does_not_handle_the_exception()
-        {
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             new Command("the-command")
-                         })
-                         .AddMiddleware(_ => throw new Exception("oops!"))
-                         .Build();
-
-            Func<Task> invoke = async () => await config.InvokeAsync("the-command", _console);
-
-            invoke.Should()
-                  .Throw<Exception>()
-                  .WithMessage("oops!");
-        }
-
-        [Fact]
-        public void When_middleware_throws_then_Invoke_does_not_handle_the_exception()
-        {
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             new Command("the-command")
-                         })
-                         .AddMiddleware(_ => throw new Exception("oops!"))
-                         .Build();
-
-            Func<int> invoke = () => config.Invoke("the-command", _console);
-
-            invoke.Should()
-                .Throw<Exception>()
-                .WithMessage("oops!");
         }
 
         [Fact]
@@ -175,104 +126,6 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public async Task ParseResult_can_be_replaced_by_middleware()
-        {
-            var wasCalled = false;
-            var command = new Command("the-command");
-            var implicitInnerCommand = new Command("implicit-inner-command");
-            command.Subcommands.Add(implicitInnerCommand);
-            implicitInnerCommand.SetAction((context, cancellationToken) =>
-            {
-                wasCalled = true;
-                context.ParseResult.Errors.Should().BeEmpty();
-                return Task.FromResult(0);
-            });
-
-            var configuration = new CommandLineBuilder(new RootCommand
-                         {
-                            command
-                         })
-                         .AddMiddleware(async (context, token, next) =>
-                         {
-                             var tokens = context.ParseResult
-                                                 .Tokens
-                                                 .Select(t => t.Value)
-                                                 .Concat(new[] { "implicit-inner-command" })
-                                                 .ToArray();
-
-                             context.ParseResult = context.ParseResult.Configuration.RootCommand.Parse(tokens);
-                             await next(context, token);
-                         })
-                         .Build();
-
-            await configuration.InvokeAsync("the-command", new TestConsole());
-
-            wasCalled.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task Invocation_can_be_short_circuited_by_middleware_by_not_calling_next()
-        {
-            var middlewareWasCalled = false;
-            var handlerWasCalled = false;
-
-            var command = new Command("the-command");
-            command.SetAction((context, cancellationToken) =>
-            {
-                handlerWasCalled = true;
-                context.ParseResult.Errors.Should().BeEmpty();
-                return Task.FromResult(0);
-            });
-
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .AddMiddleware(async (_, _, _) =>
-                         {
-                             middlewareWasCalled = true;
-                             await Task.Yield();
-                         })
-                         .Build();
-
-            await config.InvokeAsync("the-command", new TestConsole());
-
-            middlewareWasCalled.Should().BeTrue();
-            handlerWasCalled.Should().BeFalse();
-        }
-
-        [Fact]
-        public void Synchronous_invocation_can_be_short_circuited_by_async_middleware_by_not_calling_next()
-        {
-            var middlewareWasCalled = false;
-            var handlerWasCalled = false;
-
-            var command = new Command("the-command");
-            command.SetAction((context, cancellationToken) =>
-            {
-                handlerWasCalled = true;
-                context.ParseResult.Errors.Should().BeEmpty();
-                return Task.FromResult(0);
-            });
-
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .AddMiddleware(async (context, cancellationToken, next) =>
-                         {
-                             middlewareWasCalled = true;
-                             await Task.Yield();
-                         })
-                         .Build();
-
-            config.Invoke("the-command", new TestConsole());
-
-            middlewareWasCalled.Should().BeTrue();
-            handlerWasCalled.Should().BeFalse();
-        }
-
-        [Fact]
         public async Task When_no_help_builder_is_specified_it_uses_default_implementation()
         {
             bool handlerWasCalled = false;
@@ -328,36 +181,6 @@ namespace System.CommandLine.Tests.Invocation
 
             handlerWasCalled.Should().BeTrue();
             factoryWasCalled.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task Middleware_can_throw_OperationCancelledException()
-        {
-            var handlerWasCalled = false;
-
-            var command = new Command("the-command");
-            command.SetAction((InvocationContext context, CancellationToken cancellationToken) =>
-            {
-                handlerWasCalled = true;
-                return Task.FromResult(0);
-            });
-
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .AddMiddleware((context, cancellationToken, next) =>
-                         {
-                             throw new OperationCanceledException(cancellationToken);
-                         })
-                         .UseExceptionHandler((ex, ctx) => ex is OperationCanceledException ? 123 : 456)
-                         .Build();
-
-            int result = await config.InvokeAsync("the-command");
-
-            // when the middleware throws, we never get to handler
-            handlerWasCalled.Should().BeFalse();
-            result.Should().Be(123);
         }
     }
 }

@@ -35,8 +35,6 @@ namespace System.CommandLine
 
         internal readonly TimeSpan? ProcessTerminationTimeout;
 
-        internal readonly IReadOnlyList<InvocationMiddleware> Middleware;
-
         private Func<InvocationContext, HelpBuilder>? _helpBuilderFactory;
         private TryReplaceToken? _tokenReplacer;
 
@@ -46,14 +44,12 @@ namespace System.CommandLine
         /// <param name="command">The root command for the parser.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
-        /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
         /// <param name="tokenReplacer">Replaces the specified token with any number of other tokens.</param>
         public CommandLineConfiguration(
             Command command,
             bool enablePosixBundling = true,
             bool enableTokenReplacement = true,
-            IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             Func<InvocationContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
             : this(
@@ -64,7 +60,6 @@ namespace System.CommandLine
                   parseErrorReportingExitCode: null,
                   maxLevenshteinDistance: 0,
                   processTerminationTimeout: null,
-                  middlewarePipeline: middlewarePipeline,
                   helpBuilderFactory: helpBuilderFactory,
                   tokenReplacer: tokenReplacer,
                   exceptionHandler: null)
@@ -79,7 +74,6 @@ namespace System.CommandLine
             int? parseErrorReportingExitCode,
             int maxLevenshteinDistance,
             TimeSpan? processTerminationTimeout,
-            IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             Func<InvocationContext, HelpBuilder>? helpBuilderFactory,
             TryReplaceToken? tokenReplacer,
             Func<Exception, InvocationContext, int>? exceptionHandler)
@@ -91,7 +85,6 @@ namespace System.CommandLine
             ParseErrorReportingExitCode = parseErrorReportingExitCode;
             MaxLevenshteinDistance = maxLevenshteinDistance;
             ProcessTerminationTimeout = processTerminationTimeout;
-            Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _helpBuilderFactory = helpBuilderFactory;
             _tokenReplacer = tokenReplacer;

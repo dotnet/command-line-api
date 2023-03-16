@@ -64,8 +64,6 @@ System.CommandLine
     .ctor(Command rootCommand)
     public Command Command { get; }
     public System.Collections.Generic.List<Directive> Directives { get; }
-    public CommandLineBuilder AddMiddleware(System.CommandLine.Invocation.InvocationMiddleware middleware, System.CommandLine.Invocation.MiddlewareOrder order = Default)
-    public CommandLineBuilder AddMiddleware(System.Action<System.CommandLine.Invocation.InvocationContext> onInvoke, System.CommandLine.Invocation.MiddlewareOrder order = Default)
     public CommandLineConfiguration Build()
     public CommandLineBuilder CancelOnProcessTermination(System.Nullable<System.TimeSpan> timeout = null)
     public CommandLineBuilder EnablePosixBundling(System.Boolean value = True)
@@ -85,7 +83,7 @@ System.CommandLine
     public CommandLineBuilder UseVersionOption(System.String name, System.String[] aliases)
   public class CommandLineConfiguration
     public static CommandLineBuilder CreateBuilder(Command rootCommand)
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableTokenReplacement = True, System.Collections.Generic.IReadOnlyList<System.CommandLine.Invocation.InvocationMiddleware> middlewarePipeline = null, System.Func<System.CommandLine.Invocation.InvocationContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableTokenReplacement = True, System.Func<System.CommandLine.Invocation.InvocationContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Collections.Generic.IReadOnlyList<Directive> Directives { get; }
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
@@ -246,16 +244,6 @@ System.CommandLine.Invocation
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(Argument<T> argument)
-  public delegate InvocationMiddleware : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
-    .ctor(System.Object object, System.IntPtr method)
-    public System.IAsyncResult BeginInvoke(InvocationContext context, System.Threading.CancellationToken cancellationToken, System.Func<InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> next, System.AsyncCallback callback, System.Object object)
-    public System.Threading.Tasks.Task EndInvoke(System.IAsyncResult result)
-    public System.Threading.Tasks.Task Invoke(InvocationContext context, System.Threading.CancellationToken cancellationToken, System.Func<InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> next)
-  public enum MiddlewareOrder : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
-    Default=0
-    ErrorReporting=1000
-    ExceptionHandler=-2000
-    Configuration=-1000
 System.CommandLine.IO
   public interface IStandardError
     public IStandardStreamWriter Error { get; }

@@ -32,31 +32,6 @@ namespace System.CommandLine.Rendering.Tests
             outputMode.Should().Be(OutputMode.PlainText);
         }
 
-        [Theory]
-        [InlineData(OutputMode.Ansi)]
-        [InlineData(OutputMode.NonAnsi)]
-        [InlineData(OutputMode.PlainText)]
-        public async Task Sets_output_mode_to_Ansi_when_specified_by_output_directive(OutputMode specifiedOutputMode)
-        {
-            var console = new TestConsole();
-            OutputMode detectedOutputMode = OutputMode.Auto;
-
-            var command = new Command("hello");
-            command.SetAction((ctx, cancellationToken) =>
-            {
-                detectedOutputMode = ctx.Console.DetectOutputMode();
-                return Task.FromResult(0);
-            });
-
-            var config = new CommandLineBuilder(command)
-                         .UseAnsiTerminalWhenAvailable()
-                         .Build();
-
-            await config.InvokeAsync($"[output:{specifiedOutputMode}]", console);
-
-            detectedOutputMode.Should().Be(specifiedOutputMode);
-        }
-
         [WindowsOnlyFact(Skip = "How to test?")]
         public void Sets_outputMode_to_ansi_when_windows_and_virtual_terminal()
         {

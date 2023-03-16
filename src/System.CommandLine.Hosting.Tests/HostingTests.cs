@@ -290,55 +290,6 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public static void GetInvocationContext_returns_same_instance_as_outer_middleware()
-        {
-            InvocationContext ctxCustom = null;
-            InvocationContext ctxHosting = null;
-
-            var config = new CommandLineBuilder(new RootCommand())
-                .AddMiddleware((context, cancellationToken, next) =>
-                {
-                    ctxCustom = context;
-                    return next(context, cancellationToken);
-                })
-                .UseHost(hostBuilder =>
-                {
-                    ctxHosting = hostBuilder.GetInvocationContext();
-                })
-                .Build();
-
-            _ = config.Invoke(string.Empty);
-
-            ctxHosting.Should().BeSameAs(ctxCustom);
-        }
-
-        [Fact]
-        public static void GetInvocationContext_in_ConfigureServices_returns_same_instance_as_outer_middleware()
-        {
-            InvocationContext ctxCustom = null;
-            InvocationContext ctxConfigureServices = null;
-
-            var config = new CommandLineBuilder(new RootCommand())
-                .AddMiddleware((context, cancellationToken, next) =>
-                {
-                    ctxCustom = context;
-                    return next(context, cancellationToken);
-                })
-                .UseHost(hostBuilder =>
-                {
-                    hostBuilder.ConfigureServices((hostingCtx, services) =>
-                    {
-                        ctxConfigureServices = hostingCtx.GetInvocationContext();
-                    });
-                })
-                .Build();
-
-            _ = config.Invoke(string.Empty);
-
-            ctxConfigureServices.Should().BeSameAs(ctxCustom);
-        }
-
-        [Fact]
         public static void GetInvocationContext_throws_if_not_within_invocation()
         {
             var hostBuilder = new HostBuilder();
@@ -361,47 +312,6 @@ namespace System.CommandLine.Hosting.Tests
                 _ = b.Build();
             })
                 .Should().Throw<InvalidOperationException>();
-        }
-
-        [Fact]
-        public static void GetHost_returns_non_null_instance_in_subsequent_middleware()
-        {
-            bool hostAsserted = false;
-            var config = new CommandLineBuilder(new RootCommand())
-                .UseHost()
-                .AddMiddleware((invCtx, cancellationToken, next) =>
-                {
-                    IHost host = invCtx.GetHost();
-                    host.Should().NotBeNull();
-                    hostAsserted = true;
-
-                    return next(invCtx, cancellationToken);
-                })
-                .Build();
-
-            _ = config.Invoke(string.Empty);
-
-            hostAsserted.Should().BeTrue();
-        }
-
-        [Fact]
-        public static void GetHost_returns_null_when_no_host_in_invocation()
-        {
-            bool hostAsserted = false;
-            var config = new CommandLineBuilder(new RootCommand())
-                .AddMiddleware((invCtx, cancellationToken, next) =>
-                {
-                    IHost host = invCtx.GetHost();
-                    host.Should().BeNull();
-                    hostAsserted = true;
-
-                    return next(invCtx, cancellationToken);
-                })
-                .Build();
-
-            _ = config.Invoke(string.Empty);
-
-            hostAsserted.Should().BeTrue();
         }
     }
 }
