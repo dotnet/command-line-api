@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests.Invocation
 
             public async override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
             {
-                context.Console.WriteLine(ChildProcessWaiting);
+                Console.WriteLine(ChildProcessWaiting);
 
                 bool infiniteDelay = context.GetValue(InfiniteDelayOption);
 

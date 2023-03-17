@@ -102,9 +102,6 @@ System.CommandLine
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
-  public static class ConsoleExtensions
-    public static System.Void Write(this IConsole console, System.String value)
-    public static System.Void WriteLine(this IConsole console, System.String value)
   public class Directive : Symbol
     .ctor(System.String name)
     public CliAction Action { get; set; }
