@@ -18,7 +18,6 @@ namespace System.CommandLine.Invocation
                         {
                             [typeof(ParseResult)] = _ => bindingContext.ParseResult,
                             [typeof(IConsole)] = _ => bindingContext.Console,
-                            [typeof(HelpBuilder)] = _ => bindingContext.ParseResult.Configuration.HelpBuilderFactory(bindingContext.InvocationContext),
                             [typeof(BindingContext)] = _ => bindingContext
                         };
         }

@@ -37,7 +37,6 @@ namespace System.CommandLine
 
         internal readonly IReadOnlyList<InvocationMiddleware> Middleware;
 
-        private Func<InvocationContext, HelpBuilder>? _helpBuilderFactory;
         private TryReplaceToken? _tokenReplacer;
 
         /// <summary>
@@ -47,14 +46,12 @@ namespace System.CommandLine
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
         /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
-        /// <param name="helpBuilderFactory">Provide a custom help builder.</param>
         /// <param name="tokenReplacer">Replaces the specified token with any number of other tokens.</param>
         public CommandLineConfiguration(
             Command command,
             bool enablePosixBundling = true,
             bool enableTokenReplacement = true,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
-            Func<InvocationContext, HelpBuilder>? helpBuilderFactory = null,
             TryReplaceToken? tokenReplacer = null)
             : this(
                   command,
@@ -65,7 +62,6 @@ namespace System.CommandLine
                   maxLevenshteinDistance: 0,
                   processTerminationTimeout: null,
                   middlewarePipeline: middlewarePipeline,
-                  helpBuilderFactory: helpBuilderFactory,
                   tokenReplacer: tokenReplacer,
                   exceptionHandler: null)
         {
@@ -80,7 +76,6 @@ namespace System.CommandLine
             int maxLevenshteinDistance,
             TimeSpan? processTerminationTimeout,
             IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
-            Func<InvocationContext, HelpBuilder>? helpBuilderFactory,
             TryReplaceToken? tokenReplacer,
             Func<Exception, InvocationContext, int>? exceptionHandler)
         {
@@ -93,23 +88,11 @@ namespace System.CommandLine
             ProcessTerminationTimeout = processTerminationTimeout;
             Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
-            _helpBuilderFactory = helpBuilderFactory;
             _tokenReplacer = tokenReplacer;
             ExceptionHandler = exceptionHandler;
         }
 
         public static CommandLineBuilder CreateBuilder(Command rootCommand) => new CommandLineBuilder(rootCommand);
-
-        internal static HelpBuilder DefaultHelpBuilderFactory(InvocationContext context, int? requestedMaxWidth = null)
-        {
-            int maxWidth = requestedMaxWidth ?? int.MaxValue;
-            if (requestedMaxWidth is null && context.Console is SystemConsole systemConsole)
-            {
-                maxWidth = systemConsole.GetWindowWidth();
-            }
-
-            return new HelpBuilder(maxWidth);
-        }
 
         /// <summary>
         /// Gets the enabled directives.
@@ -131,8 +114,6 @@ namespace System.CommandLine
         /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
         public bool EnableTokenReplacement { get; }
-
-        internal Func<InvocationContext, HelpBuilder> HelpBuilderFactory => _helpBuilderFactory ??= context => DefaultHelpBuilderFactory(context);
 
         internal TryReplaceToken? TokenReplacer =>
             EnableTokenReplacement

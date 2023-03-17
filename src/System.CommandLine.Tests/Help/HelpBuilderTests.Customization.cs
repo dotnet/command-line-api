@@ -92,17 +92,21 @@ namespace System.CommandLine.Tests.Help
                                           ctx.Command.Equals(commandA) 
                                               ? optionAFirstColumnText
                                               : optionBFirstColumnText);
-                var config = new CommandLineBuilder(command)
-                             .UseDefaults()
-                             .UseHelpBuilder(_ => helpBuilder)
-                             .Build();
+                command.Options.Add(new HelpOption()
+                {
+                    Action = new HelpAction()
+                    {
+                        Builder = helpBuilder
+                    }
+                });
 
                 var console = new TestConsole();
-                config.Invoke("root a -h", console);
+                var config = CommandLineConfiguration.CreateBuilder(command).Build();
+                command.Parse("root a -h", config).Invoke(console);
                 console.Out.ToString().Should().Contain(optionAFirstColumnText);
 
                 console = new TestConsole();
-                config.Invoke("root b -h", console);
+                command.Parse("root b -h", config).Invoke(console);
                 console.Out.ToString().Should().Contain(optionBFirstColumnText);
             }
 
@@ -130,10 +134,15 @@ namespace System.CommandLine.Tests.Help
                                           ctx.Command.Equals(commandA)
                                               ? optionADescription
                                               : optionBDescription);
+                command.Options.Add(new HelpOption()
+                {
+                    Action = new HelpAction()
+                    { 
+                        Builder = helpBuilder
+                    }
+                });
 
                 var config = new CommandLineBuilder(command)
-                             .UseDefaults()
-                             .UseHelpBuilder(_ => helpBuilder)
                              .Build();
 
                 var console = new TestConsole();
@@ -253,14 +262,16 @@ namespace System.CommandLine.Tests.Help
                     firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetOptionUsageLabel(option),
                     secondColumnText: ctx => conditionB ? "custom 2nd" : option.Description ?? string.Empty);
 
-
-                var config = new CommandLineBuilder(command)
-                             .UseDefaults()
-                             .UseHelpBuilder(_ => helpBuilder)
-                             .Build();
+                command.Options.Add(new HelpOption()
+                {
+                    Action = new HelpAction()
+                    {
+                        Builder = helpBuilder
+                    }
+                });
 
                 var console = new TestConsole();
-                config.Invoke("test -h", console);
+                command.Parse("test -h", new CommandLineBuilder(command).Build()).Invoke(console);
                 console.Out.ToString().Should().MatchRegex(expected);
             }
 
@@ -295,13 +306,18 @@ namespace System.CommandLine.Tests.Help
                     defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
 
 
-                var config = new CommandLineBuilder(command)
-                             .UseDefaults()
-                             .UseHelpBuilder(_ => helpBuilder)
-                             .Build();
+                var config = new CommandLineBuilder(command).Build();
+
+                command.Options.Add(new HelpOption()
+                {
+                    Action = new HelpAction()
+                    {
+                        Builder = helpBuilder
+                    }
+                });
 
                 var console = new TestConsole();
-                config.Invoke("test -h", console);
+                command.Parse("test -h", config).Invoke(console);
                 console.Out.ToString().Should().MatchRegex(expected);
             }
         }

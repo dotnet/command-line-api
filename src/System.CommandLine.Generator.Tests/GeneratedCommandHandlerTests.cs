@@ -135,30 +135,26 @@ namespace System.CommandLine.Generator.Tests
             InvocationContext? boundInvocationContext = null;
             IConsole? boundConsole = null;
             ParseResult? boundParseResult = null;
-            HelpBuilder? boundHelpBuilder = null;
 
             void Execute(
                 InvocationContext invocationContext,
                 IConsole console,
-                ParseResult parseResult,
-                HelpBuilder helpBuilder)
+                ParseResult parseResult)
             {
                 boundInvocationContext = invocationContext;
                 boundConsole = console;
                 boundParseResult = parseResult;
-                boundHelpBuilder = helpBuilder;
             }
 
             var command = new Command("command");
 
-            command.SetHandler<Action<InvocationContext, IConsole, ParseResult, HelpBuilder>>(Execute);
+            command.SetHandler<Action<InvocationContext, IConsole, ParseResult>>(Execute);
 
             await command.InvokeAsync("command", _console);
 
             boundInvocationContext.Should().NotBeNull();
             boundConsole.Should().Be(_console);
             boundParseResult.Should().NotBeNull();
-            boundHelpBuilder.Should().NotBeNull();
         }
 
         [Fact]

@@ -270,17 +270,18 @@ namespace System.CommandLine.Tests
                 argument
             };
 
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseHelp(ctx =>
-                         {
-                             ctx.HelpBuilder.CustomizeSymbol(subcommand, secondColumnText: "The custom command description");
-                             ctx.HelpBuilder.CustomizeSymbol(option, secondColumnText: "The custom option description");
-                             ctx.HelpBuilder.CustomizeSymbol(argument, secondColumnText: "The custom argument description");
-                         })
-                         .Build();
-
             var console = new TestConsole();
-            config.Invoke("-h", console);
+
+            ParseResult parseResult = rootCommand.Parse("-h");
+
+            if (parseResult.Action is HelpAction helpAction)
+            { 
+                helpAction.Builder.CustomizeSymbol(subcommand, secondColumnText: "The custom command description");
+                helpAction.Builder.CustomizeSymbol(option, secondColumnText: "The custom option description");
+                helpAction.Builder.CustomizeSymbol(argument, secondColumnText: "The custom argument description");
+            }
+
+            parseResult.Invoke(console);
 
             console.Out
                    .ToString()
@@ -294,11 +295,19 @@ namespace System.CommandLine.Tests
         public void Help_sections_can_be_replaced()
         {
             var config = new CommandLineBuilder(new RootCommand())
-                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout))
+                         .UseHelp()
                          .Build();
 
             var console = new TestConsole();
-            config.Invoke("-h", console);
+
+            ParseResult parseResult = config.RootCommand.Parse("-h");
+
+            if (parseResult.Action is HelpAction helpAction)
+            {
+                helpAction.Builder.CustomizeLayout(CustomLayout);
+            }
+
+            parseResult.Invoke(console);
 
             console.Out.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}{NewLine}");
 
@@ -315,11 +324,18 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand("hello");
             var config = new CommandLineBuilder(command)
-                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout))
+                         .UseHelp()
                          .Build();
 
+            ParseResult parseResult = config.RootCommand.Parse("-h");
+
+            if (parseResult.Action is HelpAction helpAction)
+            {
+                helpAction.Builder.CustomizeLayout(CustomLayout);
+            }
+
             var console = new TestConsole();
-            config.Invoke("-h", console);
+            parseResult.Invoke(console);
 
             var output = console.Out.ToString();
             var defaultHelp = GetDefaultHelp(command);
@@ -344,33 +360,37 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Layout_can_be_composed_dynamically_based_on_context()
         {
+            HelpBuilder helpBuilder = new();
             var commandWithTypicalHelp = new Command("typical");
             var commandWithCustomHelp = new Command("custom");
             var command = new RootCommand
             {
                 commandWithTypicalHelp,
-                commandWithCustomHelp
+                commandWithCustomHelp,
+                new HelpOption()
+                {
+                    Action = new HelpAction()
+                    {
+                        Builder = helpBuilder
+                    }
+                }
             };
 
-            var config = new CommandLineBuilder(command)
-                         .UseHelp(
-                             ctx =>
-                                 ctx.HelpBuilder
-                                    .CustomizeLayout(c =>
-                                                         c.Command == commandWithTypicalHelp
-                                                             ? HelpBuilder.Default.GetLayout()
-                                                             : new Action<HelpContext>[]
-                                                                 {
-                                                                     c => c.Output.WriteLine("Custom layout!")
-                                                                 }
-                                                                 .Concat(HelpBuilder.Default.GetLayout())))
-                         .Build();
+            var config = new CommandLineBuilder(command).Build();
+            helpBuilder.CustomizeLayout(c =>
+                c.Command == commandWithTypicalHelp
+                    ? HelpBuilder.Default.GetLayout()
+                    : new Action<HelpContext>[]
+                        {
+                            c => c.Output.WriteLine("Custom layout!")
+                        }
+                        .Concat(HelpBuilder.Default.GetLayout()));
 
             var typicalOutput = new TestConsole();
-            config.Invoke("typical -h", typicalOutput);
+            command.Parse("typical -h", config).Invoke(typicalOutput);
 
             var customOutput = new TestConsole();
-            config.Invoke("custom -h", customOutput);
+            command.Parse("custom -h", config).Invoke(customOutput);
 
             typicalOutput.Out.ToString().Should().Be(GetDefaultHelp(commandWithTypicalHelp, false));
             customOutput.Out.ToString().Should().Be($"Custom layout!{NewLine}{NewLine}{GetDefaultHelp(commandWithCustomHelp, false)}");
@@ -413,11 +433,20 @@ namespace System.CommandLine.Tests
         public void Help_customized_sections_can_be_wrapped()
         {
             var config = new CommandLineBuilder(new RootCommand())
-                         .UseHelp(ctx => ctx.HelpBuilder.CustomizeLayout(CustomLayout), maxWidth: 10)
+                         .UseHelp()
                          .Build();
 
             var console = new TestConsole();
-            config.Invoke("-h", console);
+
+            ParseResult parseResult = config.RootCommand.Parse("-h");
+
+            if (parseResult.Action is HelpAction helpAction)
+            {
+                helpAction.Builder = new HelpBuilder(10);
+                helpAction.Builder.CustomizeLayout(CustomLayout);
+            }
+
+            parseResult.Invoke(console);
 
             string result = console.Out.ToString();
             result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}{NewLine}");

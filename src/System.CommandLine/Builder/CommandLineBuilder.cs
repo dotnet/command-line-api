@@ -35,8 +35,6 @@ namespace System.CommandLine
         // (because each struct is of a different size)
         // that is why we don't use List<ValueTuple> for middleware
         private List<Tuple<InvocationMiddleware, int>>? _middlewareList;
-        private Action<HelpContext>? _customizeHelpBuilder;
-        private Func<InvocationContext, HelpBuilder>? _helpBuilderFactory;
 
         /// <param name="rootCommand">The root command of the application.</param>
         public CommandLineBuilder(Command rootCommand)
@@ -49,33 +47,9 @@ namespace System.CommandLine
         /// </summary>
         public Command Command { get; }
 
-        internal void CustomizeHelpLayout(Action<HelpContext> customize) => 
-            _customizeHelpBuilder = customize;
-
-        internal void UseHelpBuilderFactory(Func<InvocationContext, HelpBuilder> factory) =>
-            _helpBuilderFactory = factory;
-
-        private Func<InvocationContext, HelpBuilder> GetHelpBuilderFactory()
-        {
-            return CreateHelpBuilder;
-
-            HelpBuilder CreateHelpBuilder(InvocationContext invocationContext)
-            {
-                var helpBuilder = _helpBuilderFactory is { }
-                                             ? _helpBuilderFactory(invocationContext)
-                                             : CommandLineConfiguration.DefaultHelpBuilderFactory(invocationContext, MaxHelpWidth);
-
-                helpBuilder.OnCustomize = _customizeHelpBuilder;
-
-                return helpBuilder;
-            }
-        }
-
         internal HelpOption? HelpOption;
 
         internal VersionOption? VersionOption;
-
-        internal int? MaxHelpWidth;
 
         internal TryReplaceToken? TokenReplacer;
 
@@ -100,7 +74,6 @@ namespace System.CommandLine
                 middlewarePipeline: _middlewareList is null
                                         ? Array.Empty<InvocationMiddleware>()
                                         : GetMiddleware(),
-                helpBuilderFactory: GetHelpBuilderFactory(),
                 tokenReplacer: TokenReplacer);
 
         private IReadOnlyList<InvocationMiddleware> GetMiddleware()
