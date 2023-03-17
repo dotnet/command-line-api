@@ -10,38 +10,32 @@ namespace System.CommandLine
     /// </summary>
     public static class ConsoleExtensions
     {
-        private static bool? _isConsoleRedirectionCheckSupported;
+        private static bool? _colorsAreSupported;
 
-        private static bool IsConsoleRedirectionCheckSupported
+        private static bool ColorsAreSupported
         {
             get
             {
-                if (_isConsoleRedirectionCheckSupported is null)
+                if (_colorsAreSupported is null)
                 {
                     try
                     {
-                        var check = Console.IsOutputRedirected;
-                        _isConsoleRedirectionCheckSupported = true;
+                        _colorsAreSupported = !Console.IsOutputRedirected;
                     }
 
                     catch (PlatformNotSupportedException)
                     {
-                        _isConsoleRedirectionCheckSupported = false;
+                        _colorsAreSupported = false;
                     }
                 }
 
-                return _isConsoleRedirectionCheckSupported.Value;
+                return _colorsAreSupported.Value;
             }
         }
 
         internal static void SetTerminalForegroundRed()
         {
-            if (IsConsoleRedirectionCheckSupported &&
-                !Console.IsOutputRedirected)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-            }
-            else if (IsConsoleRedirectionCheckSupported)
+            if (ColorsAreSupported)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
             }
@@ -49,12 +43,7 @@ namespace System.CommandLine
 
         internal static void ResetTerminalForegroundColor()
         {
-            if (IsConsoleRedirectionCheckSupported &&
-                !Console.IsOutputRedirected)
-            {
-                Console.ResetColor();
-            }
-            else if (IsConsoleRedirectionCheckSupported)
+            if (ColorsAreSupported)
             {
                 Console.ResetColor();
             }
