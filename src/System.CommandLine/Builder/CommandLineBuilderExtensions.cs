@@ -115,13 +115,13 @@ namespace System.CommandLine
             {
                 if (exception is not OperationCanceledException)
                 {
-                    context.Console.ResetTerminalForegroundColor();
-                    context.Console.SetTerminalForegroundRed();
+                    ConsoleExtensions.ResetTerminalForegroundColor();
+                    ConsoleExtensions.SetTerminalForegroundRed();
 
                     context.Console.Error.Write(LocalizationResources.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
-                    context.Console.ResetTerminalForegroundColor();
+                    ConsoleExtensions.ResetTerminalForegroundColor();
                 }
                 return errorExitCode;
             }
