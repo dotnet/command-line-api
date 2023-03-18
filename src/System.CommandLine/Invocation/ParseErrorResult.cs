@@ -12,8 +12,8 @@ namespace System.CommandLine.Invocation
     {
         public override int Invoke(InvocationContext context)
         {
-            context.Console.ResetTerminalForegroundColor();
-            context.Console.SetTerminalForegroundRed();
+            ConsoleHelpers.ResetTerminalForegroundColor();
+            ConsoleHelpers.SetTerminalForegroundRed();
 
             foreach (var error in context.ParseResult.Errors)
             {
@@ -22,7 +22,7 @@ namespace System.CommandLine.Invocation
 
             context.Console.Error.WriteLine();
 
-            context.Console.ResetTerminalForegroundColor();
+            ConsoleHelpers.ResetTerminalForegroundColor();
 
             new HelpOption().Action!.Invoke(context);
 
