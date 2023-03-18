@@ -11,10 +11,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public string[] Args { get; set; }
 
         [Benchmark]
-        public int DefaultsSync() => BuildCommand().Invoke(Args);
+        public int DefaultsSync() => BuildCommand().Parse(Args).Invoke();
 
         [Benchmark]
-        public Task<int> DefaultsAsync() => BuildCommand().InvokeAsync(Args);
+        public Task<int> DefaultsAsync() => BuildCommand().Parse(Args).InvokeAsync();
 
         [Benchmark]
         public int MinimalSync() => new CommandLineBuilder(BuildCommand()).Build().Invoke(Args);

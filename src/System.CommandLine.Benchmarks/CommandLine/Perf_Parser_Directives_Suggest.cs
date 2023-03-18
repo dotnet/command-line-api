@@ -14,14 +14,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Directives_Suggest
     {
-        private NullConsole _nullConsole;
         private CommandLineConfiguration _configuration;
 
         [GlobalSetup]
         public void Setup()
         {
-            _nullConsole = new NullConsole();
-
             Option<string> fruitOption = new("--fruit");
             fruitOption.CompletionSources.Add("apple", "banana", "cherry");
 
@@ -37,6 +34,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _configuration = new CommandLineBuilder(eatCommand)
                 .UseSuggestDirective()
                 .Build();
+            _configuration.Out = System.IO.TextWriter.Null;
         }
 
         [Params(
@@ -47,7 +45,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         [Benchmark]
         public Task InvokeSuggest()
-            => _configuration.InvokeAsync(TestCmdArgs, _nullConsole);
+            => _configuration.InvokeAsync(TestCmdArgs);
 
     }
 }

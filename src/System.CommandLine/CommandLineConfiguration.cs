@@ -2,14 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
-using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
 
 namespace System.CommandLine
 {
@@ -18,6 +16,8 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
+        private TextWriter? _output, _error;
+
         /// <summary>
         /// A delegate that will be called when an exception is thrown by a command handler.
         /// </summary>
@@ -128,34 +128,57 @@ namespace System.CommandLine
         public Command RootCommand { get; }
 
         /// <summary>
+        /// The standard output. Used by Help and other facilities that write non-error information.
+        /// By default it's set to <see cref="Console.Out"/>.
+        /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
+        /// If you want to disable the output, please set it to <see cref="TextWriter.Null"/>.
+        /// </summary>
+        public TextWriter Out
+        { 
+            get => _output ??= Console.Out;
+            set => _output = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
+        }
+
+        /// <summary>
+        /// The standard error. Used for printing error information like parse errors.
+        /// By default it's set to <see cref="Console.Error"/>.
+        /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
+        /// </summary>
+        public TextWriter Error
+        {
+            get => _error ??= Console.Error;
+            set => _error = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
+        }
+
+        /// <summary>
         /// Parses a command line string value and invokes the handler for the indicated command.
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
-        public int Invoke(string commandLine, IConsole? console = null)
-            => RootCommand.Parse(commandLine, this).Invoke(console);
+        public int Invoke(string commandLine)
+            => RootCommand.Parse(commandLine, this).Invoke();
 
         /// <summary>
         /// Parses a command line string array and invokes the handler for the indicated command.
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
-        public int Invoke(string[] args, IConsole? console = null)
-            => RootCommand.Parse(args, this).Invoke(console);
+        public int Invoke(string[] args)
+            => RootCommand.Parse(args, this).Invoke();
 
         /// <summary>
         /// Parses a command line string value and invokes the handler for the indicated command.
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
-        public Task<int> InvokeAsync(string commandLine, IConsole? console = null, CancellationToken cancellationToken = default)
-            => RootCommand.Parse(commandLine, this).InvokeAsync(console, cancellationToken);
+        public Task<int> InvokeAsync(string commandLine, CancellationToken cancellationToken = default)
+            => RootCommand.Parse(commandLine, this).InvokeAsync(cancellationToken);
 
         /// <summary>
         /// Parses a command line string array and invokes the handler for the indicated command.
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>
-        public Task<int> InvokeAsync(string[] args, IConsole? console = null, CancellationToken cancellationToken = default)
-            => RootCommand.Parse(args, this).InvokeAsync(console, cancellationToken);
+        public Task<int> InvokeAsync(string[] args, CancellationToken cancellationToken = default)
+            => RootCommand.Parse(args, this).InvokeAsync(cancellationToken);
 
         /// <summary>
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.CommandLine.Rendering.Views;
 using System.CommandLine.Tests.Utility;
@@ -18,22 +19,21 @@ namespace System.CommandLine.Rendering.Tests
         public void Views_can_be_used_for_specific_types()
         {
             ParseResult parseResult = null;
-
-            var command = new RootCommand();
-            command.SetAction(ctx =>
-            {
-                parseResult = ctx.ParseResult;
-                ctx.Console.Append(new ParseResultView(parseResult));
-            });
-
-            var config = new CommandLineBuilder(command).Build();
-
             var terminal = new TestTerminal
             {
                 IsAnsiTerminal = false
             };
 
-            config.Invoke("", terminal);
+            var command = new RootCommand();
+            command.SetAction(ctx =>
+            {
+                parseResult = ctx.ParseResult;
+                terminal.Append(new ParseResultView(parseResult));
+            });
+
+            var config = new CommandLineBuilder(command).Build();
+
+            config.Invoke("");
 
             terminal.Out.ToString().Should().Contain(parseResult.Diagram());
         }

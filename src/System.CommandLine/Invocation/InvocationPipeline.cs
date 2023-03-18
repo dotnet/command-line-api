@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,14 +8,14 @@ namespace System.CommandLine.Invocation
 {
     internal static class InvocationPipeline
     {
-        internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console, CancellationToken cancellationToken)
+        internal static async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken)
         {
             if (parseResult.Action is null)
             {
                 return 0;
             }
 
-            InvocationContext context = new (parseResult, console);
+            InvocationContext context = new (parseResult);
             ProcessTerminationHandler? terminationHandler = null;
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
@@ -50,14 +49,14 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        internal static int Invoke(ParseResult parseResult, IConsole? console = null)
+        internal static int Invoke(ParseResult parseResult)
         {
             if (parseResult.Action is null)
             {
                 return 0;
             }
 
-            InvocationContext context = new (parseResult, console);
+            InvocationContext context = new (parseResult);
 
             try
             {

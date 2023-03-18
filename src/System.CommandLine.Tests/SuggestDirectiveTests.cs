@@ -1,8 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
+using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -40,14 +39,13 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse($"[suggest:13] \"eat --fruit\"", config);
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
@@ -64,14 +62,13 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse($"[suggest:8] \"--fruit\"", config);
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
@@ -86,14 +83,13 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse(commandLine, config);
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"--fruit{NewLine}--vegetable{NewLine}");
@@ -114,14 +110,12 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse(input, config);
+            await result.InvokeAsync();
 
-            var console = new TestConsole();
-
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"--fruit{NewLine}--vegetable{NewLine}");
@@ -134,14 +128,12 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse("[suggest]", config);
+            await result.InvokeAsync();
 
-            var console = new TestConsole();
-
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"eat{NewLine}");
@@ -158,14 +150,13 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse($"[suggest:1] \"f\"", config);
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"--fruit{NewLine}");
@@ -182,14 +173,13 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseSuggestDirective()
                          .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse("[suggest:1] \"d\"", config);
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"wash-dishes{NewLine}");
@@ -207,14 +197,13 @@ namespace System.CommandLine.Tests
                           .UseSuggestDirective()
                           .UseVersionOption()
                           .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse("[suggest:5] \"--ver\"", config);
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"--version{NewLine}");
@@ -232,12 +221,11 @@ namespace System.CommandLine.Tests
                           })
                           .UseSuggestDirective()
                           .Build();
+            config.Out = new StringWriter();
 
-            var console = new TestConsole();
+            await config.InvokeAsync("[suggest:3] \"opt\"");
 
-            await config.InvokeAsync("[suggest:3] \"opt\"", console);
-
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .Be($"--option1{NewLine}--option2{NewLine}");
@@ -250,14 +238,16 @@ namespace System.CommandLine.Tests
             {
                 new Option<bool>("--bool-option")
             };
-
-            var console = new TestConsole();
+            var config = new CommandLineConfiguration(command)
+            {
+                Out = new StringWriter()
+            };
 
             var commandLine = "--bool-option false";
 
-            await command.InvokeAsync($"[suggest:{commandLine.Length + 1}] \"{commandLine}\"", console);
+            await command.Parse($"[suggest:{commandLine.Length + 1}] \"{commandLine}\"", config).InvokeAsync();
 
-            console.Out
+            config.Out
                    .ToString()
                    .Should()
                    .NotContain("--bool-option");

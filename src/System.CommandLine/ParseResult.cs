@@ -288,18 +288,16 @@ namespace System.CommandLine
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
-        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
         /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
         /// <returns>A task whose result can be used as a process exit code.</returns>
-        public Task<int> InvokeAsync(IConsole? console = null, CancellationToken cancellationToken = default)
-            => InvocationPipeline.InvokeAsync(this, console, cancellationToken);
+        public Task<int> InvokeAsync(CancellationToken cancellationToken = default)
+            => InvocationPipeline.InvokeAsync(this, cancellationToken);
 
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
-        /// <param name="console">A console to which output can be written. By default, <see cref="System.Console"/> is used.</param>
         /// <returns>A value that can be used as a process exit code.</returns>
-        public int Invoke(IConsole? console = null) => InvocationPipeline.Invoke(this, console);
+        public int Invoke() => InvocationPipeline.Invoke(this);
 
         /// <summary>
         /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action

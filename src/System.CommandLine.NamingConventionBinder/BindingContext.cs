@@ -32,11 +32,6 @@ namespace System.CommandLine.Binding
         
         internal HelpBuilder HelpBuilder => _helpBuilder ??= (HelpBuilder)ServiceProvider.GetService(typeof(HelpBuilder))!;
 
-        /// <summary>
-        /// The console to which output should be written during the current invocation.
-        /// </summary>
-        public IConsole Console => InvocationContext.Console;
-
         internal ServiceProvider ServiceProvider { get; }
 
         /// <inheritdoc />

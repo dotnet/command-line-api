@@ -1,8 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -24,12 +23,11 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineBuilder(new RootCommand())
                          .UseVersionOption()
                          .Build();
+            configuration.Out = new StringWriter();
 
-            var console = new TestConsole();
+            await configuration.InvokeAsync("--version");
 
-            await configuration.InvokeAsync("--version", console);
-
-            console.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -42,10 +40,9 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseVersionOption()
                          .Build();
+            config.Out = new StringWriter();
 
-            var console = new TestConsole();
-
-            await config.InvokeAsync("--version", console);
+            await config.InvokeAsync("--version");
 
             wasCalled.Should().BeFalse();
         }
@@ -57,12 +54,11 @@ namespace System.CommandLine.Tests
                          .UseHelp()
                          .UseVersionOption()
                          .Build();
+            configuration.Out = new StringWriter();
 
-            var console = new TestConsole();
+            await configuration.InvokeAsync("--help");
 
-            await configuration.InvokeAsync("--help", console);
-
-            console.Out
+            configuration.Out
                    .ToString()
                    .Should()
                    .Match("*Options:*--version*Show version information*");
@@ -83,12 +79,11 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
                 .Build();
+            configuration.Out = new StringWriter();
 
-            var console = new TestConsole();
+            await configuration.InvokeAsync("--version");
 
-            await configuration.InvokeAsync("--version", console);
-
-            console.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -103,12 +98,11 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
                 .Build();
+            configuration.Out = new StringWriter();
 
-            var console = new TestConsole();
+            await configuration.InvokeAsync("--version");
 
-            await configuration.InvokeAsync("--version", console);
-
-            console.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Theory]
@@ -170,12 +164,11 @@ namespace System.CommandLine.Tests
                          .UseVersionOption()
                          .UseVersionOption()
                          .Build();
+            configuration.Out = new StringWriter();
 
-            var console = new TestConsole();
+            await configuration.InvokeAsync("--version");
 
-            await configuration.InvokeAsync("--version", console);
-
-            console.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -184,14 +177,14 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineBuilder(new RootCommand())
                          .UseVersionOption("-v", "-version")
                          .Build();
+            configuration.Out = new StringWriter();
 
-            var console = new TestConsole();
-            await configuration.InvokeAsync("-v", console);
-            console.Out.ToString().Should().Be($"{version}{NewLine}");
+            await configuration.InvokeAsync("-v");
+            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
 
-            console = new TestConsole();
-            await configuration.InvokeAsync("-version", console);
-            console.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Out = new StringWriter();
+            await configuration.InvokeAsync("-version");
+            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]

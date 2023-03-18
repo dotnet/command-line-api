@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Help;
-using System.Threading;
 
 namespace System.CommandLine.Invocation
 {
@@ -17,7 +15,6 @@ namespace System.CommandLine.Invocation
             _services = new Dictionary<Type, Func<IServiceProvider, object?>>
                         {
                             [typeof(ParseResult)] = _ => bindingContext.ParseResult,
-                            [typeof(IConsole)] = _ => bindingContext.Console,
                             [typeof(BindingContext)] = _ => bindingContext
                         };
         }

@@ -63,7 +63,6 @@ namespace System.CommandLine.Hosting.Tests
             InvocationContext invocationContext = null;
             BindingContext bindingContext = null;
             ParseResult parseResult = null;
-            IConsole console = null;
 
             void Execute(IHost host)
             {
@@ -71,7 +70,6 @@ namespace System.CommandLine.Hosting.Tests
                 invocationContext = services.GetRequiredService<InvocationContext>();
                 bindingContext = services.GetRequiredService<BindingContext>();
                 parseResult = services.GetRequiredService<ParseResult>();
-                console = services.GetRequiredService<IConsole>();
             }
 
             var config = new CommandLineBuilder(
@@ -85,7 +83,6 @@ namespace System.CommandLine.Hosting.Tests
             invocationContext.Should().NotBeNull();
             bindingContext.Should().NotBeNull();
             parseResult.Should().NotBeNull();
-            console.Should().NotBeNull();
         }
 
         [Fact]

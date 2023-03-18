@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -31,7 +29,7 @@ namespace System.CommandLine.Suggest
             };
             CompleteScriptCommand.SetAction(context =>
             {
-                SuggestionShellScriptHandler.Handle(context.Console, context.ParseResult.GetValue(shellTypeArgument));
+                SuggestionShellScriptHandler.Handle(context.ParseResult.Configuration.Out, context.ParseResult.GetValue(shellTypeArgument));
             });
 
             ListCommand = new Command("list")
@@ -40,7 +38,7 @@ namespace System.CommandLine.Suggest
             };
             ListCommand.SetAction((ctx, cancellationToken) =>
             {
-                ctx.Console.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
+                ctx.ParseResult.Configuration.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
                 return Task.CompletedTask;
             });
 
@@ -61,7 +59,7 @@ namespace System.CommandLine.Suggest
 
             RegisterCommand.SetAction((context, cancellationToken) =>
             {
-                Register(context.ParseResult.GetValue(commandPathOption), context.Console);
+                Register(context.ParseResult.GetValue(commandPathOption), context.ParseResult.Configuration.Out);
                 return Task.CompletedTask;
             });
 
@@ -111,12 +109,11 @@ namespace System.CommandLine.Suggest
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
-        public Task<int> InvokeAsync(string[] args, IConsole console = null) =>
-            Configuration.InvokeAsync(args, console);
+        public Task<int> InvokeAsync(string[] args) => Configuration.InvokeAsync(args);
 
         private void Register(
             string commandPath,
-            IConsole console)
+            TextWriter output)
         {
             var existingRegistration = _suggestionRegistration.FindRegistration(new FileInfo(commandPath));
 
@@ -125,11 +122,11 @@ namespace System.CommandLine.Suggest
                 _suggestionRegistration.AddSuggestionRegistration(
                     new Registration(commandPath));
 
-                console.Out.WriteLine($"Registered {commandPath}");
+                output.WriteLine($"Registered {commandPath}");
             }
             else
             {
-                console.Out.WriteLine($"Registered {commandPath}");
+                output.WriteLine($"Registered {commandPath}");
             }
         }
 
@@ -179,7 +176,7 @@ namespace System.CommandLine.Suggest
             Program.LogDebug($"dotnet-suggest returning: \"{completions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
 #endif
 
-            context.Console.Out.Write(completions);
+            context.ParseResult.Configuration.Out.Write(completions);
 
             return Task.FromResult(0);
         }

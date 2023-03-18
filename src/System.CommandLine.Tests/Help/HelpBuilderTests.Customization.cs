@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Help;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -100,14 +98,16 @@ namespace System.CommandLine.Tests.Help
                     }
                 });
 
-                var console = new TestConsole();
+                var console = new StringWriter();
                 var config = CommandLineConfiguration.CreateBuilder(command).Build();
-                command.Parse("root a -h", config).Invoke(console);
-                console.Out.ToString().Should().Contain(optionAFirstColumnText);
+                config.Out = console;
+                command.Parse("root a -h", config).Invoke();
+                console.ToString().Should().Contain(optionAFirstColumnText);
 
-                console = new TestConsole();
-                command.Parse("root b -h", config).Invoke(console);
-                console.Out.ToString().Should().Contain(optionBFirstColumnText);
+                console = new StringWriter();
+                config.Out = console;
+                command.Parse("root b -h", config).Invoke();
+                console.ToString().Should().Contain(optionBFirstColumnText);
             }
 
             [Fact]
@@ -145,13 +145,13 @@ namespace System.CommandLine.Tests.Help
                 var config = new CommandLineBuilder(command)
                              .Build();
 
-                var console = new TestConsole();
-                config.Invoke("root a -h", console);
-                console.Out.ToString().Should().Contain($"option          {optionADescription}");
+                config.Out = new StringWriter();
+                config.Invoke("root a -h");
+                config.Out.ToString().Should().Contain($"option          {optionADescription}");
 
-                console = new TestConsole();
-                config.Invoke("root b -h", console);
-                console.Out.ToString().Should().Contain($"option          {optionBDescription}");
+                config.Out = new StringWriter();
+                config.Invoke("root b -h");
+                config.Out.ToString().Should().Contain($"option          {optionBDescription}");
             }
 
             [Fact]
@@ -270,9 +270,11 @@ namespace System.CommandLine.Tests.Help
                     }
                 });
 
-                var console = new TestConsole();
-                command.Parse("test -h", new CommandLineBuilder(command).Build()).Invoke(console);
-                console.Out.ToString().Should().MatchRegex(expected);
+                CommandLineConfiguration config = new CommandLineBuilder(command).Build();
+                var console = new StringWriter();
+                config.Out = console;
+                command.Parse("test -h", config).Invoke();
+                console.ToString().Should().MatchRegex(expected);
             }
 
             [Theory]
@@ -316,9 +318,9 @@ namespace System.CommandLine.Tests.Help
                     }
                 });
 
-                var console = new TestConsole();
-                command.Parse("test -h", config).Invoke(console);
-                console.Out.ToString().Should().MatchRegex(expected);
+                config.Out = new StringWriter();
+                command.Parse("test -h", config).Invoke();
+                config.Out.ToString().Should().MatchRegex(expected);
             }
         }
     }

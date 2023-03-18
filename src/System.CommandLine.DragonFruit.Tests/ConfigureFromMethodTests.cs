@@ -3,8 +3,6 @@
 
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Binding;
 using System.CommandLine.Tests.Utility;
 using System.IO;
@@ -20,7 +18,6 @@ namespace System.CommandLine.DragonFruit.Tests
     public class ConfigureFromMethodTests
     {
         private object[] _receivedValues;
-        private readonly TestConsole _testConsole = new();
 
         [Fact]
         public async Task Generated_boolean_parameters_will_accept_zero_arguments()
@@ -29,8 +26,9 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_taking_bool)), this)
                          .Build();
+            config.Out = TextWriter.Null;
 
-            await config.InvokeAsync($"{RootCommand.ExecutableName} --value", _testConsole);
+            await config.InvokeAsync($"{RootCommand.ExecutableName} --value");
 
             _receivedValues.Should().BeEquivalentTo(true);
         }
@@ -48,8 +46,9 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_taking_bool)), this)
                          .Build();
+            config.Out = TextWriter.Null;
 
-            await config.InvokeAsync(commandLine, _testConsole);
+            await config.InvokeAsync(commandLine);
 
             _receivedValues.Should().BeEquivalentTo(expected);
         }
@@ -61,8 +60,9 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_with_single_letter_parameters)), this)
                          .Build();
+            config.Out = TextWriter.Null;
 
-            await config.InvokeAsync("-x 123 -y 456", _testConsole);
+            await config.InvokeAsync("-x 123 -y 456");
 
             _receivedValues.Should()
                            .BeEquivalentSequenceTo(123, 456);
@@ -172,8 +172,9 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_void)), this)
                          .Build();
+            config.Out = TextWriter.Null;
 
-            var result = await config.InvokeAsync("", _testConsole);
+            var result = await config.InvokeAsync("");
 
             result.Should().Be(0);
         }
@@ -185,8 +186,9 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_int)), this)
                          .Build();
+            config.Out = TextWriter.Null;
 
-            var result = await config.InvokeAsync("-i 123", _testConsole);
+            var result = await config.InvokeAsync("-i 123");
 
             result.Should().Be(123);
         }
@@ -198,14 +200,14 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_Task_of_int)), this)
                          .Build();
+            config.Out = TextWriter.Null;
 
-            var result = await config.InvokeAsync("-i 123", _testConsole);
+            var result = await config.InvokeAsync("-i 123");
 
             result.Should().Be(123);
         }
 
         [Theory]
-        [InlineData(typeof(IConsole))]
         [InlineData(typeof(InvocationContext))]
         [InlineData(typeof(BindingContext))]
         [InlineData(typeof(ParseResult))]
@@ -228,7 +230,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var command = new Command("test");
             command.ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this);
 
-            await command.InvokeAsync("--value");
+            await command.Parse("--value").InvokeAsync();
 
             _receivedValues.Should().BeEquivalentTo(true);
         }
@@ -239,7 +241,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var command = new Command("test");
             command.ConfigureFromMethod(GetMethodInfo(nameof(Method_with_multiple_default_values)), this);
 
-            await command.InvokeAsync("");
+            await command.Parse("").InvokeAsync();
 
             _receivedValues.Should().BeEquivalentTo(1, 2);
         }

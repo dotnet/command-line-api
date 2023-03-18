@@ -530,7 +530,7 @@ public class ModelBinderTests
         };
         rootCommand.Action = CommandHandler.Create<string[]>(Handler);
         string[] passedNames = null;
-        await rootCommand.InvokeAsync("");
+        await rootCommand.Parse("").InvokeAsync();
 
         passedNames.Should().BeEmpty();
 
@@ -550,7 +550,7 @@ public class ModelBinderTests
         };
         rootCommand.Action = CommandHandler.Create<IEnumerable<string>>(Handler);
         IEnumerable<string> passedNames = null;
-        await rootCommand.InvokeAsync("");
+        await rootCommand.Parse("").InvokeAsync();
 
         passedNames.Should().BeEmpty();
 
@@ -570,7 +570,7 @@ public class ModelBinderTests
         };
         rootCommand.Action = CommandHandler.Create<string[]>(Handler);
         string[] passedNames = null;
-        await rootCommand.InvokeAsync("");
+        await rootCommand.Parse("").InvokeAsync();
 
         passedNames.Should().BeEmpty();
 
@@ -590,7 +590,7 @@ public class ModelBinderTests
         };
         rootCommand.Action = CommandHandler.Create<IEnumerable<string>>(Handler);
         IEnumerable<string> passedNames = null;
-        await rootCommand.InvokeAsync("");
+        await rootCommand.Parse("").InvokeAsync();
 
         passedNames.Should().BeEmpty();
 
@@ -640,7 +640,7 @@ public class ModelBinderTests
             (ClassWithOnePropertyNameThatIsSubstringOfAnother s) => { boundValue = s; }
         );
 
-        command.Invoke(new[] { "--abc", "1" });
+        command.Parse(new[] { "--abc", "1" }).Invoke();
 
         boundValue.Abc
                   .Should()
@@ -678,7 +678,7 @@ public class ModelBinderTests
         };
         rootCommand.Action = CommandHandler.Create((ComplexType options) => { receivedValue = options.OptDecimal; });
 
-        await rootCommand.InvokeAsync("");
+        await rootCommand.Parse("").InvokeAsync();
 
         receivedValue.Should().Be(0);
     }
@@ -711,7 +711,7 @@ public class ModelBinderTests
             return 0;
         });
 
-        rootCommand.Invoke("-1 value");
+        rootCommand.Parse("-1 value").Invoke();
 
         boundOptions.Bundle.Should().Be(null);
         boundOptions.BundleId.Should().Be("value");
@@ -775,7 +775,7 @@ public class ModelBinderTests
             handlerWasCalled = true;
         });
 
-        root.Invoke(commandLine);
+        root.Parse(commandLine).Invoke();
 
         handlerWasCalled.Should().BeTrue();
     }

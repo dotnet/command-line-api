@@ -1,10 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading;
 
@@ -118,8 +116,8 @@ namespace System.CommandLine
                     ConsoleHelpers.ResetTerminalForegroundColor();
                     ConsoleHelpers.SetTerminalForegroundRed();
 
-                    context.Console.Error.Write(LocalizationResources.ExceptionHandlerHeader());
-                    context.Console.Error.WriteLine(exception.ToString());
+                    context.ParseResult.Configuration.Error.Write(LocalizationResources.ExceptionHandlerHeader());
+                    context.ParseResult.Configuration.Error.WriteLine(exception.ToString());
 
                     ConsoleHelpers.ResetTerminalForegroundColor();
                 }

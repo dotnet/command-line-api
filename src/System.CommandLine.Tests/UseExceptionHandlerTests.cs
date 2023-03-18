@@ -1,8 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
+using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -11,8 +10,6 @@ namespace System.CommandLine.Tests
 {
     public class UseExceptionHandlerTests
     {
-        private readonly TestConsole _console = new();
-
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
@@ -26,7 +23,7 @@ namespace System.CommandLine.Tests
                          .UseExceptionHandler()
                          .Build();
 
-            var resultCode = await config.InvokeAsync("the-command", _console);
+            var resultCode = await config.InvokeAsync("the-command");
 
             resultCode.Should().Be(1);
         }
@@ -43,10 +40,11 @@ namespace System.CommandLine.Tests
                          })
                          .UseExceptionHandler()
                          .Build();
+            config.Error = new StringWriter();
 
-            await config.InvokeAsync("the-command", _console);
+            await config.InvokeAsync("the-command");
 
-            _console.Error.ToString().Should().Contain("System.Exception: oops!");
+            config.Error.ToString().Should().Contain("System.Exception: oops!");
         }
 
         [Fact]
@@ -55,12 +53,15 @@ namespace System.CommandLine.Tests
             Command command = new("the-command");
             command.SetAction((_, __) => throw new OperationCanceledException());
 
-            int resultCode = await new CommandLineBuilder(command)
+            var config = new CommandLineBuilder(command)
                                    .UseExceptionHandler()
-                                   .Build()
-                                   .InvokeAsync("the-command", _console);
+                                   .Build();
+            config.Out = new StringWriter();
 
-            _console.Out.ToString().Should().BeEmpty();
+            int resultCode = await config
+                                   .InvokeAsync("the-command");
+
+            config.Out.ToString().Should().BeEmpty();
             resultCode.Should().NotBe(0);
         }
 
@@ -70,16 +71,19 @@ namespace System.CommandLine.Tests
             Command command = new("the-command");
             command.SetAction((_, __) => throw new Exception("oops!"));
 
-            int resultCode = await new CommandLineBuilder(command)
+            var config = new CommandLineBuilder(command)
                                    .UseExceptionHandler((exception, context) =>
                                    {
-                                       context.Console.Out.Write("Well that's awkward.");
+                                       context.ParseResult.Configuration.Out.Write("Well that's awkward.");
                                        return 22;
                                    })
-                                   .Build()
-                                   .InvokeAsync("the-command", _console);
+                                   .Build();
+            config.Out = new StringWriter();
 
-            _console.Out.ToString().Should().Be("Well that's awkward.");
+            int resultCode = await config
+                                   .InvokeAsync("the-command");
+
+            config.Out.ToString().Should().Be("Well that's awkward.");
             resultCode.Should().Be(22);
         }
 
@@ -88,11 +92,12 @@ namespace System.CommandLine.Tests
         {
             Command command = new("the-command");
             command.SetAction((_, __) => throw new Exception("oops!"));
-
-            int resultCode = await new CommandLineBuilder(command)
+            var config = new CommandLineBuilder(command)
                                    .UseExceptionHandler(errorExitCode: 42)
-                                   .Build()
-                                   .InvokeAsync("the-command", _console);
+                                   .Build();
+
+            int resultCode = await config
+                                   .InvokeAsync("the-command");
 
             resultCode.Should().Be(42);
         }

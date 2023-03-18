@@ -3,6 +3,7 @@
 
 using System;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;
 using System.IO;
@@ -44,7 +45,7 @@ namespace RenderingPlayground
                                     height ?? Console.WindowHeight,
                                     overwrite);
             
-            var console = invocationContext.Console;
+            var console = new SystemConsole();
 
             if (overwrite && 
                 console is ITerminal terminal)

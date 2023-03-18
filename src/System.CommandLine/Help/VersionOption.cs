@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading;
@@ -61,7 +60,7 @@ namespace System.CommandLine.Help
         {
             public override int Invoke(InvocationContext context)
             {
-                context.Console.Out.WriteLine(RootCommand.ExecutableVersion);
+                context.ParseResult.Configuration.Out.WriteLine(RootCommand.ExecutableVersion);
                 return 0;
             }
 

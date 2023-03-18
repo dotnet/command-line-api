@@ -9,18 +9,14 @@ namespace System.CommandLine.Generator
 {
     internal class WellKnownTypes
     {
-        public INamedTypeSymbol Console { get; }
         public INamedTypeSymbol ParseResult { get; }
         public INamedTypeSymbol InvocationContext { get; }
-        public INamedTypeSymbol HelpBuilder { get; }
         public IEqualityComparer<ISymbol?> Comparer { get; }
 
         public WellKnownTypes(Compilation compilation, IEqualityComparer<ISymbol?> comparer)
         {
-            Console = GetType("System.CommandLine.IConsole");
             ParseResult = GetType("System.CommandLine.ParseResult");
             InvocationContext = GetType("System.CommandLine.Invocation.InvocationContext");
-            HelpBuilder = GetType("System.CommandLine.Help.HelpBuilder");
 
             INamedTypeSymbol GetType(string typeName)
                 => compilation.GetTypeByMetadataName(typeName)
@@ -33,12 +29,6 @@ namespace System.CommandLine.Generator
 
         internal bool TryGet(ISymbol symbol, out Parameter? parameter)
         {
-            if (Comparer.Equals(Console, symbol))
-            {
-                parameter = new ConsoleParameter(Console);
-                return true;
-            }
-
             if (Comparer.Equals(InvocationContext, symbol))
             {
                 parameter = new InvocationContextParameter(InvocationContext);

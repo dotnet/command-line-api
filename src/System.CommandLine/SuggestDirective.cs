@@ -1,6 +1,5 @@
 ﻿using System.CommandLine.Invocation;
 using System.Linq;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using System.Threading;
@@ -36,7 +35,7 @@ namespace System.CommandLine
 
                 var completions = completionParseResult.GetCompletions(position);
 
-                context.Console.Out.WriteLine(
+                context.ParseResult.Configuration.Out.WriteLine(
                     string.Join(
                         Environment.NewLine,
                         completions));

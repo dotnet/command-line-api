@@ -129,7 +129,6 @@ namespace System.CommandLine.Hosting.Tests
         public abstract class MyBaseHandler : CliAction
         {
             public int IntOption { get; set; } // bound from option
-            public IConsole Console { get; set; } // bound from DI
 
             public override int Invoke(InvocationContext context)
             {
@@ -161,7 +160,6 @@ namespace System.CommandLine.Hosting.Tests
                 }
 
                 public int IntOption { get; set; } // bound from option
-                public IConsole Console { get; set; } // bound from DI
 
                 public override int Invoke(InvocationContext context)
                 {
@@ -211,7 +209,6 @@ namespace System.CommandLine.Hosting.Tests
                 }
 
                 public int IntOption { get; set; } // bound from option
-                public IConsole Console { get; set; } // bound from DI
 
                 public string One { get; set; }
 

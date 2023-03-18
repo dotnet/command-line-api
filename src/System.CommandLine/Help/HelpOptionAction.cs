@@ -1,5 +1,4 @@
 ﻿using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,7 +19,7 @@ namespace System.CommandLine.Help
 
         public override int Invoke(InvocationContext context)
         {
-            var output = context.Console.Out.CreateTextWriter();
+            var output = context.ParseResult.Configuration.Out;
 
             var helpContext = new HelpContext(Builder,
                                               context.ParseResult.CommandResult.Command,

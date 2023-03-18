@@ -20,14 +20,14 @@ namespace System.CommandLine.DragonFruit.Tests
         /// <para>More help for the test program</para>
         /// </summary>
         /// <param name="name">Specifies the name option</param>
-        /// <param name="console"></param>
+        /// <param name="parseResult"></param>
         /// <param name="args">These are arguments</param>
-        public void TestMainWithPara(string name, IConsole console, string[] args = null)
+        public void TestMainWithPara(string name, ParseResult parseResult, string[] args = null)
         {
-            console.Out.Write(name);
+            parseResult.Configuration.Out.Write(name);
             if (args != null && args.Length > 0)
             {
-                console.Out.Write($"args: { string.Join(",", args) }");
+                parseResult.Configuration.Out.Write($"args: { string.Join(",", args) }");
             }
         }
 
@@ -39,14 +39,14 @@ namespace System.CommandLine.DragonFruit.Tests
         /// More skipped help for the test program
         /// </summary>
         /// <param name="name">Specifies the name option</param>
-        /// <param name="console"></param>
+        /// <param name="parseResult"></param>
         /// <param name="args">These are arguments</param>
-        public void TestMainWithTextAndPara(string name, IConsole console, string[] args = null)
+        public void TestMainWithTextAndPara(string name, ParseResult parseResult, string[] args = null)
         {
-            console.Out.Write(name);
+            parseResult.Configuration.Out.Write(name);
             if (args != null && args.Length > 0)
             {
-                console.Out.Write($"args: { string.Join(",", args) }");
+                parseResult.Configuration.Out.Write($"args: { string.Join(",", args) }");
             }
         }
 
@@ -54,16 +54,16 @@ namespace System.CommandLine.DragonFruit.Tests
         /// Normal summary
         /// </summary>
         /// <param name="name">Specifies the name option</param>
-        /// <param name="console"></param>
+        /// <param name="parseResult"></param>
         /// <param name="args">These are arguments</param>
-        public void TestMainWithoutPara(string name, IConsole console, string[] args = null)
+        public void TestMainWithoutPara(string name, ParseResult parseResult, string[] args = null)
         {
-            console.Out.Write(name);
+            parseResult.Configuration.Out.Write(name);
         }
 
-        public void TestMainWithDefault(string name = "Bruce", IConsole console = null)
+        public void TestMainWithDefault(string name = "Bruce", ParseResult parseResult = null)
         {
-            console?.Out.Write(name);
+            parseResult?.Configuration.Out.Write(name);
         }
     }
 }

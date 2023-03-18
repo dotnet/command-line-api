@@ -1,5 +1,4 @@
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
+using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -9,8 +8,6 @@ namespace System.CommandLine.Tests.Invocation
 {
     public class TypoCorrectionTests
     {
-        private readonly TestConsole _console = new();
-
         [Fact]
         public async Task When_option_is_mistyped_it_is_suggested()
         {
@@ -21,12 +18,13 @@ namespace System.CommandLine.Tests.Invocation
                 new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse("niof", config);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().Contain($"'niof' was not matched. Did you mean one of the following?{NewLine}info");
+            config.Out.ToString().Should().Contain($"'niof' was not matched. Did you mean one of the following?{NewLine}info");
         }
 
         [Fact]
@@ -39,12 +37,13 @@ namespace System.CommandLine.Tests.Invocation
                 new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
+            configuration.Out = new StringWriter();
 
             var result = rootCommand.Parse("zzzzzzz", configuration);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().NotContain("was not matched");
+            configuration.Out.ToString().Should().NotContain("was not matched");
         }
 
         [Fact]
@@ -57,12 +56,13 @@ namespace System.CommandLine.Tests.Invocation
                 new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
+            configuration.Out = new StringWriter();
 
             var result = rootCommand.Parse("sertor", configuration);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().Contain($"'sertor' was not matched. Did you mean one of the following?{NewLine}restore");
+            configuration.Out.ToString().Should().Contain($"'sertor' was not matched. Did you mean one of the following?{NewLine}restore");
         }
 
         [Fact]
@@ -83,12 +83,13 @@ namespace System.CommandLine.Tests.Invocation
                 new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
+            configuration.Out = new StringWriter();
 
             var result = rootCommand.Parse("een", configuration);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}seen{NewLine}been");
+            configuration.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}seen{NewLine}been");
         }
 
         [Fact]
@@ -108,12 +109,13 @@ namespace System.CommandLine.Tests.Invocation
                 new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
+            configuration.Out = new StringWriter();
 
             var result = rootCommand.Parse("een", configuration);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
+            configuration.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
 
         [Fact]
@@ -130,12 +132,13 @@ namespace System.CommandLine.Tests.Invocation
                 new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
+            configuration.Out = new StringWriter();
 
             var result = rootCommand.Parse("een", configuration);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().NotContain("the-argument");
+            configuration.Out.ToString().Should().NotContain("the-argument");
         }
 
         [Fact]
@@ -154,12 +157,13 @@ namespace System.CommandLine.Tests.Invocation
                 new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
+            config.Out = new StringWriter();
 
             var result = rootCommand.Parse("een", config);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
+            config.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
 
         [Fact]
@@ -174,11 +178,12 @@ namespace System.CommandLine.Tests.Invocation
                 new CommandLineBuilder(rootCommand)
                     .UseTypoCorrections()
                     .Build();
+            config.Out = new StringWriter();
             var result = rootCommand.Parse("-all", config);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
+            config.Out.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
         }
     }
 }

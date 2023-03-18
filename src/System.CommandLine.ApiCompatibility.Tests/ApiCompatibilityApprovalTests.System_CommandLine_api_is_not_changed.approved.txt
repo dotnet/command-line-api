@@ -55,11 +55,6 @@ System.CommandLine
     public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
     public System.Void SetAction(System.Action<System.CommandLine.Invocation.InvocationContext> action)
     public System.Void SetAction(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
-  public static class CommandExtensions
-    public static System.Int32 Invoke(this Command command, System.String[] args, IConsole console = null)
-    public static System.Int32 Invoke(this Command command, System.String commandLine, IConsole console = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String[] args, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
-    public static System.Threading.Tasks.Task<System.Int32> InvokeAsync(this Command command, System.String commandLine, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
   public class CommandLineBuilder
     .ctor(Command rootCommand)
     public Command Command { get; }
@@ -85,11 +80,13 @@ System.CommandLine
     public System.Collections.Generic.IReadOnlyList<Directive> Directives { get; }
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
+    public System.IO.TextWriter Error { get; set; }
+    public System.IO.TextWriter Out { get; set; }
     public Command RootCommand { get; }
-    public System.Int32 Invoke(System.String commandLine, IConsole console = null)
-    public System.Int32 Invoke(System.String[] args, IConsole console = null)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+    public System.Int32 Invoke(System.String commandLine)
+    public System.Int32 Invoke(System.String[] args)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, System.Threading.CancellationToken cancellationToken = null)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, System.Threading.CancellationToken cancellationToken = null)
     public System.Void ThrowIfInvalid()
   public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
     .ctor(System.String message)
@@ -104,7 +101,6 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
   public class EnvironmentVariablesDirective : Directive
     .ctor()
-  public interface IConsole : System.CommandLine.IO.IStandardError, System.CommandLine.IO.IStandardIn, System.CommandLine.IO.IStandardOut
   public abstract class Option : Symbol, System.CommandLine.Binding.IValueDescriptor
     public CliAction Action { get; set; }
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
@@ -149,8 +145,8 @@ System.CommandLine
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(System.String name)
-    public System.Int32 Invoke(IConsole console = null)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(IConsole console = null, System.Threading.CancellationToken cancellationToken = null)
+    public System.Int32 Invoke()
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.Threading.CancellationToken cancellationToken = null)
     public System.String ToString()
   public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
     public static System.String ExecutableName { get; }
@@ -243,46 +239,10 @@ System.CommandLine.Help
     public System.Int32 GetHashCode()
 System.CommandLine.Invocation
   public class InvocationContext
-    .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
-    public System.CommandLine.IConsole Console { get; set; }
+    .ctor(System.CommandLine.ParseResult parseResult)
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(Argument<T> argument)
-System.CommandLine.IO
-  public interface IStandardError
-    public IStandardStreamWriter Error { get; }
-    public System.Boolean IsErrorRedirected { get; }
-  public interface IStandardIn
-    public System.Boolean IsInputRedirected { get; }
-  public interface IStandardOut
-    public System.Boolean IsOutputRedirected { get; }
-    public IStandardStreamWriter Out { get; }
-  public interface IStandardStreamWriter
-    public System.Void Write(System.String value)
-  public static class StandardStreamWriter
-    public static IStandardStreamWriter Create(System.IO.TextWriter writer)
-    public static System.IO.TextWriter CreateTextWriter(this IStandardStreamWriter writer)
-    public static System.Void WriteLine(this IStandardStreamWriter writer)
-    public static System.Void WriteLine(this IStandardStreamWriter writer, System.String value)
-  public class SystemConsole, System.CommandLine.IConsole, IStandardError, IStandardIn, IStandardOut
-    .ctor()
-    public IStandardStreamWriter Error { get; }
-    public System.Boolean IsErrorRedirected { get; }
-    public System.Boolean IsInputRedirected { get; }
-    public System.Boolean IsOutputRedirected { get; }
-    public IStandardStreamWriter Out { get; }
-  public class TestConsole, System.CommandLine.IConsole, IStandardError, IStandardIn, IStandardOut
-    .ctor()
-    public IStandardStreamWriter Error { get; }
-    public System.Boolean IsErrorRedirected { get; }
-    public System.Boolean IsInputRedirected { get; }
-    public System.Boolean IsOutputRedirected { get; }
-    public IStandardStreamWriter Out { get; }
-    protected System.Void set_Error(IStandardStreamWriter value)
-    protected System.Void set_IsErrorRedirected(System.Boolean value)
-    protected System.Void set_IsInputRedirected(System.Boolean value)
-    protected System.Void set_IsOutputRedirected(System.Boolean value)
-    protected System.Void set_Out(IStandardStreamWriter value)
 System.CommandLine.Parsing
   public class ArgumentResult : SymbolResult
     public System.CommandLine.Argument Argument { get; }

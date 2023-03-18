@@ -1,8 +1,6 @@
 ﻿// // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Tests.Binding;
 using System.CommandLine.Utility;
 using System.IO;
@@ -38,14 +36,15 @@ public partial class ModelBindingCommandHandlerTests
             {
                 OptionBuilder.CreateOption("--value", type)
             };
+            command.Action = handler;
+            CommandLineConfiguration configuration = new(command)
+            {
+                Out = new StringWriter()
+            };
 
-            var console = new TestConsole();
+            await command.Parse(commandLine, configuration).InvokeAsync(CancellationToken.None);
 
-            await handler.InvokeAsync(
-                new InvocationContext(command.Parse(commandLine), console),
-                CancellationToken.None);
-
-            console.Out.ToString().Should().Be(expectedValue.ToString());
+            configuration.Out.ToString().Should().Be(expectedValue.ToString());
         }
 
         [Theory]
@@ -71,14 +70,15 @@ public partial class ModelBindingCommandHandlerTests
             {
                 OptionBuilder.CreateOption("--value", type)
             };
+            command.Action = handler;
+            CommandLineConfiguration configuration = new(command)
+            {
+                Out = new StringWriter()
+            };
 
-            var console = new TestConsole();
+            await command.Parse(commandLine, configuration).InvokeAsync(CancellationToken.None);
 
-            await handler.InvokeAsync(
-                new InvocationContext(command.Parse(commandLine), console),
-                CancellationToken.None);
-
-            console.Out.ToString().Should().Be($"ClassWithSetter<{type.Name}>: {expectedValue}");
+            configuration.Out.ToString().Should().Be($"ClassWithSetter<{type.Name}>: {expectedValue}");
         }
 
         [Theory]
@@ -104,14 +104,15 @@ public partial class ModelBindingCommandHandlerTests
             {
                 OptionBuilder.CreateOption("--value", type)
             };
+            command.Action = handler;
+            CommandLineConfiguration configuration = new(command)
+            {
+                Out = new StringWriter()
+            };
 
-            var console = new TestConsole();
+            await command.Parse(commandLine, configuration).InvokeAsync(CancellationToken.None);
 
-            await handler.InvokeAsync(
-                new InvocationContext(command.Parse(commandLine), console),
-                CancellationToken.None);
-
-            console.Out.ToString().Should().Be($"ClassWithCtorParameter<{type.Name}>: {expectedValue}");
+            configuration.Out.ToString().Should().Be($"ClassWithCtorParameter<{type.Name}>: {expectedValue}");
         }
 
         [Theory]
@@ -133,13 +134,15 @@ public partial class ModelBindingCommandHandlerTests
             {
                 ArgumentBuilder.CreateArgument(type)
             };
+            command.Action = handler;
+            CommandLineConfiguration configuration = new(command)
+            {
+                Out = new StringWriter()
+            };
 
-            var console = new TestConsole();
+            await command.Parse(commandLine, configuration).InvokeAsync(CancellationToken.None);
 
-            await handler.InvokeAsync(
-                new InvocationContext(command.Parse(commandLine), console), CancellationToken.None);
-
-            console.Out.ToString().Should().Be(expectedValue.ToString());
+            configuration.Out.ToString().Should().Be(expectedValue.ToString());
         }
 
         [Fact]
@@ -154,7 +157,7 @@ public partial class ModelBindingCommandHandlerTests
             root.Action = CommandHandler.Create<FileSystemInfo>(f => received = f);
             var path = $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}";
 
-            root.Invoke($"-f {path}");
+            root.Parse($"-f {path}").Invoke();
 
             received.Should()
                     .BeOfType<DirectoryInfo>()

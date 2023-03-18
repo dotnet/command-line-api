@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
@@ -130,13 +129,13 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration(new Registration(CurrentExeFullPath()));
             var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
-            var testConsole = new TestConsole();
+            dispatcher.Configuration.Out = new StringWriter();
 
             var args = Parser.SplitCommandLine($@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add").ToArray();
 
-            await dispatcher.InvokeAsync(args, testConsole);
+            await dispatcher.InvokeAsync(args);
 
-            testConsole.Out.ToString().Should().BeEmpty();
+            dispatcher.Configuration.Out.ToString().Should().BeEmpty();
         }
 
         [Fact]
@@ -152,11 +151,11 @@ namespace System.CommandLine.Suggest.Tests
                 new Registration(_kiwiFruitExeFullPath));
 
             var dispatcher = new SuggestionDispatcher(testSuggestionProvider);
-            var testConsole = new TestConsole();
+            dispatcher.Configuration.Out = new StringWriter();
 
-            await dispatcher.InvokeAsync(new[] { "list" }, testConsole);
+            await dispatcher.InvokeAsync(new[] { "list" });
 
-            testConsole.Out
+            dispatcher.Configuration.Out
                        .ToString()
                        .Should()
                        .Be($"dotnet-format{Environment.NewLine}dotnet format{Environment.NewLine}kiwi-fruit{Environment.NewLine}");
@@ -196,9 +195,9 @@ namespace System.CommandLine.Suggest.Tests
             ISuggestionStore suggestionStore = null)
         {
             var dispatcher = new SuggestionDispatcher(suggestionProvider, suggestionStore ?? new TestSuggestionStore());
-            var testConsole = new TestConsole();
-            await dispatcher.InvokeAsync(args, testConsole);
-            return testConsole.Out.ToString();
+            dispatcher.Configuration.Out = new StringWriter();
+            await dispatcher.InvokeAsync(args);
+            return dispatcher.Configuration.Out.ToString();
         }
 
         private class TestSuggestionStore : ISuggestionStore

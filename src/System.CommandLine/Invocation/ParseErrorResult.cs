@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Help;
-using System.CommandLine.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,10 +16,10 @@ namespace System.CommandLine.Invocation
 
             foreach (var error in context.ParseResult.Errors)
             {
-                context.Console.Error.WriteLine(error.Message);
+                context.ParseResult.Configuration.Error.WriteLine(error.Message);
             }
 
-            context.Console.Error.WriteLine();
+            context.ParseResult.Configuration.Error.WriteLine();
 
             ConsoleHelpers.ResetTerminalForegroundColor();
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests.Binding
@@ -66,11 +67,11 @@ namespace System.CommandLine.Tests.Binding
 
     public class ClassWithMethodHavingParameter<T>
     {
-        private readonly IConsole _console;
+        private readonly TextWriter _output;
 
-        public ClassWithMethodHavingParameter(IConsole console)
+        public ClassWithMethodHavingParameter(ParseResult parseResult)
         {
-            _console = console;
+            _output = parseResult.Configuration.Out;
         }
 
         public int Handle(T value)
@@ -81,7 +82,7 @@ namespace System.CommandLine.Tests.Binding
 
         public Task<int> HandleAsync(T value)
         {
-            _console.Out.Write(value.ToString());
+            _output.Write(value.ToString());
             return Task.FromResult(Handle(value));
         }
 

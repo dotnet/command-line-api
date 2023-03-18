@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Tests.Binding;
 using System.CommandLine.Utility;
 using System.IO;
@@ -140,13 +139,14 @@ public partial class ModelBindingCommandHandlerTests
 
         var command = new Command("command") { o };
         command.Action = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
+        CommandLineConfiguration config = new(command);
+        config.Error = new StringWriter();
 
-        var testConsole = new TestConsole();
         var commandLine = "command -i 1 -i 2 -i 3 ";
 
-        await command.InvokeAsync(commandLine, testConsole);
+        await command.Parse(commandLine, config).InvokeAsync();
 
-        testConsole.Error.ToString().Should().BeEmpty();
+        config.Error.ToString().Should().BeEmpty();
 
         received.Should().BeEmpty();
     }
@@ -313,7 +313,7 @@ public partial class ModelBindingCommandHandlerTests
             Action = CommandHandler.Create(@delegate)
         };
 
-        var exitCode = await command.InvokeAsync("");
+        var exitCode = await command.Parse("").InvokeAsync();
         wasCalled.Should().BeTrue();
         exitCode.Should().Be(0);
     }
