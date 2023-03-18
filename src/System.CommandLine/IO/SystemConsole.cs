@@ -32,8 +32,6 @@ namespace System.CommandLine.IO
         /// <inheritdoc />
         public bool IsInputRedirected => Console.IsInputRedirected;
 
-        internal int GetWindowWidth() => IsOutputRedirected ? int.MaxValue : Console.WindowWidth;
-
         private struct StandardErrorStreamWriter : IStandardStreamWriter
         {
             public static readonly StandardErrorStreamWriter Instance = new();

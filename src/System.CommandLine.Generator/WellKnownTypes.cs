@@ -51,12 +51,6 @@ namespace System.CommandLine.Generator
                 return true;
             }
 
-            if (Comparer.Equals(HelpBuilder, symbol))
-            {
-                parameter = new HelpBuilderParameter(HelpBuilder);
-                return true;
-            }
-
             if (symbol.MetadataName == "System.CommandLine.Binding.BindingContext" && symbol is INamedTypeSymbol bindingContext)
             {
                 parameter = new BindingContextParameter(bindingContext);

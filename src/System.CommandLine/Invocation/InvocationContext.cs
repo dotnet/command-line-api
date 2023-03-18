@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Help;
 using System.CommandLine.IO;
 
 namespace System.CommandLine.Invocation
@@ -11,7 +10,6 @@ namespace System.CommandLine.Invocation
     /// </summary>
     public sealed class InvocationContext
     {
-        private HelpBuilder? _helpBuilder;
         private IConsole? _console;
 
         /// <param name="parseResult">The result of the current parse operation.</param>
@@ -30,11 +28,6 @@ namespace System.CommandLine.Invocation
             get => _console ??= new SystemConsole();
             set => _console = value;
         } 
-
-        /// <summary>
-        /// Enables writing help output.
-        /// </summary>
-        public HelpBuilder HelpBuilder => _helpBuilder ??= ParseResult.Configuration.HelpBuilderFactory(this);
 
         /// <summary>
         /// The parse result for the current invocation.

@@ -72,8 +72,6 @@ System.CommandLine
     public CommandLineBuilder UseExceptionHandler(System.Func<System.Exception,System.CommandLine.Invocation.InvocationContext,System.Int32> onException = null, System.Int32 errorExitCode = 1)
     public CommandLineBuilder UseHelp(System.Nullable<System.Int32> maxWidth = null)
     public CommandLineBuilder UseHelp(System.String name, System.String[] helpAliases)
-    public CommandLineBuilder UseHelp(System.Action<System.CommandLine.Help.HelpContext> customize, System.Nullable<System.Int32> maxWidth = null)
-    public CommandLineBuilder UseHelpBuilder(System.Func<System.CommandLine.Invocation.InvocationContext,System.CommandLine.Help.HelpBuilder> getHelpBuilder)
     public CommandLineBuilder UseParseDirective(System.Int32 errorExitCode = 1)
     public CommandLineBuilder UseParseErrorReporting(System.Int32 errorExitCode = 1)
     public CommandLineBuilder UseSuggestDirective()
@@ -83,7 +81,7 @@ System.CommandLine
     public CommandLineBuilder UseVersionOption(System.String name, System.String[] aliases)
   public class CommandLineConfiguration
     public static CommandLineBuilder CreateBuilder(Command rootCommand)
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableTokenReplacement = True, System.Func<System.CommandLine.Invocation.InvocationContext,System.CommandLine.Help.HelpBuilder> helpBuilderFactory = null, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
+    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableTokenReplacement = True, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
     public System.Collections.Generic.IReadOnlyList<Directive> Directives { get; }
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
@@ -196,6 +194,11 @@ System.CommandLine.Completions
     public TextCompletionContext AtCursorPosition(System.Int32 position)
   public class TokenCompletionContext : CompletionContext
 System.CommandLine.Help
+  public class HelpAction : System.CommandLine.CliAction
+    .ctor()
+    public HelpBuilder Builder { get; set; }
+    public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
   public class HelpBuilder
     .ctor(System.Int32 maxWidth = 2147483647)
     public System.Int32 MaxWidth { get; }
@@ -226,6 +229,11 @@ System.CommandLine.Help
     public HelpBuilder HelpBuilder { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
+  public class HelpOption : System.CommandLine.Option<System.Boolean>, System.CommandLine.Binding.IValueDescriptor
+    .ctor(System.String name, System.String[] aliases)
+    .ctor()
+    public System.Boolean Equals(System.Object obj)
+    public System.Int32 GetHashCode()
   public class TwoColumnHelpRow, System.IEquatable<TwoColumnHelpRow>
     .ctor(System.String firstColumnText, System.String secondColumnText)
     public System.String FirstColumnText { get; }
@@ -237,7 +245,6 @@ System.CommandLine.Invocation
   public class InvocationContext
     .ctor(System.CommandLine.ParseResult parseResult, System.CommandLine.IConsole console = null)
     public System.CommandLine.IConsole Console { get; set; }
-    public System.CommandLine.Help.HelpBuilder HelpBuilder { get; }
     public System.CommandLine.ParseResult ParseResult { get; set; }
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(Argument<T> argument)
