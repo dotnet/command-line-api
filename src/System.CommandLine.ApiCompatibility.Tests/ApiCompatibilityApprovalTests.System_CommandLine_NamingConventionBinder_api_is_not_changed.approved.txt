@@ -19,7 +19,6 @@ System.CommandLine.NamingConventionBinder
     public static ModelBinder GetOrCreateModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
   public abstract class BindingHandler : System.CommandLine.CliAction
     public System.CommandLine.Binding.BindingContext GetBindingContext(System.CommandLine.Invocation.InvocationContext invocationContext)
-    public System.CommandLine.Binding.BindingContext SetBindingContext(System.CommandLine.Binding.BindingContext bindingContext)
   public static class CommandHandler
     public static BindingHandler Create(System.Delegate delegate)
     public static BindingHandler Create<T>(Action<T> action)

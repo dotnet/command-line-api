@@ -26,7 +26,7 @@ namespace System.CommandLine.Invocation
             int maxLevenshteinDistance = result.Configuration.MaxLevenshteinDistance;
 
             var unmatchedTokens = result.UnmatchedTokens;
-            for (var i = 0; i < unmatchedTokens.Count; i++)
+            for (var i = 0; i < unmatchedTokens.Length; i++)
             {
                 var token = unmatchedTokens[i];
 

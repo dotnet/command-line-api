@@ -110,8 +110,7 @@ namespace System.CommandLine.DragonFruit
             var builder = new CommandLineBuilder(new RootCommand())
                 .ConfigureRootCommandFromMethod(method, target)
                 .ConfigureHelpFromXmlComments(method, xmlDocsFilePath)
-                .UseDefaults()
-                .UseAnsiTerminalWhenAvailable();
+                .UseDefaults();
 
             return builder.Build();
         }

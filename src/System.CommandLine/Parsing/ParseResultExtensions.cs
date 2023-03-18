@@ -25,11 +25,11 @@ namespace System.CommandLine.Parsing
             builder.Diagram(parseResult.RootCommandResult, parseResult);
 
             var unmatchedTokens = parseResult.UnmatchedTokens;
-            if (unmatchedTokens.Count > 0)
+            if (unmatchedTokens.Length > 0)
             {
                 builder.Append("   ???-->");
 
-                for (var i = 0; i < unmatchedTokens.Count; i++)
+                for (var i = 0; i < unmatchedTokens.Length; i++)
                 {
                     var error = unmatchedTokens[i];
                     builder.Append(" ");
