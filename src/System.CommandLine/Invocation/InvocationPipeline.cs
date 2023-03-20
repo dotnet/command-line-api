@@ -11,7 +11,7 @@ namespace System.CommandLine.Invocation
     {
         internal static async Task<int> InvokeAsync(ParseResult parseResult, IConsole? console, CancellationToken cancellationToken)
         {
-            if (parseResult.Action is null && parseResult.Configuration.Middleware.Count == 0)
+            if (parseResult.Action is null)
             {
                 return 0;
             }
@@ -22,9 +22,7 @@ namespace System.CommandLine.Invocation
 
             try
             {
-                Task<int> startedInvocation = parseResult.Action is not null && parseResult.Configuration.Middleware.Count == 0
-                    ? parseResult.Action.InvokeAsync(context, cts.Token)
-                    : InvokeHandlerWithMiddleware(context, cts.Token);
+                Task<int> startedInvocation = parseResult.Action.InvokeAsync(context, cts.Token);
 
                 if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
                     terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
@@ -50,26 +48,11 @@ namespace System.CommandLine.Invocation
             {
                 terminationHandler?.Dispose();
             }
-
-            static async Task<int> InvokeHandlerWithMiddleware(InvocationContext context, CancellationToken token)
-            {
-                int exitCode = 0;
-                InvocationMiddleware invocationChain = BuildInvocationChain(context);
-                await invocationChain(context, token, async (ctx, token) =>
-                {
-                    if (ctx.ParseResult.Action is { } handler)
-                    {
-                        exitCode = await handler.InvokeAsync(ctx, token);
-                    }
-                });
-
-                return exitCode;
-            }
         }
 
         internal static int Invoke(ParseResult parseResult, IConsole? console = null)
         {
-            if (parseResult.Action is null && parseResult.Configuration.Middleware.Count == 0)
+            if (parseResult.Action is null)
             {
                 return 0;
             }
@@ -78,42 +61,12 @@ namespace System.CommandLine.Invocation
 
             try
             {
-                if (parseResult.Configuration.Middleware.Count == 0 && parseResult.Action is not null)
-                {
-                    return parseResult.Action.Invoke(context);
-                }
-
-                return InvokeHandlerWithMiddleware(context); // kept in a separate method to avoid JITting
+                return parseResult.Action.Invoke(context);
             }
             catch (Exception ex) when (parseResult.Configuration.ExceptionHandler is not null)
             {
                 return parseResult.Configuration.ExceptionHandler(ex, context);
             }
-
-            static int InvokeHandlerWithMiddleware(InvocationContext context)
-            {
-                int exitCode = 0;
-                InvocationMiddleware invocationChain = BuildInvocationChain(context);
-                invocationChain(context, CancellationToken.None, (ctx, token) =>
-                {
-                    if (ctx.ParseResult.Action is { } handler)
-                    {
-                        exitCode = handler.Invoke(ctx);
-                    }
-
-                    return Task.CompletedTask;
-                }).GetAwaiter().GetResult();
-                return exitCode;
-            }
-        }
-
-        private static InvocationMiddleware BuildInvocationChain(InvocationContext context)
-        {
-            return context.ParseResult.Configuration.Middleware.Aggregate(
-                (first, second) =>
-                    (ctx, token, next) =>
-                        first(ctx, token,
-                              (c, t) => second(c, t, next)));
         }
     }
 }

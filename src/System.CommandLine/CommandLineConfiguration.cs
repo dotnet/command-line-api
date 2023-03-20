@@ -35,8 +35,6 @@ namespace System.CommandLine
 
         internal readonly TimeSpan? ProcessTerminationTimeout;
 
-        internal readonly IReadOnlyList<InvocationMiddleware> Middleware;
-
         private TryReplaceToken? _tokenReplacer;
 
         /// <summary>
@@ -45,13 +43,11 @@ namespace System.CommandLine
         /// <param name="command">The root command for the parser.</param>
         /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
         /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
-        /// <param name="middlewarePipeline">Provide a custom middleware pipeline.</param>
         /// <param name="tokenReplacer">Replaces the specified token with any number of other tokens.</param>
         public CommandLineConfiguration(
             Command command,
             bool enablePosixBundling = true,
             bool enableTokenReplacement = true,
-            IReadOnlyList<InvocationMiddleware>? middlewarePipeline = null,
             TryReplaceToken? tokenReplacer = null)
             : this(
                   command,
@@ -61,7 +57,6 @@ namespace System.CommandLine
                   parseErrorReportingExitCode: null,
                   maxLevenshteinDistance: 0,
                   processTerminationTimeout: null,
-                  middlewarePipeline: middlewarePipeline,
                   tokenReplacer: tokenReplacer,
                   exceptionHandler: null)
         {
@@ -75,7 +70,6 @@ namespace System.CommandLine
             int? parseErrorReportingExitCode,
             int maxLevenshteinDistance,
             TimeSpan? processTerminationTimeout,
-            IReadOnlyList<InvocationMiddleware>? middlewarePipeline,
             TryReplaceToken? tokenReplacer,
             Func<Exception, InvocationContext, int>? exceptionHandler)
         {
@@ -86,7 +80,6 @@ namespace System.CommandLine
             ParseErrorReportingExitCode = parseErrorReportingExitCode;
             MaxLevenshteinDistance = maxLevenshteinDistance;
             ProcessTerminationTimeout = processTerminationTimeout;
-            Middleware = middlewarePipeline ?? Array.Empty<InvocationMiddleware>();
 
             _tokenReplacer = tokenReplacer;
             ExceptionHandler = exceptionHandler;

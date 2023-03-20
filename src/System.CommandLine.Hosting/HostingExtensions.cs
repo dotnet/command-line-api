@@ -1,7 +1,6 @@
 ﻿using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
-using System.Linq;
 using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -17,41 +16,11 @@ namespace System.CommandLine.Hosting
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null)
         {
-            Directive configurationDirective = new("config");
-            builder.Directives.Add(configurationDirective);
+            builder.Directives.Add(new Directive("config"));
 
-            return builder.AddMiddleware(async (invocation, cancellationToken, next) =>
-            {
-                var argsRemaining = invocation.ParseResult.UnmatchedTokens.ToArray();
-                var hostBuilder = hostBuilderFactory?.Invoke(argsRemaining)
-                    ?? new HostBuilder();
-                hostBuilder.Properties[typeof(InvocationContext)] = invocation;
+            HostingAction.SetHandlers(builder.Command, hostBuilderFactory, configureHost);
 
-                hostBuilder.ConfigureHostConfiguration(config =>
-                {
-                    config.AddCommandLineDirectives(invocation.ParseResult, configurationDirective);
-                });
-                var bindingContext = invocation.GetBindingContext();
-                hostBuilder.ConfigureServices(services =>
-                {
-                    services.AddSingleton(invocation);
-                    services.AddSingleton(bindingContext);
-                    services.AddSingleton(invocation.Console);
-                    services.AddTransient(_ => invocation.ParseResult);
-                });
-                hostBuilder.UseInvocationLifetime(invocation);
-                configureHost?.Invoke(hostBuilder);
-
-                using var host = hostBuilder.Build();
-
-                bindingContext.AddService(typeof(IHost), _ => host);
-
-                await host.StartAsync(cancellationToken);
-
-                await next(invocation, cancellationToken);
-
-                await host.StopAsync(cancellationToken);
-            });
+            return builder;
         }
 
         public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
@@ -86,42 +55,12 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static IHostBuilder UseCommandHandler<TCommand, THandler>(this IHostBuilder builder)
-            where TCommand : Command
+        public static Command UseCommandHandler<THandler>(this Command command)
             where THandler : CliAction
         {
-            return builder.UseCommandHandler(typeof(TCommand), typeof(THandler));
-        }
+            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(CliAction.InvokeAsync)));
 
-        public static IHostBuilder UseCommandHandler(this IHostBuilder builder, Type commandType, Type handlerType)
-        {
-            if (!typeof(Command).IsAssignableFrom(commandType))
-            {
-                throw new ArgumentException($"{nameof(commandType)} must be a type of {nameof(Command)}", nameof(handlerType));
-            }
-
-            if (!typeof(CliAction).IsAssignableFrom(handlerType))
-            {
-                throw new ArgumentException($"{nameof(handlerType)} must implement {nameof(CliAction)}", nameof(handlerType));
-            }
-
-            if (builder.Properties[typeof(InvocationContext)] is InvocationContext invocation 
-                && invocation.ParseResult.CommandResult.Command is Command command
-                && command.GetType() == commandType)
-            {
-                builder.ConfigureServices(services =>
-                {
-                    services.AddTransient(handlerType);
-                });
-
-                BindingHandler bindingHandler = CommandHandler.Create(handlerType.GetMethod(nameof(CliAction.InvokeAsync)));
-                // NullBindingHandler that accumulated services registered so far, before handler creation
-                bindingHandler.SetBindingContext(command.Action is BindingHandler pre ? pre.GetBindingContext(invocation) : null);
-                command.Action = bindingHandler;
-                bindingHandler.GetBindingContext(invocation).AddService(handlerType, c => c.GetService<IHost>().Services.GetService(handlerType));
-            }
-
-            return builder;
+            return command;
         }
 
         public static InvocationContext GetInvocationContext(this IHostBuilder hostBuilder)

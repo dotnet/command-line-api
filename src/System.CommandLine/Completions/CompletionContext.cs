@@ -71,7 +71,7 @@ namespace System.CommandLine.Completions
 
             if (string.IsNullOrWhiteSpace(rawInput))
             {
-                if (parseResult.UnmatchedTokens.Count > 0 ||
+                if (parseResult.UnmatchedTokens.Length > 0 ||
                     lastToken?.Type == TokenType.Argument)
                 {
                     return textToMatch ?? "";

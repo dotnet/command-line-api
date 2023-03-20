@@ -13,21 +13,19 @@ namespace System.CommandLine.Hosting.Tests
 {
     public static class HostingHandlerTest
     {
-
         [Fact]
         public static async Task Constructor_Injection_Injects_Service()
         {
             var service = new MyService();
 
             var config = new CommandLineBuilder(
-                new MyCommand()
+                new MyCommand().UseCommandHandler<MyCommand.MyHandler>()
                 )
                 .UseHost((builder) => {
                     builder.ConfigureServices(services =>
                     {
                         services.AddTransient(x => service);
-                    })
-                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>();
+                    });
                 })
                 .Build();
 
@@ -39,14 +37,13 @@ namespace System.CommandLine.Hosting.Tests
         [Fact]
         public static async Task Parameter_is_available_in_property()
         {
-            var config = new CommandLineBuilder(new MyCommand())
+            var config = new CommandLineBuilder(new MyCommand().UseCommandHandler<MyCommand.MyHandler>())
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
                     {
                         services.AddTransient<MyService>();
-                    })
-                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>();
+                    });
                 })
                 .Build();
 
@@ -60,8 +57,8 @@ namespace System.CommandLine.Hosting.Tests
         {
             var root = new RootCommand();
 
-            root.Subcommands.Add(new MyCommand());
-            root.Subcommands.Add(new MyOtherCommand());
+            root.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyHandler>());
+            root.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
             var config = new CommandLineBuilder(root)
                 .UseHost(host =>
                 {
@@ -71,9 +68,7 @@ namespace System.CommandLine.Hosting.Tests
                         {
                             Action = () => 100
                         });
-                    })
-                    .UseCommandHandler<MyCommand, MyCommand.MyHandler>()
-                    .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyHandler>();
+                    });
                 })
                 .Build();
 
@@ -91,15 +86,14 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
             var cmd = new RootCommand();
-            cmd.Subcommands.Add(new MyOtherCommand());
+            cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
             var config = new CommandLineBuilder(cmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
                     {
                         services.AddSingleton<MyService>(service);
-                    })
-                    .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyHandler>();
+                    });
                 })
                 .Build();
 
@@ -114,16 +108,14 @@ namespace System.CommandLine.Hosting.Tests
             var service = new MyService();
 
             var cmd = new RootCommand();
-            cmd.Subcommands.Add(new MyCommand());
-            cmd.Subcommands.Add(new MyOtherCommand());
+            cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyDerivedHandler>());
+            cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedHandler>());
             var config = new CommandLineBuilder(cmd)
                          .UseHost((builder) => {
                              builder.ConfigureServices(services =>
                              {
                                  services.AddTransient(x => service);
-                             })
-                                    .UseCommandHandler<MyCommand, MyCommand.MyDerivedHandler>()
-                                    .UseCommandHandler<MyOtherCommand, MyOtherCommand.MyDerivedHandler>();
+                             });
                          })
                          .Build();
 

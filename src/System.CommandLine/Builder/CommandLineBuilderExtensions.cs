@@ -115,13 +115,13 @@ namespace System.CommandLine
             {
                 if (exception is not OperationCanceledException)
                 {
-                    context.Console.ResetTerminalForegroundColor();
-                    context.Console.SetTerminalForegroundRed();
+                    ConsoleHelpers.ResetTerminalForegroundColor();
+                    ConsoleHelpers.SetTerminalForegroundRed();
 
                     context.Console.Error.Write(LocalizationResources.ExceptionHandlerHeader());
                     context.Console.Error.WriteLine(exception.ToString());
 
-                    context.Console.ResetTerminalForegroundColor();
+                    ConsoleHelpers.ResetTerminalForegroundColor();
                 }
                 return errorExitCode;
             }
@@ -172,39 +172,6 @@ namespace System.CommandLine
             }
             return this;
         }
-
-        /// <summary>
-        /// Adds a middleware delegate to the invocation pipeline called before a command handler is invoked.
-        /// </summary>
-        /// <param name="middleware">A delegate that will be invoked before a call to a command handler.</param>
-        /// <param name="order">A value indicating the order in which the added delegate will be invoked relative to others in the pipeline.</param>
-        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder AddMiddleware(
-            InvocationMiddleware middleware,
-            MiddlewareOrder order = MiddlewareOrder.Default)
-        {
-            AddMiddleware(middleware, (int)order);
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a middleware delegate to the invocation pipeline called before a command handler is invoked.
-        /// </summary>
-        /// <param name="onInvoke">A delegate that will be invoked before a call to a command handler.</param>
-        /// <param name="order">A value indicating the order in which the added delegate will be invoked relative to others in the pipeline.</param>
-        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder AddMiddleware(
-            Action<InvocationContext> onInvoke,
-            MiddlewareOrder order = MiddlewareOrder.Default)
-        {
-            return AddMiddleware(async (context, cancellationToken, next) =>
-            {
-                onInvoke(context);
-                await next(context, cancellationToken);
-            }, order);
-        }
-
 
         /// <inheritdoc cref="ParseDirective"/>
         /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
