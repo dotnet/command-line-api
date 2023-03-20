@@ -4,6 +4,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using System.Threading;
+using static System.Collections.Specialized.BitVector32;
 
 namespace System.CommandLine
 {
@@ -13,8 +14,18 @@ namespace System.CommandLine
     /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
     public sealed class SuggestDirective : Directive
     {
+        private CliAction? _action;
+
         public SuggestDirective() : base("suggest")
-            => Action = new SuggestDirectiveAction(this);
+        {
+        }
+
+        /// <inheritdoc />
+        public override CliAction? Action
+        {
+            get => _action ??= new SuggestDirectiveAction(this);
+            set => _action = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         private sealed class SuggestDirectiveAction : CliAction
         {

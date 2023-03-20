@@ -27,7 +27,7 @@ namespace System.CommandLine
         /// Gets or sets the <see cref="CliAction"/> for the Directive. The handler represents the action
         /// that will be performed when the Directive is invoked.
         /// </summary>
-        public CliAction? Action { get; set; }
+        public virtual CliAction? Action { get; set; }
 
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
             => Array.Empty<CompletionItem>();
