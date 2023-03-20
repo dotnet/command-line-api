@@ -53,7 +53,7 @@ namespace System.CommandLine.Benchmarks.Helpers
                 rootCommand.Add(symbol);
             }
 
-            return CommandLineConfiguration.CreateBuilder(rootCommand).UseDefaults().Build();
+            return new CommandLineConfiguration(rootCommand);
         }
     }
 }

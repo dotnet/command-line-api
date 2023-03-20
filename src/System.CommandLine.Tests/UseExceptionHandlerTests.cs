@@ -16,12 +16,10 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .UseExceptionHandler()
-                         .Build();
+            CommandLineConfiguration config = new(command)
+            {
+                Error = new StringWriter(),
+            };
 
             var resultCode = await config.InvokeAsync("the-command");
 
@@ -34,13 +32,10 @@ namespace System.CommandLine.Tests
             var command = new Command("the-command");
             command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .UseExceptionHandler()
-                         .Build();
-            config.Error = new StringWriter();
+            CommandLineConfiguration config = new(command)
+            {
+                Error = new StringWriter(),
+            };
 
             await config.InvokeAsync("the-command");
 
@@ -53,10 +48,11 @@ namespace System.CommandLine.Tests
             Command command = new("the-command");
             command.SetAction((_, __) => throw new OperationCanceledException());
 
-            var config = new CommandLineBuilder(command)
-                                   .UseExceptionHandler()
-                                   .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter(),
+                Error = new StringWriter()
+            };
 
             int resultCode = await config
                                    .InvokeAsync("the-command");
@@ -65,41 +61,38 @@ namespace System.CommandLine.Tests
             resultCode.Should().NotBe(0);
         }
 
-        [Fact]
-        public async Task UseExceptionHandler_output_can_be_customized()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Exception_output_can_be_customized(bool async)
         {
+            Exception expectedException = new ("oops!");
             Command command = new("the-command");
-            command.SetAction((_, __) => throw new Exception("oops!"));
+            command.SetAction((_, __) => throw expectedException);
 
-            var config = new CommandLineBuilder(command)
-                                   .UseExceptionHandler((exception, context) =>
-                                   {
-                                       context.ParseResult.Configuration.Out.Write("Well that's awkward.");
-                                       return 22;
-                                   })
-                                   .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(command)
+            {
+                Error = new StringWriter(),
+                EnableDefaultExceptionHandler = false
+            };
 
-            int resultCode = await config
-                                   .InvokeAsync("the-command");
+            ParseResult parseResult = command.Parse("the-command", config);
 
-            config.Out.ToString().Should().Be("Well that's awkward.");
+            int resultCode = 0;
+
+            try
+            {
+                resultCode = async ? await parseResult.InvokeAsync() : parseResult.Invoke();
+            }
+            catch (Exception ex)
+            {
+                ex.Should().Be(expectedException);
+                parseResult.Configuration.Error.Write("Well that's awkward.");
+                resultCode = 22;
+            }
+
+            config.Error.ToString().Should().Be("Well that's awkward.");
             resultCode.Should().Be(22);
-        }
-
-        [Fact]
-        public async Task UseExceptionHandler_set_custom_result_code()
-        {
-            Command command = new("the-command");
-            command.SetAction((_, __) => throw new Exception("oops!"));
-            var config = new CommandLineBuilder(command)
-                                   .UseExceptionHandler(errorExitCode: 42)
-                                   .Build();
-
-            int resultCode = await config
-                                   .InvokeAsync("the-command");
-
-            resultCode.Should().Be(42);
         }
     }
 }

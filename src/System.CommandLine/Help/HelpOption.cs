@@ -5,16 +5,29 @@ namespace System.CommandLine.Help
 {
     public sealed class HelpOption : Option<bool>
     {
-        public HelpOption(string name, string[] aliases)
+        /// <summary>
+        /// When added to a <see cref="Command"/>, it configures the application to show help when one of the following options are specified on the command line:
+        /// <code>
+        ///    -h
+        ///    /h
+        ///    --help
+        ///    -?
+        ///    /?
+        /// </code>
+        /// </summary>
+        public HelpOption() : this("--help", new[] { "-h", "/h", "-?", "/?" })
+        {
+        }
+
+        /// <summary>
+        /// When added to a <see cref="Command"/>, it configures the application to show help when given name or one of the aliases are specified on the command line.
+        /// </summary>
+        public HelpOption(string name, params string[] aliases)
             : base(name, aliases, new Argument<bool>(name) { Arity = ArgumentArity.Zero })
         {
             AppliesToSelfAndChildren = true;
             Description = LocalizationResources.HelpOptionDescription();
             Action = new HelpAction();
-        }
-
-        public HelpOption() : this("--help", new[] { "-h", "/h", "-?", "/?" })
-        {
         }
 
         internal override bool IsGreedy => false;

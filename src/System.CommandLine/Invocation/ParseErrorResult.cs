@@ -25,7 +25,7 @@ namespace System.CommandLine.Invocation
 
             new HelpOption().Action!.Invoke(context);
 
-            return context.ParseResult.Configuration.ParseErrorReportingExitCode!.Value;
+            return 1;
         }
 
         public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)

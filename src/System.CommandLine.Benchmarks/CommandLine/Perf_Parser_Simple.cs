@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Benchmarks.CommandLine
@@ -17,10 +16,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public Task<int> DefaultsAsync() => BuildCommand().Parse(Args).InvokeAsync();
 
         [Benchmark]
-        public int MinimalSync() => new CommandLineBuilder(BuildCommand()).Build().Invoke(Args);
+        public int MinimalSync() => BuildMinimalConfig(BuildCommand()).Invoke(Args);
 
         [Benchmark]
-        public Task<int> MinimalAsync() => new CommandLineBuilder(BuildCommand()).Build().InvokeAsync(Args);
+        public Task<int> MinimalAsync() => BuildMinimalConfig(BuildCommand()).InvokeAsync(Args);
 
         private static RootCommand BuildCommand()
         {
@@ -40,6 +39,15 @@ namespace System.CommandLine.Benchmarks.CommandLine
             });
 
             return command;
+        }
+
+        private static CommandLineConfiguration BuildMinimalConfig(Command command)
+        {
+            CommandLineConfiguration config = new(command);
+            config.Directives.Clear();
+            config.EnableDefaultExceptionHandler = false;
+            config.ProcessTerminationTimeout = null;
+            return config;
         }
     }
 }

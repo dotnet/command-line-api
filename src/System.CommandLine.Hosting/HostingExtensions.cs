@@ -7,23 +7,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.CommandLine.Help;
 
 namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
-        public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
+        public static CommandLineConfiguration UseHost(this CommandLineConfiguration builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null)
         {
             builder.Directives.Add(new Directive("config"));
 
-            HostingAction.SetHandlers(builder.Command, hostBuilderFactory, configureHost);
+            AddIfNotPresent(builder.RootCommand, new HelpOption());
+            AddIfNotPresent(builder.RootCommand, new VersionOption());
+
+            HostingAction.SetHandlers(builder.RootCommand, hostBuilderFactory, configureHost);
 
             return builder;
         }
 
-        public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
+        public static CommandLineConfiguration UseHost(this CommandLineConfiguration builder,
             Action<IHostBuilder> configureHost = null
             ) => UseHost(builder, null, configureHost);
 
@@ -90,6 +94,19 @@ namespace System.CommandLine.Hosting
             _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
             var hostModelBinder = new ModelBinder<IHost>();
             return (IHost)hostModelBinder.CreateInstance(invocationContext.GetBindingContext());
+        }
+
+        private static void AddIfNotPresent<T>(Command command, T option) where T : Option
+        {
+            for (int i = 0; i < command.Options.Count; i++)
+            {
+                if (command.Options[i] is T)
+                {
+                    return;
+                }
+            }
+
+            command.Options.Add(option);
         }
     }
 }

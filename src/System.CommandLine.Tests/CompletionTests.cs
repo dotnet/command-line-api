@@ -675,11 +675,7 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "three", "three-a", "three-b", "three-c")
             };
 
-            var configuration = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .Build();
+            var configuration = new CommandLineConfiguration(command);
 
             var result = command.Parse("outer two b", configuration);
 
@@ -770,7 +766,7 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
-            var configuration = new CommandLineBuilder(command).Build();
+            var configuration = new CommandLineConfiguration(command);
             var completions = command.Parse("--framework net7.0 --l", configuration).GetCompletions();
 
             completions.Select(item => item.Label)
@@ -787,7 +783,7 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
-            var configuration = new CommandLineBuilder(command).Build();
+            var configuration = new CommandLineConfiguration(command);
             var completions = command.Parse(new[]{"--framework","net7.0","--l"}, configuration).GetCompletions();
 
             completions.Select(item => item.Label)
@@ -833,13 +829,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_completions_are_omitted()
         {
-            var configuration = new CommandLineBuilder(new RootCommand
+            var configuration = new CommandLineConfiguration(new RootCommand
                          {
                              new Option<string>("--allows-one"),
                              new Option<string[]>("--allows-many")
                          })
-                         .UseSuggestDirective()
-                         .Build();
+            {
+                Directives = { new SuggestDirective() } 
+            };
 
             var completions = configuration.RootCommand.Parse("--allows-one ", configuration).GetCompletions();
 

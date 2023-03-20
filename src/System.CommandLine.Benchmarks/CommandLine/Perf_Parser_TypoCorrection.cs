@@ -21,10 +21,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             var option = new Option<bool>("--0123456789");
 
-            _configuration = new CommandLineBuilder(new RootCommand { option })
-                          .UseTypoCorrections()
-                          .Build();
-            _configuration.Out = System.IO.TextWriter.Null;
+            _configuration = new CommandLineConfiguration(new RootCommand { option })
+            {
+                EnableTypoCorrections = true,
+                Out = System.IO.TextWriter.Null
+            };
         }
 
         public IEnumerable<BdnParam<ParseResult>> GenerateTestParseResults()

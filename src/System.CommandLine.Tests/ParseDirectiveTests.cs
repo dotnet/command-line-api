@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using System.CommandLine.Help;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading.Tasks;
@@ -28,10 +29,11 @@ namespace System.CommandLine.Tests
             var option = new Option<int>("-c", "--count");
             subcommand.Options.Add(option);
 
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseParseDirective()
-                         .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                Out = new StringWriter(),
+                Directives = { new ParseDirective() }
+            };
 
             var result = rootCommand.Parse("[parse] subcommand -c 34 --nonexistent wat", config);
 
@@ -48,14 +50,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_parse_directive_is_used_the_help_is_not_displayed()
         {
-            var rootCommand = new RootCommand();
+            RootCommand rootCommand = new ()
+            {
+                new HelpOption(),
+                new VersionOption()
+            };
 
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseParseDirective()
-                         .UseVersionOption()
-                         .UseHelp()
-                         .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                Out = new StringWriter(),
+                Directives = { new ParseDirective() }
+            };
+
             var result = rootCommand.Parse("[parse] --help", config);
 
             output.WriteLine(result.Diagram());
@@ -71,14 +77,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_parse_directive_is_used_the_version_is_not_displayed()
         {
-            var rootCommand = new RootCommand();
+            RootCommand rootCommand = new ()
+            {
+                new HelpOption(),
+                new VersionOption()
+            };
 
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseParseDirective()
-                         .UseVersionOption()
-                         .UseHelp()
-                         .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                Out = new StringWriter(),
+                Directives = { new ParseDirective() }
+            };
 
             var result = rootCommand.Parse("[parse] --version", config);
 
@@ -95,12 +104,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_there_are_no_errors_then_parse_directive_sets_exit_code_0()
         {
-            var command = new RootCommand
+            RootCommand command = new ()
             {
                 new Option<int>("-x")
             };
 
-            var exitCode = await command.Parse("[parse] -x 123").InvokeAsync();
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter(),
+                Directives = { new ParseDirective() }
+            };
+
+            var exitCode = await command.Parse("[parse] -x 123", config).InvokeAsync();
 
             exitCode.Should().Be(0);
         }
@@ -108,12 +123,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_there_are_errors_then_parse_directive_sets_exit_code_1()
         {
-            var command = new RootCommand
+            RootCommand command = new()
             {
                 new Option<int>("-x")
             };
 
-            var exitCode = await command.Parse("[parse] -x not-an-int").InvokeAsync();
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter(),
+                Directives = { new ParseDirective() }
+            };
+
+            var exitCode = await command.Parse("[parse] -x not-an-int", config).InvokeAsync();
 
             exitCode.Should().Be(1);
         }
@@ -121,15 +142,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_there_are_errors_then_parse_directive_sets_exit_code_to_custom_value()
         {
-            var command = new RootCommand
+            RootCommand command = new ()
             {
                 new Option<int>("-x")
             };
 
-            int exitCode = await new CommandLineBuilder(command)
-                                 .UseParseDirective(errorExitCode: 42)
-                                 .Build()
-                                 .InvokeAsync("[parse] -x not-an-int");
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter(),
+                Directives = { new ParseDirective(errorExitCode: 42) }
+            };
+
+            int exitCode = await config.InvokeAsync("[parse] -x not-an-int");
 
             exitCode.Should().Be(42);
         }

@@ -21,10 +21,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             var option = new Option<bool>("-opt");
 
-            _configuration =
-                new CommandLineBuilder(new RootCommand { option })
-                    .UseParseDirective()
-                    .Build();
+            _configuration = new CommandLineConfiguration(new RootCommand { option })
+            {
+                Directives = { new ParseDirective() }
+            };
         }
 
         public IEnumerable<string> GenerateTestInputs() 

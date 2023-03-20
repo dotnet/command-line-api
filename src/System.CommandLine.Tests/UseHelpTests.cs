@@ -17,18 +17,19 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseHelp_writes_help_for_the_specified_command()
         {
-            var command = new Command("command");
-            var subcommand = new Command("subcommand");
-            command.Subcommands.Add(subcommand);
+            Command command = new RootCommand()
+            {
+                new HelpOption(),
+                new Command("command")
+                {
+                    new Command("subcommand")
+                }
+            };
 
-            var config =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        command
-                    })
-                    .UseHelp()
-                    .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter()
+            };
 
             var result = command.Parse("command subcommand --help", config);
 
@@ -41,19 +42,15 @@ namespace System.CommandLine.Tests
         public async Task UseHelp_interrupts_execution_of_the_specified_command()
         {
             var wasCalled = false;
-            var command = new Command("command");
+            var command = new Command("command") { new HelpOption() };
             var subcommand = new Command("subcommand");
             subcommand.SetAction((_) => wasCalled = true);
             command.Subcommands.Add(subcommand);
 
-            var config =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        command
-                    })
-                    .UseHelp()
-                    .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter()
+            };
 
             int result = await command.Parse("command subcommand --help", config).InvokeAsync();
 
@@ -67,13 +64,10 @@ namespace System.CommandLine.Tests
         [InlineData("/?")]
         public async Task UseHelp_accepts_default_values(string value)
         {
-            var config =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        new Command("command")
-                    })
-                    .UseHelp()
-                    .Build();
+            CommandLineConfiguration config = new(new Command("command") { new HelpOption() })
+            {
+                Out = new StringWriter()
+            };
 
             StringWriter console = new();
             config.Out = console;
@@ -88,32 +82,23 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("command");
             command.Options.Add(new Option<bool>("-h"));
-            
-            var config =
-                new CommandLineBuilder(new RootCommand
-                    {
-                        command
-                    })
-                    .UseHelp()
-                    .Build();
 
-            StringWriter console = new();
-            config.Out = console;
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter()
+            };
 
             int result = await command.Parse("command -h", config).InvokeAsync();
 
-            console.ToString().Should().BeEmpty();
+            config.Out.ToString().Should().BeEmpty();
         }
 
         [Fact]
         public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
         {
-            RootCommand rootCommand = new ();
-            var config = new CommandLineBuilder(rootCommand)
-                .UseHelp()
-                .Build();
+            RootCommand rootCommand = new() { new HelpOption() };
 
-            var result = rootCommand.Parse("-h", config);
+            var result = rootCommand.Parse("-h");
 
             result.Errors
                   .Should()
@@ -125,14 +110,11 @@ namespace System.CommandLine.Tests
         {
             var root = new RootCommand
             {
-                new Command("subcommand")
+                new Command("subcommand"),
+                new HelpOption()
             };
 
-            var config = new CommandLineBuilder(root)
-                         .UseHelp()
-                         .Build();
-
-            var result = root.Parse("subcommand -h", config);
+            var result = root.Parse("subcommand -h");
 
             result.Errors
                   .Should()
@@ -144,14 +126,11 @@ namespace System.CommandLine.Tests
         {
             var root = new RootCommand
             {
-                new Command("subcommand")
+                new Command("subcommand"),
+                new HelpOption()
             };
 
-            var config = new CommandLineBuilder(root)
-                         .UseHelp()
-                         .Build();
-
-            var result = root.Parse("-h", config);
+            var result = root.Parse("-h");
 
             result.Errors.Should().BeEmpty();
         }
@@ -165,78 +144,27 @@ namespace System.CommandLine.Tests
                 {
                     IsRequired = true
                 },
+                new HelpOption()
             };
 
-            var configuration = new CommandLineBuilder(command)
-                         .UseHelp()
-                         .Build();
-            var result = command.Parse("-h", configuration);
+            var result = command.Parse("-h");
 
             result.Errors.Should().BeEmpty();
         }
 
         [Theory]
-        [InlineData("-h")]
-        [InlineData("inner -h")]
-        public void UseHelp_can_be_called_more_than_once_on_the_same_CommandLineBuilder(string commandline)
-        {
-            var root = new RootCommand
-            {
-                new Command("inner")
-            };
-
-            var config = new CommandLineBuilder(root)
-                         .UseHelp()
-                         .UseHelp()
-                         .Build();
-            config.Out = new StringWriter();
-
-            config.Invoke(commandline);
-
-            config.Out.ToString().Should().Contain("Usage:");
-        }
-
-        [Theory]
-        [InlineData("-h")]
-        [InlineData("inner -h")]
-        public void UseHelp_can_be_called_more_than_once_on_the_same_command_with_different_CommandLineBuilders(string commandline)
-        {
-            var root = new RootCommand
-            {
-                new Command("inner")
-            };
-
-            var config = new CommandLineBuilder(root)
-                         .UseHelp()
-                         .Build();
-            var console1 = new StringWriter();
-            config.Out = console1;
-
-            config.Invoke(commandline);
-
-            console1.ToString().Should().Contain("Usage:");
-
-            var parser2 = new CommandLineBuilder(root)
-                          .UseHelp()
-                          .Build();
-            var console2 = new StringWriter();
-            parser2.Out = console2;
-
-            parser2.Invoke(commandline);
-
-            console2.ToString().Should().Contain("Usage:");
-        }
-
-        [Theory]
         [InlineData("/lost")]
         [InlineData("--confused")]
-        public async Task UseHelp_with_custom_aliases_uses_aliases(string helpAlias)
+        public async Task HelpOption_with_custom_aliases_uses_aliases(string helpAlias)
         {
-            var config =
-                new CommandLineBuilder(new RootCommand())
-                    .UseHelp("/lost", "--confused")
-                    .Build();
-            config.Out = new StringWriter();
+            RootCommand command = new()
+            {
+                new HelpOption("/lost", "--confused")
+            };
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter()
+            };
 
             await config.InvokeAsync(helpAlias);
 
@@ -251,11 +179,15 @@ namespace System.CommandLine.Tests
         [InlineData("/?")]
         public async Task UseHelp_with_custom_aliases_default_aliases_replaced(string helpAlias)
         {
-            var config =
-                new CommandLineBuilder(new RootCommand())
-                    .UseHelp("--confused")
-                    .Build();
-            config.Out = new StringWriter();
+            RootCommand command = new()
+            {
+                new HelpOption("--confused")
+            };
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter(),
+                EnableParseErrorReporting = false
+            };
 
             await config.InvokeAsync(helpAlias);
 
@@ -277,8 +209,10 @@ namespace System.CommandLine.Tests
                 new HelpOption(),
             };
 
-            CommandLineConfiguration config = new (rootCommand);
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new (rootCommand)
+            {
+                Out = new StringWriter()
+            };
 
             ParseResult parseResult = rootCommand.Parse("-h", config);
 
@@ -302,10 +236,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_sections_can_be_replaced()
         {
-            var config = new CommandLineBuilder(new RootCommand())
-                         .UseHelp()
-                         .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(new RootCommand() { new HelpOption() })
+            {
+                Out = new StringWriter()
+            };
 
             ParseResult parseResult = config.RootCommand.Parse("-h", config);
 
@@ -329,11 +263,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_sections_can_be_supplemented()
         {
-            var command = new RootCommand("hello");
-            var config = new CommandLineBuilder(command)
-                         .UseHelp()
-                         .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(new RootCommand("hello") { new HelpOption() })
+            {
+                Out = new StringWriter(),
+            };
 
             ParseResult parseResult = config.RootCommand.Parse("-h", config);
 
@@ -345,7 +278,7 @@ namespace System.CommandLine.Tests
             parseResult.Invoke();
 
             var output = config.Out.ToString();
-            var defaultHelp = GetDefaultHelp(command);
+            var defaultHelp = GetDefaultHelp(config.RootCommand);
 
             var expected = $"first{NewLine}{NewLine}{defaultHelp}last{NewLine}{NewLine}";
 
@@ -383,7 +316,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var config = new CommandLineBuilder(command).Build();
+            var config = new CommandLineConfiguration(command);
             helpBuilder.CustomizeLayout(c =>
                 c.Command == commandWithTypicalHelp
                     ? HelpBuilder.Default.GetLayout()
@@ -414,13 +347,20 @@ namespace System.CommandLine.Tests
                 { 
                     Description = "option description",
                     HelpName = "option"
+                },
+                new HelpOption()
+                {
+                    Action = new HelpAction()
+                    {
+                        Builder = new HelpBuilder(30)
+                    }
                 }
             };
 
-            var config = new CommandLineBuilder(command)
-                         .UseHelp(maxWidth: 30)
-                         .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter()
+            };
 
             config.Invoke("test -h");
 
@@ -441,10 +381,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_customized_sections_can_be_wrapped()
         {
-            var config = new CommandLineBuilder(new RootCommand())
-                         .UseHelp()
-                         .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration config = new(new RootCommand() {  new HelpOption() })
+            {
+                Out = new StringWriter()
+            };
 
             ParseResult parseResult = config.RootCommand.Parse("-h", config);
 
@@ -467,10 +407,24 @@ namespace System.CommandLine.Tests
 
         private string GetDefaultHelp(Command command, bool trimOneNewline = true)
         {
-            var config = new CommandLineBuilder(command)
-                         .UseHelp()
-                         .Build();
-            config.Out = new StringWriter();
+            // The command might have already defined a HelpOption with custom settings,
+            // we need to overwrite it to get the actual defaults.
+            HelpOption defaultHelp = new();
+            // HelpOption overrides Equals and treats every other instance of same type as equal
+            int index = command.Options.IndexOf(defaultHelp);
+            if (index >= 0)
+            {
+                command.Options[index] = defaultHelp;
+            }
+            else
+            {
+                command.Options.Add(defaultHelp);
+            }
+
+            CommandLineConfiguration config = new(command)
+            {
+                Out = new StringWriter()
+            };
 
             config.Invoke("-h");
 

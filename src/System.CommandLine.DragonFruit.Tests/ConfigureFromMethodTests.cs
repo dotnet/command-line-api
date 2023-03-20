@@ -22,10 +22,9 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task Generated_boolean_parameters_will_accept_zero_arguments()
         {
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
-                             GetMethodInfo(nameof(Method_taking_bool)), this)
-                         .Build();
+                             GetMethodInfo(nameof(Method_taking_bool)), this);
             config.Out = TextWriter.Null;
 
             await config.InvokeAsync($"{RootCommand.ExecutableName} --value");
@@ -42,10 +41,9 @@ namespace System.CommandLine.DragonFruit.Tests
         [InlineData("--value=false", false)]
         public async Task Generated_boolean_parameters_will_accept_one_argument(string commandLine, bool expected)
         {
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
-                             GetMethodInfo(nameof(Method_taking_bool)), this)
-                         .Build();
+                             GetMethodInfo(nameof(Method_taking_bool)), this);
             config.Out = TextWriter.Null;
 
             await config.InvokeAsync(commandLine);
@@ -56,10 +54,9 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task Single_character_parameters_generate_aliases_that_accept_a_single_dash_prefix()
         {
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
-                             GetMethodInfo(nameof(Method_with_single_letter_parameters)), this)
-                         .Build();
+                             GetMethodInfo(nameof(Method_with_single_letter_parameters)), this);
             config.Out = TextWriter.Null;
 
             await config.InvokeAsync("-x 123 -y 456");
@@ -82,9 +79,8 @@ namespace System.CommandLine.DragonFruit.Tests
             int minNumberOfValues,
             int maxNumberOfValues)
         {
-            var config = new CommandLineBuilder(new RootCommand())
-                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
-                         .Build();
+            var config = new CommandLineConfiguration(new RootCommand())
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName));
 
             var rootCommandArgument = config.RootCommand.Arguments.Single();
 
@@ -103,9 +99,8 @@ namespace System.CommandLine.DragonFruit.Tests
         [InlineData(nameof(Method_having_FileInfo_array_args), "args")]
         public void Parameters_named_arguments_generate_command_arguments_having_the_correct_name(string methodName, string expectedArgName)
         {
-            var config = new CommandLineBuilder(new RootCommand())
-                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
-                         .Build();
+            var config = new CommandLineConfiguration(new RootCommand())
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName));
 
             var rootCommandArgument = config.RootCommand.Arguments.Single();
 
@@ -124,9 +119,8 @@ namespace System.CommandLine.DragonFruit.Tests
         [InlineData(nameof(Method_having_FileInfo_array_args))]
         public void Options_are_not_generated_for_command_argument_parameters(string methodName)
         {
-            var config = new CommandLineBuilder(new RootCommand())
-                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
-                         .Build();
+            var config = new CommandLineConfiguration(new RootCommand())
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName));
 
             var rootCommand = config.RootCommand;
 
@@ -154,9 +148,8 @@ namespace System.CommandLine.DragonFruit.Tests
             string methodName,
             Type expectedType)
         {
-            var config = new CommandLineBuilder(new RootCommand())
-                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName))
-                         .Build();
+            var config = new CommandLineConfiguration(new RootCommand())
+                         .ConfigureRootCommandFromMethod(GetMethodInfo(methodName));
 
             var rootCommandArgument = config.RootCommand.Arguments.Single();
 
@@ -168,10 +161,9 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task When_method_returns_void_then_return_code_is_0()
         {
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
-                             GetMethodInfo(nameof(Method_returning_void)), this)
-                         .Build();
+                             GetMethodInfo(nameof(Method_returning_void)), this);
             config.Out = TextWriter.Null;
 
             var result = await config.InvokeAsync("");
@@ -182,10 +174,9 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task When_method_returns_int_then_return_code_is_set_to_return_value()
         {
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
-                             GetMethodInfo(nameof(Method_returning_int)), this)
-                         .Build();
+                             GetMethodInfo(nameof(Method_returning_int)), this);
             config.Out = TextWriter.Null;
 
             var result = await config.InvokeAsync("-i 123");
@@ -196,10 +187,9 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task When_method_returns_Task_of_int_then_return_code_is_set_to_return_value()
         {
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
-                             GetMethodInfo(nameof(Method_returning_Task_of_int)), this)
-                         .Build();
+                             GetMethodInfo(nameof(Method_returning_Task_of_int)), this);
             config.Out = TextWriter.Null;
 
             var result = await config.InvokeAsync("-i 123");

@@ -115,8 +115,7 @@ namespace System.CommandLine.Parsing
                     }
                 }
 
-                if (configuration.EnableTokenReplacement &&
-                    configuration.TokenReplacer is { } replacer &&
+                if (configuration.ResponseFileTokenReplacer is { } replacer &&
                     arg.GetReplaceableTokenValue() is { } value)
                 {
                     if (replacer(
@@ -415,9 +414,7 @@ namespace System.CommandLine.Parsing
                 for (int directiveIndex = 0; directiveIndex < directives.Count; directiveIndex++)
                 {
                     Directive directive = directives[directiveIndex];
-                    tokens.Add(
-                        directive.Name,
-                        new Token(directive.Name, TokenType.Directive, directive, Token.ImplicitPosition));
+                    tokens[directive.Name] = new Token(directive.Name, TokenType.Directive, directive, Token.ImplicitPosition);
                 }
             }
 

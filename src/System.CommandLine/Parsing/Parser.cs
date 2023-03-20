@@ -146,7 +146,7 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(arguments));
             }
 
-            configuration ??= CommandLineConfiguration.CreateBuilder(command).UseDefaults().Build();
+            configuration ??= new CommandLineConfiguration(command);
 
             arguments.Tokenize(
                 configuration,

@@ -287,8 +287,7 @@ namespace System.CommandLine.Tests
                 optionOne,
                 optionTwo
             };
-            var config = new CommandLineBuilder(rootCommand)
-                         .Build();
+            CommandLineConfiguration config = new (rootCommand);
 
             var result = rootCommand.Parse($"@{responseFile}", config);
 
@@ -299,14 +298,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_processing_is_disabled_then_it_returns_response_file_name_as_argument()
         {
-            var command = new RootCommand
+            RootCommand command = new ()
             {
                 new Argument<List<string>>("arg")
             };
-            var configuration = new CommandLineConfiguration(
-                command,
-                enableTokenReplacement: false);
-            
+            CommandLineConfiguration configuration = new(command)
+            {
+                ResponseFileTokenReplacer = null
+            };
+
             var result = Parser.Parse(command, "@file.rsp", configuration);
 
             result.Tokens

@@ -21,11 +21,9 @@ namespace HostingPlayground
                         services.AddSingleton<IGreeter, Greeter>();
                     });
                 })
-            .UseDefaults()
-            .Build()
             .InvokeAsync(args);
 
-        private static CommandLineBuilder BuildCommandLine()
+        private static CommandLineConfiguration BuildCommandLine()
         {
             var root = new RootCommand(@"$ dotnet run --name 'Joe'"){
                 new Option<string>("--name"){
@@ -33,7 +31,7 @@ namespace HostingPlayground
                 }
             };
             root.Action = CommandHandler.Create<GreeterOptions, IHost>(Run);
-            return new CommandLineBuilder(root);
+            return new CommandLineConfiguration(root);
         }
 
         private static void Run(GreeterOptions options, IHost host)

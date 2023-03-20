@@ -22,10 +22,7 @@ namespace System.CommandLine.Tests
                     argument
                 };
 
-                var configuration = new CommandLineBuilder(rootCommand)
-                             .Build();
-
-                var result = rootCommand.Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo", configuration);
+                var result = rootCommand.Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo");
 
                 result.FindResultFor(option).Should().NotBeNull();
 
@@ -47,8 +44,7 @@ namespace System.CommandLine.Tests
                     argument
                 };
 
-                var config = new CommandLineBuilder(rootCommand).Build();
-                var result = rootCommand.Parse("-o \"some stuff\" -- --one -x -y -z -o:foo", config);
+                var result = rootCommand.Parse("-o \"some stuff\" -- --one -x -y -z -o:foo");
 
                 result.UnmatchedTokens.Should().BeEmpty();
             }
@@ -63,9 +59,8 @@ namespace System.CommandLine.Tests
                     option,
                     argument
                 };
-                var config = new CommandLineBuilder(rootCommand).Build();
 
-                var result = rootCommand.Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo", config);
+                var result = rootCommand.Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo");
 
                 result.Errors.Should().BeEmpty();
             }
@@ -79,9 +74,7 @@ namespace System.CommandLine.Tests
                     argument
                 };
 
-                var configuration = new CommandLineBuilder(rootCommand).Build();
-
-                var result = rootCommand.Parse("a b c -- -- d", configuration);
+                var result = rootCommand.Parse("a b c -- -- d");
 
                 var strings = result.GetValue(argument);
 

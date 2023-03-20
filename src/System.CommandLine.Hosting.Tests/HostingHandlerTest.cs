@@ -18,7 +18,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
 
-            var config = new CommandLineBuilder(
+            var config = new CommandLineConfiguration(
                 new MyCommand().UseCommandHandler<MyCommand.MyHandler>()
                 )
                 .UseHost((builder) => {
@@ -26,8 +26,7 @@ namespace System.CommandLine.Hosting.Tests
                     {
                         services.AddTransient(x => service);
                     });
-                })
-                .Build();
+                });
 
             var result = await config.InvokeAsync(new string[] { "--int-option", "54"});
 
@@ -37,15 +36,14 @@ namespace System.CommandLine.Hosting.Tests
         [Fact]
         public static async Task Parameter_is_available_in_property()
         {
-            var config = new CommandLineBuilder(new MyCommand().UseCommandHandler<MyCommand.MyHandler>())
+            var config = new CommandLineConfiguration(new MyCommand().UseCommandHandler<MyCommand.MyHandler>())
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
                     {
                         services.AddTransient<MyService>();
                     });
-                })
-                .Build();
+                });
 
             var result = await config.InvokeAsync(new string[] { "--int-option", "54"});
 
@@ -59,7 +57,7 @@ namespace System.CommandLine.Hosting.Tests
 
             root.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyHandler>());
             root.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
-            var config = new CommandLineBuilder(root)
+            var config = new CommandLineConfiguration(root)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -69,8 +67,7 @@ namespace System.CommandLine.Hosting.Tests
                             Action = () => 100
                         });
                     });
-                })
-                .Build();
+                });
 
             var result = await config.InvokeAsync(new string[] { "mycommand", "--int-option", "54" });
 
@@ -87,15 +84,14 @@ namespace System.CommandLine.Hosting.Tests
             var service = new MyService();
             var cmd = new RootCommand();
             cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
-            var config = new CommandLineBuilder(cmd)
+            var config = new CommandLineConfiguration(cmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
                     {
                         services.AddSingleton<MyService>(service);
                     });
-                })
-                .Build();
+                });
 
             var result = await config.InvokeAsync(new string[] { "myothercommand", "TEST" });
 
@@ -110,14 +106,13 @@ namespace System.CommandLine.Hosting.Tests
             var cmd = new RootCommand();
             cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyDerivedHandler>());
             cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedHandler>());
-            var config = new CommandLineBuilder(cmd)
+            var config = new CommandLineConfiguration(cmd)
                          .UseHost((builder) => {
                              builder.ConfigureServices(services =>
                              {
                                  services.AddTransient(x => service);
                              });
-                         })
-                         .Build();
+                         });
 
             await config.InvokeAsync(new string[] { "mycommand", "--int-option", "54" });
             service.Value.Should().Be(54);

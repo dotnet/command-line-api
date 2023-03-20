@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Help;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,10 +21,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
-            var configuration = new CommandLineBuilder(new RootCommand())
-                         .UseVersionOption()
-                         .Build();
-            configuration.Out = new StringWriter();
+            CommandLineConfiguration configuration = new(new RootCommand() { new VersionOption() })
+            {
+                Out = new StringWriter()
+            };
 
             await configuration.InvokeAsync("--version");
 
@@ -34,15 +35,15 @@ namespace System.CommandLine.Tests
         public async Task When_the_version_option_is_specified_then_invocation_is_short_circuited()
         {
             var wasCalled = false;
-            var rootCommand = new RootCommand();
+            var rootCommand = new RootCommand() { new VersionOption() };
             rootCommand.SetAction((_) => wasCalled = true);
 
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseVersionOption()
-                         .Build();
-            config.Out = new StringWriter();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                Out = new StringWriter()
+            };
 
-            await config.InvokeAsync("--version");
+            await configuration.InvokeAsync("--version");
 
             wasCalled.Should().BeFalse();
         }
@@ -50,11 +51,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_option_appears_in_help()
         {
-            var configuration = new CommandLineBuilder(new RootCommand())
-                         .UseHelp()
-                         .UseVersionOption()
-                         .Build();
-            configuration.Out = new StringWriter();
+            CommandLineConfiguration configuration = new(new RootCommand() { new VersionOption(), new HelpOption() })
+            {
+                Out = new StringWriter()
+            };
 
             await configuration.InvokeAsync("--help");
 
@@ -72,14 +72,15 @@ namespace System.CommandLine.Tests
                 new Option<bool>("-x")
                 {
                     DefaultValueFactory = (_) => true
-                }
+                },
+                new VersionOption()
             };
             rootCommand.SetAction((_) => { });
 
-            var configuration = new CommandLineBuilder(rootCommand)
-                .UseVersionOption()
-                .Build();
-            configuration.Out = new StringWriter();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                Out = new StringWriter()
+            };
 
             await configuration.InvokeAsync("--version");
 
@@ -89,16 +90,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_and_there_are_default_arguments_then_the_version_is_written_to_standard_out()
         {
-            var rootCommand = new RootCommand
+            RootCommand rootCommand = new ()
             {
-                new Argument<bool>("x") { DefaultValueFactory =(_) => true }
+                new Argument<bool>("x") { DefaultValueFactory =(_) => true },
+                new VersionOption()
             };
             rootCommand.SetAction((_) => { });
 
-            var configuration = new CommandLineBuilder(rootCommand)
-                .UseVersionOption()
-                .Build();
-            configuration.Out = new StringWriter();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                Out = new StringWriter()
+            };
 
             await configuration.InvokeAsync("--version");
 
@@ -115,13 +117,15 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand
             {
                 subcommand,
-                new Option<bool>("-x")
+                new Option<bool>("-x"),
+                new VersionOption()
             };
             rootCommand.SetAction((_) => { });
 
-            var configuration = new CommandLineBuilder(rootCommand)
-                .UseVersionOption()
-                .Build();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                Out = new StringWriter()
+            };
 
             var result = rootCommand.Parse(commandLine, configuration);
 
@@ -137,12 +141,14 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand
             {
                 childCommand,
+                new VersionOption()
             };
             rootCommand.SetAction((_) => { });
 
-            var configuration = new CommandLineBuilder(rootCommand)
-                         .UseVersionOption()
-                         .Build();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                Out = new StringWriter()
+            };
 
             configuration
                   .RootCommand
@@ -154,30 +160,16 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task Version_not_added_if_it_exists()
-        {
-            // Adding an option multiple times can occur two ways in
-            // real world scenarios - invocation can be invoked twice
-            // or the author may have their own version switch but
-            // still want other defaults.
-            var configuration = new CommandLineBuilder(new RootCommand())
-                         .UseVersionOption()
-                         .UseVersionOption()
-                         .Build();
-            configuration.Out = new StringWriter();
-
-            await configuration.InvokeAsync("--version");
-
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
-        }
-
-        [Fact]
         public async Task Version_can_specify_additional_alias()
         {
-            var configuration = new CommandLineBuilder(new RootCommand())
-                         .UseVersionOption("-v", "-version")
-                         .Build();
-            configuration.Out = new StringWriter();
+            RootCommand rootCommand = new()
+            {
+                new VersionOption("-v", "-version"),
+            };
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                Out = new StringWriter()
+            };
 
             await configuration.InvokeAsync("-v");
             configuration.Out.ToString().Should().Be($"{version}{NewLine}");
@@ -194,13 +186,15 @@ namespace System.CommandLine.Tests
             childCommand.SetAction((_) => { });
             var rootCommand = new RootCommand
             {
-                childCommand
+                childCommand,
+                new VersionOption("-v")
             };
             rootCommand.SetAction((_) => { });
 
-            var configuration = new CommandLineBuilder(rootCommand)
-                         .UseVersionOption("-v")
-                         .Build();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                Out = new StringWriter()
+            };
 
             var result = rootCommand.Parse("-v subcommand", configuration);
 

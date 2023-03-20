@@ -26,7 +26,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _rootCommand.Subcommands.Add(nestedCommand);
 
             _testSymbolsAsString = "root_command nested_command -opt1 321";
-            _configuration = CommandLineConfiguration.CreateBuilder(_rootCommand).UseDefaults().Build();
+            _configuration = new CommandLineConfiguration(_rootCommand);
         }
 
         [Benchmark]

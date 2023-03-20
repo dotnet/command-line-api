@@ -57,10 +57,10 @@ namespace System.CommandLine.Tests.Invocation
             };
             command.Action = new CustomCliAction();
 
-            return new CommandLineBuilder(command)
-                .CancelOnProcessTermination()
-                .Build()
-                .InvokeAsync(args);
+            return new CommandLineConfiguration(command)
+            {
+                ProcessTerminationTimeout = TimeSpan.FromSeconds(2)
+            }.InvokeAsync(args);
         }
 
         private sealed class CustomCliAction : CliAction

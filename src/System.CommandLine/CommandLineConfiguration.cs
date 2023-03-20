@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,108 +18,76 @@ namespace System.CommandLine
         private TextWriter? _output, _error;
 
         /// <summary>
-        /// A delegate that will be called when an exception is thrown by a command handler.
+        /// Initializes a new instance of the <see cref="CommandLineConfiguration"/> class.
         /// </summary>
-        internal readonly Func<Exception, InvocationContext, int>? ExceptionHandler;
-
-        /// <summary>
-        /// The exit code to use when parser errors occur.
-        /// </summary>
-        internal readonly int? ParseErrorReportingExitCode;
-
-        /// <summary>
-        /// The maximum Levenshtein distance for suggestions based on detected typos in command line input.
-        /// </summary>
-        internal readonly int MaxLevenshteinDistance;
-
-        internal readonly TimeSpan? ProcessTerminationTimeout;
-
-        private TryReplaceToken? _tokenReplacer;
-
-        /// <summary>
-        /// Initializes a new instance of the CommandLineConfiguration class.
-        /// </summary>
-        /// <param name="command">The root command for the parser.</param>
-        /// <param name="enablePosixBundling"><see langword="true"/> to enable POSIX bundling; otherwise, <see langword="false"/>.</param>
-        /// <param name="enableTokenReplacement"><see langword="true"/> to enable token replacement; otherwise, <see langword="false"/>.</param>
-        /// <param name="tokenReplacer">Replaces the specified token with any number of other tokens.</param>
-        public CommandLineConfiguration(
-            Command command,
-            bool enablePosixBundling = true,
-            bool enableTokenReplacement = true,
-            TryReplaceToken? tokenReplacer = null)
-            : this(
-                  command,
-                  directives: null,
-                  enablePosixBundling: enablePosixBundling,
-                  enableTokenReplacement: enableTokenReplacement,
-                  parseErrorReportingExitCode: null,
-                  maxLevenshteinDistance: 0,
-                  processTerminationTimeout: null,
-                  tokenReplacer: tokenReplacer,
-                  exceptionHandler: null)
+        /// <param name="rootCommand">The root command for the parser.</param>
+        public CommandLineConfiguration(Command rootCommand)
         {
+            RootCommand = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
+            Directives = new()
+            {
+                new SuggestDirective()
+            };
         }
 
-        internal CommandLineConfiguration(
-            Command command,
-            List<Directive>? directives,
-            bool enablePosixBundling,
-            bool enableTokenReplacement,
-            int? parseErrorReportingExitCode,
-            int maxLevenshteinDistance,
-            TimeSpan? processTerminationTimeout,
-            TryReplaceToken? tokenReplacer,
-            Func<Exception, InvocationContext, int>? exceptionHandler)
-        {
-            RootCommand = command ?? throw new ArgumentNullException(nameof(command));
-            Directives = directives is not null ? directives : Array.Empty<Directive>();
-            EnableTokenReplacement = enableTokenReplacement;
-            EnablePosixBundling = enablePosixBundling;
-            ParseErrorReportingExitCode = parseErrorReportingExitCode;
-            MaxLevenshteinDistance = maxLevenshteinDistance;
-            ProcessTerminationTimeout = processTerminationTimeout;
-
-            _tokenReplacer = tokenReplacer;
-            ExceptionHandler = exceptionHandler;
-        }
-
-        public static CommandLineBuilder CreateBuilder(Command rootCommand) => new CommandLineBuilder(rootCommand);
+        /// <summary>
+        /// Gets a mutable list of the enabled directives.
+        /// Currently only <see cref="SuggestDirective"/> is enabled by default.
+        /// </summary>
+        public List<Directive> Directives { get; }
 
         /// <summary>
-        /// Gets the enabled directives.
+        /// Enables the parser to recognize and expand POSIX-style bundled options.
         /// </summary>
-        public IReadOnlyList<Directive> Directives { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether POSIX bundling is enabled.
-        /// </summary>
+        /// <param name="value"><see langword="true"/> to parse POSIX bundles; otherwise, <see langword="false"/>.</param>
         /// <remarks>
-        /// POSIX recommends that single-character options be allowed to be specified together after a single <c>-</c> prefix.
+        /// POSIX conventions recommend that single-character options be allowed to be specified together after a single <c>-</c> prefix. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, the following command lines are equivalent:
+        /// 
+        /// <code>
+        ///     &gt; myapp -a -b -c
+        ///     &gt; myapp -abc
+        /// </code>
+        /// 
+        /// If an argument is provided after an option bundle, it applies to the last option in the bundle. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, all of the following command lines are equivalent:
+        /// <code>
+        ///     &gt; myapp -a -b -c arg
+        ///     &gt; myapp -abc arg
+        ///     &gt; myapp -abcarg
+        /// </code>
+        ///
         /// </remarks>
-        public bool EnablePosixBundling { get; }
+        public bool EnablePosixBundling { get; set; } = true;
 
         /// <summary>
-        /// Gets a value indicating whether token replacement is enabled.
+        /// Enables a default exception handler to catch any unhandled exceptions thrown during invocation. Enabled by default.
+        /// </summary>
+        public bool EnableDefaultExceptionHandler { get; set; } = true;
+
+        /// <summary>
+        /// Configures the command line to write error information to standard error when there are errors parsing command line input. Enabled by default.
+        /// </summary>
+        public bool EnableParseErrorReporting { get; set; } = true;
+
+        /// <summary>
+        /// Configures the application to provide alternative suggestions when a parse error is detected. Disabled by default.
+        /// </summary>
+        public bool EnableTypoCorrections { get; set; } = false;
+
+        /// <summary>
+        /// Enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="CancellationToken"/> 
+        /// that can be passed to a <see cref="CliAction"/> during invocation.
+        /// If not provided, a default timeout of 2 seconds is enforced.
+        /// </summary>
+        public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2);
+
+        /// <summary>
+        /// Response file token replacer, enabled by default.
+        /// To disable response files support, this property needs to be set to null.
         /// </summary>
         /// <remarks>
         /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
-        public bool EnableTokenReplacement { get; }
-
-        internal TryReplaceToken? TokenReplacer =>
-            EnableTokenReplacement
-                ? _tokenReplacer ??= DefaultTokenReplacer
-                : null;
-
-        private bool DefaultTokenReplacer(
-            string tokenToReplace, 
-            out IReadOnlyList<string>? replacementTokens, 
-            out string? errorMessage) =>
-            StringExtensions.TryReadResponseFile(
-                tokenToReplace,
-                out replacementTokens,
-                out errorMessage);
+        public TryReplaceToken? ResponseFileTokenReplacer { get; set; } = StringExtensions.TryReadResponseFile;
 
         /// <summary>
         /// Gets the root command.

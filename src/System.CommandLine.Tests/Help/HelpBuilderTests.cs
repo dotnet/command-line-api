@@ -913,11 +913,10 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_is_not_included_if_no_options_configured()
         {
-            var commandLineBuilder = new CommandLineBuilder(new RootCommand
-                                     {
-                                         new Command("outer", "description for outer")
-                                     })
-                                     .Command;
+            var commandLineBuilder = new RootCommand
+            {
+                new Command("outer", "description for outer")
+            };
 
             _helpBuilder.Write(commandLineBuilder, _console);
 
@@ -941,7 +940,8 @@ namespace System.CommandLine.Tests.Help
             var command = new Command("the-command", "Does things.")
                           {
                               new Option<string>("-x"),
-                              new Option<string>("-n")
+                              new Option<string>("-n"),
+                              new HelpOption()
                           };
 
             _helpBuilder.Write(command, _console);
@@ -1176,9 +1176,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_option_is_shown_in_help()
         {
-            var configuration = new CommandLineBuilder(new RootCommand())
-                         .UseHelp()
-                         .Build();
+            var configuration = new CommandLineConfiguration(new RootCommand() { new HelpOption() });
 
             _helpBuilder.Write(configuration.RootCommand, _console);
 
