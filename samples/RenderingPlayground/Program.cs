@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Rendering;
@@ -18,7 +19,7 @@ namespace RenderingPlayground
         /// <summary>
         /// Demonstrates various rendering capabilities.
         /// </summary>
-        /// <param name="invocationContext"></param>
+        /// <param name="parseResult"></param>
         /// <param name="sample">Renders a specified sample</param>
         /// <param name="height">The height of the rendering area</param>
         /// <param name="width">The width of the rendering area</param>
@@ -28,7 +29,7 @@ namespace RenderingPlayground
         /// <param name="overwrite">Overwrite the specified region. (If not, scroll.)</param>
         public static void Main(
 #pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
-            InvocationContext invocationContext,
+            ParseResult parseResult,
             SampleName sample = SampleName.Dir,
             int? height = null,
             int? width = null,

@@ -42,11 +42,9 @@ public partial class ModelBindingCommandHandlerTests
 
         var parseResult = command.Parse("");
 
-        var invocationContext = new InvocationContext(parseResult);
+        await handler.InvokeAsync(parseResult, CancellationToken.None);
 
-        await handler.InvokeAsync(invocationContext, CancellationToken.None);
-
-        BoundValueCapturer.GetBoundValue(invocationContext).Should().Be(expectedValue);
+        BoundValueCapturer.GetBoundValue(parseResult).Should().Be(expectedValue);
     }
     
     [Theory]
@@ -119,11 +117,9 @@ public partial class ModelBindingCommandHandlerTests
         var commandLine = string.Join(" ", testCase.CommandLineTokens.Select(t => $"--value {t}"));
         var parseResult = command.Parse(commandLine);
 
-        var invocationContext = new InvocationContext(parseResult);
+        await handler.InvokeAsync(parseResult, CancellationToken.None);
 
-        await handler.InvokeAsync(invocationContext, CancellationToken.None);
-
-        var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
+        var boundValue = BoundValueCapturer.GetBoundValue(parseResult);
 
         boundValue.Should().BeAssignableTo(testCase.ParameterType);
 
@@ -138,7 +134,7 @@ public partial class ModelBindingCommandHandlerTests
         var o = new Option<string[]>("-i") { Description = "Path to an image or directory of supported images" };
 
         var command = new Command("command") { o };
-        command.Action = CommandHandler.Create<string[], InvocationContext>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
+        command.Action = CommandHandler.Create<string[], ParseResult>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
         CommandLineConfiguration config = new(command);
         config.Error = new StringWriter();
 
@@ -181,11 +177,9 @@ public partial class ModelBindingCommandHandlerTests
         var commandLine = string.Join(" ", testCase.CommandLineTokens);
         var parseResult = command.Parse(commandLine);
 
-        var invocationContext = new InvocationContext(parseResult);
+        await handler.InvokeAsync(parseResult, CancellationToken.None);
 
-        await handler.InvokeAsync(invocationContext, CancellationToken.None);
-
-        var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
+        var boundValue = BoundValueCapturer.GetBoundValue(parseResult);
 
         boundValue.Should().BeOfType(testCase.ParameterType);
 
@@ -233,11 +227,9 @@ public partial class ModelBindingCommandHandlerTests
         var commandLine = string.Join(" ", testCase.CommandLineTokens);
         var parseResult = command.Parse(commandLine);
 
-        var invocationContext = new InvocationContext(parseResult);
+        await handler.InvokeAsync(parseResult, CancellationToken.None);
 
-        await handler.InvokeAsync(invocationContext, CancellationToken.None);
-
-        var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
+        var boundValue = BoundValueCapturer.GetBoundValue(parseResult);
 
         boundValue.Should().BeOfType(testCase.ParameterType);
 
@@ -286,11 +278,9 @@ public partial class ModelBindingCommandHandlerTests
         var commandLine = string.Join(" ", testCase.CommandLineTokens.Select(t => $"--value {t}"));
         var parseResult = command.Parse(commandLine);
 
-        var invocationContext = new InvocationContext(parseResult);
+        await handler.InvokeAsync(parseResult, CancellationToken.None);
 
-        await handler.InvokeAsync(invocationContext, CancellationToken.None);
-
-        var boundValue = BoundValueCapturer.GetBoundValue(invocationContext);
+        var boundValue = BoundValueCapturer.GetBoundValue(parseResult);
 
         boundValue.Should().BeOfType(testCase.ParameterType);
 
@@ -318,29 +308,29 @@ public partial class ModelBindingCommandHandlerTests
         exitCode.Should().Be(0);
     }
 
-    private static void CaptureMethod<T>(T value, InvocationContext invocationContext)
+    private static void CaptureMethod<T>(T value, ParseResult parseResult)
     {
-        BoundValueCapturer.Capture(value, invocationContext);
+        BoundValueCapturer.Capture(value, parseResult);
     }
 
-    private static Action<T, InvocationContext> CaptureDelegate<T>()
-        => (value, invocationContext) =>
+    private static Action<T, ParseResult> CaptureDelegate<T>()
+        => (value, parseResult) =>
         {
-            BoundValueCapturer.Capture(value, invocationContext);
+            BoundValueCapturer.Capture(value, parseResult);
         };
 
     private static class BoundValueCapturer
     {
-        private static readonly Dictionary<InvocationContext, object> _boundValues = new ();
+        private static readonly Dictionary<ParseResult, object> _boundValues = new ();
 
-        public static void Apply(InvocationContext context)
+        public static void Apply(ParseResult context)
         {
         }
 
-        public static void Capture(object value, InvocationContext invocationContext)
+        public static void Capture(object value, ParseResult invocationContext)
             => _boundValues.Add(invocationContext, value);
 
-        public static object GetBoundValue(InvocationContext context)
+        public static object GetBoundValue(ParseResult context)
             => _boundValues.TryGetValue(context, out var value) ? value : null;
     }
 

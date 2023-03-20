@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading;
@@ -60,16 +59,16 @@ namespace System.CommandLine
 
         private sealed class VersionOptionAction : CliAction
         {
-            public override int Invoke(InvocationContext context)
+            public override int Invoke(ParseResult parseResult)
             {
-                context.ParseResult.Configuration.Out.WriteLine(RootCommand.ExecutableVersion);
+                parseResult.Configuration.Out.WriteLine(RootCommand.ExecutableVersion);
                 return 0;
             }
 
-            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
                 => cancellationToken.IsCancellationRequested
                     ? Task.FromCanceled<int>(cancellationToken)
-                    : Task.FromResult(Invoke(context));
+                    : Task.FromResult(Invoke(parseResult));
         }
     }
 }

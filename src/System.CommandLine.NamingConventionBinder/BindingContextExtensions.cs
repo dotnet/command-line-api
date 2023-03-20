@@ -15,20 +15,20 @@ public static class BindingContextExtensions
 {
     private sealed class DummyStateHoldingHandler : BindingHandler
     {
-        public override int Invoke(InvocationContext context) => 0;
+        public override int Invoke(ParseResult parseResult) => 0;
 
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default) => Task.FromResult(0);
+        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default) => Task.FromResult(0);
     }
 
-    public static BindingContext GetBindingContext(this InvocationContext ctx)
+    public static BindingContext GetBindingContext(this ParseResult ctx)
     {
         // parsing resulted with no handler or it was not created yet, we fake it to just store the BindingContext between the calls
-        if (ctx.ParseResult.CommandResult.Command.Action is null)
+        if (ctx.CommandResult.Command.Action is null)
         {
-            ctx.ParseResult.CommandResult.Command.Action = new DummyStateHoldingHandler();
+            ctx.CommandResult.Command.Action = new DummyStateHoldingHandler();
         }
 
-        return ((BindingHandler)ctx.ParseResult.CommandResult.Command.Action).GetBindingContext(ctx);
+        return ((BindingHandler)ctx.CommandResult.Command.Action).GetBindingContext(ctx);
     }
 
     /// <summary>

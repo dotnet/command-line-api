@@ -382,13 +382,13 @@ namespace System.CommandLine.Tests
         {
             internal bool WasCalled = false;
 
-            public override int Invoke(InvocationContext context)
+            public override int Invoke(ParseResult context)
             {
                 WasCalled = true;
                 return 0;
             }
 
-            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
                 => Task.FromResult(Invoke(context));
         }
 

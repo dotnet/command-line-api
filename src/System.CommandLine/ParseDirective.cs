@@ -1,5 +1,4 @@
-﻿using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
+﻿using System.CommandLine.Parsing;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,17 +19,16 @@ namespace System.CommandLine
 
             internal ParseDirectiveAction(int errorExitCode) => _errorExitCode = errorExitCode;
 
-            public override int Invoke(InvocationContext context)
+            public override int Invoke(ParseResult parseResult)
             {
-                var parseResult = context.ParseResult;
-                context.ParseResult.Configuration.Out.WriteLine(parseResult.Diagram());
+                parseResult.Configuration.Out.WriteLine(parseResult.Diagram());
                 return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
             }
 
-            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
                 => cancellationToken.IsCancellationRequested
                     ? Task.FromCanceled<int>(cancellationToken)
-                    : Task.FromResult(Invoke(context));
+                    : Task.FromResult(Invoke(parseResult));
         }
     }
 }

@@ -30,7 +30,7 @@ namespace System.CommandLine.Suggest
             };
             CompleteScriptCommand.SetAction(context =>
             {
-                SuggestionShellScriptHandler.Handle(context.ParseResult.Configuration.Out, context.ParseResult.GetValue(shellTypeArgument));
+                SuggestionShellScriptHandler.Handle(context.Configuration.Out, context.GetValue(shellTypeArgument));
             });
 
             ListCommand = new Command("list")
@@ -39,7 +39,7 @@ namespace System.CommandLine.Suggest
             };
             ListCommand.SetAction((ctx, cancellationToken) =>
             {
-                ctx.ParseResult.Configuration.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
+                ctx.Configuration.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
                 return Task.CompletedTask;
             });
 
@@ -60,7 +60,7 @@ namespace System.CommandLine.Suggest
 
             RegisterCommand.SetAction((context, cancellationToken) =>
             {
-                Register(context.ParseResult.GetValue(commandPathOption), context.ParseResult.Configuration.Out);
+                Register(context.GetValue(commandPathOption), context.Configuration.Out);
                 return Task.CompletedTask;
             });
 
@@ -133,9 +133,8 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        private Task<int> Get(InvocationContext context, CancellationToken cancellationToken)
+        private Task<int> Get(ParseResult parseResult, CancellationToken cancellationToken)
         {
-            var parseResult = context.ParseResult;
             var commandPath = parseResult.GetValue(ExecutableOption);
 
             Registration suggestionRegistration;
@@ -179,7 +178,7 @@ namespace System.CommandLine.Suggest
             Program.LogDebug($"dotnet-suggest returning: \"{completions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
 #endif
 
-            context.ParseResult.Configuration.Out.Write(completions);
+            parseResult.Configuration.Out.Write(completions);
 
             return Task.FromResult(0);
         }

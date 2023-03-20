@@ -65,9 +65,9 @@ namespace System.CommandLine.Tests.Invocation
 
         private sealed class CustomCliAction : CliAction
         {
-            public override int Invoke(InvocationContext context) => throw new NotImplementedException();
+            public override int Invoke(ParseResult context) => throw new NotImplementedException();
 
-            public async override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public async override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
             {
                 Console.WriteLine(ChildProcessWaiting);
 

@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using System.CommandLine.Help;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Benchmarks.CommandLine
@@ -29,13 +30,15 @@ namespace System.CommandLine.Benchmarks.CommandLine
             RootCommand command = new()
             {
                 boolOption,
-                stringOption
+                stringOption,
+                new HelpOption(),
+                new VersionOption()
             };
 
             command.SetAction(ctx => 
             {
-                bool boolean = ctx.ParseResult.GetValue(boolOption);
-                string text = ctx.ParseResult.GetValue(stringOption);
+                bool boolean = ctx.GetValue(boolOption);
+                string text = ctx.GetValue(stringOption);
             });
 
             return command;

@@ -36,8 +36,8 @@ System.CommandLine
     public static Argument<System.IO.FileSystemInfo> AcceptExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
     public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
   public abstract class CliAction
-    public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
+    public System.Int32 Invoke(ParseResult parseResult)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)
   public class Command : Symbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
     .ctor(System.String name, System.String description = null)
     public CliAction Action { get; set; }
@@ -53,8 +53,8 @@ System.CommandLine
     public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CommandLineConfiguration configuration = null)
     public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
-    public System.Void SetAction(System.Action<System.CommandLine.Invocation.InvocationContext> action)
-    public System.Void SetAction(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
+    public System.Void SetAction(System.Action<ParseResult> action)
+    public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
   public class CommandLineConfiguration
     .ctor(Command rootCommand)
     public System.Collections.Generic.List<Directive> Directives { get; }
@@ -182,8 +182,8 @@ System.CommandLine.Help
   public class HelpAction : System.CommandLine.CliAction
     .ctor()
     public HelpBuilder Builder { get; set; }
-    public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
+    public System.Int32 Invoke(System.CommandLine.ParseResult parseResult)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)
   public class HelpBuilder
     .ctor(System.Int32 maxWidth = 2147483647)
     public System.Int32 MaxWidth { get; }
@@ -226,12 +226,6 @@ System.CommandLine.Help
     public System.Boolean Equals(System.Object obj)
     public System.Boolean Equals(TwoColumnHelpRow other)
     public System.Int32 GetHashCode()
-System.CommandLine.Invocation
-  public class InvocationContext
-    .ctor(System.CommandLine.ParseResult parseResult)
-    public System.CommandLine.ParseResult ParseResult { get; set; }
-    public T GetValue<T>(Option<T> option)
-    public T GetValue<T>(Argument<T> argument)
 System.CommandLine.Parsing
   public class ArgumentResult : SymbolResult
     public System.CommandLine.Argument Argument { get; }

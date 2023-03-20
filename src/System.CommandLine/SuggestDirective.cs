@@ -21,9 +21,8 @@ namespace System.CommandLine
 
             internal SuggestDirectiveAction(SuggestDirective suggestDirective) => _directive = suggestDirective;
 
-            public override int Invoke(InvocationContext context)
+            public override int Invoke(ParseResult parseResult)
             {
-                ParseResult parseResult = context.ParseResult;
                 string? parsedValues = parseResult.FindResultFor(_directive)!.Values.SingleOrDefault();
                 string? rawInput = parseResult.CommandLineText;
 
@@ -35,7 +34,7 @@ namespace System.CommandLine
 
                 var completions = completionParseResult.GetCompletions(position);
 
-                context.ParseResult.Configuration.Out.WriteLine(
+                parseResult.Configuration.Out.WriteLine(
                     string.Join(
                         Environment.NewLine,
                         completions));
@@ -43,10 +42,10 @@ namespace System.CommandLine
                 return 0;
             }
 
-            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
                 => cancellationToken.IsCancellationRequested
                     ? Task.FromCanceled<int>(cancellationToken)
-                    : Task.FromResult(Invoke(context));
+                    : Task.FromResult(Invoke(parseResult));
         }
     }
 }

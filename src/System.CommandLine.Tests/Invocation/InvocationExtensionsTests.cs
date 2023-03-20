@@ -145,10 +145,10 @@ namespace System.CommandLine.Tests.Invocation
 
         internal sealed class CustomExitCodeAction : CliAction
         {
-            public override int Invoke(InvocationContext context)
+            public override int Invoke(ParseResult context)
                 => 123;
 
-            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
                 => Task.FromResult(456);
         }
 
@@ -157,7 +157,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             using CancellationTokenSource cts = new();
             var command = new Command("test");
-            command.SetAction((InvocationContext context, CancellationToken cancellationToken) =>
+            command.SetAction((ParseResult context, CancellationToken cancellationToken) =>
             {
                 cancellationToken.Should().Be(cts.Token);
                 return Task.CompletedTask;

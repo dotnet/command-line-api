@@ -251,7 +251,6 @@ namespace System.CommandLine.DragonFruit
 
             var omittedTypes = new[]
                                {
-                                   typeof(InvocationContext),
                                    typeof(BindingContext),
                                    typeof(ParseResult),
                                    typeof(CommandLineConfiguration),

@@ -17,23 +17,23 @@ namespace System.CommandLine.Help
             set => _builder = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        public override int Invoke(InvocationContext context)
+        public override int Invoke(ParseResult parseResult)
         {
-            var output = context.ParseResult.Configuration.Out;
+            var output = parseResult.Configuration.Out;
 
             var helpContext = new HelpContext(Builder,
-                                              context.ParseResult.CommandResult.Command,
+                                              parseResult.CommandResult.Command,
                                               output,
-                                              context.ParseResult);
+                                              parseResult);
 
             Builder.Write(helpContext);
 
             return 0;
         }
 
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             => cancellationToken.IsCancellationRequested
                 ? Task.FromCanceled<int>(cancellationToken)
-                : Task.FromResult(Invoke(context));
+                : Task.FromResult(Invoke(parseResult));
     }
 }

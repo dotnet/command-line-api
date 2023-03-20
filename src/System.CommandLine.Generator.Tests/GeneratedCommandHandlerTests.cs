@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -118,24 +117,20 @@ namespace System.CommandLine.Generator.Tests
         [Fact]
         public async Task Can_generate_handler_with_well_know_parameters_types()
         {
-            InvocationContext? boundInvocationContext = null;
             ParseResult? boundParseResult = null;
 
             void Execute(
-                InvocationContext invocationContext,
                 ParseResult parseResult)
             {
-                boundInvocationContext = invocationContext;
                 boundParseResult = parseResult;
             }
 
             var command = new Command("command");
 
-            command.SetHandler<Action<InvocationContext, ParseResult>>(Execute);
+            command.SetHandler<Action<ParseResult>>(Execute);
 
             await command.Parse("command").InvokeAsync();
 
-            boundInvocationContext.Should().NotBeNull();
             boundParseResult.Should().NotBeNull();
         }
 

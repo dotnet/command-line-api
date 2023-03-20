@@ -16,19 +16,16 @@ namespace System.CommandLine.Binding
     {
         private HelpBuilder? _helpBuilder;
 
-        internal BindingContext(InvocationContext invocationContext)
+        internal BindingContext(ParseResult parseResult)
         {
-            InvocationContext = invocationContext;
+            ParseResult = parseResult;
             ServiceProvider = new ServiceProvider(this);
-            ServiceProvider.AddService(_ => InvocationContext);
         }
-
-        internal InvocationContext InvocationContext { get; }
 
         /// <summary>
         /// The parse result for the current invocation.
         /// </summary>
-        public ParseResult ParseResult => InvocationContext.ParseResult;
+        public ParseResult ParseResult { get; }
         
         internal HelpBuilder HelpBuilder => _helpBuilder ??= (HelpBuilder)ServiceProvider.GetService(typeof(HelpBuilder))!;
 

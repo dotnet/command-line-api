@@ -27,7 +27,7 @@ namespace System.CommandLine.Rendering.Tests
             var command = new RootCommand();
             command.SetAction(ctx =>
             {
-                parseResult = ctx.ParseResult;
+                parseResult = ctx;
                 terminal.Append(new ParseResultView(parseResult));
             });
 

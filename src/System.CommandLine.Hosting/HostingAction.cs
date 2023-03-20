@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,31 +33,30 @@ namespace System.CommandLine.Hosting
             _actualAction = actualAction;
         }
 
-        public override BindingContext GetBindingContext(InvocationContext invocationContext) 
+        public override BindingContext GetBindingContext(ParseResult parseResult) 
             => _actualAction is BindingHandler bindingHandler
-                ? bindingHandler.GetBindingContext(invocationContext)
-                : base.GetBindingContext(invocationContext);
+                ? bindingHandler.GetBindingContext(parseResult)
+                : base.GetBindingContext(parseResult);
 
-        public async override Task<int> InvokeAsync(InvocationContext invocation, CancellationToken cancellationToken = default)
+        public async override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
         {
-            var argsRemaining = invocation.ParseResult.UnmatchedTokens;
+            var argsRemaining = parseResult.UnmatchedTokens;
             var hostBuilder = _hostBuilderFactory?.Invoke(argsRemaining)
                 ?? new HostBuilder();
-            hostBuilder.Properties[typeof(InvocationContext)] = invocation;
+            hostBuilder.Properties[typeof(ParseResult)] = parseResult;
 
-            Directive configurationDirective = invocation.ParseResult.Configuration.Directives.Single(d => d.Name == "config");
+            Directive configurationDirective = parseResult.Configuration.Directives.Single(d => d.Name == "config");
             hostBuilder.ConfigureHostConfiguration(config =>
             {
-                config.AddCommandLineDirectives(invocation.ParseResult, configurationDirective);
+                config.AddCommandLineDirectives(parseResult, configurationDirective);
             });
-            var bindingContext = GetBindingContext(invocation);
+            var bindingContext = GetBindingContext(parseResult);
             int registeredBefore = 0;
-            hostBuilder.UseInvocationLifetime(invocation);
+            hostBuilder.UseInvocationLifetime();
             hostBuilder.ConfigureServices(services =>
             {
-                services.AddSingleton(invocation);
+                services.AddSingleton(parseResult);
                 services.AddSingleton(bindingContext);
-                services.AddTransient(_ => invocation.ParseResult);
 
                 registeredBefore = services.Count;
             });
@@ -88,7 +86,7 @@ namespace System.CommandLine.Hosting
             {
                 if (_actualAction is not null)
                 {
-                    return await _actualAction.InvokeAsync(invocation, cancellationToken);
+                    return await _actualAction.InvokeAsync(parseResult, cancellationToken);
                 }
                 return 0;
             }
@@ -98,6 +96,6 @@ namespace System.CommandLine.Hosting
             }
         }
 
-        public override int Invoke(InvocationContext context) => InvokeAsync(context).GetAwaiter().GetResult();
+        public override int Invoke(ParseResult parseResult) => InvokeAsync(parseResult).GetAwaiter().GetResult();
     }
 }

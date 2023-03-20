@@ -1,5 +1,4 @@
 ﻿using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
@@ -31,12 +30,10 @@ namespace System.CommandLine.Hosting
             Action<IHostBuilder> configureHost = null
             ) => UseHost(builder, null, configureHost);
 
-        public static IHostBuilder UseInvocationLifetime(this IHostBuilder host,
-            InvocationContext invocation, Action<InvocationLifetimeOptions> configureOptions = null)
+        public static IHostBuilder UseInvocationLifetime(this IHostBuilder host, Action<InvocationLifetimeOptions> configureOptions = null)
         {
             return host.ConfigureServices(services =>
             {
-                services.TryAddSingleton(invocation);
                 services.AddSingleton<IHostLifetime, InvocationLifetime>();
                 if (configureOptions is Action<InvocationLifetimeOptions>)
                     services.Configure(configureOptions);
@@ -67,33 +64,33 @@ namespace System.CommandLine.Hosting
             return command;
         }
 
-        public static InvocationContext GetInvocationContext(this IHostBuilder hostBuilder)
+        public static ParseResult GetParseResult(this IHostBuilder hostBuilder)
         {
             _ = hostBuilder ?? throw new ArgumentNullException(nameof(hostBuilder));
 
-            if (hostBuilder.Properties.TryGetValue(typeof(InvocationContext), out var ctxObj) &&
-                ctxObj is InvocationContext invocationContext)
+            if (hostBuilder.Properties.TryGetValue(typeof(ParseResult), out var ctxObj) &&
+                ctxObj is ParseResult invocationContext)
                 return invocationContext;
 
             throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
         }
 
-        public static InvocationContext GetInvocationContext(this HostBuilderContext context)
+        public static ParseResult GetParseResult(this HostBuilderContext context)
         {
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
-            if (context.Properties.TryGetValue(typeof(InvocationContext), out var ctxObj) &&
-                ctxObj is InvocationContext invocationContext)
+            if (context.Properties.TryGetValue(typeof(ParseResult), out var ctxObj) &&
+                ctxObj is ParseResult invocationContext)
                 return invocationContext;
 
             throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
         }
 
-        public static IHost GetHost(this InvocationContext invocationContext)
+        public static IHost GetHost(this ParseResult parseResult)
         {
-            _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
+            _ = parseResult ?? throw new ArgumentNullException(paramName: nameof(parseResult));
             var hostModelBinder = new ModelBinder<IHost>();
-            return (IHost)hostModelBinder.CreateInstance(invocationContext.GetBindingContext());
+            return (IHost)hostModelBinder.CreateInstance(parseResult.GetBindingContext());
         }
 
         private static void AddIfNotPresent<T>(Command command, T option) where T : Option

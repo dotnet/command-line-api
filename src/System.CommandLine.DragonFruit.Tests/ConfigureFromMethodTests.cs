@@ -198,7 +198,6 @@ namespace System.CommandLine.DragonFruit.Tests
         }
 
         [Theory]
-        [InlineData(typeof(InvocationContext))]
         [InlineData(typeof(BindingContext))]
         [InlineData(typeof(ParseResult))]
         [InlineData(typeof(CancellationToken))]

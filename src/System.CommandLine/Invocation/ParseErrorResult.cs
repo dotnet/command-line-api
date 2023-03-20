@@ -9,28 +9,28 @@ namespace System.CommandLine.Invocation
 {
     internal sealed class ParseErrorResultAction : CliAction
     {
-        public override int Invoke(InvocationContext context)
+        public override int Invoke(ParseResult parseResult)
         {
             ConsoleHelpers.ResetTerminalForegroundColor();
             ConsoleHelpers.SetTerminalForegroundRed();
 
-            foreach (var error in context.ParseResult.Errors)
+            foreach (var error in parseResult.Errors)
             {
-                context.ParseResult.Configuration.Error.WriteLine(error.Message);
+                parseResult.Configuration.Error.WriteLine(error.Message);
             }
 
-            context.ParseResult.Configuration.Error.WriteLine();
+            parseResult.Configuration.Error.WriteLine();
 
             ConsoleHelpers.ResetTerminalForegroundColor();
 
-            new HelpOption().Action!.Invoke(context);
+            new HelpOption().Action!.Invoke(parseResult);
 
             return 1;
         }
 
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             => cancellationToken.IsCancellationRequested
                 ? Task.FromCanceled<int>(cancellationToken)
-                : Task.FromResult(Invoke(context));
+                : Task.FromResult(Invoke(parseResult));
     }
 }

@@ -95,7 +95,7 @@ namespace System.CommandLine
         /// that will be performed when the Command is invoked.
         /// </summary>
         /// <remarks>
-        /// <para>Use one of the <see cref="SetAction(Action{InvocationContext})" /> overloads to construct a handler.</para>
+        /// <para>Use one of the <see cref="SetAction(Action{ParseResult})" /> overloads to construct a handler.</para>
         /// <para>If the handler is not specified, parser errors will be generated for command line input that
         /// invokes this Command.</para></remarks>
         public CliAction? Action { get; set; }
@@ -103,13 +103,13 @@ namespace System.CommandLine
         /// <summary>
         /// Sets a synchronous action.
         /// </summary>
-        public void SetAction(Action<InvocationContext> action)
+        public void SetAction(Action<ParseResult> action)
             => Action = new AnonymousCliAction(action);
 
         /// <summary>
         /// Sets an asynchronous action.
         /// </summary>
-        public void SetAction(Func<InvocationContext, CancellationToken, Task> action)
+        public void SetAction(Func<ParseResult, CancellationToken, Task> action)
             => Action = new AnonymousCliAction(action);
 
         /// <summary>
