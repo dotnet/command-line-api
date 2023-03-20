@@ -42,28 +42,6 @@ namespace System.CommandLine.Tests
             console2.Out.ToString().Should().Contain(command.Description);
         }
 
-        [Fact]
-        public void When_CommandLineBuilder_is_used_then_Command_Invoke_does_not_use_its_configuration()
-        {
-            var command = new RootCommand();
-
-            new CommandLineBuilder(command)
-                .AddMiddleware(context =>
-                {
-                    context.Console.Out.Write("hello!");
-                })
-                .Build();
-
-            var console = new TestConsole();
-
-            command.Invoke("", console);
-
-            console.Out
-                   .ToString()
-                   .Should()
-                   .NotContain("hello!");
-        }
-
         [Fact] // https://github.com/dotnet/command-line-api/issues/1589
         public async Task Implicit_parsers_for_Parse_and_Invoke_do_not_affect_one_another()
         {

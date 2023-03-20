@@ -57,7 +57,7 @@ namespace System.CommandLine.Hosting
                 }, this);
             }
 
-            // The token comes from HostingExtensions.UseHost middleware
+            // The token comes from HostingAction.InvokeAsync
             // and it's the invocation cancellation token.
             invokeCancelReg = cancellationToken.Register(state =>
             {
