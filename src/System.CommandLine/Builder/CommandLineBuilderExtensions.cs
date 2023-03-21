@@ -141,7 +141,13 @@ namespace System.CommandLine
         /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
         public CommandLineBuilder UseHelp(int? maxWidth = null)
         {
-            return UseHelp(new HelpOption(), maxWidth);
+            return UseHelp(new HelpOption()
+            {
+                Action = new HelpAction()
+                {
+                    Builder = new HelpBuilder(maxWidth ?? int.MaxValue)
+                }
+            });
         }
 
         /// <summary>
@@ -156,48 +162,14 @@ namespace System.CommandLine
             return UseHelp(new HelpOption(name, helpAliases));
         }
 
-        /// <summary>
-        /// Configures the application to show help when one of the specified option aliases are used on the command line.
-        /// </summary>
-        /// <remarks>The specified aliases will override the default values.</remarks>
-        /// <param name="customize">A delegate that will be called to customize help if help is requested.</param>
-        /// <param name="maxWidth">Maximum output width for default help builder.</param>
-        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder UseHelp(Action<HelpContext> customize, int? maxWidth = null)
-        {
-            CustomizeHelpLayout(customize);
-
-            if (HelpOption is null)
-            {
-                UseHelp(new HelpOption(), maxWidth);
-            }
-
-            return this;
-        }
-
-        internal CommandLineBuilder UseHelp(HelpOption helpOption, int? maxWidth = null)
+        internal CommandLineBuilder UseHelp(HelpOption helpOption)
         {
             if (HelpOption is null)
             {
                 HelpOption = helpOption;
 
                 OverwriteOrAdd(Command, helpOption);
-
-                MaxHelpWidth = maxWidth;
             }
-            return this;
-        }
-
-        /// <summary>
-        /// Specifies an <see cref="HelpBuilder"/> to be used to format help output when help is requested.
-        /// </summary>
-        /// <param name="getHelpBuilder">A delegate that returns an instance of <see cref="HelpBuilder"/></param>
-        /// <returns>The reference to this <see cref="CommandLineBuilder"/> instance.</returns>
-        public CommandLineBuilder UseHelpBuilder(
-            Func<InvocationContext, HelpBuilder> getHelpBuilder)
-        {
-            UseHelpBuilderFactory(getHelpBuilder);
-
             return this;
         }
 

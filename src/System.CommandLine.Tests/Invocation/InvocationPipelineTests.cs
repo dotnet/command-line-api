@@ -126,61 +126,12 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public async Task When_no_help_builder_is_specified_it_uses_default_implementation()
+        public void When_no_help_builder_is_specified_it_uses_default_implementation()
         {
-            bool handlerWasCalled = false;
+            HelpOption helpOption = new();
 
-            var command = new Command("help-command");
-            command.SetAction((context, cancellationToken) =>
-            {
-                handlerWasCalled = true;
-                context.HelpBuilder.Should().NotBeNull();
-                return Task.FromResult(0);
-            });
-
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .Build();
-
-            await config.InvokeAsync("help-command", new TestConsole());
-
-            handlerWasCalled.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task When_help_builder_factory_is_specified_it_is_used_to_create_the_help_builder()
-        {
-            bool handlerWasCalled = false;
-            bool factoryWasCalled = false;
-
-            HelpBuilder createdHelpBuilder = null;
-
-            var command = new Command("help-command");
-            command.SetAction((context, cancellationToken) =>
-            {
-                handlerWasCalled = true;
-                context.HelpBuilder.Should().Be(createdHelpBuilder);
-                createdHelpBuilder.Should().NotBeNull();
-                return Task.FromResult(0);
-            });
-
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .UseHelpBuilder(context =>
-                         {
-                             factoryWasCalled = true;
-                             return createdHelpBuilder = new HelpBuilder();
-                         })
-                         .Build();
-
-            await config.InvokeAsync("help-command", new TestConsole());
-
-            handlerWasCalled.Should().BeTrue();
-            factoryWasCalled.Should().BeTrue();
+            helpOption.Action.Should().NotBeNull();
+            (helpOption.Action as HelpAction).Builder.Should().NotBeNull();
         }
     }
 }
