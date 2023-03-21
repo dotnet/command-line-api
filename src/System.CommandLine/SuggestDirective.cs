@@ -4,7 +4,6 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using System.Threading;
-using static System.Collections.Specialized.BitVector32;
 
 namespace System.CommandLine
 {
