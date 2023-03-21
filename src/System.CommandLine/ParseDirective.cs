@@ -3,7 +3,6 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace System.CommandLine
 {
