@@ -5,16 +5,24 @@ namespace System.CommandLine.Help
 {
     public sealed class HelpOption : Option<bool>
     {
+        private CliAction? _action;
+
         public HelpOption(string name, string[] aliases)
             : base(name, aliases, new Argument<bool>(name) { Arity = ArgumentArity.Zero })
         {
             AppliesToSelfAndChildren = true;
             Description = LocalizationResources.HelpOptionDescription();
-            Action = new HelpAction();
         }
 
         public HelpOption() : this("--help", new[] { "-h", "/h", "-?", "/?" })
         {
+        }
+
+        /// <inheritdoc />
+        public override CliAction? Action 
+        { 
+            get => _action ??= new HelpAction(); 
+            set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         internal override bool IsGreedy => false;

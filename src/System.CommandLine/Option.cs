@@ -108,7 +108,7 @@ namespace System.CommandLine
         /// Gets or sets the <see cref="CliAction"/> for the Option. The handler represents the action
         /// that will be performed when the Option is invoked.
         /// </summary>
-        public CliAction? Action { get; set; }
+        public virtual CliAction? Action { get; set; }
 
         string IValueDescriptor.ValueName => Name;
 

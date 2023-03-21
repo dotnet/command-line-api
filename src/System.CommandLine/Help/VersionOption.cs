@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Help
 {
-    internal class VersionOption : Option<bool>
+    internal sealed class VersionOption : Option<bool>
     {
+        private CliAction? _action;
+
         internal VersionOption()
             : base("--version", new Argument<bool>("--version") { Arity = ArgumentArity.Zero })
         {
             Description = LocalizationResources.VersionOptionDescription();
-            Action = new VersionOptionAction();
             AddValidators();
         }
 
@@ -23,8 +24,14 @@ namespace System.CommandLine.Help
             : base(name, aliases)
         {
             Description = LocalizationResources.VersionOptionDescription();
-            Action = new VersionOptionAction();
             AddValidators();
+        }
+
+        /// <inheritdoc />
+        public override CliAction? Action
+        {
+            get => _action ??= new VersionOptionAction();
+            set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         private void AddValidators()
