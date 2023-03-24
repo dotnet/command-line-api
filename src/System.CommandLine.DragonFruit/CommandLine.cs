@@ -26,14 +26,12 @@ namespace System.CommandLine.DragonFruit
         /// <param name="args">The string arguments.</param>
         /// <param name="entryPointFullTypeName">Explicitly defined entry point</param>
         /// <param name="xmlDocsFilePath">Explicitly defined path to xml file containing XML Docs</param>
-        /// <param name="console">Output console</param>
         /// <returns>The exit code.</returns>
         public static Task<int> ExecuteAssemblyAsync(
             Assembly entryAssembly,
             string[] args,
             string entryPointFullTypeName,
-            string xmlDocsFilePath = null,
-            IConsole console = null)
+            string xmlDocsFilePath = null)
         {
             if (entryAssembly == null)
             {
@@ -46,7 +44,7 @@ namespace System.CommandLine.DragonFruit
             MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly, entryPointFullTypeName);
 
             //TODO The xml docs file name and location can be customized using <DocumentationFile> project property.
-            return InvokeMethodAsync(args, entryMethod, xmlDocsFilePath, null, console);
+            return InvokeMethodAsync(args, entryMethod, xmlDocsFilePath, null);
         }
 
         /// <summary>
@@ -56,14 +54,12 @@ namespace System.CommandLine.DragonFruit
         /// <param name="args">The string arguments.</param>
         /// <param name="entryPointFullTypeName">Explicitly defined entry point</param>
         /// <param name="xmlDocsFilePath">Explicitly defined path to xml file containing XML Docs</param>
-        /// <param name="console">Output console</param>
         /// <returns>The exit code.</returns>
         public static int ExecuteAssembly(
             Assembly entryAssembly,
             string[] args,
             string entryPointFullTypeName,
-            string xmlDocsFilePath = null,
-            IConsole console = null)
+            string xmlDocsFilePath = null)
         {
             if (entryAssembly == null)
             {
@@ -76,7 +72,7 @@ namespace System.CommandLine.DragonFruit
             MethodInfo entryMethod = EntryPointDiscoverer.FindStaticEntryMethod(entryAssembly, entryPointFullTypeName);
 
             //TODO The xml docs file name and location can be customized using <DocumentationFile> project property.
-            return InvokeMethod(args, entryMethod, xmlDocsFilePath, null, console);
+            return InvokeMethod(args, entryMethod, xmlDocsFilePath, null);
         }
 
         public static Task<int> InvokeMethodAsync(
@@ -84,11 +80,14 @@ namespace System.CommandLine.DragonFruit
             MethodInfo method,
             string xmlDocsFilePath = null,
             object target = null,
-            IConsole console = null)
+            TextWriter standardOutput = null,
+            TextWriter standardError = null)
         {
             CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
+            configuration.Output = standardOutput ?? Console.Out;
+            configuration.Error = standardError ?? Console.Error;
 
-            return configuration.InvokeAsync(args, console);
+            return configuration.RootCommand.Parse(args, configuration).InvokeAsync();
         }
 
         public static int InvokeMethod(
@@ -96,11 +95,14 @@ namespace System.CommandLine.DragonFruit
             MethodInfo method,
             string xmlDocsFilePath = null,
             object target = null,
-            IConsole console = null)
+            TextWriter standardOutput = null,
+            TextWriter standardError = null)
         {
             CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
+            configuration.Output = standardOutput ?? Console.Out;
+            configuration.Error = standardError ?? Console.Error;
 
-            return configuration.Invoke(args, console);
+            return configuration.RootCommand.Parse(args, configuration).Invoke();
         }
 
         private static CommandLineConfiguration BuildConfiguration(MethodInfo method,
@@ -253,10 +255,10 @@ namespace System.CommandLine.DragonFruit
 
             var omittedTypes = new[]
                                {
-                                   typeof(IConsole),
                                    typeof(InvocationContext),
                                    typeof(BindingContext),
                                    typeof(ParseResult),
+                                   typeof(CommandLineConfiguration),
                                    typeof(CancellationToken),
                                };
 

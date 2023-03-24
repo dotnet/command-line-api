@@ -1,6 +1,5 @@
 ﻿System.CommandLine.Binding
   public class BindingContext, System.IServiceProvider
-    public System.CommandLine.IConsole Console { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
     public System.Void AddService(System.Type serviceType, System.Func<System.IServiceProvider,System.Object> factory)
     public System.Void AddService<T>(Func<System.IServiceProvider,T> factory)

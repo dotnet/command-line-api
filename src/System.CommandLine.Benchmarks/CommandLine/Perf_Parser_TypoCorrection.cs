@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
-using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
@@ -16,7 +15,6 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_TypoCorrection
     {
-        private readonly NullConsole _nullConsole = new();
         private readonly CommandLineConfiguration _configuration;
 
         public Perf_Parser_TypoCorrection()
@@ -26,6 +24,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _configuration = new CommandLineBuilder(new RootCommand { option })
                           .UseTypoCorrections()
                           .Build();
+            _configuration.Output = System.IO.TextWriter.Null;
         }
 
         public IEnumerable<BdnParam<ParseResult>> GenerateTestParseResults()
@@ -54,6 +53,6 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]
         public Task TypoCorrection(BdnParam<ParseResult> parseResult)
-            => parseResult.Value.InvokeAsync(_nullConsole);
+            => parseResult.Value.InvokeAsync();
     }
 }

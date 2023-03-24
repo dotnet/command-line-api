@@ -381,7 +381,7 @@ namespace System.CommandLine.Tests
                 command.SetAction((ctx) => handlerWasCalled = true);
                 command.Options.Add(option);
 
-                await command.InvokeAsync("--value 42");
+                await command.Parse("--value 42").InvokeAsync();
 
                 callCount.Should().Be(1);
                 handlerWasCalled.Should().BeTrue();

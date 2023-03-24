@@ -1,12 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -28,7 +23,7 @@ namespace System.CommandLine.Tests.Binding
 
             using CancellationTokenSource cts = new ();
 
-            Task<int> invokeResult = command.InvokeAsync("the-command", null, cts.Token);
+            Task<int> invokeResult = command.Parse("the-command").InvokeAsync(cts.Token);
 
             cts.Cancel();
 

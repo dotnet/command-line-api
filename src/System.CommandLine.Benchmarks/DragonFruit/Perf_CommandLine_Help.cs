@@ -17,7 +17,6 @@ namespace System.CommandLine.Benchmarks.DragonFruit
     [InvocationCount(3000)]
     public class Perf_CommandLine_Help
     {
-        private readonly NullConsole _nullConsole = new();
         private Assembly _testAssembly;
         private string _testAssemblyFilePath;
         private string _testAssemblyXmlDocsFilePath;
@@ -44,8 +43,7 @@ namespace System.CommandLine.Benchmarks.DragonFruit
                 _testAssembly,
                 new[] { "--help" },
                 null,
-                _testAssemblyXmlDocsFilePath,
-                _nullConsole);
+                _testAssemblyXmlDocsFilePath);
 
         [GlobalCleanup]
         public void Cleanup()

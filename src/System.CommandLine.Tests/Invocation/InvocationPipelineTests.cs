@@ -2,11 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Help;
-using System.CommandLine.Invocation;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -15,8 +10,6 @@ namespace System.CommandLine.Tests.Invocation
 {
     public class InvocationPipelineTests
     {
-        private readonly TestConsole _console = new();
-
         [Fact]
         public async Task InvokeAsync_chooses_the_appropriate_command()
         {
@@ -36,7 +29,7 @@ namespace System.CommandLine.Tests.Invocation
                          })
                          .Build();
 
-            await config.InvokeAsync("first", _console);
+            await config.InvokeAsync("first");
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
@@ -61,7 +54,7 @@ namespace System.CommandLine.Tests.Invocation
                          })
                 .Build();
 
-            config.Invoke("first", _console);
+            config.Invoke("first");
 
             firstWasCalled.Should().BeTrue();
             secondWasCalled.Should().BeFalse();
@@ -71,14 +64,7 @@ namespace System.CommandLine.Tests.Invocation
         public void When_command_handler_throws_then_InvokeAsync_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.SetAction((_, __) =>
-            {
-                throw new Exception("oops!");
-                // Help the compiler pick a CommandHandler.Create overload.
-#pragma warning disable CS0162 // Unreachable code detected
-                return Task.FromResult(0);
-#pragma warning restore CS0162
-            });
+            command.SetAction((_, __) => Task.FromException(new Exception("oops!")));
 
             var config = new CommandLineBuilder(new RootCommand
                          {
@@ -86,7 +72,7 @@ namespace System.CommandLine.Tests.Invocation
                          })
                          .Build();
 
-            Func<Task> invoke = async () => await config.InvokeAsync("the-command", _console);
+            Func<Task> invoke = async () => await config.InvokeAsync("the-command");
 
             invoke.Should()
                   .Throw<Exception>()
@@ -100,22 +86,12 @@ namespace System.CommandLine.Tests.Invocation
         public void When_command_handler_throws_then_Invoke_does_not_handle_the_exception()
         {
             var command = new Command("the-command");
-            command.SetAction((_, __) =>
-            {
-                throw new Exception("oops!");
-                // Help the compiler pick a CommandHandler.Create overload.
-#pragma warning disable CS0162 // Unreachable code detected
-                return Task.FromResult(0);
-#pragma warning restore CS0162
-            });
+            command.SetAction((_, __) => Task.FromException(new Exception("oops!")));
 
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
+            var config = new CommandLineBuilder(command)
                 .Build();
 
-            Func<int> invoke = () => config.Invoke("the-command", _console);
+            Func<int> invoke = () => command.Parse("the-command", config).Invoke();
 
             invoke.Should()
                 .Throw<Exception>()

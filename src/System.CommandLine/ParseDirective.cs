@@ -1,5 +1,4 @@
 ﻿using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,7 +38,7 @@ namespace System.CommandLine
             public override int Invoke(InvocationContext context)
             {
                 var parseResult = context.ParseResult;
-                context.Console.Out.WriteLine(parseResult.Diagram());
+                context.ParseResult.Configuration.Output.WriteLine(parseResult.Diagram());
                 return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
             }
 

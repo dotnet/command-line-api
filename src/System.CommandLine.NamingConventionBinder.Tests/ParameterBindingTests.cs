@@ -1,11 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,8 +13,6 @@ namespace System.CommandLine.NamingConventionBinder.Tests;
 
 public class ParameterBindingTests
 {
-    private readonly TestConsole _console = new();
-
     [Fact]
     public async Task Method_parameters_on_the_invoked_method_are_bound_to_matching_option_names()
     {
@@ -35,7 +30,7 @@ public class ParameterBindingTests
         command.Options.Add(new Option<int>("--age"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
-        await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+        await command.Parse("command --age 425 --name Gandalf").InvokeAsync();
 
         boundName.Should().Be("Gandalf");
         boundAge.Should().Be(425);
@@ -57,7 +52,7 @@ public class ParameterBindingTests
         };
         command.Action = CommandHandler.Create<string>(Execute);
 
-        await command.InvokeAsync("command --first-name Gandalf", _console);
+        await command.Parse("command --first-name Gandalf").InvokeAsync();
 
         boundFirstName.Should().Be("Gandalf");
     }
@@ -79,7 +74,7 @@ public class ParameterBindingTests
         command.Options.Add(new Option<int>("--age"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
-        await command.InvokeAsync("command --age 425 --NAME Gandalf", _console);
+        await command.Parse("command --age 425 --NAME Gandalf").InvokeAsync();
 
         boundName.Should().Be("Gandalf");
         boundAge.Should().Be(425);
@@ -104,7 +99,7 @@ public class ParameterBindingTests
         };
         command.Action = CommandHandler.Create<string, int>(Execute);
 
-        await command.InvokeAsync("command", _console);
+        await command.Parse("command").InvokeAsync();
 
         boundName.Should().BeNull();
         boundAge.Should().Be(0);
@@ -129,7 +124,7 @@ public class ParameterBindingTests
         };
         command.Action = CommandHandler.Create<string, int>(Execute);
 
-        await command.InvokeAsync("command -a 425 -n Gandalf", _console);
+        await command.Parse("command -a 425 -n Gandalf").InvokeAsync();
 
         boundName.Should().Be("Gandalf");
         boundAge.Should().Be(425);
@@ -152,7 +147,7 @@ public class ParameterBindingTests
             boundAge = age;
         });
 
-        await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+        await command.Parse("command --age 425 --name Gandalf").InvokeAsync();
 
         boundName.Should().Be("Gandalf");
         boundAge.Should().Be(425);
@@ -172,7 +167,7 @@ public class ParameterBindingTests
             boundAge = age;
         });
 
-        await command.InvokeAsync("command --age 425", _console);
+        await command.Parse("command --age 425").InvokeAsync();
 
         boundAge.Should().Be(425);
     }
@@ -193,7 +188,7 @@ public class ParameterBindingTests
             boundAge = age;
         });
 
-        await command.InvokeAsync("command", _console);
+        await command.Parse("command").InvokeAsync();
 
         wasCalled.Should().BeTrue();
         boundAge.Should().BeNull();
@@ -214,7 +209,7 @@ public class ParameterBindingTests
             boundDirectoryInfo = dir;
         });
 
-        await command.InvokeAsync($"command --dir \"{tempPath}\"", _console);
+        await command.Parse($"command --dir \"{tempPath}\"").InvokeAsync();
 
         boundDirectoryInfo.FullName.Should().Be(tempPath);
     }
@@ -232,7 +227,7 @@ public class ParameterBindingTests
         };
         command.Action = CommandHandler.Create<ParseResult>(result => { boundParseResult = result; });
 
-        await command.InvokeAsync("command -x 123", _console);
+        await command.Parse("command -x 123").InvokeAsync();
 
         boundParseResult.GetValue(option).Should().Be(123);
     }
@@ -249,23 +244,9 @@ public class ParameterBindingTests
         };
         command.Action = CommandHandler.Create<BindingContext>(context => { boundContext = context; });
 
-        await command.InvokeAsync("command -x 123", _console);
+        await command.Parse("command -x 123").InvokeAsync();
 
         boundContext.ParseResult.GetValue(option).Should().Be(123);
-    }
-
-    [Fact]
-    public async Task Method_parameters_of_type_IConsole_receive_the_current_console_instance()
-    {
-        var command = new Command("command")
-        {
-            new Option<int>("-x")
-        };
-        command.Action = CommandHandler.Create<IConsole>(console => { console.Out.Write("Hello!"); });
-
-        await command.InvokeAsync("command", _console);
-
-        _console.Out.ToString().Should().Be("Hello!");
     }
 
     [Fact]
@@ -281,7 +262,7 @@ public class ParameterBindingTests
         };
         command.Action = CommandHandler.Create<InvocationContext>(context => { boundContext = context; });
 
-        await command.InvokeAsync("command -x 123", _console);
+        await command.Parse("command -x 123").InvokeAsync();
 
         boundContext.ParseResult.GetValue(option).Should().Be(123);
     }
@@ -312,7 +293,7 @@ public class ParameterBindingTests
         };
         command.Action = CommandHandler.Create((ExecuteTestDelegate)testClass.Execute);
 
-        await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+        await command.Parse("command --age 425 --name Gandalf").InvokeAsync();
 
         testClass.boundName.Should().Be("Gandalf");
         testClass.boundAge.Should().Be(425);
@@ -332,7 +313,7 @@ public class ParameterBindingTests
             testClass.GetType().GetMethod(nameof(ExecuteTestClass.Execute)),
             testClass);
 
-        await command.InvokeAsync("command --age 425 --name Gandalf", _console);
+        await command.Parse("command --age 425 --name Gandalf").InvokeAsync();
 
         testClass.boundName.Should().Be("Gandalf");
         testClass.boundAge.Should().Be(425);
@@ -355,7 +336,7 @@ public class ParameterBindingTests
         command.Arguments.Add(new Argument<string>("name"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
-        await command.InvokeAsync("command 425 Gandalf", _console);
+        await command.Parse("command 425 Gandalf").InvokeAsync();
 
         boundName.Should().Be("Gandalf");
         boundAge.Should().Be(425);
@@ -377,7 +358,7 @@ public class ParameterBindingTests
         };
         command.Action = CommandHandler.Create<string>(Execute);
 
-        await command.InvokeAsync("command Gandalf", _console);
+        await command.Parse("command Gandalf").InvokeAsync();
 
         boundFirstName.Should().Be("Gandalf");
     }
@@ -399,7 +380,7 @@ public class ParameterBindingTests
         command.Arguments.Add(new Argument<string>("Name"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
-        await command.InvokeAsync("command 425 Gandalf", _console);
+        await command.Parse("command 425 Gandalf").InvokeAsync();
 
         boundName.Should().Be("Gandalf");
         boundAge.Should().Be(425);
@@ -422,7 +403,7 @@ public class ParameterBindingTests
         command.Arguments.Add(new Argument<string>("fullname|nickname"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
-        await command.InvokeAsync("command 425 Gandalf", _console);
+        await command.Parse("command 425 Gandalf").InvokeAsync();
 
         boundName.Should().Be("Gandalf");
         boundAge.Should().Be(425);
@@ -437,7 +418,7 @@ public class ParameterBindingTests
         var command = new Command("command");
         command.Action = CommandHandler.Create(type.GetMethod(nameof(CliAction.InvokeAsync)));
 
-        int result = await command.InvokeAsync("command", _console);
+        int result = await command.Parse("command").InvokeAsync();
 
         result.Should().Be(expectedResult);
     }

@@ -20,7 +20,6 @@ namespace System.CommandLine.Benchmarks.DragonFruit
     [InvocationCount(3000)]
     public class Perf_CommandLine_EntryPoint
     {
-        private readonly NullConsole _nullConsole = new();
         private Assembly _testAssembly;
         private string _testAssemblyFilePath;
         private string _testAssemblyXmlDocsFilePath;
@@ -134,8 +133,7 @@ namespace System.CommandLine.Benchmarks.DragonFruit
                     _testAssembly,
                     new string[] { },
                     null,
-                    _testAssemblyXmlDocsFilePath,
-                   _nullConsole);
+                    _testAssemblyXmlDocsFilePath);
 
         [Benchmark(Description = "ExecuteAssemblyAsync explicit entry point.")]
         public Task SearchForStartingPointWhenGivenEntryPointClass()
@@ -143,8 +141,7 @@ namespace System.CommandLine.Benchmarks.DragonFruit
                 _testAssembly,
                 new string[] { },
                 "PerfTestApp.Program",
-                _testAssemblyXmlDocsFilePath,
-                _nullConsole);
+                _testAssemblyXmlDocsFilePath);
 
         [GlobalCleanup]
         public void Cleanup()

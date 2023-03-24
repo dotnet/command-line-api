@@ -57,7 +57,6 @@ namespace System.CommandLine.Hosting
             {
                 services.AddSingleton(invocation);
                 services.AddSingleton(bindingContext);
-                services.AddSingleton(invocation.Console);
                 services.AddTransient(_ => invocation.ParseResult);
 
                 registeredBefore = services.Count;

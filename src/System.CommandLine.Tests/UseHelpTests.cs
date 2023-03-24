@@ -3,9 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Help;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
-using System.CommandLine.Tests.Utility;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -16,8 +14,6 @@ namespace System.CommandLine.Tests
 {
     public class UseHelpTests
     {
-        private readonly TestConsole _console = new();
-
         [Fact]
         public async Task UseHelp_writes_help_for_the_specified_command()
         {
@@ -32,12 +28,13 @@ namespace System.CommandLine.Tests
                     })
                     .UseHelp()
                     .Build();
+            config.Output = new StringWriter();
 
             var result = command.Parse("command subcommand --help", config);
 
-            await result.InvokeAsync(_console);
+            await result.InvokeAsync();
 
-            _console.Out.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand [options]");
+            config.Output.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand [options]");
         }
          
         [Fact]
@@ -56,8 +53,9 @@ namespace System.CommandLine.Tests
                     })
                     .UseHelp()
                     .Build();
+            config.Output = new StringWriter();
 
-            await config.InvokeAsync("command subcommand --help", _console);
+            int result = await command.Parse("command subcommand --help", config).InvokeAsync();
 
             wasCalled.Should().BeFalse();
         }
@@ -77,9 +75,12 @@ namespace System.CommandLine.Tests
                     .UseHelp()
                     .Build();
 
-            await config.InvokeAsync($"command {value}", _console);
+            StringWriter console = new();
+            config.Output = console;
 
-            _console.Should().ShowHelp();
+            await config.InvokeAsync($"command {value}");
+
+            console.ToString().Should().Contain("Usage:");
         }
 
         [Fact]
@@ -96,11 +97,12 @@ namespace System.CommandLine.Tests
                     .UseHelp()
                     .Build();
 
-            var result = command.Parse("command -h", config);
+            StringWriter console = new();
+            config.Output = console;
 
-            await result.InvokeAsync(_console);
+            int result = await command.Parse("command -h", config).InvokeAsync();
 
-            _console.Out.ToString().Should().BeEmpty();
+            console.ToString().Should().BeEmpty();
         }
 
         [Fact]
@@ -187,10 +189,11 @@ namespace System.CommandLine.Tests
                          .UseHelp()
                          .UseHelp()
                          .Build();
+            config.Output = new StringWriter();
 
-            config.Invoke(commandline, _console);
+            config.Invoke(commandline);
 
-            _console.Should().ShowHelp();
+            config.Output.ToString().Should().Contain("Usage:");
         }
 
         [Theory]
@@ -206,21 +209,22 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(root)
                          .UseHelp()
                          .Build();
+            var console1 = new StringWriter();
+            config.Output = console1;
 
-            var console1 = new TestConsole();
+            config.Invoke(commandline);
 
-            config.Invoke(commandline, console1);
-
-            console1.Should().ShowHelp();
+            console1.ToString().Should().Contain("Usage:");
 
             var parser2 = new CommandLineBuilder(root)
                           .UseHelp()
                           .Build();
-            var console2 = new TestConsole();
+            var console2 = new StringWriter();
+            parser2.Output = console2;
 
-            parser2.Invoke(commandline, console2);
+            parser2.Invoke(commandline);
 
-            console2.Should().ShowHelp();
+            console2.ToString().Should().Contain("Usage:");
         }
 
         [Theory]
@@ -232,10 +236,11 @@ namespace System.CommandLine.Tests
                 new CommandLineBuilder(new RootCommand())
                     .UseHelp("/lost", "--confused")
                     .Build();
+            config.Output = new StringWriter();
 
-            await config.InvokeAsync(helpAlias, _console);
+            await config.InvokeAsync(helpAlias);
 
-            _console.Should().ShowHelp();
+            config.Output.ToString().Should().Contain("Usage:");
         }
 
         [Theory]
@@ -250,10 +255,11 @@ namespace System.CommandLine.Tests
                 new CommandLineBuilder(new RootCommand())
                     .UseHelp("--confused")
                     .Build();
+            config.Output = new StringWriter();
 
-            await config.InvokeAsync(helpAlias, _console);
+            await config.InvokeAsync(helpAlias);
 
-            _console.Out.ToString().Should().Be("");
+            config.Output.ToString().Should().Be("");
         }
 
         [Fact]
@@ -267,12 +273,14 @@ namespace System.CommandLine.Tests
             {
                 subcommand,
                 option,
-                argument
+                argument,
+                new HelpOption(),
             };
 
-            var console = new TestConsole();
+            CommandLineConfiguration config = new (rootCommand);
+            config.Output = new StringWriter();
 
-            ParseResult parseResult = rootCommand.Parse("-h");
+            ParseResult parseResult = rootCommand.Parse("-h", config);
 
             if (parseResult.Action is HelpAction helpAction)
             { 
@@ -281,9 +289,9 @@ namespace System.CommandLine.Tests
                 helpAction.Builder.CustomizeSymbol(argument, secondColumnText: "The custom argument description");
             }
 
-            parseResult.Invoke(console);
+            parseResult.Invoke();
 
-            console.Out
+            config.Output
                    .ToString()
                    .Should()
                    .ContainAll("The custom command description",
@@ -297,19 +305,18 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(new RootCommand())
                          .UseHelp()
                          .Build();
+            config.Output = new StringWriter();
 
-            var console = new TestConsole();
-
-            ParseResult parseResult = config.RootCommand.Parse("-h");
+            ParseResult parseResult = config.RootCommand.Parse("-h", config);
 
             if (parseResult.Action is HelpAction helpAction)
             {
                 helpAction.Builder.CustomizeLayout(CustomLayout);
             }
 
-            parseResult.Invoke(console);
+            parseResult.Invoke();
 
-            console.Out.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}{NewLine}");
+            config.Output.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}{NewLine}");
 
             IEnumerable<Action<HelpContext>> CustomLayout(HelpContext _)
             {
@@ -326,18 +333,18 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(command)
                          .UseHelp()
                          .Build();
+            config.Output = new StringWriter();
 
-            ParseResult parseResult = config.RootCommand.Parse("-h");
+            ParseResult parseResult = config.RootCommand.Parse("-h", config);
 
             if (parseResult.Action is HelpAction helpAction)
             {
                 helpAction.Builder.CustomizeLayout(CustomLayout);
             }
 
-            var console = new TestConsole();
-            parseResult.Invoke(console);
+            parseResult.Invoke();
 
-            var output = console.Out.ToString();
+            var output = config.Output.ToString();
             var defaultHelp = GetDefaultHelp(command);
 
             var expected = $"first{NewLine}{NewLine}{defaultHelp}last{NewLine}{NewLine}";
@@ -386,14 +393,16 @@ namespace System.CommandLine.Tests
                         }
                         .Concat(HelpBuilder.Default.GetLayout()));
 
-            var typicalOutput = new TestConsole();
-            command.Parse("typical -h", config).Invoke(typicalOutput);
+            var typicalOutput = new StringWriter();
+            config.Output = typicalOutput;
+            command.Parse("typical -h", config).Invoke();
 
-            var customOutput = new TestConsole();
-            command.Parse("custom -h", config).Invoke(customOutput);
+            var customOutput = new StringWriter();
+            config.Output = customOutput;
+            command.Parse("custom -h", config).Invoke();
 
-            typicalOutput.Out.ToString().Should().Be(GetDefaultHelp(commandWithTypicalHelp, false));
-            customOutput.Out.ToString().Should().Be($"Custom layout!{NewLine}{NewLine}{GetDefaultHelp(commandWithCustomHelp, false)}");
+            typicalOutput.ToString().Should().Be(GetDefaultHelp(commandWithTypicalHelp, false));
+            customOutput.ToString().Should().Be($"Custom layout!{NewLine}{NewLine}{GetDefaultHelp(commandWithCustomHelp, false)}");
         }
 
         [Fact]
@@ -411,11 +420,11 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(command)
                          .UseHelp(maxWidth: 30)
                          .Build();
+            config.Output = new StringWriter();
 
-            var console = new TestConsole();
-            config.Invoke("test -h", console);
+            config.Invoke("test -h");
 
-            string result = console.Out.ToString();
+            string result = config.Output.ToString();
             result.Should().Be(
         $"Description:{NewLine}{NewLine}" +
         $"Usage:{NewLine}  test [options]{NewLine}{NewLine}" +
@@ -435,10 +444,9 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(new RootCommand())
                          .UseHelp()
                          .Build();
+            config.Output = new StringWriter();
 
-            var console = new TestConsole();
-
-            ParseResult parseResult = config.RootCommand.Parse("-h");
+            ParseResult parseResult = config.RootCommand.Parse("-h", config);
 
             if (parseResult.Action is HelpAction helpAction)
             {
@@ -446,9 +454,9 @@ namespace System.CommandLine.Tests
                 helpAction.Builder.CustomizeLayout(CustomLayout);
             }
 
-            parseResult.Invoke(console);
+            parseResult.Invoke();
 
-            string result = console.Out.ToString();
+            string result = config.Output.ToString();
             result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}{NewLine}");
 
             IEnumerable<Action<HelpContext>> CustomLayout(HelpContext _)
@@ -459,15 +467,14 @@ namespace System.CommandLine.Tests
 
         private string GetDefaultHelp(Command command, bool trimOneNewline = true)
         {
-            var console = new TestConsole();
-
             var config = new CommandLineBuilder(command)
                          .UseHelp()
                          .Build();
+            config.Output = new StringWriter();
 
-            config.Invoke("-h", console);
+            config.Invoke("-h");
 
-            var output = console.Out.ToString();
+            var output = config.Output.ToString();
 
             if (trimOneNewline)
             {

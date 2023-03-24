@@ -445,7 +445,7 @@ namespace System.CommandLine.Tests
                 commandValidatorWasCalled = true;
             });
 
-            rootCommand.Invoke(commandLine);
+            rootCommand.Parse(commandLine).Invoke();
 
             commandValidatorWasCalled.Should().BeTrue();
             optionValidatorWasCalled.Should().BeTrue();
@@ -518,7 +518,7 @@ namespace System.CommandLine.Tests
             childCommand.SetAction((ctx) => handlerWasCalled = true);
             grandchildCommand.SetAction((ctx) => handlerWasCalled = true);
 
-            var result = await rootCommand.InvokeAsync(commandLine);
+            var result = await rootCommand.Parse(commandLine).InvokeAsync();
 
             result.Should().Be(1);
             handlerWasCalled.Should().BeFalse();

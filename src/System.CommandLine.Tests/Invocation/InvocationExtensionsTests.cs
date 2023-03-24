@@ -1,8 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -15,15 +16,22 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Command_InvokeAsync_uses_default_pipeline_by_default()
         {
-            var command = new Command("the-command");
+            var command = new Command("the-command")
+            {
+                new HelpOption()
+            };
             var theHelpText = "the help text";
             command.Description = theHelpText;
 
-            var console = new TestConsole();
+            StringWriter output = new();
+            CommandLineConfiguration config = new(command)
+            {
+                Output = output
+            };
 
-            await command.InvokeAsync("-h", console);
+            await command.Parse("-h", config).InvokeAsync();
 
-            console.Out
+            output
                    .ToString()
                    .Should()
                    .Contain(theHelpText);
@@ -32,15 +40,22 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void Command_Invoke_uses_default_pipeline_by_default()
         {
-            var command = new Command("the-command");
+            var command = new Command("the-command")
+            {
+                new HelpOption()
+            };
             var theHelpText = "the help text";
             command.Description = theHelpText;
 
-            var console = new TestConsole();
+            StringWriter output = new ();
+            CommandLineConfiguration config = new(command)
+            {
+                Output = output
+            };
 
-            command.Invoke("-h", console);
+            command.Parse("-h", config).Invoke();
 
-            console.Out
+            output
                    .ToString()
                    .Should()
                    .Contain(theHelpText);
@@ -54,7 +69,7 @@ namespace System.CommandLine.Tests.Invocation
 
             rootCommand.SetAction((_) => wasCalled = true);
 
-            var result = await rootCommand.InvokeAsync("");
+            var result = await rootCommand.Parse("").InvokeAsync();
 
             wasCalled.Should().BeTrue();
             result.Should().Be(0);
@@ -68,7 +83,7 @@ namespace System.CommandLine.Tests.Invocation
 
             rootCommand.SetAction((_) => wasCalled = true);
 
-            int result = rootCommand.Invoke("");
+            int result = rootCommand.Parse("").Invoke();
 
             wasCalled.Should().BeTrue();
             result.Should().Be(0);
@@ -87,7 +102,7 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromException(new Exception("oops!"));
             });
 
-            var resultCode = await rootCommand.InvokeAsync("");
+            var resultCode = await rootCommand.Parse("").InvokeAsync();
 
             wasCalled.Should().BeTrue();
             resultCode.Should().Be(1);
@@ -110,7 +125,7 @@ namespace System.CommandLine.Tests.Invocation
 #pragma warning restore CS0162
             });
 
-            var resultCode = rootCommand.Invoke("");
+            var resultCode = rootCommand.Parse("").Invoke();
 
             wasCalled.Should().BeTrue();
             resultCode.Should().Be(1);
@@ -124,8 +139,8 @@ namespace System.CommandLine.Tests.Invocation
                 Action = new CustomExitCodeAction()
             };
 
-            rootCommand.Invoke("").Should().Be(123);
-            (await rootCommand.InvokeAsync("")).Should().Be(456);
+            rootCommand.Parse("").Invoke().Should().Be(123);
+            (await rootCommand.Parse("").InvokeAsync()).Should().Be(456);
         }
 
         internal sealed class CustomExitCodeAction : CliAction
@@ -149,7 +164,7 @@ namespace System.CommandLine.Tests.Invocation
             });
 
             cts.Cancel();
-            await command.InvokeAsync("test", cancellationToken: cts.Token);
+            await command.Parse("test").InvokeAsync(cancellationToken: cts.Token);
         }
     }
 }

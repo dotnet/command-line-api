@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.IO;
-
 namespace System.CommandLine.Invocation
 {
     /// <summary>
@@ -10,24 +8,11 @@ namespace System.CommandLine.Invocation
     /// </summary>
     public sealed class InvocationContext
     {
-        private IConsole? _console;
-
         /// <param name="parseResult">The result of the current parse operation.</param>
-        /// <param name="console">The console to which output is to be written.</param>
-        public InvocationContext(ParseResult parseResult, IConsole? console = null)
+        public InvocationContext(ParseResult parseResult)
         {
             ParseResult = parseResult;
-            _console = console;
         }
-
-        /// <summary>
-        /// The console to which output should be written during the current invocation.
-        /// </summary>
-        public IConsole Console
-        {
-            get => _console ??= new SystemConsole();
-            set => _console = value;
-        } 
 
         /// <summary>
         /// The parse result for the current invocation.

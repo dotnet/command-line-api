@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +21,6 @@ namespace System.CommandLine.Invocation
         private static int ProvideSuggestions(InvocationContext context)
         {
             ParseResult result = context.ParseResult;
-            IConsole console = context.Console;
             int maxLevenshteinDistance = result.Configuration.MaxLevenshteinDistance;
 
             var unmatchedTokens = result.UnmatchedTokens;
@@ -35,11 +33,11 @@ namespace System.CommandLine.Invocation
                 {
                     if (first)
                     {
-                        console.Out.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
+                        result.Configuration.Output.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
                         first = false;
                     }
 
-                    console.Out.WriteLine(suggestion);
+                    result.Configuration.Output.WriteLine(suggestion);
                 }
             }
 

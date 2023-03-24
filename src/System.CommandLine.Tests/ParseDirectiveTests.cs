@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -31,16 +31,15 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseParseDirective()
                          .Build();
+            config.Output = new StringWriter();
 
             var result = rootCommand.Parse("[parse] subcommand -c 34 --nonexistent wat", config);
 
             output.WriteLine(result.Diagram());
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"![ {RootCommand.ExecutableName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
@@ -56,16 +55,14 @@ namespace System.CommandLine.Tests
                          .UseVersionOption()
                          .UseHelp()
                          .Build();
-
+            config.Output = new StringWriter();
             var result = rootCommand.Parse("[parse] --help", config);
 
             output.WriteLine(result.Diagram());
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"[ {RootCommand.ExecutableName} [ --help ] ]" + Environment.NewLine);
@@ -81,16 +78,15 @@ namespace System.CommandLine.Tests
                          .UseVersionOption()
                          .UseHelp()
                          .Build();
+            config.Output = new StringWriter();
 
             var result = rootCommand.Parse("[parse] --version", config);
 
             output.WriteLine(result.Diagram());
 
-            var console = new TestConsole();
+            await result.InvokeAsync();
 
-            await result.InvokeAsync(console);
-
-            console.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"[ {RootCommand.ExecutableName} [ --version ] ]" + Environment.NewLine);
@@ -104,7 +100,7 @@ namespace System.CommandLine.Tests
                 new Option<int>("-x")
             };
 
-            var exitCode = await command.InvokeAsync("[parse] -x 123");
+            var exitCode = await command.Parse("[parse] -x 123").InvokeAsync();
 
             exitCode.Should().Be(0);
         }
@@ -117,7 +113,7 @@ namespace System.CommandLine.Tests
                 new Option<int>("-x")
             };
 
-            var exitCode = await command.InvokeAsync("[parse] -x not-an-int");
+            var exitCode = await command.Parse("[parse] -x not-an-int").InvokeAsync();
 
             exitCode.Should().Be(1);
         }
