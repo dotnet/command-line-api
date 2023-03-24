@@ -100,12 +100,12 @@ namespace System.CommandLine.Tests.Help
 
                 var console = new StringWriter();
                 var config = CommandLineConfiguration.CreateBuilder(command).Build();
-                config.Out = console;
+                config.Output = console;
                 command.Parse("root a -h", config).Invoke();
                 console.ToString().Should().Contain(optionAFirstColumnText);
 
                 console = new StringWriter();
-                config.Out = console;
+                config.Output = console;
                 command.Parse("root b -h", config).Invoke();
                 console.ToString().Should().Contain(optionBFirstColumnText);
             }
@@ -145,13 +145,13 @@ namespace System.CommandLine.Tests.Help
                 var config = new CommandLineBuilder(command)
                              .Build();
 
-                config.Out = new StringWriter();
+                config.Output = new StringWriter();
                 config.Invoke("root a -h");
-                config.Out.ToString().Should().Contain($"option          {optionADescription}");
+                config.Output.ToString().Should().Contain($"option          {optionADescription}");
 
-                config.Out = new StringWriter();
+                config.Output = new StringWriter();
                 config.Invoke("root b -h");
-                config.Out.ToString().Should().Contain($"option          {optionBDescription}");
+                config.Output.ToString().Should().Contain($"option          {optionBDescription}");
             }
 
             [Fact]
@@ -272,7 +272,7 @@ namespace System.CommandLine.Tests.Help
 
                 CommandLineConfiguration config = new CommandLineBuilder(command).Build();
                 var console = new StringWriter();
-                config.Out = console;
+                config.Output = console;
                 command.Parse("test -h", config).Invoke();
                 console.ToString().Should().MatchRegex(expected);
             }
@@ -318,9 +318,9 @@ namespace System.CommandLine.Tests.Help
                     }
                 });
 
-                config.Out = new StringWriter();
+                config.Output = new StringWriter();
                 command.Parse("test -h", config).Invoke();
-                config.Out.ToString().Should().MatchRegex(expected);
+                config.Output.ToString().Should().MatchRegex(expected);
             }
         }
     }

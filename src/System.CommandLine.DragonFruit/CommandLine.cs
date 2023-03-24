@@ -84,7 +84,7 @@ namespace System.CommandLine.DragonFruit
             TextWriter standardError = null)
         {
             CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
-            configuration.Out = standardOutput ?? Console.Out;
+            configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
             return configuration.RootCommand.Parse(args, configuration).InvokeAsync();
@@ -99,7 +99,7 @@ namespace System.CommandLine.DragonFruit
             TextWriter standardError = null)
         {
             CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
-            configuration.Out = standardOutput ?? Console.Out;
+            configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
             return configuration.RootCommand.Parse(args, configuration).Invoke();

@@ -26,7 +26,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_taking_bool)), this)
                          .Build();
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             await config.InvokeAsync($"{RootCommand.ExecutableName} --value");
 
@@ -46,7 +46,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_taking_bool)), this)
                          .Build();
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             await config.InvokeAsync(commandLine);
 
@@ -60,7 +60,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_with_single_letter_parameters)), this)
                          .Build();
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             await config.InvokeAsync("-x 123 -y 456");
 
@@ -172,7 +172,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_void)), this)
                          .Build();
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             var result = await config.InvokeAsync("");
 
@@ -186,7 +186,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_int)), this)
                          .Build();
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             var result = await config.InvokeAsync("-i 123");
 
@@ -200,7 +200,7 @@ namespace System.CommandLine.DragonFruit.Tests
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_Task_of_int)), this)
                          .Build();
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             var result = await config.InvokeAsync("-i 123");
 

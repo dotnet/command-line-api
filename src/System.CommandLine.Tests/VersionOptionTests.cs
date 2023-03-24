@@ -23,11 +23,11 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineBuilder(new RootCommand())
                          .UseVersionOption()
                          .Build();
-            configuration.Out = new StringWriter();
+            configuration.Output = new StringWriter();
 
             await configuration.InvokeAsync("--version");
 
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseVersionOption()
                          .Build();
-            config.Out = new StringWriter();
+            config.Output = new StringWriter();
 
             await config.InvokeAsync("--version");
 
@@ -54,11 +54,11 @@ namespace System.CommandLine.Tests
                          .UseHelp()
                          .UseVersionOption()
                          .Build();
-            configuration.Out = new StringWriter();
+            configuration.Output = new StringWriter();
 
             await configuration.InvokeAsync("--help");
 
-            configuration.Out
+            configuration.Output
                    .ToString()
                    .Should()
                    .Match("*Options:*--version*Show version information*");
@@ -79,11 +79,11 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
                 .Build();
-            configuration.Out = new StringWriter();
+            configuration.Output = new StringWriter();
 
             await configuration.InvokeAsync("--version");
 
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -98,11 +98,11 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineBuilder(rootCommand)
                 .UseVersionOption()
                 .Build();
-            configuration.Out = new StringWriter();
+            configuration.Output = new StringWriter();
 
             await configuration.InvokeAsync("--version");
 
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Theory]
@@ -164,11 +164,11 @@ namespace System.CommandLine.Tests
                          .UseVersionOption()
                          .UseVersionOption()
                          .Build();
-            configuration.Out = new StringWriter();
+            configuration.Output = new StringWriter();
 
             await configuration.InvokeAsync("--version");
 
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -177,14 +177,14 @@ namespace System.CommandLine.Tests
             var configuration = new CommandLineBuilder(new RootCommand())
                          .UseVersionOption("-v", "-version")
                          .Build();
-            configuration.Out = new StringWriter();
+            configuration.Output = new StringWriter();
 
             await configuration.InvokeAsync("-v");
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
 
-            configuration.Out = new StringWriter();
+            configuration.Output = new StringWriter();
             await configuration.InvokeAsync("-version");
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]

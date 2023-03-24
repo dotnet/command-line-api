@@ -34,7 +34,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _configuration = new CommandLineBuilder(eatCommand)
                 .UseSuggestDirective()
                 .Build();
-            _configuration.Out = System.IO.TextWriter.Null;
+            _configuration.Output = System.IO.TextWriter.Null;
         }
 
         [Params(

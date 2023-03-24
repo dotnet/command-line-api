@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(rootCommand)
                          .UseParseDirective()
                          .Build();
-            config.Out = new StringWriter();
+            config.Output = new StringWriter();
 
             var result = rootCommand.Parse("[parse] subcommand -c 34 --nonexistent wat", config);
 
@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"![ {RootCommand.ExecutableName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
@@ -55,14 +55,14 @@ namespace System.CommandLine.Tests
                          .UseVersionOption()
                          .UseHelp()
                          .Build();
-            config.Out = new StringWriter();
+            config.Output = new StringWriter();
             var result = rootCommand.Parse("[parse] --help", config);
 
             output.WriteLine(result.Diagram());
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"[ {RootCommand.ExecutableName} [ --help ] ]" + Environment.NewLine);
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests
                          .UseVersionOption()
                          .UseHelp()
                          .Build();
-            config.Out = new StringWriter();
+            config.Output = new StringWriter();
 
             var result = rootCommand.Parse("[parse] --version", config);
 
@@ -86,7 +86,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"[ {RootCommand.ExecutableName} [ --version ] ]" + Environment.NewLine);

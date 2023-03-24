@@ -133,7 +133,7 @@ namespace System.CommandLine
         /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
         /// If you want to disable the output, please set it to <see cref="TextWriter.Null"/>.
         /// </summary>
-        public TextWriter Out
+        public TextWriter Output
         { 
             get => _output ??= Console.Out;
             set => _output = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");

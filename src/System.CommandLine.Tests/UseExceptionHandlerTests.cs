@@ -56,12 +56,12 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(command)
                                    .UseExceptionHandler()
                                    .Build();
-            config.Out = new StringWriter();
+            config.Output = new StringWriter();
 
             int resultCode = await config
                                    .InvokeAsync("the-command");
 
-            config.Out.ToString().Should().BeEmpty();
+            config.Output.ToString().Should().BeEmpty();
             resultCode.Should().NotBe(0);
         }
 
@@ -74,16 +74,16 @@ namespace System.CommandLine.Tests
             var config = new CommandLineBuilder(command)
                                    .UseExceptionHandler((exception, context) =>
                                    {
-                                       context.ParseResult.Configuration.Out.Write("Well that's awkward.");
+                                       context.ParseResult.Configuration.Output.Write("Well that's awkward.");
                                        return 22;
                                    })
                                    .Build();
-            config.Out = new StringWriter();
+            config.Output = new StringWriter();
 
             int resultCode = await config
                                    .InvokeAsync("the-command");
 
-            config.Out.ToString().Should().Be("Well that's awkward.");
+            config.Output.ToString().Should().Be("Well that's awkward.");
             resultCode.Should().Be(22);
         }
 

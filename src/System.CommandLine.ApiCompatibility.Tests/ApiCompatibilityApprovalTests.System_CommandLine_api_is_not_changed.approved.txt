@@ -81,7 +81,7 @@ System.CommandLine
     public System.Boolean EnablePosixBundling { get; }
     public System.Boolean EnableTokenReplacement { get; }
     public System.IO.TextWriter Error { get; set; }
-    public System.IO.TextWriter Out { get; set; }
+    public System.IO.TextWriter Output { get; set; }
     public Command RootCommand { get; }
     public System.Int32 Invoke(System.String commandLine)
     public System.Int32 Invoke(System.String[] args)

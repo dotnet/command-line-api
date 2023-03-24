@@ -24,10 +24,10 @@ namespace System.CommandLine.DragonFruit.Tests
         /// <param name="args">These are arguments</param>
         public void TestMainWithPara(string name, ParseResult parseResult, string[] args = null)
         {
-            parseResult.Configuration.Out.Write(name);
+            parseResult.Configuration.Output.Write(name);
             if (args != null && args.Length > 0)
             {
-                parseResult.Configuration.Out.Write($"args: { string.Join(",", args) }");
+                parseResult.Configuration.Output.Write($"args: { string.Join(",", args) }");
             }
         }
 
@@ -43,10 +43,10 @@ namespace System.CommandLine.DragonFruit.Tests
         /// <param name="args">These are arguments</param>
         public void TestMainWithTextAndPara(string name, ParseResult parseResult, string[] args = null)
         {
-            parseResult.Configuration.Out.Write(name);
+            parseResult.Configuration.Output.Write(name);
             if (args != null && args.Length > 0)
             {
-                parseResult.Configuration.Out.Write($"args: { string.Join(",", args) }");
+                parseResult.Configuration.Output.Write($"args: { string.Join(",", args) }");
             }
         }
 
@@ -58,12 +58,12 @@ namespace System.CommandLine.DragonFruit.Tests
         /// <param name="args">These are arguments</param>
         public void TestMainWithoutPara(string name, ParseResult parseResult, string[] args = null)
         {
-            parseResult.Configuration.Out.Write(name);
+            parseResult.Configuration.Output.Write(name);
         }
 
         public void TestMainWithDefault(string name = "Bruce", ParseResult parseResult = null)
         {
-            parseResult?.Configuration.Out.Write(name);
+            parseResult?.Configuration.Output.Write(name);
         }
     }
 }

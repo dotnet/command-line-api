@@ -24,7 +24,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _configuration = new CommandLineBuilder(new RootCommand { option })
                           .UseTypoCorrections()
                           .Build();
-            _configuration.Out = System.IO.TextWriter.Null;
+            _configuration.Output = System.IO.TextWriter.Null;
         }
 
         public IEnumerable<BdnParam<ParseResult>> GenerateTestParseResults()

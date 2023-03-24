@@ -33,31 +33,31 @@ namespace System.CommandLine.Suggest.Tests
         [Fact]
         public async Task It_should_print_bash_shell_script()
         {
-            _configuration.Out = new StringWriter();
+            _configuration.Output = new StringWriter();
 
             await _configuration.InvokeAsync("script bash");
 
-            _configuration.Out.ToString().Should().Contain("_dotnet_bash_complete()");
+            _configuration.Output.ToString().Should().Contain("_dotnet_bash_complete()");
         }
 
         [Fact]
         public async Task It_should_print_powershell_shell_script()
         {
-            _configuration.Out = new StringWriter();
+            _configuration.Output = new StringWriter();
 
             await _configuration.InvokeAsync("script powershell");
 
-            _configuration.Out.ToString().Should().Contain("Register-ArgumentCompleter");
+            _configuration.Output.ToString().Should().Contain("Register-ArgumentCompleter");
         }
 
         [Fact]
         public async Task It_should_print_zsh_shell_script()
         {
-            _configuration.Out = new StringWriter();
+            _configuration.Output = new StringWriter();
 
             await _configuration.InvokeAsync("script zsh");
             
-            _configuration.Out.ToString().Should().Contain("_dotnet_zsh_complete()");
+            _configuration.Output.ToString().Should().Contain("_dotnet_zsh_complete()");
         }
     }
 }
