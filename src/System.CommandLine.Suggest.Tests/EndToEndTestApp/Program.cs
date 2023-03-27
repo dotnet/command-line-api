@@ -22,8 +22,6 @@ namespace EndToEndTestApp
                 bananaOption,          
                 cherryOption,          
                 durianOption,
-                new HelpOption(),
-                new VersionOption()
             };
 
             rootCommand.SetAction((InvocationContext ctx, CancellationToken cancellationToken) =>

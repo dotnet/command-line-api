@@ -156,6 +156,26 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public async Task Version_not_added_if_it_exists()
+        {
+            // The RootCommand ctors adds VersionOption by default.
+            // Users might not know if or just want to customize it.
+            RootCommand commandWithDuplicates = new()
+            {
+                new VersionOption(),
+                new VersionOption(),
+            };
+            CommandLineConfiguration configuration = new (commandWithDuplicates)
+            {
+                Output = new StringWriter()
+            };
+
+            await configuration.InvokeAsync("--version");
+
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
+        }
+
+        [Fact]
         public async Task Version_can_specify_additional_alias()
         {
             RootCommand rootCommand = new()

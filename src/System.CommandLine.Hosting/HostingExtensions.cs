@@ -19,9 +19,6 @@ namespace System.CommandLine.Hosting
         {
             builder.Directives.Add(new Directive("config"));
 
-            AddIfNotPresent(builder.RootCommand, new HelpOption());
-            AddIfNotPresent(builder.RootCommand, new VersionOption());
-
             HostingAction.SetHandlers(builder.RootCommand, hostBuilderFactory, configureHost);
 
             return builder;
@@ -94,19 +91,6 @@ namespace System.CommandLine.Hosting
             _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
             var hostModelBinder = new ModelBinder<IHost>();
             return (IHost)hostModelBinder.CreateInstance(invocationContext.GetBindingContext());
-        }
-
-        private static void AddIfNotPresent<T>(Command command, T option) where T : Option
-        {
-            for (int i = 0; i < command.Options.Count; i++)
-            {
-                if (command.Options[i] is T)
-                {
-                    return;
-                }
-            }
-
-            command.Options.Add(option);
         }
     }
 }
