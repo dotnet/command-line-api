@@ -86,7 +86,7 @@ namespace System.CommandLine.DragonFruit
             configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
-            return configuration.RootCommand.Parse(args, configuration).InvokeAsync();
+            return configuration.Parse(args).InvokeAsync();
         }
 
         public static int InvokeMethod(
@@ -101,7 +101,7 @@ namespace System.CommandLine.DragonFruit
             configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
-            return configuration.RootCommand.Parse(args, configuration).Invoke();
+            return configuration.Parse(args).Invoke();
         }
 
         private static CommandLineConfiguration BuildConfiguration(MethodInfo method,

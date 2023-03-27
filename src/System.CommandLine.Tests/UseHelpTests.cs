@@ -236,7 +236,7 @@ namespace System.CommandLine.Tests
                 Output = new StringWriter()
             };
 
-            ParseResult parseResult = config.RootCommand.Parse("-h", config);
+            ParseResult parseResult = config.Parse("-h");
 
             if (parseResult.Action is HelpAction helpAction)
             {
@@ -263,7 +263,7 @@ namespace System.CommandLine.Tests
                 Output = new StringWriter(),
             };
 
-            ParseResult parseResult = config.RootCommand.Parse("-h", config);
+            ParseResult parseResult = config.Parse("-h");
 
             if (parseResult.Action is HelpAction helpAction)
             {
@@ -381,7 +381,7 @@ namespace System.CommandLine.Tests
                 Output = new StringWriter()
             };
 
-            ParseResult parseResult = config.RootCommand.Parse("-h", config);
+            ParseResult parseResult = config.Parse("-h");
 
             if (parseResult.Action is HelpAction helpAction)
             {

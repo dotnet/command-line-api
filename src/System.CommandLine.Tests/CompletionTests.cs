@@ -838,7 +838,7 @@ namespace System.CommandLine.Tests
                 Directives = { new SuggestDirective() } 
             };
 
-            var completions = configuration.RootCommand.Parse("--allows-one ", configuration).GetCompletions();
+            var completions = configuration.Parse("--allows-one ").GetCompletions();
 
             completions.Should().BeEmpty();
         }
