@@ -913,7 +913,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_is_not_included_if_no_options_configured()
         {
-            var commandLineBuilder = new RootCommand
+            var commandLineBuilder = new Command("noOptions")
             {
                 new Command("outer", "description for outer")
             };
@@ -1117,7 +1117,7 @@ namespace System.CommandLine.Tests.Help
             var alias = "--option-alias-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
             var description = "Option description that is long enough to wrap.";
 
-            var command = new RootCommand
+            var command = new Command("test")
             {
                 new Option<bool>(alias) { Description = description }
             };
@@ -1176,7 +1176,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_option_is_shown_in_help()
         {
-            var configuration = new CommandLineConfiguration(new RootCommand() { new HelpOption() });
+            var configuration = new CommandLineConfiguration(new RootCommand());
 
             _helpBuilder.Write(configuration.RootCommand, _console);
 

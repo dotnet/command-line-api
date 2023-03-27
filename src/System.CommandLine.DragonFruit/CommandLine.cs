@@ -108,7 +108,7 @@ namespace System.CommandLine.DragonFruit
             string xmlDocsFilePath,
             object target)
         {
-            return new CommandLineConfiguration(new RootCommand() { new HelpOption(), new VersionOption() })
+            return new CommandLineConfiguration(new RootCommand())
                 .ConfigureRootCommandFromMethod(method, target)
                 .ConfigureHelpFromXmlComments(method, xmlDocsFilePath);
         }

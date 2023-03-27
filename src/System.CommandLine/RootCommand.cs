@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Help;
 using System.IO;
 using System.Reflection;
 
@@ -24,6 +25,8 @@ namespace System.CommandLine
         /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
         {
+            Options.Add(new HelpOption());
+            Options.Add(new VersionOption());
         }
 
         internal static Assembly GetAssembly()

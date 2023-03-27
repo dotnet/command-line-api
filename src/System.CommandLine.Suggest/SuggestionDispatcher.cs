@@ -70,8 +70,6 @@ namespace System.CommandLine.Suggest
                 GetCommand,
                 RegisterCommand,
                 CompleteScriptCommand,
-                new VersionOption(),
-                new HelpOption()
             };
             root.TreatUnmatchedTokensAsErrors = false;
             Configuration = new CommandLineConfiguration(root)

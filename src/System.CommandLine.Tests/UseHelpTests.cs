@@ -19,7 +19,6 @@ namespace System.CommandLine.Tests
         {
             Command command = new RootCommand()
             {
-                new HelpOption(),
                 new Command("command")
                 {
                     new Command("subcommand")
@@ -96,7 +95,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
         {
-            RootCommand rootCommand = new() { new HelpOption() };
+            RootCommand rootCommand = new();
 
             var result = rootCommand.Parse("-h");
 
@@ -111,7 +110,6 @@ namespace System.CommandLine.Tests
             var root = new RootCommand
             {
                 new Command("subcommand"),
-                new HelpOption()
             };
 
             var result = root.Parse("subcommand -h");
@@ -127,7 +125,6 @@ namespace System.CommandLine.Tests
             var root = new RootCommand
             {
                 new Command("subcommand"),
-                new HelpOption()
             };
 
             var result = root.Parse("-h");
@@ -144,7 +141,6 @@ namespace System.CommandLine.Tests
                 {
                     IsRequired = true
                 },
-                new HelpOption()
             };
 
             var result = command.Parse("-h");
@@ -206,7 +202,6 @@ namespace System.CommandLine.Tests
                 subcommand,
                 option,
                 argument,
-                new HelpOption(),
             };
 
             CommandLineConfiguration config = new (rootCommand)
@@ -236,7 +231,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_sections_can_be_replaced()
         {
-            CommandLineConfiguration config = new(new RootCommand() { new HelpOption() })
+            CommandLineConfiguration config = new(new RootCommand())
             {
                 Output = new StringWriter()
             };
@@ -263,7 +258,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_sections_can_be_supplemented()
         {
-            CommandLineConfiguration config = new(new RootCommand("hello") { new HelpOption() })
+            CommandLineConfiguration config = new(new RootCommand("hello"))
             {
                 Output = new StringWriter(),
             };
@@ -381,7 +376,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_customized_sections_can_be_wrapped()
         {
-            CommandLineConfiguration config = new(new RootCommand() {  new HelpOption() })
+            CommandLineConfiguration config = new(new RootCommand())
             {
                 Output = new StringWriter()
             };

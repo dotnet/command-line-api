@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
-            CommandLineConfiguration configuration = new(new RootCommand() { new VersionOption() })
+            CommandLineConfiguration configuration = new(new RootCommand())
             {
                 Output = new StringWriter()
             };
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests
         public async Task When_the_version_option_is_specified_then_invocation_is_short_circuited()
         {
             var wasCalled = false;
-            var rootCommand = new RootCommand() { new VersionOption() };
+            var rootCommand = new RootCommand();
             rootCommand.SetAction((_) => wasCalled = true);
 
             CommandLineConfiguration configuration = new(rootCommand)
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_option_appears_in_help()
         {
-            CommandLineConfiguration configuration = new(new RootCommand() { new VersionOption(), new HelpOption() })
+            CommandLineConfiguration configuration = new(new RootCommand())
             {
                 Output = new StringWriter()
             };
@@ -73,7 +73,6 @@ namespace System.CommandLine.Tests
                 {
                     DefaultValueFactory = (_) => true
                 },
-                new VersionOption()
             };
             rootCommand.SetAction((_) => { });
 
@@ -93,7 +92,6 @@ namespace System.CommandLine.Tests
             RootCommand rootCommand = new ()
             {
                 new Argument<bool>("x") { DefaultValueFactory =(_) => true },
-                new VersionOption()
             };
             rootCommand.SetAction((_) => { });
 
@@ -118,7 +116,6 @@ namespace System.CommandLine.Tests
             {
                 subcommand,
                 new Option<bool>("-x"),
-                new VersionOption()
             };
             rootCommand.SetAction((_) => { });
 
@@ -140,8 +137,7 @@ namespace System.CommandLine.Tests
 
             var rootCommand = new RootCommand
             {
-                childCommand,
-                new VersionOption()
+                childCommand
             };
             rootCommand.SetAction((_) => { });
 

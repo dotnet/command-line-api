@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.CommandLine.Help;
 
 namespace System.CommandLine
 {
@@ -37,7 +38,35 @@ namespace System.CommandLine
         public void Add(T item)
         {
             item.AddParent(_parent);
+
+            if (_children.Count > 0 && _parent is RootCommand)
+            {
+                if (item is HelpOption)
+                {
+                    ReplaceOrAdd<HelpOption>(item);
+                    return;
+                }
+                else if (item is VersionOption)
+                {
+                    ReplaceOrAdd<VersionOption>(item);
+                    return;
+                }
+            }
             _children.Add(item);
+
+            void ReplaceOrAdd<TOption>(T item)
+            {
+                for (int i = 0; i < _children.Count; i++)
+                {
+                    if (_children[i] is TOption)
+                    {
+                        _children[i] = item;
+                        return;
+                    }
+                }
+
+                _children.Add(item);
+            }
         }
 
         public void Clear() => _children.Clear();

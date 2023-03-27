@@ -50,11 +50,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_parse_directive_is_used_the_help_is_not_displayed()
         {
-            RootCommand rootCommand = new ()
-            {
-                new HelpOption(),
-                new VersionOption()
-            };
+            RootCommand rootCommand = new ();
 
             CommandLineConfiguration config = new(rootCommand)
             {
@@ -77,11 +73,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_parse_directive_is_used_the_version_is_not_displayed()
         {
-            RootCommand rootCommand = new ()
-            {
-                new HelpOption(),
-                new VersionOption()
-            };
+            RootCommand rootCommand = new();
 
             CommandLineConfiguration config = new(rootCommand)
             {
