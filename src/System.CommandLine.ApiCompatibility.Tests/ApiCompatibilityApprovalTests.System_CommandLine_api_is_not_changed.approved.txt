@@ -63,7 +63,7 @@ System.CommandLine
     public System.Boolean EnablePosixBundling { get; set; }
     public System.Boolean EnableTypoCorrections { get; set; }
     public System.IO.TextWriter Error { get; set; }
-    public System.IO.TextWriter Out { get; set; }
+    public System.IO.TextWriter Output { get; set; }
     public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
     public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
     public Command RootCommand { get; }
@@ -85,6 +85,7 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
   public class EnvironmentVariablesDirective : Directive
     .ctor()
+    public CliAction Action { get; set; }
   public abstract class Option : Symbol, System.CommandLine.Binding.IValueDescriptor
     public CliAction Action { get; set; }
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
@@ -111,6 +112,7 @@ System.CommandLine
     public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
   public class ParseDirective : Directive
     .ctor(System.Int32 errorExitCode = 1)
+    public CliAction Action { get; set; }
   public class ParseResult
     public CliAction Action { get; }
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
@@ -138,6 +140,7 @@ System.CommandLine
     .ctor(System.String description = )
   public class SuggestDirective : Directive
     .ctor()
+    public CliAction Action { get; set; }
   public abstract class Symbol
     public System.String Description { get; set; }
     public System.Boolean IsHidden { get; set; }
@@ -148,6 +151,7 @@ System.CommandLine
   public class VersionOption : Option<System.Boolean>, System.CommandLine.Binding.IValueDescriptor
     .ctor()
     .ctor(System.String name, System.String[] aliases)
+    public CliAction Action { get; set; }
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
 System.CommandLine.Binding
@@ -217,6 +221,7 @@ System.CommandLine.Help
   public class HelpOption : System.CommandLine.Option<System.Boolean>, System.CommandLine.Binding.IValueDescriptor
     .ctor()
     .ctor(System.String name, System.String[] aliases)
+    public System.CommandLine.CliAction Action { get; set; }
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
   public class TwoColumnHelpRow, System.IEquatable<TwoColumnHelpRow>

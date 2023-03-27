@@ -5,6 +5,8 @@ namespace System.CommandLine.Help
 {
     public sealed class HelpOption : Option<bool>
     {
+        private CliAction? _action;
+
         /// <summary>
         /// When added to a <see cref="Command"/>, it configures the application to show help when one of the following options are specified on the command line:
         /// <code>
@@ -27,7 +29,13 @@ namespace System.CommandLine.Help
         {
             AppliesToSelfAndChildren = true;
             Description = LocalizationResources.HelpOptionDescription();
-            Action = new HelpAction();
+        }
+
+        /// <inheritdoc />
+        public override CliAction? Action 
+        { 
+            get => _action ??= new HelpAction(); 
+            set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         internal override bool IsGreedy => false;
