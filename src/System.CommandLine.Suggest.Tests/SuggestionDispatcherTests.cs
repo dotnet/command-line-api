@@ -129,13 +129,13 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration(new Registration(CurrentExeFullPath()));
             var dispatcher = new SuggestionDispatcher(provider, new TestSuggestionStore());
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
-            dispatcher.Configuration.Out = new StringWriter();
+            dispatcher.Configuration.Output = new StringWriter();
 
             var args = Parser.SplitCommandLine($@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add").ToArray();
 
             await dispatcher.InvokeAsync(args);
 
-            dispatcher.Configuration.Out.ToString().Should().BeEmpty();
+            dispatcher.Configuration.Output.ToString().Should().BeEmpty();
         }
 
         [Fact]
@@ -151,11 +151,11 @@ namespace System.CommandLine.Suggest.Tests
                 new Registration(_kiwiFruitExeFullPath));
 
             var dispatcher = new SuggestionDispatcher(testSuggestionProvider);
-            dispatcher.Configuration.Out = new StringWriter();
+            dispatcher.Configuration.Output = new StringWriter();
 
             await dispatcher.InvokeAsync(new[] { "list" });
 
-            dispatcher.Configuration.Out
+            dispatcher.Configuration.Output
                        .ToString()
                        .Should()
                        .Be($"dotnet-format{Environment.NewLine}dotnet format{Environment.NewLine}kiwi-fruit{Environment.NewLine}");
@@ -195,9 +195,9 @@ namespace System.CommandLine.Suggest.Tests
             ISuggestionStore suggestionStore = null)
         {
             var dispatcher = new SuggestionDispatcher(suggestionProvider, suggestionStore ?? new TestSuggestionStore());
-            dispatcher.Configuration.Out = new StringWriter();
+            dispatcher.Configuration.Output = new StringWriter();
             await dispatcher.InvokeAsync(args);
-            return dispatcher.Configuration.Out.ToString();
+            return dispatcher.Configuration.Output.ToString();
         }
 
         private class TestSuggestionStore : ISuggestionStore

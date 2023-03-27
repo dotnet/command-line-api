@@ -25,7 +25,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_taking_bool)), this);
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             await config.InvokeAsync($"{RootCommand.ExecutableName} --value");
 
@@ -44,7 +44,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_taking_bool)), this);
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             await config.InvokeAsync(commandLine);
 
@@ -57,7 +57,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_with_single_letter_parameters)), this);
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             await config.InvokeAsync("-x 123 -y 456");
 
@@ -164,7 +164,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_void)), this);
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             var result = await config.InvokeAsync("");
 
@@ -177,7 +177,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_int)), this);
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             var result = await config.InvokeAsync("-i 123");
 
@@ -190,7 +190,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_Task_of_int)), this);
-            config.Out = TextWriter.Null;
+            config.Output = TextWriter.Null;
 
             var result = await config.InvokeAsync("-i 123");
 

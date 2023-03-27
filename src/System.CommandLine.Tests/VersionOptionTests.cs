@@ -23,12 +23,12 @@ namespace System.CommandLine.Tests
         {
             CommandLineConfiguration configuration = new(new RootCommand() { new VersionOption() })
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await configuration.InvokeAsync("--version");
 
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await configuration.InvokeAsync("--version");
@@ -53,12 +53,12 @@ namespace System.CommandLine.Tests
         {
             CommandLineConfiguration configuration = new(new RootCommand() { new VersionOption(), new HelpOption() })
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await configuration.InvokeAsync("--help");
 
-            configuration.Out
+            configuration.Output
                    .ToString()
                    .Should()
                    .Match("*Options:*--version*Show version information*");
@@ -79,12 +79,12 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await configuration.InvokeAsync("--version");
 
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -99,12 +99,12 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await configuration.InvokeAsync("--version");
 
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Theory]
@@ -124,7 +124,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse(commandLine, configuration);
@@ -147,7 +147,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             configuration
@@ -168,15 +168,15 @@ namespace System.CommandLine.Tests
             };
             CommandLineConfiguration configuration = new(rootCommand)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await configuration.InvokeAsync("-v");
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
 
-            configuration.Out = new StringWriter();
+            configuration.Output = new StringWriter();
             await configuration.InvokeAsync("-version");
-            configuration.Out.ToString().Should().Be($"{version}{NewLine}");
+            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -193,7 +193,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("-v subcommand", configuration);

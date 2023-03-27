@@ -34,11 +34,11 @@ namespace System.CommandLine.Invocation
                 {
                     if (first)
                     {
-                        result.Configuration.Out.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
+                        result.Configuration.Output.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
                         first = false;
                     }
 
-                    result.Configuration.Out.WriteLine(suggestion);
+                    result.Configuration.Output.WriteLine(suggestion);
                 }
             }
 

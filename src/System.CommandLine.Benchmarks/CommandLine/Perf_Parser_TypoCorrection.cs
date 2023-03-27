@@ -24,7 +24,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _configuration = new CommandLineConfiguration(new RootCommand { option })
             {
                 EnableTypoCorrections = true,
-                Out = System.IO.TextWriter.Null
+                Output = System.IO.TextWriter.Null
             };
         }
 

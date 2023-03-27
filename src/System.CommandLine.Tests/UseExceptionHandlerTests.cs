@@ -50,14 +50,14 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration config = new(command)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Error = new StringWriter()
             };
 
             int resultCode = await config
                                    .InvokeAsync("the-command");
 
-            config.Out.ToString().Should().BeEmpty();
+            config.Output.ToString().Should().BeEmpty();
             resultCode.Should().NotBe(0);
         }
 

@@ -23,7 +23,7 @@ namespace System.CommandLine
             public override int Invoke(InvocationContext context)
             {
                 var parseResult = context.ParseResult;
-                context.ParseResult.Configuration.Out.WriteLine(parseResult.Diagram());
+                context.ParseResult.Configuration.Output.WriteLine(parseResult.Diagram());
                 return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
             }
 

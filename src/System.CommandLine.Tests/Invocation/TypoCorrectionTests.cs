@@ -19,14 +19,14 @@ namespace System.CommandLine.Tests.Invocation
             CommandLineConfiguration config = new(rootCommand)
             {
                 EnableTypoCorrections = true,
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("niof", config);
 
             await result.InvokeAsync();
 
-            config.Out.ToString().Should().Contain($"'niof' was not matched. Did you mean one of the following?{NewLine}info");
+            config.Output.ToString().Should().Contain($"'niof' was not matched. Did you mean one of the following?{NewLine}info");
         }
 
         [Fact]
@@ -38,14 +38,14 @@ namespace System.CommandLine.Tests.Invocation
             CommandLineConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("zzzzzzz", configuration);
 
             await result.InvokeAsync();
 
-            configuration.Out.ToString().Should().NotContain("was not matched");
+            configuration.Output.ToString().Should().NotContain("was not matched");
         }
 
         [Fact]
@@ -57,14 +57,14 @@ namespace System.CommandLine.Tests.Invocation
             CommandLineConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("sertor", configuration);
 
             await result.InvokeAsync();
 
-            configuration.Out.ToString().Should().Contain($"'sertor' was not matched. Did you mean one of the following?{NewLine}restore");
+            configuration.Output.ToString().Should().Contain($"'sertor' was not matched. Did you mean one of the following?{NewLine}restore");
         }
 
         [Fact]
@@ -84,14 +84,14 @@ namespace System.CommandLine.Tests.Invocation
             CommandLineConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("een", configuration);
 
             await result.InvokeAsync();
 
-            configuration.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}seen{NewLine}been");
+            configuration.Output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}seen{NewLine}been");
         }
 
         [Fact]
@@ -110,14 +110,14 @@ namespace System.CommandLine.Tests.Invocation
             CommandLineConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("een", configuration);
 
             await result.InvokeAsync();
 
-            configuration.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
+            configuration.Output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
 
         [Fact]
@@ -134,14 +134,14 @@ namespace System.CommandLine.Tests.Invocation
             {
                 EnableTypoCorrections = true,
                 EnableParseErrorReporting = false,
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("een", configuration);
 
             await result.InvokeAsync();
 
-            configuration.Out.ToString().Should().NotContain("the-argument");
+            configuration.Output.ToString().Should().NotContain("the-argument");
         }
 
         [Fact]
@@ -159,14 +159,14 @@ namespace System.CommandLine.Tests.Invocation
             CommandLineConfiguration config = new(rootCommand)
             {
                 EnableTypoCorrections = true,
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("een", config);
 
             await result.InvokeAsync();
 
-            config.Out.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
+            config.Output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
 
         [Fact]
@@ -180,13 +180,13 @@ namespace System.CommandLine.Tests.Invocation
             CommandLineConfiguration config = new(rootCommand)
             {
                 EnableTypoCorrections = true,
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
             var result = rootCommand.Parse("-all", config);
 
             await result.InvokeAsync();
 
-            config.Out.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
+            config.Output.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
         }
     }
 }
