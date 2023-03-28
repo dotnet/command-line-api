@@ -10,7 +10,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests.Invocation
 {
-    public class InvocationExtensionsTests
+    public class InvocationTests
     {
         [Fact]
         public async Task Command_InvokeAsync_enables_help_by_default()
