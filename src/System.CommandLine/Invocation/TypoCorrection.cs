@@ -10,6 +10,8 @@ namespace System.CommandLine.Invocation
 {
     internal sealed class TypoCorrectionAction : CliAction
     {
+        private const int MaxLevenshteinDistance = 3;
+
         public override int Invoke(InvocationContext context)
             => ProvideSuggestions(context);
 
@@ -21,7 +23,6 @@ namespace System.CommandLine.Invocation
         private static int ProvideSuggestions(InvocationContext context)
         {
             ParseResult result = context.ParseResult;
-            int maxLevenshteinDistance = result.Configuration.MaxLevenshteinDistance;
 
             var unmatchedTokens = result.UnmatchedTokens;
             for (var i = 0; i < unmatchedTokens.Length; i++)
@@ -29,7 +30,7 @@ namespace System.CommandLine.Invocation
                 var token = unmatchedTokens[i];
 
                 bool first = true;
-                foreach (string suggestion in GetPossibleTokens(result.CommandResult.Command, token, maxLevenshteinDistance))
+                foreach (string suggestion in GetPossibleTokens(result.CommandResult.Command, token))
                 {
                     if (first)
                     {
@@ -44,7 +45,7 @@ namespace System.CommandLine.Invocation
             return 0;
         }
 
-        private static IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token, int maxLevenshteinDistance)
+        private static IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)
         {
             if (!targetSymbol.HasOptions && !targetSymbol.HasSubcommands)
             {
@@ -72,7 +73,7 @@ namespace System.CommandLine.Invocation
             int? bestDistance = null;
             return possibleMatches
                 .Select(possibleMatch => (possibleMatch, distance:GetDistance(token, possibleMatch)))
-                .Where(tuple => tuple.distance <= maxLevenshteinDistance)
+                .Where(tuple => tuple.distance <= MaxLevenshteinDistance)
                 .OrderBy(tuple => tuple.distance)
                 .ThenByDescending(tuple => GetStartsWithDistance(token, tuple.possibleMatch))
                 .TakeWhile(tuple =>

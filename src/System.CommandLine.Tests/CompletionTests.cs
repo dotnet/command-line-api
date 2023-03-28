@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
                 subcommand2
             };
 
-            var rootCommand = new RootCommand
+            var rootCommand = new Command("root")
             {
                 subcommand1
             };
@@ -198,7 +198,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_it_will_still_be_suggested()
         {
-            var command = new RootCommand
+            var command = new Command("test")
             {
                 new Option<string>("--apple") { DefaultValueFactory = (_) => "cortland" },
                 new Option<string>("--banana"),
@@ -675,11 +675,7 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "three", "three-a", "three-b", "three-c")
             };
 
-            var configuration = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .Build();
+            var configuration = new CommandLineConfiguration(command);
 
             var result = command.Parse("outer two b", configuration);
 
@@ -770,7 +766,7 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
-            var configuration = new CommandLineBuilder(command).Build();
+            var configuration = new CommandLineConfiguration(command);
             var completions = command.Parse("--framework net7.0 --l", configuration).GetCompletions();
 
             completions.Select(item => item.Label)
@@ -787,7 +783,7 @@ namespace System.CommandLine.Tests
                 CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
-            var configuration = new CommandLineBuilder(command).Build();
+            var configuration = new CommandLineConfiguration(command);
             var completions = command.Parse(new[]{"--framework","net7.0","--l"}, configuration).GetCompletions();
 
             completions.Select(item => item.Label)
@@ -833,15 +829,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_completions_are_omitted()
         {
-            var configuration = new CommandLineBuilder(new RootCommand
+            var configuration = new CommandLineConfiguration(new RootCommand
                          {
                              new Option<string>("--allows-one"),
                              new Option<string[]>("--allows-many")
                          })
-                         .UseSuggestDirective()
-                         .Build();
+            {
+                Directives = { new SuggestDirective() } 
+            };
 
-            var completions = configuration.RootCommand.Parse("--allows-one ", configuration).GetCompletions();
+            var completions = configuration.Parse("--allows-one ").GetCompletions();
 
             completions.Should().BeEmpty();
         }
@@ -946,7 +943,7 @@ namespace System.CommandLine.Tests
             var description = "The option before -y.";
             var option = new Option<string>("-x") { Description = description };
 
-            var completions = new RootCommand { option }.GetCompletions(CompletionContext.Empty);
+            var completions = new Command("test") { option }.GetCompletions(CompletionContext.Empty);
 
             completions.Should().ContainSingle()
                        .Which
@@ -961,7 +958,7 @@ namespace System.CommandLine.Tests
             var description = "The description for the subcommand";
             var subcommand = new Command("-x", description);
 
-            var completions = new RootCommand { subcommand }.GetCompletions(CompletionContext.Empty);
+            var completions = new Command("test") { subcommand }.GetCompletions(CompletionContext.Empty);
 
             completions.Should().ContainSingle()
                        .Which

@@ -57,38 +57,24 @@ System.CommandLine
     public System.Void SetAction(System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> action)
     public System.Void SetAction(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
     public System.Void SetAction(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
-  public class CommandLineBuilder
-    .ctor(Command rootCommand)
-    public Command Command { get; }
-    public System.Collections.Generic.List<Directive> Directives { get; }
-    public CommandLineConfiguration Build()
-    public CommandLineBuilder CancelOnProcessTermination(System.Nullable<System.TimeSpan> timeout = null)
-    public CommandLineBuilder EnablePosixBundling(System.Boolean value = True)
-    public CommandLineBuilder UseDefaults()
-    public CommandLineBuilder UseEnvironmentVariableDirective()
-    public CommandLineBuilder UseExceptionHandler(System.Func<System.Exception,System.CommandLine.Invocation.InvocationContext,System.Int32> onException = null, System.Int32 errorExitCode = 1)
-    public CommandLineBuilder UseHelp(System.Nullable<System.Int32> maxWidth = null)
-    public CommandLineBuilder UseHelp(System.String name, System.String[] helpAliases)
-    public CommandLineBuilder UseParseDirective(System.Int32 errorExitCode = 1)
-    public CommandLineBuilder UseParseErrorReporting(System.Int32 errorExitCode = 1)
-    public CommandLineBuilder UseSuggestDirective()
-    public CommandLineBuilder UseTokenReplacer(System.CommandLine.Parsing.TryReplaceToken replaceToken)
-    public CommandLineBuilder UseTypoCorrections(System.Int32 maxLevenshteinDistance = 3)
-    public CommandLineBuilder UseVersionOption()
-    public CommandLineBuilder UseVersionOption(System.String name, System.String[] aliases)
   public class CommandLineConfiguration
-    public static CommandLineBuilder CreateBuilder(Command rootCommand)
-    .ctor(Command command, System.Boolean enablePosixBundling = True, System.Boolean enableTokenReplacement = True, System.CommandLine.Parsing.TryReplaceToken tokenReplacer = null)
-    public System.Collections.Generic.IReadOnlyList<Directive> Directives { get; }
-    public System.Boolean EnablePosixBundling { get; }
-    public System.Boolean EnableTokenReplacement { get; }
+    .ctor(Command rootCommand)
+    public System.Collections.Generic.List<Directive> Directives { get; }
+    public System.Boolean EnableDefaultExceptionHandler { get; set; }
+    public System.Boolean EnableParseErrorReporting { get; set; }
+    public System.Boolean EnablePosixBundling { get; set; }
+    public System.Boolean EnableTypoCorrections { get; set; }
     public System.IO.TextWriter Error { get; set; }
     public System.IO.TextWriter Output { get; set; }
+    public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
+    public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
     public Command RootCommand { get; }
     public System.Int32 Invoke(System.String commandLine)
     public System.Int32 Invoke(System.String[] args)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, System.Threading.CancellationToken cancellationToken = null)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, System.Threading.CancellationToken cancellationToken = null)
+    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args)
+    public ParseResult Parse(System.String commandLine)
     public System.Void ThrowIfInvalid()
   public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
     .ctor(System.String message)
@@ -166,6 +152,12 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
+  public class VersionOption : Option<System.Boolean>, System.CommandLine.Binding.IValueDescriptor
+    .ctor()
+    .ctor(System.String name, System.String[] aliases)
+    public CliAction Action { get; set; }
+    public System.Boolean Equals(System.Object obj)
+    public System.Int32 GetHashCode()
 System.CommandLine.Binding
   public interface IValueDescriptor
     public System.Boolean HasDefaultValue { get; }
@@ -231,8 +223,8 @@ System.CommandLine.Help
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
   public class HelpOption : System.CommandLine.Option<System.Boolean>, System.CommandLine.Binding.IValueDescriptor
-    .ctor(System.String name, System.String[] aliases)
     .ctor()
+    .ctor(System.String name, System.String[] aliases)
     public System.CommandLine.CliAction Action { get; set; }
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()

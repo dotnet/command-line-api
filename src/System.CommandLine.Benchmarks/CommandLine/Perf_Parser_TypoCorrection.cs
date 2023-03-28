@@ -21,10 +21,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             var option = new Option<bool>("--0123456789");
 
-            _configuration = new CommandLineBuilder(new RootCommand { option })
-                          .UseTypoCorrections()
-                          .Build();
-            _configuration.Output = System.IO.TextWriter.Null;
+            _configuration = new CommandLineConfiguration(new RootCommand { option })
+            {
+                EnableTypoCorrections = true,
+                Output = System.IO.TextWriter.Null
+            };
         }
 
         public IEnumerable<BdnParam<ParseResult>> GenerateTestParseResults()
@@ -48,7 +49,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                     "--1023546798",
                     "--1032546798"
                 }
-                .Select(opt => new BdnParam<ParseResult>(_configuration.RootCommand.Parse(opt, _configuration), opt));
+                .Select(opt => new BdnParam<ParseResult>(_configuration.Parse(opt), opt));
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]

@@ -11,14 +11,16 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_option_is_mistyped_it_is_suggested()
         {
-            var option = new Option<string>("info");
-            RootCommand rootCommand = new () { option };
+            RootCommand rootCommand = new () 
+            {
+                new Option<string>("info")
+            };
 
-            var config =
-                new CommandLineBuilder(rootCommand)
-                    .UseTypoCorrections()
-                    .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                EnableTypoCorrections = true,
+                Output = new StringWriter()
+            };
 
             var result = rootCommand.Parse("niof", config);
 
@@ -33,11 +35,11 @@ namespace System.CommandLine.Tests.Invocation
             var option = new Option<bool>("info");
             RootCommand rootCommand = new() { option };
 
-            var configuration =
-                new CommandLineBuilder(rootCommand)
-                    .UseTypoCorrections()
-                    .Build();
-            configuration.Output = new StringWriter();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                EnableTypoCorrections = true,
+                Output = new StringWriter()
+            };
 
             var result = rootCommand.Parse("zzzzzzz", configuration);
 
@@ -52,11 +54,11 @@ namespace System.CommandLine.Tests.Invocation
             var command = new Command("restore");
             RootCommand rootCommand = new() { command };
 
-            var configuration =
-                new CommandLineBuilder(rootCommand)
-                    .UseTypoCorrections()
-                    .Build();
-            configuration.Output = new StringWriter();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                EnableTypoCorrections = true,
+                Output = new StringWriter()
+            };
 
             var result = rootCommand.Parse("sertor", configuration);
 
@@ -79,11 +81,11 @@ namespace System.CommandLine.Tests.Invocation
                 aOption,
                 beenOption
             };
-            var configuration =
-                new CommandLineBuilder(rootCommand)
-                    .UseTypoCorrections()
-                    .Build();
-            configuration.Output = new StringWriter();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                EnableTypoCorrections = true,
+                Output = new StringWriter()
+            };
 
             var result = rootCommand.Parse("een", configuration);
 
@@ -105,11 +107,11 @@ namespace System.CommandLine.Tests.Invocation
                 beenCommand
             };
 
-            var configuration =
-                new CommandLineBuilder(rootCommand)
-                    .UseTypoCorrections()
-                    .Build();
-            configuration.Output = new StringWriter();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                EnableTypoCorrections = true,
+                Output = new StringWriter()
+            };
 
             var result = rootCommand.Parse("een", configuration);
 
@@ -128,11 +130,12 @@ namespace System.CommandLine.Tests.Invocation
                 argument,
                 command
             };
-            var configuration =
-                new CommandLineBuilder(rootCommand)
-                    .UseTypoCorrections()
-                    .Build();
-            configuration.Output = new StringWriter();
+            CommandLineConfiguration configuration = new(rootCommand)
+            {
+                EnableTypoCorrections = true,
+                EnableParseErrorReporting = false,
+                Output = new StringWriter()
+            };
 
             var result = rootCommand.Parse("een", configuration);
 
@@ -153,11 +156,11 @@ namespace System.CommandLine.Tests.Invocation
                 seenOption,
                 beenOption
             };
-            var config =
-                new CommandLineBuilder(rootCommand)
-                    .UseTypoCorrections()
-                    .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                EnableTypoCorrections = true,
+                Output = new StringWriter()
+            };
 
             var result = rootCommand.Parse("een", config);
 
@@ -174,11 +177,11 @@ namespace System.CommandLine.Tests.Invocation
                 new Option<string>("/call", "-call", "--call"),
                 new Option<string>("/email", "-email", "--email")
             };
-            var config =
-                new CommandLineBuilder(rootCommand)
-                    .UseTypoCorrections()
-                    .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                EnableTypoCorrections = true,
+                Output = new StringWriter()
+            };
             var result = rootCommand.Parse("-all", config);
 
             await result.InvokeAsync();

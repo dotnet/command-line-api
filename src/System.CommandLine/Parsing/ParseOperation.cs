@@ -62,14 +62,14 @@ namespace System.CommandLine.Parsing
 
             if (_action is null)
             {
-                if (_configuration.ParseErrorReportingExitCode.HasValue && _symbolResultTree.ErrorCount > 0)
-                {
-                    _action = new ParseErrorResultAction();
-                }
-                else if (_configuration.MaxLevenshteinDistance > 0 && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
+                if (_configuration.EnableTypoCorrections && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
                     && _symbolResultTree.UnmatchedTokens is not null)
                 {
                     _action = new TypoCorrectionAction();
+                }
+                else if (_configuration.EnableParseErrorReporting && _symbolResultTree.ErrorCount > 0)
+                {
+                    _action = new ParseErrorResultAction();
                 }
             }
 

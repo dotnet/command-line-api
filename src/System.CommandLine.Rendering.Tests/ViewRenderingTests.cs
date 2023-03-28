@@ -31,7 +31,7 @@ namespace System.CommandLine.Rendering.Tests
                 terminal.Append(new ParseResultView(parseResult));
             });
 
-            var config = new CommandLineBuilder(command).Build();
+            var config = new CommandLineConfiguration(command);
 
             config.Invoke("");
 

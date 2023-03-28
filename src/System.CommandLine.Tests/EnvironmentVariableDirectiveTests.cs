@@ -25,9 +25,10 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
             });
 
-            var config = new CommandLineBuilder(rootCommand)
-                .UseEnvironmentVariableDirective()
-                .Build();
+            var config = new CommandLineConfiguration(rootCommand)
+            {
+                Directives = { new EnvironmentVariablesDirective() }
+            };
 
             await config.InvokeAsync(new[] { $"[env:{variable}={value}]" });
 
@@ -47,9 +48,10 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
             });
 
-            var config = new CommandLineBuilder(rootCommand)
-                .UseEnvironmentVariableDirective()
-                .Build();
+            var config = new CommandLineConfiguration(rootCommand)
+            {
+                Directives = { new EnvironmentVariablesDirective() }
+            };
 
             await config.InvokeAsync(new[] { $"[env:     {variable}    ={value}]" });
 
@@ -69,9 +71,10 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
             });
 
-            var config = new CommandLineBuilder(rootCommand)
-                .UseEnvironmentVariableDirective()
-                .Build();
+            var config = new CommandLineConfiguration(rootCommand)
+            {
+                Directives = { new EnvironmentVariablesDirective() }
+            };
 
             await config.InvokeAsync(new[] { $"[env:{variable}=    {value}     ]" });
 
@@ -91,9 +94,10 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
             });
 
-            var config = new CommandLineBuilder(rootCommand)
-                .UseEnvironmentVariableDirective()
-                .Build();
+            var config = new CommandLineConfiguration(rootCommand)
+            {
+                Directives = { new EnvironmentVariablesDirective() }
+            };
 
             await config.InvokeAsync(new[] { $"[env:{variable}={value}]" });
 
@@ -112,9 +116,10 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().BeNull();
             });
 
-            var config = new CommandLineBuilder(rootCommand)
-                .UseEnvironmentVariableDirective()
-                .Build();
+            var config = new CommandLineConfiguration(rootCommand)
+            {
+                Directives = { new EnvironmentVariablesDirective() }
+            };
 
             await config.InvokeAsync(new[] { $"[env:{variable}]" });
 
@@ -134,9 +139,10 @@ namespace System.CommandLine.Tests
                 env.Values.Cast<string>().Should().NotContain(value);
             });
 
-            var config = new CommandLineBuilder(rootCommand)
-                .UseEnvironmentVariableDirective()
-                .Build();
+            var config = new CommandLineConfiguration(rootCommand)
+            {
+                Directives = { new EnvironmentVariablesDirective() }
+            };
 
             await config.InvokeAsync(new[] { $"[env:={value}]" });
 
@@ -156,9 +162,10 @@ namespace System.CommandLine.Tests
                 env.Values.Cast<string>().Should().NotContain(value);
             });
 
-            var config = new CommandLineBuilder(rootCommand)
-                .UseEnvironmentVariableDirective()
-                .Build();
+            var config = new CommandLineConfiguration(rootCommand)
+            {
+                Directives = { new EnvironmentVariablesDirective() }
+            };
 
             await config.InvokeAsync(new[] { $"[env:    ={value}]" });
 

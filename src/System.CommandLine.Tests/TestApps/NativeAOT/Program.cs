@@ -18,7 +18,7 @@ public class Program
 
         command.SetAction(Run);
 
-        return new CommandLineBuilder(command).Build().Invoke(args);
+        return new CommandLineConfiguration(command).Invoke(args);
 
         void Run(InvocationContext context)
         {

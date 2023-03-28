@@ -145,9 +145,10 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var configuration = new CommandLineBuilder(rootCommand)
-                         .EnablePosixBundling(false)
-                         .Build();
+            CommandLineConfiguration configuration = new (rootCommand)
+            {
+                EnablePosixBundling = false
+            };
 
             var result = rootCommand.Parse("the-command -xyz", configuration);
 
