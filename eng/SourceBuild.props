@@ -3,6 +3,7 @@
   <PropertyGroup>
     <GitHubRepositoryName>command-line-api</GitHubRepositoryName>
     <SourceBuildManagedOnly>true</SourceBuildManagedOnly>
+    <SourceBuildTrimNetFrameworkTargets>true</SourceBuildTrimNetFrameworkTargets>
   </PropertyGroup>
 
   <Target Name="ConfigureInnerBuildArg" BeforeTargets="GetSourceBuildCommandConfiguration">

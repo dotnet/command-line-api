@@ -118,6 +118,23 @@ namespace System.CommandLine
         }
 
         /// <summary>
+        /// Parses an array strings using the configured <see cref="RootCommand"/>.
+        /// </summary>
+        /// <param name="args">The string arguments to parse.</param>
+        /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        public ParseResult Parse(IReadOnlyList<string> args)
+            => Parser.Parse(RootCommand, args, this);
+
+        /// <summary>
+        /// Parses a command line string value using the configured <see cref="RootCommand"/>.
+        /// </summary>
+        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
+        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
+        /// <returns>A parse result describing the outcome of the parse operation.</returns>
+        public ParseResult Parse(string commandLine)
+            => Parser.Parse(RootCommand, commandLine, this);
+
+        /// <summary>
         /// Parses a command line string value and invokes the handler for the indicated command.
         /// </summary>
         /// <returns>The exit code for the invocation.</returns>

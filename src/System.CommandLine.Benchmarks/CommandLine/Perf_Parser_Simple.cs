@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using System.CommandLine.Help;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Benchmarks.CommandLine
@@ -31,8 +30,6 @@ namespace System.CommandLine.Benchmarks.CommandLine
             {
                 boolOption,
                 stringOption,
-                new HelpOption(),
-                new VersionOption()
             };
 
             command.SetAction(ctx => 

@@ -9,9 +9,24 @@ namespace System.CommandLine
     /// </summary>
     public sealed class ParseDirective : Directive
     {
+        private const int DefaultErrorExitCode = 1;
+        private CliAction? _action;
+
         /// <param name="errorExitCode">If the parse result contains errors, this exit code will be used when the process exits.</param>
-        public ParseDirective(int errorExitCode = 1) : base("parse")
-            => Action = new ParseDirectiveAction(errorExitCode);
+        public ParseDirective(int errorExitCode = DefaultErrorExitCode) : base("parse")
+        {
+            if (errorExitCode != DefaultErrorExitCode)
+            {
+                Action = new ParseDirectiveAction(errorExitCode);
+            }
+        }
+
+        /// <inheritdoc />
+        public override CliAction? Action
+        {
+            get => _action ??= new ParseDirectiveAction(DefaultErrorExitCode);
+            set => _action = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         private sealed class ParseDirectiveAction : CliAction
         {

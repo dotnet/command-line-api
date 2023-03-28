@@ -80,13 +80,20 @@ internal sealed class ProcessTerminationHandler : IDisposable
     {
         // request cancellation
         _handlerCancellationTokenSource.Cancel();
-        
-        // wait for the configured interval
-        if (!_startedHandler.Wait(_processTerminationTimeout))
+
+        try
         {
-            // if the handler does not finish within configured time,
-            // use the completion source to signal forced completion (preserving native exit code)
-            ProcessTerminationCompletionSource.SetResult(forcedTerminationExitCode);
+            // wait for the configured interval
+            if (!_startedHandler.Wait(_processTerminationTimeout))
+            {
+                // if the handler does not finish within configured time,
+                // use the completion source to signal forced completion (preserving native exit code)
+                ProcessTerminationCompletionSource.SetResult(forcedTerminationExitCode);
+            }
+        }
+        catch (AggregateException)
+        {
+            // The task was cancelled or an exception was thrown during the task execution.
         }
     }
 }

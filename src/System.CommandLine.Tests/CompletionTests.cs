@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
                 subcommand2
             };
 
-            var rootCommand = new RootCommand
+            var rootCommand = new Command("root")
             {
                 subcommand1
             };
@@ -198,7 +198,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_it_will_still_be_suggested()
         {
-            var command = new RootCommand
+            var command = new Command("test")
             {
                 new Option<string>("--apple") { DefaultValueFactory = (_) => "cortland" },
                 new Option<string>("--banana"),
@@ -838,7 +838,7 @@ namespace System.CommandLine.Tests
                 Directives = { new SuggestDirective() } 
             };
 
-            var completions = configuration.RootCommand.Parse("--allows-one ", configuration).GetCompletions();
+            var completions = configuration.Parse("--allows-one ").GetCompletions();
 
             completions.Should().BeEmpty();
         }
@@ -943,7 +943,7 @@ namespace System.CommandLine.Tests
             var description = "The option before -y.";
             var option = new Option<string>("-x") { Description = description };
 
-            var completions = new RootCommand { option }.GetCompletions(CompletionContext.Empty);
+            var completions = new Command("test") { option }.GetCompletions(CompletionContext.Empty);
 
             completions.Should().ContainSingle()
                        .Which
@@ -958,7 +958,7 @@ namespace System.CommandLine.Tests
             var description = "The description for the subcommand";
             var subcommand = new Command("-x", description);
 
-            var completions = new RootCommand { subcommand }.GetCompletions(CompletionContext.Empty);
+            var completions = new Command("test") { subcommand }.GetCompletions(CompletionContext.Empty);
 
             completions.Should().ContainSingle()
                        .Which

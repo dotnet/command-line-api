@@ -8,44 +8,40 @@ namespace System.CommandLine.Invocation
 {
     internal sealed class AnonymousCliAction : CliAction
     {
-        private readonly Func<ParseResult, CancellationToken, Task>? _asyncAction;
-        private readonly Action<ParseResult>? _syncAction;
+        private readonly Func<ParseResult, CancellationToken, Task<int>>? _asyncAction;
+        private readonly Func<ParseResult, int>? _syncAction;
 
-        internal AnonymousCliAction(Action<ParseResult> action)
-            => _syncAction = action ?? throw new ArgumentNullException(nameof(action));
+        internal AnonymousCliAction(Func<ParseResult, int> action)
+            => _syncAction = action;
 
-        internal AnonymousCliAction(Func<ParseResult, CancellationToken, Task> action)
-            => _asyncAction = action ?? throw new ArgumentNullException(nameof(action));
+        internal AnonymousCliAction(Func<ParseResult, CancellationToken, Task<int>> action)
+            => _asyncAction = action;
 
         public override int Invoke(ParseResult parseResult)
         {
             if (_syncAction is not null)
             {
-                _syncAction(parseResult);
+                return _syncAction(parseResult);
             }
             else
             {
-                SyncUsingAsync(parseResult); // kept in a separate method to avoid JITting
+                return SyncUsingAsync(parseResult); // kept in a separate method to avoid JITting
             }
 
-            return 0;
-
-            void SyncUsingAsync(ParseResult parseResult)
+            int SyncUsingAsync(ParseResult parseResult)
                 => _asyncAction!(parseResult, CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        public async override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken)
+        public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken)
         {
             if (_asyncAction is not null)
             {
-                await _asyncAction(parseResult, cancellationToken);
+                return await _asyncAction(parseResult, cancellationToken);
             }
             else
             {
-                _syncAction!(parseResult);
+               return _syncAction!(parseResult);
             }
-
-            return 0;
         }
     }
 }

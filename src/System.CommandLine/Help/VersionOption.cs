@@ -10,6 +10,8 @@ namespace System.CommandLine
 {
     public sealed class VersionOption : Option<bool>
     {
+        private CliAction? _action;
+
         /// <summary>
         /// When added to a <see cref="Command"/>, it enables the use of a <c>--version</c> option, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
@@ -24,8 +26,14 @@ namespace System.CommandLine
             : base(name, aliases, new Argument<bool>("--version") { Arity = ArgumentArity.Zero })
         {
             Description = LocalizationResources.VersionOptionDescription();
-            Action = new VersionOptionAction();
             AddValidators();
+        }
+
+        /// <inheritdoc />
+        public override CliAction? Action
+        {
+            get => _action ??= new VersionOptionAction();
+            set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         private void AddValidators()

@@ -19,7 +19,6 @@ namespace System.CommandLine.Tests
         {
             Command command = new RootCommand()
             {
-                new HelpOption(),
                 new Command("command")
                 {
                     new Command("subcommand")
@@ -96,7 +95,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
         {
-            RootCommand rootCommand = new() { new HelpOption() };
+            RootCommand rootCommand = new();
 
             var result = rootCommand.Parse("-h");
 
@@ -111,7 +110,6 @@ namespace System.CommandLine.Tests
             var root = new RootCommand
             {
                 new Command("subcommand"),
-                new HelpOption()
             };
 
             var result = root.Parse("subcommand -h");
@@ -127,7 +125,6 @@ namespace System.CommandLine.Tests
             var root = new RootCommand
             {
                 new Command("subcommand"),
-                new HelpOption()
             };
 
             var result = root.Parse("-h");
@@ -144,7 +141,6 @@ namespace System.CommandLine.Tests
                 {
                     IsRequired = true
                 },
-                new HelpOption()
             };
 
             var result = command.Parse("-h");
@@ -179,10 +175,10 @@ namespace System.CommandLine.Tests
         [InlineData("/?")]
         public async Task UseHelp_with_custom_aliases_default_aliases_replaced(string helpAlias)
         {
-            RootCommand command = new()
-            {
-                new HelpOption("--confused")
-            };
+            RootCommand command = new();
+            command.Options.Clear();
+            command.Options.Add(new HelpOption("--confused"));
+
             CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter(),
@@ -206,7 +202,6 @@ namespace System.CommandLine.Tests
                 subcommand,
                 option,
                 argument,
-                new HelpOption(),
             };
 
             CommandLineConfiguration config = new (rootCommand)
@@ -236,12 +231,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_sections_can_be_replaced()
         {
-            CommandLineConfiguration config = new(new RootCommand() { new HelpOption() })
+            CommandLineConfiguration config = new(new RootCommand())
             {
                 Output = new StringWriter()
             };
 
-            ParseResult parseResult = config.RootCommand.Parse("-h", config);
+            ParseResult parseResult = config.Parse("-h");
 
             if (parseResult.Action is HelpAction helpAction)
             {
@@ -263,12 +258,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_sections_can_be_supplemented()
         {
-            CommandLineConfiguration config = new(new RootCommand("hello") { new HelpOption() })
+            CommandLineConfiguration config = new(new RootCommand("hello"))
             {
                 Output = new StringWriter(),
             };
 
-            ParseResult parseResult = config.RootCommand.Parse("-h", config);
+            ParseResult parseResult = config.Parse("-h");
 
             if (parseResult.Action is HelpAction helpAction)
             {
@@ -306,14 +301,12 @@ namespace System.CommandLine.Tests
             var command = new RootCommand
             {
                 commandWithTypicalHelp,
-                commandWithCustomHelp,
-                new HelpOption()
-                {
-                    Action = new HelpAction()
-                    {
-                        Builder = helpBuilder
-                    }
-                }
+                commandWithCustomHelp
+            };
+
+            command.Options.OfType<HelpOption>().Single().Action = new HelpAction()
+            {
+                Builder = helpBuilder
             };
 
             var config = new CommandLineConfiguration(command);
@@ -381,12 +374,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Help_customized_sections_can_be_wrapped()
         {
-            CommandLineConfiguration config = new(new RootCommand() {  new HelpOption() })
+            CommandLineConfiguration config = new(new RootCommand())
             {
                 Output = new StringWriter()
             };
 
-            ParseResult parseResult = config.RootCommand.Parse("-h", config);
+            ParseResult parseResult = config.Parse("-h");
 
             if (parseResult.Action is HelpAction helpAction)
             {

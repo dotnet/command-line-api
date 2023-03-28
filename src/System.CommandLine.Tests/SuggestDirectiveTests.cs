@@ -123,7 +123,7 @@ namespace System.CommandLine.Tests
             config.Output
                    .ToString()
                    .Should()
-                   .Be($"--fruit{NewLine}--vegetable{NewLine}");
+                   .Be($"--fruit{NewLine}--help{NewLine}--vegetable{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace System.CommandLine.Tests
             config.Output
                    .ToString()
                    .Should()
-                   .Be($"eat{NewLine}");
+                   .Be($"--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}eat{NewLine}");
         }
 
         [Fact]
@@ -200,7 +200,6 @@ namespace System.CommandLine.Tests
             {
                 _eatCommand,
                 new Command("wash-dishes"),
-                new VersionOption()
             };
             CommandLineConfiguration config = new (rootCommand)
             {

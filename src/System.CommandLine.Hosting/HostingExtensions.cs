@@ -3,10 +3,8 @@ using System.CommandLine.NamingConventionBinder;
 using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using System.CommandLine.Help;
 
 namespace System.CommandLine.Hosting
 {
@@ -17,9 +15,6 @@ namespace System.CommandLine.Hosting
             Action<IHostBuilder> configureHost = null)
         {
             builder.Directives.Add(new Directive("config"));
-
-            AddIfNotPresent(builder.RootCommand, new HelpOption());
-            AddIfNotPresent(builder.RootCommand, new VersionOption());
 
             HostingAction.SetHandlers(builder.RootCommand, hostBuilderFactory, configureHost);
 
@@ -91,19 +86,6 @@ namespace System.CommandLine.Hosting
             _ = parseResult ?? throw new ArgumentNullException(paramName: nameof(parseResult));
             var hostModelBinder = new ModelBinder<IHost>();
             return (IHost)hostModelBinder.CreateInstance(parseResult.GetBindingContext());
-        }
-
-        private static void AddIfNotPresent<T>(Command command, T option) where T : Option
-        {
-            for (int i = 0; i < command.Options.Count; i++)
-            {
-                if (command.Options[i] is T)
-                {
-                    return;
-                }
-            }
-
-            command.Options.Add(option);
         }
     }
 }

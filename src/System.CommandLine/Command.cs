@@ -101,16 +101,66 @@ namespace System.CommandLine
         public CliAction? Action { get; set; }
 
         /// <summary>
-        /// Sets a synchronous action.
+        /// Sets a synchronous action to be run when the command is invoked.
         /// </summary>
         public void SetAction(Action<ParseResult> action)
-            => Action = new AnonymousCliAction(action);
+        {
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            Action = new AnonymousCliAction(context =>
+            {
+                action(context);
+                return 0;
+            });
+        }
 
         /// <summary>
-        /// Sets an asynchronous action.
+        /// Sets a synchronous action to be run when the command is invoked.
+        /// </summary>
+        /// <remarks>The value returned from the <paramref name="action"/> delegate can be used to set the process exit code.</remarks>
+        public void SetAction(Func<ParseResult, int> action)
+        {
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            Action = new AnonymousCliAction(action);
+        }
+
+        /// <summary>
+        /// Sets an asynchronous action to be run when the command is invoked.
         /// </summary>
         public void SetAction(Func<ParseResult, CancellationToken, Task> action)
-            => Action = new AnonymousCliAction(action);
+        {
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            Action = new AnonymousCliAction(async (context, cancellationToken) =>
+            {
+                await action(context, cancellationToken);
+                return 0;
+            });
+        }
+
+        /// <summary>
+        /// Sets an asynchronous action when the command is invoked.
+        /// </summary>
+        /// <remarks>The value returned from the <paramref name="action"/> delegate can be used to set the process exit code.</remarks>
+        public void SetAction(Func<ParseResult, CancellationToken, Task<int>> action)
+        {
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            Action = new AnonymousCliAction(action);
+        }
 
         /// <summary>
         /// Adds a <see cref="Symbol"/> to the command.

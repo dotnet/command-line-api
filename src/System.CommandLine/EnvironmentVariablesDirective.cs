@@ -9,8 +9,18 @@ namespace System.CommandLine
     /// </summary>
     public sealed class EnvironmentVariablesDirective : Directive
     {
+        private CliAction? _action;
+
         public EnvironmentVariablesDirective() : base("env")
-            => Action = new EnvironmentVariablesDirectiveAction(this);
+        {
+        }
+
+        /// <inheritdoc />
+        public override CliAction? Action
+        {
+            get => _action ??= new EnvironmentVariablesDirectiveAction(this);
+            set => _action = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         private sealed class EnvironmentVariablesDirectiveAction : CliAction
         {
