@@ -34,7 +34,7 @@ namespace System.CommandLine
 
                 var completions = completionParseResult.GetCompletions(position);
 
-                parseResult.Configuration.Out.WriteLine(
+                parseResult.Configuration.Output.WriteLine(
                     string.Join(
                         Environment.NewLine,
                         completions));

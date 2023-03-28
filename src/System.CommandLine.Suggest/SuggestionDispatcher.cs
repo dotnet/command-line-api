@@ -30,7 +30,7 @@ namespace System.CommandLine.Suggest
             };
             CompleteScriptCommand.SetAction(context =>
             {
-                SuggestionShellScriptHandler.Handle(context.Configuration.Out, context.GetValue(shellTypeArgument));
+                SuggestionShellScriptHandler.Handle(context.Configuration.Output, context.GetValue(shellTypeArgument));
             });
 
             ListCommand = new Command("list")
@@ -39,7 +39,7 @@ namespace System.CommandLine.Suggest
             };
             ListCommand.SetAction((ctx, cancellationToken) =>
             {
-                ctx.Configuration.Out.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
+                ctx.Configuration.Output.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
                 return Task.CompletedTask;
             });
 
@@ -60,7 +60,7 @@ namespace System.CommandLine.Suggest
 
             RegisterCommand.SetAction((context, cancellationToken) =>
             {
-                Register(context.GetValue(commandPathOption), context.Configuration.Out);
+                Register(context.GetValue(commandPathOption), context.Configuration.Output);
                 return Task.CompletedTask;
             });
 
@@ -178,7 +178,7 @@ namespace System.CommandLine.Suggest
             Program.LogDebug($"dotnet-suggest returning: \"{completions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
 #endif
 
-            parseResult.Configuration.Out.Write(completions);
+            parseResult.Configuration.Output.Write(completions);
 
             return Task.FromResult(0);
         }

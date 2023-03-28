@@ -61,7 +61,7 @@ namespace System.CommandLine
         {
             public override int Invoke(ParseResult parseResult)
             {
-                parseResult.Configuration.Out.WriteLine(RootCommand.ExecutableVersion);
+                parseResult.Configuration.Output.WriteLine(RootCommand.ExecutableVersion);
                 return 0;
             }
 

@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration config = new(rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new ParseDirective() }
             };
 
@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"![ {RootCommand.ExecutableName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
@@ -58,7 +58,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration config = new(rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new ParseDirective() }
             };
 
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"[ {RootCommand.ExecutableName} [ --help ] ]" + Environment.NewLine);
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration config = new(rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new ParseDirective() }
             };
 
@@ -95,7 +95,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"[ {RootCommand.ExecutableName} [ --version ] ]" + Environment.NewLine);
@@ -111,7 +111,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration config = new(command)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new ParseDirective() }
             };
 
@@ -130,7 +130,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration config = new(command)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new ParseDirective() }
             };
 
@@ -149,7 +149,7 @@ namespace System.CommandLine.Tests
 
             CommandLineConfiguration config = new(command)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new ParseDirective(errorExitCode: 42) }
             };
 

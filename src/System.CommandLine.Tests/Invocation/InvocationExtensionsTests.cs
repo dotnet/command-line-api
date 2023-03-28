@@ -26,7 +26,7 @@ namespace System.CommandLine.Tests.Invocation
             StringWriter output = new();
             CommandLineConfiguration config = new(command)
             {
-                Out = output
+                Output = output
             };
 
             await command.Parse("-h", config).InvokeAsync();
@@ -50,7 +50,7 @@ namespace System.CommandLine.Tests.Invocation
             StringWriter output = new ();
             CommandLineConfiguration config = new(command)
             {
-                Out = output
+                Output = output
             };
 
             command.Parse("-h", config).Invoke();

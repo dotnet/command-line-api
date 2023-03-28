@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
             RootCommand rootCommand = new () { _eatCommand };
             CommandLineConfiguration config = new (rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
@@ -63,7 +63,7 @@ namespace System.CommandLine.Tests
             };
             CommandLineConfiguration config = new (rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
             RootCommand rootCommand = new() { _eatCommand };
             CommandLineConfiguration config = new(rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
@@ -93,7 +93,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"--fruit{NewLine}--vegetable{NewLine}");
@@ -113,14 +113,14 @@ namespace System.CommandLine.Tests
             };
             CommandLineConfiguration config = new(rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
             var result = rootCommand.Parse(input, config);
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"--fruit{NewLine}--vegetable{NewLine}");
@@ -132,14 +132,14 @@ namespace System.CommandLine.Tests
             RootCommand rootCommand = new() { _eatCommand };
             CommandLineConfiguration config = new(rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
             var result = rootCommand.Parse("[suggest]", config);
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"eat{NewLine}");
@@ -155,7 +155,7 @@ namespace System.CommandLine.Tests
             };
             CommandLineConfiguration config = new (rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
@@ -163,7 +163,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"--fruit{NewLine}");
@@ -179,7 +179,7 @@ namespace System.CommandLine.Tests
             };
             CommandLineConfiguration config = new (rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
@@ -187,7 +187,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"wash-dishes{NewLine}");
@@ -204,7 +204,7 @@ namespace System.CommandLine.Tests
             };
             CommandLineConfiguration config = new (rootCommand)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
@@ -212,7 +212,7 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"--version{NewLine}");
@@ -230,13 +230,13 @@ namespace System.CommandLine.Tests
             };
             CommandLineConfiguration config = new (command)
             {
-                Out = new StringWriter(),
+                Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
             };
 
             await config.InvokeAsync("[suggest:3] \"opt\"");
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .Be($"--option1{NewLine}--option2{NewLine}");
@@ -251,14 +251,14 @@ namespace System.CommandLine.Tests
             };
             CommandLineConfiguration config = new (command)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             var commandLine = "--bool-option false";
 
             await command.Parse($"[suggest:{commandLine.Length + 1}] \"{commandLine}\"", config).InvokeAsync();
 
-            config.Out
+            config.Output
                    .ToString()
                    .Should()
                    .NotContain("--bool-option");

@@ -19,7 +19,7 @@ namespace System.CommandLine.Help
 
         public override int Invoke(ParseResult parseResult)
         {
-            var output = parseResult.Configuration.Out;
+            var output = parseResult.Configuration.Output;
 
             var helpContext = new HelpContext(Builder,
                                               parseResult.CommandResult.Command,

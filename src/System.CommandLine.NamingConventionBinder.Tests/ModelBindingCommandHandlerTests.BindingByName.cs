@@ -39,12 +39,12 @@ public partial class ModelBindingCommandHandlerTests
             command.Action = handler;
             CommandLineConfiguration configuration = new(command)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await command.Parse(commandLine, configuration).InvokeAsync(CancellationToken.None);
 
-            configuration.Out.ToString().Should().Be(expectedValue.ToString());
+            configuration.Output.ToString().Should().Be(expectedValue.ToString());
         }
 
         [Theory]
@@ -73,12 +73,12 @@ public partial class ModelBindingCommandHandlerTests
             command.Action = handler;
             CommandLineConfiguration configuration = new(command)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await command.Parse(commandLine, configuration).InvokeAsync(CancellationToken.None);
 
-            configuration.Out.ToString().Should().Be($"ClassWithSetter<{type.Name}>: {expectedValue}");
+            configuration.Output.ToString().Should().Be($"ClassWithSetter<{type.Name}>: {expectedValue}");
         }
 
         [Theory]
@@ -107,12 +107,12 @@ public partial class ModelBindingCommandHandlerTests
             command.Action = handler;
             CommandLineConfiguration configuration = new(command)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await command.Parse(commandLine, configuration).InvokeAsync(CancellationToken.None);
 
-            configuration.Out.ToString().Should().Be($"ClassWithCtorParameter<{type.Name}>: {expectedValue}");
+            configuration.Output.ToString().Should().Be($"ClassWithCtorParameter<{type.Name}>: {expectedValue}");
         }
 
         [Theory]
@@ -137,12 +137,12 @@ public partial class ModelBindingCommandHandlerTests
             command.Action = handler;
             CommandLineConfiguration configuration = new(command)
             {
-                Out = new StringWriter()
+                Output = new StringWriter()
             };
 
             await command.Parse(commandLine, configuration).InvokeAsync(CancellationToken.None);
 
-            configuration.Out.ToString().Should().Be(expectedValue.ToString());
+            configuration.Output.ToString().Should().Be(expectedValue.ToString());
         }
 
         [Fact]

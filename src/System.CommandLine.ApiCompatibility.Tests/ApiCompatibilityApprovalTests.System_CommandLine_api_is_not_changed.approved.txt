@@ -63,7 +63,7 @@ System.CommandLine
     public System.Boolean EnablePosixBundling { get; set; }
     public System.Boolean EnableTypoCorrections { get; set; }
     public System.IO.TextWriter Error { get; set; }
-    public System.IO.TextWriter Out { get; set; }
+    public System.IO.TextWriter Output { get; set; }
     public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
     public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
     public Command RootCommand { get; }
