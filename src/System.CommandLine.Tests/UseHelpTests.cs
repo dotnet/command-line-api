@@ -175,10 +175,10 @@ namespace System.CommandLine.Tests
         [InlineData("/?")]
         public async Task UseHelp_with_custom_aliases_default_aliases_replaced(string helpAlias)
         {
-            RootCommand command = new()
-            {
-                new HelpOption("--confused")
-            };
+            RootCommand command = new();
+            command.Options.Clear();
+            command.Options.Add(new HelpOption("--confused"));
+
             CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter(),
@@ -301,14 +301,12 @@ namespace System.CommandLine.Tests
             var command = new RootCommand
             {
                 commandWithTypicalHelp,
-                commandWithCustomHelp,
-                new HelpOption()
-                {
-                    Action = new HelpAction()
-                    {
-                        Builder = helpBuilder
-                    }
-                }
+                commandWithCustomHelp
+            };
+
+            command.Options.OfType<HelpOption>().Single().Action = new HelpAction()
+            {
+                Builder = helpBuilder
             };
 
             var config = new CommandLineConfiguration(command);
