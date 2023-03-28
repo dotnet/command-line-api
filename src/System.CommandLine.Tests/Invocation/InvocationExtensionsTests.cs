@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests.Invocation
     public class InvocationExtensionsTests
     {
         [Fact]
-        public async Task Command_InvokeAsync_uses_default_pipeline_by_default()
+        public async Task Command_InvokeAsync_enables_help_by_default()
         {
             var command = new Command("the-command")
             {
@@ -31,14 +31,13 @@ namespace System.CommandLine.Tests.Invocation
 
             await command.Parse("-h", config).InvokeAsync();
 
-            output
-                   .ToString()
-                   .Should()
-                   .Contain(theHelpText);
+            output.ToString()
+                  .Should()
+                  .Contain(theHelpText);
         }
 
         [Fact]
-        public void Command_Invoke_uses_default_pipeline_by_default()
+        public void Command_Invoke_enables_help_by_default()
         {
             var command = new Command("the-command")
             {
@@ -55,10 +54,9 @@ namespace System.CommandLine.Tests.Invocation
 
             command.Parse("-h", config).Invoke();
 
-            output
-                   .ToString()
-                   .Should()
-                   .Contain(theHelpText);
+            output.ToString()
+                  .Should()
+                  .Contain(theHelpText);
         }
 
         [Fact]
@@ -132,15 +130,64 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public async Task RootCommand_Action_can_set_custom_result_code()
+        public void Custom_RootCommand_Action_can_set_custom_result_code_via_Invoke()
         {
-            var rootCommand = new RootCommand()
+            var rootCommand = new RootCommand
             {
                 Action = new CustomExitCodeAction()
             };
 
             rootCommand.Parse("").Invoke().Should().Be(123);
+        }
+
+        [Fact]
+        public async Task Custom_RootCommand_Action_can_set_custom_result_code_via_InvokeAsync()
+        {
+            var rootCommand = new RootCommand
+            {
+                Action = new CustomExitCodeAction()
+            };
+
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(456);
+        }
+
+        [Fact]
+        public void Anonymous_RootCommand_Task_returning_Action_can_set_custom_result_code_via_Invoke()
+        {
+            var rootCommand = new RootCommand();
+
+            rootCommand.SetAction((_, _) => Task.FromResult(123));
+
+            rootCommand.Parse("").Invoke().Should().Be(123);
+        }
+
+        [Fact]
+        public async Task Anonymous_RootCommand_Task_returning_Action_can_set_custom_result_code_via_InvokeAsync()
+        {
+            var rootCommand = new RootCommand();
+
+            rootCommand.SetAction((_, _) => Task.FromResult(123));
+
+            (await rootCommand.Parse("").InvokeAsync()).Should().Be(123);
+        }
+        [Fact]
+        public void Anonymous_RootCommand_int_returning_Action_can_set_custom_result_code_via_Invoke()
+        {
+            var rootCommand = new RootCommand();
+
+            rootCommand.SetAction(_ => 123);
+
+            rootCommand.Parse("").Invoke().Should().Be(123);
+        }
+
+        [Fact]
+        public async Task Anonymous_RootCommand_int_returning_Action_can_set_custom_result_code_via_InvokeAsync()
+        {
+            var rootCommand = new RootCommand();
+
+            rootCommand.SetAction(_ => 123);
+
+            (await rootCommand.Parse("").InvokeAsync()).Should().Be(123);
         }
 
         internal sealed class CustomExitCodeAction : CliAction
@@ -157,7 +204,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             using CancellationTokenSource cts = new();
             var command = new Command("test");
-            command.SetAction((InvocationContext context, CancellationToken cancellationToken) =>
+            command.SetAction((_, cancellationToken) =>
             {
                 cancellationToken.Should().Be(cts.Token);
                 return Task.CompletedTask;
