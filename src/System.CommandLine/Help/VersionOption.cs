@@ -45,7 +45,7 @@ namespace System.CommandLine
                     parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
                           .Any(IsNotImplicit))
                 {
-                    result.AddError(LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.Token?.Value ?? result.Option.Name));
+                    result.AddError(LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.IdentifierToken?.Value ?? result.Option.Name));
                 }
             });
         }

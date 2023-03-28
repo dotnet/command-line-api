@@ -22,7 +22,7 @@ namespace System.CommandLine.Parsing
             base(symbolResultTree, parent)
         {
             Option = option ?? throw new ArgumentNullException(nameof(option));
-            Token = token;
+            IdentifierToken = token;
         }
 
         /// <summary>
@@ -34,15 +34,15 @@ namespace System.CommandLine.Parsing
         /// Indicates whether the result was created implicitly and not due to the option being specified on the command line.
         /// </summary>
         /// <remarks>Implicit results commonly result from options having a default value.</remarks>
-        public bool IsImplicit => Token is null || Token.IsImplicit;
+        public bool IsImplicit => IdentifierToken is null || IdentifierToken.IsImplicit;
 
         /// <summary>
         /// The token that was parsed to specify the option.
         /// </summary>
-        public Token? Token { get; }
+        public Token? IdentifierToken { get; }
 
         /// <inheritdoc/>
-        public override string ToString() => $"{nameof(OptionResult)}: {Token?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";
+        public override string ToString() => $"{nameof(OptionResult)}: {IdentifierToken?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
         /// <summary>
         /// Gets the parsed value or the default value for <see cref="Option"/>.

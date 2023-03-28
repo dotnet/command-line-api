@@ -252,6 +252,6 @@ namespace System.CommandLine
             return resourceString;
         }
 
-        private static string GetOptionName(OptionResult optionResult) => optionResult.Token?.Value ?? optionResult.Option.Name;
+        private static string GetOptionName(OptionResult optionResult) => optionResult.IdentifierToken?.Value ?? optionResult.Option.Name;
     }
 }

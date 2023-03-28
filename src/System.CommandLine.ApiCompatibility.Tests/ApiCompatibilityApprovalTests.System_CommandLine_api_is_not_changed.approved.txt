@@ -258,9 +258,9 @@ System.CommandLine.Parsing
     public Token Token { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> Values { get; }
   public class OptionResult : SymbolResult
+    public Token IdentifierToken { get; }
     public System.Boolean IsImplicit { get; }
     public System.CommandLine.Option Option { get; }
-    public Token Token { get; }
     public T GetValueOrDefault<T>()
     public System.String ToString()
   public class ParseError
