@@ -12,10 +12,10 @@ namespace System.CommandLine.Invocation
         private readonly Func<InvocationContext, int>? _syncAction;
 
         internal AnonymousCliAction(Func<InvocationContext, int> action)
-            => _syncAction = action ?? throw new ArgumentNullException(nameof(action));
+            => _syncAction = action;
 
         internal AnonymousCliAction(Func<InvocationContext, CancellationToken, Task<int>> action)
-            => _asyncAction = action ?? throw new ArgumentNullException(nameof(action));
+            => _asyncAction = action;
 
         public override int Invoke(InvocationContext context)
         {
