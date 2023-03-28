@@ -22,12 +22,11 @@ namespace System.CommandLine.Tests.Invocation
             var second = new Command("second");
             second.SetAction((_) => secondWasCalled = true);
 
-            var config = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineConfiguration(new RootCommand
                          {
                              first,
                              second
-                         })
-                         .Build();
+                         });
 
             await config.InvokeAsync("first");
 
@@ -47,12 +46,11 @@ namespace System.CommandLine.Tests.Invocation
             var second = new Command("second");
             second.SetAction((_) => secondWasCalled = true);
 
-            var config = new CommandLineBuilder(new RootCommand
+            var config = new CommandLineConfiguration(new RootCommand
                          {
                              first,
                              second
-                         })
-                .Build();
+                         });
 
             config.Invoke("first");
 
@@ -61,16 +59,15 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public void When_command_handler_throws_then_InvokeAsync_does_not_handle_the_exception()
+        public void When_default_exception_handler_is_disabled_InvokeAsync_does_not_swallow_action_exceptions()
         {
             var command = new Command("the-command");
             command.SetAction((_, __) => Task.FromException(new Exception("oops!")));
 
-            var config = new CommandLineBuilder(new RootCommand
-                         {
-                             command
-                         })
-                         .Build();
+            CommandLineConfiguration config = new (command)
+            {
+                EnableDefaultExceptionHandler = false
+            };
 
             Func<Task> invoke = async () => await config.InvokeAsync("the-command");
 
@@ -83,13 +80,15 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public void When_command_handler_throws_then_Invoke_does_not_handle_the_exception()
+        public void When_default_exception_handler_is_disabled_command_handler_exceptions_are_propagated()
         {
             var command = new Command("the-command");
             command.SetAction((_, __) => Task.FromException(new Exception("oops!")));
 
-            var config = new CommandLineBuilder(command)
-                .Build();
+            CommandLineConfiguration config = new (command)
+            {
+                EnableDefaultExceptionHandler = false
+            };
 
             Func<int> invoke = () => command.Parse("the-command", config).Invoke();
 

@@ -59,6 +59,6 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Benchmark]
-        public ParseResult ParserFromOptionsWithArguments_Parse() => _configuration.RootCommand.Parse(_testSymbolsAsString, _configuration);
+        public ParseResult ParserFromOptionsWithArguments_Parse() => _configuration.Parse(_testSymbolsAsString);
     }
 }

@@ -31,10 +31,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 vegetableOption
             };
 
-            _configuration = new CommandLineBuilder(eatCommand)
-                .UseSuggestDirective()
-                .Build();
-            _configuration.Output = System.IO.TextWriter.Null;
+            _configuration = new CommandLineConfiguration(eatCommand)
+            {
+                Directives = { new SuggestDirective() },
+                Output = System.IO.TextWriter.Null
+            };
         }
 
         [Params(

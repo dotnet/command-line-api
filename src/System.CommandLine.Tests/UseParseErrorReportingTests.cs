@@ -4,7 +4,8 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Parsing;
+using System.CommandLine.Help;
+using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -17,13 +18,14 @@ namespace System.CommandLine.Tests
         {
             var root = new RootCommand
             {
-                new Command("inner")
+                new Command("inner"),
+                new HelpOption()
             };
 
-            var config = new CommandLineBuilder(root)
-                         .UseParseErrorReporting()
-                         .UseHelp()
-                         .Build();
+            CommandLineConfiguration config = new (root)
+            {
+                EnableParseErrorReporting = true
+            };
 
             var parseResult = root.Parse("", config);
 
@@ -35,18 +37,26 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Parse_error_uses_custom_error_result_code()
+        public void User_can_customize_parse_error_result_code()
         {
             var root = new RootCommand
             {
                 new Command("inner")
             };
 
-            var config = new CommandLineBuilder(root)
-                         .UseParseErrorReporting(errorExitCode: 42)
-                         .Build();
+            CommandLineConfiguration config = new (root)
+            {
+                EnableParseErrorReporting = true
+            };
 
-            int result = config.Invoke("");
+            ParseResult parseResult = root.Parse("", config);
+
+            int result = parseResult.Invoke();
+
+            if (parseResult.Errors.Any())
+            {
+                result = 42;
+            }
 
             result.Should().Be(42);
         }

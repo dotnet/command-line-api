@@ -7,21 +7,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace System.CommandLine.Help
+namespace System.CommandLine
 {
-    internal sealed class VersionOption : Option<bool>
+    public sealed class VersionOption : Option<bool>
     {
         private CliAction? _action;
 
-        internal VersionOption()
-            : base("--version", new Argument<bool>("--version") { Arity = ArgumentArity.Zero })
+        /// <summary>
+        /// When added to a <see cref="Command"/>, it enables the use of a <c>--version</c> option, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// </summary>
+        public VersionOption() : this("--version", Array.Empty<string>())
         {
-            Description = LocalizationResources.VersionOptionDescription();
-            AddValidators();
         }
 
-        internal VersionOption(string name, string[] aliases)
-            : base(name, aliases)
+        /// <summary>
+        /// When added to a <see cref="Command"/>, it enables the use of a provided option name and aliases, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// </summary>
+        public VersionOption(string name, params string[] aliases)
+            : base(name, aliases, new Argument<bool>("--version") { Arity = ArgumentArity.Zero })
         {
             Description = LocalizationResources.VersionOptionDescription();
             AddValidators();

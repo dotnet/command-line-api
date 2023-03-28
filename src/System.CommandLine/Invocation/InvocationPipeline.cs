@@ -39,9 +39,9 @@ namespace System.CommandLine.Invocation
                     return await firstCompletedTask; // return the result or propagate the exception
                 }
             }
-            catch (Exception ex) when (parseResult.Configuration.ExceptionHandler is not null)
+            catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
             {
-                return parseResult.Configuration.ExceptionHandler(ex, context);
+                return DefaultExceptionHandler(ex, parseResult.Configuration);
             }
             finally
             {
@@ -62,10 +62,25 @@ namespace System.CommandLine.Invocation
             {
                 return parseResult.Action.Invoke(context);
             }
-            catch (Exception ex) when (parseResult.Configuration.ExceptionHandler is not null)
+            catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
             {
-                return parseResult.Configuration.ExceptionHandler(ex, context);
+                return DefaultExceptionHandler(ex, parseResult.Configuration);
             }
+        }
+
+        private static int DefaultExceptionHandler(Exception exception, CommandLineConfiguration config)
+        {
+            if (exception is not OperationCanceledException)
+            {
+                ConsoleHelpers.ResetTerminalForegroundColor();
+                ConsoleHelpers.SetTerminalForegroundRed();
+
+                config.Error.Write(LocalizationResources.ExceptionHandlerHeader());
+                config.Error.WriteLine(exception.ToString());
+
+                ConsoleHelpers.ResetTerminalForegroundColor();
+            }
+            return 1;
         }
     }
 }

@@ -28,11 +28,10 @@ namespace System.CommandLine.Hosting.Tests
                 hostFromHandler = host;
             }
 
-            var config = new CommandLineBuilder(
+            var config = new CommandLineConfiguration(
                 new RootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
-                .UseHost()
-                .Build();
+                .UseHost();
 
             await config.InvokeAsync(Array.Empty<string>());
 
@@ -44,13 +43,12 @@ namespace System.CommandLine.Hosting.Tests
         {
             InvocationContext invocationContext = null;
 
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                 .UseHost(host =>
                 {
                     if (host.Properties.TryGetValue(typeof(InvocationContext), out var ctx))
                         invocationContext = ctx as InvocationContext;
-                })
-                .Build();
+                });
 
             await config.InvokeAsync(Array.Empty<string>());
 
@@ -72,11 +70,10 @@ namespace System.CommandLine.Hosting.Tests
                 parseResult = services.GetRequiredService<ParseResult>();
             }
 
-            var config = new CommandLineBuilder(
+            var config = new CommandLineConfiguration(
                 new RootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
-                .UseHost()
-                .Build();
+                .UseHost();
 
             await config.InvokeAsync(Array.Empty<string>());
 
@@ -100,7 +97,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CommandLineBuilder(
+            var config = new CommandLineConfiguration(
                 new RootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute),
@@ -113,8 +110,7 @@ namespace System.CommandLine.Hosting.Tests
                     {
                         config.AddCommandLine(args);
                     });
-                })
-                .Build();
+                });
 
             await config.InvokeAsync(commandLineArgs);
 
@@ -136,7 +132,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CommandLineBuilder(
+            var config = new CommandLineConfiguration(
                 new RootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute),
@@ -151,8 +147,7 @@ namespace System.CommandLine.Hosting.Tests
                     });
 
                     return host;
-                })
-                .Build();
+                });
 
             await config.InvokeAsync(commandLineArgs);
 
@@ -174,13 +169,12 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CommandLineBuilder(
+            var config = new CommandLineConfiguration(
                 new RootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute)
                 })
-                .UseHost()
-                .Build();
+                .UseHost();
 
             await config.InvokeAsync(commandLine);
 
@@ -203,7 +197,7 @@ namespace System.CommandLine.Hosting.Tests
                     .Value;
             });
 
-            int result = new CommandLineBuilder(rootCmd)
+            int result = new CommandLineConfiguration(rootCmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -211,7 +205,6 @@ namespace System.CommandLine.Hosting.Tests
                         services.AddOptions<MyOptions>().BindCommandLine();
                     });
                 })
-                .Build()
                 .Invoke(commandLine);
 
             Assert.Equal(0, result);
@@ -253,14 +246,13 @@ namespace System.CommandLine.Hosting.Tests
         public async static Task GetInvocationContext_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                 .UseHost(hostBuilder =>
                 {
                     InvocationContext ctx = hostBuilder.GetInvocationContext();
                     ctx.Should().NotBeNull();
                     ctxAsserted = true;
-                })
-                .Build();
+                });
 
             await config.InvokeAsync(string.Empty);
             ctxAsserted.Should().BeTrue();
@@ -270,7 +262,7 @@ namespace System.CommandLine.Hosting.Tests
         public async static Task GetInvocationContext_in_ConfigureServices_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var config = new CommandLineBuilder(new RootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                 .UseHost(hostBuilder =>
                 {
                     hostBuilder.ConfigureServices((hostingCtx, services) =>
@@ -279,8 +271,7 @@ namespace System.CommandLine.Hosting.Tests
                         invocationCtx.Should().NotBeNull();
                         ctxAsserted = true;
                     });
-                })
-                .Build();
+                });
 
             await config.InvokeAsync(string.Empty);
             ctxAsserted.Should().BeTrue();

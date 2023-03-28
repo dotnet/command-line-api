@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace EndToEndTestApp
                 appleOption,          
                 bananaOption,          
                 cherryOption,          
-                durianOption,          
+                durianOption,
             };
 
             rootCommand.SetAction((InvocationContext ctx, CancellationToken cancellationToken) =>
@@ -33,9 +34,7 @@ namespace EndToEndTestApp
                 return Task.CompletedTask;
             });
 
-            var commandLine = new CommandLineBuilder(rootCommand)
-                .UseDefaults()
-                .Build();
+            CommandLineConfiguration commandLine = new (rootCommand);
 
             await commandLine.InvokeAsync(args);
         }

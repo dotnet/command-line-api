@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
@@ -68,17 +69,17 @@ namespace System.CommandLine.Suggest
                 ListCommand,
                 GetCommand,
                 RegisterCommand,
-                CompleteScriptCommand
+                CompleteScriptCommand,
             };
             root.TreatUnmatchedTokensAsErrors = false;
-            Configuration = new CommandLineBuilder(root)
-                     .UseVersionOption()
-                     .UseHelp()
-                     .UseParseDirective()
-                     .UseSuggestDirective()
-                     .UseParseErrorReporting()
-                     .UseExceptionHandler()
-                     .Build();
+            Configuration = new CommandLineConfiguration(root)
+            {
+                Directives =
+                {
+                    new ParseDirective(),
+                    new SuggestDirective(),
+                }
+            };
         }
 
         private Command CompleteScriptCommand { get; }

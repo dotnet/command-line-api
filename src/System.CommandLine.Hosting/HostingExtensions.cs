@@ -7,23 +7,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.CommandLine.Help;
 
 namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
-        public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
+        public static CommandLineConfiguration UseHost(this CommandLineConfiguration builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null)
         {
             builder.Directives.Add(new Directive("config"));
 
-            HostingAction.SetHandlers(builder.Command, hostBuilderFactory, configureHost);
+            HostingAction.SetHandlers(builder.RootCommand, hostBuilderFactory, configureHost);
 
             return builder;
         }
 
-        public static CommandLineBuilder UseHost(this CommandLineBuilder builder,
+        public static CommandLineConfiguration UseHost(this CommandLineConfiguration builder,
             Action<IHostBuilder> configureHost = null
             ) => UseHost(builder, null, configureHost);
 

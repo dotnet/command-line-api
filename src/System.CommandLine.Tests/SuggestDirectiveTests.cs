@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Help;
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -36,10 +37,11 @@ namespace System.CommandLine.Tests
         public async Task It_writes_suggestions_for_option_arguments_when_under_subcommand()
         {
             RootCommand rootCommand = new () { _eatCommand };
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseSuggestDirective()
-                         .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new (rootCommand)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             var result = rootCommand.Parse($"[suggest:13] \"eat --fruit\"", config);
 
@@ -59,10 +61,11 @@ namespace System.CommandLine.Tests
                 _fruitOption,
                 _vegetableOption
             };
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseSuggestDirective()
-                         .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new (rootCommand)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             var result = rootCommand.Parse($"[suggest:8] \"--fruit\"", config);
 
@@ -80,10 +83,11 @@ namespace System.CommandLine.Tests
         public async Task It_writes_suggestions_for_option_aliases_under_subcommand(string commandLine)
         {
             RootCommand rootCommand = new() { _eatCommand };
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseSuggestDirective()
-                         .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             var result = rootCommand.Parse(commandLine, config);
 
@@ -107,10 +111,11 @@ namespace System.CommandLine.Tests
                 _vegetableOption,
                 _fruitOption
             };
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseSuggestDirective()
-                         .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             var result = rootCommand.Parse(input, config);
             await result.InvokeAsync();
@@ -118,17 +123,18 @@ namespace System.CommandLine.Tests
             config.Output
                    .ToString()
                    .Should()
-                   .Be($"--fruit{NewLine}--vegetable{NewLine}");
+                   .Be($"--fruit{NewLine}--help{NewLine}--vegetable{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
         }
 
         [Fact]
         public async Task It_writes_suggestions_for_subcommand_aliases_under_root_command()
         {
             RootCommand rootCommand = new() { _eatCommand };
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseSuggestDirective()
-                         .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new(rootCommand)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             var result = rootCommand.Parse("[suggest]", config);
             await result.InvokeAsync();
@@ -136,7 +142,7 @@ namespace System.CommandLine.Tests
             config.Output
                    .ToString()
                    .Should()
-                   .Be($"eat{NewLine}");
+                   .Be($"--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}eat{NewLine}");
         }
 
         [Fact]
@@ -147,10 +153,11 @@ namespace System.CommandLine.Tests
                 _fruitOption,
                 _vegetableOption
             };
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseSuggestDirective()
-                         .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new (rootCommand)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             var result = rootCommand.Parse($"[suggest:1] \"f\"", config);
 
@@ -169,11 +176,12 @@ namespace System.CommandLine.Tests
             {
                 _eatCommand,
                 new Command("wash-dishes")
-            }; 
-            var config = new CommandLineBuilder(rootCommand)
-                         .UseSuggestDirective()
-                         .Build();
-            config.Output = new StringWriter();
+            };
+            CommandLineConfiguration config = new (rootCommand)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             var result = rootCommand.Parse("[suggest:1] \"d\"", config);
 
@@ -191,13 +199,13 @@ namespace System.CommandLine.Tests
             RootCommand rootCommand = new ()
             {
                 _eatCommand,
-                new Command("wash-dishes")
+                new Command("wash-dishes"),
             };
-            var config = new CommandLineBuilder(rootCommand)
-                          .UseSuggestDirective()
-                          .UseVersionOption()
-                          .Build();
-            config.Output = new StringWriter();
+            CommandLineConfiguration config = new (rootCommand)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             var result = rootCommand.Parse("[suggest:5] \"--ver\"", config);
 
@@ -212,16 +220,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_option_and_subcommand_aliases_under_root_command_with_an_argument()
         {
-            var config = new CommandLineBuilder(new Command("parent")
-                          {
-                              new Command("child"),
-                              new Option<bool>("--option1"),
-                              new Option<bool>("--option2"),
-                              new Argument<string>("arg")
-                          })
-                          .UseSuggestDirective()
-                          .Build();
-            config.Output = new StringWriter();
+            Command command = new("parent")
+            {
+                new Command("child"),
+                new Option<bool>("--option1"),
+                new Option<bool>("--option2"),
+                new Argument<string>("arg")
+            };
+            CommandLineConfiguration config = new (command)
+            {
+                Output = new StringWriter(),
+                Directives = { new SuggestDirective() }
+            };
 
             await config.InvokeAsync("[suggest:3] \"opt\"");
 
@@ -238,7 +248,7 @@ namespace System.CommandLine.Tests
             {
                 new Option<bool>("--bool-option")
             };
-            var config = new CommandLineConfiguration(command)
+            CommandLineConfiguration config = new (command)
             {
                 Output = new StringWriter()
             };

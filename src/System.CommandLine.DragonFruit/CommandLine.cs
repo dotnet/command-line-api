@@ -3,10 +3,9 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.Parsing;
-using System.CommandLine.Rendering;
 using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
@@ -87,7 +86,7 @@ namespace System.CommandLine.DragonFruit
             configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
-            return configuration.RootCommand.Parse(args, configuration).InvokeAsync();
+            return configuration.Parse(args).InvokeAsync();
         }
 
         public static int InvokeMethod(
@@ -102,23 +101,20 @@ namespace System.CommandLine.DragonFruit
             configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
-            return configuration.RootCommand.Parse(args, configuration).Invoke();
+            return configuration.Parse(args).Invoke();
         }
 
         private static CommandLineConfiguration BuildConfiguration(MethodInfo method,
             string xmlDocsFilePath,
             object target)
         {
-            var builder = new CommandLineBuilder(new RootCommand())
+            return new CommandLineConfiguration(new RootCommand())
                 .ConfigureRootCommandFromMethod(method, target)
-                .ConfigureHelpFromXmlComments(method, xmlDocsFilePath)
-                .UseDefaults();
-
-            return builder.Build();
+                .ConfigureHelpFromXmlComments(method, xmlDocsFilePath);
         }
 
-        public static CommandLineBuilder ConfigureRootCommandFromMethod(
-            this CommandLineBuilder builder,
+        public static CommandLineConfiguration ConfigureRootCommandFromMethod(
+            this CommandLineConfiguration builder,
             MethodInfo method,
             object target = null)
         {
@@ -132,7 +128,7 @@ namespace System.CommandLine.DragonFruit
                 throw new ArgumentNullException(nameof(method));
             }
 
-            builder.Command.ConfigureFromMethod(method, target);
+            builder.RootCommand.ConfigureFromMethod(method, target);
 
             return builder;
         }
@@ -172,8 +168,8 @@ namespace System.CommandLine.DragonFruit
             command.Action = CommandHandler.Create(method, target);
         }
 
-        public static CommandLineBuilder ConfigureHelpFromXmlComments(
-            this CommandLineBuilder builder,
+        public static CommandLineConfiguration ConfigureHelpFromXmlComments(
+            this CommandLineConfiguration builder,
             MethodInfo method,
             string xmlDocsFilePath)
         {
@@ -192,13 +188,13 @@ namespace System.CommandLine.DragonFruit
                 if (xmlDocs.TryGetMethodDescription(method, out CommandHelpMetadata metadata) &&
                     metadata.Description != null)
                 {
-                    builder.Command.Description = metadata.Description;
+                    builder.RootCommand.Description = metadata.Description;
 
                     foreach (var parameterDescription in metadata.ParameterDescriptions)
                     {
                         var kebabCasedParameterName = parameterDescription.Key.ToKebabCase();
 
-                        var option = builder.Command.Options.FirstOrDefault(o => HasAliasIgnoringPrefix(o, kebabCasedParameterName));
+                        var option = builder.RootCommand.Options.FirstOrDefault(o => HasAliasIgnoringPrefix(o, kebabCasedParameterName));
 
                         if (option != null)
                         {
@@ -206,9 +202,9 @@ namespace System.CommandLine.DragonFruit
                         }
                         else
                         {
-                            for (var i = 0; i < builder.Command.Arguments.Count; i++)
+                            for (var i = 0; i < builder.RootCommand.Arguments.Count; i++)
                             {
-                                var argument = builder.Command.Arguments[i];
+                                var argument = builder.RootCommand.Arguments[i];
                                 if (string.Equals(
                                     argument.Name,
                                     kebabCasedParameterName,

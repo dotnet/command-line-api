@@ -21,10 +21,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
         {
             var option = new Option<bool>("-opt");
 
-            _configuration =
-                new CommandLineBuilder(new RootCommand { option })
-                    .UseParseDirective()
-                    .Build();
+            _configuration = new CommandLineConfiguration(new RootCommand { option })
+            {
+                Directives = { new ParseDirective() }
+            };
         }
 
         public IEnumerable<string> GenerateTestInputs() 
@@ -39,12 +39,12 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         public IEnumerable<object> GenerateTestParseResults()
             => GenerateTestInputs()
-               .Select(input => new BdnParam<ParseResult>(_configuration.RootCommand.Parse(input, _configuration), input));
+               .Select(input => new BdnParam<ParseResult>(_configuration.Parse(input), input));
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestInputs))]
         public ParseResult ParseResult_Directives(string input)
-            => _configuration.RootCommand.Parse(input, _configuration);
+            => _configuration.Parse(input);
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]

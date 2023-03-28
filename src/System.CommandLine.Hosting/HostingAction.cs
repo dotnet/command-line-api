@@ -19,6 +19,7 @@ namespace System.CommandLine.Hosting
         internal static void SetHandlers(Command command, Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost)
         {
             command.Action = new HostingAction(hostBuilderFactory, configureHost, command.Action);
+            command.TreatUnmatchedTokensAsErrors = false; // to pass unmatched Tokens to host builder factory
 
             foreach (Command subCommand in command.Subcommands)
             {

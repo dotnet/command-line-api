@@ -99,8 +99,10 @@ namespace System.CommandLine.Tests.Help
                 });
 
                 var console = new StringWriter();
-                var config = CommandLineConfiguration.CreateBuilder(command).Build();
-                config.Output = console;
+                var config = new CommandLineConfiguration(command)
+                {
+                    Output = console
+                };
                 command.Parse("root a -h", config).Invoke();
                 console.ToString().Should().Contain(optionAFirstColumnText);
 
@@ -142,10 +144,11 @@ namespace System.CommandLine.Tests.Help
                     }
                 });
 
-                var config = new CommandLineBuilder(command)
-                             .Build();
+                var config = new CommandLineConfiguration(command)
+                {
+                    Output = new StringWriter()
+                };
 
-                config.Output = new StringWriter();
                 config.Invoke("root a -h");
                 config.Output.ToString().Should().Contain($"option          {optionADescription}");
 
@@ -270,7 +273,7 @@ namespace System.CommandLine.Tests.Help
                     }
                 });
 
-                CommandLineConfiguration config = new CommandLineBuilder(command).Build();
+                CommandLineConfiguration config = new (command);
                 var console = new StringWriter();
                 config.Output = console;
                 command.Parse("test -h", config).Invoke();
@@ -308,7 +311,7 @@ namespace System.CommandLine.Tests.Help
                     defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
 
 
-                var config = new CommandLineBuilder(command).Build();
+                CommandLineConfiguration config = new (command);
 
                 command.Options.Add(new HelpOption()
                 {

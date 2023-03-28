@@ -37,11 +37,11 @@ namespace System.CommandLine.Tests
             RootCommand root = new() { new Option<bool>("-y") };
             Directive parseDirective = new ("parse");
             Directive suggestDirective = new ("suggest");
-            CommandLineBuilder builder = new(root);
-            builder.Directives.Add(parseDirective);
-            builder.Directives.Add(suggestDirective);
+            CommandLineConfiguration config = new(root);
+            config.Directives.Add(parseDirective);
+            config.Directives.Add(suggestDirective);
 
-            var result = root.Parse("[parse] [suggest] -y", builder.Build());
+            var result = root.Parse("[parse] [suggest] -y", config);
 
             result.FindResultFor(parseDirective).Should().NotBeNull();
             result.FindResultFor(suggestDirective).Should().NotBeNull();
@@ -125,10 +125,10 @@ namespace System.CommandLine.Tests
         private static ParseResult Parse(Option option, Directive directive, string commandLine)
         {
             RootCommand root = new() { option };
-            CommandLineBuilder builder = new(root);
-            builder.Directives.Add(directive);
+            CommandLineConfiguration config = new(root);
+            config.Directives.Add(directive);
 
-            return root.Parse(commandLine, builder.Build());
+            return root.Parse(commandLine, config);
         }
     }
 }

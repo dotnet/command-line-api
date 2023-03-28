@@ -617,8 +617,7 @@ public class ModelBinderTests
             second = two;
         });
 
-        var config = new CommandLineBuilder(rootCommand)
-            .Build();
+        var config = new CommandLineConfiguration(rootCommand);
 
         config.Invoke("");
 
