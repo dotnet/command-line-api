@@ -54,7 +54,9 @@ System.CommandLine
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CommandLineConfiguration configuration = null)
     public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
     public System.Void SetAction(System.Action<System.CommandLine.Invocation.InvocationContext> action)
+    public System.Void SetAction(System.Func<System.CommandLine.Invocation.InvocationContext,System.Int32> action)
     public System.Void SetAction(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
+    public System.Void SetAction(System.Func<System.CommandLine.Invocation.InvocationContext,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
   public class CommandLineBuilder
     .ctor(Command rootCommand)
     public Command Command { get; }

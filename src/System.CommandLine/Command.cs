@@ -104,12 +104,32 @@ namespace System.CommandLine
         /// Sets a synchronous action.
         /// </summary>
         public void SetAction(Action<InvocationContext> action)
+            => Action = new AnonymousCliAction(context =>
+            {
+                action(context);
+                return 0;
+            });
+
+        /// <summary>
+        /// Sets a synchronous action.
+        /// </summary>
+        public void SetAction(Func<InvocationContext, int> action)
             => Action = new AnonymousCliAction(action);
 
         /// <summary>
         /// Sets an asynchronous action.
         /// </summary>
         public void SetAction(Func<InvocationContext, CancellationToken, Task> action)
+            => Action = new AnonymousCliAction(async (context, cancellationToken) =>
+            {
+                await action(context, cancellationToken);
+                return 0;
+            });
+
+        /// <summary>
+        /// Sets an asynchronous action.
+        /// </summary>
+        public void SetAction(Func<InvocationContext, CancellationToken, Task<int>> action)
             => Action = new AnonymousCliAction(action);
 
         /// <summary>
