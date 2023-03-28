@@ -1,5 +1,4 @@
-﻿using System.CommandLine.Invocation;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Help
@@ -17,23 +16,23 @@ namespace System.CommandLine.Help
             set => _builder = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        public override int Invoke(InvocationContext context)
+        public override int Invoke(ParseResult parseResult)
         {
-            var output = context.ParseResult.Configuration.Output;
+            var output = parseResult.Configuration.Output;
 
             var helpContext = new HelpContext(Builder,
-                                              context.ParseResult.CommandResult.Command,
+                                              parseResult.CommandResult.Command,
                                               output,
-                                              context.ParseResult);
+                                              parseResult);
 
             Builder.Write(helpContext);
 
             return 0;
         }
 
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             => cancellationToken.IsCancellationRequested
                 ? Task.FromCanceled<int>(cancellationToken)
-                : Task.FromResult(Invoke(context));
+                : Task.FromResult(Invoke(parseResult));
     }
 }

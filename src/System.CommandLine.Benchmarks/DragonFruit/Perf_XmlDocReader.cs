@@ -31,7 +31,7 @@ namespace System.CommandLine.Benchmarks.DragonFruit
                 {
                     typeof(object).GetTypeInfo().Assembly.Location,
                     typeof(Enumerable).GetTypeInfo().Assembly.Location,
-                    typeof(System.CommandLine.Invocation.InvocationContext).GetTypeInfo().Assembly.Location
+                    typeof(ParseResult).GetTypeInfo().Assembly.Location
                 }
             );
 

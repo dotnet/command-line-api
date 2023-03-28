@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -192,10 +191,10 @@ namespace System.CommandLine.Tests.Invocation
 
         internal sealed class CustomExitCodeAction : CliAction
         {
-            public override int Invoke(InvocationContext context)
+            public override int Invoke(ParseResult context)
                 => 123;
 
-            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
                 => Task.FromResult(456);
         }
 

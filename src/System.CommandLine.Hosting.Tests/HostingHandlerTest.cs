@@ -1,7 +1,4 @@
-﻿using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -125,12 +122,12 @@ namespace System.CommandLine.Hosting.Tests
         {
             public int IntOption { get; set; } // bound from option
 
-            public override int Invoke(InvocationContext context)
+            public override int Invoke(ParseResult context)
             {
                 return Act();
             }
 
-            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             {
                 return Task.FromResult(Act());
             }
@@ -156,13 +153,13 @@ namespace System.CommandLine.Hosting.Tests
 
                 public int IntOption { get; set; } // bound from option
 
-                public override int Invoke(InvocationContext context)
+                public override int Invoke(ParseResult context)
                 {
                     service.Value = IntOption;
                     return IntOption;
                 }
 
-                public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+                public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
                     return Task.FromResult(IntOption);
@@ -207,9 +204,9 @@ namespace System.CommandLine.Hosting.Tests
 
                 public string One { get; set; }
 
-                public override int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+                public override int Invoke(ParseResult context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 
-                public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+                public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
                     service.StringValue = One;

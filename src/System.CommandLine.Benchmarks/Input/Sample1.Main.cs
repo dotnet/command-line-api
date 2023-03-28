@@ -28,7 +28,7 @@ namespace RenderingPlayground
         /// <param name="overwrite">Overwrite the specified region. (If not, scroll.)</param>
         public static void Main(
 #pragma warning disable CS1573 // Parameter has no matching param tag in the XML comment (but other parameters do)
-            InvocationContext invocationContext,
+            ParseResult parseResult,
             SampleName sample = SampleName.Dir,
             int? height = null,
             int? width = null,

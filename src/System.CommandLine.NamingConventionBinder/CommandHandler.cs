@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Invocation;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -605,7 +604,7 @@ public static class CommandHandler
         Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, Task<int>> action) =>
         HandlerDescriptor.FromDelegate(action).GetCommandHandler();
 
-    internal static async Task<int> GetExitCodeAsync(object? returnValue, InvocationContext context)
+    internal static async Task<int> GetExitCodeAsync(object? returnValue)
     {
         switch (returnValue)
         {

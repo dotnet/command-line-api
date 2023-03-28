@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -30,7 +28,7 @@ namespace System.CommandLine.Suggest
             };
             CompleteScriptCommand.SetAction(context =>
             {
-                SuggestionShellScriptHandler.Handle(context.ParseResult.Configuration.Output, context.ParseResult.GetValue(shellTypeArgument));
+                SuggestionShellScriptHandler.Handle(context.Configuration.Output, context.GetValue(shellTypeArgument));
             });
 
             ListCommand = new Command("list")
@@ -39,7 +37,7 @@ namespace System.CommandLine.Suggest
             };
             ListCommand.SetAction((ctx, cancellationToken) =>
             {
-                ctx.ParseResult.Configuration.Output.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
+                ctx.Configuration.Output.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
                 return Task.CompletedTask;
             });
 
@@ -60,7 +58,7 @@ namespace System.CommandLine.Suggest
 
             RegisterCommand.SetAction((context, cancellationToken) =>
             {
-                Register(context.ParseResult.GetValue(commandPathOption), context.ParseResult.Configuration.Output);
+                Register(context.GetValue(commandPathOption), context.Configuration.Output);
                 return Task.CompletedTask;
             });
 
@@ -131,9 +129,8 @@ namespace System.CommandLine.Suggest
             }
         }
 
-        private Task<int> Get(InvocationContext context, CancellationToken cancellationToken)
+        private Task<int> Get(ParseResult parseResult, CancellationToken cancellationToken)
         {
-            var parseResult = context.ParseResult;
             var commandPath = parseResult.GetValue(ExecutableOption);
 
             Registration suggestionRegistration;
@@ -177,7 +174,7 @@ namespace System.CommandLine.Suggest
             Program.LogDebug($"dotnet-suggest returning: \"{completions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
 #endif
 
-            context.ParseResult.Configuration.Output.Write(completions);
+            parseResult.Configuration.Output.Write(completions);
 
             return Task.FromResult(0);
         }

@@ -1,5 +1,4 @@
 ﻿using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 
 namespace System.CommandLine.NamingConventionBinder
 {
@@ -10,7 +9,7 @@ namespace System.CommandLine.NamingConventionBinder
         /// <summary>
         /// The binding context for the current invocation.
         /// </summary>
-        public virtual BindingContext GetBindingContext(InvocationContext invocationContext)
-            => _bindingContext ??= new BindingContext(invocationContext);
+        public virtual BindingContext GetBindingContext(ParseResult parseResult)
+            => _bindingContext ??= new BindingContext(parseResult);
     }
 }

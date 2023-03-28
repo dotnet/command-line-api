@@ -15,13 +15,12 @@ namespace System.CommandLine.Invocation
                 return 0;
             }
 
-            InvocationContext context = new (parseResult);
             ProcessTerminationHandler? terminationHandler = null;
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             try
             {
-                Task<int> startedInvocation = parseResult.Action.InvokeAsync(context, cts.Token);
+                Task<int> startedInvocation = parseResult.Action.InvokeAsync(parseResult, cts.Token);
 
                 if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
                     terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
@@ -56,11 +55,9 @@ namespace System.CommandLine.Invocation
                 return 0;
             }
 
-            InvocationContext context = new (parseResult);
-
             try
             {
-                return parseResult.Action.Invoke(context);
+                return parseResult.Action.Invoke(parseResult);
             }
             catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
             {

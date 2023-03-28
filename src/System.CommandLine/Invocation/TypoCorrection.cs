@@ -12,18 +12,16 @@ namespace System.CommandLine.Invocation
     {
         private const int MaxLevenshteinDistance = 3;
 
-        public override int Invoke(InvocationContext context)
-            => ProvideSuggestions(context);
+        public override int Invoke(ParseResult parseResult)
+            => ProvideSuggestions(parseResult);
 
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             => cancellationToken.IsCancellationRequested
                 ? Task.FromCanceled<int>(cancellationToken)
-                : Task.FromResult(ProvideSuggestions(context));
+                : Task.FromResult(ProvideSuggestions(parseResult));
 
-        private static int ProvideSuggestions(InvocationContext context)
+        private static int ProvideSuggestions(ParseResult result)
         {
-            ParseResult result = context.ParseResult;
-
             var unmatchedTokens = result.UnmatchedTokens;
             for (var i = 0; i < unmatchedTokens.Length; i++)
             {

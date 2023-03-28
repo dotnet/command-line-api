@@ -32,10 +32,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 stringOption
             };
 
-            command.SetAction(ctx => 
+            command.SetAction(parseResult => 
             {
-                bool boolean = ctx.ParseResult.GetValue(boolOption);
-                string text = ctx.ParseResult.GetValue(stringOption);
+                bool boolean = parseResult.GetValue(boolOption);
+                string text = parseResult.GetValue(stringOption);
             });
 
             return command;

@@ -1,6 +1,4 @@
 ﻿using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
 using System.Linq;
 using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
@@ -39,33 +37,31 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public async static Task UseHost_adds_invocation_context_to_HostBuilder_Properties()
+        public async static Task UseHost_adds_ParseResult_to_HostBuilder_Properties()
         {
-            InvocationContext invocationContext = null;
+            ParseResult parseResult = null;
 
             var config = new CommandLineConfiguration(new RootCommand())
                 .UseHost(host =>
                 {
-                    if (host.Properties.TryGetValue(typeof(InvocationContext), out var ctx))
-                        invocationContext = ctx as InvocationContext;
+                    if (host.Properties.TryGetValue(typeof(ParseResult), out var ctx))
+                        parseResult = ctx as ParseResult;
                 });
 
             await config.InvokeAsync(Array.Empty<string>());
 
-            invocationContext.Should().NotBeNull();
+            parseResult.Should().NotBeNull();
         }
 
         [Fact]
-        public async static Task UseHost_adds_invocation_context_to_Host_Services()
+        public async static Task UseHost_adds_ParseResult_to_Host_Services()
         {
-            InvocationContext invocationContext = null;
             BindingContext bindingContext = null;
             ParseResult parseResult = null;
 
             void Execute(IHost host)
             {
                 var services = host.Services;
-                invocationContext = services.GetRequiredService<InvocationContext>();
                 bindingContext = services.GetRequiredService<BindingContext>();
                 parseResult = services.GetRequiredService<ParseResult>();
             }
@@ -77,7 +73,6 @@ namespace System.CommandLine.Hosting.Tests
 
             await config.InvokeAsync(Array.Empty<string>());
 
-            invocationContext.Should().NotBeNull();
             bindingContext.Should().NotBeNull();
             parseResult.Should().NotBeNull();
         }
@@ -104,8 +99,8 @@ namespace System.CommandLine.Hosting.Tests
                 })
                 .UseHost(host =>
                 {
-                    var invocation = (InvocationContext)host.Properties[typeof(InvocationContext)];
-                    var args = invocation.ParseResult.UnmatchedTokens.ToArray();
+                    var parseResult = (ParseResult)host.Properties[typeof(ParseResult)];
+                    var args = parseResult.UnmatchedTokens.ToArray();
                     host.ConfigureHostConfiguration(config =>
                     {
                         config.AddCommandLine(args);
@@ -243,13 +238,13 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public async static Task GetInvocationContext_returns_non_null_instance()
+        public async static Task GetParseResult_returns_non_null_instance()
         {
             bool ctxAsserted = false;
             var config = new CommandLineConfiguration(new RootCommand())
                 .UseHost(hostBuilder =>
                 {
-                    InvocationContext ctx = hostBuilder.GetInvocationContext();
+                    ParseResult ctx = hostBuilder.GetParseResult();
                     ctx.Should().NotBeNull();
                     ctxAsserted = true;
                 });
@@ -259,7 +254,7 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public async static Task GetInvocationContext_in_ConfigureServices_returns_non_null_instance()
+        public async static Task GetParseResult_in_ConfigureServices_returns_non_null_instance()
         {
             bool ctxAsserted = false;
             var config = new CommandLineConfiguration(new RootCommand())
@@ -267,7 +262,7 @@ namespace System.CommandLine.Hosting.Tests
                 {
                     hostBuilder.ConfigureServices((hostingCtx, services) =>
                     {
-                        InvocationContext invocationCtx = hostingCtx.GetInvocationContext();
+                        ParseResult invocationCtx = hostingCtx.GetParseResult();
                         invocationCtx.Should().NotBeNull();
                         ctxAsserted = true;
                     });
@@ -283,7 +278,7 @@ namespace System.CommandLine.Hosting.Tests
             var hostBuilder = new HostBuilder();
             hostBuilder.Invoking(b =>
             {
-                _ = b.GetInvocationContext();
+                _ = b.GetParseResult();
             })
                 .Should().Throw<InvalidOperationException>();
         }
@@ -295,7 +290,7 @@ namespace System.CommandLine.Hosting.Tests
             {
                 b.ConfigureServices((hostingCtx, services) =>
                 {
-                    _ = hostingCtx.GetInvocationContext();
+                    _ = hostingCtx.GetParseResult();
                 });
                 _ = b.Build();
             })

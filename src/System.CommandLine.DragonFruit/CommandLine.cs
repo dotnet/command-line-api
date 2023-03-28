@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Utility;
 using System.IO;
@@ -251,7 +249,6 @@ namespace System.CommandLine.DragonFruit
 
             var omittedTypes = new[]
                                {
-                                   typeof(InvocationContext),
                                    typeof(BindingContext),
                                    typeof(ParseResult),
                                    typeof(CommandLineConfiguration),

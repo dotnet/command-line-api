@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -54,12 +53,12 @@ public class ModelBindingCommandHandler : BindingHandler
     /// <summary>
     /// Binds values for the underlying user-defined method and uses them to invoke that method.
     /// </summary>
-    /// <param name="context">The current invocation context.</param>
+    /// <param name="parseResult">The current parse result.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the invocation.</param>
     /// <returns>A task whose value can be used to set the process exit code.</returns>
-    public override async Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+    public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
     {
-        var bindingContext = GetBindingContext(context);
+        var bindingContext = GetBindingContext(parseResult);
 
         var (boundValues, _) = ModelBinder.GetBoundValues(
             _invokeArgumentBindingSources,
@@ -89,7 +88,7 @@ public class ModelBindingCommandHandler : BindingHandler
             result = _handlerDelegate.DynamicInvoke(invocationArguments);
         }
 
-        return await CommandHandler.GetExitCodeAsync(result, context);
+        return await CommandHandler.GetExitCodeAsync(result);
     }
 
     /// <summary>
@@ -132,5 +131,5 @@ public class ModelBindingCommandHandler : BindingHandler
                                                        x.ValueType == param.ParameterType);
 
     /// <inheritdoc />
-    public override int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+    public override int Invoke(ParseResult parseResult) => InvokeAsync(parseResult, CancellationToken.None).GetAwaiter().GetResult();
 }

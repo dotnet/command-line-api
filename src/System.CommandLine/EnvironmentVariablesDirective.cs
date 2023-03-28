@@ -1,5 +1,4 @@
-﻿using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
+﻿using System.CommandLine.Parsing;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,30 +28,30 @@ namespace System.CommandLine
 
             internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive) => _directive = directive;
 
-            public override int Invoke(InvocationContext context)
+            public override int Invoke(ParseResult parseResult)
             {
-                SetEnvVars(context);
+                SetEnvVars(parseResult);
 
-                return context.ParseResult.CommandResult.Command.Action?.Invoke(context) ?? 0;
+                return parseResult.CommandResult.Command.Action?.Invoke(parseResult) ?? 0;
             }
 
-            public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
                     return Task.FromCanceled<int>(cancellationToken);
                 }
 
-                SetEnvVars(context);
+                SetEnvVars(parseResult);
 
-                return context.ParseResult.CommandResult.Command.Action is not null
-                    ? context.ParseResult.CommandResult.Command.Action.InvokeAsync(context, cancellationToken)
+                return parseResult.CommandResult.Command.Action is not null
+                    ? parseResult.CommandResult.Command.Action.InvokeAsync(parseResult, cancellationToken)
                     : Task.FromResult(0);
             }
 
-            private void SetEnvVars(InvocationContext context)
+            private void SetEnvVars(ParseResult parseResult)
             {
-                DirectiveResult directiveResult = context.ParseResult.FindResultFor(_directive)!;
+                DirectiveResult directiveResult = parseResult.FindResultFor(_directive)!;
 
                 for (int i = 0; i < directiveResult.Values.Count; i++)
                 {

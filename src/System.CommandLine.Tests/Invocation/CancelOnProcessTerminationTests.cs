@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -65,9 +63,9 @@ namespace System.CommandLine.Tests.Invocation
 
         private sealed class CustomCliAction : CliAction
         {
-            public override int Invoke(InvocationContext context) => throw new NotImplementedException();
+            public override int Invoke(ParseResult context) => throw new NotImplementedException();
 
-            public async override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken = default)
+            public async override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
             {
                 Console.WriteLine(ChildProcessWaiting);
 

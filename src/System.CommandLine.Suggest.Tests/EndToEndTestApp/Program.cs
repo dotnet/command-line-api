@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using System.Threading;
@@ -24,12 +23,12 @@ namespace EndToEndTestApp
                 durianOption,
             };
 
-            rootCommand.SetAction((InvocationContext ctx, CancellationToken cancellationToken) =>
+            rootCommand.SetAction((ParseResult ctx, CancellationToken cancellationToken) =>
             {
-                string apple = ctx.ParseResult.GetValue(appleOption);
-                string banana = ctx.ParseResult.GetValue(bananaOption);
-                string cherry = ctx.ParseResult.GetValue(cherryOption);
-                string durian = ctx.ParseResult.GetValue(durianOption);
+                string apple = ctx.GetValue(appleOption);
+                string banana = ctx.GetValue(bananaOption);
+                string cherry = ctx.GetValue(cherryOption);
+                string durian = ctx.GetValue(durianOption);
 
                 return Task.CompletedTask;
             });

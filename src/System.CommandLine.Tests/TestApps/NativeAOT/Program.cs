@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 
 public class Program
@@ -20,10 +19,10 @@ public class Program
 
         return new CommandLineConfiguration(command).Invoke(args);
 
-        void Run(InvocationContext context)
+        void Run(ParseResult parseResult)
         {
-            Console.WriteLine($"Bool option: {context.ParseResult.GetValue(boolOption)}");
-            Console.WriteLine($"String option: {context.ParseResult.GetValue(stringOption)}");
+            Console.WriteLine($"Bool option: {parseResult.GetValue(boolOption)}");
+            Console.WriteLine($"String option: {parseResult.GetValue(stringOption)}");
         }
     }
 }

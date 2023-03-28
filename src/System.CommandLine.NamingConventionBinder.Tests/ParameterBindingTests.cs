@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -249,24 +248,6 @@ public class ParameterBindingTests
         boundContext.ParseResult.GetValue(option).Should().Be(123);
     }
 
-    [Fact]
-    public async Task Method_parameters_of_type_InvocationContext_receive_the_current_InvocationContext_instance()
-    {
-        InvocationContext boundContext = default;
-
-        var option = new Option<int>("-x");
-
-        var command = new Command("command")
-        {
-            option
-        };
-        command.Action = CommandHandler.Create<InvocationContext>(context => { boundContext = context; });
-
-        await command.Parse("command -x 123").InvokeAsync();
-
-        boundContext.ParseResult.GetValue(option).Should().Be(123);
-    }
-
     private class ExecuteTestClass
     {
         public string boundName = default;
@@ -427,9 +408,9 @@ public class ParameterBindingTests
     {
         public abstract Task<int> DoJobAsync();
 
-        public override int Invoke(InvocationContext context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+        public override int Invoke(ParseResult context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+        public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             => DoJobAsync();
     }
 
@@ -441,15 +422,15 @@ public class ParameterBindingTests
 
     public class VirtualTestCommandHandler : CliAction
     {
-        public override int Invoke(InvocationContext context) => 42;
+        public override int Invoke(ParseResult context) => 42;
 
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+        public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             => Task.FromResult(42);
     }
 
     public class OverridenVirtualTestCommandHandler : VirtualTestCommandHandler
     {
-        public override Task<int> InvokeAsync(InvocationContext context, CancellationToken cancellationToken)
+        public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             => Task.FromResult(41);
     }
 }

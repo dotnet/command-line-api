@@ -14,10 +14,10 @@
 System.CommandLine.NamingConventionBinder
   public static class BindingContextExtensions
     public static System.Void AddModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, ModelBinder binder)
-    public static System.CommandLine.Binding.BindingContext GetBindingContext(this System.CommandLine.Invocation.InvocationContext ctx)
+    public static System.CommandLine.Binding.BindingContext GetBindingContext(this System.CommandLine.ParseResult parseResult)
     public static ModelBinder GetOrCreateModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
   public abstract class BindingHandler : System.CommandLine.CliAction
-    public System.CommandLine.Binding.BindingContext GetBindingContext(System.CommandLine.Invocation.InvocationContext invocationContext)
+    public System.CommandLine.Binding.BindingContext GetBindingContext(System.CommandLine.ParseResult parseResult)
   public static class CommandHandler
     public static BindingHandler Create(System.Delegate delegate)
     public static BindingHandler Create<T>(Action<T> action)
@@ -114,8 +114,8 @@ System.CommandLine.NamingConventionBinder
   public class ModelBindingCommandHandler : BindingHandler
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Argument argument)
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Option option)
-    public System.Int32 Invoke(System.CommandLine.Invocation.InvocationContext context)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.Invocation.InvocationContext context, System.Threading.CancellationToken cancellationToken = null)
+    public System.Int32 Invoke(System.CommandLine.ParseResult parseResult)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)
   public class ModelDescriptor
     public static ModelDescriptor FromType<T>()
     public static ModelDescriptor FromType(System.Type type)
