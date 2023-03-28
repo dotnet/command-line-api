@@ -54,7 +54,7 @@ namespace System.CommandLine
         /// </summary>
         internal static string RequiredArgumentMissing(ArgumentResult argumentResult) =>
             argumentResult.Parent is CommandResult commandResult
-                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, commandResult.Token.Value)
+                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, commandResult.IdentifierToken.Value)
                 : RequiredArgumentMissing((OptionResult)argumentResult.Parent!);
 
         /// <summary>
@@ -252,6 +252,6 @@ namespace System.CommandLine
             return resourceString;
         }
 
-        private static string GetOptionName(OptionResult optionResult) => optionResult.Token?.Value ?? optionResult.Option.Name;
+        private static string GetOptionName(OptionResult optionResult) => optionResult.IdentifierToken?.Value ?? optionResult.Option.Name;
     }
 }

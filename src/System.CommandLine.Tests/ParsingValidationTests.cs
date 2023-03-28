@@ -369,7 +369,7 @@ namespace System.CommandLine.Tests
             {
                 var value = r.GetValueOrDefault<int>();
 
-                r.AddError($"Option {r.Token.Value} cannot be set to {value}");
+                r.AddError($"Option {r.IdentifierToken.Value} cannot be set to {value}");
             });
 
             var command = new RootCommand { option };

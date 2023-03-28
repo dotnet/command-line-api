@@ -888,7 +888,7 @@ namespace System.CommandLine.Tests
             var result = command.Parse("command");
 
             result.FindResultFor(option)
-                  .Token
+                  .IdentifierToken
                   .Should()
                   .BeEquivalentTo(default(Token));
         }

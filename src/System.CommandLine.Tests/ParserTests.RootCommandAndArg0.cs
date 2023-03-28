@@ -79,7 +79,7 @@ public partial class ParserTests
 
             var result2 = command.Parse($"\"{RootCommand.ExecutablePath}\" inner -x hello");
 
-            result2.RootCommandResult.Token.Value.Should().Be(RootCommand.ExecutablePath);
+            result2.RootCommandResult.IdentifierToken.Value.Should().Be(RootCommand.ExecutablePath);
         }
 
         [Fact]
