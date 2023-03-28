@@ -20,7 +20,7 @@ namespace System.CommandLine.Parsing
             base(symbolResultTree, parent)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
-            Token = token ?? throw new ArgumentNullException(nameof(token));
+            IdentifierToken = token ?? throw new ArgumentNullException(nameof(token));
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The token that was parsed to specify the command.
         /// </summary>
-        public Token Token { get; }
+        public Token IdentifierToken { get; }
 
         /// <summary>
         /// Child symbol results in the parse tree.
@@ -39,7 +39,7 @@ namespace System.CommandLine.Parsing
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
         /// <inheritdoc/>
-        public override string ToString() => $"{nameof(CommandResult)}: {Token.Value} {string.Join(" ", Tokens.Select(t => t.Value))}";
+        public override string ToString() => $"{nameof(CommandResult)}: {IdentifierToken.Value} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;

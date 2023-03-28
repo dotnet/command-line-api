@@ -132,7 +132,7 @@ namespace System.CommandLine.Parsing
                     }
                     else
                     {
-                        builder.Append(((CommandResult)symbolResult).Token.Value);
+                        builder.Append(((CommandResult)symbolResult).IdentifierToken.Value);
                     }
                     
 
