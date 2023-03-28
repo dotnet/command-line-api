@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -132,5 +131,5 @@ public class ModelBindingCommandHandler : BindingHandler
                                                        x.ValueType == param.ParameterType);
 
     /// <inheritdoc />
-    public override int Invoke(ParseResult context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+    public override int Invoke(ParseResult parseResult) => InvokeAsync(parseResult, CancellationToken.None).GetAwaiter().GetResult();
 }

@@ -29,13 +29,13 @@ namespace System.CommandLine.Benchmarks.CommandLine
             RootCommand command = new()
             {
                 boolOption,
-                stringOption,
+                stringOption
             };
 
-            command.SetAction(ctx => 
+            command.SetAction(parseResult => 
             {
-                bool boolean = ctx.GetValue(boolOption);
-                string text = ctx.GetValue(stringOption);
+                bool boolean = parseResult.GetValue(boolOption);
+                string text = parseResult.GetValue(stringOption);
             });
 
             return command;

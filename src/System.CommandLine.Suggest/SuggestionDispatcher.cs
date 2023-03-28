@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Threading;

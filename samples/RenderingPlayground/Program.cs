@@ -3,7 +3,6 @@
 
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Rendering;
 using System.CommandLine.Rendering.Views;

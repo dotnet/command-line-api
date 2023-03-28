@@ -1,5 +1,4 @@
-﻿using System.CommandLine.Invocation;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Help

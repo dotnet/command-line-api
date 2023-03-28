@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,15 +19,15 @@ public static class BindingContextExtensions
         public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default) => Task.FromResult(0);
     }
 
-    public static BindingContext GetBindingContext(this ParseResult ctx)
+    public static BindingContext GetBindingContext(this ParseResult parseResult)
     {
         // parsing resulted with no handler or it was not created yet, we fake it to just store the BindingContext between the calls
-        if (ctx.CommandResult.Command.Action is null)
+        if (parseResult.CommandResult.Command.Action is null)
         {
-            ctx.CommandResult.Command.Action = new DummyStateHoldingHandler();
+            parseResult.CommandResult.Command.Action = new DummyStateHoldingHandler();
         }
 
-        return ((BindingHandler)ctx.CommandResult.Command.Action).GetBindingContext(ctx);
+        return ((BindingHandler)parseResult.CommandResult.Command.Action).GetBindingContext(parseResult);
     }
 
     /// <summary>
