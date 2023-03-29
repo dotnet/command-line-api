@@ -268,7 +268,7 @@ namespace System.CommandLine.Help
         {
             var sb = new StringBuilder(arguments.Count * 100);
 
-            var end = default(Stack<char>);
+            var end = default(List<char>);
 
             for (var i = 0; i < arguments.Count; i++)
             {
@@ -288,7 +288,7 @@ namespace System.CommandLine.Help
                 if (isOptional)
                 {
                     sb.Append($"[<{argument.Name}>{arityIndicator}");
-                    (end ??= new Stack<char>()).Push(']');
+                    (end ??= new ()).Add(']');
                 }
                 else
                 {
@@ -306,7 +306,8 @@ namespace System.CommandLine.Help
                 {
                     while (end.Count > 0)
                     {
-                        sb.Append(end.Pop());
+                        sb.Append(end[end.Count - 1]);
+                        end.RemoveAt(end.Count - 1);
                     }
                 }
             }
