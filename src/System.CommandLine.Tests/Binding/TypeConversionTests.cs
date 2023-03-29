@@ -531,7 +531,7 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
+        public void Values_can_be_correctly_converted_to_Uri_when_custom_parser_is_provided()
         {
             Option<Uri> option = new ("-x")
             {
