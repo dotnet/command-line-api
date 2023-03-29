@@ -78,8 +78,6 @@ System.CommandLine
     public System.Void ThrowIfInvalid()
   public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
     .ctor(System.String message)
-    .ctor()
-    .ctor(System.String message, System.Exception innerException)
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)

@@ -160,7 +160,7 @@ namespace System.CommandLine
             {
                 ArgumentResult argumentResult => Convert(argumentResult.GetArgumentConversionResult()),
                 OptionResult optionResult => Convert(optionResult.ArgumentConversionResult),
-                _ => (T?)ArgumentConverter.GetDefaultValue(typeof(T))
+                _ => Argument<T>.CreateDefaultValue()
             };
 
             void Populate<TSymbol>(Dictionary<string, SymbolResult?> cache, IList<TSymbol> symbols) where TSymbol : Symbol

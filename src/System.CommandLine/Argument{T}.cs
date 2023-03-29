@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.CommandLine.Parsing;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace System.CommandLine
@@ -159,6 +161,37 @@ namespace System.CommandLine
                     }
                 }
             });
+        }
+
+        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]
+        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2091", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]
+        internal static T? CreateDefaultValue()
+        {
+            if (default(T) is null && typeof(T) != typeof(string))
+            {
+                if (typeof(T).IsArray)
+                {
+                    return (T?)(object)Array.CreateInstance(typeof(T).GetElementType()!, 0);
+                }
+                else if (typeof(T).IsGenericType)
+                {
+                    var genericTypeDefinition = typeof(T).GetGenericTypeDefinition();
+
+                    if (genericTypeDefinition == typeof(IEnumerable<>) ||
+                        genericTypeDefinition == typeof(IList<>) ||
+                        genericTypeDefinition == typeof(ICollection<>))
+                    {
+                        return (T?)(object)Array.CreateInstance(typeof(T).GenericTypeArguments[0], 0);
+                    }
+
+                    if (genericTypeDefinition == typeof(List<>))
+                    {
+                        return Activator.CreateInstance<T>();
+                    }
+                }
+            }
+
+            return default;
         }
     }
 }

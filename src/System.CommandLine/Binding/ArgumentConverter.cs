@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using static System.CommandLine.Binding.ArgumentConversionResult;
@@ -40,7 +39,7 @@ namespace System.CommandLine.Binding
                 return ConvertToken(argumentResult, nullableType, token);
             }
 
-            if (_stringConverters.TryGetValue(type, out var tryConvert))
+            if (StringConverters.TryGetValue(type, out var tryConvert))
             {
                 if (tryConvert(value, out var converted))
                 {
@@ -123,12 +122,12 @@ namespace System.CommandLine.Binding
             if (argument.Arity is { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 })
             {
                 if (argument.ValueType.TryGetNullableType(out var nullableType) &&
-                    _stringConverters.TryGetValue(nullableType, out var convertNullable))
+                    StringConverters.TryGetValue(nullableType, out var convertNullable))
                 {
                     return (ArgumentResult result, out object? value) => ConvertSingleString(result, convertNullable, out value);
                 }
 
-                if (_stringConverters.TryGetValue(argument.ValueType, out var convert1))
+                if (StringConverters.TryGetValue(argument.ValueType, out var convert1))
                 {
                     return (ArgumentResult result, out object? value) => ConvertSingleString(result, convert1, out value);
                 }
@@ -223,30 +222,6 @@ namespace System.CommandLine.Binding
 
             value = result;
             return result.Result == ArgumentConversionResultType.Successful;
-        }
-
-        internal static object? GetDefaultValue(Type type)
-        {
-            if (type.IsNullable())
-            {
-                return null;
-            }
-
-            if (type.GetElementTypeIfEnumerable() is { } itemType)
-            {
-                return CreateEnumerable(type, itemType);
-            }
-
-            return type switch
-            {
-                { } nonGeneric
-                    when nonGeneric == typeof(IList) ||
-                         nonGeneric == typeof(ICollection) ||
-                         nonGeneric == typeof(IEnumerable)
-                    => Array.Empty<object>(),
-                _ when type.IsValueType => CreateDefaultValueType(type),
-                _ => null
-            };
         }
     }
 }

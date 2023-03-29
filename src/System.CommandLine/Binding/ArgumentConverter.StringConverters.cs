@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 
 namespace System.CommandLine.Binding;
 
@@ -11,7 +10,10 @@ internal static partial class ArgumentConverter
 {
     private delegate bool TryConvertString(string token, out object? value);
 
-    private static readonly Dictionary<Type, TryConvertString> _stringConverters = new()
+    private static Dictionary<Type, TryConvertString>? _stringConverters;
+
+    private static Dictionary<Type, TryConvertString> StringConverters
+        => _stringConverters ??= new()
     {
         [typeof(bool)] = (string token, out object? value) =>
         {
@@ -169,32 +171,6 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-        [typeof(IPAddress)] = (string token, out object? value) =>
-        {
-            if (IPAddress.TryParse(token, out var ip))
-            {
-                value = ip;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
-#if NETCOREAPP3_0_OR_GREATER
-        [typeof(IPEndPoint)] = (string token, out object? value) =>
-        {
-            if (IPEndPoint.TryParse(token, out var ipendpoint))
-            {
-                value = ipendpoint;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-#endif
-
         [typeof(long)] = (string token, out object? value) =>
         {
             if (long.TryParse(token, out var longValue))
@@ -292,18 +268,6 @@ internal static partial class ArgumentConverter
             if (ushort.TryParse(token, out var ushortValue))
             {
                 value = ushortValue;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
-        [typeof(Uri)] = (string input, out object? value) =>
-        {
-            if (Uri.TryCreate(input, UriKind.RelativeOrAbsolute, out var uri))
-            {
-                value = uri;
                 return true;
             }
 
