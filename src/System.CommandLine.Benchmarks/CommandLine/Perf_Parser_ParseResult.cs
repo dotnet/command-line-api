@@ -4,7 +4,10 @@
 using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
 using System.CommandLine.Parsing;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 
 namespace System.CommandLine.Benchmarks.CommandLine
@@ -16,14 +19,17 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_ParseResult
     {
         private readonly CommandLineConfiguration _configuration;
+        private readonly StringWriter _output;
 
         public Perf_Parser_ParseResult()
         {
+            _output = new StringWriter();
             var option = new Option<bool>("-opt");
 
             _configuration = new CommandLineConfiguration(new RootCommand { option })
             {
-                Directives = { new ParseDirective() }
+                Directives = { new ParseDirective() },
+                Output = _output
             };
         }
 
@@ -49,6 +55,29 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]
         public string ParseResult_Diagram(BdnParam<ParseResult> parseResult)
-            => parseResult.Value.Diagram();
+        {
+            StringBuilder stringBuilder = _output.GetStringBuilder();
+
+            // clear the contents, so each benchmark has the same starting state
+            stringBuilder.Clear();
+
+            parseResult.Value.Action!.Invoke(parseResult.Value);
+
+            return stringBuilder.ToString();
+        }
+
+        [Benchmark]
+        [ArgumentsSource(nameof(GenerateTestParseResults))]
+        public async Task<string> ParseResult_DiagramAsync(BdnParam<ParseResult> parseResult)
+        {
+            StringBuilder stringBuilder = _output.GetStringBuilder();
+
+            // clear the contents, so each benchmark has the same starting state
+            stringBuilder.Clear();
+
+            await parseResult.Value.Action!.InvokeAsync(parseResult.Value);
+
+            return stringBuilder.ToString();
+        }
     }
 }

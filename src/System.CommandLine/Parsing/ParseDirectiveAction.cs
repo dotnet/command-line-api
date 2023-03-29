@@ -5,24 +5,51 @@ using System.Collections;
 using System.CommandLine.Binding;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// Provides extension methods for parse results.
+    /// Implements the <c>[parse]</c> directive action, which when specified on the command line 
+    /// will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
-    public static class ParseResultExtensions
+    internal sealed class ParseDirectiveAction : CliAction
     {
+        private readonly int _errorExitCode;
+
+        internal ParseDirectiveAction(int errorExitCode) => _errorExitCode = errorExitCode;
+
+        public override int Invoke(ParseResult parseResult)
+        {
+            parseResult.Configuration.Output.WriteLine(Diagram(parseResult));
+            return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
+        }
+
+        public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            StringBuilder diagram = Diagram(parseResult);
+
+#if NET7_0_OR_GREATER
+            await parseResult.Configuration.Output.WriteLineAsync(diagram, cancellationToken);
+#else
+            await parseResult.Configuration.Output.WriteLineAsync(diagram.ToString());
+#endif
+            return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
+        }
+
         /// <summary>
         /// Formats a string explaining a parse result.
         /// </summary>
         /// <param name="parseResult">The parse result to be diagrammed.</param>
         /// <returns>A string containing a diagram of the parse result.</returns>
-        public static string Diagram(this ParseResult parseResult)
+        internal static StringBuilder Diagram(ParseResult parseResult)
         {
             var builder = new StringBuilder(100);
 
-            builder.Diagram(parseResult.RootCommandResult, parseResult);
+            Diagram(builder, parseResult.RootCommandResult, parseResult);
 
             var unmatchedTokens = parseResult.UnmatchedTokens;
             if (unmatchedTokens.Length > 0)
@@ -37,11 +64,11 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            return builder.ToString();
+            return builder;
         }
 
         private static void Diagram(
-            this StringBuilder builder,
+            StringBuilder builder,
             SymbolResult symbolResult,
             ParseResult parseResult)
         {
@@ -134,7 +161,6 @@ namespace System.CommandLine.Parsing
                     {
                         builder.Append(((CommandResult)symbolResult).IdentifierToken.Value);
                     }
-                    
 
                     foreach (SymbolResult child in symbolResult.SymbolResultTree.GetChildren(symbolResult))
                     {
@@ -147,7 +173,7 @@ namespace System.CommandLine.Parsing
 
                         builder.Append(" ");
 
-                        builder.Diagram(child, parseResult);
+                        Diagram(builder, child, parseResult);
                     }
 
                     builder.Append(" ]");
