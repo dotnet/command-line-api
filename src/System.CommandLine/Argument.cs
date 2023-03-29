@@ -12,7 +12,7 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a value that can be passed on the command line to a <see cref="Command">command</see> or <see cref="Option">option</see>.
     /// </summary>
-    public abstract class Argument : Symbol, IValueDescriptor
+    public abstract class Argument : Symbol
     {
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
@@ -100,9 +100,6 @@ namespace System.CommandLine
 
         /// <inheritdoc />
         public override string ToString() => $"{nameof(Argument)}: {Name}";
-
-        /// <inheritdoc />
-        string IValueDescriptor.ValueName => Name;
 
         internal bool IsBoolean() => ValueType == typeof(bool) || ValueType == typeof(bool?);
     }

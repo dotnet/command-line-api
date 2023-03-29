@@ -12,7 +12,7 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    public abstract class Option : Symbol, IValueDescriptor
+    public abstract class Option : Symbol
     {
         internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
@@ -109,17 +109,6 @@ namespace System.CommandLine
         /// that will be performed when the Option is invoked.
         /// </summary>
         public virtual CliAction? Action { get; set; }
-
-        string IValueDescriptor.ValueName => Name;
-
-        /// <summary>
-        /// The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.
-        /// </summary>
-        public Type ValueType => Argument.ValueType;
-
-        bool IValueDescriptor.HasDefaultValue => Argument.HasDefaultValue;
-
-        object? IValueDescriptor.GetDefaultValue() => Argument.GetDefaultValue();
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

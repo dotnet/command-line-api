@@ -7,19 +7,18 @@ namespace System.CommandLine.NamingConventionBinder;
 
 internal class SpecificSymbolValueSource : IValueSource
 {
-    public SpecificSymbolValueSource(IValueDescriptor valueDescriptor)
-    {
-        ValueDescriptor = valueDescriptor ?? throw new ArgumentNullException(nameof(valueDescriptor));
-    }
+    private readonly Symbol _symbol;
 
-    public IValueDescriptor ValueDescriptor { get; }
+    public SpecificSymbolValueSource(Symbol symbol)
+    {
+        _symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
+    }
 
     public bool TryGetValue(IValueDescriptor valueDescriptor,
         BindingContext? bindingContext,
         out object? boundValue)
     {
-        var specificDescriptor = ValueDescriptor;
-        switch (specificDescriptor)
+        switch (_symbol)
         {
             case Option option:
                 var optionResult = bindingContext?.ParseResult.FindResultFor(option);
