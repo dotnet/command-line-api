@@ -54,11 +54,42 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the list of completion sources for the argument.
         /// </summary>
-        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources =>
-            _completionSources ??= new ()
+        public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources
+        {
+            get
             {
-                CompletionSource.ForType(ValueType)
-            };
+                if (_completionSources is null)
+                {
+                    Type valueType = ValueType;
+                    if (valueType == typeof(bool) || valueType == typeof(bool?))
+                    {
+                        _completionSources = new ()
+                        {
+                            static _ => new CompletionItem[]
+                            {
+                                new(bool.TrueString),
+                                new(bool.FalseString)
+                            }
+                        };
+                    }
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                    else if (!valueType.IsPrimitive && (valueType.IsEnum || (valueType.TryGetNullableType(out valueType) && valueType.IsEnum)))
+#pragma warning restore CS8600
+                    {
+                        _completionSources = new()
+                        {
+                            _ => Enum.GetNames(valueType).Select(n => new CompletionItem(n))
+                        };
+                    }
+                    else
+                    {
+                        _completionSources = new();
+                    }
+                }
+
+                return _completionSources;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
