@@ -582,13 +582,27 @@ namespace System.CommandLine.Tests.Binding
             => GetValue(new Option<sbyte?>("-us"), "-us 123").Should().Be(123);
 
         [Fact]
-        public void Values_can_be_correctly_converted_to_ipaddress_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<IPAddress>("-us"), "-us 1.2.3.4").Should().Be(IPAddress.Parse("1.2.3.4"));
+        public void Values_can_be_correctly_converted_to_ipaddress_when_custom_parser_is_provided()
+        {
+            Option<IPAddress> option = new ("-us")
+            { 
+                CustomParser = (argumentResult) => IPAddress.Parse(argumentResult.Tokens.Last().Value)
+            };
+
+            GetValue(option, "-us 1.2.3.4").Should().Be(IPAddress.Parse("1.2.3.4"));
+        }
 
 #if NETCOREAPP3_0_OR_GREATER
         [Fact]
-        public void Values_can_be_correctly_converted_to_ipendpoint_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<IPEndPoint>("-us"), "-us 1.2.3.4:56").Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
+        public void Values_can_be_correctly_converted_to_ipendpoint_when_custom_parser_is_provided()
+        {
+            Option<IPEndPoint> option = new("-us")
+            {
+                CustomParser = (argumentResult) => IPEndPoint.Parse(argumentResult.Tokens.Last().Value)
+            };
+
+            GetValue(option, "-us 1.2.3.4:56").Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
+        }
 #endif
 
 #if NET6_0_OR_GREATER
