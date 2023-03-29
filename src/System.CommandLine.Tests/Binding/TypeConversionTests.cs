@@ -770,9 +770,6 @@ namespace System.CommandLine.Tests.Binding
         [InlineData(typeof(string[]))]
         [InlineData(typeof(int[]))]
         [InlineData(typeof(FileAccess[]))]
-        [InlineData(typeof(IEnumerable))]
-        [InlineData(typeof(ICollection))]
-        [InlineData(typeof(IList))]
         public void Sequence_type_defaults_to_empty_when_not_specified(Type sequenceType)
         {
             var argument = Activator.CreateInstance(typeof(Argument<>).MakeGenericType(sequenceType), new object[] { "argName" });

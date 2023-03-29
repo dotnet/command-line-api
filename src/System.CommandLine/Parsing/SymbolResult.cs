@@ -75,7 +75,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)ArgumentConverter.GetDefaultValue(argument.ValueType)!;
+            return Argument<T>.CreateDefaultValue();
         }
 
         /// <inheritdoc cref="ParseResult.GetValue{T}(Option{T})"/>
@@ -87,7 +87,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return (T)ArgumentConverter.GetDefaultValue(option.Argument.ValueType)!;
+            return Argument<T>.CreateDefaultValue();
         }
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;

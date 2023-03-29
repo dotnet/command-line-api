@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace System.CommandLine.Binding;
 
@@ -37,7 +36,7 @@ internal static partial class ArgumentConverter
         return (IList)ctor.Invoke(null);
     }
 
-    private static IList CreateEnumerable(Type type, Type itemType, int capacity = 0)
+    internal static IList CreateEnumerable(Type type, Type itemType, int capacity = 0)
     {
         if (type.IsArray)
         {
@@ -63,9 +62,4 @@ internal static partial class ArgumentConverter
 
         throw new ArgumentException($"Type {type} cannot be created without a custom binder.");
     }
-
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2067:UnrecognizedReflectionPattern",
-                                  Justification = $"{nameof(CreateDefaultValueType)} is only called on a ValueType. You can always create an instance of a ValueType.")]
-    private static object CreateDefaultValueType(Type type) =>
-        FormatterServices.GetUninitializedObject(type);
 }

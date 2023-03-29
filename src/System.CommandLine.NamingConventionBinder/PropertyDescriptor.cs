@@ -36,7 +36,7 @@ public class PropertyDescriptor : IValueDescriptor
     public bool HasDefaultValue => false;
 
     /// <inheritdoc />
-    public object? GetDefaultValue() => ArgumentConverter.GetDefaultValue(ValueType);
+    public object? GetDefaultValue() => ValueType.GetDefaultValue();
 
     /// <summary>
     /// Sets a value on the target property.

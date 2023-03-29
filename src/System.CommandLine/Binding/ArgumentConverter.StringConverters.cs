@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 
 namespace System.CommandLine.Binding;
 
@@ -11,7 +10,10 @@ internal static partial class ArgumentConverter
 {
     private delegate bool TryConvertString(string token, out object? value);
 
-    private static readonly Dictionary<Type, TryConvertString> _stringConverters = new()
+    private static Dictionary<Type, TryConvertString>? _stringConverters;
+
+    private static Dictionary<Type, TryConvertString> StringConverters
+        => _stringConverters ??= new()
     {
         [typeof(bool)] = (string token, out object? value) =>
         {

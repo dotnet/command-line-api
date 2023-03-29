@@ -1,7 +1,10 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections;
+using System.CommandLine.Binding;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace System.CommandLine.NamingConventionBinder;
 
@@ -28,4 +31,28 @@ internal static class TypeExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsNullableValueType(this Type type)
         => type.IsValueType && type.IsConstructedGenericTypeOf(typeof(Nullable<>));
+
+    internal static object? GetDefaultValue(this Type type)
+    {
+        if (type.IsNullable())
+        {
+            return null;
+        }
+
+        if (type.GetElementTypeIfEnumerable() is { } itemType)
+        {
+            return ArgumentConverter.CreateEnumerable(type, itemType);
+        }
+
+        return type switch
+        {
+            { } nonGeneric
+                when nonGeneric == typeof(IList) ||
+                     nonGeneric == typeof(ICollection) ||
+                     nonGeneric == typeof(IEnumerable)
+                => Array.Empty<object>(),
+            _ when type.IsValueType => FormatterServices.GetUninitializedObject(type),
+            _ => null
+        };
+    }
 }

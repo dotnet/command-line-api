@@ -58,7 +58,7 @@ public class ParameterDescriptor : IValueDescriptor
     /// <inheritdoc />
     public object? GetDefaultValue() =>
         _parameterInfo.DefaultValue is DBNull
-            ? ArgumentConverter.GetDefaultValue(ValueType)
+            ? ValueType.GetDefaultValue()
             : _parameterInfo.DefaultValue;
 
     /// <inheritdoc />
