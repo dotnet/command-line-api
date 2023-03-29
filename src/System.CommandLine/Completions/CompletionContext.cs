@@ -9,9 +9,13 @@ namespace System.CommandLine.Completions
     /// <summary>
     /// Supports command line completion operations.
     /// </summary>
-    public abstract class CompletionContext
+    public class CompletionContext
     {
         private static CompletionContext? _empty;
+
+        internal CompletionContext(ParseResult parseResult) : this(parseResult, GetWordToComplete(parseResult))
+        {
+        }
 
         internal CompletionContext(ParseResult parseResult, string wordToComplete)
         {
@@ -29,7 +33,7 @@ namespace System.CommandLine.Completions
         /// Gets an empty CompletionContext.
         /// </summary>
         /// <remarks>Can be used for testing purposes.</remarks>
-        public static CompletionContext Empty => _empty ??= new TokenCompletionContext(ParseResult.Empty());
+        public static CompletionContext Empty => _empty ??= new CompletionContext(ParseResult.Empty());
 
         internal bool IsEmpty => ReferenceEquals(this, _empty);
 

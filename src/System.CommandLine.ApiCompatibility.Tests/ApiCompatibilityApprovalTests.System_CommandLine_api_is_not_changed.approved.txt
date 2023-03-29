@@ -158,7 +158,7 @@ System.CommandLine
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
 System.CommandLine.Completions
-  public abstract class CompletionContext
+  public class CompletionContext
     public static CompletionContext Empty { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
     public System.String WordToComplete { get; }
@@ -178,7 +178,6 @@ System.CommandLine.Completions
     public System.String CommandLineText { get; }
     public System.Int32 CursorPosition { get; }
     public TextCompletionContext AtCursorPosition(System.Int32 position)
-  public class TokenCompletionContext : CompletionContext
 System.CommandLine.Help
   public class HelpAction : System.CommandLine.CliAction
     .ctor()

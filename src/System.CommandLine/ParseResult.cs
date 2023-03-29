@@ -103,7 +103,7 @@ namespace System.CommandLine
         public CompletionContext GetCompletionContext() =>
             _completionContext ??=
                 CommandLineText is null
-                    ? new TokenCompletionContext(this)
+                    ? new CompletionContext(this)
                     : new TextCompletionContext(this, CommandLineText);
 
         /// <summary>
