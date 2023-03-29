@@ -60,7 +60,7 @@ namespace System.CommandLine
             {
                 if (_completionSources is null)
                 {
-                    Type valueType = ValueType;
+                    Type? valueType = ValueType;
                     if (valueType == typeof(bool) || valueType == typeof(bool?))
                     {
                         _completionSources = new ()
@@ -72,9 +72,7 @@ namespace System.CommandLine
                             }
                         };
                     }
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                     else if (!valueType.IsPrimitive && (valueType.IsEnum || (valueType.TryGetNullableType(out valueType) && valueType.IsEnum)))
-#pragma warning restore CS8600
                     {
                         _completionSources = new()
                         {
