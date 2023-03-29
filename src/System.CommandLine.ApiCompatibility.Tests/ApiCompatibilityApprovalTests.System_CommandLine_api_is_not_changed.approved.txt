@@ -1,5 +1,5 @@
 System.CommandLine
-  public abstract class Argument : Symbol, System.CommandLine.Binding.IValueDescriptor
+  public abstract class Argument : Symbol
     public ArgumentArity Arity { get; set; }
     public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
     public System.Boolean HasDefaultValue { get; }
@@ -9,7 +9,7 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Object GetDefaultValue()
     public System.String ToString()
-  public class Argument<T> : Argument, System.CommandLine.Binding.IValueDescriptor
+  public class Argument<T> : Argument
     .ctor(System.String name)
     public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
@@ -90,7 +90,7 @@ System.CommandLine
   public class EnvironmentVariablesDirective : Directive
     .ctor()
     public CliAction Action { get; set; }
-  public abstract class Option : Symbol, System.CommandLine.Binding.IValueDescriptor
+  public abstract class Option : Symbol
     public CliAction Action { get; set; }
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
@@ -100,9 +100,8 @@ System.CommandLine
     public System.String HelpName { get; set; }
     public System.Boolean IsRequired { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
-    public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-  public class Option<T> : Option, System.CommandLine.Binding.IValueDescriptor
+  public class Option<T> : Option
     .ctor(System.String name, System.String[] aliases)
     public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
@@ -152,18 +151,12 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
-  public class VersionOption : Option<System.Boolean>, System.CommandLine.Binding.IValueDescriptor
+  public class VersionOption : Option<System.Boolean>
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public CliAction Action { get; set; }
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
-System.CommandLine.Binding
-  public interface IValueDescriptor
-    public System.Boolean HasDefaultValue { get; }
-    public System.String ValueName { get; }
-    public System.Type ValueType { get; }
-    public System.Object GetDefaultValue()
 System.CommandLine.Completions
   public abstract class CompletionContext
     public static CompletionContext Empty { get; }
@@ -222,7 +215,7 @@ System.CommandLine.Help
     public HelpBuilder HelpBuilder { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
-  public class HelpOption : System.CommandLine.Option<System.Boolean>, System.CommandLine.Binding.IValueDescriptor
+  public class HelpOption : System.CommandLine.Option<System.Boolean>
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public System.CommandLine.CliAction Action { get; set; }

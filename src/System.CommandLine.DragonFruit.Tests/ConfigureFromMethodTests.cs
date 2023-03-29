@@ -209,7 +209,7 @@ namespace System.CommandLine.DragonFruit.Tests
             var options = handlerMethod.BuildOptions();
 
             options.Should()
-                   .NotContain(o => o.ValueType == type);
+                   .NotContain(o => o.GetType().IsAssignableTo(typeof(Option<>).MakeGenericType(type)));
         }
 
         [Fact]

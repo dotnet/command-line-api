@@ -50,9 +50,9 @@ public class ModelBinder
     /// Sets a property using a value descriptor.
     /// </summary>
     /// <param name="property">The property to bind.</param>
-    /// <param name="valueDescriptor">A descriptor of the value to be used to set the property.</param>
+    /// <param name="symbol">A symbol to be used to set the property.</param>
     /// <exception cref="ArgumentException"></exception>
-    public void BindMemberFromValue(PropertyInfo property, IValueDescriptor valueDescriptor)
+    public void BindMemberFromValue(PropertyInfo property, Symbol symbol)
     {
         var propertyDescriptor = FindModelPropertyDescriptor(property.PropertyType, property.Name);
 
@@ -62,7 +62,7 @@ public class ModelBinder
                                         message: "Property is not described by any of the model property descriptors.");
         }
 
-        MemberBindingSources[propertyDescriptor] = new SpecificSymbolValueSource(valueDescriptor);
+        MemberBindingSources[propertyDescriptor] = new SpecificSymbolValueSource(symbol);
     }
 
     /// <summary>

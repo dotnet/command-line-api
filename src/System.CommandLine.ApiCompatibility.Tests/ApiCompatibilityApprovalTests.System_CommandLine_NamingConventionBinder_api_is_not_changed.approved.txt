@@ -9,6 +9,11 @@
     public IValueDescriptor ValueDescriptor { get; }
     public IValueSource ValueSource { get; }
     public System.String ToString()
+  public interface IValueDescriptor
+    public System.Boolean HasDefaultValue { get; }
+    public System.String ValueName { get; }
+    public System.Type ValueType { get; }
+    public System.Object GetDefaultValue()
   public interface IValueSource
     public System.Boolean TryGetValue(IValueDescriptor valueDescriptor, BindingContext bindingContext, ref System.Object& boundValue)
 System.CommandLine.NamingConventionBinder
@@ -104,12 +109,12 @@ System.CommandLine.NamingConventionBinder
     public System.Boolean EnforceExplicitBinding { get; set; }
     public ModelDescriptor ModelDescriptor { get; }
     public System.CommandLine.Binding.IValueDescriptor ValueDescriptor { get; }
-    public System.Void BindMemberFromValue(System.Reflection.PropertyInfo property, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
+    public System.Void BindMemberFromValue(System.Reflection.PropertyInfo property, System.CommandLine.Symbol symbol)
     public System.Object CreateInstance(System.CommandLine.Binding.BindingContext bindingContext)
     public System.Void UpdateInstance<T>(T instance, System.CommandLine.Binding.BindingContext bindingContext)
   public class ModelBinder<TModel> : ModelBinder
     .ctor()
-    public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
+    public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, System.CommandLine.Symbol symbol)
     public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, Func<System.CommandLine.Binding.BindingContext,TValue> getValue)
   public class ModelBindingCommandHandler : BindingHandler
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Argument argument)
