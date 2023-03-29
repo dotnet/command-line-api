@@ -275,18 +275,6 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-        [typeof(Uri)] = (string input, out object? value) =>
-        {
-            if (Uri.TryCreate(input, UriKind.RelativeOrAbsolute, out var uri))
-            {
-                value = uri;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-
         [typeof(TimeSpan)] = (string input, out object? value) =>
         {
             if (TimeSpan.TryParse(input, out var timeSpan))

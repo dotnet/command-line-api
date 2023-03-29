@@ -532,7 +532,14 @@ namespace System.CommandLine.Tests.Binding
 
         [Fact]
         public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<Uri>("-x"), "-x http://example.com").Should().BeEquivalentTo(new Uri("http://example.com"));
+        {
+            Option<Uri> option = new ("-x")
+            {
+                CustomParser = (argumentResult) => Uri.TryCreate(argumentResult.Tokens.Last().Value, UriKind.RelativeOrAbsolute, out var uri) ? uri : null
+            };
+
+            GetValue(option, "-x http://example.com").Should().BeEquivalentTo(new Uri("http://example.com"));
+        }
 
         [Fact]
         public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
