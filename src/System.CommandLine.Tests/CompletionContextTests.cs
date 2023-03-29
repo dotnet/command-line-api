@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
 
             parseResult.GetCompletionContext()
                        .Should()
-                       .BeOfType<TokenCompletionContext>();
+                       .BeOfType<CompletionContext>();
         }
 
         [Fact]
