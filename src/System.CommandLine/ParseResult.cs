@@ -194,7 +194,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override string ToString() => $"{nameof(ParseResult)}: {this.Diagram()}";
+        public override string ToString() => ParseDirectiveAction.Diagram(this).ToString();
 
         /// <summary>
         /// Gets the result, if any, for the specified argument.

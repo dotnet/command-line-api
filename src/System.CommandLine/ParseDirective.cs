@@ -1,11 +1,10 @@
 ﻿using System.CommandLine.Parsing;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
     /// <summary>
-    /// Enables the use of the <c>[parse]</c> directive, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
+    /// Enables the use of the <c>[parse]</c> directive, which when specified on the command line will short 
+    /// circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
     public sealed class ParseDirective : Directive
     {
@@ -26,24 +25,6 @@ namespace System.CommandLine
         {
             get => _action ??= new ParseDirectiveAction(DefaultErrorExitCode);
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        private sealed class ParseDirectiveAction : CliAction
-        {
-            private readonly int _errorExitCode;
-
-            internal ParseDirectiveAction(int errorExitCode) => _errorExitCode = errorExitCode;
-
-            public override int Invoke(ParseResult parseResult)
-            {
-                parseResult.Configuration.Output.WriteLine(parseResult.Diagram());
-                return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
-            }
-
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-                => cancellationToken.IsCancellationRequested
-                    ? Task.FromCanceled<int>(cancellationToken)
-                    : Task.FromResult(Invoke(parseResult));
         }
     }
 }
