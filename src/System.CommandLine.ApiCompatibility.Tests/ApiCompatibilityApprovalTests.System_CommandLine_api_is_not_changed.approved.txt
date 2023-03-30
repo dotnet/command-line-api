@@ -187,8 +187,10 @@ System.CommandLine.Help
     public System.Int32 MaxWidth { get; }
     public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Action<HelpContext>>> getLayout)
     public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
+    public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.Symbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
+    public System.Void Write(System.CommandLine.Command command, System.IO.TextWriter writer)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
    static class Default
     public static System.Action<HelpContext> AdditionalArgumentsSection()
@@ -203,9 +205,6 @@ System.CommandLine.Help
     public static System.Action<HelpContext> OptionsSection()
     public static System.Action<HelpContext> SubcommandsSection()
     public static System.Action<HelpContext> SynopsisSection()
-  public static class HelpBuilderExtensions
-    public static System.Void CustomizeSymbol(this HelpBuilder builder, System.CommandLine.Symbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
-    public static System.Void Write(this HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter writer)
   public class HelpContext
     .ctor(HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter output, System.CommandLine.ParseResult parseResult = null)
     public System.CommandLine.Command Command { get; }
