@@ -15,14 +15,14 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_Bare
     {
-        private IEnumerable<Option> _testSymbols;
+        private IEnumerable<CliOption> _testSymbols;
         private string _testSymbolsAsString;
         private CommandLineConfiguration _testConfiguration;
 
-        private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
+        private IEnumerable<CliOption> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
                          .Select(i =>
-                                     new Option<string>($"-option{i}")
+                                     new CliOption<string>($"-option{i}")
                                      {
                                          Arity = arity,
                                          Description = $"Description for -option {i} ...."

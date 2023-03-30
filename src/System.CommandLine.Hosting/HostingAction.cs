@@ -15,12 +15,12 @@ namespace System.CommandLine.Hosting
         private readonly Action<IHostBuilder> _configureHost;
         private readonly CliAction _actualAction;
 
-        internal static void SetHandlers(Command command, Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost)
+        internal static void SetHandlers(CliCommand command, Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost)
         {
             command.Action = new HostingAction(hostBuilderFactory, configureHost, command.Action);
             command.TreatUnmatchedTokensAsErrors = false; // to pass unmatched Tokens to host builder factory
 
-            foreach (Command subCommand in command.Subcommands)
+            foreach (CliCommand subCommand in command.Subcommands)
             {
                 SetHandlers(subCommand, hostBuilderFactory, configureHost);
             }
@@ -45,7 +45,7 @@ namespace System.CommandLine.Hosting
                 ?? new HostBuilder();
             hostBuilder.Properties[typeof(ParseResult)] = parseResult;
 
-            Directive configurationDirective = parseResult.Configuration.Directives.Single(d => d.Name == "config");
+            CliDirective configurationDirective = parseResult.Configuration.Directives.Single(d => d.Name == "config");
             hostBuilder.ConfigureHostConfiguration(config =>
             {
                 config.AddCommandLineDirectives(parseResult, configurationDirective);

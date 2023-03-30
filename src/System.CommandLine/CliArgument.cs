@@ -10,16 +10,16 @@ using System.Linq;
 namespace System.CommandLine
 {
     /// <summary>
-    /// A symbol defining a value that can be passed on the command line to a <see cref="Command">command</see> or <see cref="Option">option</see>.
+    /// A symbol defining a value that can be passed on the command line to a <see cref="CliCommand">command</see> or <see cref="CliOption">option</see>.
     /// </summary>
-    public abstract class Argument : Symbol
+    public abstract class CliArgument : CliSymbol
     {
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
-        private protected Argument(string name) : base(name, allowWhitespace: true)
+        private protected CliArgument(string name) : base(name, allowWhitespace: true)
         {
         }
 
@@ -90,7 +90,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Type" /> that the argument token(s) will be converted to.
+        /// Gets or sets the <see cref="Type" /> that the argument's parsed tokens will be converted to.
         /// </summary>
         public abstract Type ValueType { get; }
 
@@ -128,7 +128,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override string ToString() => $"{nameof(Argument)}: {Name}";
+        public override string ToString() => $"{nameof(CliArgument)}: {Name}";
 
         internal bool IsBoolean() => ValueType == typeof(bool) || ValueType == typeof(bool?);
     }

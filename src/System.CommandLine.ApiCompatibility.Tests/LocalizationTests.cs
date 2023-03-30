@@ -19,9 +19,9 @@ namespace System.CommandLine.ApiCompatibility.Tests
             {
                 CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
 
-                Command command = new(CommandName)
+                CliCommand command = new(CommandName)
                 {
-                    new Argument<string>("arg")
+                    new CliArgument<string>("arg")
                 };
 
                 ParseResult parseResult = command.Parse(CommandName);

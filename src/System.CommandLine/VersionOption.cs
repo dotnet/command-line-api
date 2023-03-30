@@ -8,22 +8,22 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
-    public sealed class VersionOption : Option<bool>
+    public sealed class VersionOption : CliOption<bool>
     {
         private CliAction? _action;
 
         /// <summary>
-        /// When added to a <see cref="Command"/>, it enables the use of a <c>--version</c> option, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// When added to a <see cref="CliCommand"/>, it enables the use of a <c>--version</c> option, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
         public VersionOption() : this("--version", Array.Empty<string>())
         {
         }
 
         /// <summary>
-        /// When added to a <see cref="Command"/>, it enables the use of a provided option name and aliases, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// When added to a <see cref="CliCommand"/>, it enables the use of a provided option name and aliases, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
         public VersionOption(string name, params string[] aliases)
-            : base(name, aliases, new Argument<bool>("--version") { Arity = ArgumentArity.Zero })
+            : base(name, aliases, new CliArgument<bool>("--version") { Arity = ArgumentArity.Zero })
         {
             Description = LocalizationResources.VersionOptionDescription();
             AddValidators();
@@ -42,24 +42,24 @@ namespace System.CommandLine
             {
                 if (result.Parent is CommandResult parent &&
                     parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
-                          .Any(IsNotImplicit))
+                          .Any(NotImplicit))
                 {
                     result.AddError(LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.IdentifierToken?.Value ?? result.Option.Name));
                 }
             });
         }
 
-        private static bool IsNotImplicit(SymbolResult symbolResult)
+        private static bool NotImplicit(SymbolResult symbolResult)
         {
             return symbolResult switch
             {
-                ArgumentResult argumentResult => !argumentResult.IsImplicit,
-                OptionResult optionResult => !optionResult.IsImplicit,
+                ArgumentResult argumentResult => !argumentResult.Implicit,
+                OptionResult optionResult => !optionResult.Implicit,
                 _ => true
             };
         }
 
-        internal override bool IsGreedy => false;
+        internal override bool Greedy => false;
 
         public override bool Equals(object? obj) => obj is VersionOption;
 
@@ -69,7 +69,7 @@ namespace System.CommandLine
         {
             public override int Invoke(ParseResult parseResult)
             {
-                parseResult.Configuration.Output.WriteLine(RootCommand.ExecutableVersion);
+                parseResult.Configuration.Output.WriteLine(CliRootCommand.ExecutableVersion);
                 return 0;
             }
 

@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Command_InvokeAsync_enables_help_by_default()
         {
-            var command = new Command("the-command")
+            var command = new CliCommand("the-command")
             {
                 new HelpOption()
             };
@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void Command_Invoke_enables_help_by_default()
         {
-            var command = new Command("the-command")
+            var command = new CliCommand("the-command")
             {
                 new HelpOption()
             };
@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests.Invocation
         public async Task RootCommand_InvokeAsync_returns_0_when_handler_is_successful()
         {
             var wasCalled = false;
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             rootCommand.SetAction((_) => wasCalled = true);
 
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests.Invocation
         public void RootCommand_Invoke_returns_0_when_handler_is_successful()
         {
             var wasCalled = false;
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             rootCommand.SetAction((_) => wasCalled = true);
 
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests.Invocation
         public async Task RootCommand_InvokeAsync_returns_1_when_handler_throws()
         {
             var wasCalled = false;
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             rootCommand.SetAction((_, __) =>
             {
@@ -109,7 +109,7 @@ namespace System.CommandLine.Tests.Invocation
         public void RootCommand_Invoke_returns_1_when_handler_throws()
         {
             var wasCalled = false;
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             rootCommand.SetAction((_, __) =>
             {
@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void Custom_RootCommand_Action_can_set_custom_result_code_via_Invoke()
         {
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
             {
                 Action = new CustomExitCodeAction()
             };
@@ -142,7 +142,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Custom_RootCommand_Action_can_set_custom_result_code_via_InvokeAsync()
         {
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
             {
                 Action = new CustomExitCodeAction()
             };
@@ -153,7 +153,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void Anonymous_RootCommand_Task_returning_Action_can_set_custom_result_code_via_Invoke()
         {
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             rootCommand.SetAction((_, _) => Task.FromResult(123));
 
@@ -163,7 +163,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Anonymous_RootCommand_Task_returning_Action_can_set_custom_result_code_via_InvokeAsync()
         {
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             rootCommand.SetAction((_, _) => Task.FromResult(123));
 
@@ -172,7 +172,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void Anonymous_RootCommand_int_returning_Action_can_set_custom_result_code_via_Invoke()
         {
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             rootCommand.SetAction(_ => 123);
 
@@ -182,7 +182,7 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Anonymous_RootCommand_int_returning_Action_can_set_custom_result_code_via_InvokeAsync()
         {
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             rootCommand.SetAction(_ => 123);
 
@@ -202,7 +202,7 @@ namespace System.CommandLine.Tests.Invocation
         public async Task Command_InvokeAsync_with_cancelation_token_invokes_command_handler()
         {
             using CancellationTokenSource cts = new();
-            var command = new Command("test");
+            var command = new CliCommand("test");
             command.SetAction((_, cancellationToken) =>
             {
                 cancellationToken.Should().Be(cts.Token);

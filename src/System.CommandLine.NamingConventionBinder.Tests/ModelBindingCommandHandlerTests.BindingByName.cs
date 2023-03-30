@@ -32,7 +32,7 @@ public partial class ModelBindingCommandHandlerTests
             var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
                                            .GetCommandHandler();
 
-            var command = new Command("the-command")
+            var command = new CliCommand("the-command")
             {
                 OptionBuilder.CreateOption("--value", type)
             };
@@ -66,7 +66,7 @@ public partial class ModelBindingCommandHandlerTests
             var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
                                            .GetCommandHandler();
 
-            var command = new Command("the-command")
+            var command = new CliCommand("the-command")
             {
                 OptionBuilder.CreateOption("--value", type)
             };
@@ -100,7 +100,7 @@ public partial class ModelBindingCommandHandlerTests
             var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
                                            .GetCommandHandler();
 
-            var command = new Command("the-command")
+            var command = new CliCommand("the-command")
             {
                 OptionBuilder.CreateOption("--value", type)
             };
@@ -130,7 +130,7 @@ public partial class ModelBindingCommandHandlerTests
             var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
                                            .GetCommandHandler();
 
-            var command = new Command("the-command")
+            var command = new CliCommand("the-command")
             {
                 ArgumentBuilder.CreateArgument(type)
             };
@@ -150,9 +150,9 @@ public partial class ModelBindingCommandHandlerTests
         {
             FileSystemInfo received = null;
 
-            var root = new RootCommand
+            var root = new CliRootCommand
             {
-                new Option<DirectoryInfo>("-f")
+                new CliOption<DirectoryInfo>("-f")
             };
             root.Action = CommandHandler.Create<FileSystemInfo>(f => received = f);
             var path = $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}";

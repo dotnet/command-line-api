@@ -117,7 +117,7 @@ namespace System.CommandLine.Binding
             return Success(argumentResult, values);
         }
 
-        internal static TryConvertArgument? GetConverter(Argument argument)
+        internal static TryConvertArgument? GetConverter(CliArgument argument)
         {
             if (argument.Arity is { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 })
             {

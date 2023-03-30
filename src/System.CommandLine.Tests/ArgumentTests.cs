@@ -17,7 +17,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void By_default_there_is_no_default_value()
         {
-            var argument = new Argument<string>("arg");
+            var argument = new CliArgument<string>("arg");
 
             argument.HasDefaultValue.Should().BeFalse();
         }
@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_default_value_factory_is_set_then_HasDefaultValue_is_true()
         {
-            var argument = new Argument<string[]>("arg");
+            var argument = new CliArgument<string[]>("arg");
 
             argument.DefaultValueFactory = (_) => null;
 
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_there_is_no_default_value_then_GetDefaultValue_throws()
         {
-            var argument = new Argument<string>("the-arg");
+            var argument = new CliArgument<string>("the-arg");
 
             argument.Invoking(a => a.GetDefaultValue())
                     .Should()
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void HasDefaultValue_can_be_set_to_true()
             {
-                var argument = new Argument<FileSystemInfo>("arg")
+                var argument = new CliArgument<FileSystemInfo>("arg")
                 {
                     DefaultValueFactory = result => null
                 };
@@ -64,7 +64,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void HasDefaultValue_can_be_set_to_false()
             {
-                var argument = new Argument<FileSystemInfo>("arg")
+                var argument = new CliArgument<FileSystemInfo>("arg")
                 {
                     DefaultValueFactory = null
                 };
@@ -77,7 +77,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void GetDefaultValue_returns_specified_value()
             {
-                var argument = new Argument<string>("arg")
+                var argument = new CliArgument<string>("arg")
                 {
                     DefaultValueFactory = result => "the-default"
                 };
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void GetDefaultValue_returns_null_when_parse_delegate_returns_true_without_setting_a_value()
             {
-                var argument = new Argument<string>("arg")
+                var argument = new CliArgument<string>("arg")
                 {
                     DefaultValueFactory = result => null
                 };
@@ -103,7 +103,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void GetDefaultValue_can_return_null()
             {
-                var argument = new Argument<string>("arg")
+                var argument = new CliArgument<string>("arg")
                 {
                     DefaultValueFactory = result => null
                 };
@@ -116,7 +116,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Validation_failure_message_can_be_specified_when_parsing_tokens()
             {
-                var argument = new Argument<FileSystemInfo>("arg")
+                var argument = new CliArgument<FileSystemInfo>("arg")
                 {
                     CustomParser = result =>
                     {
@@ -125,7 +125,7 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                new RootCommand { argument }.Parse("x")
+                new CliRootCommand { argument }.Parse("x")
                         .Errors
                         .Should()
                         .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
@@ -138,7 +138,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Validation_failure_message_can_be_specified_when_evaluating_default_argument_value()
             {
-                var argument = new Argument<FileSystemInfo>("arg")
+                var argument = new CliArgument<FileSystemInfo>("arg")
                 {
                     DefaultValueFactory = result =>
                     {
@@ -147,7 +147,7 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                new RootCommand { argument }.Parse("")
+                new CliRootCommand { argument }.Parse("")
                         .Errors
                         .Should()
                         .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
@@ -160,7 +160,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Validation_failure_message_can_be_specified_when_evaluating_default_option_value()
             {
-                var option = new Option<FileSystemInfo>("-x")
+                var option = new CliOption<FileSystemInfo>("-x")
                 {
                     DefaultValueFactory = result =>
                     {
@@ -169,7 +169,7 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                new RootCommand { option }.Parse("")
+                new CliRootCommand { option }.Parse("")
                       .Errors
                       .Should()
                       .ContainSingle()
@@ -182,12 +182,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void custom_parsing_of_scalar_value_from_an_argument_with_one_token()
             {
-                var argument = new Argument<int>("arg")
+                var argument = new CliArgument<int>("arg")
                 {
                     CustomParser = result => int.Parse(result.Tokens.Single().Value)
                 };
 
-                new RootCommand { argument }.Parse("123")
+                new CliRootCommand { argument }.Parse("123")
                         .GetValue(argument)
                         .Should()
                         .Be(123);
@@ -196,12 +196,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void custom_parsing_of_sequence_value_from_an_argument_with_one_token()
             {
-                var argument = new Argument<IEnumerable<int>>("arg")
+                var argument = new CliArgument<IEnumerable<int>>("arg")
                 {
                     CustomParser = result => result.Tokens.Single().Value.Split(',').Select(int.Parse)
                 };
 
-                new RootCommand { argument }.Parse("1,2,3")
+                new CliRootCommand { argument }.Parse("1,2,3")
                         .GetValue(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
@@ -210,12 +210,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void custom_parsing_of_sequence_value_from_an_argument_with_multiple_tokens()
             {
-                var argument = new Argument<IEnumerable<int>>("arg")
+                var argument = new CliArgument<IEnumerable<int>>("arg")
                 {
                     CustomParser = result => result.Tokens.Select(t => int.Parse(t.Value)).ToArray()
                 };
 
-                new RootCommand { argument }.Parse("1 2 3")
+                new CliRootCommand { argument }.Parse("1 2 3")
                         .GetValue(argument)
                         .Should()
                         .BeEquivalentTo(new[] { 1, 2, 3 });
@@ -224,13 +224,13 @@ namespace System.CommandLine.Tests
             [Fact]
             public void custom_parsing_of_scalar_value_from_an_argument_with_multiple_tokens()
             {
-                var argument = new Argument<int>("arg")
+                var argument = new CliArgument<int>("arg")
                 {
                     CustomParser = result => result.Tokens.Select(t => int.Parse(t.Value)).Sum(),
                     Arity = ArgumentArity.ZeroOrMore
                 };
 
-                new RootCommand { argument }.Parse("1 2 3")
+                new CliRootCommand { argument }.Parse("1 2 3")
                         .GetValue(argument)
                         .Should()
                         .Be(6);
@@ -241,9 +241,9 @@ namespace System.CommandLine.Tests
             {
                 ArgumentResult argumentResult = null;
 
-                var command = new Command("the-command")
+                var command = new CliCommand("the-command")
                 {
-                    new Option<string>("-x")
+                    new CliOption<string>("-x")
                     {
                         DefaultValueFactory = argResult =>
                         {
@@ -271,9 +271,9 @@ namespace System.CommandLine.Tests
             {
                 ArgumentResult argumentResult = null;
 
-                var command = new Command("the-command")
+                var command = new CliCommand("the-command")
                 {
-                    new Option<string>("-x")
+                    new CliOption<string>("-x")
                     {
                         DefaultValueFactory = argResult =>
                         {
@@ -302,12 +302,12 @@ namespace System.CommandLine.Tests
             public void Symbol_can_be_found_without_explicitly_traversing_result_tree(string commandLine)
             {
                 SymbolResult resultForOptionX = null;
-                var optionX = new Option<string>("-x")
+                var optionX = new CliOption<string>("-x")
                 {
                     CustomParser = _ => string.Empty
                 };
                 
-                var optionY = new Option<string>("-y")
+                var optionY = new CliOption<string>("-y")
                 {
                     CustomParser = argResult =>
                     {
@@ -316,7 +316,7 @@ namespace System.CommandLine.Tests
                     }
                 };
             
-                var command = new Command("the-command")
+                var command = new CliCommand("the-command")
                 {
                     optionX,
                     optionY,
@@ -338,9 +338,9 @@ namespace System.CommandLine.Tests
             {
                 ArgumentResult argumentResult = null;
 
-                var command = new Command("the-command")
+                var command = new CliCommand("the-command")
                 {
-                    new Argument<string>("arg")
+                    new CliArgument<string>("arg")
                     {
                         DefaultValueFactory = argResult =>
                         {
@@ -368,7 +368,7 @@ namespace System.CommandLine.Tests
                 var callCount = 0;
                 var handlerWasCalled = false;
 
-                var option = new Option<int>("--value")
+                var option = new CliOption<int>("--value")
                 {
                     CustomParser = result =>
                     {
@@ -377,7 +377,7 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                var command = new RootCommand();
+                var command = new CliRootCommand();
                 command.SetAction((ctx) => handlerWasCalled = true);
                 command.Options.Add(option);
 
@@ -390,13 +390,13 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Default_value_and_custom_argument_parser_can_be_used_together()
             {
-                var argument = new Argument<int>("arg")
+                var argument = new CliArgument<int>("arg")
                 {
                     CustomParser = _ => 789,
                     DefaultValueFactory = _ => 123
                 };
 
-                var result = new RootCommand { argument }.Parse("");
+                var result = new CliRootCommand { argument }.Parse("");
 
                 result.GetValue(argument)
                       .Should()
@@ -406,9 +406,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Multiple_command_arguments_can_have_custom_parse_delegates()
             {
-                var root = new RootCommand
+                var root = new CliRootCommand
                 {
-                    new Argument<FileInfo[]>("from")
+                    new CliArgument<FileInfo[]>("from")
                     {
                         CustomParser = argumentResult =>
                         {
@@ -417,7 +417,7 @@ namespace System.CommandLine.Tests
                         },
                         Arity = new ArgumentArity(0, 2)
                     },
-                    new Argument<DirectoryInfo>("to")
+                    new CliArgument<DirectoryInfo>("to")
                     {
                         CustomParser = argumentResult =>
                         {
@@ -444,10 +444,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void When_custom_conversion_fails_then_an_option_does_not_accept_further_arguments()
             {
-                var command = new Command("the-command")
+                var command = new CliCommand("the-command")
                 {
-                    new Argument<string>("arg"),
-                    new Option<string>("-x")
+                    new CliArgument<string>("arg"),
+                    new CliOption<string>("-x")
                     {
                         CustomParser = argResult =>
                         {
@@ -465,7 +465,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void When_argument_cannot_be_parsed_as_the_specified_type_then_getting_value_throws()
             {
-                var option = new Option<int>("--one", "-o")
+                var option = new CliOption<int>("--one", "-o")
                 {
                     CustomParser = argumentResult =>
                     {
@@ -480,7 +480,7 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                var command = new Command("the-command")
+                var command = new CliCommand("the-command")
                 {
                     option
                 };
@@ -503,9 +503,9 @@ namespace System.CommandLine.Tests
             {
                 var i = 0;
 
-                var command = new RootCommand
+                var command = new CliRootCommand
                 {
-                    new Option<int>("-x")
+                    new CliOption<int>("-x")
                     {
                         CustomParser = result => ++i,
                     }
@@ -522,9 +522,9 @@ namespace System.CommandLine.Tests
             {
                 var i = 0;
 
-                var command = new RootCommand
+                var command = new CliRootCommand
                 {
-                    new Option<int>("-x")
+                    new CliOption<int>("-x")
                     {
                         DefaultValueFactory = result => ++i,
                     }
@@ -546,7 +546,7 @@ namespace System.CommandLine.Tests
                 {
                     if (result.Tokens.Count == 0)
                     {
-                        if (result.Parent is OptionResult { IsImplicit: true })
+                        if (result.Parent is OptionResult { Implicit: true })
                         {
                             return "option-is-implicit";
                         }
@@ -559,14 +559,14 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                var opt = new Option<string>("--bananas")
+                var opt = new CliOption<string>("--bananas")
                 {
                     DefaultValueFactory = both,
                     CustomParser = both,
                     Arity = ArgumentArity.ZeroOrOne
                 };
 
-                var rootCommand = new RootCommand
+                var rootCommand = new CliRootCommand
                 {
                     opt
                 };
@@ -580,7 +580,7 @@ namespace System.CommandLine.Tests
             [InlineData("1 2 3 -o 999 4 5 6 7 8")]
             public void Custom_parser_can_pass_on_remaining_tokens(string commandLine)
             {
-                var argument1 = new Argument<int[]>("one")
+                var argument1 = new CliArgument<int[]>("one")
                 {
                     CustomParser = result =>
                     {
@@ -594,15 +594,15 @@ namespace System.CommandLine.Tests
                         };
                     }
                 };
-                var argument2 = new Argument<int[]>("two")
+                var argument2 = new CliArgument<int[]>("two")
                 {
                     CustomParser = result => result.Tokens.Select(t => t.Value).Select(int.Parse).ToArray()
                 };
-                var command = new RootCommand
+                var command = new CliRootCommand
                 {
                     argument1,
                     argument2,
-                    new Option<int>("-o")
+                    new CliOption<int>("-o")
                 };
 
                 var parseResult = command.Parse(commandLine);
@@ -624,7 +624,7 @@ namespace System.CommandLine.Tests
             public void When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unmatched_tokens()
             {
 
-                var argument1 = new Argument<int[]>("one")
+                var argument1 = new CliArgument<int[]>("one")
                 {
                     CustomParser = result =>
                     {
@@ -639,7 +639,7 @@ namespace System.CommandLine.Tests
                     }
                 };
              
-                var command = new RootCommand
+                var command = new CliRootCommand
                 {
                     argument1
                 };
@@ -655,7 +655,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void When_custom_parser_passes_on_tokens_the_argument_result_tokens_reflect_the_change()
             {
-                var argument1 = new Argument<int[]>("one")
+                var argument1 = new CliArgument<int[]>("one")
                 {
                     CustomParser = result =>
                     {
@@ -669,11 +669,11 @@ namespace System.CommandLine.Tests
                         };
                     }
                 };
-                var argument2 = new Argument<int[]>("two")
+                var argument2 = new CliArgument<int[]>("two")
                 {
                     CustomParser = result => result.Tokens.Select(t => t.Value).Select(int.Parse).ToArray()
                 };
-                var command = new RootCommand
+                var command = new CliRootCommand
                 {
                     argument1,
                     argument2
@@ -699,7 +699,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void OnlyTake_throws_when_called_with_a_negative_value()
             {
-                 var argument = new Argument<int[]>("one")
+                 var argument = new CliArgument<int[]>("one")
                  {
                      CustomParser = result =>
                      {
@@ -709,7 +709,7 @@ namespace System.CommandLine.Tests
                      }
                  };
 
-                 argument.Invoking(a => new RootCommand { a }.Parse("1 2 3"))
+                 argument.Invoking(a => new CliRootCommand { a }.Parse("1 2 3"))
                          .Should()
                          .Throw<ArgumentOutOfRangeException>()
                          .Which
@@ -721,7 +721,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void OnlyTake_throws_when_called_twice()
             {
-                 var argument = new Argument<int[]>("one")
+                 var argument = new CliArgument<int[]>("one")
                  {
                      CustomParser = result =>
                     {
@@ -732,7 +732,7 @@ namespace System.CommandLine.Tests
                     }
                  };
 
-                 argument.Invoking(a => new RootCommand { a }.Parse("1 2 3"))
+                 argument.Invoking(a => new CliRootCommand { a }.Parse("1 2 3"))
                          .Should()
                          .Throw<InvalidOperationException>()
                          .Which
@@ -744,7 +744,7 @@ namespace System.CommandLine.Tests
             [Fact]
             public void OnlyTake_can_pass_on_all_tokens_from_one_multiple_arity_argument_to_another()
             {
-                var argument1 = new Argument<int[]>("arg1")
+                var argument1 = new CliArgument<int[]>("arg1")
                 {
                     CustomParser = result =>
                     {
@@ -752,8 +752,8 @@ namespace System.CommandLine.Tests
                         return null;
                     }
                 };
-                var argument2 = new Argument<int[]>("arg2");
-                var command = new RootCommand
+                var argument2 = new CliArgument<int[]>("arg2");
+                var command = new CliRootCommand
                 {
                     argument1,
                     argument2
@@ -769,7 +769,7 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1759 
             public void OnlyTake_can_pass_on_all_tokens_from_a_single_arity_argument_to_another()
             {
-                var scalar = new Argument<int?>("arg")
+                var scalar = new CliArgument<int?>("arg")
                 {
                     CustomParser = ctx =>
                     {
@@ -777,9 +777,9 @@ namespace System.CommandLine.Tests
                         return null;
                     }
                 };
-                Argument<int[]> multiple = new("args");
+                CliArgument<int[]> multiple = new("args");
 
-                var command = new RootCommand
+                var command = new CliRootCommand
                 {
                     scalar,
                     multiple
@@ -796,7 +796,7 @@ namespace System.CommandLine.Tests
             [Fact] //https://github.com/dotnet/command-line-api/issues/1779
             public void OnlyTake_can_pass_on_all_tokens_from_a_single_arity_argument_to_another_that_also_passes_them_all_on()
             {
-                var first = new Argument<string>("first")
+                var first = new CliArgument<string>("first")
                 {
                     CustomParser = ctx =>
                     {
@@ -806,7 +806,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrOne
                 };
 
-                var second = new Argument<string[]>(name: "second")
+                var second = new CliArgument<string[]>(name: "second")
                 {
                     CustomParser = ctx =>
                     {
@@ -816,7 +816,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrMore
                 };
 
-                var third = new Argument<string[]>(name: "third")
+                var third = new CliArgument<string[]>(name: "third")
                 {
                     CustomParser = ctx =>
                     {
@@ -826,7 +826,7 @@ namespace System.CommandLine.Tests
                     Arity = ArgumentArity.ZeroOrMore
                 };
 
-                var command = new RootCommand
+                var command = new CliRootCommand
                 {
                     first,
                     second,
@@ -844,10 +844,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Argument_of_enum_can_limit_enum_members_as_valid_values()
         {
-            var argument = new Argument<ConsoleColor>("color");
+            var argument = new CliArgument<ConsoleColor>("color");
             argument.AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
 
-            Command command = new("set-color")
+            CliCommand command = new("set-color")
             {
                 argument
             };

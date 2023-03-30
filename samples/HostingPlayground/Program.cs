@@ -24,9 +24,9 @@ namespace HostingPlayground
 
         private static CommandLineConfiguration BuildCommandLine()
         {
-            var root = new RootCommand(@"$ dotnet run --name 'Joe'"){
-                new Option<string>("--name"){
-                    IsRequired = true
+            var root = new CliRootCommand(@"$ dotnet run --name 'Joe'"){
+                new CliOption<string>("--name"){
+                    Required = true
                 }
             };
             root.Action = CommandHandler.Create<GreeterOptions, IHost>(Run);

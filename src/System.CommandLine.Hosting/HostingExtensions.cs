@@ -14,7 +14,7 @@ namespace System.CommandLine.Hosting
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null)
         {
-            builder.Directives.Add(new Directive("config"));
+            builder.Directives.Add(new CliDirective("config"));
 
             HostingAction.SetHandlers(builder.RootCommand, hostBuilderFactory, configureHost);
 
@@ -51,7 +51,7 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static Command UseCommandHandler<THandler>(this Command command)
+        public static CliCommand UseCommandHandler<THandler>(this CliCommand command)
             where THandler : CliAction
         {
             command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(CliAction.InvokeAsync)));

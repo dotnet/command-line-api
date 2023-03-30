@@ -7,7 +7,7 @@ namespace System.CommandLine
     /// <summary>
     /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
     /// </summary>
-    public sealed class EnvironmentVariablesDirective : Directive
+    public sealed class EnvironmentVariablesDirective : CliDirective
     {
         private CliAction? _action;
 

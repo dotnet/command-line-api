@@ -11,9 +11,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Root_command_name_defaults_to_executable_name()
         {
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
-            rootCommand.Name.Should().Be(RootCommand.ExecutableName);
+            rootCommand.Name.Should().Be(CliRootCommand.ExecutableName);
         }
     }
 }

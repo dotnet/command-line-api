@@ -33,8 +33,8 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Option_can_customize_displayed_default_value()
             {
-                var option = new Option<string>("--the-option") { DefaultValueFactory = _ => "not 42" };
-                var command = new Command("the-command", "command help")
+                var option = new CliOption<string>("--the-option") { DefaultValueFactory = _ => "not 42" };
+                var command = new CliCommand("the-command", "command help")
                 {
                     option
                 };
@@ -52,8 +52,8 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Option_can_customize_first_column_text()
             {
-                var option = new Option<string>("--the-option") { Description = "option description" };
-                var command = new Command("the-command", "command help")
+                var option = new CliOption<string>("--the-option") { Description = "option description" };
+                var command = new CliCommand("the-command", "command help")
                 {
                     option
                 };
@@ -71,16 +71,16 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Option_can_customize_first_column_text_based_on_parse_result()
             {
-                var option = new Option<bool>("option");
-                var commandA = new Command("a", "a command help")
+                var option = new CliOption<bool>("option");
+                var commandA = new CliCommand("a", "a command help")
                 {
                     option
                 };
-                var commandB = new Command("b", "b command help")
+                var commandB = new CliCommand("b", "b command help")
                 {
                     option
                 };
-                var command = new Command("root", "root command help")
+                var command = new CliCommand("root", "root command help")
                 {
                     commandA, commandB
                 };
@@ -117,16 +117,16 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Option_can_customize_second_column_text_based_on_parse_result()
             {
-                var option = new Option<bool>("option");
-                var commandA = new Command("a", "a command help")
+                var option = new CliOption<bool>("option");
+                var commandA = new CliCommand("a", "a command help")
                 {
                     option
                 };
-                var commandB = new Command("b", "b command help")
+                var commandB = new CliCommand("b", "b command help")
                 {
                     option
                 };
-                var command = new Command("root", "root command help")
+                var command = new CliCommand("root", "root command help")
                 {
                     commandA, commandB
                 };
@@ -162,8 +162,8 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Subcommand_can_customize_first_column_text()
             {
-                var subcommand = new Command("subcommand", "subcommand description");
-                var command = new Command("the-command", "command help")
+                var subcommand = new CliCommand("subcommand", "subcommand description");
+                var command = new CliCommand("the-command", "command help")
                 {
                     subcommand
                 };
@@ -181,8 +181,8 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Command_arguments_can_customize_first_column_text()
             {
-                var argument = new Argument<string>("arg-name") { Description = "arg description" };
-                var command = new Command("the-command", "command help")
+                var argument = new CliArgument<string>("arg-name") { Description = "arg description" };
+                var command = new CliCommand("the-command", "command help")
                 {
                     argument
                 };
@@ -200,12 +200,12 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Command_arguments_can_customize_second_column_text()
             {
-                var argument = new Argument<string>("some-arg")
+                var argument = new CliArgument<string>("some-arg")
                 {
                     Description = "Default description",
                     DefaultValueFactory = _ => "not 42"
                 };
-                var command = new Command("the-command", "command help")
+                var command = new CliCommand("the-command", "command help")
                 {
                     argument
                 };
@@ -223,11 +223,11 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Command_arguments_can_customize_default_value()
             {
-                var argument = new Argument<string>("some-arg")
+                var argument = new CliArgument<string>("some-arg")
                 {
                     DefaultValueFactory = (_) => "not 42"
                 };
-                var command = new Command("the-command", "command help")
+                var command = new CliCommand("the-command", "command help")
                 {
                     argument
                 };
@@ -257,8 +257,8 @@ namespace System.CommandLine.Tests.Help
             [InlineData(true, true, "custom 1st\\s*custom 2nd")]
             public void Option_can_fallback_to_default_when_customizing(bool conditionA, bool conditionB, string expected)
             {
-                var command = new Command("test");
-                var option = new Option<string>("--option") { Description = "description" };
+                var command = new CliCommand("test");
+                var option = new CliOption<string>("--option") { Description = "description" };
 
                 command.Options.Add(option);
 
@@ -297,8 +297,8 @@ namespace System.CommandLine.Tests.Help
                 bool conditionC, 
                 string expected)
             {
-                var command = new Command("test");
-                var argument = new Argument<string>("arg")
+                var command = new CliCommand("test");
+                var argument = new CliArgument<string>("arg")
                 {
                     Description = "description",
                     DefaultValueFactory = _ => "default"
@@ -332,11 +332,11 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Individual_symbols_can_be_customized()
             {
-                var subcommand = new Command("subcommand", "The default command description");
-                var option = new Option<int>("-x") { Description = "The default option description" };
-                var argument = new Argument<int>("int-value") { Description = "The default argument description" };
+                var subcommand = new CliCommand("subcommand", "The default command description");
+                var option = new CliOption<int>("-x") { Description = "The default option description" };
+                var argument = new CliArgument<int>("int-value") { Description = "The default argument description" };
 
-                var rootCommand = new RootCommand
+                var rootCommand = new CliRootCommand
                 {
                     subcommand,
                     option,
@@ -370,7 +370,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Help_sections_can_be_replaced()
             {
-                CommandLineConfiguration config = new(new RootCommand())
+                CommandLineConfiguration config = new(new CliRootCommand())
                 {
                     Output = new StringWriter()
                 };
@@ -397,7 +397,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Help_sections_can_be_supplemented()
             {
-                CommandLineConfiguration config = new(new RootCommand("hello"))
+                CommandLineConfiguration config = new(new CliRootCommand("hello"))
                 {
                     Output = new StringWriter(),
                 };
@@ -435,9 +435,9 @@ namespace System.CommandLine.Tests.Help
             public void Layout_can_be_composed_dynamically_based_on_context()
             {
                 HelpBuilder helpBuilder = new();
-                var commandWithTypicalHelp = new Command("typical");
-                var commandWithCustomHelp = new Command("custom");
-                var command = new RootCommand
+                var commandWithTypicalHelp = new CliCommand("typical");
+                var commandWithCustomHelp = new CliCommand("custom");
+                var command = new CliRootCommand
                 {
                     commandWithTypicalHelp,
                     commandWithCustomHelp
@@ -473,9 +473,9 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Help_default_sections_can_be_wrapped()
             {
-                Command command = new("test")
+                CliCommand command = new("test")
                 {
-                    new Option<string>("--option")
+                    new CliOption<string>("--option")
                     {
                         Description = "option description",
                         HelpName = "option"
@@ -511,7 +511,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Help_customized_sections_can_be_wrapped()
             {
-                CommandLineConfiguration config = new(new RootCommand())
+                CommandLineConfiguration config = new(new CliRootCommand())
                 {
                     Output = new StringWriter()
                 };
@@ -535,7 +535,7 @@ namespace System.CommandLine.Tests.Help
                 }
             }
 
-            private string GetDefaultHelp(Command command, bool trimOneNewline = true)
+            private string GetDefaultHelp(CliCommand command, bool trimOneNewline = true)
             {
                 // The command might have already defined a HelpOption with custom settings,
                 // we need to overwrite it to get the actual defaults.

@@ -1,7 +1,7 @@
 ﻿namespace System.CommandLine;
 
 /// <summary>
-/// Provides extension methods for <see cref="Command" />.
+/// Provides extension methods for <see cref="CliCommand" />.
 /// </summary>
 public static class CommandExtensions
 {
@@ -16,9 +16,9 @@ public static class CommandExtensions
     /// <param name="delegate">A delegate implementing the handler for the command.</param>
     /// <param name="symbols">The symbols used to bind the handler's parameters.</param>
     public static void SetHandler<TDelegate>(
-        this Command command,
+        this CliCommand command,
         TDelegate @delegate,
-        params Symbol[] symbols)
+        params CliSymbol[] symbols)
     {
         throw new InvalidOperationException(_messageForWhenGeneratorIsNotInUse);
     }

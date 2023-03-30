@@ -7,9 +7,9 @@ namespace System.CommandLine.NamingConventionBinder;
 
 internal class SpecificSymbolValueSource : IValueSource
 {
-    private readonly Symbol _symbol;
+    private readonly CliSymbol _symbol;
 
-    public SpecificSymbolValueSource(Symbol symbol)
+    public SpecificSymbolValueSource(CliSymbol symbol)
     {
         _symbol = symbol ?? throw new ArgumentNullException(nameof(symbol));
     }
@@ -20,7 +20,7 @@ internal class SpecificSymbolValueSource : IValueSource
     {
         switch (_symbol)
         {
-            case Option option:
+            case CliOption option:
                 var optionResult = bindingContext?.ParseResult.FindResultFor(option);
                 if (optionResult is not null)
                 {
@@ -28,7 +28,7 @@ internal class SpecificSymbolValueSource : IValueSource
                     return true;
                 }
                 break;
-            case Argument argument:
+            case CliArgument argument:
                 var argumentResult = bindingContext?.ParseResult.FindResultFor(argument);
                 if (argumentResult is not null)
                 {

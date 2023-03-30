@@ -15,7 +15,7 @@ namespace System.CommandLine.Parsing
         private ArgumentConversionResult? _argumentConversionResult;
 
         internal OptionResult(
-            Option option,
+            CliOption option,
             SymbolResultTree symbolResultTree,
             Token? token = null,
             CommandResult? parent = null) :
@@ -28,13 +28,13 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The option to which the result applies.
         /// </summary>
-        public Option Option { get; }
+        public CliOption Option { get; }
 
         /// <summary>
         /// Indicates whether the result was created implicitly and not due to the option being specified on the command line.
         /// </summary>
         /// <remarks>Implicit results commonly result from options having a default value.</remarks>
-        public bool IsImplicit => IdentifierToken is null || IdentifierToken.IsImplicit;
+        public bool Implicit => IdentifierToken is null || IdentifierToken.Implicit;
 
         /// <summary>
         /// The token that was parsed to specify the option.
@@ -54,11 +54,11 @@ namespace System.CommandLine.Parsing
                 .GetValueOrDefault<T>();
 
         internal bool IsArgumentLimitReached
-            => Option.Argument.Arity.MaximumNumberOfValues == (IsImplicit ? Tokens.Count - 1 : Tokens.Count);
+            => Option.Argument.Arity.MaximumNumberOfValues == (Implicit ? Tokens.Count - 1 : Tokens.Count);
 
         internal ArgumentConversionResult ArgumentConversionResult
             => _argumentConversionResult ??= FindResultFor(Option.Argument)!.GetArgumentConversionResult();
 
-        internal override bool UseDefaultValueFor(ArgumentResult argument) => IsImplicit;
+        internal override bool UseDefaultValueFor(ArgumentResult argument) => Implicit;
     }
 }

@@ -18,15 +18,15 @@ namespace System.CommandLine
     /// </summary>
     /// <remarks>
     /// Use the Command object for actions that correspond to a specific string (the command name). See
-    /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
+    /// <see cref="CliRootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class Command : Symbol, IEnumerable<Symbol>
+    public class CliCommand : CliSymbol, IEnumerable<CliSymbol>
     {
         internal AliasSet? _aliases;
-        private ChildList<Argument>? _arguments;
-        private ChildList<Option>? _options;
-        private ChildList<Command>? _subcommands;
+        private ChildSymbolList<CliArgument>? _arguments;
+        private ChildSymbolList<CliOption>? _options;
+        private ChildSymbolList<CliCommand>? _subcommands;
         private List<Action<CommandResult>>? _validators;
 
         /// <summary>
@@ -34,13 +34,13 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command, shown in help.</param>
-        public Command(string name, string? description = null) : base(name)
+        public CliCommand(string name, string? description = null) : base(name)
             => Description = description;
 
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
-        public IEnumerable<Symbol> Children
+        public IEnumerable<CliSymbol> Children
         {
             get
             {
@@ -58,21 +58,21 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the arguments for the command.
         /// </summary>
-        public IList<Argument> Arguments => _arguments ??= new(this);
+        public IList<CliArgument> Arguments => _arguments ??= new(this);
 
         internal bool HasArguments => _arguments is not null && _arguments.Count > 0 ;
 
         /// <summary>
         /// Represents all of the options for the command, including global options that have been applied to any of the command's ancestors.
         /// </summary>
-        public IList<Option> Options => _options ??= new (this);
+        public IList<CliOption> Options => _options ??= new (this);
 
         internal bool HasOptions => _options is not null && _options.Count > 0;
 
         /// <summary>
         /// Represents all of the subcommands for the command.
         /// </summary>
-        public IList<Command> Subcommands => _subcommands ??= new(this);
+        public IList<CliCommand> Subcommands => _subcommands ??= new(this);
 
         internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
 
@@ -87,7 +87,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the unique set of strings that can be used on the command line to specify the command.
         /// </summary>
-        /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Command.</remarks>
+        /// <remarks>The collection does not contain the <see cref="CliSymbol.Name"/> of the Command.</remarks>
         public ICollection<string> Aliases => _aliases ??= new();
 
         /// <summary>
@@ -163,23 +163,23 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Adds a <see cref="Symbol"/> to the command.
+        /// Adds a <see cref="CliSymbol"/> to the command.
         /// </summary>
         /// <param name="symbol">The symbol to add to the command.</param>
         [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# duck typing
-        public void Add(Symbol symbol)
+        public void Add(CliSymbol symbol)
         {
             // this method exists so users can use C# duck typing for adding symbols to the Command:
             // new Command { option };
             switch (symbol)
             {
-                case Option option:
+                case CliOption option:
                     Options.Add(option);
                     break;
-                case Argument argument:
+                case CliArgument argument:
                     Arguments.Add(argument);
                     break;
-                case Command command:
+                case CliCommand command:
                     Subcommands.Add(command);
                     break;
                 default:
@@ -196,7 +196,7 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the symbols for the command.
         /// </summary>
-        public IEnumerator<Symbol> GetEnumerator() => Children.GetEnumerator();
+        public IEnumerator<CliSymbol> GetEnumerator() => Children.GetEnumerator();
 
         /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -264,7 +264,7 @@ namespace System.CommandLine
                 ParentNode? parent = FirstParent;
                 while (parent is not null)
                 {
-                    Command parentCommand = (Command)parent.Symbol;
+                    CliCommand parentCommand = (CliCommand)parent.Symbol;
 
                     if (context.IsEmpty || context.ParseResult.FindResultFor(parentCommand) is not null)
                     {
@@ -274,7 +274,7 @@ namespace System.CommandLine
                             {
                                 var option = parentCommand.Options[i];
 
-                                if (option.AppliesToSelfAndChildren)
+                                if (option.Recursive)
                                 {
                                     AddCompletionsFor(option, option._aliases);
                                 }
@@ -293,9 +293,9 @@ namespace System.CommandLine
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
 
-            void AddCompletionsFor(Symbol identifier, AliasSet? aliases)
+            void AddCompletionsFor(CliSymbol identifier, AliasSet? aliases)
             {
-                if (!identifier.IsHidden)
+                if (!identifier.Hidden)
                 {
                     if (identifier.Name.ContainsCaseInsensitive(textToMatch))
                     {

@@ -14,7 +14,7 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {
-        private static readonly string _currentExeName = RootCommand.ExecutableName;
+        private static readonly string _currentExeName = CliRootCommand.ExecutableName;
         
         private static readonly string _dotnetExeFullPath = 
             DotnetMuxer.Path.FullName;

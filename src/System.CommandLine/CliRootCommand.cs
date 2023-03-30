@@ -13,9 +13,9 @@ namespace System.CommandLine
     /// <remarks>
     /// Use the RootCommand object without any subcommands for applications that perform one action. Add subcommands 
     /// to the root for applications that require actions identified by specific strings. For example, `dir` does not 
-    /// use any subcommands. See <see cref="Command"/> for applications with multiple actions.
+    /// use any subcommands. See <see cref="CliCommand"/> for applications with multiple actions.
     /// </remarks>
-    public class RootCommand : Command
+    public class CliRootCommand : CliCommand
     {
         private static Assembly? _assembly;
         private static string? _executablePath;
@@ -23,7 +23,7 @@ namespace System.CommandLine
         private static string? _executableVersion;
 
         /// <param name="description">The description of the command, shown in help.</param>
-        public RootCommand(string description = "") : base(ExecutableName, description)
+        public CliRootCommand(string description = "") : base(ExecutableName, description)
         {
             Options.Add(new HelpOption());
             Options.Add(new VersionOption());

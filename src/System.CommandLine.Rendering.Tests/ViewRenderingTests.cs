@@ -22,7 +22,7 @@ namespace System.CommandLine.Rendering.Tests
                 IsAnsiTerminal = false
             };
 
-            var command = new RootCommand();
+            var command = new CliRootCommand();
             command.SetAction(ctx =>
             {
                 parseResult = ctx;

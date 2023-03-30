@@ -19,13 +19,13 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup]
         public void Setup()
         {
-            Option<string> fruitOption = new("--fruit");
+            CliOption<string> fruitOption = new("--fruit");
             fruitOption.CompletionSources.Add("apple", "banana", "cherry");
 
-            Option<string> vegetableOption = new("--vegetable");
+            CliOption<string> vegetableOption = new("--vegetable");
             vegetableOption.CompletionSources.Add("asparagus", "broccoli", "carrot");
 
-            var eatCommand = new Command("eat")
+            var eatCommand = new CliCommand("eat")
             {
                 fruitOption,
                 vegetableOption

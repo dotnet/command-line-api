@@ -21,12 +21,12 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Benchmark]
         public Task<int> MinimalAsync() => BuildMinimalConfig(BuildCommand()).InvokeAsync(Args);
 
-        private static RootCommand BuildCommand()
+        private static CliRootCommand BuildCommand()
         {
-            Option<bool> boolOption = new("--bool", "-b") { Description = "Bool option" };
-            Option<string> stringOption = new("--string", "-s") { Description = "String option" };
+            CliOption<bool> boolOption = new("--bool", "-b") { Description = "Bool option" };
+            CliOption<string> stringOption = new("--string", "-s") { Description = "String option" };
 
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
                 boolOption,
                 stringOption
@@ -41,7 +41,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             return command;
         }
 
-        private static CommandLineConfiguration BuildMinimalConfig(Command command)
+        private static CommandLineConfiguration BuildMinimalConfig(CliCommand command)
         {
             CommandLineConfiguration config = new(command);
             config.Directives.Clear();

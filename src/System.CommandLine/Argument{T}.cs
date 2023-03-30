@@ -8,8 +8,8 @@ using System.IO;
 
 namespace System.CommandLine
 {
-    /// <inheritdoc cref="Argument" />
-    public class Argument<T> : Argument
+    /// <inheritdoc cref="CliArgument" />
+    public class CliArgument<T> : CliArgument
     {
         private Func<ArgumentResult, T>? _customParser;
 
@@ -17,7 +17,7 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument. It's not used for parsing, only when displaying Help or creating parse errors.</param>>
-        public Argument(string name) : base(name)
+        public CliArgument(string name) : base(name)
         {
         }
 

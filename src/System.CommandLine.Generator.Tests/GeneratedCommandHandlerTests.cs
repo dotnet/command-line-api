@@ -21,10 +21,10 @@ namespace System.CommandLine.Generator.Tests
                 boundAge = age;
             }
 
-            var nameArgument = new Argument<string>("arg");
-            var ageOption = new Option<int>("--age");
+            var nameArgument = new CliArgument<string>("arg");
+            var ageOption = new CliOption<int>("--age");
 
-            var command = new Command("command")
+            var command = new CliCommand("command")
             {
                 nameArgument,
                 ageOption
@@ -45,10 +45,10 @@ namespace System.CommandLine.Generator.Tests
             string? boundName = default;
             int boundAge = default;
 
-            var nameArgument = new Argument<string>("arg");
-            var ageOption = new Option<int>("--age");
+            var nameArgument = new CliArgument<string>("arg");
+            var ageOption = new CliOption<int>("--age");
 
-            var command = new Command("command")
+            var command = new CliCommand("command")
             {
                 nameArgument,
                 ageOption
@@ -79,10 +79,10 @@ namespace System.CommandLine.Generator.Tests
                 boundAge = character.Age;
             }
 
-            var command = new Command("command");
-            var nameOption = new Option<string>("--name");
+            var command = new CliCommand("command");
+            var nameOption = new CliOption<string>("--name");
             command.Options.Add(nameOption);
-            var ageOption = new Option<int>("--age");
+            var ageOption = new CliOption<int>("--age");
             command.Options.Add(ageOption);
 
             command.SetHandler<Action<Character>>(Execute, nameOption, ageOption);
@@ -101,10 +101,10 @@ namespace System.CommandLine.Generator.Tests
                 return first + second;
             }
 
-            var command = new Command("add");
-            var firstArgument = new Argument<int>("first");
+            var command = new CliCommand("add");
+            var firstArgument = new CliArgument<int>("first");
             command.Arguments.Add(firstArgument);
-            var secondArgument = new Argument<int>("second");
+            var secondArgument = new CliArgument<int>("second");
             command.Arguments.Add(secondArgument);
 
             command.SetHandler<Func<int, int, int>>(Execute, firstArgument, secondArgument);
@@ -125,7 +125,7 @@ namespace System.CommandLine.Generator.Tests
                 boundParseResult = parseResult;
             }
 
-            var command = new Command("command");
+            var command = new CliCommand("command");
 
             command.SetHandler<Action<ParseResult>>(Execute);
 
@@ -147,10 +147,10 @@ namespace System.CommandLine.Generator.Tests
                 boundAge = age;
             }
 
-            var nameArgument = new Argument<string>("arg");
-            var ageOption = new Option<int>("--age");
+            var nameArgument = new CliArgument<string>("arg");
+            var ageOption = new CliOption<int>("--age");
 
-            var command = new Command("command")
+            var command = new CliCommand("command")
             {
                 nameArgument,
                 ageOption
@@ -174,9 +174,9 @@ namespace System.CommandLine.Generator.Tests
                 return first + second;
             }
 
-            var firstArgument = new Argument<int>("first");
-            var secondArgument = new Argument<int>("second");
-            var command = new Command("add")
+            var firstArgument = new CliArgument<int>("first");
+            var secondArgument = new CliArgument<int>("second");
+            var command = new CliCommand("add")
             {
                 firstArgument,
                 secondArgument
@@ -207,13 +207,13 @@ namespace System.CommandLine.Generator.Tests
                 secondValue = value;
             }
 
-            var command1 = new Command("first");
-            var argument1 = new Argument<string>("first-value");
+            var command1 = new CliCommand("first");
+            var argument1 = new CliArgument<string>("first-value");
             command1.Arguments.Add(argument1);
             command1.SetHandler<Action<string>>(Execute1, argument1);
 
-            var command2 = new Command("second");
-            var argument2 = new Argument<string>("second-value");
+            var command2 = new CliCommand("second");
+            var argument2 = new CliArgument<string>("second-value");
             command2.Arguments.Add(argument2);
             command2.SetHandler<Action<string>>(Execute2, argument2);
 
@@ -236,10 +236,10 @@ namespace System.CommandLine.Generator.Tests
                 boundAge = age;
             }
 
-            var nameArgument = new Argument<string>("arg");
-            var ageOption = new Option<int>("--age");
+            var nameArgument = new CliArgument<string>("arg");
+            var ageOption = new CliOption<int>("--age");
 
-            var command = new Command("command")
+            var command = new CliCommand("command")
             {
                 nameArgument,
                 ageOption
@@ -259,10 +259,10 @@ namespace System.CommandLine.Generator.Tests
             string? boundName = default;
             int boundAge = default;
 
-            var nameArgument = new Argument<string>("arg");
-            var ageOption = new Option<int>("--age");
+            var nameArgument = new CliArgument<string>("arg");
+            var ageOption = new CliOption<int>("--age");
 
-            var command = new Command("command")
+            var command = new CliCommand("command")
             {
                 nameArgument,
                 ageOption
@@ -286,10 +286,10 @@ namespace System.CommandLine.Generator.Tests
             string? boundName = default;
             int boundAge = default;
 
-            var nameArgument = new Argument<string>("arg");
-            var ageOption = new Option<int>("--age");
+            var nameArgument = new CliArgument<string>("arg");
+            var ageOption = new CliOption<int>("--age");
 
-            var command = new Command("command")
+            var command = new CliCommand("command")
             {
                 nameArgument,
                 ageOption

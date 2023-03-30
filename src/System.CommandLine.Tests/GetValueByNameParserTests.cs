@@ -14,24 +14,24 @@ namespace System.CommandLine.Tests
         {
         }
 
-        protected override T GetValue<T>(ParseResult parseResult, Option<T> option)
+        protected override T GetValue<T>(ParseResult parseResult, CliOption<T> option)
             => parseResult.GetValue<T>(option.Name);
 
-        protected override T GetValue<T>(ParseResult parseResult, Argument<T> argument)
+        protected override T GetValue<T>(ParseResult parseResult, CliArgument<T> argument)
             => parseResult.GetValue<T>(argument.Name);
 
         [Fact]
         public void In_case_of_argument_name_conflict_the_value_which_belongs_to_the_last_parsed_command_is_returned()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Argument<int>("arg"),
-                new Command("inner1")
+                new CliArgument<int>("arg"),
+                new CliCommand("inner1")
                 {
-                    new Argument<int>("arg"),
-                    new Command("inner2")
+                    new CliArgument<int>("arg"),
+                    new CliCommand("inner2")
                     {
-                        new Argument<int>("arg"),
+                        new CliArgument<int>("arg"),
                     }
                 }
             };
@@ -44,15 +44,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void In_case_of_option_name_conflict_the_value_which_belongs_to_the_last_parsed_command_is_returned()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Option<int>("--integer", "-i"),
-                new Command("inner1")
+                new CliOption<int>("--integer", "-i"),
+                new CliCommand("inner1")
                 {
-                    new Option<int>("--integer", "-i"),
-                    new Command("inner2")
+                    new CliOption<int>("--integer", "-i"),
+                    new CliCommand("inner2")
                     {
-                        new Option<int>("--integer", "-i")
+                        new CliOption<int>("--integer", "-i")
                     }
                 }
             };
@@ -65,9 +65,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_value_is_not_parsed_then_default_value_is_returned()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Option<int>("--integer", "-i")
+                new CliOption<int>("--integer", "-i")
             };
 
             ParseResult parseResult = command.Parse("");
@@ -78,9 +78,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_optional_argument_is_not_parsed_then_default_value_is_returned()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Argument<int>("arg")
+                new CliArgument<int>("arg")
                 {
                     Arity = ArgumentArity.ZeroOrOne
                 }
@@ -94,11 +94,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_required_option_value_is_not_parsed_then_an_exception_is_thrown()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Option<int>("--required")
+                new CliOption<int>("--required")
                 {
-                    IsRequired = true
+                    Required = true
                 }
             };
 
@@ -115,9 +115,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_required_argument_value_is_not_parsed_then_an_exception_is_thrown()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Argument<int>("required")
+                new CliArgument<int>("required")
                 {
                     Arity = ArgumentArity.ExactlyOne
                 }
@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
         public void When_non_existing_name_is_used_then_exception_is_thrown()
         {
             const string nonExistingName = "nonExisting";
-            Command command = new ("noSymbols");
+            CliCommand command = new ("noSymbols");
             ParseResult parseResult = command.Parse("");
 
             Action getRequired = () => parseResult.GetValue<int>(nonExistingName);
@@ -153,13 +153,13 @@ namespace System.CommandLine.Tests
         {
             const string sameName = "same";
 
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Argument<int>(sameName)
+                new CliArgument<int>(sameName)
                 {
                     Arity = ArgumentArity.ZeroOrOne
                 },
-                new Option<int>(sameName)
+                new CliOption<int>(sameName)
             };
 
             ParseResult parseResult = command.Parse("");
@@ -177,12 +177,12 @@ namespace System.CommandLine.Tests
         {
             const string sameName = "same";
 
-            Command command = new("outer")
+            CliCommand command = new("outer")
             {
-                new Argument<int>(sameName),
-                new Command("inner")
+                new CliArgument<int>(sameName),
+                new CliCommand("inner")
                 {
-                    new Option<int>(sameName)
+                    new CliOption<int>(sameName)
                 }
             };
 
@@ -198,15 +198,15 @@ namespace System.CommandLine.Tests
         {
             const string sameName = "same";
 
-            Command command = new("outer")
+            CliCommand command = new("outer")
             {
-                new Argument<int>(sameName)
+                new CliArgument<int>(sameName)
                 {
                     DefaultValueFactory = (_) => 123
                 },
-                new Command("inner")
+                new CliCommand("inner")
                 {
-                    new Option<int>(sameName)
+                    new CliOption<int>(sameName)
                     {
                         DefaultValueFactory = (_) => 456
                     }
@@ -223,9 +223,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void T_can_be_casted_to_nullable_of_T()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Argument<int>("name")
+                new CliArgument<int>("name")
             };
 
             ParseResult parseResult = command.Parse("123");
@@ -236,9 +236,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Array_of_T_can_be_casted_to_ienumerable_of_T()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Argument<int[]>("name")
+                new CliArgument<int[]>("name")
             };
 
             ParseResult parseResult = command.Parse("1 2 3");
@@ -251,9 +251,9 @@ namespace System.CommandLine.Tests
         {
             const string Name = "name";
 
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Argument<int>(Name)
+                new CliArgument<int>(Name)
             };
 
             ParseResult parseResult = command.Parse("123");
@@ -269,11 +269,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Parse_errors_have_precedence_over_type_mismatch()
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
-                new Option<int>("--required")
+                new CliOption<int>("--required")
                 {
-                    IsRequired = true
+                    Required = true
                 }
             };
 

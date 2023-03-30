@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// A directive token.
         /// </summary>
-        /// <see cref="System.CommandLine.Directive"/>
+        /// <see cref="CliDirective"/>
         Directive
     }
 }

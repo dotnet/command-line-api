@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,11 +23,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public Perf_Parser_ParseResult()
         {
             _output = new StringWriter();
-            var option = new Option<bool>("-opt");
+            var option = new CliOption<bool>("-opt");
 
-            _configuration = new CommandLineConfiguration(new RootCommand { option })
+            _configuration = new CommandLineConfiguration(new CliRootCommand { option })
             {
-                Directives = { new ParseDirective() },
+                Directives = { new ParseDiagramDirective() },
                 Output = _output
             };
         }

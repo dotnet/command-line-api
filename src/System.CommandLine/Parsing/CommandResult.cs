@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Help;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -13,7 +12,7 @@ namespace System.CommandLine.Parsing
     public sealed class CommandResult : SymbolResult
     {
         internal CommandResult(
-            Command command,
+            CliCommand command,
             Token token,
             SymbolResultTree symbolResultTree,
             CommandResult? parent = null) :
@@ -26,7 +25,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The command to which the result applies.
         /// </summary>
-        public Command Command { get; }
+        public CliCommand Command { get; }
 
         /// <summary>
         /// The token that was parsed to specify the command.
@@ -88,7 +87,7 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-                if (!completeValidation && !(option.AppliesToSelfAndChildren || option.Argument.HasDefaultValue || option is VersionOption))
+                if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
                 {
                     continue;
                 }
@@ -98,7 +97,7 @@ namespace System.CommandLine.Parsing
 
                 if (!SymbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
                 {
-                    if (option.IsRequired || option.Argument.HasDefaultValue)
+                    if (option.Required || option.Argument.HasDefaultValue)
                     {
                         optionResult = new(option, SymbolResultTree, null, this);
                         SymbolResultTree.Add(optionResult.Option, optionResult);
@@ -106,7 +105,7 @@ namespace System.CommandLine.Parsing
                         argumentResult = new(optionResult.Option.Argument, SymbolResultTree, optionResult);
                         SymbolResultTree.Add(optionResult.Option.Argument, argumentResult);
 
-                        if (option.IsRequired && !option.Argument.HasDefaultValue)
+                        if (option.Required && !option.Argument.HasDefaultValue)
                         {
                             argumentResult.AddError(LocalizationResources.RequiredOptionWasNotProvided(option.Name));
                             continue;
@@ -154,7 +153,7 @@ namespace System.CommandLine.Parsing
             var arguments = Command.Arguments;
             for (var i = 0; i < arguments.Count; i++)
             {
-                Argument argument = arguments[i];
+                CliArgument argument = arguments[i];
 
                 if (!completeValidation && !argument.HasDefaultValue)
                 {

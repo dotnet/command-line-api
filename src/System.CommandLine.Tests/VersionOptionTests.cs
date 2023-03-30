@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
-            CommandLineConfiguration configuration = new(new RootCommand())
+            CommandLineConfiguration configuration = new(new CliRootCommand())
             {
                 Output = new StringWriter()
             };
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests
         public async Task When_the_version_option_is_specified_then_invocation_is_short_circuited()
         {
             var wasCalled = false;
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) => wasCalled = true);
 
             CommandLineConfiguration configuration = new(rootCommand)
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_option_appears_in_help()
         {
-            CommandLineConfiguration configuration = new(new RootCommand())
+            CommandLineConfiguration configuration = new(new CliRootCommand())
             {
                 Output = new StringWriter()
             };
@@ -67,9 +67,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_and_there_are_default_options_then_the_version_is_written_to_standard_out()
         {
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
             {
-                new Option<bool>("-x")
+                new CliOption<bool>("-x")
                 {
                     DefaultValueFactory = (_) => true
                 },
@@ -89,9 +89,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_and_there_are_default_arguments_then_the_version_is_written_to_standard_out()
         {
-            RootCommand rootCommand = new ()
+            CliRootCommand rootCommand = new ()
             {
-                new Argument<bool>("x") { DefaultValueFactory =(_) => true },
+                new CliArgument<bool>("x") { DefaultValueFactory =(_) => true },
             };
             rootCommand.SetAction((_) => { });
 
@@ -110,12 +110,12 @@ namespace System.CommandLine.Tests
         [InlineData("--version subcommand")]
         public void Version_is_not_valid_with_other_tokens(string commandLine)
         {
-            var subcommand = new Command("subcommand");
+            var subcommand = new CliCommand("subcommand");
             subcommand.SetAction((_) => { });
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
             {
                 subcommand,
-                new Option<bool>("-x"),
+                new CliOption<bool>("-x"),
             };
             rootCommand.SetAction((_) => { });
 
@@ -132,10 +132,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Version_option_is_not_added_to_subcommands()
         {
-            var childCommand = new Command("subcommand");
+            var childCommand = new CliCommand("subcommand");
             childCommand.SetAction((_) => { });
 
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
             {
                 childCommand
             };
@@ -158,7 +158,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_can_specify_additional_alias()
         {
-            RootCommand rootCommand = new();
+            CliRootCommand rootCommand = new();
 
             for (int i = 0; i < rootCommand.Options.Count; i++)
             {
@@ -182,9 +182,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
         {
-            var childCommand = new Command("subcommand");
+            var childCommand = new CliCommand("subcommand");
             childCommand.SetAction((_) => { });
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
             {
                 childCommand
             };

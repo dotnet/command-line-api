@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests.Help
             _helpBuilder = GetHelpBuilder(LargeMaxWidth);
             _columnPadding = new string(' ', ColumnGutterWidth);
             _indentation = new string(' ', IndentationWidth);
-            _executableName = RootCommand.ExecutableName;
+            _executableName = CliRootCommand.ExecutableName;
         }
 
         private HelpBuilder GetHelpBuilder(int maxWidth = SmallMaxWidth) => new(maxWidth);
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Synopsis_section_keeps_added_newlines()
         {
-            var command = new RootCommand(
+            var command = new CliRootCommand(
                 $"test{NewLine}\r\ndescription with\nline breaks");
 
             _helpBuilder.Write(command, _console);
@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests.Help
                 "description with some tabs that is long enough to wrap to a\t" +
                 "new line";
 
-            var command = new RootCommand(description: longSynopsisText);
+            var command = new CliRootCommand(description: longSynopsisText);
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
             helpBuilder.Write(command, _console);
@@ -77,7 +77,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Command_name_in_synopsis_can_be_specified()
         {
-            var command = new Command("custom-name");
+            var command = new CliCommand("custom-name");
 
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
             helpBuilder.Write(command, _console);
@@ -101,19 +101,19 @@ namespace System.CommandLine.Tests.Help
             int maxArity,
             string expectedArgsUsage)
         {
-            var argument = new Argument<string>("the-args")
+            var argument = new CliArgument<string>("the-args")
             {
                 Arity = new ArgumentArity(minArity, maxArity)
             };
-            var command = new Command("the-command", "command help")
+            var command = new CliCommand("the-command", "command help")
             {
                 argument,
-                new Option<string>("--verbosity", "-v")
+                new CliOption<string>("--verbosity", "-v")
                 {
                     Description = "Sets the verbosity"
                 }
             };
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.Subcommands.Add(command);
 
             new HelpBuilder(LargeMaxWidth).Write(command, _console);
@@ -136,26 +136,26 @@ namespace System.CommandLine.Tests.Help
             int maxArityForArg2,
             string expectedArgsUsage)
         {
-            var arg1 = new Argument<string>("arg1")
+            var arg1 = new CliArgument<string>("arg1")
             {
                 Arity = new ArgumentArity(
                     minArityForArg1,
                     maxArityForArg1)
             };
-            var arg2 = new Argument<string>("arg2")
+            var arg2 = new CliArgument<string>("arg2")
             {
                 Arity = new ArgumentArity(
                     minArityForArg2,
                     maxArityForArg2)
             };
-            var command = new Command("the-command", "command help")
+            var command = new CliCommand("the-command", "command help")
             {
                 arg1,
                 arg2,
-                new Option<string>("--verbosity", "-v") { Description = "Sets the verbosity" }
+                new CliOption<string>("--verbosity", "-v") { Description = "Sets the verbosity" }
             };
 
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.Subcommands.Add(command);
 
             _helpBuilder.Write(command, _console);
@@ -170,13 +170,13 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_for_subcommand_shows_names_of_parent_commands()
         {
-            var outer = new Command("outer", "the outer command");
-            var inner = new Command("inner", "the inner command");
+            var outer = new CliCommand("outer", "the outer command");
+            var inner = new CliCommand("inner", "the inner command");
             outer.Subcommands.Add(inner);
-            var innerEr = new Command("inner-er", "the inner-er command");
+            var innerEr = new CliCommand("inner-er", "the inner-er command");
             inner.Subcommands.Add(innerEr);
-            innerEr.Options.Add(new Option<string>("--some-option") { Description = "some option" });
-            var rootCommand = new RootCommand();
+            innerEr.Options.Add(new CliOption<string>("--some-option") { Description = "some option" });
+            var rootCommand = new CliRootCommand();
             rootCommand.Add(outer);
 
             _helpBuilder.Write(innerEr, _console);
@@ -191,15 +191,15 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_for_subcommand_shows_arguments_for_subcommand_and_parent_command()
         {
-            var inner = new Command("inner", "command help")
+            var inner = new CliCommand("inner", "command help")
             {
-                new Option<string>("-v") {Description = "Sets the verbosity" },
-                new Argument<string[]>("inner-args")
+                new CliOption<string>("-v") {Description = "Sets the verbosity" },
+                new CliArgument<string[]>("inner-args")
             };
-            _ = new Command("outer", "command help")
+            _ = new CliCommand("outer", "command help")
             {
                 inner,
-                new Argument<string[]>("outer-args")
+                new CliArgument<string[]>("outer-args")
             };
 
             _helpBuilder.Write(inner, _console);
@@ -214,11 +214,11 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_not_specified()
         {
-            var command = new Command(
+            var command = new CliCommand(
                 "some-command",
                 "Does something");
             command.Options.Add(
-                new Option<string>("-x") { Description = "Indicates whether x" });
+                new CliOption<string>("-x") { Description = "Indicates whether x" });
 
             _helpBuilder.Write(command, _console);
 
@@ -228,10 +228,10 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_does_not_show_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_true()
         {
-            var command = new RootCommand();
-            var subcommand = new Command("some-command", "Does something");
+            var command = new CliRootCommand();
+            var subcommand = new CliCommand("some-command", "Does something");
             command.Subcommands.Add(subcommand);
-            subcommand.Options.Add(new Option<string>("-x") { Description = "Indicates whether x" });
+            subcommand.Options.Add(new CliOption<string>("-x") { Description = "Indicates whether x" });
             subcommand.TreatUnmatchedTokensAsErrors = true;
 
             _helpBuilder.Write(subcommand, _console);
@@ -242,10 +242,10 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_shows_additional_arguments_when_TreatUnmatchedTokensAsErrors_is_false()
         {
-            var command = new RootCommand();
-            var subcommand = new Command("some-command", "Does something");
+            var command = new CliRootCommand();
+            var subcommand = new CliCommand("some-command", "Does something");
             command.Subcommands.Add(subcommand);
-            subcommand.Options.Add(new Option<string>("-x") { Description = "Indicates whether x" });
+            subcommand.Options.Add(new CliOption<string>("-x") { Description = "Indicates whether x" });
             subcommand.TreatUnmatchedTokensAsErrors = false;
 
             _helpBuilder.Write(subcommand, _console);
@@ -256,12 +256,12 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Usage_section_keeps_added_newlines()
         {
-            var outer = new Command("outer-command", "command help")
+            var outer = new CliCommand("outer-command", "command help")
             {
-                new Argument<string[]>($"outer args {NewLine}\r\nwith new\nlines"),
-                new Command("inner-command", "command help")
+                new CliArgument<string[]>($"outer args {NewLine}\r\nwith new\nlines"),
+                new CliCommand("inner-command", "command help")
                 {
-                    new Argument<string>("inner-args")
+                    new CliArgument<string>("inner-args")
                 }
             };
 
@@ -282,18 +282,18 @@ namespace System.CommandLine.Tests.Help
         {
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            var outerCommand = new Command("outer-command", "command help")
+            var outerCommand = new CliCommand("outer-command", "command help")
             {
-                new Argument<string[]>("outer args long enough to wrap to a new line"),
-                new Command("inner-command", "command help")
+                new CliArgument<string[]>("outer args long enough to wrap to a new line"),
+                new CliCommand("inner-command", "command help")
                 {
-                    new Argument<string[]>("inner-args")
+                    new CliArgument<string[]>("inner-args")
                 }
             };
             //NB: Using Command with a fixed name, rather than RootCommand here
             //because RootCommand.ExecutableName returns different values when
             //run under net5 vs net462
-            _ = new Command("System.CommandLine")
+            _ = new CliCommand("System.CommandLine")
             {
                 outerCommand
             };
@@ -313,14 +313,14 @@ namespace System.CommandLine.Tests.Help
         {
             var commandName = "the-command";
             var visibleArgName = "visible";
-            var command = new Command(commandName, "Does things");
-            var hiddenArg = new Argument<int>("hidden")
+            var command = new CliCommand(commandName, "Does things");
+            var hiddenArg = new CliArgument<int>("hidden")
             {
-                IsHidden = true
+                Hidden = true
             };
-            var visibleArg = new Argument<int>(visibleArgName)
+            var visibleArg = new CliArgument<int>(visibleArgName)
             {
-                IsHidden = false
+                Hidden = false
             };
             command.Arguments.Add(hiddenArg);
             command.Arguments.Add(visibleArg);
@@ -343,7 +343,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_no_commands_configured()
         {
-            _helpBuilder.Write(new RootCommand(), _console);
+            _helpBuilder.Write(new CliRootCommand(), _console);
 
             _console.ToString().Should().NotContain("Arguments:");
         }
@@ -351,7 +351,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_commands_but_no_arguments_configured()
         {
-            var command = new Command("the-command", "command help");
+            var command = new CliCommand("the-command", "command help");
 
             _helpBuilder.Write(command, _console);
             _console.ToString().Should().NotContain("Arguments:");
@@ -363,9 +363,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_included_if_there_are_commands_with_arguments_configured()
         {
-            var command = new Command("the-command", "command help")
+            var command = new CliCommand("the-command", "command help")
             {
-                new Argument<string>("arg command name")
+                new CliArgument<string>("arg command name")
                 {
                     Description = "test"
                 }
@@ -379,9 +379,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_options_with_no_arguments_configured()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<string>("--verbosity", "-v") { Description = "Sets the verbosity." }
+                new CliOption<string>("--verbosity", "-v") { Description = "Sets the verbosity." }
             };
 
             _helpBuilder.Write(command, _console);
@@ -392,9 +392,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_is_not_included_if_there_are_only_options_with_arguments_configured()
         {
-            var command = new Command("command")
+            var command = new CliCommand("command")
             {
-                new Option<string>("-v")
+                new CliOption<string>("-v")
                 {
                     Description = "Sets the verbosity.",
                     HelpName = "argument for options"
@@ -409,9 +409,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_includes_configured_argument_aliases()
         {
-            var command = new Command("the-command", "command help")
+            var command = new CliCommand("the-command", "command help")
             {
-                new Option<string>("--verbosity", "-v")
+                new CliOption<string>("--verbosity", "-v")
                 {
                     HelpName = "LEVEL",
                     Description = "Sets the verbosity."
@@ -436,9 +436,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_uses_name_over_suggestions_if_specified()
         {
-            var command = new Command("the-command")
+            var command = new CliCommand("the-command")
             {
-                new Option<VerbosityOptions>("--verbosity", "-v")
+                new CliOption<VerbosityOptions>("--verbosity", "-v")
                 {
                     HelpName = "LEVEL"
                 }
@@ -453,9 +453,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_uses_description_if_provided()
         {
-            var command = new Command("the-command", "Help text from description")
+            var command = new CliCommand("the-command", "Help text from description")
             {
-                new Argument<string>("the-arg")
+                new CliArgument<string>("the-arg")
                 {
                     Description = "Help text from HelpDetail"
                 }
@@ -473,20 +473,20 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_does_not_contain_hidden_argument()
         {
-            var command = new Command("the-command");
+            var command = new CliCommand("the-command");
             var hiddenArgName = "the-hidden";
             var hiddenDesc = "the hidden desc";
             var visibleArgName = "the-visible";
             var visibleDesc = "the visible desc";
-            var hiddenArg = new Argument<int>(hiddenArgName)
+            var hiddenArg = new CliArgument<int>(hiddenArgName)
             {
                 Description = hiddenDesc,
-                IsHidden = true
+                Hidden = true
             };
-            var visibleArg = new Argument<int>(visibleArgName)
+            var visibleArg = new CliArgument<int>(visibleArgName)
             {
                 Description = visibleDesc,
-                IsHidden = false
+                Hidden = false
             };
             command.Arguments.Add(hiddenArg);
             command.Arguments.Add(visibleArg);
@@ -506,15 +506,15 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_does_not_repeat_arguments_that_appear_on_parent_command()
         {
-            var reused = new Argument<string>("reused")
+            var reused = new CliArgument<string>("reused")
             {
                 Description = "This argument is valid on both outer and inner commands"
             };
-            var inner = new Command("inner", "The inner command")
+            var inner = new CliCommand("inner", "The inner command")
             {
                 reused
             };
-            _ = new Command("outer")
+            _ = new CliCommand("outer")
             {
                 reused,
                 inner
@@ -531,16 +531,16 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_aligns_arguments_on_new_lines()
         {
-            var inner = new Command("inner", "HelpDetail text for the inner command")
+            var inner = new CliCommand("inner", "HelpDetail text for the inner command")
             {
-                new Argument<string>("the-inner-command-arg")
+                new CliArgument<string>("the-inner-command-arg")
                 {
                     Description = "The argument for the inner command",
                 }
             };
-            _ = new Command("outer", "HelpDetail text for the outer command")
+            _ = new CliCommand("outer", "HelpDetail text for the outer command")
             {
-                new Argument<string>("outer-command-arg")
+                new CliArgument<string>("outer-command-arg")
                 {
                     Description = "The argument for the outer command"
                 },
@@ -560,9 +560,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_keeps_added_newlines()
         {
-            var command = new Command("outer", "Help text for the outer command")
+            var command = new CliCommand("outer", "Help text for the outer command")
             {
-                new Argument<string>("outer-command-arg")
+                new CliArgument<string>("outer-command-arg")
                 {
                     Description = $"The argument\r\nfor the\ninner command"
                 }
@@ -582,9 +582,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Arguments_section_keeps_added_newlines_when_width_is_very_small()
         {
-            var command = new Command("outer", "Help text for the outer command")
+            var command = new CliCommand("outer", "Help text for the outer command")
             {
-                new Argument<string>("outer-command-arg")
+                new CliArgument<string>("outer-command-arg")
                 {
                     Description = $"The argument\r\nfor the\ninner command",
                 }
@@ -613,9 +613,9 @@ namespace System.CommandLine.Tests.Help
                 $"for inner command with some tabs that is long enough to wrap to a\t" +
                 $"new line";
 
-            var command = new Command("outer", "Help text for the outer command")
+            var command = new CliCommand("outer", "Help text for the outer command")
             {
-                new Argument<string>("outer-command-arg")
+                new CliArgument<string>("outer-command-arg")
                 {
                     Description = longCmdText
                 }
@@ -639,9 +639,9 @@ namespace System.CommandLine.Tests.Help
             var name = "argument-name-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
             var description = "Argument description for a command with line breaks that is long enough to wrap to a new line.";
 
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Argument<string>(name)
+                new CliArgument<string>(name)
                 {
                     Description = description
                 }
@@ -667,12 +667,12 @@ namespace System.CommandLine.Tests.Help
         {
             var description = "This is the argument description";
 
-            Argument argument = nullable
-                               ? new Argument<FileAccess?>("arg")
-                               : new Argument<FileAccess>("arg");
+            CliArgument argument = nullable
+                               ? new CliArgument<FileAccess?>("arg")
+                               : new CliArgument<FileAccess>("arg");
             argument.Description = description;
 
-            var command = new Command("outer", "Help text for the outer command")
+            var command = new CliCommand("outer", "Help text for the outer command")
             {
                 argument
             };
@@ -695,11 +695,11 @@ namespace System.CommandLine.Tests.Help
         {
             var description = "This is the option description";
 
-            Option option = nullable
-                                ? new Option<bool?>("--opt") { Description = description }
-                                : new Option<bool>("--opt") { Description = description };
+            CliOption option = nullable
+                                ? new CliOption<bool?>("--opt") { Description = description }
+                                : new CliOption<bool>("--opt") { Description = description };
 
-            var command = new Command(
+            var command = new CliCommand(
                 "outer", "Help text for the outer command")
             {
                 option
@@ -715,10 +715,10 @@ namespace System.CommandLine.Tests.Help
         [Fact] // https://github.com/dotnet/command-line-api/issues/1157
         public void Command_arguments_show_argument_name_in_first_column()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Argument<bool>("boolArgument") { Description = "Some value" },
-                new Argument<int>("intArgument") { Description = "Another value" },
+                new CliArgument<bool>("boolArgument") { Description = "Some value" },
+                new CliArgument<int>("intArgument") { Description = "Another value" },
             };
             
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -740,11 +740,11 @@ namespace System.CommandLine.Tests.Help
         {
             var description = "This is the argument description";
 
-            Option option = nullable
-                                ? new Option<FileAccess?>("--opt") { Description = description }
-                                : new Option<FileAccess>("--opt") { Description = description };
+            CliOption option = nullable
+                                ? new CliOption<FileAccess?>("--opt") { Description = description }
+                                : new CliOption<FileAccess>("--opt") { Description = description };
 
-            var command = new Command(
+            var command = new CliCommand(
                 "outer", "Help text for the outer command")
             {
                 option
@@ -760,13 +760,13 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_describes_default_value_for_argument()
         {
-            var argument = new Argument<string>("the-arg")
+            var argument = new CliArgument<string>("the-arg")
             {
                 Description = "Help text from HelpDetail",
                 DefaultValueFactory = (_) => "the-arg-value"
             };
 
-            var command = new Command("the-command",
+            var command = new CliCommand("the-command",
                 "Help text from description") { argument };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -781,13 +781,13 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_does_not_show_default_value_for_argument_when_default_value_is_empty()
         {
-            var argument = new Argument<string>("the-arg")
+            var argument = new CliArgument<string>("the-arg")
             { 
                 Description = "The argument description",
                 DefaultValueFactory = (_) => ""
             };
             
-            var command = new Command("the-command", "The command description")
+            var command = new CliCommand("the-command", "The command description")
             {
                 argument
             };
@@ -804,13 +804,13 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_does_not_show_default_value_for_option_when_default_value_is_empty()
         {
-            var option = new Option<string>("-x")
+            var option = new CliOption<string>("-x")
             {
                 Description = "The option description",
                 DefaultValueFactory = (_) => "",
             };
 
-            var command = new Command("the-command", "The command description")
+            var command = new CliCommand("the-command", "The command description")
             {
                 option
             };
@@ -827,15 +827,15 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Command_arguments_default_value_provided()
         {
-            var argument = new Argument<string>("the-arg")
+            var argument = new CliArgument<string>("the-arg")
             {
                 DefaultValueFactory = (_) => "the-arg-value",
             };
-            var otherArgument = new Argument<string>("the-other-arg")
+            var otherArgument = new CliArgument<string>("the-other-arg")
             {
                 DefaultValueFactory = (_) => "the-other-arg-value"
             };
-            var command = new Command("the-command",
+            var command = new CliCommand("the-command",
                 "Help text from description")
             {
                 argument,
@@ -859,9 +859,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Command_arguments_with_default_values_that_are_enumerable_display_pipe_delimited_list()
         {
-            var command = new Command("the-command", "command help")
+            var command = new CliCommand("the-command", "command help")
             {
-                new Argument<List<int>>("filter-size")
+                new CliArgument<List<int>>("filter-size")
                 {
                     DefaultValueFactory = (_) => new List<int>() { 0, 2, 4 }
                 }   
@@ -878,21 +878,21 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Command_shared_arguments_with_one_or_more_arity_are_displayed_as_being_required()
         {
-            var arg = new Argument<string[]>("shared-args")
+            var arg = new CliArgument<string[]>("shared-args")
             {
                 Arity = ArgumentArity.OneOrMore
             };
 
-            var inner = new Command("inner", "command help")
+            var inner = new CliCommand("inner", "command help")
             {
                 arg
             };
-            _ = new Command("outer", "command help")
+            _ = new CliCommand("outer", "command help")
             {
                 inner,
                 arg
             };
-            _ = new Command("unused", "command help")
+            _ = new CliCommand("unused", "command help")
             {
                 arg
             };
@@ -913,9 +913,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_is_not_included_if_no_options_configured()
         {
-            var commandLineBuilder = new Command("noOptions")
+            var commandLineBuilder = new CliCommand("noOptions")
             {
-                new Command("outer", "description for outer")
+                new CliCommand("outer", "description for outer")
             };
 
             _helpBuilder.Write(commandLineBuilder, _console);
@@ -926,8 +926,8 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_is_not_included_if_only_subcommands_configured()
         {
-            var command = new Command("outer", "description for outer");
-            command.Subcommands.Add(new Command("inner"));
+            var command = new CliCommand("outer", "description for outer");
+            command.Subcommands.Add(new CliCommand("inner"));
 
             _helpBuilder.Write(command, _console);
 
@@ -937,10 +937,10 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_includes_option_with_empty_description()
         {
-            var command = new Command("the-command", "Does things.")
+            var command = new CliCommand("the-command", "Does things.")
                           {
-                              new Option<string>("-x"),
-                              new Option<string>("-n"),
+                              new CliOption<string>("-x"),
+                              new CliOption<string>("-n"),
                               new HelpOption()
                           };
 
@@ -954,16 +954,16 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_does_not_contain_option_with_HelpDefinition_that_IsHidden()
         {
-            var command = new Command("the-command");
-            command.Options.Add(new Option<string>("-x")
+            var command = new CliCommand("the-command");
+            command.Options.Add(new CliOption<string>("-x")
             {
                 Description = "Is Hidden",
-                IsHidden = true
+                Hidden = true
             });
-            command.Options.Add(new Option<string>("-n")
+            command.Options.Add(new CliOption<string>("-n")
             {
                 Description = "Not Hidden",
-                IsHidden = false
+                Hidden = false
             });
 
 
@@ -979,13 +979,13 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_aligns_options_on_new_lines()
         {
-            var command = new Command("the-command", "Help text for the command")
+            var command = new CliCommand("the-command", "Help text for the command")
             {
-                new Option<string>("--aaa", "-a")
+                new CliOption<string>("--aaa", "-a")
                 {
                     Description = "An option with 8 characters",
                 },
-                new Option<string>("--bbbbbbbbbb","-b")
+                new CliOption<string>("--bbbbbbbbbb","-b")
                 {
                     Description = "An option with 15 characters"
                 }
@@ -1007,9 +1007,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Retains_single_dash_on_multi_char_option()
         {
-            var command = new Command("command", "Help Test")
+            var command = new CliCommand("command", "Help Test")
             {
-                new Option<string>("-multi", "--alt-option") { Description = "HelpDetail for option" }
+                new CliOption<string>("-multi", "--alt-option") { Description = "HelpDetail for option" }
             };
 
             _helpBuilder.Write(command, _console);
@@ -1022,9 +1022,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_section_retains_multiple_dashes_on_single_char_option()
         {
-            var command = new Command("command", "Help Test")
+            var command = new CliCommand("command", "Help Test")
             {
-                new Option<string>("--m", "--alt-option") { Description = "HelpDetail for option" }
+                new CliOption<string>("--m", "--alt-option") { Description = "HelpDetail for option" }
             };
 
             _helpBuilder.Write(command, _console);
@@ -1036,11 +1036,11 @@ namespace System.CommandLine.Tests.Help
         public void Options_section_keeps_added_newlines()
         {
             var command =
-                new Command(
+                new CliCommand(
                     "test-command",
                     "Help text for the command")
                 {
-                    new Option<bool>("--aaa", "-a")
+                    new CliOption<bool>("--aaa", "-a")
                     {
                         Description = $"Help{NewLine}for \r\n the\noption"
                     }
@@ -1064,11 +1064,11 @@ namespace System.CommandLine.Tests.Help
             var longOptionText =
                 "The option whose description is long enough that it wraps to a new line";
 
-            var command = new Command("test-command", "Help text for the command")
+            var command = new CliCommand("test-command", "Help text for the command")
             {
-                new Option<string>("-x") { Description = "Option with a short description" },
-                new Option<bool>("--aaa", "-a") { Description = longOptionText },
-                new Option<string>("-y") { Description = "Option with a short description" },
+                new CliOption<string>("-x") { Description = "Option with a short description" },
+                new CliOption<bool>("--aaa", "-a") { Description = longOptionText },
+                new CliOption<string>("-y") { Description = "Option with a short description" },
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1089,15 +1089,15 @@ namespace System.CommandLine.Tests.Help
             var longOptionText =
                 "The option whose description is long enough that it wraps to a new line";
 
-            var command = new Command("test-command", "Help text for the command")
+            var command = new CliCommand("test-command", "Help text for the command")
             {
-                new Option<string>("-x") { Description = "Option with a short description" },
-                new Option<string>("--aaa", "-a")
+                new CliOption<string>("-x") { Description = "Option with a short description" },
+                new CliOption<string>("--aaa", "-a")
                 {
                     Description = longOptionText,
                     DefaultValueFactory = (_) => "the quick brown fox jumps over the lazy dog"
                 },
-                new Option<string>("-y") { Description = "Option with a short description" },
+                new CliOption<string>("-y") { Description = "Option with a short description" },
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1117,9 +1117,9 @@ namespace System.CommandLine.Tests.Help
             var alias = "--option-alias-for-a-command-that-is-long-enough-to-wrap-to-a-new-line";
             var description = "Option description that is long enough to wrap.";
 
-            var command = new Command("test")
+            var command = new CliCommand("test")
             {
-                new Option<bool>(alias) { Description = description }
+                new CliOption<bool>(alias) { Description = description }
             };
 
             HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1137,11 +1137,11 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Required_options_are_indicated()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<bool>("--required")
+                new CliOption<bool>("--required")
                 {
-                    IsRequired = true
+                    Required = true
                 }
             };
 
@@ -1156,11 +1156,11 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Required_options_are_indicated_when_argument_is_named()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<string>("--required", "-r")
+                new CliOption<string>("--required", "-r")
                 {
-                    IsRequired = true,
+                    Required = true,
                     HelpName = "ARG"
                 }
             };
@@ -1176,7 +1176,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_option_is_shown_in_help()
         {
-            var configuration = new CommandLineConfiguration(new RootCommand());
+            var configuration = new CommandLineConfiguration(new CliRootCommand());
 
             _helpBuilder.Write(configuration.RootCommand, _console);
 
@@ -1190,9 +1190,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_aliases_differing_only_by_prefix_are_deduplicated_favoring_dashed_prefixes()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<string>("-x", "/x")
+                new CliOption<string>("-x", "/x")
             };
 
             _helpBuilder.Write(command, _console);
@@ -1205,9 +1205,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_aliases_differing_only_by_prefix_are_deduplicated_favoring_double_dashed_prefixes()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<string>("--long", "/long")
+                new CliOption<string>("--long", "/long")
             };
 
             _helpBuilder.Write(command, _console);
@@ -1220,12 +1220,12 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Options_help_preserves_the_order_options_are_added_the_the_parent_command()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<bool>("--first", "-f"),
-                new Option<bool>("--second", "-s"),
-                new Option<bool>("--third"),
-                new Option<bool>("--last", "-l")
+                new CliOption<bool>("--first", "-f"),
+                new CliOption<bool>("--second", "-s"),
+                new CliOption<bool>("--third"),
+                new CliOption<bool>("--last", "-l")
             };
 
             _helpBuilder.Write(command, _console);
@@ -1244,9 +1244,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Option_aliases_are_shown_before_long_names_regardless_of_alphabetical_order()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<string>("-z", "-a", "--zzz", "--aaa")
+                new CliOption<string>("-z", "-a", "--zzz", "--aaa")
             };
 
             _helpBuilder.Write(command, _console);
@@ -1257,9 +1257,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_describes_default_value_for_option_with_argument_having_default_value()
         {
-            var command = new Command("the-command", "command help")
+            var command = new CliCommand("the-command", "command help")
             {
-                new Option<string>("-arg")
+                new CliOption<string>("-arg")
                 {
                     DefaultValueFactory = (_) => "the-arg-value",
                     HelpName = "the-arg"
@@ -1278,9 +1278,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Option_arguments_with_default_values_that_are_enumerable_display_pipe_delimited_list()
         {
-            var command = new Command("the-command", "command help")
+            var command = new CliCommand("the-command", "command help")
             {
-                new Option<List<int>>("--filter-size")
+                new CliOption<List<int>>("--filter-size")
                 {
                     DefaultValueFactory = (_) => new List<int> { 0, 2, 4 }
                 }
@@ -1297,9 +1297,9 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Option_arguments_with_default_values_that_are_array_display_pipe_delimited_list()
         {
-            var command = new Command("the-command", "command help")
+            var command = new CliCommand("the-command", "command help")
             {
-                new Option<string[]>("--prefixes")
+                new CliOption<string[]>("--prefixes")
                 {
                     DefaultValueFactory = (_) => new[]{ "^(TODO|BUG)", "^HACK" }
                 }
@@ -1322,17 +1322,17 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Subcommand_help_does_not_include_names_of_sibling_commands()
         {
-            var inner = new Command("inner", "inner description")
+            var inner = new CliCommand("inner", "inner description")
             {
-                new Command("inner-er", "inner-er description")
+                new CliCommand("inner-er", "inner-er description")
                 {
-                    new Option<string>("some-option") { Description = "some-option description" }
+                    new CliOption<string>("some-option") { Description = "some-option description" }
                 }
             };
 
-            var sibling = new Command("sibling", "sibling description");
+            var sibling = new CliCommand("sibling", "sibling description");
 
-            var outer = new Command("outer", "outer description")
+            var outer = new CliCommand("outer", "outer description")
             {
                 sibling,
                 inner
@@ -1346,12 +1346,12 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Subcommands_keep_added_newlines()
         {
-            var command = new Command("outer", "outer command help")
+            var command = new CliCommand("outer", "outer command help")
             {
-                new Argument<string>("outer-args"),
-                new Command("inner", $"inner{NewLine}command help \r\n with \nnewlines")
+                new CliArgument<string>("outer-args"),
+                new CliCommand("inner", $"inner{NewLine}command help \r\n with \nnewlines")
                 {
-                    new Argument<string>("inner-args")
+                    new CliArgument<string>("inner-args")
                 }
             };
 
@@ -1377,13 +1377,13 @@ namespace System.CommandLine.Tests.Help
 
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
 
-            var command = new Command("outer-command", "outer command help")
+            var command = new CliCommand("outer-command", "outer command help")
             {
-                new Argument<string[]>("outer-args"),
-                new Command("inner-command", longSubcommandDescription)
+                new CliArgument<string[]>("outer-args"),
+                new CliCommand("inner-command", longSubcommandDescription)
                 {
-                    new Argument<string[]>("inner-args"),
-                    new Option<string>("--verbosity", "-v")
+                    new CliArgument<string[]>("inner-args"),
+                    new CliOption<string>("--verbosity", "-v")
                 }
             };
 
@@ -1403,9 +1403,9 @@ namespace System.CommandLine.Tests.Help
             var name = "subcommand-name-that-is-long-enough-to-wrap-to-a-new-line";
             var description = "Subcommand description that is really long. So long that it caused the line to wrap.";
 
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Command(name, description)
+                new CliCommand(name, description)
             };
 
             var helpBuilder = GetHelpBuilder(SmallMaxWidth);
@@ -1423,8 +1423,8 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Subcommand_help_contains_command_with_empty_description()
         {
-            var command = new Command("the-command", "Does things.");
-            var subCommand = new Command("the-subcommand", description: null);
+            var command = new CliCommand("the-command", "Does things.");
+            var subCommand = new CliCommand("the-subcommand", description: null);
             command.Subcommands.Add(subCommand);
 
             _helpBuilder.Write(command, _console);
@@ -1436,14 +1436,14 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Subcommand_help_does_not_contain_hidden_command()
         {
-            var command = new Command("the-command", "Does things.");
-            var hiddenSubCommand = new Command("the-hidden")
+            var command = new CliCommand("the-command", "Does things.");
+            var hiddenSubCommand = new CliCommand("the-hidden")
             {
-                IsHidden = true
+                Hidden = true
             };
-            var visibleSubCommand = new Command("the-visible")
+            var visibleSubCommand = new CliCommand("the-visible")
             {
-                IsHidden = false
+                Hidden = false
             };
             command.Subcommands.Add(hiddenSubCommand);
             command.Subcommands.Add(visibleSubCommand);
@@ -1458,15 +1458,15 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Subcommand_help_does_not_contain_hidden_argument()
         {
-            var command = new Command("the-command", "Does things.");
-            var subCommand = new Command("the-subcommand");
-            var hidden = new Argument<int>("the-hidden")
+            var command = new CliCommand("the-command", "Does things.");
+            var subCommand = new CliCommand("the-subcommand");
+            var hidden = new CliArgument<int>("the-hidden")
             {
-                IsHidden = true
+                Hidden = true
             };
-            var visible = new Argument<int>("the-visible")
+            var visible = new CliArgument<int>("the-visible")
             {
-                IsHidden = false
+                Hidden = false
             };
             subCommand.Arguments.Add(hidden);
             subCommand.Arguments.Add(visible);
@@ -1486,22 +1486,22 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_describes_default_value_for_subcommand_with_arguments_and_only_defaultable_is_shown()
         {
-            var argument = new Argument<string>("the-arg");
-            var otherArgumentHidden = new Argument<string>("the-other-hidden-arg")
+            var argument = new CliArgument<string>("the-arg");
+            var otherArgumentHidden = new CliArgument<string>("the-other-hidden-arg")
             {
-                IsHidden = true
+                Hidden = true
             };
             argument.DefaultValueFactory = _  => "the-arg-value";
             otherArgumentHidden.DefaultValueFactory = _ => "the-other-hidden-arg-value";
 
-            var command = new Command("outer", "outer command help")
+            var command = new CliCommand("outer", "outer command help")
                 {
-                    new Argument<string>("outer-args"),
-                    new Command("inner", $"inner command help")
+                    new CliArgument<string>("outer-args"),
+                    new CliCommand("inner", $"inner command help")
                     {
                         argument,
                         otherArgumentHidden,
-                        new Argument<string>("inner-other-arg-no-default")
+                        new CliArgument<string>("inner-other-arg-no-default")
                     }
                 };
 
@@ -1517,19 +1517,19 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_describes_default_values_for_subcommand_with_multiple_defaultable_arguments()
         {
-            var argument = new Argument<string>("the-arg")
+            var argument = new CliArgument<string>("the-arg")
             {
                 DefaultValueFactory = (_) => "the-arg-value"
             };
-            var otherArgument = new Argument<string>("the-other-arg")
+            var otherArgument = new CliArgument<string>("the-other-arg")
             {
                 DefaultValueFactory = (_) => "the-other-arg-value"
             };
 
-            var command = new Command("outer", "outer command help")
+            var command = new CliCommand("outer", "outer command help")
                 {
-                    new Argument<string>("outer-args"),
-                    new Command("inner", "inner command help")
+                    new CliArgument<string>("outer-args"),
+                    new CliCommand("inner", "inner command help")
                     {
                         argument, otherArgument
                     }
@@ -1557,9 +1557,9 @@ namespace System.CommandLine.Tests.Help
         [Fact] // https://github.com/dotnet/command-line-api/issues/1506
         public void Commands_without_arguments_do_not_produce_extra_newlines_between_usage_and_options_sections()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<string>("-x") { Description = "the-option-description" }
+                new CliOption<string>("-x") { Description = "the-option-description" }
             };
 
             var helpBuilder = GetHelpBuilder();

@@ -18,7 +18,7 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string variable = test_variable;
             const string value = "This is a test";
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) =>
             {
                 asserted = true;
@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string variable = test_variable;
             const string value = "This is a test";
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) =>
             {
                 asserted = true;
@@ -64,7 +64,7 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string variable = test_variable;
             const string value = "This is a test";
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) =>
             {
                 asserted = true;
@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
             bool asserted = false;
             string variable = test_variable;
             const string value = "This is = a test containing equals";
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) =>
             {
                 asserted = true;
@@ -109,7 +109,7 @@ namespace System.CommandLine.Tests
         {
             bool asserted = false;
             string variable = test_variable;
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) =>
             {
                 asserted = true;
@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests
         {
             bool asserted = false;
             string value = $"This is a test, random: {randomizer.Next()}";
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) =>
             {
                 asserted = true;
@@ -154,7 +154,7 @@ namespace System.CommandLine.Tests
         {
             bool asserted = false;
             string value = $"This is a test, random: {randomizer.Next()}";
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) =>
             {
                 asserted = true;
