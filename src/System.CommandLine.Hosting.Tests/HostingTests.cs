@@ -41,7 +41,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             ParseResult parseResult = null;
 
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new CliRootCommand())
                 .UseHost(host =>
                 {
                     if (host.Properties.TryGetValue(typeof(ParseResult), out var ctx))
@@ -66,7 +66,7 @@ namespace System.CommandLine.Hosting.Tests
                 parseResult = services.GetRequiredService<ParseResult>();
             }
 
-            var config = new CliConfiguration(
+            var config = new CommandLineConfiguration(
                 new CliRootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost();
@@ -92,7 +92,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CliConfiguration(
+            var config = new CommandLineConfiguration(
                 new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute),
@@ -127,7 +127,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CliConfiguration(
+            var config = new CommandLineConfiguration(
                 new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute),
@@ -164,7 +164,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CliConfiguration(
+            var config = new CommandLineConfiguration(
                 new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute)
@@ -241,7 +241,7 @@ namespace System.CommandLine.Hosting.Tests
         public async static Task GetParseResult_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new CliRootCommand())
                 .UseHost(hostBuilder =>
                 {
                     ParseResult ctx = hostBuilder.GetParseResult();
@@ -257,7 +257,7 @@ namespace System.CommandLine.Hosting.Tests
         public async static Task GetParseResult_in_ConfigureServices_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new CliRootCommand())
                 .UseHost(hostBuilder =>
                 {
                     hostBuilder.ConfigureServices((hostingCtx, services) =>
