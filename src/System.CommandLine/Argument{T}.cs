@@ -169,11 +169,15 @@ namespace System.CommandLine
         {
             if (default(T) is null && typeof(T) != typeof(string))
             {
-                if (typeof(T).IsArray)
+#if NET7_0_OR_GREATER
+                if (typeof(T).IsSZArray)
+#else
+                if (typeof(T).IsArray && typeof(T).GetArrayRank() == 1)
+#endif
                 {
                     return (T?)(object)Array.CreateInstance(typeof(T).GetElementType()!, 0);
                 }
-                else if (typeof(T).IsGenericType)
+                else if (typeof(T).IsConstructedGenericType)
                 {
                     var genericTypeDefinition = typeof(T).GetGenericTypeDefinition();
 
