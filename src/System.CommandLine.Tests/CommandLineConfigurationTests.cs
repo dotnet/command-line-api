@@ -6,7 +6,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests;
 
-public class CommandLineConfigurationTests
+public class CliConfigurationTests
 {
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_option_aliases_on_the_root_command()
@@ -26,7 +26,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -54,7 +54,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -79,7 +79,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -103,7 +103,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -128,7 +128,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -156,7 +156,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -179,7 +179,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -235,7 +235,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -254,7 +254,7 @@ public class CommandLineConfigurationTests
         var validate = () => config.ThrowIfInvalid();
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<CliConfigurationException>()
                 .Which
                 .Message
                 .Should()

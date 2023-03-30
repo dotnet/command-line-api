@@ -75,11 +75,7 @@ namespace System.CommandLine.Suggest
             {
                 Directives =
                 {
-<<<<<<< HEAD
                     new DiagramDirective(),
-=======
-                    new ParseDiagramDirective(),
->>>>>>> 02690281 (rename symbol types with Cli prefix; some property renames and file moves)
                     new SuggestDirective(),
                 }
             };

@@ -6,10 +6,10 @@ namespace System.CommandLine;
 /// <summary>
 /// Indicates that a command line configuration is invalid.
 /// </summary>
-public class CommandLineConfigurationException : Exception
+public class CliConfigurationException : Exception
 {
     /// <inheritdoc />
-    public CommandLineConfigurationException(string message) : base(message)
+    public CliConfigurationException(string message) : base(message)
     {
     }
 }

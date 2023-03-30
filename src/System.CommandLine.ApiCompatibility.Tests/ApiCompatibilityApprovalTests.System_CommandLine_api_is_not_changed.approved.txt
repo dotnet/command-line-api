@@ -76,6 +76,8 @@ System.CommandLine
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args)
     public ParseResult Parse(System.String commandLine)
     public System.Void ThrowIfInvalid()
+  public class CliConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
+    .ctor(System.String message)
   public class CliDirective : CliSymbol
     .ctor(System.String name)
     public CliAction Action { get; set; }
@@ -111,8 +113,6 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<CliSymbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
-  public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
-    .ctor(System.String message)
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
