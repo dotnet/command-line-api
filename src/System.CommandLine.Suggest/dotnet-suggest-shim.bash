@@ -5,10 +5,6 @@ _dotnet_bash_complete()
     local escaped_comp_line=$(echo "$COMP_LINE" | sed s/\"/'\\\"'/g)
     local completions=`dotnet-suggest get --executable "${fullpath}" --position ${COMP_POINT} -- "${escaped_comp_line}"`
 
-    if [ "${#COMP_WORDS[@]}" != "2" ]; then
-        return
-    fi
-
     local IFS=$'\n'
     local suggestions=($(compgen -W "$completions"))
 
@@ -30,5 +26,5 @@ _dotnet_bash_register_complete()
     complete -F _dotnet_bash_complete `dotnet-suggest list`
 }
 _dotnet_bash_register_complete
-export DOTNET_SUGGEST_SCRIPT_VERSION="1.0.1"
+export DOTNET_SUGGEST_SCRIPT_VERSION="1.0.2"
 # dotnet suggest shell complete script end
