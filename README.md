@@ -13,7 +13,11 @@ Package                          | Version                                      
 `System.CommandLine.Hosting`     | [![Nuget](https://img.shields.io/nuget/v/System.CommandLine.Hosting.svg)](https://nuget.org/packages/System.CommandLine.Hosting)            | support for using System.CommandLine with [Microsoft.Extensions.Hosting](https://www.nuget.org/packages/Microsoft.Extensions.Hosting/)
 `dotnet-suggest`                 | [![Nuget](https://img.shields.io/nuget/v/dotnet-suggest.svg)](https://nuget.org/packages/dotnet-suggest)                                    | A command-line tool to provide shell completions for apps built using `System.CommandLine`.
 
-Daily builds are available if you add this feed to your nuget.config: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries/nuget/v3/index.json.
+### Daily Builds
+
+Daily builds are available if you add this feed to your nuget.config: `https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries/nuget/v3/index.json`
+
+Versions are listed at: https://dev.azure.com/dnceng/public/_artifacts/feed/dotnet-libraries/NuGet/System.CommandLine/versions
 
 ## Documentation
 
