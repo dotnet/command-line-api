@@ -75,7 +75,7 @@ namespace System.CommandLine.Suggest
             {
                 Directives =
                 {
-                    new ParseDiagramDirective(),
+                    new DiagramDirective(),
                     new SuggestDirective(),
                 }
             };

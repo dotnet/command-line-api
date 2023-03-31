@@ -3,24 +3,24 @@
 namespace System.CommandLine
 {
     /// <summary>
-    /// Enables the use of the <c>[parse]</c> directive, which when specified on the command line will short 
+    /// Enables the use of the <c>[diagram]</c> directive, which when specified on the command line will short 
     /// circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
-    public sealed class ParseDiagramDirective : CliDirective
+    public sealed class DiagramDirective : CliDirective
     {
         private CliAction? _action;
 
         /// <summary>
-        /// Writes a diagram of the parse result to the console.
+        /// Writes a diagram of the parse result to the output.
         /// </summary>
-        public ParseDiagramDirective() : base("parse")
+        public DiagramDirective() : base("diagram")
         {
         }
 
         /// <inheritdoc />
         public override CliAction? Action
         {
-            get => _action ??= new ParseDiagramAction(ParseErrorReturnValue);
+            get => _action ??= new DiagramAction(ParseErrorReturnValue);
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 

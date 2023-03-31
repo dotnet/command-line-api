@@ -321,7 +321,7 @@ namespace System.CommandLine.Parsing
 
                 _action = directive.Action;
 
-                if (directive is ParseDiagramDirective)
+                if (directive is DiagramDirective)
                 {
                     _isParseRequested = true;
                 }

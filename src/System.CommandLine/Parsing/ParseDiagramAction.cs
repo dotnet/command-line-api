@@ -11,14 +11,14 @@ using System.Threading;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// Implements the <c>[parse]</c> directive action, which when specified on the command line 
+    /// Implements the <c>[diagram]</c> directive action, which when specified on the command line 
     /// will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
-    internal sealed class ParseDiagramAction : CliAction
+    internal sealed class DiagramAction : CliAction
     {
         private readonly int _parseErrorReturnValue;
 
-        internal ParseDiagramAction(int parseErrorReturnValue) => _parseErrorReturnValue = parseErrorReturnValue;
+        internal DiagramAction(int parseErrorReturnValue) => _parseErrorReturnValue = parseErrorReturnValue;
 
         public override int Invoke(ParseResult parseResult)
         {
@@ -79,7 +79,7 @@ namespace System.CommandLine.Parsing
 
             switch (symbolResult)
             {
-                case DirectiveResult directiveResult when directiveResult.Directive is not ParseDiagramDirective:
+                case DirectiveResult directiveResult when directiveResult.Directive is not DiagramDirective:
                     break;
                 case ArgumentResult argumentResult:
                 {

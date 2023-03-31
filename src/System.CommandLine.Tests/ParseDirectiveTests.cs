@@ -9,17 +9,17 @@ using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
-    public class ParseDirectiveTests
+    public class DiagramDirectiveTests
     {
         private readonly ITestOutputHelper output;
 
-        public ParseDirectiveTests(ITestOutputHelper output)
+        public DiagramDirectiveTests(ITestOutputHelper output)
         {
             this.output = output;
         }
 
         [Fact]
-        public async Task Parse_directive_writes_parse_diagram()
+        public async Task Diagram_directive_writes_parse_diagram()
         {
             var rootCommand = new CliRootCommand();
             var subcommand = new CliCommand("subcommand");
@@ -30,10 +30,10 @@ namespace System.CommandLine.Tests
             CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
-                Directives = { new ParseDiagramDirective() }
+                Directives = { new DiagramDirective() }
             };
 
-            var result = rootCommand.Parse("[parse] subcommand -c 34 --nonexistent wat", config);
+            var result = rootCommand.Parse("[diagram] subcommand -c 34 --nonexistent wat", config);
 
             output.WriteLine(result.Diagram());
 
@@ -46,17 +46,17 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task When_parse_directive_is_used_the_help_is_not_displayed()
+        public async Task When_diagram_directive_is_used_the_help_is_not_displayed()
         {
             CliRootCommand rootCommand = new ();
 
             CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
-                Directives = { new ParseDiagramDirective() }
+                Directives = { new DiagramDirective() }
             };
 
-            var result = rootCommand.Parse("[parse] --help", config);
+            var result = rootCommand.Parse("[diagram] --help", config);
 
             output.WriteLine(result.Diagram());
 
@@ -69,17 +69,17 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task When_parse_directive_is_used_the_version_is_not_displayed()
+        public async Task When_diagram_directive_is_used_the_version_is_not_displayed()
         {
             CliRootCommand rootCommand = new();
 
             CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
-                Directives = { new ParseDiagramDirective() }
+                Directives = { new DiagramDirective() }
             };
 
-            var result = rootCommand.Parse("[parse] --version", config);
+            var result = rootCommand.Parse("[diagram] --version", config);
 
             output.WriteLine(result.Diagram());
 
@@ -92,7 +92,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public async Task When_there_are_no_errors_then_parse_directive_sets_exit_code_0()
+        public async Task When_there_are_no_errors_then_diagram_directive_sets_exit_code_0()
         {
             CliRootCommand command = new ()
             {
@@ -102,16 +102,16 @@ namespace System.CommandLine.Tests
             CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter(),
-                Directives = { new ParseDiagramDirective() }
+                Directives = { new DiagramDirective() }
             };
 
-            var exitCode = await command.Parse("[parse] -x 123", config).InvokeAsync();
+            var exitCode = await command.Parse("[diagram] -x 123", config).InvokeAsync();
 
             exitCode.Should().Be(0);
         }
 
         [Fact]
-        public async Task When_there_are_errors_then_parse_directive_sets_exit_code_1()
+        public async Task When_there_are_errors_then_diagram_directive_sets_exit_code_1()
         {
             CliRootCommand command = new()
             {
@@ -121,16 +121,16 @@ namespace System.CommandLine.Tests
             CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter(),
-                Directives = { new ParseDiagramDirective() }
+                Directives = { new DiagramDirective() }
             };
 
-            var exitCode = await command.Parse("[parse] -x not-an-int", config).InvokeAsync();
+            var exitCode = await command.Parse("[diagram] -x not-an-int", config).InvokeAsync();
 
             exitCode.Should().Be(1);
         }
 
         [Fact]
-        public async Task When_there_are_errors_then_parse_directive_sets_exit_code_to_custom_value()
+        public async Task When_there_are_errors_then_diagram_directive_sets_exit_code_to_custom_value()
         {
             CliRootCommand command = new ()
             {
@@ -140,13 +140,13 @@ namespace System.CommandLine.Tests
             CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter(),
-                Directives = { new ParseDiagramDirective
+                Directives = { new DiagramDirective
                 {
                     ParseErrorReturnValue = 42
                 } }
             };
 
-            int exitCode = await config.InvokeAsync("[parse] -x not-an-int");
+            int exitCode = await config.InvokeAsync("[diagram] -x not-an-int");
 
             exitCode.Should().Be(42);
         }

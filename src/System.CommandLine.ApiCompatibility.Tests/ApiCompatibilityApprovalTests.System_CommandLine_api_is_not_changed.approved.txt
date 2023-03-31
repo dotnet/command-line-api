@@ -116,6 +116,10 @@ System.CommandLine
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
+  public class DiagramDirective : CliDirective
+    .ctor()
+    public CliAction Action { get; set; }
+    public System.Int32 ParseErrorReturnValue { get; set; }
   public class EnvironmentVariablesDirective : CliDirective
     .ctor()
     public CliAction Action { get; set; }
@@ -124,10 +128,6 @@ System.CommandLine
     public static CliOption<System.IO.DirectoryInfo> AcceptExistingOnly(this CliOption<System.IO.DirectoryInfo> option)
     public static CliOption<System.IO.FileSystemInfo> AcceptExistingOnly(this CliOption<System.IO.FileSystemInfo> option)
     public static CliOption<T> AcceptExistingOnly<T>(this CliOption<T> option)
-  public class ParseDiagramDirective : CliDirective
-    .ctor()
-    public CliAction Action { get; set; }
-    public System.Int32 ParseErrorReturnValue { get; set; }
   public class ParseResult
     public CliAction Action { get; }
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
