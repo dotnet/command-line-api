@@ -151,7 +151,7 @@ namespace System.CommandLine
                 builder.Append($"<{string.Join(", ", Enumerable.Range(1, invocation.NumberOfGenerericParameters).Select(x => $@"T{x}"))}>");
             }
             builder.Append(@$"(
-            this global::System.CommandLine.Command command,");
+            this global::System.CommandLine.CliCommand command,");
 
             builder.Append($@"
             {invocation.DelegateType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} method");

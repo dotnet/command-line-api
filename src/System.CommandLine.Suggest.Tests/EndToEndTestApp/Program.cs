@@ -10,12 +10,12 @@ namespace EndToEndTestApp
     {
         static async Task Main(string[] args)
         {
-            var appleOption = new Option<string>("--apple" );
-            var bananaOption = new Option<string>("--banana");
-            var cherryOption = new Option<string>("--cherry");
-            var durianOption = new Option<string>("--durian");
+            CliOption<string> appleOption = new ("--apple" );
+            CliOption<string> bananaOption = new ("--banana");
+            CliOption<string> cherryOption = new ("--cherry");
+            CliOption<string> durianOption = new ("--durian");
 
-            var rootCommand = new RootCommand
+            CliRootCommand rootCommand = new ()
             {
                 appleOption,          
                 bananaOption,          

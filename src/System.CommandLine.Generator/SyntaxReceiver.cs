@@ -12,7 +12,7 @@ namespace System.CommandLine.Generator
 {
     internal class SyntaxReceiver : ISyntaxContextReceiver
     {
-        private static readonly string _nameOfExtensionMethodAnchorType = "global::System.CommandLine.Command";
+        private static readonly string _nameOfExtensionMethodAnchorType = "global::System.CommandLine.CliCommand";
 
         public HashSet<DelegateInvocation> Invocations { get; } = new();
 
@@ -183,12 +183,12 @@ namespace System.CommandLine.Generator
             {
                 if (namedTypeSymbol.TypeArguments.Length > 0)
                 {
-                    if (namedTypeSymbol.Name == "Option")
+                    if (namedTypeSymbol.Name == "CliOption")
                     {
                         return new OptionParameter(localName, namedTypeSymbol, namedTypeSymbol.TypeArguments[0]);
                     }
 
-                    if (namedTypeSymbol.Name == "Argument")
+                    if (namedTypeSymbol.Name == "CliArgument")
                     {
                         return new ArgumentParameter(localName, namedTypeSymbol, namedTypeSymbol.TypeArguments[0]);
                     }
