@@ -27,7 +27,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
             _configuration = new CliConfiguration(new CliRootCommand { option })
             {
-                Directives = { new ParseDiagramDirective() },
+                Directives = { new DiagramDirective() },
                 Output = _output
             };
         }
