@@ -9,6 +9,7 @@ using FluentAssertions;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using System.Net;
 
 namespace System.CommandLine.Tests
 {
@@ -618,6 +619,29 @@ namespace System.CommandLine.Tests
                            .Should()
                            .BeEquivalentTo(new[] { 4, 5, 6, 7, 8 },
                                                     options => options.WithStrictOrdering());
+            }
+
+            [Fact]
+            public void Custom_parser_can_return_null()
+            {
+                CliOption<IPAddress> option = new("-ip")
+                {
+                    CustomParser = (argumentResult) =>
+                    {
+                        string value = argumentResult.Tokens.Last().Value;
+                        if (IPAddress.TryParse(value, out var address))
+                        {
+                            return address;
+                        }
+
+                        argumentResult.AddError($"'{value}' is not a valid value");
+                        return null;
+                    }
+                };
+
+                ParseResult parseResult = new CliRootCommand() { option }.Parse("-ip a.b.c.d");
+
+                parseResult.Errors.Should().Contain(error => error.Message == "'a.b.c.d' is not a valid value");
             }
 
             [Fact]

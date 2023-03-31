@@ -42,7 +42,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc cref="CliArgument{T}.CustomParser" />
-        public Func<ArgumentResult, T>? CustomParser
+        public Func<ArgumentResult, T?>? CustomParser
         {
             get => _argument.CustomParser;
             set => _argument.CustomParser = value;

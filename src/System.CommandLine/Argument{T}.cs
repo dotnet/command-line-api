@@ -11,7 +11,7 @@ namespace System.CommandLine
     /// <inheritdoc cref="CliArgument" />
     public class CliArgument<T> : CliArgument
     {
-        private Func<ArgumentResult, T>? _customParser;
+        private Func<ArgumentResult, T?>? _customParser;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
@@ -39,7 +39,7 @@ namespace System.CommandLine
         /// The same instance can be set as <see cref="DefaultValueFactory"/>, in such case
         /// the delegate is also invoked when no input was provided.
         /// </remarks>
-        public Func<ArgumentResult, T>? CustomParser
+        public Func<ArgumentResult, T?>? CustomParser
         {
             get => _customParser;
             set
