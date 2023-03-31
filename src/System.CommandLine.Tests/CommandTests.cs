@@ -10,15 +10,15 @@ namespace System.CommandLine.Tests
 {
     public class CommandTests
     {
-        private readonly Command _outerCommand;
+        private readonly CliCommand _outerCommand;
 
         public CommandTests()
         {
-            _outerCommand = new Command("outer")
+            _outerCommand = new CliCommand("outer")
             {
-                new Command("inner")
+                new CliCommand("inner")
                 {
-                    new Option<string>("--option")
+                    new CliOption<string>("--option")
                 }
             };
         }
@@ -102,14 +102,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_at_multiple_levels_can_have_their_own_arguments()
         {
-            var outer = new Command("outer")
+            var outer = new CliCommand("outer")
             {
-                new Argument<string>("outer_arg")
+                new CliArgument<string>("outer_arg")
             };
             outer.Subcommands.Add(
-                new Command("inner")
+                new CliCommand("inner")
                 {
-                    new Argument<string[]>("inner_arg")
+                    new CliArgument<string[]>("inner_arg")
                 });
 
             var result = outer.Parse("outer arg1 inner arg2 arg3");
@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Aliases_is_aware_of_added_alias()
         {
-            var command = new Command("original");
+            var command = new CliCommand("original");
 
             command.Aliases.Add("added");
 
@@ -146,7 +146,7 @@ namespace System.CommandLine.Tests
         public void When_a_command_is_created_with_an_alias_that_contains_whitespace_then_an_informative_error_is_returned(
             string alias)
         {
-            Action create = () => new Command(alias);
+            Action create = () => new CliCommand(alias);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -163,7 +163,7 @@ namespace System.CommandLine.Tests
         public void When_a_command_alias_is_added_and_contains_whitespace_then_an_informative_error_is_returned(
             string alias)
         {
-            var command = new Command("-x");
+            var command = new CliCommand("-x");
 
             Action addAlias = () => command.Aliases.Add(alias);
 
@@ -189,13 +189,13 @@ namespace System.CommandLine.Tests
         [InlineData("outer arg inner arg inner-er arg", "inner-er")]
         public void ParseResult_Command_identifies_innermost_command(string input, string expectedCommand)
         {
-            var outer = new Command("outer")
+            var outer = new CliCommand("outer")
             {
-                new Command("inner")
+                new CliCommand("inner")
                 {
-                    new Command("inner-er")
+                    new CliCommand("inner-er")
                 },
-                new Command("sibling")
+                new CliCommand("sibling")
             };
 
             var result = outer.Parse(input);
@@ -206,7 +206,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Commands_can_have_aliases()
         {
-            var command = new Command("this");
+            var command = new CliCommand("this");
             command.Aliases.Add("that");
             command.Name.Should().Be("this");
             command.Aliases.Should().BeEquivalentTo("that");
@@ -221,7 +221,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void RootCommand_can_have_aliases()
         {
-            var command = new RootCommand();
+            var command = new CliRootCommand();
             command.Aliases.Add("that");
             command.Aliases.Should().BeEquivalentTo("that");
             command.Aliases.Should().BeEquivalentTo("that");
@@ -235,10 +235,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Subcommands_can_have_aliases()
         {
-            var subcommand = new Command("this");
+            var subcommand = new CliCommand("this");
             subcommand.Aliases.Add("that");
 
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
             {
                 subcommand
             };
@@ -252,9 +252,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_retains_argument_name_when_it_is_provided()
         {
-            var command = new Command("-alias")
+            var command = new CliCommand("-alias")
             {
-                new Argument<bool>("arg")
+                new CliArgument<bool>("arg")
             };
 
             command.Arguments.Single().Name.Should().Be("arg");
@@ -263,8 +263,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void AddGlobalOption_updates_Options_property()
         {
-            var option = new Option<string>("-x") { AppliesToSelfAndChildren = true };
-            var command = new Command("mycommand");
+            var option = new CliOption<string>("-x") { Recursive = true };
+            var command = new CliCommand("mycommand");
             command.Options.Add(option);
 
             command.Options
@@ -276,8 +276,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_Options_is_referenced_before_a_global_option_is_added_then_adding_a_global_option_updates_the_Options_collection()
         {
-            var option = new Option<string>("-x");
-            var command = new Command("mycommand");
+            var option = new CliOption<string>("-x");
+            var command = new CliCommand("mycommand");
 
             // referencing command.Options here would reproduce the above bug before the fix
             // keeping it ensures the fix works and doesn't regress
@@ -285,7 +285,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEmpty();
 
-            option.AppliesToSelfAndChildren = true;
+            option.Recursive = true;
             command.Options.Add(option);
 
             command.Options

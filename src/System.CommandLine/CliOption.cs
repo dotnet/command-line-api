@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.Linq;
@@ -12,18 +11,18 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    public abstract class Option : Symbol
+    public abstract class CliOption : CliSymbol
     {
         internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
 
-        private protected Option(string name) : base(name)
+        private protected CliOption(string name) : base(name)
         {
         }
 
-        private protected Option(string name, string[] aliases) : base(name)
+        private protected CliOption(string name, string[] aliases) : base(name)
         {
-            if (aliases != null && aliases.Length > 0) 
+            if (aliases is { Length: > 0 }) 
             {
                 _aliases = new(aliases);
             }
@@ -32,7 +31,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
-        internal abstract Argument Argument { get; }
+        internal abstract CliArgument Argument { get; }
 
         /// <summary>
         /// Gets or sets the name of the Option when displayed in help.
@@ -57,15 +56,19 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// When set to true, this option will be applied to the command and recursively to subcommands.
-        /// It will not apply to parent commands.
+        /// When set to true, this option will be applied to its immediate parent command or commands and recursively to their subcommands.
         /// </summary>
-        public bool AppliesToSelfAndChildren { get; set; }
+        public bool Recursive { get; set; }
 
         /// <summary>
         /// Validators that will be called when the option is matched by the parser.
         /// </summary>
         public List<Action<OptionResult>> Validators => _validators ??= new();
+
+        /// <summary>
+        /// Gets or sets the <see cref="Type" /> that the option's parsed tokens will be converted to.
+        /// </summary>
+        public abstract Type ValueType { get; }
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
@@ -89,19 +92,19 @@ namespace System.CommandLine
         /// </example>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
-        internal virtual bool IsGreedy
+        internal virtual bool Greedy
             => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
 
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
         /// </summary>
         /// <remarks>When an option is required and its parent command is invoked without it, an error results.</remarks>
-        public bool IsRequired { get; set; }
+        public bool Required { get; set; }
 
         /// <summary>
         /// Gets the unique set of strings that can be used on the command line to specify the Option.
         /// </summary>
-        /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Option.</remarks>
+        /// <remarks>The collection does not contain the <see cref="CliSymbol.Name"/> of the Option.</remarks>
         public ICollection<string> Aliases => _aliases ??= new();
 
         /// <summary>

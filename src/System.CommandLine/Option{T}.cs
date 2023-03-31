@@ -5,50 +5,53 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
-    /// <inheritdoc cref="Option" />
+    /// <inheritdoc cref="CliOption" />
     /// <typeparam name="T">The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.</typeparam>
-    public class Option<T> : Option
+    public class CliOption<T> : CliOption
     {
-        internal readonly Argument<T> _argument;
+        internal readonly CliArgument<T> _argument;
 
         /// <summary>
         /// Initializes a new instance of the Option class.
         /// </summary>
         /// <param name="name">The name of the option. It's used for parsing, displaying Help and creating parse errors.</param>>
         /// <param name="aliases">Optional aliases. Used for parsing, suggestions and displayed in Help.</param>
-        public Option(string name, params string[] aliases) 
-            : this(name, aliases, new Argument<T>(name))
+        public CliOption(string name, params string[] aliases) 
+            : this(name, aliases, new CliArgument<T>(name))
         {
         }
 
-        private protected Option(string name, Argument<T> argument) : base(name)
+        private protected CliOption(string name, CliArgument<T> argument) : base(name)
         {
             argument.AddParent(this);
             _argument = argument;
         }
 
-        private protected Option(string name, string[] aliases, Argument<T> argument)
+        private protected CliOption(string name, string[] aliases, CliArgument<T> argument)
             : base(name, aliases)
         {
             argument.AddParent(this);
             _argument = argument;
         }
 
-        /// <inheritdoc cref="Argument{T}.DefaultValueFactory" />
+        /// <inheritdoc cref="CliArgument{T}.DefaultValueFactory" />
         public Func<ArgumentResult, T>? DefaultValueFactory
         {
             get => _argument.DefaultValueFactory;
             set => _argument.DefaultValueFactory = value;
         }
 
-        /// <inheritdoc cref="Argument{T}.CustomParser" />
+        /// <inheritdoc cref="CliArgument{T}.CustomParser" />
         public Func<ArgumentResult, T>? CustomParser
         {
             get => _argument.CustomParser;
             set => _argument.CustomParser = value;
         }
 
-        internal sealed override Argument Argument => _argument;
+        /// <inheritdoc />
+        public override Type ValueType => typeof(T);
+
+        internal sealed override CliArgument Argument => _argument;
 
         /// <summary>
         /// Configures the option to accept only the specified values, and to suggest them as command line completions.

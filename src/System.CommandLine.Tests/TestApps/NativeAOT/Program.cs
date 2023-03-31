@@ -6,10 +6,10 @@ public class Program
 {
     private static int Main(string[] args)
     {
-        Option<bool> boolOption = new Option<bool>("--bool", "-b") { Description = "Bool option" };
-        Option<string> stringOption = new Option<string>("--string", "-s") { Description = "String option" };
+        CliOption<bool> boolOption = new ("--bool", "-b") { Description = "Bool option" };
+        CliOption<string> stringOption = new ("--string", "-s") { Description = "String option" };
 
-        RootCommand command = new RootCommand
+        CliRootCommand command = new ()
         {
             boolOption,
             stringOption

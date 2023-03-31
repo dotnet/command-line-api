@@ -19,9 +19,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         public Perf_Parser_TypoCorrection()
         {
-            var option = new Option<bool>("--0123456789");
+            var option = new CliOption<bool>("--0123456789");
 
-            _configuration = new CommandLineConfiguration(new RootCommand { option })
+            _configuration = new CommandLineConfiguration(new CliRootCommand { option })
             {
                 EnableTypoCorrections = true,
                 Output = System.IO.TextWriter.Null

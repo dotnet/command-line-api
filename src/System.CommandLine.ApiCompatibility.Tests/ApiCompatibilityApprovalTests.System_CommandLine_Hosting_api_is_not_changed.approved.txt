@@ -1,12 +1,12 @@
 System.CommandLine.Hosting
   public static class DirectiveConfigurationExtensions
-    public static Microsoft.Extensions.Configuration.IConfigurationBuilder AddCommandLineDirectives(this Microsoft.Extensions.Configuration.IConfigurationBuilder config, System.CommandLine.ParseResult commandline, System.CommandLine.Directive directive)
+    public static Microsoft.Extensions.Configuration.IConfigurationBuilder AddCommandLineDirectives(this Microsoft.Extensions.Configuration.IConfigurationBuilder config, System.CommandLine.ParseResult commandline, System.CommandLine.CliDirective directive)
   public static class HostingExtensions
     public static OptionsBuilder<TOptions> BindCommandLine<TOptions>(this OptionsBuilder<TOptions> optionsBuilder)
     public static Microsoft.Extensions.Hosting.IHost GetHost(this System.CommandLine.ParseResult parseResult)
     public static System.CommandLine.ParseResult GetParseResult(this Microsoft.Extensions.Hosting.IHostBuilder hostBuilder)
     public static System.CommandLine.ParseResult GetParseResult(this Microsoft.Extensions.Hosting.HostBuilderContext context)
-    public static System.CommandLine.Command UseCommandHandler<THandler>(this System.CommandLine.Command command)
+    public static System.CommandLine.CliCommand UseCommandHandler<THandler>(this System.CommandLine.CliCommand command)
     public static System.CommandLine.CommandLineConfiguration UseHost(this System.CommandLine.CommandLineConfiguration builder, System.Action<Microsoft.Extensions.Hosting.IHostBuilder> configureHost = null)
     public static System.CommandLine.CommandLineConfiguration UseHost(this System.CommandLine.CommandLineConfiguration builder, System.Func<System.String[],Microsoft.Extensions.Hosting.IHostBuilder> hostBuilderFactory, System.Action<Microsoft.Extensions.Hosting.IHostBuilder> configureHost = null)
     public static Microsoft.Extensions.Hosting.IHostBuilder UseInvocationLifetime(this Microsoft.Extensions.Hosting.IHostBuilder host, System.Action<InvocationLifetimeOptions> configureOptions = null)

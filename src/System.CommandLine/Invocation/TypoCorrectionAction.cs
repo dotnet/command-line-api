@@ -43,7 +43,7 @@ namespace System.CommandLine.Invocation
             return 0;
         }
 
-        private static IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)
+        private static IEnumerable<string> GetPossibleTokens(CliCommand targetSymbol, string token)
         {
             if (!targetSymbol.HasOptions && !targetSymbol.HasSubcommands)
             {
@@ -52,10 +52,10 @@ namespace System.CommandLine.Invocation
 
             IEnumerable<string> possibleMatches = targetSymbol
                 .Children
-                .Where(x => !x.IsHidden && x is Option or Command)
+                .Where(x => !x.Hidden && x is CliOption or CliCommand)
                 .Select(symbol =>
                 {
-                    AliasSet? aliasSet = symbol is Option option ? option._aliases : ((Command)symbol)._aliases; 
+                    AliasSet? aliasSet = symbol is CliOption option ? option._aliases : ((CliCommand)symbol)._aliases; 
 
                     if (aliasSet is null)
                     {

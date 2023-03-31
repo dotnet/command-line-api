@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
+using System.CommandLine.Completions;
 
 namespace System.CommandLine
 {
@@ -21,7 +22,7 @@ namespace System.CommandLine
         /// Initializes a new instance of the <see cref="CommandLineConfiguration"/> class.
         /// </summary>
         /// <param name="rootCommand">The root command for the parser.</param>
-        public CommandLineConfiguration(Command rootCommand)
+        public CommandLineConfiguration(CliCommand rootCommand)
         {
             RootCommand = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
             Directives = new()
@@ -34,7 +35,7 @@ namespace System.CommandLine
         /// Gets a mutable list of the enabled directives.
         /// Currently only <see cref="SuggestDirective"/> is enabled by default.
         /// </summary>
-        public List<Directive> Directives { get; }
+        public List<CliDirective> Directives { get; }
 
         /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.
@@ -92,7 +93,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the root command.
         /// </summary>
-        public Command RootCommand { get; }
+        public CliCommand RootCommand { get; }
 
         /// <summary>
         /// The standard output. Used by Help and other facilities that write non-error information.
@@ -173,7 +174,7 @@ namespace System.CommandLine
         {
             ThrowIfInvalid(RootCommand);
 
-            static void ThrowIfInvalid(Command command)
+            static void ThrowIfInvalid(CliCommand command)
             {
                 if (command.Parents.FlattenBreadthFirst(c => c.Parents).Any(ancestor => ancestor == command))
                 {
@@ -183,10 +184,10 @@ namespace System.CommandLine
                 int count = command.Subcommands.Count + command.Options.Count;
                 for (var i = 0; i < count; i++)
                 {
-                    Symbol symbol1 = GetChild(i, command, out AliasSet? aliases1);
+                    CliSymbol symbol1 = GetChild(i, command, out AliasSet? aliases1);
                     for (var j = i + 1; j < count; j++)
                     {
-                        Symbol symbol2 = GetChild(j, command, out AliasSet? aliases2);
+                        CliSymbol symbol2 = GetChild(j, command, out AliasSet? aliases2);
 
                         if (symbol1.Name.Equals(symbol2.Name, StringComparison.Ordinal)
                             || (aliases1 is not null && aliases1.Contains(symbol2.Name)))
@@ -214,14 +215,14 @@ namespace System.CommandLine
                         }
                     }
 
-                    if (symbol1 is Command childCommand)
+                    if (symbol1 is CliCommand childCommand)
                     {
                         ThrowIfInvalid(childCommand);
                     }
                 }
             }
 
-            static Symbol GetChild(int index, Command command, out AliasSet? aliases)
+            static CliSymbol GetChild(int index, CliCommand command, out AliasSet? aliases)
             {
                 if (index < command.Subcommands.Count)
                 {

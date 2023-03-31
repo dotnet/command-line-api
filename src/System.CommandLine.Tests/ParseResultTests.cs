@@ -13,9 +13,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_value_and_no_explicitly_provided_argument_has_an_empty_arguments_property()
         {
-            var option = new Option<string>("-x") { DefaultValueFactory = (_) => "default" };
+            var option = new CliOption<string>("-x") { DefaultValueFactory = (_) => "default" };
 
-            var result = new RootCommand
+            var result = new CliRootCommand
             {
                 option
             }.Parse("-x")
@@ -27,9 +27,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void FindResult_can_be_used_to_check_the_presence_of_an_option()
         {
-            var option = new Option<bool>("-h", "--help");
+            var option = new CliOption<bool>("-h", "--help");
 
-            var command = new Command("the-command")
+            var command = new CliCommand("the-command")
             {
                 option
             };
@@ -42,8 +42,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void FindResultFor_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
-            var option = new Option<int>("-c", "--count") { DefaultValueFactory = (_) => 5 };
-            var command = new Command("the-command")
+            var option = new CliOption<int>("-c", "--count") { DefaultValueFactory = (_) => 5 };
+            var command = new CliCommand("the-command")
             {
                 option
             };
@@ -56,18 +56,18 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
-            var command = new Command("outer")
+            var command = new CliCommand("outer")
             {
-                new Command("inner-one")
+                new CliCommand("inner-one")
                 {
-                    new Argument<bool>("arg1")
+                    new CliArgument<bool>("arg1")
                     {
                         Arity = ArgumentArity.Zero
                     }
                 },
-                new Command("inner-two")
+                new CliCommand("inner-two")
                 {
-                    new Argument<bool>("arg2")
+                    new CliArgument<bool>("arg2")
                     {
                         Arity = ArgumentArity.Zero
                     }
@@ -88,25 +88,25 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/pull/2030#issuecomment-1400275332
         public void ParseResult_GetCompletions_returns_global_options_of_given_command_only()
         {
-            var leafCommand = new Command("leafCommand")
+            var leafCommand = new CliCommand("leafCommand")
             {
-                new Option<string>("--one") { Description = "option one" },
-                new Option<string>("--two") { Description = "option two" }
+                new CliOption<string>("--one") { Description = "option one" },
+                new CliOption<string>("--two") { Description = "option two" }
             };
 
-            var midCommand1 = new Command("midCommand1")
-            {
-                leafCommand
-            };
-            midCommand1.Options.Add(new Option<string>("--three1") { Description = "option three 1", AppliesToSelfAndChildren = true });
-
-            var midCommand2 = new Command("midCommand2")
+            var midCommand1 = new CliCommand("midCommand1")
             {
                 leafCommand
             };
-            midCommand2.Options.Add(new Option<string>("--three2") { Description = "option three 2", AppliesToSelfAndChildren = true });
+            midCommand1.Options.Add(new CliOption<string>("--three1") { Description = "option three 1", Recursive = true });
 
-            var rootCommand = new Command("root")
+            var midCommand2 = new CliCommand("midCommand2")
+            {
+                leafCommand
+            };
+            midCommand2.Options.Add(new CliOption<string>("--three2") { Description = "option three 2", Recursive = true });
+
+            var rootCommand = new CliCommand("root")
             {
                 midCommand1,
                 midCommand2
@@ -124,14 +124,14 @@ namespace System.CommandLine.Tests
 
         [Fact]
         public void Handler_is_null_when_parsed_command_did_not_specify_handler()
-            => new RootCommand().Parse("").Action.Should().BeNull();
+            => new CliRootCommand().Parse("").Action.Should().BeNull();
 
         [Fact]
         public void Handler_is_not_null_when_parsed_command_specified_handler()
         {
             bool handlerWasCalled = false;
 
-            RootCommand command = new();
+            CliRootCommand command = new();
             command.SetAction((_) => handlerWasCalled = true);
 
             ParseResult parseResult = command.Parse("");

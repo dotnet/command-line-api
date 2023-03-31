@@ -1,8 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Benchmarks.Helpers;
-using System.CommandLine.Parsing;
+using System.CommandLine.Completions;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 
@@ -19,13 +18,13 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [GlobalSetup]
         public void Setup()
         {
-            Option<string> fruitOption = new("--fruit");
+            CliOption<string> fruitOption = new("--fruit");
             fruitOption.CompletionSources.Add("apple", "banana", "cherry");
 
-            Option<string> vegetableOption = new("--vegetable");
+            CliOption<string> vegetableOption = new("--vegetable");
             vegetableOption.CompletionSources.Add("asparagus", "broccoli", "carrot");
 
-            var eatCommand = new Command("eat")
+            var eatCommand = new CliCommand("eat")
             {
                 fruitOption,
                 vegetableOption

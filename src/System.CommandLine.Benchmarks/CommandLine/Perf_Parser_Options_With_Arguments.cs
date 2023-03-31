@@ -18,9 +18,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
         private string _testSymbolsAsString;
         private CommandLineConfiguration _configuration;
 
-        private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
+        private IEnumerable<CliOption> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
-                         .Select(i => new Option<string>($"-option{i}")
+                         .Select(i => new CliOption<string>($"-option{i}")
                              {
                                  Arity = arity,
                                  Description = $"Description for -option {i} ...."

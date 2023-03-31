@@ -86,7 +86,7 @@ namespace System.CommandLine.Parsing
 
         private void ParseSubcommand()
         {
-            Command command = (Command)CurrentToken.Symbol!;
+            CliCommand command = (CliCommand)CurrentToken.Symbol!;
 
             _innermostCommandResult = new CommandResult(
                 command,
@@ -134,7 +134,7 @@ namespace System.CommandLine.Parsing
             {
                 while (_innermostCommandResult.Command.HasArguments && currentArgumentIndex < _innermostCommandResult.Command.Arguments.Count)
                 {
-                    Argument argument = _innermostCommandResult.Command.Arguments[currentArgumentIndex];
+                    CliArgument argument = _innermostCommandResult.Command.Arguments[currentArgumentIndex];
 
                     if (currentArgumentCount < argument.Arity.MaximumNumberOfValues)
                     {
@@ -182,7 +182,7 @@ namespace System.CommandLine.Parsing
 
         private void ParseOption()
         {
-            Option option = (Option)CurrentToken.Symbol!;
+            CliOption option = (CliOption)CurrentToken.Symbol!;
             OptionResult optionResult;
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
@@ -294,7 +294,7 @@ namespace System.CommandLine.Parsing
             {
                 var token = CurrentToken;
 
-                if (token.Symbol is not Directive directive)
+                if (token.Symbol is not CliDirective directive)
                 {
                     AddCurrentTokenToUnmatched();
                     return;
@@ -321,7 +321,7 @@ namespace System.CommandLine.Parsing
 
                 _action = directive.Action;
 
-                if (directive is ParseDirective)
+                if (directive is ParseDiagramDirective)
                 {
                     _isParseRequested = true;
                 }

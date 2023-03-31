@@ -11,9 +11,9 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_option_is_mistyped_it_is_suggested()
         {
-            RootCommand rootCommand = new () 
+            CliRootCommand rootCommand = new () 
             {
-                new Option<string>("info")
+                new CliOption<string>("info")
             };
 
             CommandLineConfiguration config = new(rootCommand)
@@ -32,8 +32,8 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_there_are_no_matches_then_nothing_is_suggested()
         {
-            var option = new Option<bool>("info");
-            RootCommand rootCommand = new() { option };
+            var option = new CliOption<bool>("info");
+            CliRootCommand rootCommand = new() { option };
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
@@ -51,8 +51,8 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_command_is_mistyped_it_is_suggested()
         {
-            var command = new Command("restore");
-            RootCommand rootCommand = new() { command };
+            var command = new CliCommand("restore");
+            CliRootCommand rootCommand = new() { command };
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
@@ -70,11 +70,11 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_there_are_multiple_matches_it_picks_the_best_matches()
         {
-            var fromCommand = new Command("from");
-            var seenCommand = new Command("seen");
-            var aOption = new Option<bool>("a");
-            var beenOption = new Option<bool>("been");
-            RootCommand rootCommand = new ()
+            var fromCommand = new CliCommand("from");
+            var seenCommand = new CliCommand("seen");
+            var aOption = new CliOption<bool>("a");
+            var beenOption = new CliOption<bool>("been");
+            CliRootCommand rootCommand = new ()
             {
                 fromCommand,
                 seenCommand,
@@ -97,10 +97,10 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Hidden_commands_are_not_suggested()
         {
-            var fromCommand = new Command("from");
-            var seenCommand = new Command("seen") { IsHidden = true };
-            var beenCommand = new Command("been");
-            RootCommand rootCommand = new RootCommand
+            var fromCommand = new CliCommand("from");
+            var seenCommand = new CliCommand("seen") { Hidden = true };
+            var beenCommand = new CliCommand("been");
+            CliRootCommand rootCommand = new CliRootCommand
             {
                 fromCommand,
                 seenCommand,
@@ -123,9 +123,9 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Arguments_are_not_suggested()
         {
-            var argument = new Argument<string>("the-argument");
-            var command = new Command("been");
-            var rootCommand = new RootCommand
+            var argument = new CliArgument<string>("the-argument");
+            var command = new CliCommand("been");
+            var rootCommand = new CliRootCommand
             {
                 argument,
                 command
@@ -147,10 +147,10 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Hidden_options_are_not_suggested()
         {
-            var fromOption = new Option<string>("from");
-            var seenOption = new Option<string>("seen") { IsHidden = true };
-            var beenOption = new Option<string>("been");
-            var rootCommand = new RootCommand
+            var fromOption = new CliOption<string>("from");
+            var seenOption = new CliOption<string>("seen") { Hidden = true };
+            var beenOption = new CliOption<string>("been");
+            var rootCommand = new CliRootCommand
             {
                 fromOption,
                 seenOption,
@@ -172,10 +172,10 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Suggestions_favor_matches_with_prefix()
         {
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
             {
-                new Option<string>("/call", "-call", "--call"),
-                new Option<string>("/email", "-email", "--email")
+                new CliOption<string>("/call", "-call", "--call"),
+                new CliOption<string>("/email", "-email", "--email")
             };
             CommandLineConfiguration config = new(rootCommand)
             {

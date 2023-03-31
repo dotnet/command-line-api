@@ -13,9 +13,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Directives_should_be_considered_as_unmatched_tokens_when_they_are_not_matched()
         {
-            Directive directive = new("parse");
+            CliDirective directive = new("parse");
 
-            ParseResult result = Parse(new Option<bool>("-y"), directive, $"{RootCommand.ExecutableName} [nonExisting] -y");
+            ParseResult result = Parse(new CliOption<bool>("-y"), directive, $"{CliRootCommand.ExecutableName} [nonExisting] -y");
 
             result.UnmatchedTokens.Should().ContainSingle("[nonExisting]");
         }
@@ -23,9 +23,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Raw_tokens_still_hold_directives()
         {
-            Directive directive = new ("parse");
+            CliDirective directive = new ("parse");
 
-            ParseResult result = Parse(new Option<bool>("-y"), directive, "[parse] -y");
+            ParseResult result = Parse(new CliOption<bool>("-y"), directive, "[parse] -y");
 
             result.FindResultFor(directive).Should().NotBeNull();
             result.Tokens.Should().Contain(t => t.Value == "[parse]");
@@ -34,9 +34,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Multiple_directives_are_allowed()
         {
-            RootCommand root = new() { new Option<bool>("-y") };
-            Directive parseDirective = new ("parse");
-            Directive suggestDirective = new ("suggest");
+            CliRootCommand root = new() { new CliOption<bool>("-y") };
+            CliDirective parseDirective = new ("parse");
+            CliDirective suggestDirective = new ("suggest");
             CommandLineConfiguration config = new(root);
             config.Directives.Add(parseDirective);
             config.Directives.Add(suggestDirective);
@@ -50,9 +50,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Directives_must_be_the_first_argument()
         {
-            Directive directive = new("parse");
+            CliDirective directive = new("parse");
 
-            ParseResult result = Parse(new Option<bool>("-y"), directive, "-y [parse]");
+            ParseResult result = Parse(new CliOption<bool>("-y"), directive, "-y [parse]");
 
             result.FindResultFor(directive).Should().BeNull();
         }
@@ -66,9 +66,9 @@ namespace System.CommandLine.Tests
             string key,
             string expectedValue)
         {
-            Directive directive = new(key);
+            CliDirective directive = new(key);
 
-            ParseResult result = Parse(new Option<bool>("-y"), directive, $"{wholeText} -y");
+            ParseResult result = Parse(new CliOption<bool>("-y"), directive, $"{wholeText} -y");
 
             result.FindResultFor(directive).Values.Single().Should().Be(expectedValue);
         }
@@ -76,9 +76,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Directives_without_a_value_specified_have_no_values()
         {
-            Directive directive = new("parse");
+            CliDirective directive = new("parse");
 
-            ParseResult result = Parse(new Option<bool>("-y"), directive, "[parse] -y");
+            ParseResult result = Parse(new CliOption<bool>("-y"), directive, "[parse] -y");
 
             result.FindResultFor(directive).Values.Should().BeEmpty();
         }
@@ -88,8 +88,8 @@ namespace System.CommandLine.Tests
         [InlineData("[:value]")]
         public void Directives_must_have_a_non_empty_key(string directive)
         {
-            Option<bool> option = new ("-a");
-            RootCommand root = new () { option };
+            CliOption<bool> option = new ("-a");
+            CliRootCommand root = new () { option };
 
             var result = root.Parse($"{directive} -a");
 
@@ -102,11 +102,11 @@ namespace System.CommandLine.Tests
         [InlineData("[parse ]", "[parse", "]")]
         public void Directives_cannot_contain_spaces(string value, string firstUnmatchedToken, string secondUnmatchedToken)
         {
-            Action create = () => new Directive(value);
+            Action create = () => new CliDirective(value);
             create.Should().Throw<ArgumentException>();
 
-            Directive directive = new("parse");
-            ParseResult result = Parse(new Option<bool>("-y"), directive, $"{value} -y");
+            CliDirective directive = new("parse");
+            ParseResult result = Parse(new CliOption<bool>("-y"), directive, $"{value} -y");
             result.FindResultFor(directive).Should().BeNull();
 
             result.UnmatchedTokens.Should().BeEquivalentTo(firstUnmatchedToken, secondUnmatchedToken);
@@ -115,16 +115,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_directive_is_specified_more_than_once_then_its_values_are_aggregated()
         {
-            Directive directive = new("directive");
+            CliDirective directive = new("directive");
 
-            ParseResult result = Parse(new Option<bool>("-a"), directive, "[directive:one] [directive:two] -a");
+            ParseResult result = Parse(new CliOption<bool>("-a"), directive, "[directive:one] [directive:two] -a");
 
             result.FindResultFor(directive).Values.Should().BeEquivalentTo("one", "two");
         }
 
-        private static ParseResult Parse(Option option, Directive directive, string commandLine)
+        private static ParseResult Parse(CliOption option, CliDirective directive, string commandLine)
         {
-            RootCommand root = new() { option };
+            CliRootCommand root = new() { option };
             CommandLineConfiguration config = new(root);
             config.Directives.Add(directive);
 

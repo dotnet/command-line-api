@@ -13,7 +13,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
-            var command = new Command("the-command");
+            var command = new CliCommand("the-command");
             command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
             CommandLineConfiguration config = new(command)
@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
         {
-            var command = new Command("the-command");
+            var command = new CliCommand("the-command");
             command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
             CommandLineConfiguration config = new(command)
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_thrown_exception_is_from_cancelation_no_output_is_generated()
         {
-            Command command = new("the-command");
+            CliCommand command = new("the-command");
             command.SetAction((_, __) => throw new OperationCanceledException());
 
             CommandLineConfiguration config = new(command)
@@ -67,7 +67,7 @@ namespace System.CommandLine.Tests
         public async Task Exception_output_can_be_customized(bool async)
         {
             Exception expectedException = new ("oops!");
-            Command command = new("the-command");
+            CliCommand command = new("the-command");
             command.SetAction((_, __) => throw expectedException);
 
             CommandLineConfiguration config = new(command)

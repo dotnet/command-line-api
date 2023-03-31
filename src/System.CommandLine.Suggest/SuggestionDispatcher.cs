@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.CommandLine.Completions;
 
 namespace System.CommandLine.Suggest
 {
@@ -20,9 +21,9 @@ namespace System.CommandLine.Suggest
 
             _suggestionStore = suggestionStore ?? new SuggestionStore();
 
-            var shellTypeArgument = new Argument<ShellType>(nameof(ShellType));
+            var shellTypeArgument = new CliArgument<ShellType>(nameof(ShellType));
 
-            CompleteScriptCommand = new Command("script", "Print complete script for specific shell")
+            CompleteScriptCommand = new CliCommand("script", "Print complete script for specific shell")
             {
                 shellTypeArgument
             };
@@ -31,7 +32,7 @@ namespace System.CommandLine.Suggest
                 SuggestionShellScriptHandler.Handle(context.Configuration.Output, context.GetValue(shellTypeArgument));
             });
 
-            ListCommand = new Command("list")
+            ListCommand = new CliCommand("list")
             {
                 Description = "Lists apps registered for suggestions",
             };
@@ -41,19 +42,19 @@ namespace System.CommandLine.Suggest
                 return Task.CompletedTask;
             });
 
-            GetCommand = new Command("get", "Gets suggestions from the specified executable")
+            GetCommand = new CliCommand("get", "Gets suggestions from the specified executable")
             {
                 ExecutableOption,
                 PositionOption
             };
             GetCommand.SetAction(Get);
 
-            var commandPathOption = new Option<string>("--command-path") { Description = "The path to the command for which to register suggestions" };
+            var commandPathOption = new CliOption<string>("--command-path") { Description = "The path to the command for which to register suggestions" };
 
-            RegisterCommand = new Command("register", "Registers an app for suggestions")
+            RegisterCommand = new CliCommand("register", "Registers an app for suggestions")
             {
                 commandPathOption,
-                new Option<string>("--suggestion-command") { Description = "The command to invoke to retrieve suggestions" }
+                new CliOption<string>("--suggestion-command") { Description = "The command to invoke to retrieve suggestions" }
             };
 
             RegisterCommand.SetAction((context, cancellationToken) =>
@@ -62,7 +63,7 @@ namespace System.CommandLine.Suggest
                 return Task.CompletedTask;
             });
 
-            var root = new RootCommand
+            var root = new CliRootCommand
             {
                 ListCommand,
                 GetCommand,
@@ -74,35 +75,35 @@ namespace System.CommandLine.Suggest
             {
                 Directives =
                 {
-                    new ParseDirective(),
+                    new ParseDiagramDirective(),
                     new SuggestDirective(),
                 }
             };
         }
 
-        private Command CompleteScriptCommand { get; }
+        private CliCommand CompleteScriptCommand { get; }
 
-        private Command GetCommand { get; }
+        private CliCommand GetCommand { get; }
 
-        private Option<FileInfo> ExecutableOption { get; } = GetExecutableOption();
+        private CliOption<FileInfo> ExecutableOption { get; } = GetExecutableOption();
 
-        private static Option<FileInfo> GetExecutableOption()
+        private static CliOption<FileInfo> GetExecutableOption()
         {
-            var option = new Option<FileInfo>("--executable", "-e") { Description = "The executable to call for suggestions" };
+            var option = new CliOption<FileInfo>("--executable", "-e") { Description = "The executable to call for suggestions" };
             option.AcceptLegalFilePathsOnly();
 
             return option;
         }
 
-        private Command ListCommand { get; }
+        private CliCommand ListCommand { get; }
 
-        private Option<int> PositionOption { get; } = new("--position", "-p")
+        private CliOption<int> PositionOption { get; } = new("--position", "-p")
         {
             Description = "The current character position on the command line",
             DefaultValueFactory = (_) => short.MaxValue
         };
 
-        private Command RegisterCommand { get; }
+        private CliCommand RegisterCommand { get; }
 
         public CommandLineConfiguration Configuration { get; }
 

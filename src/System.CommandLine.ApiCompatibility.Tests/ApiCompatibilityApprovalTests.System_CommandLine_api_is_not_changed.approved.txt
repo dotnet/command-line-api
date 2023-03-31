@@ -1,23 +1,4 @@
 System.CommandLine
-  public abstract class Argument : Symbol
-    public ArgumentArity Arity { get; set; }
-    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
-    public System.Boolean HasDefaultValue { get; }
-    public System.String HelpName { get; set; }
-    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.ArgumentResult>> Validators { get; }
-    public System.Type ValueType { get; }
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Object GetDefaultValue()
-    public System.String ToString()
-  public class Argument<T> : Argument
-    .ctor(System.String name)
-    public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
-    public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
-    public System.Boolean HasDefaultValue { get; }
-    public System.Type ValueType { get; }
-    public System.Void AcceptLegalFileNamesOnly()
-    public System.Void AcceptLegalFilePathsOnly()
-    public System.Void AcceptOnlyFromAmong(System.String[] values)
   public struct ArgumentArity : System.ValueType, System.IEquatable<ArgumentArity>
     public static ArgumentArity ExactlyOne { get; }
     public static ArgumentArity OneOrMore { get; }
@@ -31,35 +12,89 @@ System.CommandLine
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
   public static class ArgumentValidation
-    public static Argument<System.IO.FileInfo> AcceptExistingOnly(this Argument<System.IO.FileInfo> argument)
-    public static Argument<System.IO.DirectoryInfo> AcceptExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
-    public static Argument<System.IO.FileSystemInfo> AcceptExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
-    public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
+    public static CliArgument<System.IO.FileInfo> AcceptExistingOnly(this CliArgument<System.IO.FileInfo> argument)
+    public static CliArgument<System.IO.DirectoryInfo> AcceptExistingOnly(this CliArgument<System.IO.DirectoryInfo> argument)
+    public static CliArgument<System.IO.FileSystemInfo> AcceptExistingOnly(this CliArgument<System.IO.FileSystemInfo> argument)
+    public static CliArgument<T> AcceptExistingOnly<T>(this CliArgument<T> argument)
   public abstract class CliAction
     public System.Int32 Invoke(ParseResult parseResult)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)
-  public class Command : Symbol, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
+  public abstract class CliArgument : CliSymbol
+    public ArgumentArity Arity { get; set; }
+    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
+    public System.Boolean HasDefaultValue { get; }
+    public System.String HelpName { get; set; }
+    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.ArgumentResult>> Validators { get; }
+    public System.Type ValueType { get; }
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
+    public System.Object GetDefaultValue()
+    public System.String ToString()
+  public class CliArgument<T> : CliArgument
+    .ctor(System.String name)
+    public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
+    public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
+    public System.Boolean HasDefaultValue { get; }
+    public System.Type ValueType { get; }
+    public System.Void AcceptLegalFileNamesOnly()
+    public System.Void AcceptLegalFilePathsOnly()
+    public System.Void AcceptOnlyFromAmong(System.String[] values)
+  public class CliCommand : CliSymbol, System.Collections.Generic.IEnumerable<CliSymbol>, System.Collections.IEnumerable
     .ctor(System.String name, System.String description = null)
     public CliAction Action { get; set; }
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
-    public System.Collections.Generic.IList<Argument> Arguments { get; }
-    public System.Collections.Generic.IEnumerable<Symbol> Children { get; }
-    public System.Collections.Generic.IList<Option> Options { get; }
-    public System.Collections.Generic.IList<Command> Subcommands { get; }
+    public System.Collections.Generic.IList<CliArgument> Arguments { get; }
+    public System.Collections.Generic.IEnumerable<CliSymbol> Children { get; }
+    public System.Collections.Generic.IList<CliOption> Options { get; }
+    public System.Collections.Generic.IList<CliCommand> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.CommandResult>> Validators { get; }
-    public System.Void Add(Symbol symbol)
+    public System.Void Add(CliSymbol symbol)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Collections.Generic.IEnumerator<Symbol> GetEnumerator()
+    public System.Collections.Generic.IEnumerator<CliSymbol> GetEnumerator()
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CommandLineConfiguration configuration = null)
     public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
     public System.Void SetAction(System.Action<ParseResult> action)
     public System.Void SetAction(System.Func<ParseResult,System.Int32> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
+  public class CliDirective : CliSymbol
+    .ctor(System.String name)
+    public CliAction Action { get; set; }
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
+  public abstract class CliOption : CliSymbol
+    public CliAction Action { get; set; }
+    public System.Collections.Generic.ICollection<System.String> Aliases { get; }
+    public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
+    public ArgumentArity Arity { get; set; }
+    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
+    public System.String HelpName { get; set; }
+    public System.Boolean Recursive { get; set; }
+    public System.Boolean Required { get; set; }
+    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
+    public System.Type ValueType { get; }
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
+  public class CliOption<T> : CliOption
+    .ctor(System.String name, System.String[] aliases)
+    public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
+    public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
+    public System.Type ValueType { get; }
+    public System.Void AcceptLegalFileNamesOnly()
+    public System.Void AcceptLegalFilePathsOnly()
+    public System.Void AcceptOnlyFromAmong(System.String[] values)
+  public class CliRootCommand : CliCommand, System.Collections.Generic.IEnumerable<CliSymbol>, System.Collections.IEnumerable
+    public static System.String ExecutableName { get; }
+    public static System.String ExecutablePath { get; }
+    .ctor(System.String description = )
+  public abstract class CliSymbol
+    public System.String Description { get; set; }
+    public System.Boolean Hidden { get; set; }
+    public System.String Name { get; }
+    public System.Collections.Generic.IEnumerable<CliSymbol> Parents { get; }
+    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
+    public System.String ToString()
   public class CommandLineConfiguration
-    .ctor(Command rootCommand)
-    public System.Collections.Generic.List<Directive> Directives { get; }
+    .ctor(CliCommand rootCommand)
+    public System.Collections.Generic.List<CliDirective> Directives { get; }
     public System.Boolean EnableDefaultExceptionHandler { get; set; }
     public System.Boolean EnableParseErrorReporting { get; set; }
     public System.Boolean EnablePosixBundling { get; set; }
@@ -68,7 +103,7 @@ System.CommandLine
     public System.IO.TextWriter Output { get; set; }
     public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
     public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
-    public Command RootCommand { get; }
+    public CliCommand RootCommand { get; }
     public System.Int32 Invoke(System.String commandLine)
     public System.Int32 Invoke(System.String[] args)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, System.Threading.CancellationToken cancellationToken = null)
@@ -81,39 +116,18 @@ System.CommandLine
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
-  public class Directive : Symbol
-    .ctor(System.String name)
-    public CliAction Action { get; set; }
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-  public class EnvironmentVariablesDirective : Directive
+  public class EnvironmentVariablesDirective : CliDirective
     .ctor()
     public CliAction Action { get; set; }
-  public abstract class Option : Symbol
-    public CliAction Action { get; set; }
-    public System.Collections.Generic.ICollection<System.String> Aliases { get; }
-    public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
-    public System.Boolean AppliesToSelfAndChildren { get; set; }
-    public ArgumentArity Arity { get; set; }
-    public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
-    public System.String HelpName { get; set; }
-    public System.Boolean IsRequired { get; set; }
-    public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-  public class Option<T> : Option
-    .ctor(System.String name, System.String[] aliases)
-    public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
-    public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
-    public System.Void AcceptLegalFileNamesOnly()
-    public System.Void AcceptLegalFilePathsOnly()
-    public System.Void AcceptOnlyFromAmong(System.String[] values)
   public static class OptionValidation
-    public static Option<System.IO.FileInfo> AcceptExistingOnly(this Option<System.IO.FileInfo> option)
-    public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
-    public static Option<System.IO.FileSystemInfo> AcceptExistingOnly(this Option<System.IO.FileSystemInfo> option)
-    public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
-  public class ParseDirective : Directive
-    .ctor(System.Int32 errorExitCode = 1)
+    public static CliOption<System.IO.FileInfo> AcceptExistingOnly(this CliOption<System.IO.FileInfo> option)
+    public static CliOption<System.IO.DirectoryInfo> AcceptExistingOnly(this CliOption<System.IO.DirectoryInfo> option)
+    public static CliOption<System.IO.FileSystemInfo> AcceptExistingOnly(this CliOption<System.IO.FileSystemInfo> option)
+    public static CliOption<T> AcceptExistingOnly<T>(this CliOption<T> option)
+  public class ParseDiagramDirective : CliDirective
+    .ctor()
     public CliAction Action { get; set; }
+    public System.Int32 ParseErrorReturnValue { get; set; }
   public class ParseResult
     public CliAction Action { get; }
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
@@ -122,34 +136,20 @@ System.CommandLine
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.String[] UnmatchedTokens { get; }
-    public System.CommandLine.Parsing.ArgumentResult FindResultFor(Argument argument)
-    public System.CommandLine.Parsing.CommandResult FindResultFor(Command command)
-    public System.CommandLine.Parsing.OptionResult FindResultFor(Option option)
-    public System.CommandLine.Parsing.DirectiveResult FindResultFor(Directive directive)
-    public System.CommandLine.Parsing.SymbolResult FindResultFor(Symbol symbol)
+    public System.CommandLine.Parsing.ArgumentResult FindResultFor(CliArgument argument)
+    public System.CommandLine.Parsing.CommandResult FindResultFor(CliCommand command)
+    public System.CommandLine.Parsing.OptionResult FindResultFor(CliOption option)
+    public System.CommandLine.Parsing.DirectiveResult FindResultFor(CliDirective directive)
+    public System.CommandLine.Parsing.SymbolResult FindResultFor(CliSymbol symbol)
     public System.CommandLine.Completions.CompletionContext GetCompletionContext()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
-    public T GetValue<T>(Argument<T> argument)
-    public T GetValue<T>(Option<T> option)
+    public T GetValue<T>(CliArgument<T> argument)
+    public T GetValue<T>(CliOption<T> option)
     public T GetValue<T>(System.String name)
     public System.Int32 Invoke()
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.Threading.CancellationToken cancellationToken = null)
     public System.String ToString()
-  public class RootCommand : Command, System.Collections.Generic.IEnumerable<Symbol>, System.Collections.IEnumerable
-    public static System.String ExecutableName { get; }
-    public static System.String ExecutablePath { get; }
-    .ctor(System.String description = )
-  public class SuggestDirective : Directive
-    .ctor()
-    public CliAction Action { get; set; }
-  public abstract class Symbol
-    public System.String Description { get; set; }
-    public System.Boolean IsHidden { get; set; }
-    public System.String Name { get; }
-    public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
-    public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.String ToString()
-  public class VersionOption : Option<System.Boolean>
+  public class VersionOption : CliOption<System.Boolean>
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public CliAction Action { get; set; }
@@ -172,6 +172,9 @@ System.CommandLine.Completions
     public System.Boolean Equals(System.Object obj)
     public System.Int32 GetHashCode()
     public System.String ToString()
+  public class SuggestDirective : System.CommandLine.CliDirective
+    .ctor()
+    public System.CommandLine.CliAction Action { get; set; }
   public class TextCompletionContext : CompletionContext
     public System.String CommandLineText { get; }
     public System.Int32 CursorPosition { get; }
@@ -186,32 +189,32 @@ System.CommandLine.Help
     .ctor(System.Int32 maxWidth = 2147483647)
     public System.Int32 MaxWidth { get; }
     public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Action<HelpContext>>> getLayout)
-    public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
-    public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
-    public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.Symbol symbol, HelpContext context)
+    public System.Void CustomizeSymbol(System.CommandLine.CliSymbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
+    public System.Void CustomizeSymbol(System.CommandLine.CliSymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
+    public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.CliSymbol symbol, HelpContext context)
     public System.Void Write(HelpContext context)
-    public System.Void Write(System.CommandLine.Command command, System.IO.TextWriter writer)
+    public System.Void Write(System.CommandLine.CliCommand command, System.IO.TextWriter writer)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
    static class Default
     public static System.Action<HelpContext> AdditionalArgumentsSection()
     public static System.Action<HelpContext> CommandArgumentsSection()
     public static System.Action<HelpContext> CommandUsageSection()
-    public static System.String GetArgumentDefaultValue(System.CommandLine.Argument argument)
-    public static System.String GetArgumentDescription(System.CommandLine.Argument argument)
-    public static System.String GetArgumentUsageLabel(System.CommandLine.Argument argument)
-    public static System.String GetCommandUsageLabel(System.CommandLine.Command symbol)
+    public static System.String GetArgumentDefaultValue(System.CommandLine.CliArgument argument)
+    public static System.String GetArgumentDescription(System.CommandLine.CliArgument argument)
+    public static System.String GetArgumentUsageLabel(System.CommandLine.CliArgument argument)
+    public static System.String GetCommandUsageLabel(System.CommandLine.CliCommand symbol)
     public static System.Collections.Generic.IEnumerable<System.Action<HelpContext>> GetLayout()
-    public static System.String GetOptionUsageLabel(System.CommandLine.Option symbol)
+    public static System.String GetOptionUsageLabel(System.CommandLine.CliOption symbol)
     public static System.Action<HelpContext> OptionsSection()
     public static System.Action<HelpContext> SubcommandsSection()
     public static System.Action<HelpContext> SynopsisSection()
   public class HelpContext
-    .ctor(HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter output, System.CommandLine.ParseResult parseResult = null)
-    public System.CommandLine.Command Command { get; }
+    .ctor(HelpBuilder helpBuilder, System.CommandLine.CliCommand command, System.IO.TextWriter output, System.CommandLine.ParseResult parseResult = null)
+    public System.CommandLine.CliCommand Command { get; }
     public HelpBuilder HelpBuilder { get; }
     public System.IO.TextWriter Output { get; }
     public System.CommandLine.ParseResult ParseResult { get; }
-  public class HelpOption : System.CommandLine.Option<System.Boolean>
+  public class HelpOption : System.CommandLine.CliOption<System.Boolean>
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public System.CommandLine.CliAction Action { get; set; }
@@ -226,24 +229,24 @@ System.CommandLine.Help
     public System.Int32 GetHashCode()
 System.CommandLine.Parsing
   public class ArgumentResult : SymbolResult
-    public System.CommandLine.Argument Argument { get; }
+    public System.CommandLine.CliArgument Argument { get; }
     public System.Void AddError(System.String errorMessage)
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
     public System.String ToString()
   public class CommandResult : SymbolResult
     public System.Collections.Generic.IEnumerable<SymbolResult> Children { get; }
-    public System.CommandLine.Command Command { get; }
+    public System.CommandLine.CliCommand Command { get; }
     public Token IdentifierToken { get; }
     public System.String ToString()
   public class DirectiveResult : SymbolResult
-    public System.CommandLine.Directive Directive { get; }
+    public System.CommandLine.CliDirective Directive { get; }
     public Token Token { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> Values { get; }
   public class OptionResult : SymbolResult
     public Token IdentifierToken { get; }
-    public System.Boolean IsImplicit { get; }
-    public System.CommandLine.Option Option { get; }
+    public System.Boolean Implicit { get; }
+    public System.CommandLine.CliOption Option { get; }
     public T GetValueOrDefault<T>()
     public System.String ToString()
   public class ParseError
@@ -251,23 +254,23 @@ System.CommandLine.Parsing
     public SymbolResult SymbolResult { get; }
     public System.String ToString()
   public static class Parser
-    public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.Collections.Generic.IReadOnlyList<System.String> args, System.CommandLine.CommandLineConfiguration configuration = null)
-    public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.String commandLine, System.CommandLine.CommandLineConfiguration configuration = null)
+    public static System.CommandLine.ParseResult Parse(System.CommandLine.CliCommand command, System.Collections.Generic.IReadOnlyList<System.String> args, System.CommandLine.CommandLineConfiguration configuration = null)
+    public static System.CommandLine.ParseResult Parse(System.CommandLine.CliCommand command, System.String commandLine, System.CommandLine.CommandLineConfiguration configuration = null)
     public static System.Collections.Generic.IEnumerable<System.String> SplitCommandLine(System.String commandLine)
   public abstract class SymbolResult
     public SymbolResult Parent { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
     public System.Void AddError(System.String errorMessage)
-    public ArgumentResult FindResultFor(System.CommandLine.Argument argument)
-    public CommandResult FindResultFor(System.CommandLine.Command command)
-    public OptionResult FindResultFor(System.CommandLine.Option option)
-    public DirectiveResult FindResultFor(System.CommandLine.Directive directive)
-    public T GetValue<T>(Argument<T> argument)
-    public T GetValue<T>(Option<T> option)
+    public ArgumentResult FindResultFor(System.CommandLine.CliArgument argument)
+    public CommandResult FindResultFor(System.CommandLine.CliCommand command)
+    public OptionResult FindResultFor(System.CommandLine.CliOption option)
+    public DirectiveResult FindResultFor(System.CommandLine.CliDirective directive)
+    public T GetValue<T>(CliArgument<T> argument)
+    public T GetValue<T>(CliOption<T> option)
   public class Token, System.IEquatable<Token>
     public static System.Boolean op_Equality(Token left, Token right)
     public static System.Boolean op_Inequality(Token left, Token right)
-    .ctor(System.String value, TokenType type, System.CommandLine.Symbol symbol)
+    .ctor(System.String value, TokenType type, System.CommandLine.CliSymbol symbol)
     public TokenType Type { get; }
     public System.String Value { get; }
     public System.Boolean Equals(System.Object obj)

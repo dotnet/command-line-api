@@ -11,11 +11,11 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_option_aliases_on_the_root_command()
     {
-        var option1 = new Option<string>("--dupe");
-        var option2 = new Option<string>("-y");
+        var option1 = new CliOption<string>("--dupe");
+        var option2 = new CliOption<string>("-y");
         option2.Aliases.Add("--dupe");
 
-        var command = new RootCommand
+        var command = new CliRootCommand
         {
             option1,
             option2
@@ -36,13 +36,13 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_option_aliases_on_a_subcommand()
     {
-        var option1 = new Option<string>("--dupe");
-        var option2 = new Option<string>("--ok");
+        var option1 = new CliOption<string>("--dupe");
+        var option2 = new CliOption<string>("--ok");
         option2.Aliases.Add("--dupe");
 
-        var command = new RootCommand
+        var command = new CliRootCommand
         {
-            new Command("subcommand")
+            new CliCommand("subcommand")
             {
                 option1,
                 option2
@@ -64,11 +64,11 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_subcommand_aliases_on_the_root_command()
     {
-        var command1 = new Command("dupe");
-        var command2 = new Command("not-a-dupe");
+        var command1 = new CliCommand("dupe");
+        var command2 = new CliCommand("not-a-dupe");
         command2.Aliases.Add("dupe");
 
-        var rootCommand = new RootCommand
+        var rootCommand = new CliRootCommand
         {
             command1,
             command2
@@ -89,12 +89,12 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_subcommand_aliases_on_a_subcommand()
     {
-        var command = new RootCommand
+        var command = new CliRootCommand
         {
-            new Command("subcommand")
+            new CliCommand("subcommand")
             {
-                new Command("dupe"),
-                new Command("not-a-dupe") { Aliases = { "dupe" } }
+                new CliCommand("dupe"),
+                new CliCommand("not-a-dupe") { Aliases = { "dupe" } }
             }
         };
 
@@ -113,11 +113,11 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_sibling_command_and_option_aliases_collide_on_the_root_command()
     {
-        var option = new Option<string>("dupe");
-        var command = new Command("not-a-dupe");
+        var option = new CliOption<string>("dupe");
+        var command = new CliCommand("not-a-dupe");
         command.Aliases.Add("dupe");
 
-        var rootCommand = new RootCommand
+        var rootCommand = new CliRootCommand
         {
             option,
             command
@@ -138,13 +138,13 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_sibling_command_and_option_aliases_collide_on_a_subcommand()
     {
-        var option = new Option<string>("dupe");
-        var command = new Command("not-a-dupe");
+        var option = new CliOption<string>("dupe");
+        var command = new CliCommand("not-a-dupe");
         command.Aliases.Add("dupe");
 
-        var rootCommand = new RootCommand
+        var rootCommand = new CliRootCommand
         {
-            new Command("subcommand")
+            new CliCommand("subcommand")
             {
                 option,
                 command
@@ -166,11 +166,11 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_global_option_aliases_on_the_root_command()
     {
-        var option1 = new Option<string>("--dupe") { AppliesToSelfAndChildren = true };
-        var option2 = new Option<string>("-y") { AppliesToSelfAndChildren = true };
+        var option1 = new CliOption<string>("--dupe") { Recursive = true };
+        var option2 = new CliOption<string>("-y") { Recursive = true };
         option2.Aliases.Add("--dupe");
 
-        var command = new RootCommand();
+        var command = new CliRootCommand();
         command.Options.Add(option1);
         command.Options.Add(option2);
 
@@ -189,14 +189,14 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_does_not_throw_if_global_option_alias_is_the_same_as_local_option_alias()
     {
-        var rootCommand = new RootCommand
+        var rootCommand = new CliRootCommand
         {
-            new Command("subcommand")
+            new CliCommand("subcommand")
             {
-                new Option<string>("--dupe")
+                new CliOption<string>("--dupe")
             }
         };
-        rootCommand.Options.Add(new Option<string>("--dupe") { AppliesToSelfAndChildren = true });
+        rootCommand.Options.Add(new CliOption<string>("--dupe") { Recursive = true });
 
         var config = new CommandLineConfiguration(rootCommand);
 
@@ -208,14 +208,14 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_does_not_throw_if_global_option_alias_is_the_same_as_subcommand_alias()
     {
-        var rootCommand = new RootCommand
+        var rootCommand = new CliRootCommand
         {
-            new Command("subcommand")
+            new CliCommand("subcommand")
             {
-                new Command("--dupe")
+                new CliCommand("--dupe")
             }
         };
-        rootCommand.Options.Add(new Option<string>("--dupe") { AppliesToSelfAndChildren = true });
+        rootCommand.Options.Add(new CliOption<string>("--dupe") { Recursive = true });
 
         var config = new CommandLineConfiguration(rootCommand);
 
@@ -227,7 +227,7 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_a_command_is_its_own_parent()
     {
-        var command = new RootCommand();
+        var command = new CliRootCommand();
         command.Add(command);
 
         var config = new CommandLineConfiguration(command);
@@ -245,8 +245,8 @@ public class CommandLineConfigurationTests
     [Fact]
     public void ThrowIfInvalid_throws_if_a_parentage_cycle_is_detected()
     {
-        var command = new Command("command");
-        var rootCommand = new RootCommand { command };
+        var command = new CliCommand("command");
+        var rootCommand = new CliRootCommand { command };
         command.Add(rootCommand);
 
         var config = new CommandLineConfiguration(rootCommand);

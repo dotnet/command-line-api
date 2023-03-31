@@ -14,11 +14,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Help_option_writes_help_for_the_specified_command()
         {
-            Command command = new RootCommand
+            CliCommand command = new CliRootCommand
             {
-                new Command("command")
+                new CliCommand("command")
                 {
-                    new Command("subcommand")
+                    new CliCommand("subcommand")
                 }
             };
 
@@ -31,15 +31,15 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
-            config.Output.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand [options]");
+            config.Output.ToString().Should().Contain($"{CliRootCommand.ExecutableName} command subcommand [options]");
         }
          
         [Fact]
         public async Task Help_option_interrupts_execution_of_the_specified_command()
         {
             var wasCalled = false;
-            var command = new Command("command") { new HelpOption() };
-            var subcommand = new Command("subcommand");
+            var command = new CliCommand("command") { new HelpOption() };
+            var subcommand = new CliCommand("subcommand");
             subcommand.SetAction(_ => wasCalled = true);
             command.Subcommands.Add(subcommand);
 
@@ -60,7 +60,7 @@ namespace System.CommandLine.Tests
         [InlineData("/?")]
         public async Task Help_option_accepts_default_values(string value)
         {
-            CommandLineConfiguration config = new(new Command("command") { new HelpOption() })
+            CommandLineConfiguration config = new(new CliCommand("command") { new HelpOption() })
             {
                 Output = new StringWriter()
             };
@@ -76,8 +76,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Help_option_does_not_display_when_option_defined_with_same_alias()
         {
-            var command = new Command("command");
-            command.Options.Add(new Option<bool>("-h"));
+            var command = new CliCommand("command");
+            command.Options.Add(new CliOption<bool>("-h"));
 
             CommandLineConfiguration config = new(command)
             {
@@ -92,7 +92,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
         {
-            RootCommand rootCommand = new();
+            CliRootCommand rootCommand = new();
 
             var result = rootCommand.Parse("-h");
 
@@ -104,9 +104,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void There_are_no_parse_errors_when_help_is_invoked_on_subcommand()
         {
-            var root = new RootCommand
+            var root = new CliRootCommand
             {
-                new Command("subcommand"),
+                new CliCommand("subcommand"),
             };
 
             var result = root.Parse("subcommand -h");
@@ -119,9 +119,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_subcommands()
         {
-            var root = new RootCommand
+            var root = new CliRootCommand
             {
-                new Command("subcommand"),
+                new CliCommand("subcommand"),
             };
 
             var result = root.Parse("-h");
@@ -132,11 +132,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_required_options()
         {
-            var command = new RootCommand
+            var command = new CliRootCommand
             {
-                new Option<string>("-x")
+                new CliOption<string>("-x")
                 {
-                    IsRequired = true
+                    Required = true
                 },
             };
 
@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
         [InlineData("--confused")]
         public async Task HelpOption_with_custom_aliases_uses_aliases(string helpAlias)
         {
-            RootCommand command = new()
+            CliRootCommand command = new()
             {
                 new HelpOption("/lost", "--confused")
             };
@@ -172,7 +172,7 @@ namespace System.CommandLine.Tests
         [InlineData("/?")]
         public async Task Help_option_with_custom_aliases_default_aliases_replaced(string helpAlias)
         {
-            RootCommand command = new();
+            CliRootCommand command = new();
             command.Options.Clear();
             command.Options.Add(new HelpOption("--confused"));
 

@@ -11,19 +11,19 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// An argument token.
         /// </summary>
-        /// <see cref="Argument"/>
+        /// <see cref="CliArgument"/>
         Argument,
 
         /// <summary>
         /// A command token.
         /// </summary>
-        /// <see cref="Command"/>
+        /// <see cref="CliCommand"/>
         Command,
         
         /// <summary>
         /// An option token.
         /// </summary>
-        /// <see cref="Option"/>
+        /// <see cref="CliOption"/>
         Option,
         
         /// <summary>
@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// A directive token.
         /// </summary>
-        /// <see cref="System.CommandLine.Directive"/>
+        /// <see cref="CliDirective"/>
         Directive
     }
 }

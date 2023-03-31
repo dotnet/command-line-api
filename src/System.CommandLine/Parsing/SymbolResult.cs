@@ -43,31 +43,31 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public ArgumentResult? FindResultFor(Argument argument) => SymbolResultTree.FindResultFor(argument);
+        public ArgumentResult? FindResultFor(CliArgument argument) => SymbolResultTree.FindResultFor(argument);
 
         /// <summary>
         /// Finds a result for the specific command anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
-        public CommandResult? FindResultFor(Command command) => SymbolResultTree.FindResultFor(command);
+        public CommandResult? FindResultFor(CliCommand command) => SymbolResultTree.FindResultFor(command);
 
         /// <summary>
         /// Finds a result for the specific option anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public OptionResult? FindResultFor(Option option) => SymbolResultTree.FindResultFor(option);
+        public OptionResult? FindResultFor(CliOption option) => SymbolResultTree.FindResultFor(option);
 
         /// <summary>
         /// Finds a result for the specific directive anywhere in the parse tree.
         /// </summary>
         /// <param name="directive">The directive for which to find a result.</param>
         /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
-        public DirectiveResult? FindResultFor(Directive directive) => SymbolResultTree.FindResultFor(directive);
+        public DirectiveResult? FindResultFor(CliDirective directive) => SymbolResultTree.FindResultFor(directive);
 
-        /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
-        public T? GetValue<T>(Argument<T> argument)
+        /// <inheritdoc cref="ParseResult.GetValue{T}(CliArgument{T})"/>
+        public T? GetValue<T>(CliArgument<T> argument)
         {
             if (FindResultFor(argument) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -75,11 +75,11 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return Argument<T>.CreateDefaultValue();
+            return CliArgument<T>.CreateDefaultValue();
         }
 
-        /// <inheritdoc cref="ParseResult.GetValue{T}(Option{T})"/>
-        public T? GetValue<T>(Option<T> option)
+        /// <inheritdoc cref="ParseResult.GetValue{T}(CliOption{T})"/>
+        public T? GetValue<T>(CliOption<T> option)
         {
             if (FindResultFor(option) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -87,7 +87,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return Argument<T>.CreateDefaultValue();
+            return CliArgument<T>.CreateDefaultValue();
         }
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;

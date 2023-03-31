@@ -17,11 +17,11 @@ namespace System.CommandLine.Tests
             [InlineData("outer inner xyz")]
             public void An_argument_can_be_specified_in_more_than_one_position(string commandLine)
             {
-                var argument = new Argument<string>("the-argument");
+                var argument = new CliArgument<string>("the-argument");
 
-                var command = new Command("outer")
+                var command = new CliCommand("outer")
                 {
-                    new Command("inner")
+                    new CliCommand("inner")
                     {
                         argument
                     },
@@ -45,11 +45,11 @@ namespace System.CommandLine.Tests
             [InlineData("outer inner xyz")]
             public void When_an_argument_is_shared_between_an_outer_and_inner_command_then_specifying_in_one_does_not_result_in_error_on_other(string commandLine)
             {
-                var argument = new Argument<string>("the-argument");
+                var argument = new CliArgument<string>("the-argument");
 
-                var command = new Command("outer")
+                var command = new CliCommand("outer")
                 {
-                    new Command("inner")
+                    new CliCommand("inner")
                     {
                         argument
                     },
@@ -66,11 +66,11 @@ namespace System.CommandLine.Tests
             [InlineData("outer inner --the-option xyz")]
             public void An_option_can_be_specified_in_more_than_one_position(string commandLine)
             {
-                var option = new Option<string>("--the-option");
+                var option = new CliOption<string>("--the-option");
 
-                var command = new Command("outer")
+                var command = new CliCommand("outer")
                 {
-                    new Command("inner")
+                    new CliCommand("inner")
                     {
                         option
                     },
@@ -94,11 +94,11 @@ namespace System.CommandLine.Tests
             [InlineData("outer inner --the-option xyz")]
             public void When_an_option_is_shared_between_an_outer_and_inner_command_then_specifying_in_one_does_not_result_in_error_on_other(string commandLine)
             {
-                var option = new Option<string>("--the-option");
+                var option = new CliOption<string>("--the-option");
 
-                var command = new Command("outer")
+                var command = new CliCommand("outer")
                 {
-                    new Command("inner")
+                    new CliCommand("inner")
                     {
                         option
                     },
@@ -117,17 +117,17 @@ namespace System.CommandLine.Tests
                 string commandLine,
                 string expectedParent)
             {
-                var reusedCommand = new Command("reused");
+                var reusedCommand = new CliCommand("reused");
                 reusedCommand.SetAction((_) => { });
-                reusedCommand.Add(new Option<string>("--the-option"));
+                reusedCommand.Add(new CliOption<string>("--the-option"));
 
-                var outer = new Command("outer")
+                var outer = new CliCommand("outer")
                 {
-                    new Command("inner1")
+                    new CliCommand("inner1")
                     {
                         reusedCommand
                     },
-                    new Command("inner2")
+                    new CliCommand("inner2")
                     {
                         reusedCommand
                     }
@@ -150,25 +150,25 @@ namespace System.CommandLine.Tests
             [Fact]
             public void An_option_can_have_multiple_parents_with_the_same_name()
             {
-                var option = new Option<string>("--the-option");
+                var option = new CliOption<string>("--the-option");
 
-                var sprocket = new Command("sprocket")
+                var sprocket = new CliCommand("sprocket")
                 {
-                    new Command("add")
+                    new CliCommand("add")
                     {
                         option
                     }
                 };
 
-                var widget = new Command("widget")
+                var widget = new CliCommand("widget")
                 {
-                    new Command("add")
+                    new CliCommand("add")
                     {
                         option
                     }
                 };
 
-                var root = new RootCommand
+                var root = new CliRootCommand
                 {
                     sprocket,
                     widget

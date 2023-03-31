@@ -11,13 +11,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Global_options_appear_in_options_list()
         {
-            var root = new Command("parent");
+            var root = new CliCommand("parent");
 
-            var option = new Option<int>("--global") { AppliesToSelfAndChildren = true };
+            var option = new CliOption<int>("--global") { Recursive = true };
 
             root.Options.Add(option);
 
-            var child = new Command("child");
+            var child = new CliCommand("child");
 
             root.Subcommands.Add(child);
 
@@ -27,13 +27,13 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1540
         public void When_a_required_global_option_is_omitted_it_results_in_an_error()
         {
-            var command = new Command("child");
-            var rootCommand = new RootCommand { command };
+            var command = new CliCommand("child");
+            var rootCommand = new CliRootCommand { command };
             command.SetAction((_) => { });
-            var requiredOption = new Option<bool>("--i-must-be-set")
+            var requiredOption = new CliOption<bool>("--i-must-be-set")
             {
-                IsRequired = true,
-                AppliesToSelfAndChildren = true
+                Required = true,
+                Recursive = true
             };
             rootCommand.Options.Add(requiredOption);
 
@@ -48,11 +48,11 @@ namespace System.CommandLine.Tests
         [Fact] 
         public void When_a_required_global_option_has_multiple_aliases_the_error_message_uses_the_name()
         {
-            var rootCommand = new RootCommand();
-            var requiredOption = new Option<bool>("-i", "--i-must-be-set")
+            var rootCommand = new CliRootCommand();
+            var requiredOption = new CliOption<bool>("-i", "--i-must-be-set")
             {
-                IsRequired = true,
-                AppliesToSelfAndChildren = true
+                Required = true,
+                Recursive = true
             };
             rootCommand.Options.Add(requiredOption);
 
@@ -67,13 +67,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_required_global_option_is_present_on_child_of_command_it_was_added_to_it_does_not_result_in_an_error()
         {
-            var command = new Command("child");
-            var rootCommand = new RootCommand { command };
+            var command = new CliCommand("child");
+            var rootCommand = new CliRootCommand { command };
             command.SetAction((_) => { });
-            var requiredOption = new Option<bool>("--i-must-be-set")
+            var requiredOption = new CliOption<bool>("--i-must-be-set")
             {
-                IsRequired = true,
-                AppliesToSelfAndChildren = true
+                Required = true,
+                Recursive = true
             };
             rootCommand.Options.Add(requiredOption);
 
@@ -85,13 +85,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Subcommands_added_after_a_global_option_is_added_to_parent_will_recognize_the_global_option()
         {
-            var root = new Command("parent");
+            var root = new CliCommand("parent");
 
-            var option = new Option<int>("--global") { AppliesToSelfAndChildren = true };
+            var option = new CliOption<int>("--global") { Recursive = true };
 
             root.Options.Add(option);
 
-            var child = new Command("child");
+            var child = new CliCommand("child");
 
             root.Subcommands.Add(child);
 
@@ -103,17 +103,17 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Subcommands_with_global_option_should_propagate_option_to_children()
         {
-            var root = new Command("parent");
+            var root = new CliCommand("parent");
             
-            var firstChild = new Command("first");
+            var firstChild = new CliCommand("first");
             
             root.Subcommands.Add(firstChild);
             
-            var option = new Option<int>("--global") { AppliesToSelfAndChildren = true };
+            var option = new CliOption<int>("--global") { Recursive = true };
             
             firstChild.Options.Add(option);
             
-            var secondChild = new Command("second");
+            var secondChild = new CliCommand("second");
             
             firstChild.Subcommands.Add(secondChild);
             

@@ -14,7 +14,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_only_name_then_it_has_no_aliases()
         {
-            var option = new Option<string>("myname");
+            var option = new CliOption<string>("myname");
 
             option.Name.Should().Be("myname");
             option.Aliases.Should().BeEmpty();
@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_several_aliases_then_they_do_not_affect_its_name()
         {
-            var option = new Option<string>(name: "m", aliases: new[] { "longer" });
+            var option = new CliOption<string>(name: "m", aliases: new[] { "longer" });
 
             option.Name.Should().Be("m");
         }
@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_names_can_contain_prefix_characters()
         {
-            var option = new Option<string>("--myname");
+            var option = new CliOption<string>("--myname");
 
             option.Name.Should().Be("--myname");
         }
@@ -39,7 +39,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Aliases_is_aware_of_added_alias()
         {
-            var option = new Option<string>("--original");
+            var option = new CliOption<string>("--original");
 
             option.Aliases.Add("--added");
 
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void RawAliases_is_aware_of_added_alias()
         {
-            var option = new Option<string>("--original");
+            var option = new CliOption<string>("--original");
 
             option.Aliases.Add("--added");
 
@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_prefixed_alias_can_be_added_to_an_option()
         {
-            var option = new Option<string>("--apple");
+            var option = new CliOption<string>("--apple");
 
             option.Aliases.Add("-a");
 
@@ -69,7 +69,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_aliases_are_case_sensitive()
         {
-            var option = new Option<string>("name", "o");
+            var option = new CliOption<string>("name", "o");
 
             option.Aliases.Contains("O").Should().BeFalse();
         }
@@ -77,7 +77,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Aliases_accepts_prefixed_short_value()
         {
-            var option = new Option<string>("--option", "-o");
+            var option = new CliOption<string>("--option", "-o");
 
             option.Aliases.Contains("-o").Should().BeTrue();
         }
@@ -85,7 +85,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void HasAlias_accepts_prefixed_long_value()
         {
-            var option = new Option<string>("-o", "--option");
+            var option = new CliOption<string>("-o", "--option");
 
             option.Aliases.Contains("--option").Should().BeTrue();
         }
@@ -93,7 +93,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_is_not_necessary_to_specify_a_prefix_when_adding_an_option()
         {
-            var option = new Option<string>("o");
+            var option = new CliOption<string>("o");
 
             option.Name.Should().Be("o");
             option.Aliases.Should().BeEmpty();
@@ -102,7 +102,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_does_not_need_to_have_at_any_aliases()
         {
-            var option = new Option<string>("justName");
+            var option = new CliOption<string>("justName");
 
             option.Aliases.Should().BeEmpty();
         }
@@ -110,7 +110,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_empty_alias()
         {
-            Action create = () => new Option<string>("name", "");
+            Action create = () => new CliOption<string>("name", "");
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -123,7 +123,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_cannot_have_an_alias_consisting_entirely_of_whitespace()
         {
-            Action create = () => new Option<string>("name", "  \t");
+            Action create = () => new CliOption<string>("name", "  \t");
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -136,7 +136,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Raw_aliases_are_exposed_by_an_option()
         {
-            var option = new Option<string>("--help", "-h", "/?");
+            var option = new CliOption<string>("--help", "-h", "/?");
 
             option.Aliases
                   .Should()
@@ -150,7 +150,7 @@ namespace System.CommandLine.Tests
         public void When_an_option_is_created_with_a_name_that_contains_whitespace_then_an_informative_error_is_returned(
             string name)
         {
-            Action create = () => new Option<string>(name);
+            Action create = () => new CliOption<string>(name);
 
             create.Should()
                   .Throw<ArgumentException>()
@@ -166,7 +166,7 @@ namespace System.CommandLine.Tests
         [InlineData("--aa aa")]
         public void When_an_option_alias_is_added_and_contains_whitespace_then_an_informative_error_is_returned(string alias)
         {
-            var option = new Option<bool>("-x");
+            var option = new CliOption<bool>("-x");
 
             Action addAlias = () => option.Aliases.Add(alias);
 
@@ -184,11 +184,11 @@ namespace System.CommandLine.Tests
         [InlineData("/")]
         public void When_options_use_different_prefixes_they_still_work(string prefix)
         {
-            var optionA = new Option<string>(prefix + "a");
-            var optionB = new Option<string>(prefix + "b");
-            var optionC = new Option<string>(prefix + "c");
+            var optionA = new CliOption<string>(prefix + "a");
+            var optionB = new CliOption<string>(prefix + "b");
+            var optionC = new CliOption<string>(prefix + "c");
 
-            var rootCommand = new RootCommand
+            var rootCommand = new CliRootCommand
                               {
                                   optionA,
                                   optionB,
@@ -205,20 +205,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_option_not_explicitly_provides_help_will_use_default_help()
         {
-            var option = new Option<string>("--option", "-o")
+            var option = new CliOption<string>("--option", "-o")
             {
                 Description = "desc"
             };
 
             option.Name.Should().Be("--option");
             option.Description.Should().Be("desc");
-            option.IsHidden.Should().BeFalse();
+            option.Hidden.Should().BeFalse();
         }
         
         [Fact]
         public void Argument_retains_name_when_it_is_provided()
         {
-            var option = new Option<string>("-alias")
+            var option = new CliOption<string>("-alias")
             {
                 HelpName = "arg"
             };
@@ -229,12 +229,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_T_default_value_can_be_set_via_the_constructor()
         {
-            var option = new Option<int>("-x")
+            var option = new CliOption<int>("-x")
             {
                 DefaultValueFactory = _ => 123
             };
 
-            new RootCommand { option }
+            new CliRootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
                 .GetValueOrDefault<int>()
@@ -245,12 +245,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_T_default_value_can_be_set_after_instantiation()
         {
-            var option = new Option<int>("-x")
+            var option = new CliOption<int>("-x")
             {
                 DefaultValueFactory = (_) => 123
             };
 
-            new RootCommand { option }
+            new CliRootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
                 .GetValueOrDefault<int>()
@@ -261,11 +261,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_T_default_value_factory_can_be_set_after_instantiation()
         {
-            var option = new Option<int>("-x");
+            var option = new CliOption<int>("-x");
 
             option.DefaultValueFactory = (_) => 123;
 
-            new RootCommand { option }
+            new CliRootCommand { option }
                 .Parse("")
                 .FindResultFor(option)
                 .GetValueOrDefault<int>()
@@ -276,7 +276,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_T_default_value_is_validated()
         {
-            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
+            var option = new CliOption<int>("-x") { DefaultValueFactory = (_) => 123 };
             option.Validators.Add(symbol =>
                                     symbol.AddError(symbol.Tokens
                                                                 .Select(t => t.Value)
@@ -284,7 +284,7 @@ namespace System.CommandLine.Tests
                                                                 .Select(_ => "ERR")
                                                                 .First()));
 
-            new RootCommand { option }
+            new CliRootCommand { option }
                 .Parse("-x 123")
                 .Errors
                 .Select(e => e.Message)
@@ -295,9 +295,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_of_string_defaults_to_null_when_not_specified()
         {
-            var option = new Option<string>("-x");
+            var option = new CliOption<string>("-x");
 
-            var result = new RootCommand { option }.Parse("");
+            var result = new CliRootCommand { option }.Parse("");
             result.FindResultFor(option)
                 .Should()
                 .BeNull();
@@ -311,9 +311,9 @@ namespace System.CommandLine.Tests
         [InlineData("-option:value")]
         public void When_aliases_overlap_the_longer_alias_is_chosen(string parseInput)
         {
-            var option = new Option<string>("-o", "-option");
+            var option = new CliOption<string>("-o", "-option");
 
-            var parseResult = new RootCommand { option }.Parse(parseInput);
+            var parseResult = new CliRootCommand { option }.Parse(parseInput);
 
             parseResult.GetValue(option).Should().Be("value");
         }
@@ -321,9 +321,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_of_boolean_defaults_to_false_when_not_specified()
         {
-            var option = new Option<bool>("-x");
+            var option = new CliOption<bool>("-x");
 
-            var result = new RootCommand { option }.Parse("");
+            var result = new CliRootCommand { option }.Parse("");
 
             result.FindResultFor(option)
                 .Should()
@@ -336,10 +336,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Option_of_enum_can_limit_enum_members_as_valid_values()
         {
-            Option<ConsoleColor> option = new("--color");
+            CliOption<ConsoleColor> option = new("--color");
             option.AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
 
-            var result = new RootCommand { option }.Parse("--color Fuschia");
+            var result = new CliRootCommand { option }.Parse("--color Fuschia");
 
             result.Errors
                 .Select(e => e.Message)
@@ -353,11 +353,11 @@ namespace System.CommandLine.Tests
             OptionAction optionAction = new();
             bool commandHandlerWasCalled = false;
 
-            Option<bool> option = new("--test")
+            CliOption<bool> option = new("--test")
             {
                 Action = optionAction,
             };
-            Command command = new Command("cmd")
+            CliCommand command = new CliCommand("cmd")
             {
                 option
             };
@@ -398,11 +398,11 @@ namespace System.CommandLine.Tests
             OptionAction optionAction2 = new();
             OptionAction optionAction3 = new();
             
-            Command command = new Command("cmd")
+            CliCommand command = new CliCommand("cmd")
             {
-                new Option<bool>("--1") { Action = optionAction1 },
-                new Option<bool>("--2") { Action = optionAction2 },
-                new Option<bool>("--3") { Action = optionAction3 }
+                new CliOption<bool>("--1") { Action = optionAction1 },
+                new CliOption<bool>("--2") { Action = optionAction2 },
+                new CliOption<bool>("--3") { Action = optionAction3 }
             };
 
             ParseResult parseResult = command.Parse("cmd --1 true --3 false --2 true ");

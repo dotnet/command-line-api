@@ -27,7 +27,7 @@ namespace System.CommandLine.Hosting.Tests
             }
 
             var config = new CommandLineConfiguration(
-                new RootCommand { Action = CommandHandler.Create<IHost>(Execute) }
+                new CliRootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost();
 
@@ -41,7 +41,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             ParseResult parseResult = null;
 
-            var config = new CommandLineConfiguration(new RootCommand())
+            var config = new CommandLineConfiguration(new CliRootCommand())
                 .UseHost(host =>
                 {
                     if (host.Properties.TryGetValue(typeof(ParseResult), out var ctx))
@@ -67,7 +67,7 @@ namespace System.CommandLine.Hosting.Tests
             }
 
             var config = new CommandLineConfiguration(
-                new RootCommand { Action = CommandHandler.Create<IHost>(Execute) }
+                new CliRootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost();
 
@@ -93,7 +93,7 @@ namespace System.CommandLine.Hosting.Tests
             }
 
             var config = new CommandLineConfiguration(
-                new RootCommand
+                new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute),
                 })
@@ -128,7 +128,7 @@ namespace System.CommandLine.Hosting.Tests
             }
 
             var config = new CommandLineConfiguration(
-                new RootCommand
+                new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute),
                 })
@@ -165,7 +165,7 @@ namespace System.CommandLine.Hosting.Tests
             }
 
             var config = new CommandLineConfiguration(
-                new RootCommand
+                new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute)
                 })
@@ -183,8 +183,8 @@ namespace System.CommandLine.Hosting.Tests
             string commandLine = $"-{nameof(MyOptions.MyArgument)} {myValue}";
             MyOptions options = null;
 
-            var rootCmd = new RootCommand();
-            rootCmd.Options.Add(new Option<int>($"-{nameof(MyOptions.MyArgument)}"));
+            var rootCmd = new CliRootCommand();
+            rootCmd.Options.Add(new CliOption<int>($"-{nameof(MyOptions.MyArgument)}"));
             rootCmd.Action = CommandHandler.Create((IHost host) =>
             {
                 options = host.Services
@@ -241,7 +241,7 @@ namespace System.CommandLine.Hosting.Tests
         public async static Task GetParseResult_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var config = new CommandLineConfiguration(new RootCommand())
+            var config = new CommandLineConfiguration(new CliRootCommand())
                 .UseHost(hostBuilder =>
                 {
                     ParseResult ctx = hostBuilder.GetParseResult();
@@ -257,7 +257,7 @@ namespace System.CommandLine.Hosting.Tests
         public async static Task GetParseResult_in_ConfigureServices_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var config = new CommandLineConfiguration(new RootCommand())
+            var config = new CommandLineConfiguration(new CliRootCommand())
                 .UseHost(hostBuilder =>
                 {
                     hostBuilder.ConfigureServices((hostingCtx, services) =>

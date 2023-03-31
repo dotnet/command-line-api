@@ -12,13 +12,13 @@ namespace System.CommandLine
     /// * It's enclosed in square brackets.
     /// * It doesn't contain spaces.
     /// </summary>
-    public class Directive : Symbol
+    public class CliDirective : CliSymbol
     {
         /// <summary>
         /// Initializes a new instance of the Directive class.
         /// </summary>
         /// <param name="name">The name of the directive. It can't contain whitespaces.</param>
-        public Directive(string name)
+        public CliDirective(string name)
             : base(name)
         {
         }

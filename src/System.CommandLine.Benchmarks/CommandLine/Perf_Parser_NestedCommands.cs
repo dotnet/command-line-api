@@ -13,7 +13,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_NestedCommands
     {
         private string _testSymbolsAsString;
-        private Command _rootCommand;
+        private CliCommand _rootCommand;
         private CommandLineConfiguration _configuration;
 
         /// <remarks>
@@ -31,7 +31,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         [Params(1, 2, 5)]
         public int TestCommandsDepth;
 
-        private void GenerateTestNestedCommands(Command parent, int depth, int countPerLevel)
+        private void GenerateTestNestedCommands(CliCommand parent, int depth, int countPerLevel)
         {
             if (depth == 0)
                 return;
@@ -39,7 +39,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             for (int i = 0; i < countPerLevel; i++)
             {
                 string cmdName = $"{parent.Name}_{depth}.{i}";
-                Command cmd = new(cmdName);
+                CliCommand cmd = new(cmdName);
                 parent.Subcommands.Add(cmd);
                 GenerateTestNestedCommands(cmd, depth - 1, countPerLevel);
             }
@@ -49,12 +49,12 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public void SetupRootCommand()
         {
             string rootCommandName = "root";
-            var rootCommand = new Command(rootCommandName);
+            var rootCommand = new CliCommand(rootCommandName);
             _testSymbolsAsString = rootCommandName;
             GenerateTestNestedCommands(rootCommand, TestCommandsDepth, TestCommandsDepth);
 
             // Choose only one path from the commands tree for the test arguments string
-            Command currentCmd = rootCommand;
+            CliCommand currentCmd = rootCommand;
             while (currentCmd is not null && currentCmd.Subcommands.Count > 0)
             {
                 currentCmd = currentCmd.Subcommands[0];

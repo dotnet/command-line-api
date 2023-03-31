@@ -20,7 +20,7 @@ public partial class HelpBuilder
         /// Gets an argument's default value to be displayed in help.
         /// </summary>
         /// <param name="argument">The argument to get the default value for.</param>
-        public static string GetArgumentDefaultValue(Argument argument)
+        public static string GetArgumentDefaultValue(CliArgument argument)
         {
             if (argument.HasDefaultValue)
             {
@@ -43,12 +43,12 @@ public partial class HelpBuilder
         /// <summary>
         /// Gets the description for an argument (typically used in the second column text in the arguments section).
         /// </summary>
-        public static string GetArgumentDescription(Argument argument) => argument.Description ?? string.Empty;
+        public static string GetArgumentDescription(CliArgument argument) => argument.Description ?? string.Empty;
 
         /// <summary>
         /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
         /// </summary>
-        public static string GetArgumentUsageLabel(Argument argument)
+        public static string GetArgumentUsageLabel(CliArgument argument)
         {
             // Argument.HelpName is always first choice
             if (!string.IsNullOrWhiteSpace(argument.HelpName))
@@ -70,7 +70,7 @@ public partial class HelpBuilder
             }
 
             // By default Option.Name == Argument.Name, don't repeat it
-            return argument.FirstParent?.Symbol is not Option ? $"<{argument.Name}>" : "";
+            return argument.FirstParent?.Symbol is not CliOption ? $"<{argument.Name}>" : "";
         }
 
         /// <summary>
@@ -78,14 +78,14 @@ public partial class HelpBuilder
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <returns>Text to display.</returns>
-        public static string GetCommandUsageLabel(Command symbol)
+        public static string GetCommandUsageLabel(CliCommand symbol)
             => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
 
-        /// <inheritdoc cref="GetCommandUsageLabel(Command)"/>
-        public static string GetOptionUsageLabel(Option symbol)
+        /// <inheritdoc cref="GetCommandUsageLabel(CliCommand)"/>
+        public static string GetOptionUsageLabel(CliOption symbol)
             => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
 
-        private static string GetIdentifierSymbolUsageLabel(Symbol symbol, AliasSet? aliasSet)
+        private static string GetIdentifierSymbolUsageLabel(CliSymbol symbol, AliasSet? aliasSet)
         {
             var aliases =  aliasSet is null
                 ? new [] { symbol.Name }
@@ -101,7 +101,7 @@ public partial class HelpBuilder
 
             foreach (var argument in symbol.Arguments())
             {
-                if (!argument.IsHidden)
+                if (!argument.Hidden)
                 {
                     var argumentFirstColumnText = GetArgumentUsageLabel(argument);
 
@@ -112,7 +112,7 @@ public partial class HelpBuilder
                 }
             }
 
-            if (symbol is Option { IsRequired: true })
+            if (symbol is CliOption { Required: true })
             {
                 firstColumnText += $" {LocalizationResources.HelpOptionsRequiredLabel()}";
             }
@@ -183,33 +183,33 @@ public partial class HelpBuilder
             {
                 // by making this logic more complex, we were able to get some nice perf wins elsewhere
                 List<TwoColumnHelpRow> options = new();
-                HashSet<Option> uniqueOptions = new();
+                HashSet<CliOption> uniqueOptions = new();
                 if (ctx.Command.HasOptions)
                 {
-                    foreach (Option option in ctx.Command.Options)
+                    foreach (CliOption option in ctx.Command.Options)
                     {
-                        if (!option.IsHidden && uniqueOptions.Add(option))
+                        if (!option.Hidden && uniqueOptions.Add(option))
                         {
                             options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
                         }
                     }
                 }
 
-                Command? current = ctx.Command;
+                CliCommand? current = ctx.Command;
                 while (current is not null)
                 {
-                    Command? parentCommand = null;
+                    CliCommand? parentCommand = null;
                     ParentNode? parent = current.FirstParent;
                     while (parent is not null)
                     {
-                        if ((parentCommand = parent.Symbol as Command) is not null)
+                        if ((parentCommand = parent.Symbol as CliCommand) is not null)
                         {
                             if (parentCommand.HasOptions)
                             {
                                 foreach (var option in parentCommand.Options)
                                 {
                                     // global help aliases may be duplicated, we just ignore them
-                                    if (option.AppliesToSelfAndChildren && !option.IsHidden && uniqueOptions.Add(option))
+                                    if (option.Recursive && !option.Hidden && uniqueOptions.Add(option))
                                     {
                                         options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
                                     }
@@ -235,7 +235,7 @@ public partial class HelpBuilder
             };
 
         ///  <summary>
-        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="Command.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
+        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="CliCommand.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
         ///  </summary>
         public static Action<HelpContext> AdditionalArgumentsSection() =>
             ctx => ctx.HelpBuilder.WriteAdditionalArguments(ctx);

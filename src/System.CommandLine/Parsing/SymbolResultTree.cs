@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    internal sealed class SymbolResultTree : Dictionary<Symbol, SymbolResult>
+    internal sealed class SymbolResultTree : Dictionary<CliSymbol, SymbolResult>
     {
         internal List<ParseError>? Errors;
         internal List<Token>? UnmatchedTokens;
@@ -25,23 +25,23 @@ namespace System.CommandLine.Parsing
 
         internal int ErrorCount => Errors?.Count ?? 0;
 
-        internal ArgumentResult? FindResultFor(Argument argument)
+        internal ArgumentResult? FindResultFor(CliArgument argument)
             => TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
 
-        internal CommandResult? FindResultFor(Command command)
+        internal CommandResult? FindResultFor(CliCommand command)
             => TryGetValue(command, out SymbolResult? result) ? (CommandResult)result : default;
 
-        internal OptionResult? FindResultFor(Option option)
+        internal OptionResult? FindResultFor(CliOption option)
             => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
-        internal DirectiveResult? FindResultFor(Directive directive)
+        internal DirectiveResult? FindResultFor(CliDirective directive)
             => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
 
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
             if (parent is not ArgumentResult)
             {
-                foreach (KeyValuePair<Symbol, SymbolResult> pair in this)
+                foreach (KeyValuePair<CliSymbol, SymbolResult> pair in this)
                 {
                     if (ReferenceEquals(parent, pair.Value.Parent))
                     {

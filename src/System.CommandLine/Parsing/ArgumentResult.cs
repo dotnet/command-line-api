@@ -15,7 +15,7 @@ namespace System.CommandLine.Parsing
         private bool _onlyTakeHasBeenCalled;
 
         internal ArgumentResult(
-            Argument argument,
+            CliArgument argument,
             SymbolResultTree symbolResultTree,
             SymbolResult? parent) : base(symbolResultTree, parent)
         {
@@ -25,11 +25,11 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The argument to which the result applies.
         /// </summary>
-        public Argument Argument { get; }
+        public CliArgument Argument { get; }
 
-        internal bool IsArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
+        internal bool ArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
 
-        internal bool IsImplicit => Argument.HasDefaultValue && Tokens.Count == 0;
+        internal bool Implicit => Argument.HasDefaultValue && Tokens.Count == 0;
 
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= ValidateAndConvert(useValidators: true);
@@ -64,7 +64,7 @@ namespace System.CommandLine.Parsing
 
             if (Parent is OptionResult)
             {
-                throw new NotSupportedException($"{nameof(OnlyTake)} is supported only for a {nameof(Command)}-owned {nameof(ArgumentResult)}");
+                throw new NotSupportedException($"{nameof(OnlyTake)} is supported only for a {nameof(CliCommand)}-owned {nameof(ArgumentResult)}");
             }
 
             _onlyTakeHasBeenCalled = true;
@@ -82,7 +82,7 @@ namespace System.CommandLine.Parsing
 
             while (tokensToPass > 0 && nextArgumentIndex < arguments.Count)
             {
-                Argument nextArgument = parent.Command.Arguments[nextArgumentIndex];
+                CliArgument nextArgument = parent.Command.Arguments[nextArgumentIndex];
                 ArgumentResult nextArgumentResult;
 
                 if (SymbolResultTree.TryGetValue(nextArgument, out SymbolResult? symbolResult))
@@ -96,7 +96,7 @@ namespace System.CommandLine.Parsing
                     SymbolResultTree.Add(nextArgument, nextArgumentResult);
                 }
 
-                while (!nextArgumentResult.IsArgumentLimitReached && tokensToPass > 0)
+                while (!nextArgumentResult.ArgumentLimitReached && tokensToPass > 0)
                 {
                     Token toPass = _tokens[numberOfTokens];
                     _tokens.RemoveAt(numberOfTokens);

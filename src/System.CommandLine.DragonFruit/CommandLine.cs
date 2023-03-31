@@ -106,7 +106,7 @@ namespace System.CommandLine.DragonFruit
             string xmlDocsFilePath,
             object target)
         {
-            return new CommandLineConfiguration(new RootCommand())
+            return new CommandLineConfiguration(new CliRootCommand())
                 .ConfigureRootCommandFromMethod(method, target)
                 .ConfigureHelpFromXmlComments(method, xmlDocsFilePath);
         }
@@ -139,7 +139,7 @@ namespace System.CommandLine.DragonFruit
         };
 
         public static void ConfigureFromMethod(
-            this Command command,
+            this CliCommand command,
             MethodInfo method,
             object target = null)
         {
@@ -243,7 +243,7 @@ namespace System.CommandLine.DragonFruit
                        : $"-{parameterName.ToLowerInvariant()}";
         }
 
-        public static IEnumerable<Option> BuildOptions(this MethodInfo method)
+        public static IEnumerable<CliOption> BuildOptions(this MethodInfo method)
         {
             var descriptor = HandlerDescriptor.FromMethodInfo(method);
 
@@ -264,7 +264,7 @@ namespace System.CommandLine.DragonFruit
             }
         }
 
-        public static Option BuildOption(this ParameterDescriptor parameter)
+        public static CliOption BuildOption(this ParameterDescriptor parameter)
             => OptionBuilder.CreateOption(
                 parameter.BuildAlias(),
                 parameter.ValueType,
@@ -300,7 +300,7 @@ namespace System.CommandLine.DragonFruit
         /// </summary>
         /// <param name="alias">The alias, which can include a prefix.</param>
         /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
-        private static bool HasAliasIgnoringPrefix(Option option, string alias)
+        private static bool HasAliasIgnoringPrefix(CliOption option, string alias)
         {
             ReadOnlySpan<char> rawAlias = alias.AsSpan(GetPrefixLength(alias));
 

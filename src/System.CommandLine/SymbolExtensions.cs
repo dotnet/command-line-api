@@ -10,18 +10,18 @@ namespace System.CommandLine
     /// </summary>
     internal static class SymbolExtensions
     {
-        internal static IList<Argument> Arguments(this Symbol symbol)
+        internal static IList<CliArgument> Arguments(this CliSymbol symbol)
         {
             switch (symbol)
             {
-                case Option option:
+                case CliOption option:
                     return new[]
                     {
                         option.Argument
                     };
-                case Command command:
+                case CliCommand command:
                     return command.Arguments;
-                case Argument argument:
+                case CliArgument argument:
                     return new[]
                     {
                         argument

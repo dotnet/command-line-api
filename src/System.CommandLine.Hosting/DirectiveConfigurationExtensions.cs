@@ -10,7 +10,7 @@ namespace System.CommandLine.Hosting
     {
         public static IConfigurationBuilder AddCommandLineDirectives(
             this IConfigurationBuilder config, ParseResult commandline,
-            Directive directive)
+            CliDirective directive)
         {
             if (commandline is null)
                 throw new ArgumentNullException(nameof(commandline));

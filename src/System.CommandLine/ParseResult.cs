@@ -58,7 +58,7 @@ namespace System.CommandLine
             _errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
-        internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
+        internal static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
 
         /// <summary>
         /// A result indicating the command specified in the command line input.
@@ -111,7 +111,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public T? GetValue<T>(Argument<T> argument)
+        public T? GetValue<T>(CliArgument<T> argument)
             => RootCommandResult.GetValue(argument);
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public T? GetValue<T>(Option<T> option)
+        public T? GetValue<T>(CliOption<T> option)
             => RootCommandResult.GetValue(option);
 
         /// <summary>
@@ -160,10 +160,10 @@ namespace System.CommandLine
             {
                 ArgumentResult argumentResult => Convert(argumentResult.GetArgumentConversionResult()),
                 OptionResult optionResult => Convert(optionResult.ArgumentConversionResult),
-                _ => Argument<T>.CreateDefaultValue()
+                _ => CliArgument<T>.CreateDefaultValue()
             };
 
-            void Populate<TSymbol>(Dictionary<string, SymbolResult?> cache, IList<TSymbol> symbols) where TSymbol : Symbol
+            void Populate<TSymbol>(Dictionary<string, SymbolResult?> cache, IList<TSymbol> symbols) where TSymbol : CliSymbol
             {
                 var symbolResultTree = CommandResult.SymbolResultTree;
                 for (int i = 0; i < symbols.Count; i++)
@@ -194,14 +194,14 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override string ToString() => ParseDirectiveAction.Diagram(this).ToString();
+        public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
 
         /// <summary>
         /// Gets the result, if any, for the specified argument.
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>A result for the specified argument, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public ArgumentResult? FindResultFor(Argument argument) =>
+        public ArgumentResult? FindResultFor(CliArgument argument) =>
             _rootCommandResult.FindResultFor(argument);
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>A result for the specified command, or <see langword="null"/> if it was not provided.</returns>
-        public CommandResult? FindResultFor(Command command) =>
+        public CommandResult? FindResultFor(CliCommand command) =>
             _rootCommandResult.FindResultFor(command);
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public OptionResult? FindResultFor(Option option) =>
+        public OptionResult? FindResultFor(CliOption option) =>
             _rootCommandResult.FindResultFor(option);
 
         /// <summary>
@@ -225,14 +225,14 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="directive">The directive for which to find a result.</param>
         /// <returns>A result for the specified directive, or <see langword="null"/> if it was not provided.</returns>
-        public DirectiveResult? FindResultFor(Directive directive) => _rootCommandResult.FindResultFor(directive);
+        public DirectiveResult? FindResultFor(CliDirective directive) => _rootCommandResult.FindResultFor(directive);
 
         /// <summary>
         /// Gets the result, if any, for the specified symbol.
         /// </summary>
         /// <param name="symbol">The symbol for which to find a result.</param>
         /// <returns>A result for the specified symbol, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public SymbolResult? FindResultFor(Symbol symbol)
+        public SymbolResult? FindResultFor(CliSymbol symbol)
             => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out SymbolResult? result) ? result : null;
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace System.CommandLine
         {
             SymbolResult currentSymbolResult = SymbolToComplete(position);
 
-            Symbol currentSymbol = currentSymbolResult switch
+            CliSymbol currentSymbol = currentSymbolResult switch
             {
                 ArgumentResult argumentResult => argumentResult.Argument,
                 OptionResult optionResult => optionResult.Option,
@@ -338,7 +338,7 @@ namespace System.CommandLine
                 int? position,
                 OptionResult optionResult)
             {
-                if (optionResult.IsImplicit)
+                if (optionResult.Implicit)
                 {
                     return false;
                 }

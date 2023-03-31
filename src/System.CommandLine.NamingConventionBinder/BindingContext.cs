@@ -88,11 +88,11 @@ namespace System.CommandLine.Binding
                 }
                 else
                 {
-                    ArgumentResult argumentResult = valueDescriptor is Argument argument 
+                    ArgumentResult argumentResult = valueDescriptor is CliArgument argument 
                         ? parseResult.FindResultFor(argument) is ArgumentResult found
                             ? found
                             : new ArgumentResult(argument, parseResult.RootCommandResult.SymbolResultTree, null)
-                        : new ArgumentResult(new Argument<string>(valueDescriptor.ValueName), parseResult.RootCommandResult.SymbolResultTree, null);
+                        : new ArgumentResult(new CliArgument<string>(valueDescriptor.ValueName), parseResult.RootCommandResult.SymbolResultTree, null);
 
                     var parsed = ArgumentConverter.ConvertObject(
                         argumentResult,

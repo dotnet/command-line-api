@@ -44,9 +44,9 @@ namespace System.CommandLine.Benchmarks.Helpers
             return pathToAssemblyFile;
         }
 
-        public static CommandLineConfiguration CreateConfiguration(this IEnumerable<Option> symbols)
+        public static CommandLineConfiguration CreateConfiguration(this IEnumerable<CliOption> symbols)
         {
-            var rootCommand = new RootCommand();
+            var rootCommand = new CliRootCommand();
 
             foreach (var symbol in symbols)
             {

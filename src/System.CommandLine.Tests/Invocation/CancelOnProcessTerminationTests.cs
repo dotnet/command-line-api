@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests.Invocation
         private const int SIGTERM_EXIT_CODE = 143;
         private const int GracefulExitCode = 42;
 
-        private static readonly Option<bool> InfiniteDelayOption = new("--infiniteDelay");
+        private static readonly CliOption<bool> InfiniteDelayOption = new("--infiniteDelay");
 
         public enum Signals
         {
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests.Invocation
 
         private static Task<int> Program(string[] args)
         {
-            RootCommand command = new ()
+            CliRootCommand command = new ()
             {
                 InfiniteDelayOption
             };

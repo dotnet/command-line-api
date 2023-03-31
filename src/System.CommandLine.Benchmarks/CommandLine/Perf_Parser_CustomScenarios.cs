@@ -13,15 +13,15 @@ namespace System.CommandLine.Benchmarks.CommandLine
     public class Perf_Parser_CustomScenarios
     {
         private string _testSymbolsAsString;
-        private Command _rootCommand;
+        private CliCommand _rootCommand;
         private CommandLineConfiguration _configuration;
 
         [GlobalSetup(Target = nameof(OneOptWithNestedCommand_Parse))]
         public void SetupOneOptWithNestedCommand()
         {
-            _rootCommand = new Command("root_command");
-            var nestedCommand = new Command("nested_command");
-            var option = new Option<int>("-opt1") { DefaultValueFactory = (_) => 123 };
+            _rootCommand = new CliCommand("root_command");
+            var nestedCommand = new CliCommand("nested_command");
+            var option = new CliOption<int>("-opt1") { DefaultValueFactory = (_) => 123 };
             nestedCommand.Options.Add(option);
             _rootCommand.Subcommands.Add(nestedCommand);
 

@@ -5,9 +5,9 @@ namespace System.CommandLine
 {
     internal sealed class ParentNode
     {
-        internal ParentNode(Symbol symbol) => Symbol = symbol;
+        internal ParentNode(CliSymbol symbol) => Symbol = symbol;
 
-        internal Symbol Symbol { get; }
+        internal CliSymbol Symbol { get; }
 
         internal ParentNode? Next { get; set; }
     }

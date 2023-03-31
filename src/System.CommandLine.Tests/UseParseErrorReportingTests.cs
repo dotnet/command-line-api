@@ -16,9 +16,9 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/817
         public void Parse_error_reporting_reports_error_when_help_is_used_and_required_subcommand_is_missing()
         {
-            var root = new RootCommand
+            var root = new CliRootCommand
             {
-                new Command("inner"),
+                new CliCommand("inner"),
                 new HelpOption()
             };
 
@@ -39,9 +39,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void User_can_customize_parse_error_result_code()
         {
-            var root = new RootCommand
+            var root = new CliRootCommand
             {
-                new Command("inner")
+                new CliCommand("inner")
             };
 
             CommandLineConfiguration config = new (root)

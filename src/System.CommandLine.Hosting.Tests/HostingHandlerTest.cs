@@ -50,7 +50,7 @@ namespace System.CommandLine.Hosting.Tests
         [Fact]
         public static async Task Can_have_different_handlers_based_on_command()
         {
-            var root = new RootCommand();
+            var root = new CliRootCommand();
 
             root.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyHandler>());
             root.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
@@ -79,7 +79,7 @@ namespace System.CommandLine.Hosting.Tests
         public static async Task Can_bind_to_arguments_via_injection()
         {
             var service = new MyService();
-            var cmd = new RootCommand();
+            var cmd = new CliRootCommand();
             cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
             var config = new CommandLineConfiguration(cmd)
                 .UseHost(host =>
@@ -100,7 +100,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
 
-            var cmd = new RootCommand();
+            var cmd = new CliRootCommand();
             cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyDerivedHandler>());
             cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedHandler>());
             var config = new CommandLineConfiguration(cmd)
@@ -135,11 +135,11 @@ namespace System.CommandLine.Hosting.Tests
             protected abstract int Act();
         }
 
-        public class MyCommand : Command
+        public class MyCommand : CliCommand
         {
             public MyCommand() : base(name: "mycommand")
             {
-                Options.Add(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+                Options.Add(new CliOption<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
 
             public class MyHandler : CliAction
@@ -183,12 +183,12 @@ namespace System.CommandLine.Hosting.Tests
             }
         }
 
-        public class MyOtherCommand : Command
+        public class MyOtherCommand : CliCommand
         {
             public MyOtherCommand() : base(name: "myothercommand")
             {
-                Options.Add(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
-                Arguments.Add(new Argument<string>("One") {  Arity = ArgumentArity.ZeroOrOne });
+                Options.Add(new CliOption<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+                Arguments.Add(new CliArgument<string>("One") {  Arity = ArgumentArity.ZeroOrOne });
             }
 
             public class MyHandler : CliAction

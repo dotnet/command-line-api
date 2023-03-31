@@ -10,11 +10,11 @@ namespace System.CommandLine
     /// <summary>
     /// Defines a named symbol that resides in a hierarchy with parent and child symbols.
     /// </summary>
-    public abstract class Symbol
+    public abstract class CliSymbol
     {
         private ParentNode? _firstParent;
 
-        private protected Symbol(string name, bool allowWhitespace = false)
+        private protected CliSymbol(string name, bool allowWhitespace = false)
         {
             Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
         }
@@ -34,7 +34,7 @@ namespace System.CommandLine
         /// </summary>
         internal ParentNode? FirstParent => _firstParent;
         
-        internal void AddParent(Symbol symbol)
+        internal void AddParent(CliSymbol symbol)
         {
             if (_firstParent == null)
             {
@@ -54,12 +54,12 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets a value indicating whether the symbol is hidden.
         /// </summary>
-        public bool IsHidden { get; set; }
+        public bool Hidden { get; set; }
 
         /// <summary>
         /// Gets the parent symbols.
         /// </summary>
-        public IEnumerable<Symbol> Parents
+        public IEnumerable<CliSymbol> Parents
         {
             get
             {

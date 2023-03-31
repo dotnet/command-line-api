@@ -14,16 +14,16 @@ namespace System.CommandLine.Parsing
     /// Implements the <c>[parse]</c> directive action, which when specified on the command line 
     /// will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
-    internal sealed class ParseDirectiveAction : CliAction
+    internal sealed class ParseDiagramAction : CliAction
     {
-        private readonly int _errorExitCode;
+        private readonly int _parseErrorReturnValue;
 
-        internal ParseDirectiveAction(int errorExitCode) => _errorExitCode = errorExitCode;
+        internal ParseDiagramAction(int parseErrorReturnValue) => _parseErrorReturnValue = parseErrorReturnValue;
 
         public override int Invoke(ParseResult parseResult)
         {
             parseResult.Configuration.Output.WriteLine(Diagram(parseResult));
-            return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
+            return parseResult.Errors.Count == 0 ? 0 : _parseErrorReturnValue;
         }
 
         public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
@@ -37,7 +37,7 @@ namespace System.CommandLine.Parsing
 #else
             await parseResult.Configuration.Output.WriteLineAsync(diagram.ToString());
 #endif
-            return parseResult.Errors.Count == 0 ? 0 : _errorExitCode;
+            return parseResult.Errors.Count == 0 ? 0 : _parseErrorReturnValue;
         }
 
         /// <summary>
@@ -79,12 +79,12 @@ namespace System.CommandLine.Parsing
 
             switch (symbolResult)
             {
-                case DirectiveResult directiveResult when directiveResult.Directive is not ParseDirective:
+                case DirectiveResult directiveResult when directiveResult.Directive is not ParseDiagramDirective:
                     break;
                 case ArgumentResult argumentResult:
                 {
                     var includeArgumentName =
-                        argumentResult.Argument.FirstParent!.Symbol is Command command &&
+                        argumentResult.Argument.FirstParent!.Symbol is CliCommand command &&
                         command.HasArguments && command.Arguments.Count > 1;
 
                     if (includeArgumentName)
@@ -146,7 +146,7 @@ namespace System.CommandLine.Parsing
                 {
                     OptionResult? optionResult = symbolResult as OptionResult;
 
-                    if (optionResult is { IsImplicit: true })
+                    if (optionResult is { Implicit: true })
                     {
                         builder.Append("*");
                     }

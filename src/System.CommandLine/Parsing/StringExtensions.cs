@@ -101,8 +101,8 @@ namespace System.CommandLine.Parsing
                             ? arg.Substring(1, colonIndex - 1) // [name:value]
                             : arg.Substring(1, arg.Length - 2); // [name] is a legal directive
 
-                        Directive? directive = knownTokens.TryGetValue(directiveName, out var directiveToken)
-                            ? (Directive)directiveToken.Symbol!
+                        CliDirective? directive = knownTokens.TryGetValue(directiveName, out var directiveToken)
+                            ? (CliDirective)directiveToken.Symbol!
                             : null;
 
                         tokenList.Add(Directive(arg, directive));
@@ -149,11 +149,11 @@ namespace System.CommandLine.Parsing
                         switch (token.Type)
                         {
                             case TokenType.Option:
-                                tokenList.Add(Option(arg, (Option)token.Symbol!));
+                                tokenList.Add(Option(arg, (CliOption)token.Symbol!));
                                 break;
 
                             case TokenType.Command:
-                                Command cmd = (Command)token.Symbol!;
+                                CliCommand cmd = (CliCommand)token.Symbol!;
                                 if (cmd != currentCommand)
                                 {
                                     if (cmd != configuration.RootCommand)
@@ -177,7 +177,7 @@ namespace System.CommandLine.Parsing
                          knownTokens.TryGetValue(first, out var subtoken) &&
                          subtoken.Type == TokenType.Option)
                 {
-                    tokenList.Add(Option(first, (Option)subtoken.Symbol!));
+                    tokenList.Add(Option(first, (CliOption)subtoken.Symbol!));
 
                     if (rest is not null)
                     {
@@ -193,17 +193,17 @@ namespace System.CommandLine.Parsing
 
                 Token Argument(string value) => new(value, TokenType.Argument, default, i);
 
-                Token CommandArgument(string value, Command command) => new(value, TokenType.Argument, command, i);
+                Token CommandArgument(string value, CliCommand command) => new(value, TokenType.Argument, command, i);
 
-                Token OptionArgument(string value, Option option) => new(value, TokenType.Argument, option, i);
+                Token OptionArgument(string value, CliOption option) => new(value, TokenType.Argument, option, i);
 
-                Token Command(string value, Command cmd) => new(value, TokenType.Command, cmd, i);
+                Token Command(string value, CliCommand cmd) => new(value, TokenType.Command, cmd, i);
 
-                Token Option(string value, Option option) => new(value, TokenType.Option, option, i);
+                Token Option(string value, CliOption option) => new(value, TokenType.Option, option, i);
 
                 Token DoubleDash() => new("--", TokenType.DoubleDash, default, i);
 
-                Token Directive(string value, Directive? directive) => new(value, TokenType.Directive, directive, i);
+                Token Directive(string value, CliDirective? directive) => new(value, TokenType.Directive, directive, i);
             }
 
             tokens = tokenList;
@@ -247,7 +247,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             tokenList.Add(new Token(found.Value, found.Type, found.Symbol, argumentIndex));
-                            if (i != alias.Length - 1 && ((Option)found.Symbol!).IsGreedy)
+                            if (i != alias.Length - 1 && ((CliOption)found.Symbol!).Greedy)
                             {
                                 int index = i + 1;
                                 if (alias[index] == ':' || alias[index] == '=')
@@ -264,7 +264,7 @@ namespace System.CommandLine.Parsing
                 return true;
             }
 
-            bool PreviousTokenIsAnOptionExpectingAnArgument(out Option? option)
+            bool PreviousTokenIsAnOptionExpectingAnArgument(out CliOption? option)
             {
                 if (tokenList.Count > 1)
                 {
@@ -272,7 +272,7 @@ namespace System.CommandLine.Parsing
 
                     if (token.Type == TokenType.Option)
                     {
-                        if (token.Symbol is Option { IsGreedy: true } opt)
+                        if (token.Symbol is CliOption { Greedy: true } opt)
                         {
                             option = opt;
                             return true;
@@ -285,11 +285,11 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static bool FirstArgumentIsRootCommand(IReadOnlyList<string> args, Command rootCommand, bool inferRootCommand)
+        private static bool FirstArgumentIsRootCommand(IReadOnlyList<string> args, CliCommand rootCommand, bool inferRootCommand)
         {
             if (args.Count > 0)
             {
-                if (inferRootCommand && args[0] == RootCommand.ExecutablePath)
+                if (inferRootCommand && args[0] == CliRootCommand.ExecutablePath)
                 {
                     return true;
                 }
@@ -405,7 +405,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, Token> ValidTokens(this Command command, IReadOnlyList<Directive>? directives)
+        private static Dictionary<string, Token> ValidTokens(this CliCommand command, IReadOnlyList<CliDirective>? directives)
         {
             Dictionary<string, Token> tokens = new(StringComparer.Ordinal);
 
@@ -413,7 +413,7 @@ namespace System.CommandLine.Parsing
             {
                 for (int directiveIndex = 0; directiveIndex < directives.Count; directiveIndex++)
                 {
-                    Directive directive = directives[directiveIndex];
+                    CliDirective directive = directives[directiveIndex];
                     tokens[directive.Name] = new Token(directive.Name, TokenType.Directive, directive, Token.ImplicitPosition);
                 }
             }
@@ -438,21 +438,21 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            Command? current = command;
+            CliCommand? current = command;
             while (current is not null)
             {
-                Command? parentCommand = null;
+                CliCommand? parentCommand = null;
                 ParentNode? parent = current.FirstParent;
                 while (parent is not null)
                 {
-                    if ((parentCommand = parent.Symbol as Command) is not null)
+                    if ((parentCommand = parent.Symbol as CliCommand) is not null)
                     {
                         if (parentCommand.HasOptions)
                         {
                             for (var i = 0; i < parentCommand.Options.Count; i++)
                             {
-                                Option option = parentCommand.Options[i];
-                                if (option.AppliesToSelfAndChildren)
+                                CliOption option = parentCommand.Options[i];
+                                if (option.Recursive)
                                 {
                                     AddOptionTokens(tokens, option);
                                 }
@@ -468,7 +468,7 @@ namespace System.CommandLine.Parsing
 
             return tokens;
 
-            static void AddCommandTokens(Dictionary<string, Token> tokens, Command cmd)
+            static void AddCommandTokens(Dictionary<string, Token> tokens, CliCommand cmd)
             {
                 tokens.Add(cmd.Name, new Token(cmd.Name, TokenType.Command, cmd, Token.ImplicitPosition));
 
@@ -481,7 +481,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            static void AddOptionTokens(Dictionary<string, Token> tokens, Option option)
+            static void AddOptionTokens(Dictionary<string, Token> tokens, CliOption option)
             {
                 if (!tokens.ContainsKey(option.Name))
                 {
