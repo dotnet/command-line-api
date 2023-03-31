@@ -297,7 +297,7 @@ namespace System.CommandLine.Tests
                     new CliArgument<string>("arg4")
                 };
 
-                var result = Parser.Parse(command, providedArgs);
+                var result = CliParser.Parse(command, providedArgs);
 
                 result
                     .Errors

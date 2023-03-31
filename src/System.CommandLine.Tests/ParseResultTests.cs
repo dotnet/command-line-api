@@ -74,12 +74,12 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var result = Parser.Parse(command, "outer inner-one inner-two");
+            var result = CliParser.Parse(command, "outer inner-one inner-two");
 
             result.CommandResult.Command.Name.Should().Be("inner-one");
             result.Errors.Count.Should().Be(1);
 
-            var result2 = Parser.Parse(command, "outer inner-two inner-one");
+            var result2 = CliParser.Parse(command, "outer inner-two inner-one");
 
             result2.CommandResult.Command.Name.Should().Be("inner-two");
             result2.Errors.Count.Should().Be(1);
@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
                 midCommand2
             };
 
-            var result = Parser.Parse(rootCommand, "root midCommand2 leafCommand --");
+            var result = CliParser.Parse(rootCommand, "root midCommand2 leafCommand --");
 
             var completions = result.GetCompletions();
 

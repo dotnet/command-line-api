@@ -41,9 +41,9 @@ namespace System.CommandLine.Benchmarks.CommandLine
             return command;
         }
 
-        private static CommandLineConfiguration BuildMinimalConfig(CliCommand command)
+        private static CliConfiguration BuildMinimalConfig(CliCommand command)
         {
-            CommandLineConfiguration config = new(command);
+            CliConfiguration config = new(command);
             config.Directives.Clear();
             config.EnableDefaultExceptionHandler = false;
             config.ProcessTerminationTimeout = null;

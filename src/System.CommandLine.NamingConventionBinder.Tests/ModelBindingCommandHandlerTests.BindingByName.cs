@@ -37,7 +37,7 @@ public partial class ModelBindingCommandHandlerTests
                 OptionBuilder.CreateOption("--value", type)
             };
             command.Action = handler;
-            CommandLineConfiguration configuration = new(command)
+            CliConfiguration configuration = new(command)
             {
                 Output = new StringWriter()
             };
@@ -71,7 +71,7 @@ public partial class ModelBindingCommandHandlerTests
                 OptionBuilder.CreateOption("--value", type)
             };
             command.Action = handler;
-            CommandLineConfiguration configuration = new(command)
+            CliConfiguration configuration = new(command)
             {
                 Output = new StringWriter()
             };
@@ -105,7 +105,7 @@ public partial class ModelBindingCommandHandlerTests
                 OptionBuilder.CreateOption("--value", type)
             };
             command.Action = handler;
-            CommandLineConfiguration configuration = new(command)
+            CliConfiguration configuration = new(command)
             {
                 Output = new StringWriter()
             };
@@ -135,7 +135,7 @@ public partial class ModelBindingCommandHandlerTests
                 ArgumentBuilder.CreateArgument(type)
             };
             command.Action = handler;
-            CommandLineConfiguration configuration = new(command)
+            CliConfiguration configuration = new(command)
             {
                 Output = new StringWriter()
             };

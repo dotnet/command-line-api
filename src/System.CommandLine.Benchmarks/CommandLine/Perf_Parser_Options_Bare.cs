@@ -10,14 +10,14 @@ using BenchmarkDotNet.Attributes;
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="Parser"/> when parsing options without arguments.
+    /// Measures the performance of <see cref="CliParser"/> when parsing options without arguments.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_Bare
     {
         private IEnumerable<CliOption> _testSymbols;
         private string _testSymbolsAsString;
-        private CommandLineConfiguration _testConfiguration;
+        private CliConfiguration _testConfiguration;
 
         private IEnumerable<CliOption> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
@@ -49,7 +49,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Benchmark]
-        public CommandLineConfiguration ParserFromOptions_Ctor()
+        public CliConfiguration ParserFromOptions_Ctor()
         {
             return _testSymbols.CreateConfiguration();
         }

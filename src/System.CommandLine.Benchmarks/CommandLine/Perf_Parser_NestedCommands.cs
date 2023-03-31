@@ -7,14 +7,14 @@ using BenchmarkDotNet.Attributes;
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="Parser"/> when parsing commands.
+    /// Measures the performance of <see cref="CliParser"/> when parsing commands.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_NestedCommands
     {
         private string _testSymbolsAsString;
         private CliCommand _rootCommand;
-        private CommandLineConfiguration _configuration;
+        private CliConfiguration _configuration;
 
         /// <remarks>
         /// 1 - cmd-root
@@ -62,10 +62,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
             }
 
             _rootCommand = rootCommand;
-            _configuration = new CommandLineConfiguration(rootCommand);
+            _configuration = new CliConfiguration(rootCommand);
         }
 
         [Benchmark]
-        public ParseResult Parser_Parse() => Parser.Parse(_rootCommand, _testSymbolsAsString, _configuration);
+        public ParseResult Parser_Parse() => CliParser.Parse(_rootCommand, _testSymbolsAsString, _configuration);
     }
 }

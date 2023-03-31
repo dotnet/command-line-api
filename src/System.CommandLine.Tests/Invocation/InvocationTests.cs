@@ -23,7 +23,7 @@ namespace System.CommandLine.Tests.Invocation
             command.Description = theHelpText;
 
             StringWriter output = new();
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = output
             };
@@ -46,7 +46,7 @@ namespace System.CommandLine.Tests.Invocation
             command.Description = theHelpText;
 
             StringWriter output = new ();
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = output
             };

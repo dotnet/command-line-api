@@ -145,7 +145,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            CommandLineConfiguration configuration = new (rootCommand)
+            CliConfiguration configuration = new (rootCommand)
             {
                 EnablePosixBundling = false
             };
@@ -480,7 +480,7 @@ namespace System.CommandLine.Tests
         [InlineData("not a valid command line --one 1")]
         public void Original_order_of_tokens_is_preserved_in_ParseResult_Tokens(string commandLine)
         {
-            var rawSplit = Parser.SplitCommandLine(commandLine);
+            var rawSplit = CliParser.SplitCommandLine(commandLine);
 
             var command = new CliCommand("the-command")
                           {

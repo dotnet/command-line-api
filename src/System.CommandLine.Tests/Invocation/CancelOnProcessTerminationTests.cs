@@ -55,7 +55,7 @@ namespace System.CommandLine.Tests.Invocation
             };
             command.Action = new CustomCliAction();
 
-            return new CommandLineConfiguration(command)
+            return new CliConfiguration(command)
             {
                 ProcessTerminationTimeout = TimeSpan.FromSeconds(2)
             }.InvokeAsync(args);

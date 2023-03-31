@@ -80,7 +80,7 @@ namespace System.CommandLine.DragonFruit
             TextWriter standardOutput = null,
             TextWriter standardError = null)
         {
-            CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
+            CliConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
             configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
@@ -95,24 +95,24 @@ namespace System.CommandLine.DragonFruit
             TextWriter standardOutput = null,
             TextWriter standardError = null)
         {
-            CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
+            CliConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
             configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
             return configuration.Parse(args).Invoke();
         }
 
-        private static CommandLineConfiguration BuildConfiguration(MethodInfo method,
+        private static CliConfiguration BuildConfiguration(MethodInfo method,
             string xmlDocsFilePath,
             object target)
         {
-            return new CommandLineConfiguration(new CliRootCommand())
+            return new CliConfiguration(new CliRootCommand())
                 .ConfigureRootCommandFromMethod(method, target)
                 .ConfigureHelpFromXmlComments(method, xmlDocsFilePath);
         }
 
-        public static CommandLineConfiguration ConfigureRootCommandFromMethod(
-            this CommandLineConfiguration builder,
+        public static CliConfiguration ConfigureRootCommandFromMethod(
+            this CliConfiguration builder,
             MethodInfo method,
             object target = null)
         {
@@ -166,8 +166,8 @@ namespace System.CommandLine.DragonFruit
             command.Action = CommandHandler.Create(method, target);
         }
 
-        public static CommandLineConfiguration ConfigureHelpFromXmlComments(
-            this CommandLineConfiguration builder,
+        public static CliConfiguration ConfigureHelpFromXmlComments(
+            this CliConfiguration builder,
             MethodInfo method,
             string xmlDocsFilePath)
         {
@@ -251,7 +251,7 @@ namespace System.CommandLine.DragonFruit
                                {
                                    typeof(BindingContext),
                                    typeof(ParseResult),
-                                   typeof(CommandLineConfiguration),
+                                   typeof(CliConfiguration),
                                    typeof(CancellationToken),
                                };
 

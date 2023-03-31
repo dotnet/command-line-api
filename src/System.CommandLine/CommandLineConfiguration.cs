@@ -12,17 +12,17 @@ using System.CommandLine.Completions;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Represents the configuration used by the <see cref="Parser"/>.
+    /// Represents the configuration used by the <see cref="CliParser"/>.
     /// </summary>
-    public class CommandLineConfiguration
+    public class CliConfiguration
     {
         private TextWriter? _output, _error;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandLineConfiguration"/> class.
+        /// Initializes a new instance of the <see cref="CliConfiguration"/> class.
         /// </summary>
         /// <param name="rootCommand">The root command for the parser.</param>
-        public CommandLineConfiguration(CliCommand rootCommand)
+        public CliConfiguration(CliCommand rootCommand)
         {
             RootCommand = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
             Directives = new()
@@ -124,7 +124,7 @@ namespace System.CommandLine
         /// <param name="args">The string arguments to parse.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public ParseResult Parse(IReadOnlyList<string> args)
-            => Parser.Parse(RootCommand, args, this);
+            => CliParser.Parse(RootCommand, args, this);
 
         /// <summary>
         /// Parses a command line string value using the configured <see cref="RootCommand"/>.
@@ -133,7 +133,7 @@ namespace System.CommandLine
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public ParseResult Parse(string commandLine)
-            => Parser.Parse(RootCommand, commandLine, this);
+            => CliParser.Parse(RootCommand, commandLine, this);
 
         /// <summary>
         /// Parses a command line string value and invokes the handler for the indicated command.

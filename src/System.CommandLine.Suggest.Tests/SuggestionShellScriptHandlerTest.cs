@@ -10,7 +10,7 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionShellScriptHandlerTest
     {
-        private readonly CommandLineConfiguration _configuration;
+        private readonly CliConfiguration _configuration;
 
         public SuggestionShellScriptHandlerTest()
         {

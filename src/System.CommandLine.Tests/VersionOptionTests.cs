@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
-            CommandLineConfiguration configuration = new(new CliRootCommand())
+            CliConfiguration configuration = new(new CliRootCommand())
             {
                 Output = new StringWriter()
             };
@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests
             var rootCommand = new CliRootCommand();
             rootCommand.SetAction((_) => wasCalled = true);
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_option_appears_in_help()
         {
-            CommandLineConfiguration configuration = new(new CliRootCommand())
+            CliConfiguration configuration = new(new CliRootCommand())
             {
                 Output = new StringWriter()
             };
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetAction((_) => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -95,7 +95,7 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetAction((_) => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -119,7 +119,7 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetAction((_) => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -141,7 +141,7 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetAction((_) => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -166,7 +166,7 @@ namespace System.CommandLine.Tests
                     rootCommand.Options[i] = new VersionOption("-v", "-version");
             }
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -193,7 +193,7 @@ namespace System.CommandLine.Tests
 
             rootCommand.SetAction((_) => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };

@@ -287,7 +287,7 @@ namespace System.CommandLine.Tests
                 optionOne,
                 optionTwo
             };
-            CommandLineConfiguration config = new (rootCommand);
+            CliConfiguration config = new (rootCommand);
 
             var result = rootCommand.Parse($"@{responseFile}", config);
 
@@ -302,12 +302,12 @@ namespace System.CommandLine.Tests
             {
                 new CliArgument<List<string>>("arg")
             };
-            CommandLineConfiguration configuration = new(command)
+            CliConfiguration configuration = new(command)
             {
                 ResponseFileTokenReplacer = null
             };
 
-            var result = Parser.Parse(command, "@file.rsp", configuration);
+            var result = CliParser.Parse(command, "@file.rsp", configuration);
 
             result.Tokens
                   .Should()

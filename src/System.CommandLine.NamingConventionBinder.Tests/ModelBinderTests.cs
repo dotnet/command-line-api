@@ -106,7 +106,7 @@ public class ModelBinderTests
         command.Options.Add(option);
         var binder = new ModelBinder(typeof(ClassWithMultiLetterCtorParameters));
 
-        var bindingContext = Parser.Parse(command, "").GetBindingContext();
+        var bindingContext = CliParser.Parse(command, "").GetBindingContext();
 
         var instance = (ClassWithMultiLetterCtorParameters)binder.CreateInstance(bindingContext);
 
@@ -615,7 +615,7 @@ public class ModelBinderTests
             second = two;
         });
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CliConfiguration(rootCommand);
 
         config.Invoke("");
 

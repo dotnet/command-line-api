@@ -25,7 +25,7 @@ namespace System.CommandLine
         private Dictionary<string, SymbolResult?>? _namedResults;
 
         internal ParseResult(
-            CommandLineConfiguration configuration,
+            CliConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<Token> tokens,
@@ -68,7 +68,7 @@ namespace System.CommandLine
         /// <summary>
         /// The configuration used to produce the parse result.
         /// </summary>
-        public CommandLineConfiguration Configuration { get; }
+        public CliConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the root command result.

@@ -7,14 +7,14 @@ using BenchmarkDotNet.Attributes;
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="Parser"/> for custom scenarios.
+    /// Measures the performance of <see cref="CliParser"/> for custom scenarios.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_CustomScenarios
     {
         private string _testSymbolsAsString;
         private CliCommand _rootCommand;
-        private CommandLineConfiguration _configuration;
+        private CliConfiguration _configuration;
 
         [GlobalSetup(Target = nameof(OneOptWithNestedCommand_Parse))]
         public void SetupOneOptWithNestedCommand()
@@ -26,7 +26,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _rootCommand.Subcommands.Add(nestedCommand);
 
             _testSymbolsAsString = "root_command nested_command -opt1 321";
-            _configuration = new CommandLineConfiguration(_rootCommand);
+            _configuration = new CliConfiguration(_rootCommand);
         }
 
         [Benchmark]

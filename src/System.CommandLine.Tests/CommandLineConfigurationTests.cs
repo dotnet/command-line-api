@@ -21,7 +21,7 @@ public class CommandLineConfigurationTests
             option2
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CliConfiguration(command);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -49,7 +49,7 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CliConfiguration(command);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -74,7 +74,7 @@ public class CommandLineConfigurationTests
             command2
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CliConfiguration(rootCommand);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -98,7 +98,7 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CliConfiguration(command);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -123,7 +123,7 @@ public class CommandLineConfigurationTests
             command
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CliConfiguration(rootCommand);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -151,7 +151,7 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CliConfiguration(rootCommand);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -174,7 +174,7 @@ public class CommandLineConfigurationTests
         command.Options.Add(option1);
         command.Options.Add(option2);
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CliConfiguration(command);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -198,7 +198,7 @@ public class CommandLineConfigurationTests
         };
         rootCommand.Options.Add(new CliOption<string>("--dupe") { Recursive = true });
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CliConfiguration(rootCommand);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -217,7 +217,7 @@ public class CommandLineConfigurationTests
         };
         rootCommand.Options.Add(new CliOption<string>("--dupe") { Recursive = true });
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CliConfiguration(rootCommand);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -230,7 +230,7 @@ public class CommandLineConfigurationTests
         var command = new CliRootCommand();
         command.Add(command);
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CliConfiguration(command);
 
         var validate = () => config.ThrowIfInvalid();
 
@@ -249,7 +249,7 @@ public class CommandLineConfigurationTests
         var rootCommand = new CliRootCommand { command };
         command.Add(rootCommand);
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CliConfiguration(rootCommand);
 
         var validate = () => config.ThrowIfInvalid();
 

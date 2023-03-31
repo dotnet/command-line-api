@@ -15,7 +15,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
 
-            var config = new CommandLineConfiguration(
+            var config = new CliConfiguration(
                 new MyCommand().UseCommandHandler<MyCommand.MyHandler>()
                 )
                 .UseHost((builder) => {
@@ -33,7 +33,7 @@ namespace System.CommandLine.Hosting.Tests
         [Fact]
         public static async Task Parameter_is_available_in_property()
         {
-            var config = new CommandLineConfiguration(new MyCommand().UseCommandHandler<MyCommand.MyHandler>())
+            var config = new CliConfiguration(new MyCommand().UseCommandHandler<MyCommand.MyHandler>())
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -54,7 +54,7 @@ namespace System.CommandLine.Hosting.Tests
 
             root.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyHandler>());
             root.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
-            var config = new CommandLineConfiguration(root)
+            var config = new CliConfiguration(root)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -81,7 +81,7 @@ namespace System.CommandLine.Hosting.Tests
             var service = new MyService();
             var cmd = new CliRootCommand();
             cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
-            var config = new CommandLineConfiguration(cmd)
+            var config = new CliConfiguration(cmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -103,7 +103,7 @@ namespace System.CommandLine.Hosting.Tests
             var cmd = new CliRootCommand();
             cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyDerivedHandler>());
             cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedHandler>());
-            var config = new CommandLineConfiguration(cmd)
+            var config = new CliConfiguration(cmd)
                          .UseHost((builder) => {
                              builder.ConfigureServices(services =>
                              {

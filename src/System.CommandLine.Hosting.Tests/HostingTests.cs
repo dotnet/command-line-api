@@ -26,7 +26,7 @@ namespace System.CommandLine.Hosting.Tests
                 hostFromHandler = host;
             }
 
-            var config = new CommandLineConfiguration(
+            var config = new CliConfiguration(
                 new CliRootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost();
@@ -41,7 +41,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             ParseResult parseResult = null;
 
-            var config = new CommandLineConfiguration(new CliRootCommand())
+            var config = new CliConfiguration(new CliRootCommand())
                 .UseHost(host =>
                 {
                     if (host.Properties.TryGetValue(typeof(ParseResult), out var ctx))
@@ -66,7 +66,7 @@ namespace System.CommandLine.Hosting.Tests
                 parseResult = services.GetRequiredService<ParseResult>();
             }
 
-            var config = new CommandLineConfiguration(
+            var config = new CliConfiguration(
                 new CliRootCommand { Action = CommandHandler.Create<IHost>(Execute) }
                 )
                 .UseHost();
@@ -92,7 +92,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CommandLineConfiguration(
+            var config = new CliConfiguration(
                 new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute),
@@ -127,7 +127,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CommandLineConfiguration(
+            var config = new CliConfiguration(
                 new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute),
@@ -164,7 +164,7 @@ namespace System.CommandLine.Hosting.Tests
                 testConfigValue = config[testKey];
             }
 
-            var config = new CommandLineConfiguration(
+            var config = new CliConfiguration(
                 new CliRootCommand
                 {
                     Action = CommandHandler.Create<IHost>(Execute)
@@ -192,7 +192,7 @@ namespace System.CommandLine.Hosting.Tests
                     .Value;
             });
 
-            int result = new CommandLineConfiguration(rootCmd)
+            int result = new CliConfiguration(rootCmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -241,7 +241,7 @@ namespace System.CommandLine.Hosting.Tests
         public async static Task GetParseResult_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var config = new CommandLineConfiguration(new CliRootCommand())
+            var config = new CliConfiguration(new CliRootCommand())
                 .UseHost(hostBuilder =>
                 {
                     ParseResult ctx = hostBuilder.GetParseResult();
@@ -257,7 +257,7 @@ namespace System.CommandLine.Hosting.Tests
         public async static Task GetParseResult_in_ConfigureServices_returns_non_null_instance()
         {
             bool ctxAsserted = false;
-            var config = new CommandLineConfiguration(new CliRootCommand())
+            var config = new CliConfiguration(new CliRootCommand())
                 .UseHost(hostBuilder =>
                 {
                     hostBuilder.ConfigureServices((hostingCtx, services) =>

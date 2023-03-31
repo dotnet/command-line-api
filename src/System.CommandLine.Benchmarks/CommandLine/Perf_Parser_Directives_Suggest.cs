@@ -13,7 +13,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Directives_Suggest
     {
-        private CommandLineConfiguration _configuration;
+        private CliConfiguration _configuration;
 
         [GlobalSetup]
         public void Setup()
@@ -30,7 +30,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                 vegetableOption
             };
 
-            _configuration = new CommandLineConfiguration(eatCommand)
+            _configuration = new CliConfiguration(eatCommand)
             {
                 Directives = { new SuggestDirective() },
                 Output = System.IO.TextWriter.Null

@@ -29,7 +29,7 @@ namespace System.CommandLine.Rendering.Tests
                 terminal.Append(new ParseResultView(parseResult));
             });
 
-            var config = new CommandLineConfiguration(command);
+            var config = new CliConfiguration(command);
 
             config.Invoke("");
 

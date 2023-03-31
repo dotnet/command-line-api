@@ -46,7 +46,7 @@ namespace System.CommandLine.Parsing
         // this method is not returning a Value Tuple or a dedicated type to avoid JITting
         internal static void Tokenize(
             this IReadOnlyList<string> args,
-            CommandLineConfiguration configuration,
+            CliConfiguration configuration,
             bool inferRootCommand,
             out List<Token> tokens,
             out List<string>? errors)
@@ -398,7 +398,7 @@ namespace System.CommandLine.Parsing
                     yield break;
                 }
 
-                foreach (var word in Parser.SplitCommandLine(arg))
+                foreach (var word in CliParser.SplitCommandLine(arg))
                 {
                     yield return word;
                 }

@@ -17,7 +17,7 @@ public class Program
 
         command.SetAction(Run);
 
-        return new CommandLineConfiguration(command).Invoke(args);
+        return new CliConfiguration(command).Invoke(args);
 
         void Run(ParseResult parseResult)
         {

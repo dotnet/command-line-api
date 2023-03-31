@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing
     internal sealed class ParseOperation
     {
         private readonly List<Token> _tokens;
-        private readonly CommandLineConfiguration _configuration;
+        private readonly CliConfiguration _configuration;
         private readonly string? _rawInput;
         private readonly SymbolResultTree _symbolResultTree;
         private readonly CommandResult _rootCommandResult;
@@ -22,7 +22,7 @@ namespace System.CommandLine.Parsing
 
         public ParseOperation(
             List<Token> tokens,
-            CommandLineConfiguration configuration,
+            CliConfiguration configuration,
             List<string>? tokenizeErrors,
             string? rawInput)
         {

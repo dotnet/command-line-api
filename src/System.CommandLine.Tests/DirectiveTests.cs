@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests
             CliRootCommand root = new() { new CliOption<bool>("-y") };
             CliDirective parseDirective = new ("parse");
             CliDirective suggestDirective = new ("suggest");
-            CommandLineConfiguration config = new(root);
+            CliConfiguration config = new(root);
             config.Directives.Add(parseDirective);
             config.Directives.Add(suggestDirective);
 
@@ -125,7 +125,7 @@ namespace System.CommandLine.Tests
         private static ParseResult Parse(CliOption option, CliDirective directive, string commandLine)
         {
             CliRootCommand root = new() { option };
-            CommandLineConfiguration config = new(root);
+            CliConfiguration config = new(root);
             config.Directives.Add(directive);
 
             return root.Parse(commandLine, config);

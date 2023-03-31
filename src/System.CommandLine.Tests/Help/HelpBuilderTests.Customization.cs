@@ -101,7 +101,7 @@ namespace System.CommandLine.Tests.Help
                 });
 
                 var console = new StringWriter();
-                var config = new CommandLineConfiguration(command)
+                var config = new CliConfiguration(command)
                 {
                     Output = console
                 };
@@ -146,7 +146,7 @@ namespace System.CommandLine.Tests.Help
                     }
                 });
 
-                var config = new CommandLineConfiguration(command)
+                var config = new CliConfiguration(command)
                 {
                     Output = new StringWriter()
                 };
@@ -275,7 +275,7 @@ namespace System.CommandLine.Tests.Help
                     }
                 });
 
-                CommandLineConfiguration config = new (command);
+                CliConfiguration config = new (command);
                 var console = new StringWriter();
                 config.Output = console;
                 command.Parse("test -h", config).Invoke();
@@ -313,7 +313,7 @@ namespace System.CommandLine.Tests.Help
                     defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
 
 
-                CommandLineConfiguration config = new (command);
+                CliConfiguration config = new (command);
 
                 command.Options.Add(new HelpOption
                 {
@@ -343,7 +343,7 @@ namespace System.CommandLine.Tests.Help
                     argument,
                 };
 
-                CommandLineConfiguration config = new(rootCommand)
+                CliConfiguration config = new(rootCommand)
                 {
                     Output = new StringWriter()
                 };
@@ -370,7 +370,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Help_sections_can_be_replaced()
             {
-                CommandLineConfiguration config = new(new CliRootCommand())
+                CliConfiguration config = new(new CliRootCommand())
                 {
                     Output = new StringWriter()
                 };
@@ -397,7 +397,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Help_sections_can_be_supplemented()
             {
-                CommandLineConfiguration config = new(new CliRootCommand("hello"))
+                CliConfiguration config = new(new CliRootCommand("hello"))
                 {
                     Output = new StringWriter(),
                 };
@@ -448,7 +448,7 @@ namespace System.CommandLine.Tests.Help
                     Builder = helpBuilder
                 };
 
-                var config = new CommandLineConfiguration(command);
+                var config = new CliConfiguration(command);
                 helpBuilder.CustomizeLayout(c =>
                                                 c.Command == commandWithTypicalHelp
                                                     ? HelpBuilder.Default.GetLayout()
@@ -489,7 +489,7 @@ namespace System.CommandLine.Tests.Help
                     }
                 };
 
-                CommandLineConfiguration config = new(command)
+                CliConfiguration config = new(command)
                 {
                     Output = new StringWriter()
                 };
@@ -511,7 +511,7 @@ namespace System.CommandLine.Tests.Help
             [Fact]
             public void Help_customized_sections_can_be_wrapped()
             {
-                CommandLineConfiguration config = new(new CliRootCommand())
+                CliConfiguration config = new(new CliRootCommand())
                 {
                     Output = new StringWriter()
                 };
@@ -551,7 +551,7 @@ namespace System.CommandLine.Tests.Help
                     command.Options.Add(defaultHelp);
                 }
 
-                CommandLineConfiguration config = new(command)
+                CliConfiguration config = new(command)
                 {
                     Output = new StringWriter()
                 };

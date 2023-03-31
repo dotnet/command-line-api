@@ -101,6 +101,6 @@ public partial class ParserTests
             result3.RootCommandResult.Command.Should().BeSameAs(result1.RootCommandResult.Command);
         }
 
-        string[] Split(string value) => Parser.SplitCommandLine(value).ToArray();
+        string[] Split(string value) => CliParser.SplitCommandLine(value).ToArray();
     }
 }
