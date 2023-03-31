@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests.Invocation
                 new CliOption<string>("info")
             };
 
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 EnableTypoCorrections = true,
                 Output = new StringWriter()
@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests.Invocation
             var option = new CliOption<bool>("info");
             CliRootCommand rootCommand = new() { option };
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
                 Output = new StringWriter()
@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests.Invocation
             var command = new CliCommand("restore");
             CliRootCommand rootCommand = new() { command };
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
                 Output = new StringWriter()
@@ -81,7 +81,7 @@ namespace System.CommandLine.Tests.Invocation
                 aOption,
                 beenOption
             };
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
                 Output = new StringWriter()
@@ -107,7 +107,7 @@ namespace System.CommandLine.Tests.Invocation
                 beenCommand
             };
 
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
                 Output = new StringWriter()
@@ -130,7 +130,7 @@ namespace System.CommandLine.Tests.Invocation
                 argument,
                 command
             };
-            CommandLineConfiguration configuration = new(rootCommand)
+            CliConfiguration configuration = new(rootCommand)
             {
                 EnableTypoCorrections = true,
                 EnableParseErrorReporting = false,
@@ -156,7 +156,7 @@ namespace System.CommandLine.Tests.Invocation
                 seenOption,
                 beenOption
             };
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 EnableTypoCorrections = true,
                 Output = new StringWriter()
@@ -177,7 +177,7 @@ namespace System.CommandLine.Tests.Invocation
                 new CliOption<string>("/call", "-call", "--call"),
                 new CliOption<string>("/email", "-email", "--email")
             };
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 EnableTypoCorrections = true,
                 Output = new StringWriter()

@@ -15,13 +15,13 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_TypoCorrection
     {
-        private readonly CommandLineConfiguration _configuration;
+        private readonly CliConfiguration _configuration;
 
         public Perf_Parser_TypoCorrection()
         {
             var option = new CliOption<bool>("--0123456789");
 
-            _configuration = new CommandLineConfiguration(new CliRootCommand { option })
+            _configuration = new CliConfiguration(new CliRootCommand { option })
             {
                 EnableTypoCorrections = true,
                 Output = System.IO.TextWriter.Null

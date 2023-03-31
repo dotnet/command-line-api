@@ -1176,7 +1176,7 @@ namespace System.CommandLine.Tests.Help
         [Fact]
         public void Help_option_is_shown_in_help()
         {
-            var configuration = new CommandLineConfiguration(new CliRootCommand());
+            var configuration = new CliConfiguration(new CliRootCommand());
 
             _helpBuilder.Write(configuration.RootCommand, _console);
 

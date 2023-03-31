@@ -17,7 +17,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_ParseResult
     {
-        private readonly CommandLineConfiguration _configuration;
+        private readonly CliConfiguration _configuration;
         private readonly StringWriter _output;
 
         public Perf_Parser_ParseResult()
@@ -25,7 +25,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             _output = new StringWriter();
             var option = new CliOption<bool>("-opt");
 
-            _configuration = new CommandLineConfiguration(new CliRootCommand { option })
+            _configuration = new CliConfiguration(new CliRootCommand { option })
             {
                 Directives = { new ParseDiagramDirective() },
                 Output = _output

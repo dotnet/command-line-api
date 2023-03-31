@@ -65,7 +65,7 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        private static int DefaultExceptionHandler(Exception exception, CommandLineConfiguration config)
+        private static int DefaultExceptionHandler(Exception exception, CliConfiguration config)
         {
             if (exception is not OperationCanceledException)
             {

@@ -9,7 +9,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// Parses command line input.
     /// </summary>
-    public static class Parser
+    public static class CliParser
     {
         /// <summary>
         /// Parses a list of arguments.
@@ -18,7 +18,7 @@ namespace System.CommandLine.Parsing
         /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
-        public static ParseResult Parse(CliCommand command, IReadOnlyList<string> args, CommandLineConfiguration? configuration = null)
+        public static ParseResult Parse(CliCommand command, IReadOnlyList<string> args, CliConfiguration? configuration = null)
             => Parse(command, args, null, configuration);
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace System.CommandLine.Parsing
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
-        public static ParseResult Parse(CliCommand command, string commandLine, CommandLineConfiguration? configuration = null)
+        public static ParseResult Parse(CliCommand command, string commandLine, CliConfiguration? configuration = null)
             => Parse(command, SplitCommandLine(commandLine).ToArray(), commandLine, configuration);
 
         /// <summary>
@@ -139,14 +139,14 @@ namespace System.CommandLine.Parsing
             CliCommand command,
             IReadOnlyList<string> arguments,
             string? rawInput,
-            CommandLineConfiguration? configuration)
+            CliConfiguration? configuration)
         {
             if (arguments is null)
             {
                 throw new ArgumentNullException(nameof(arguments));
             }
 
-            configuration ??= new CommandLineConfiguration(command);
+            configuration ??= new CliConfiguration(command);
 
             arguments.Tokenize(
                 configuration,

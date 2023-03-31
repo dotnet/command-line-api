@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
                 new HelpOption()
             };
 
-            CommandLineConfiguration config = new (root)
+            CliConfiguration config = new (root)
             {
                 EnableParseErrorReporting = true
             };
@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests
                 new CliCommand("inner")
             };
 
-            CommandLineConfiguration config = new (root)
+            CliConfiguration config = new (root)
             {
                 EnableParseErrorReporting = true
             };

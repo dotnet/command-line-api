@@ -22,7 +22,7 @@ namespace HostingPlayground
                 })
             .InvokeAsync(args);
 
-        private static CommandLineConfiguration BuildCommandLine()
+        private static CliConfiguration BuildCommandLine()
         {
             var root = new CliRootCommand(@"$ dotnet run --name 'Joe'"){
                 new CliOption<string>("--name"){
@@ -30,7 +30,7 @@ namespace HostingPlayground
                 }
             };
             root.Action = CommandHandler.Create<GreeterOptions, IHost>(Run);
-            return new CommandLineConfiguration(root);
+            return new CliConfiguration(root);
         }
 
         private static void Run(GreeterOptions options, IHost host)

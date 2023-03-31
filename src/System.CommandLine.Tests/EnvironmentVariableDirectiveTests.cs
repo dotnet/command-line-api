@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new CliConfiguration(rootCommand)
             {
                 Directives = { new EnvironmentVariablesDirective() }
             };
@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new CliConfiguration(rootCommand)
             {
                 Directives = { new EnvironmentVariablesDirective() }
             };
@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new CliConfiguration(rootCommand)
             {
                 Directives = { new EnvironmentVariablesDirective() }
             };
@@ -94,7 +94,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().Be(value);
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new CliConfiguration(rootCommand)
             {
                 Directives = { new EnvironmentVariablesDirective() }
             };
@@ -116,7 +116,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().BeNull();
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new CliConfiguration(rootCommand)
             {
                 Directives = { new EnvironmentVariablesDirective() }
             };
@@ -139,7 +139,7 @@ namespace System.CommandLine.Tests
                 env.Values.Cast<string>().Should().NotContain(value);
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new CliConfiguration(rootCommand)
             {
                 Directives = { new EnvironmentVariablesDirective() }
             };
@@ -162,7 +162,7 @@ namespace System.CommandLine.Tests
                 env.Values.Cast<string>().Should().NotContain(value);
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new CliConfiguration(rootCommand)
             {
                 Directives = { new EnvironmentVariablesDirective() }
             };

@@ -134,7 +134,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var command = new CliCommand("command") { o };
         command.Action = CommandHandler.Create<string[], ParseResult>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
-        CommandLineConfiguration config = new(command);
+        CliConfiguration config = new(command);
         config.Error = new StringWriter();
 
         var commandLine = "command -i 1 -i 2 -i 3 ";

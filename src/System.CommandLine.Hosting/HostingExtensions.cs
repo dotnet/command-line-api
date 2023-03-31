@@ -10,7 +10,7 @@ namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
-        public static CommandLineConfiguration UseHost(this CommandLineConfiguration builder,
+        public static CliConfiguration UseHost(this CliConfiguration builder,
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null)
         {
@@ -21,7 +21,7 @@ namespace System.CommandLine.Hosting
             return builder;
         }
 
-        public static CommandLineConfiguration UseHost(this CommandLineConfiguration builder,
+        public static CliConfiguration UseHost(this CliConfiguration builder,
             Action<IHostBuilder> configureHost = null
             ) => UseHost(builder, null, configureHost);
 

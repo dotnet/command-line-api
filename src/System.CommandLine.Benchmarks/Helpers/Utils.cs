@@ -44,7 +44,7 @@ namespace System.CommandLine.Benchmarks.Helpers
             return pathToAssemblyFile;
         }
 
-        public static CommandLineConfiguration CreateConfiguration(this IEnumerable<CliOption> symbols)
+        public static CliConfiguration CreateConfiguration(this IEnumerable<CliOption> symbols)
         {
             var rootCommand = new CliRootCommand();
 
@@ -53,7 +53,7 @@ namespace System.CommandLine.Benchmarks.Helpers
                 rootCommand.Add(symbol);
             }
 
-            return new CommandLineConfiguration(rootCommand);
+            return new CliConfiguration(rootCommand);
         }
     }
 }

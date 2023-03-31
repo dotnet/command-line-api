@@ -71,7 +71,7 @@ namespace System.CommandLine.Suggest
                 CompleteScriptCommand,
             };
             root.TreatUnmatchedTokensAsErrors = false;
-            Configuration = new CommandLineConfiguration(root)
+            Configuration = new CliConfiguration(root)
             {
                 Directives =
                 {
@@ -105,7 +105,7 @@ namespace System.CommandLine.Suggest
 
         private CliCommand RegisterCommand { get; }
 
-        public CommandLineConfiguration Configuration { get; }
+        public CliConfiguration Configuration { get; }
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 

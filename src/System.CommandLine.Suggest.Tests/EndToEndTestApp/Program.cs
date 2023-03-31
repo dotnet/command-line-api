@@ -33,7 +33,7 @@ namespace EndToEndTestApp
                 return Task.CompletedTask;
             });
 
-            CommandLineConfiguration commandLine = new (rootCommand);
+            CliConfiguration commandLine = new (rootCommand);
 
             await commandLine.InvokeAsync(args);
         }

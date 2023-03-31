@@ -253,7 +253,7 @@ namespace System.CommandLine.Tests
                     }
                 };
 
-                CommandLineConfiguration simpleConfig = new (command);
+                CliConfiguration simpleConfig = new (command);
                 command.Parse("", simpleConfig);
 
                 argumentResult

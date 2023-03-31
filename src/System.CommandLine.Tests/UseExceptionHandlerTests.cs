@@ -16,7 +16,7 @@ namespace System.CommandLine.Tests
             var command = new CliCommand("the-command");
             command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Error = new StringWriter(),
             };
@@ -32,7 +32,7 @@ namespace System.CommandLine.Tests
             var command = new CliCommand("the-command");
             command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Error = new StringWriter(),
             };
@@ -48,7 +48,7 @@ namespace System.CommandLine.Tests
             CliCommand command = new("the-command");
             command.SetAction((_, __) => throw new OperationCanceledException());
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 Error = new StringWriter()
@@ -70,7 +70,7 @@ namespace System.CommandLine.Tests
             CliCommand command = new("the-command");
             command.SetAction((_, __) => throw expectedException);
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Error = new StringWriter(),
                 EnableDefaultExceptionHandler = false

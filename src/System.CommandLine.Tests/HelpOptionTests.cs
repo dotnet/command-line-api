@@ -22,7 +22,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter()
             };
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests
             subcommand.SetAction(_ => wasCalled = true);
             command.Subcommands.Add(subcommand);
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter()
             };
@@ -60,7 +60,7 @@ namespace System.CommandLine.Tests
         [InlineData("/?")]
         public async Task Help_option_accepts_default_values(string value)
         {
-            CommandLineConfiguration config = new(new CliCommand("command") { new HelpOption() })
+            CliConfiguration config = new(new CliCommand("command") { new HelpOption() })
             {
                 Output = new StringWriter()
             };
@@ -79,7 +79,7 @@ namespace System.CommandLine.Tests
             var command = new CliCommand("command");
             command.Options.Add(new CliOption<bool>("-h"));
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter()
             };
@@ -154,7 +154,7 @@ namespace System.CommandLine.Tests
             {
                 new HelpOption("/lost", "--confused")
             };
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter()
             };
@@ -176,7 +176,7 @@ namespace System.CommandLine.Tests
             command.Options.Clear();
             command.Options.Add(new HelpOption("--confused"));
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 EnableParseErrorReporting = false

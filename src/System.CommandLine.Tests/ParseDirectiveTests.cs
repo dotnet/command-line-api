@@ -27,7 +27,7 @@ namespace System.CommandLine.Tests
             var option = new CliOption<int>("-c", "--count");
             subcommand.Options.Add(option);
 
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new ParseDiagramDirective() }
@@ -50,7 +50,7 @@ namespace System.CommandLine.Tests
         {
             CliRootCommand rootCommand = new ();
 
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new ParseDiagramDirective() }
@@ -73,7 +73,7 @@ namespace System.CommandLine.Tests
         {
             CliRootCommand rootCommand = new();
 
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new ParseDiagramDirective() }
@@ -99,7 +99,7 @@ namespace System.CommandLine.Tests
                 new CliOption<int>("-x")
             };
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 Directives = { new ParseDiagramDirective() }
@@ -118,7 +118,7 @@ namespace System.CommandLine.Tests
                 new CliOption<int>("-x")
             };
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 Directives = { new ParseDiagramDirective() }
@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
                 new CliOption<int>("-x")
             };
 
-            CommandLineConfiguration config = new(command)
+            CliConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 Directives = { new ParseDiagramDirective

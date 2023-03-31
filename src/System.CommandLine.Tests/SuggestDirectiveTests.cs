@@ -38,7 +38,7 @@ namespace System.CommandLine.Tests
         public async Task It_writes_suggestions_for_option_arguments_when_under_subcommand()
         {
             CliRootCommand rootCommand = new () { _eatCommand };
-            CommandLineConfiguration config = new (rootCommand)
+            CliConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests
                 _fruitOption,
                 _vegetableOption
             };
-            CommandLineConfiguration config = new (rootCommand)
+            CliConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -84,7 +84,7 @@ namespace System.CommandLine.Tests
         public async Task It_writes_suggestions_for_option_aliases_under_subcommand(string commandLine)
         {
             CliRootCommand rootCommand = new() { _eatCommand };
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
                 _vegetableOption,
                 _fruitOption
             };
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests
         public async Task It_writes_suggestions_for_subcommand_aliases_under_root_command()
         {
             CliRootCommand rootCommand = new() { _eatCommand };
-            CommandLineConfiguration config = new(rootCommand)
+            CliConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -154,7 +154,7 @@ namespace System.CommandLine.Tests
                 _fruitOption,
                 _vegetableOption
             };
-            CommandLineConfiguration config = new (rootCommand)
+            CliConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -178,7 +178,7 @@ namespace System.CommandLine.Tests
                 _eatCommand,
                 new CliCommand("wash-dishes")
             };
-            CommandLineConfiguration config = new (rootCommand)
+            CliConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -202,7 +202,7 @@ namespace System.CommandLine.Tests
                 _eatCommand,
                 new CliCommand("wash-dishes"),
             };
-            CommandLineConfiguration config = new (rootCommand)
+            CliConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -228,7 +228,7 @@ namespace System.CommandLine.Tests
                 new CliOption<bool>("--option2"),
                 new CliArgument<string>("arg")
             };
-            CommandLineConfiguration config = new (command)
+            CliConfiguration config = new (command)
             {
                 Output = new StringWriter(),
                 Directives = { new SuggestDirective() }
@@ -249,7 +249,7 @@ namespace System.CommandLine.Tests
             {
                 new CliOption<bool>("--bool-option")
             };
-            CommandLineConfiguration config = new (command)
+            CliConfiguration config = new (command)
             {
                 Output = new StringWriter()
             };

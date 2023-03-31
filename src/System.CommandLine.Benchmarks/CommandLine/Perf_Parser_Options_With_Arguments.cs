@@ -10,13 +10,13 @@ using BenchmarkDotNet.Attributes;
 namespace System.CommandLine.Benchmarks.CommandLine
 {
     /// <summary>
-    /// Measures the performance of <see cref="Parser"/> when parsing options with arguments.
+    /// Measures the performance of <see cref="CliParser"/> when parsing options with arguments.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_With_Arguments
     {
         private string _testSymbolsAsString;
-        private CommandLineConfiguration _configuration;
+        private CliConfiguration _configuration;
 
         private IEnumerable<CliOption> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)

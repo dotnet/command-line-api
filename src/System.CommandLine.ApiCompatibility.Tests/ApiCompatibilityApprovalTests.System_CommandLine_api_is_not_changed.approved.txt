@@ -51,12 +51,31 @@ System.CommandLine
     public System.Void Add(CliSymbol symbol)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<CliSymbol> GetEnumerator()
-    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CommandLineConfiguration configuration = null)
-    public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
+    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CliConfiguration configuration = null)
+    public ParseResult Parse(System.String commandLine, CliConfiguration configuration = null)
     public System.Void SetAction(System.Action<ParseResult> action)
     public System.Void SetAction(System.Func<ParseResult,System.Int32> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
+  public class CliConfiguration
+    .ctor(CliCommand rootCommand)
+    public System.Collections.Generic.List<CliDirective> Directives { get; }
+    public System.Boolean EnableDefaultExceptionHandler { get; set; }
+    public System.Boolean EnableParseErrorReporting { get; set; }
+    public System.Boolean EnablePosixBundling { get; set; }
+    public System.Boolean EnableTypoCorrections { get; set; }
+    public System.IO.TextWriter Error { get; set; }
+    public System.IO.TextWriter Output { get; set; }
+    public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
+    public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
+    public CliCommand RootCommand { get; }
+    public System.Int32 Invoke(System.String commandLine)
+    public System.Int32 Invoke(System.String[] args)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, System.Threading.CancellationToken cancellationToken = null)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, System.Threading.CancellationToken cancellationToken = null)
+    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args)
+    public ParseResult Parse(System.String commandLine)
+    public System.Void ThrowIfInvalid()
   public class CliDirective : CliSymbol
     .ctor(System.String name)
     public CliAction Action { get; set; }
@@ -92,25 +111,6 @@ System.CommandLine
     public System.Collections.Generic.IEnumerable<CliSymbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
-  public class CommandLineConfiguration
-    .ctor(CliCommand rootCommand)
-    public System.Collections.Generic.List<CliDirective> Directives { get; }
-    public System.Boolean EnableDefaultExceptionHandler { get; set; }
-    public System.Boolean EnableParseErrorReporting { get; set; }
-    public System.Boolean EnablePosixBundling { get; set; }
-    public System.Boolean EnableTypoCorrections { get; set; }
-    public System.IO.TextWriter Error { get; set; }
-    public System.IO.TextWriter Output { get; set; }
-    public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
-    public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
-    public CliCommand RootCommand { get; }
-    public System.Int32 Invoke(System.String commandLine)
-    public System.Int32 Invoke(System.String[] args)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, System.Threading.CancellationToken cancellationToken = null)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, System.Threading.CancellationToken cancellationToken = null)
-    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args)
-    public ParseResult Parse(System.String commandLine)
-    public System.Void ThrowIfInvalid()
   public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
     .ctor(System.String message)
   public static class CompletionSourceExtensions
@@ -131,7 +131,7 @@ System.CommandLine
   public class ParseResult
     public CliAction Action { get; }
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
-    public CommandLineConfiguration Configuration { get; }
+    public CliConfiguration Configuration { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
@@ -234,6 +234,10 @@ System.CommandLine.Parsing
     public T GetValueOrDefault<T>()
     public System.Void OnlyTake(System.Int32 numberOfTokens)
     public System.String ToString()
+  public static class CliParser
+    public static System.CommandLine.ParseResult Parse(System.CommandLine.CliCommand command, System.Collections.Generic.IReadOnlyList<System.String> args, System.CommandLine.CliConfiguration configuration = null)
+    public static System.CommandLine.ParseResult Parse(System.CommandLine.CliCommand command, System.String commandLine, System.CommandLine.CliConfiguration configuration = null)
+    public static System.Collections.Generic.IEnumerable<System.String> SplitCommandLine(System.String commandLine)
   public class CommandResult : SymbolResult
     public System.Collections.Generic.IEnumerable<SymbolResult> Children { get; }
     public System.CommandLine.CliCommand Command { get; }
@@ -253,10 +257,6 @@ System.CommandLine.Parsing
     public System.String Message { get; }
     public SymbolResult SymbolResult { get; }
     public System.String ToString()
-  public static class Parser
-    public static System.CommandLine.ParseResult Parse(System.CommandLine.CliCommand command, System.Collections.Generic.IReadOnlyList<System.String> args, System.CommandLine.CommandLineConfiguration configuration = null)
-    public static System.CommandLine.ParseResult Parse(System.CommandLine.CliCommand command, System.String commandLine, System.CommandLine.CommandLineConfiguration configuration = null)
-    public static System.Collections.Generic.IEnumerable<System.String> SplitCommandLine(System.String commandLine)
   public abstract class SymbolResult
     public SymbolResult Parent { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
