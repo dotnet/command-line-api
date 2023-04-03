@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal sealed class ParseErrorResultAction : CliAction
+    internal sealed class ParseErrorAction : CliAction
     {
         public override int Invoke(ParseResult parseResult)
         {

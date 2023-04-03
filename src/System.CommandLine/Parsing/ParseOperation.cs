@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -69,7 +69,7 @@ namespace System.CommandLine.Parsing
                 }
                 else if (_configuration.EnableParseErrorReporting && _symbolResultTree.ErrorCount > 0)
                 {
-                    _action = new ParseErrorResultAction();
+                    _action = new ParseErrorAction();
                 }
             }
 
