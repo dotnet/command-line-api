@@ -260,4 +260,37 @@ public class CommandLineConfigurationTests
                 .Should()
                 .Be($"Cycle detected in command tree. Command '{rootCommand.Name}' is its own ancestor.");
     }
+
+    [Fact]
+    public void It_can_be_subclassed_to_provide_additional_context()
+    {
+        var command = new CliRootCommand();
+        var commandWasInvoked = false;
+        command.SetAction(parseResult =>
+        {
+            var appConfig = (CustomAppConfiguration)parseResult.Configuration;
+
+            // access custom config
+
+            commandWasInvoked = true;
+
+            return 0;
+        });
+
+        var config = new CustomAppConfiguration(command);
+
+        config.Invoke("");
+
+        commandWasInvoked.Should().BeTrue();
+    }
+}
+
+public class CustomAppConfiguration : CliConfiguration
+{
+    public CustomAppConfiguration(CliRootCommand command) : base(command)
+    {
+        EnableDefaultExceptionHandler = false;
+    }
+
+    public IServiceProvider ServiceProvider { get; }
 }
