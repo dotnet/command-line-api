@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,18 +13,33 @@ namespace System.CommandLine.Invocation
         {
             if (parseResult.Action is null)
             {
-                return 0;
+                return ReturnCodeForMissingAction(parseResult);
             }
 
             ProcessTerminationHandler? terminationHandler = null;
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            if (parseResult.NonexclusiveActions is not null)
+            {
+                for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                {
+                    var action = parseResult.NonexclusiveActions[i];
+                    var result = await InvokeActionAsync(parseResult, action, cts.Token);
+                    if (!result.success)
+                    {
+                        return result.returnCode;
+                    }
+                }
+            }
 
             try
             {
                 Task<int> startedInvocation = parseResult.Action.InvokeAsync(parseResult, cts.Token);
 
                 if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
+                {
                     terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
+                }
 
                 if (terminationHandler is null)
                 {
@@ -46,22 +62,53 @@ namespace System.CommandLine.Invocation
             {
                 terminationHandler?.Dispose();
             }
+
+            static async Task<(int returnCode, bool success)> InvokeActionAsync(ParseResult parseResult, CliAction action, CancellationToken token)
+            {
+                try
+                {
+                    return (await action.InvokeAsync(parseResult, token), true);
+                   
+                }
+                catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+                {
+                    return (DefaultExceptionHandler(ex, parseResult.Configuration), false);
+                }
+            }
         }
 
         internal static int Invoke(ParseResult parseResult)
         {
             if (parseResult.Action is null)
             {
-                return 0;
+                return ReturnCodeForMissingAction(parseResult);
             }
 
-            try
+            if (parseResult.NonexclusiveActions is not null)
             {
-                return parseResult.Action.Invoke(parseResult);
+                for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                {
+                    var action = parseResult.NonexclusiveActions[i];
+                    var result = TryInvokeAction(parseResult, action);
+                    if (!result.success)
+                    {
+                        return result.returnCode;
+                    }
+                }
             }
-            catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+
+            return TryInvokeAction(parseResult, parseResult.Action).returnCode;
+
+            static (int returnCode, bool success) TryInvokeAction(ParseResult parseResult, CliAction action)
             {
-                return DefaultExceptionHandler(ex, parseResult.Configuration);
+                try
+                {
+                    return (action.Invoke(parseResult), true);
+                }
+                catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+                {
+                    return (DefaultExceptionHandler(ex, parseResult.Configuration), false);
+                }
             }
         }
 
@@ -78,6 +125,18 @@ namespace System.CommandLine.Invocation
                 ConsoleHelpers.ResetTerminalForegroundColor();
             }
             return 1;
+        }
+
+        private static int ReturnCodeForMissingAction(ParseResult parseResult)
+        {
+            if (parseResult.Errors.Any())
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 }

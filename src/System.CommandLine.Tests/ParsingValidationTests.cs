@@ -1109,13 +1109,15 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_command_with_subcommands_is_invalid_to_invoke_if_it_has_no_handler()
         {
-            var outer = new CliCommand("outer");
-            var inner = new CliCommand("inner");
-            var innerer = new CliCommand("inner-er");
-            outer.Subcommands.Add(inner);
-            inner.Subcommands.Add(innerer);
+            var outer = new CliCommand("outer")
+            {
+                new CliCommand("inner")
+                {
+                    new CliCommand("inner-er")
+                }
+            };
 
-            var result = outer.Parse("outer inner arg");
+            var result = outer.Parse("outer inner");
 
             result.Errors
                   .Should()
@@ -1125,7 +1127,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void A_root_command_is_invalid_if_it_has_no_handler()
+        public void A_root_command_with_subcommands_is_invalid_to_invoke_if_it_has_no_handler()
         {
             var rootCommand = new CliRootCommand();
             var inner = new CliCommand("inner");

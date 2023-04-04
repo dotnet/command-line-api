@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -17,8 +17,10 @@ namespace System.CommandLine.Parsing
 
         private int _index;
         private CommandResult _innermostCommandResult;
-        private bool _isHelpRequested, _isParseRequested;
-        private CliAction? _action;
+        private bool _isHelpRequested;
+        private bool _isDiagramRequested;
+        private CliAction? _primaryAction;
+        private List<CliAction>? _passThroughActions;
 
         public ParseOperation(
             List<Token> tokens,
@@ -60,16 +62,16 @@ namespace System.CommandLine.Parsing
                 Validate();
             }
 
-            if (_action is null)
+            if (_primaryAction is null)
             {
                 if (_configuration.EnableTypoCorrections && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
                     && _symbolResultTree.UnmatchedTokens is not null)
                 {
-                    _action = new TypoCorrectionAction();
+                    _primaryAction = new TypoCorrectionAction();
                 }
                 else if (_configuration.EnableParseErrorReporting && _symbolResultTree.ErrorCount > 0)
                 {
-                    _action = new ParseErrorAction();
+                    _primaryAction = new ParseErrorAction();
                 }
             }
 
@@ -81,7 +83,8 @@ namespace System.CommandLine.Parsing
                 _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
                 _rawInput,
-                _action);
+                _primaryAction,
+                _passThroughActions);
         }
 
         private void ParseSubcommand()
@@ -187,8 +190,8 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
-                // parse directive has a precedence over --help and --version
-                if (!_isParseRequested)
+                // DiagramDirective has a precedence over --help and --version
+                if (!_isDiagramRequested)
                 {
                     if (option.Action is not null)
                     {
@@ -197,7 +200,7 @@ namespace System.CommandLine.Parsing
                             _isHelpRequested = true;
                         }
 
-                        _action = option.Action;
+                        _primaryAction = option.Action;
                     }
                 }
 
@@ -319,11 +322,26 @@ namespace System.CommandLine.Parsing
                     result.AddValue(withoutBrackets.Slice(indexOfColon + 1).ToString());
                 }
 
-                _action = directive.Action;
+                if (directive.Action is not null)
+                {
+                    if (directive.Action.Exclusive)
+                    {
+                        _primaryAction = directive.Action;
+                    }
+                    else 
+                    {
+                        if (_passThroughActions is null)
+                        {
+                            _passThroughActions = new();
+                        }
+
+                        _passThroughActions.Add(directive.Action);
+                    }
+                }
 
                 if (directive is DiagramDirective)
                 {
-                    _isParseRequested = true;
+                    _isDiagramRequested = true;
                 }
             }
         }

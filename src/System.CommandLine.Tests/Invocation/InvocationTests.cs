@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Help;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -188,14 +189,39 @@ namespace System.CommandLine.Tests.Invocation
 
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(123);
         }
-
-        internal sealed class CustomExitCodeAction : CliAction
+        
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Nonexclusive_actions_handle_exceptions_and_return_an_error_return_code(bool invokeAsync)
         {
-            public override int Invoke(ParseResult context)
-                => 123;
+            var nonexclusiveAction = new NonexclusiveTestAction
+            {
+                ThrowOnInvoke = true
+            };
 
-            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
-                => Task.FromResult(456);
+            var command = new CliRootCommand
+            {
+                new CliOption<bool>("-x")
+                {
+                    Action = nonexclusiveAction
+                }
+            };
+
+            int returnCode;
+
+            var parseResult = CliParser.Parse(command, "-x");
+
+            if (invokeAsync)
+            {
+                returnCode = await parseResult.InvokeAsync();
+            }
+            else
+            {
+                returnCode = parseResult.Invoke();
+            }
+
+            returnCode.Should().Be(1);
         }
 
         [Fact]
@@ -211,6 +237,49 @@ namespace System.CommandLine.Tests.Invocation
 
             cts.Cancel();
             await command.Parse("test").InvokeAsync(cancellationToken: cts.Token);
+        }
+
+        private class CustomExitCodeAction : CliAction
+        {
+            public override int Invoke(ParseResult context)
+                => 123;
+
+            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
+                => Task.FromResult(456);
+        }
+
+        private class NonexclusiveTestAction : CliAction
+        {
+            public NonexclusiveTestAction()
+            {
+                Exclusive = false;
+            }
+
+            public bool ThrowOnInvoke { get; set; }
+
+            public bool HasBeenInvoked { get; private set; }
+
+            public override int Invoke(ParseResult parseResult)
+            {
+                HasBeenInvoked = true;
+                if (ThrowOnInvoke)
+                {
+                    throw new Exception("oops!");
+                }
+
+                return 0;
+            }
+
+            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+            {
+                HasBeenInvoked = true;
+                if (ThrowOnInvoke)
+                {
+                    throw new Exception("oops!");
+                }
+
+                return Task.FromResult(0);
+            }
         }
     }
 }

@@ -11,6 +11,8 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliAction
     {
+        public bool Exclusive { get; protected set; } = true;
+
         /// <summary>
         /// Performs an action when the associated symbol is invoked on the command line.
         /// </summary>
