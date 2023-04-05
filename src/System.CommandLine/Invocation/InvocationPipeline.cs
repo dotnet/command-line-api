@@ -129,7 +129,7 @@ namespace System.CommandLine.Invocation
 
         private static int ReturnCodeForMissingAction(ParseResult parseResult)
         {
-            if (parseResult.Errors.Any())
+            if (parseResult.Errors.Count > 0)
             {
                 return 1;
             }
