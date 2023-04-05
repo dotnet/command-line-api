@@ -19,21 +19,17 @@ namespace System.CommandLine.Invocation
             ProcessTerminationHandler? terminationHandler = null;
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-            if (parseResult.NonexclusiveActions is not null)
-            {
-                for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
-                {
-                    var action = parseResult.NonexclusiveActions[i];
-                    var result = await InvokeActionAsync(parseResult, action, cts.Token);
-                    if (!result.success)
-                    {
-                        return result.returnCode;
-                    }
-                }
-            }
-
             try
             {
+                if (parseResult.NonexclusiveActions is not null)
+                {
+                    for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                    {
+                        var action = parseResult.NonexclusiveActions[i];
+                        await action.InvokeAsync(parseResult, cts.Token);
+                    }
+                }
+
                 Task<int> startedInvocation = parseResult.Action.InvokeAsync(parseResult, cts.Token);
 
                 if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
@@ -61,19 +57,6 @@ namespace System.CommandLine.Invocation
             finally
             {
                 terminationHandler?.Dispose();
-            }
-
-            static async Task<(int returnCode, bool success)> InvokeActionAsync(ParseResult parseResult, CliAction action, CancellationToken token)
-            {
-                try
-                {
-                    return (await action.InvokeAsync(parseResult, token), true);
-                   
-                }
-                catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
-                {
-                    return (DefaultExceptionHandler(ex, parseResult.Configuration), false);
-                }
             }
         }
 

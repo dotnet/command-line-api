@@ -20,7 +20,7 @@ namespace System.CommandLine.Parsing
         private bool _isHelpRequested;
         private bool _isDiagramRequested;
         private CliAction? _primaryAction;
-        private List<CliAction>? _passThroughActions;
+        private List<CliAction>? _nonexclusiveActions;
 
         public ParseOperation(
             List<Token> tokens,
@@ -84,7 +84,7 @@ namespace System.CommandLine.Parsing
                 _symbolResultTree.Errors,
                 _rawInput,
                 _primaryAction,
-                _passThroughActions);
+                _nonexclusiveActions);
         }
 
         private void ParseSubcommand()
@@ -330,12 +330,12 @@ namespace System.CommandLine.Parsing
                     }
                     else 
                     {
-                        if (_passThroughActions is null)
+                        if (_nonexclusiveActions is null)
                         {
-                            _passThroughActions = new();
+                            _nonexclusiveActions = new();
                         }
 
-                        _passThroughActions.Add(directive.Action);
+                        _nonexclusiveActions.Add(directive.Action);
                     }
                 }
 
