@@ -37,11 +37,5 @@ namespace System.CommandLine.Help
             get => _action ??= new HelpAction(); 
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
-
-        internal override bool Greedy => false;
-
-        public override bool Equals(object? obj) => obj is HelpOption;
-
-        public override int GetHashCode() => typeof(HelpOption).GetHashCode();
     }
 }

@@ -181,16 +181,20 @@ public partial class HelpBuilder
         public static Action<HelpContext> OptionsSection() =>
             ctx =>
             {
-                // by making this logic more complex, we were able to get some nice perf wins elsewhere
-                List<TwoColumnHelpRow> options = new();
-                HashSet<CliOption> uniqueOptions = new();
+                List<TwoColumnHelpRow> optionRows = new();
+                bool addedHelpOption = false;
+
                 if (ctx.Command.HasOptions)
                 {
                     foreach (CliOption option in ctx.Command.Options)
                     {
-                        if (!option.Hidden && uniqueOptions.Add(option))
+                        if (!option.Hidden)
                         {
-                            options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                            optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                            if (option is HelpOption)
+                            {
+                                addedHelpOption = true;
+                            }
                         }
                     }
                 }
@@ -209,9 +213,12 @@ public partial class HelpBuilder
                                 foreach (var option in parentCommand.Options)
                                 {
                                     // global help aliases may be duplicated, we just ignore them
-                                    if (option.Recursive && !option.Hidden && uniqueOptions.Add(option))
+                                    if (option is { Recursive: true, Hidden: false })
                                     {
-                                        options.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                                        if (option is not HelpOption || !addedHelpOption)
+                                        {
+                                            optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                                        }
                                     }
                                 }
                             }
@@ -223,14 +230,14 @@ public partial class HelpBuilder
                     current = parentCommand;
                 }
 
-                if (options.Count <= 0)
+                if (optionRows.Count <= 0)
                 {
                     ctx.WasSectionSkipped = true;
                     return;
                 }
 
                 ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(options, ctx);
+                ctx.HelpBuilder.WriteColumns(optionRows, ctx);
                 ctx.Output.WriteLine();
             };
 
