@@ -1,9 +1,11 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -32,6 +34,16 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void Directives_must_precede_other_symbols()
+        {
+            CliDirective directive = new("parse");
+
+            ParseResult result = Parse(new CliOption<bool>("-y"), directive, "-y [parse]");
+
+            result.FindResultFor(directive).Should().BeNull();
+        }
+
+        [Fact]
         public void Multiple_directives_are_allowed()
         {
             CliRootCommand root = new() { new CliOption<bool>("-y") };
@@ -47,14 +59,111 @@ namespace System.CommandLine.Tests
             result.FindResultFor(suggestDirective).Should().NotBeNull();
         }
 
-        [Fact]
-        public void Directives_must_be_the_first_argument()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Multiple_instances_of_the_same_directive_can_be_invoked(bool invokeAsync)
         {
-            CliDirective directive = new("parse");
+            var commandActionWasCalled = false;
+            var directiveCallCount = 0;
 
-            ParseResult result = Parse(new CliOption<bool>("-y"), directive, "-y [parse]");
+            var testDirective = new TestDirective("test")
+            {
+                Action = new NonexclusiveTestAction(_ => directiveCallCount++)
+            };
 
-            result.FindResultFor(directive).Should().BeNull();
+            var config = new CliConfiguration(new CliRootCommand
+            {
+                Action = new NonexclusiveTestAction(_ => commandActionWasCalled = true)
+            })
+            {
+                Directives = { testDirective }
+            };
+
+            if (invokeAsync)
+            {
+                await config.InvokeAsync("[test:1] [test:2]");
+            }
+            else
+            {
+                config.Invoke("[test:1] [test:2]");
+            }
+
+            using var _ = new AssertionScope();
+
+            commandActionWasCalled.Should().BeTrue();
+            directiveCallCount.Should().Be(2);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Multiple_different_directives_can_be_invoked(bool invokeAsync)
+        {
+            bool commandActionWasCalled = false;
+            bool directiveOneActionWasCalled = false;
+            bool directiveTwoActionWasCalled = false;
+
+            var directiveOne = new TestDirective("one")
+            {
+                Action = new NonexclusiveTestAction(_ => directiveOneActionWasCalled = true)
+            };
+            var directiveTwo = new TestDirective("two")
+            {
+                Action = new NonexclusiveTestAction(_ => directiveTwoActionWasCalled = true)
+            };
+            var config = new CliConfiguration(new CliRootCommand
+            {
+                Action = new NonexclusiveTestAction(_ => commandActionWasCalled = true)
+            })
+            {
+                Directives = { directiveOne, directiveTwo }
+            };
+
+            if (invokeAsync)
+            {
+                await config.InvokeAsync("[one] [two]");
+            }
+            else
+            {
+                config.Invoke("[one] [two]");
+            }
+
+            using var _ = new AssertionScope();
+
+            commandActionWasCalled.Should().BeTrue();
+            directiveOneActionWasCalled.Should().BeTrue();
+            directiveTwoActionWasCalled.Should().BeTrue();
+        }
+
+        public class TestDirective : CliDirective
+        {
+            public TestDirective(string name) : base(name)
+            {
+            }
+        }
+
+        private class NonexclusiveTestAction : CliAction
+        {
+            private readonly Action<ParseResult> _invoke;
+
+            public NonexclusiveTestAction(Action<ParseResult> invoke)
+            {
+                _invoke = invoke;
+                Exclusive = false;
+            }
+
+            public override int Invoke(ParseResult parseResult)
+            {
+                _invoke(parseResult);
+                return 0;
+            }
+
+            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+            {
+                ;
+                return Task.FromResult(Invoke(parseResult));
+            }
         }
 
         [Theory]

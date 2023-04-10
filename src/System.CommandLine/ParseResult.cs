@@ -17,11 +17,11 @@ namespace System.CommandLine
     /// </summary>
     public sealed class ParseResult
     {
-        private readonly IReadOnlyList<ParseError> _errors;
         private readonly CommandResult _rootCommandResult;
         private readonly IReadOnlyList<Token> _unmatchedTokens;
         private CompletionContext? _completionContext;
-        private CliAction? _action;
+        private readonly CliAction? _action;
+        private readonly List<CliAction>? _nonexclusiveActions;
         private Dictionary<string, SymbolResult?>? _namedResults;
 
         internal ParseResult(
@@ -29,15 +29,17 @@ namespace System.CommandLine
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<Token> tokens,
-            IReadOnlyList<Token>? unmatchedTokens,
+            List<Token>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null,
-            CliAction? action = null)
+            CliAction? action = null,
+            List<CliAction>? nonexclusiveActions = null)
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             _action = action;
+            _nonexclusiveActions = nonexclusiveActions;
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
@@ -55,7 +57,7 @@ namespace System.CommandLine
 
             CommandLineText = commandLineText;
             _unmatchedTokens = unmatchedTokens is null ? Array.Empty<Token>() : unmatchedTokens;
-            _errors = errors is not null ? errors : Array.Empty<ParseError>();
+            Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
         internal static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
@@ -78,7 +80,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the parse errors found while parsing command line input.
         /// </summary>
-        public IReadOnlyList<ParseError> Errors => _errors;
+        public IReadOnlyList<ParseError> Errors { get; }
 
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
@@ -261,14 +263,11 @@ namespace System.CommandLine
                 context = tcc.AtCursorPosition(position.Value);
             }
 
-            var completions =
-                currentSymbol is not null
-                    ? currentSymbol.GetCompletions(context)
-                    : Array.Empty<CompletionItem>();
+            var completions = currentSymbol.GetCompletions(context);
 
             string[] optionsWithArgumentLimitReached = currentSymbolResult is CommandResult commandResult
-                ? OptionsWithArgumentLimitReached(commandResult)
-                : Array.Empty<string>();
+                                                           ? OptionsWithArgumentLimitReached(commandResult)
+                                                           : Array.Empty<string>();
 
             completions =
                 completions.Where(item => optionsWithArgumentLimitReached.All(s => s != item.Label));
@@ -304,6 +303,8 @@ namespace System.CommandLine
         /// that will be performed when the parse result is invoked.
         /// </summary>
         public CliAction? Action => _action ?? CommandResult.Command.Action;
+
+        internal IReadOnlyList<CliAction>? NonexclusiveActions => _nonexclusiveActions;
 
         private SymbolResult SymbolToComplete(int? position = null)
         {

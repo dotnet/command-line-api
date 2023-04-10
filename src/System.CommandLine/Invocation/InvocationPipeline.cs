@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace System.CommandLine.Invocation
         {
             if (parseResult.Action is null)
             {
-                return 0;
+                return ReturnCodeForMissingAction(parseResult);
             }
 
             ProcessTerminationHandler? terminationHandler = null;
@@ -20,10 +21,21 @@ namespace System.CommandLine.Invocation
 
             try
             {
+                if (parseResult.NonexclusiveActions is not null)
+                {
+                    for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                    {
+                        var action = parseResult.NonexclusiveActions[i];
+                        await action.InvokeAsync(parseResult, cts.Token);
+                    }
+                }
+
                 Task<int> startedInvocation = parseResult.Action.InvokeAsync(parseResult, cts.Token);
 
                 if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
+                {
                     terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
+                }
 
                 if (terminationHandler is null)
                 {
@@ -52,16 +64,34 @@ namespace System.CommandLine.Invocation
         {
             if (parseResult.Action is null)
             {
-                return 0;
+                return ReturnCodeForMissingAction(parseResult);
             }
 
-            try
+            if (parseResult.NonexclusiveActions is not null)
             {
-                return parseResult.Action.Invoke(parseResult);
+                for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                {
+                    var action = parseResult.NonexclusiveActions[i];
+                    var result = TryInvokeAction(parseResult, action);
+                    if (!result.success)
+                    {
+                        return result.returnCode;
+                    }
+                }
             }
-            catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+
+            return TryInvokeAction(parseResult, parseResult.Action).returnCode;
+
+            static (int returnCode, bool success) TryInvokeAction(ParseResult parseResult, CliAction action)
             {
-                return DefaultExceptionHandler(ex, parseResult.Configuration);
+                try
+                {
+                    return (action.Invoke(parseResult), true);
+                }
+                catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+                {
+                    return (DefaultExceptionHandler(ex, parseResult.Configuration), false);
+                }
             }
         }
 
@@ -78,6 +108,18 @@ namespace System.CommandLine.Invocation
                 ConsoleHelpers.ResetTerminalForegroundColor();
             }
             return 1;
+        }
+
+        private static int ReturnCodeForMissingAction(ParseResult parseResult)
+        {
+            if (parseResult.Errors.Count > 0)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 }

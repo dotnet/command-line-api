@@ -26,27 +26,24 @@ namespace System.CommandLine
         {
             private readonly EnvironmentVariablesDirective _directive;
 
-            internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive) => _directive = directive;
+            internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive)
+            {
+                _directive = directive;
+                Exclusive = false;
+            }
 
             public override int Invoke(ParseResult parseResult)
             {
                 SetEnvVars(parseResult);
 
-                return parseResult.CommandResult.Command.Action?.Invoke(parseResult) ?? 0;
+                return 0;
             }
 
             public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return Task.FromCanceled<int>(cancellationToken);
-                }
-
                 SetEnvVars(parseResult);
 
-                return parseResult.CommandResult.Command.Action is not null
-                    ? parseResult.CommandResult.Command.Action.InvokeAsync(parseResult, cancellationToken)
-                    : Task.FromResult(0);
+                return Task.FromResult(0);
             }
 
             private void SetEnvVars(ParseResult parseResult)
