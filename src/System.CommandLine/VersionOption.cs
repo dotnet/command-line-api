@@ -61,10 +61,6 @@ namespace System.CommandLine
 
         internal override bool Greedy => false;
 
-        public override bool Equals(object? obj) => obj is VersionOption;
-
-        public override int GetHashCode() => typeof(VersionOption).GetHashCode();
-
         private sealed class VersionOptionAction : CliAction
         {
             public override int Invoke(ParseResult parseResult)

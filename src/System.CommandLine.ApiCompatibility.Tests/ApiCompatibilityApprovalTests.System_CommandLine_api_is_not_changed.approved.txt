@@ -155,8 +155,6 @@ System.CommandLine
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public CliAction Action { get; set; }
-    public System.Boolean Equals(System.Object obj)
-    public System.Int32 GetHashCode()
 System.CommandLine.Completions
   public class CompletionContext
     public static CompletionContext Empty { get; }
@@ -220,8 +218,6 @@ System.CommandLine.Help
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public System.CommandLine.CliAction Action { get; set; }
-    public System.Boolean Equals(System.Object obj)
-    public System.Int32 GetHashCode()
   public class TwoColumnHelpRow, System.IEquatable<TwoColumnHelpRow>
     .ctor(System.String firstColumnText, System.String secondColumnText)
     public System.String FirstColumnText { get; }

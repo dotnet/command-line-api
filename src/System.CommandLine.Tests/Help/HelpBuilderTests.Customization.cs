@@ -405,6 +405,8 @@ namespace System.CommandLine.Tests.Help
                     Output = new StringWriter(),
                 };
 
+                var defaultHelp = GetDefaultHelp(config.RootCommand);
+
                 ParseResult parseResult = config.Parse("-h");
 
                 if (parseResult.Action is HelpAction helpAction)
@@ -415,7 +417,6 @@ namespace System.CommandLine.Tests.Help
                 parseResult.Invoke();
 
                 var output = config.Output.ToString();
-                var defaultHelp = GetDefaultHelp(config.RootCommand);
 
                 var expected = $"first{NewLine}{NewLine}{defaultHelp}last{NewLine}{NewLine}";
 

@@ -48,11 +48,6 @@ namespace System.CommandLine.Help
                 return;
             }
 
-            if (OnCustomize is {})
-            {
-                OnCustomize(context);
-            }
-
             foreach (var writeSection in GetLayout(context))
             {
                 writeSection(context);
@@ -65,8 +60,6 @@ namespace System.CommandLine.Help
 
             context.Output.WriteLine();
         }
-
-        internal Action<HelpContext>? OnCustomize { get; set; }
 
         /// <summary>
         /// Specifies custom help details for a specific symbol.
