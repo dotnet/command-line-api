@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,10 +22,9 @@ namespace System.CommandLine.Invocation
             {
                 if (parseResult.NonexclusiveActions is not null)
                 {
-                    for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                    for (int i = 0; i < parseResult.NonexclusiveActions.Count; i++)
                     {
-                        var action = parseResult.NonexclusiveActions[i];
-                        await action.InvokeAsync(parseResult, cts.Token);
+                        await parseResult.NonexclusiveActions[i].InvokeAsync(parseResult, cts.Token);
                     }
                 }
 
@@ -67,31 +65,21 @@ namespace System.CommandLine.Invocation
                 return ReturnCodeForMissingAction(parseResult);
             }
 
-            if (parseResult.NonexclusiveActions is not null)
+            try
             {
-                for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                if (parseResult.NonexclusiveActions is not null)
                 {
-                    var action = parseResult.NonexclusiveActions[i];
-                    var result = TryInvokeAction(parseResult, action);
-                    if (!result.success)
+                    for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
                     {
-                        return result.returnCode;
+                        parseResult.NonexclusiveActions[i].Invoke(parseResult);
                     }
                 }
+
+                return parseResult.Action.Invoke(parseResult);
             }
-
-            return TryInvokeAction(parseResult, parseResult.Action).returnCode;
-
-            static (int returnCode, bool success) TryInvokeAction(ParseResult parseResult, CliAction action)
+            catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
             {
-                try
-                {
-                    return (action.Invoke(parseResult), true);
-                }
-                catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
-                {
-                    return (DefaultExceptionHandler(ex, parseResult.Configuration), false);
-                }
+                return DefaultExceptionHandler(ex, parseResult.Configuration);
             }
         }
 
