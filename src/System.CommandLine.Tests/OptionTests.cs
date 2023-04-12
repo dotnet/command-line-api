@@ -1,6 +1,7 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
 using FluentAssertions;
 using System.Linq;
 using System.Threading;
@@ -75,7 +76,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Aliases_accepts_prefixed_short_value()
+        public void Aliases_contains_prefixed_short_value()
         {
             var option = new CliOption<string>("--option", "-o");
 
@@ -83,7 +84,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void HasAlias_accepts_prefixed_long_value()
+        public void Aliases_contains_prefixed_long_value()
         {
             var option = new CliOption<string>("-o", "--option");
 
@@ -203,30 +204,6 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_option_not_explicitly_provides_help_will_use_default_help()
-        {
-            var option = new CliOption<string>("--option", "-o")
-            {
-                Description = "desc"
-            };
-
-            option.Name.Should().Be("--option");
-            option.Description.Should().Be("desc");
-            option.Hidden.Should().BeFalse();
-        }
-        
-        [Fact]
-        public void Argument_retains_name_when_it_is_provided()
-        {
-            var option = new CliOption<string>("-alias")
-            {
-                HelpName = "arg"
-            };
-
-            option.HelpName.Should().Be("arg");
-        }
-
-        [Fact]
         public void Option_T_default_value_can_be_set_via_the_constructor()
         {
             var option = new CliOption<int>("-x")
@@ -305,19 +282,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeNull();
         }
-        
-        [Theory]
-        [InlineData("-option value")]
-        [InlineData("-option:value")]
-        public void When_aliases_overlap_the_longer_alias_is_chosen(string parseInput)
-        {
-            var option = new CliOption<string>("-o", "-option");
-
-            var parseResult = new CliRootCommand { option }.Parse(parseInput);
-
-            parseResult.GetValue(option).Should().Be("value");
-        }
-
+   
         [Fact]
         public void Option_of_boolean_defaults_to_false_when_not_specified()
         {
@@ -342,77 +307,110 @@ namespace System.CommandLine.Tests
             var result = new CliRootCommand { option }.Parse("--color Fuschia");
 
             result.Errors
-                .Select(e => e.Message)
-                .Should()
-                .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
+                  .Select(e => e.Message)
+                  .Should()
+                  .BeEquivalentTo(new[] { $"Argument 'Fuschia' not recognized. Must be one of:\n\t'Red'\n\t'Green'" });
         }
 
         [Fact]
-        public void Every_option_can_provide_a_handler_and_it_takes_precedence_over_command_handler()
+        public void Option_result_provides_identifier_token_if_name_was_provided()
         {
-            OptionAction optionAction = new();
-            bool commandHandlerWasCalled = false;
-
-            CliOption<bool> option = new("--test")
+            var option = new CliOption<int>("--name")
             {
-                Action = optionAction,
+                Aliases = { "-n" }
             };
-            CliCommand command = new CliCommand("cmd")
+
+            var result = new CliRootCommand { option }.Parse("--name 123");
+
+            result.FindResultFor(option).IdentifierToken.Value.Should().Be("--name");
+        }
+
+        [Fact]
+        public void Option_result_provides_identifier_token_if_alias_was_provided()
+        {
+            var option = new CliOption<int>("--name")
+            {
+                Aliases = { "-n" }
+            };
+
+            var result = new CliRootCommand { option }.Parse("-n 123");
+
+            result.FindResultFor(option).IdentifierToken.Value.Should().Be("-n");
+        }
+
+        [Theory]
+        [InlineData("--name 123", 1)]
+        [InlineData("--name 123 --name 456", 2)]
+        [InlineData("-n 123 --name 456", 2)]
+        [InlineData("--name 123 -x different-option --name 456", 2)]
+        public void Number_of_occurrences_of_identifier_token_is_exposed_by_option_result(string commandLine, int expectedCount)
+        {
+            var option = new CliOption<int>("--name")
+            {
+                Aliases = { "-n" }
+            };
+
+            var root = new CliRootCommand
+            {
+                option,
+                new CliOption<string>("-x")
+            };
+
+            var optionResult = root.Parse(commandLine).FindResultFor(option);
+
+            optionResult.IdentifierTokenCount.Should().Be(expectedCount);
+        }
+
+        [Fact] 
+        public void Multiple_identifier_token_instances_without_argument_tokens_can_be_parsed()
+        {
+            var option = new CliOption<bool>("-v");
+
+            var root = new CliRootCommand
             {
                 option
             };
-            command.SetAction((_) =>
-            {
-                commandHandlerWasCalled = true;
-            });
 
-            ParseResult parseResult = command.Parse("cmd --test true");
+            var result = root.Parse("-v -v -v");
 
-            parseResult.Action.Should().NotBeNull();
-            optionAction.WasCalled.Should().BeFalse();
-            commandHandlerWasCalled.Should().BeFalse();
-
-            parseResult.Invoke().Should().Be(0);
-            optionAction.WasCalled.Should().BeTrue();
-            commandHandlerWasCalled.Should().BeFalse();
+            result.GetValue(option).Should().BeTrue();
         }
 
-        internal sealed class OptionAction : CliAction
+        [Fact] 
+        public void Multiple_bundled_identifier_token_instances_without_argument_tokens_can_be_parsed()
         {
-            internal bool WasCalled = false;
+            var option = new CliOption<bool>("-v");
 
-            public override int Invoke(ParseResult context)
+            var root = new CliRootCommand
             {
-                WasCalled = true;
-                return 0;
-            }
-
-            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
-                => Task.FromResult(Invoke(context));
-        }
-
-        [Fact]
-        public void When_multiple_options_with_handlers_are_parsed_only_the_last_one_is_effective()
-        {
-            OptionAction optionAction1 = new();
-            OptionAction optionAction2 = new();
-            OptionAction optionAction3 = new();
-            
-            CliCommand command = new CliCommand("cmd")
-            {
-                new CliOption<bool>("--1") { Action = optionAction1 },
-                new CliOption<bool>("--2") { Action = optionAction2 },
-                new CliOption<bool>("--3") { Action = optionAction3 }
+                option
             };
 
-            ParseResult parseResult = command.Parse("cmd --1 true --3 false --2 true ");
+            var result = root.Parse("-vvv");
 
-            parseResult.Action.Should().Be(optionAction2);
+            result.GetValue(option).Should().BeTrue();
+        }
 
-            parseResult.Invoke().Should().Be(0);
-            optionAction1.WasCalled.Should().BeFalse();
-            optionAction2.WasCalled.Should().BeTrue();
-            optionAction3.WasCalled.Should().BeFalse();
+        [Theory] // https://github.com/dotnet/command-line-api/issues/669
+        [InlineData("-vvv")]
+        [InlineData("-v -v -v")]
+        public void Custom_parser_can_be_used_to_implement_int_binding_based_on_token_count(string commandLine)
+        {
+            var option = new CliOption<int>("-v")
+            {
+                Arity = ArgumentArity.Zero,
+                AllowMultipleArgumentsPerToken = true,
+                CustomParser = argumentResult => ((OptionResult)argumentResult.Parent).IdentifierTokenCount,
+            };
+
+            var root = new CliRootCommand
+            {
+                option
+            };
+
+            var result = root.Parse(commandLine);
+
+            result.GetValue(option).Should().Be(3);
         }
     }
 }

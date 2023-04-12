@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -217,6 +217,8 @@ namespace System.CommandLine.Parsing
                 optionResult = (OptionResult)symbolResult;
             }
 
+            optionResult.IdentifierTokenCount++;
+
             Advance();
 
             ParseOptionArguments(optionResult);
@@ -243,7 +245,8 @@ namespace System.CommandLine.Parsing
                         break;
                     }
                 }
-                else if (argument.ValueType == typeof(bool) && !bool.TryParse(CurrentToken.Value, out _))
+                else if (argument.ValueType == typeof(bool) && 
+                         !bool.TryParse(CurrentToken.Value, out _))
                 {
                     break;
                 }
@@ -276,8 +279,11 @@ namespace System.CommandLine.Parsing
 
             if (argumentCount == 0)
             {
-                ArgumentResult argumentResult = new(optionResult.Option.Argument, _symbolResultTree, optionResult);
-                _symbolResultTree.Add(optionResult.Option.Argument, argumentResult);
+                if (!_symbolResultTree.ContainsKey(argument))
+                {
+                    var argumentResult = new ArgumentResult(argument, _symbolResultTree, optionResult);
+                    _symbolResultTree.Add(argument, argumentResult);
+                }
             }
         }
 
