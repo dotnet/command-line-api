@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void GetDefaultValue_returns_null_when_parse_delegate_returns_true_without_setting_a_value()
+            public void GetDefaultValue_returns_null_when_custom_parser_returns_true_without_setting_a_value()
             {
                 var argument = new CliArgument<string>("arg")
                 {
@@ -405,7 +405,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void Multiple_command_arguments_can_have_custom_parse_delegates()
+            public void Multiple_arguments_can_have_custom_parsers()
             {
                 var root = new CliRootCommand
                 {
@@ -500,7 +500,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void Parse_delegate_is_called_once_per_parse_operation_when_input_is_provided()
+            public void Custom_parser_is_called_once_per_parse_operation_when_input_is_provided()
             {
                 var i = 0;
 

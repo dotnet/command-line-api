@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
@@ -39,7 +39,13 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The token that was parsed to specify the option.
         /// </summary>
+        /// <remarks>An identifier token is a token that matches either the option's name or one of its aliases.</remarks>
         public Token? IdentifierToken { get; }
+
+        /// <summary>
+        /// The number of occurrences of an identifier token matching the option.
+        /// </summary>
+        public int IdentifierTokenCount { get; internal set; }
 
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(OptionResult)}: {IdentifierToken?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";

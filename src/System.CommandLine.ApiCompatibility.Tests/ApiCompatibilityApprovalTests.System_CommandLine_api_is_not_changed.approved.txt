@@ -247,6 +247,7 @@ System.CommandLine.Parsing
     public System.Collections.Generic.IReadOnlyList<System.String> Values { get; }
   public class OptionResult : SymbolResult
     public Token IdentifierToken { get; }
+    public System.Int32 IdentifierTokenCount { get; }
     public System.Boolean Implicit { get; }
     public System.CommandLine.CliOption Option { get; }
     public T GetValueOrDefault<T>()
