@@ -42,11 +42,9 @@ namespace System.CommandLine.Suggest
                 {
                     process.Start();
 
-                    Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
-
-                    if (readToEndTask.Wait(timeout) && process.HasExited && process.ExitCode == 0)
+                    if (process.WaitForExit(timeout) && process.ExitCode == 0)
                     {
-                        result = readToEndTask.Result;
+                        result = process.StandardOutput.ReadToEnd();
                     }
                     else
                     {
