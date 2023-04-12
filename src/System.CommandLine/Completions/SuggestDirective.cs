@@ -30,7 +30,7 @@ namespace System.CommandLine.Completions
 
             internal SuggestDirectiveAction(SuggestDirective suggestDirective) => _directive = suggestDirective;
 
-            public override int Invoke(ParseResult parseResult)
+            protected override int Invoke(ParseResult parseResult)
             {
                 string? parsedValues = parseResult.FindResultFor(_directive)!.Values.SingleOrDefault();
                 string? rawInput = parseResult.CommandLineText;
@@ -51,7 +51,7 @@ namespace System.CommandLine.Completions
                 return 0;
             }
 
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+            protected override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
                 => cancellationToken.IsCancellationRequested
                     ? Task.FromCanceled<int>(cancellationToken)
                     : Task.FromResult(Invoke(parseResult));

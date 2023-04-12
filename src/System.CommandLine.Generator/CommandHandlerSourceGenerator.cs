@@ -115,10 +115,10 @@ namespace System.CommandLine
             }
 
             builder.Append($@"
-            public override int Invoke(global::System.CommandLine.ParseResult context) => InvokeAsync(context, global::System.Threading.CancellationToken.None).GetAwaiter().GetResult();");
+            protected override int Invoke(global::System.CommandLine.ParseResult context) => InvokeAsync(context, global::System.Threading.CancellationToken.None).GetAwaiter().GetResult();");
 
             builder.Append($@"
-            public override async global::System.Threading.Tasks.Task<int> InvokeAsync(global::System.CommandLine.ParseResult context, global::System.Threading.CancellationToken cancellationToken)
+            protected override async global::System.Threading.Tasks.Task<int> InvokeAsync(global::System.CommandLine.ParseResult context, global::System.Threading.CancellationToken cancellationToken)
             {{");
             builder.Append($@"
                 {invocation.InvokeContents()}");

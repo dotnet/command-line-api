@@ -12,10 +12,10 @@ namespace System.CommandLine.Invocation
     {
         private const int MaxLevenshteinDistance = 3;
 
-        public override int Invoke(ParseResult parseResult)
+        protected override int Invoke(ParseResult parseResult)
             => ProvideSuggestions(parseResult);
 
-        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+        protected override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             => cancellationToken.IsCancellationRequested
                 ? Task.FromCanceled<int>(cancellationToken)
                 : Task.FromResult(ProvideSuggestions(parseResult));

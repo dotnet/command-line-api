@@ -16,7 +16,7 @@ namespace System.CommandLine.Help
             set => _builder = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        public override int Invoke(ParseResult parseResult)
+        protected override int Invoke(ParseResult parseResult)
         {
             var output = parseResult.Configuration.Output;
 
@@ -30,7 +30,7 @@ namespace System.CommandLine.Help
             return 0;
         }
 
-        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+        protected override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             => cancellationToken.IsCancellationRequested
                 ? Task.FromCanceled<int>(cancellationToken)
                 : Task.FromResult(Invoke(parseResult));

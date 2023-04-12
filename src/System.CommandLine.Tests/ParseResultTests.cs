@@ -139,7 +139,7 @@ namespace System.CommandLine.Tests
             parseResult.Action.Should().NotBeNull();
             handlerWasCalled.Should().BeFalse();
 
-            parseResult.Action.Invoke(null!).Should().Be(0);
+            parseResult.Invoke().Should().Be(0);
             handlerWasCalled.Should().BeTrue();
         }
     }

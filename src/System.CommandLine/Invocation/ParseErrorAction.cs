@@ -9,7 +9,7 @@ namespace System.CommandLine.Invocation
 {
     internal sealed class ParseErrorAction : CliAction
     {
-        public override int Invoke(ParseResult parseResult)
+        protected override int Invoke(ParseResult parseResult)
         {
             ConsoleHelpers.ResetTerminalForegroundColor();
             ConsoleHelpers.SetTerminalForegroundRed();
@@ -23,12 +23,19 @@ namespace System.CommandLine.Invocation
 
             ConsoleHelpers.ResetTerminalForegroundColor();
 
-            new HelpOption().Action!.Invoke(parseResult);
+            var helpBuilder = new HelpAction().Builder;
+
+            var helpContext = new HelpContext(helpBuilder,
+                parseResult.CommandResult.Command,
+                parseResult.Configuration.Output,
+                parseResult);
+
+            helpBuilder.Write(helpContext);
 
             return 1;
         }
 
-        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+        protected override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             => cancellationToken.IsCancellationRequested
                 ? Task.FromCanceled<int>(cancellationToken)
                 : Task.FromResult(Invoke(parseResult));

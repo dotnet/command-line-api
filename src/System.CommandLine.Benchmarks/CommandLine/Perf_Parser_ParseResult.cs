@@ -60,7 +60,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             // clear the contents, so each benchmark has the same starting state
             stringBuilder.Clear();
 
-            parseResult.Value.Action!.Invoke(parseResult.Value);
+            parseResult.Value.Invoke();
 
             return stringBuilder.ToString();
         }
@@ -74,7 +74,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             // clear the contents, so each benchmark has the same starting state
             stringBuilder.Clear();
 
-            await parseResult.Value.Action!.InvokeAsync(parseResult.Value);
+            await parseResult.Value.InvokeAsync();
 
             return stringBuilder.ToString();
         }

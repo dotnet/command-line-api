@@ -32,14 +32,14 @@ namespace System.CommandLine
                 Exclusive = false;
             }
 
-            public override int Invoke(ParseResult parseResult)
+            protected override int Invoke(ParseResult parseResult)
             {
                 SetEnvVars(parseResult);
 
                 return 0;
             }
 
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+            protected override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             {
                 SetEnvVars(parseResult);
 

@@ -241,10 +241,10 @@ namespace System.CommandLine.Tests.Invocation
 
         private class CustomExitCodeAction : CliAction
         {
-            public override int Invoke(ParseResult context)
+            protected override int Invoke(ParseResult context)
                 => 123;
 
-            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
+            protected override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
                 => Task.FromResult(456);
         }
 
@@ -259,7 +259,7 @@ namespace System.CommandLine.Tests.Invocation
 
             public bool HasBeenInvoked { get; private set; }
 
-            public override int Invoke(ParseResult parseResult)
+            protected override int Invoke(ParseResult parseResult)
             {
                 HasBeenInvoked = true;
                 if (ThrowOnInvoke)
@@ -270,7 +270,7 @@ namespace System.CommandLine.Tests.Invocation
                 return 0;
             }
 
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+            protected override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             {
                 HasBeenInvoked = true;
                 if (ThrowOnInvoke)

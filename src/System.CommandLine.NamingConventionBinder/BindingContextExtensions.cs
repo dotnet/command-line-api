@@ -14,9 +14,9 @@ public static class BindingContextExtensions
 {
     private sealed class DummyStateHoldingHandler : BindingHandler
     {
-        public override int Invoke(ParseResult parseResult) => 0;
+        protected override int Invoke(ParseResult parseResult) => 0;
 
-        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default) => Task.FromResult(0);
+        protected override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default) => Task.FromResult(0);
     }
 
     public static BindingContext GetBindingContext(this ParseResult parseResult)

@@ -130,13 +130,13 @@ namespace System.CommandLine.Tests
         {
             public bool WasCalled { get; private set; }
 
-            public override int Invoke(ParseResult parseResult)
+            protected override int Invoke(ParseResult parseResult)
             {
                 WasCalled = true;
                 return 0;
             }
 
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+            protected override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
             {
                 WasCalled = true;
                 return Task.FromResult(0);

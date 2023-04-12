@@ -38,7 +38,7 @@ namespace System.CommandLine.Hosting
                 ? bindingHandler.GetBindingContext(parseResult)
                 : base.GetBindingContext(parseResult);
 
-        public async override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+        protected async override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
         {
             var argsRemaining = parseResult.UnmatchedTokens;
             var hostBuilder = _hostBuilderFactory?.Invoke(argsRemaining)
@@ -86,7 +86,8 @@ namespace System.CommandLine.Hosting
             {
                 if (_actualAction is not null)
                 {
-                    return await _actualAction.InvokeAsync(parseResult, cancellationToken);
+                    // This is dirty, as the whole HostingAction concept.
+                    return await (Task<int>)_actualAction.GetType().GetMethod(nameof(InvokeAsync), Reflection.BindingFlags.NonPublic | Reflection.BindingFlags.Instance).Invoke(_actualAction, new object[] { parseResult, cancellationToken });
                 }
                 return 0;
             }
@@ -96,6 +97,6 @@ namespace System.CommandLine.Hosting
             }
         }
 
-        public override int Invoke(ParseResult parseResult) => InvokeAsync(parseResult).GetAwaiter().GetResult();
+        protected override int Invoke(ParseResult parseResult) => InvokeAsync(parseResult).GetAwaiter().GetResult();
     }
 }

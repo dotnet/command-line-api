@@ -41,7 +41,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var parseResult = command.Parse("");
 
-        await handler.InvokeAsync(parseResult, CancellationToken.None);
+        await parseResult.InvokeAsync(CancellationToken.None);
 
         BoundValueCapturer.GetBoundValue(parseResult).Should().Be(expectedValue);
     }
@@ -116,7 +116,7 @@ public partial class ModelBindingCommandHandlerTests
         var commandLine = string.Join(" ", testCase.CommandLineTokens.Select(t => $"--value {t}"));
         var parseResult = command.Parse(commandLine);
 
-        await handler.InvokeAsync(parseResult, CancellationToken.None);
+        await parseResult.InvokeAsync(CancellationToken.None);
 
         var boundValue = BoundValueCapturer.GetBoundValue(parseResult);
 
@@ -176,7 +176,7 @@ public partial class ModelBindingCommandHandlerTests
         var commandLine = string.Join(" ", testCase.CommandLineTokens);
         var parseResult = command.Parse(commandLine);
 
-        await handler.InvokeAsync(parseResult, CancellationToken.None);
+        await parseResult.InvokeAsync(CancellationToken.None);
 
         var boundValue = BoundValueCapturer.GetBoundValue(parseResult);
 
@@ -226,7 +226,7 @@ public partial class ModelBindingCommandHandlerTests
         var commandLine = string.Join(" ", testCase.CommandLineTokens);
         var parseResult = command.Parse(commandLine);
 
-        await handler.InvokeAsync(parseResult, CancellationToken.None);
+        await parseResult.InvokeAsync(CancellationToken.None);
 
         var boundValue = BoundValueCapturer.GetBoundValue(parseResult);
 
@@ -277,7 +277,7 @@ public partial class ModelBindingCommandHandlerTests
         var commandLine = string.Join(" ", testCase.CommandLineTokens.Select(t => $"--value {t}"));
         var parseResult = command.Parse(commandLine);
 
-        await handler.InvokeAsync(parseResult, CancellationToken.None);
+        await parseResult.InvokeAsync(CancellationToken.None);
 
         var boundValue = BoundValueCapturer.GetBoundValue(parseResult);
 

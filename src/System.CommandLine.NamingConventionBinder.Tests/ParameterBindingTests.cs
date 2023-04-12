@@ -397,7 +397,7 @@ public class ParameterBindingTests
     public async Task Method_invoked_is_matching_to_the_interface_implementation(Type type, int expectedResult)
     {
         var command = new CliCommand("command");
-        command.Action = CommandHandler.Create(type.GetMethod(nameof(CliAction.InvokeAsync)));
+        command.Action = CommandHandler.Create(type.GetMethod("InvokeAsync", Reflection.BindingFlags.NonPublic | Reflection.BindingFlags.Instance));
 
         int result = await command.Parse("command").InvokeAsync();
 
@@ -408,9 +408,9 @@ public class ParameterBindingTests
     {
         public abstract Task<int> DoJobAsync();
 
-        public override int Invoke(ParseResult context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+        protected override int Invoke(ParseResult context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
 
-        public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
+        protected override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             => DoJobAsync();
     }
 
@@ -422,15 +422,15 @@ public class ParameterBindingTests
 
     public class VirtualTestCommandHandler : CliAction
     {
-        public override int Invoke(ParseResult context) => 42;
+        protected override int Invoke(ParseResult context) => 42;
 
-        public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
+        protected override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             => Task.FromResult(42);
     }
 
     public class OverridenVirtualTestCommandHandler : VirtualTestCommandHandler
     {
-        public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
+        protected override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             => Task.FromResult(41);
     }
 }

@@ -20,13 +20,13 @@ namespace System.CommandLine.Parsing
 
         internal DiagramAction(int parseErrorReturnValue) => _parseErrorReturnValue = parseErrorReturnValue;
 
-        public override int Invoke(ParseResult parseResult)
+        protected override int Invoke(ParseResult parseResult)
         {
             parseResult.Configuration.Output.WriteLine(Diagram(parseResult));
             return parseResult.Errors.Count == 0 ? 0 : _parseErrorReturnValue;
         }
 
-        public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+        protected override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

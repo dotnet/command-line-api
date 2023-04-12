@@ -17,7 +17,7 @@ namespace System.CommandLine.Invocation
         internal AnonymousCliAction(Func<ParseResult, CancellationToken, Task<int>> action)
             => _asyncAction = action;
 
-        public override int Invoke(ParseResult parseResult)
+        protected override int Invoke(ParseResult parseResult)
         {
             if (_syncAction is not null)
             {
@@ -32,7 +32,7 @@ namespace System.CommandLine.Invocation
                 => _asyncAction!(parseResult, CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken)
+        protected override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken)
         {
             if (_asyncAction is not null)
             {

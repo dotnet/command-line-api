@@ -56,7 +56,7 @@ public class ModelBindingCommandHandler : BindingHandler
     /// <param name="parseResult">The current parse result.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the invocation.</param>
     /// <returns>A task whose value can be used to set the process exit code.</returns>
-    public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+    protected override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
     {
         var bindingContext = GetBindingContext(parseResult);
 
@@ -131,5 +131,5 @@ public class ModelBindingCommandHandler : BindingHandler
                                                        x.ValueType == param.ParameterType);
 
     /// <inheritdoc />
-    public override int Invoke(ParseResult parseResult) => InvokeAsync(parseResult, CancellationToken.None).GetAwaiter().GetResult();
+    protected override int Invoke(ParseResult parseResult) => InvokeAsync(parseResult, CancellationToken.None).GetAwaiter().GetResult();
 }
