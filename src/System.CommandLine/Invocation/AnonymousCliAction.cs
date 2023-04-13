@@ -8,6 +8,7 @@ namespace System.CommandLine.Invocation
 {
     internal sealed class AnonymousCliAction : CliAction
     {
+        // FIX: (AnonymousCliAction) rename to CliCommandAction, make public
         private readonly Func<ParseResult, CancellationToken, Task<int>>? _asyncAction;
         private readonly Func<ParseResult, int>? _syncAction;
 

@@ -10,6 +10,7 @@ namespace System.CommandLine.Invocation
 {
     internal sealed class TypoCorrectionAction : CliAction
     {
+        // FIX: (TypoCorrectionAction) make this part of ParseErrorResultAction
         private const int MaxLevenshteinDistance = 3;
 
         public override int Invoke(ParseResult parseResult)

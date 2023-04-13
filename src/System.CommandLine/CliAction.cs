@@ -11,6 +11,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliAction
     {
+        // FIX: (CliAction) change this to accommodate the fact that the core action isn't "exclusive" either, and some actions might eventually be created that run after it.
         public bool Exclusive { get; protected set; } = true;
 
         /// <summary>

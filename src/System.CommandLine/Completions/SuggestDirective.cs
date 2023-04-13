@@ -26,6 +26,7 @@ namespace System.CommandLine.Completions
 
         private sealed class SuggestDirectiveAction : CliAction
         {
+            // FIX: (SuggestDirectiveAction) rename, make public
             private readonly SuggestDirective _directive;
 
             internal SuggestDirectiveAction(SuggestDirective suggestDirective) => _directive = suggestDirective;

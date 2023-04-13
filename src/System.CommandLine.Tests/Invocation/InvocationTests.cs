@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.CommandLine;
 using System.CommandLine.Help;
 using System.CommandLine.Parsing;
 using System.IO;
@@ -134,7 +136,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new CliRootCommand
             {
-                Action = new CustomExitCodeAction()
+                Action = new CustomReturnCodeAction()
             };
 
             rootCommand.Parse("").Invoke().Should().Be(123);
@@ -145,7 +147,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new CliRootCommand
             {
-                Action = new CustomExitCodeAction()
+                Action = new CustomReturnCodeAction()
             };
 
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(456);
@@ -170,6 +172,7 @@ namespace System.CommandLine.Tests.Invocation
 
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(123);
         }
+
         [Fact]
         public void Anonymous_RootCommand_int_returning_Action_can_set_custom_result_code_via_Invoke()
         {
@@ -190,6 +193,74 @@ namespace System.CommandLine.Tests.Invocation
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(123);
         }
         
+        [Fact]
+        public void Option_action_takes_precedence_over_command_action()
+        {
+            OptionAction optionAction = new();
+            bool commandActionWasCalled = false;
+
+            CliOption<bool> option = new("--test")
+            {
+                Action = optionAction
+            };
+            CliCommand command = new CliCommand("cmd")
+            {
+                option
+            };
+            command.SetAction(_ =>
+            {
+                commandActionWasCalled = true;
+            });
+
+            ParseResult parseResult = command.Parse("cmd --test true");
+
+            parseResult.Action.Should().NotBeNull();
+            optionAction.WasCalled.Should().BeFalse();
+            commandActionWasCalled.Should().BeFalse();
+
+            parseResult.Invoke().Should().Be(0);
+            optionAction.WasCalled.Should().BeTrue();
+            commandActionWasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public void When_multiple_options_with_actions_are_present_then_only_the_last_one_is_invoked()
+        {
+            OptionAction optionAction1 = new();
+            OptionAction optionAction2 = new();
+            OptionAction optionAction3 = new();
+
+            CliCommand command = new CliCommand("cmd")
+            {
+                new CliOption<bool>("--1") { Action = optionAction1 },
+                new CliOption<bool>("--2") { Action = optionAction2 },
+                new CliOption<bool>("--3") { Action = optionAction3 }
+            };
+
+            ParseResult parseResult = command.Parse("cmd --1 true --3 false --2 true ");
+
+            parseResult.Action.Should().Be(optionAction2);
+
+            parseResult.Invoke().Should().Be(0);
+            optionAction1.WasCalled.Should().BeFalse();
+            optionAction2.WasCalled.Should().BeTrue();
+            optionAction3.WasCalled.Should().BeFalse();
+        }
+
+        internal sealed class OptionAction : CliAction
+        {
+            internal bool WasCalled = false;
+
+            public override int Invoke(ParseResult context)
+            {
+                WasCalled = true;
+                return 0;
+            }
+
+            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
+                => Task.FromResult(Invoke(context));
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -239,7 +310,7 @@ namespace System.CommandLine.Tests.Invocation
             await command.Parse("test").InvokeAsync(cancellationToken: cts.Token);
         }
 
-        private class CustomExitCodeAction : CliAction
+        private class CustomReturnCodeAction : CliAction
         {
             public override int Invoke(ParseResult context)
                 => 123;
@@ -281,5 +352,81 @@ namespace System.CommandLine.Tests.Invocation
                 return Task.FromResult(0);
             }
         }
+
+        [Fact]
+        public async Task Rich_return_types_example()
+        {
+            var command = new CliRootCommand();
+
+            command.SetAction(async (parseResult, cancellationToken) =>
+            {
+                return new MyCustomResultType();
+            });
+
+            var config = new MyCustomConfiguration(command);
+
+            await config.InvokeAsync("x -y 123");
+
+
+
+            // TODO (Rich_return_types_example) write test
+            throw new NotImplementedException();
+        }
     }
 }
+
+public static class RichReturnExtensions
+{
+    public static void SetAction<T>(this CliCommand command, Func<ParseResult, CancellationToken, Task<T>> action)
+    {
+        command.Action = new RichReturnAction<T>(action);
+    }
+
+    private class RichReturnAction<T> : CliAction
+    {
+        private readonly Func<ParseResult, CancellationToken, Task<T>> _action;
+
+        public RichReturnAction(Func<ParseResult, CancellationToken, Task<T>> action)
+        {
+            _action = action;
+        }
+
+        public override int Invoke(ParseResult parseResult)
+        {
+            var actionResult = _action(parseResult, CancellationToken.None).GetAwaiter().GetResult();
+
+            if (parseResult.Configuration is MyCustomConfiguration customConfig)
+            {
+                customConfig.ActionResult = actionResult;
+            }
+
+            return 0;
+        }
+
+        public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+        {
+            var actionResult = await _action(parseResult, CancellationToken.None);
+
+            if (parseResult.Configuration is MyCustomConfiguration customConfig)
+            {
+                customConfig.ActionResult = actionResult;
+            }
+
+            return 0;
+        }
+    }
+}
+
+public class MyCustomResultType
+{
+}
+
+public class MyCustomConfiguration : CliConfiguration
+{
+    public MyCustomConfiguration(CliCommand rootCommand) : base(rootCommand)
+    {
+    }
+
+    public object ActionResult { get; set; }
+}
+

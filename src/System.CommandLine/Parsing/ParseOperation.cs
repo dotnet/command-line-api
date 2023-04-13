@@ -191,6 +191,7 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
+                // FIX: (ParseOption) can this be moved out to a CliAction?
                 // DiagramDirective has a precedence over --help and --version
                 if (!_isDiagramRequested)
                 {
