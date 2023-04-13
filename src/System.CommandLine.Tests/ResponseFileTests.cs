@@ -312,7 +312,7 @@ namespace System.CommandLine.Tests
             result.Tokens
                   .Should()
                   .Contain(t => t.Value == "@file.rsp" && 
-                                t.Type == TokenType.Argument);
+                                t.Type == CliTokenType.Argument);
             result.Errors.Should().HaveCount(0);
         }
 

@@ -151,7 +151,7 @@ namespace System.CommandLine.Parsing
             arguments.Tokenize(
                 configuration,
                 inferRootCommand: rawInput is not null,
-                out List<Token> tokens,
+                out List<CliToken> tokens,
                 out List<string>? tokenizationErrors);
 
             var operation = new ParseOperation(

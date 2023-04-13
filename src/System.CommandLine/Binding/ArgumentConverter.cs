@@ -16,10 +16,10 @@ namespace System.CommandLine.Binding
         {
             switch (value)
             {
-                case Token singleValue:
+                case CliToken singleValue:
                     return ConvertToken(argumentResult, type, singleValue);
 
-                case IReadOnlyList<Token> manyValues:
+                case IReadOnlyList<CliToken> manyValues:
                     return ConvertTokens(argumentResult, type, manyValues);
 
                 default:
@@ -30,7 +30,7 @@ namespace System.CommandLine.Binding
         private static ArgumentConversionResult ConvertToken(
             ArgumentResult argumentResult,
             Type type,
-            Token token)
+            CliToken token)
         {
             var value = token.Value;
 
@@ -75,7 +75,7 @@ namespace System.CommandLine.Binding
         private static ArgumentConversionResult ConvertTokens(
             ArgumentResult argumentResult,
             Type type,
-            IReadOnlyList<Token> tokens)
+            IReadOnlyList<CliToken> tokens)
         {
             var itemType = type.GetElementTypeIfEnumerable() ?? typeof(string);
             var values = CreateEnumerable(type, itemType, tokens.Count);

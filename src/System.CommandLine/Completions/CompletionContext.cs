@@ -47,7 +47,7 @@ namespace System.CommandLine.Completions
             ParseResult parseResult,
             int? position = null)
         {
-            Token? lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
+            CliToken? lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != CliTokenType.Directive);
 
             string? textToMatch = null;
             string? rawInput = parseResult.CommandLineText;
@@ -76,7 +76,7 @@ namespace System.CommandLine.Completions
             if (string.IsNullOrWhiteSpace(rawInput))
             {
                 if (parseResult.UnmatchedTokens.Count > 0 ||
-                    lastToken?.Type == TokenType.Argument)
+                    lastToken?.Type == CliTokenType.Argument)
                 {
                     return textToMatch ?? "";
                 }

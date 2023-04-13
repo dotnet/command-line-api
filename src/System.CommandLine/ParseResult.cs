@@ -18,7 +18,7 @@ namespace System.CommandLine
     public sealed class ParseResult
     {
         private readonly CommandResult _rootCommandResult;
-        private readonly IReadOnlyList<Token> _unmatchedTokens;
+        private readonly IReadOnlyList<CliToken> _unmatchedTokens;
         private CompletionContext? _completionContext;
         private readonly CliAction? _action;
         private readonly List<CliAction>? _nonexclusiveActions;
@@ -28,8 +28,8 @@ namespace System.CommandLine
             CliConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
-            List<Token> tokens,
-            List<Token>? unmatchedTokens,
+            List<CliToken> tokens,
+            List<CliToken>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null,
             CliAction? action = null,
@@ -52,11 +52,11 @@ namespace System.CommandLine
             }
             else
             {
-                Tokens = Array.Empty<Token>();
+                Tokens = Array.Empty<CliToken>();
             }
 
             CommandLineText = commandLineText;
-            _unmatchedTokens = unmatchedTokens is null ? Array.Empty<Token>() : unmatchedTokens;
+            _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
@@ -85,7 +85,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
         /// </summary>
-        public IReadOnlyList<Token> Tokens { get; }
+        public IReadOnlyList<CliToken> Tokens { get; }
 
         /// <summary>
         /// Holds the value of a complete command line input prior to splitting and tokenization, when provided.

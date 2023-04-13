@@ -17,7 +17,7 @@ namespace System.CommandLine.Parsing
         internal OptionResult(
             CliOption option,
             SymbolResultTree symbolResultTree,
-            Token? token = null,
+            CliToken? token = null,
             CommandResult? parent = null) :
             base(symbolResultTree, parent)
         {
@@ -40,7 +40,7 @@ namespace System.CommandLine.Parsing
         /// The token that was parsed to specify the option.
         /// </summary>
         /// <remarks>An identifier token is a token that matches either the option's name or one of its aliases.</remarks>
-        public Token? IdentifierToken { get; }
+        public CliToken? IdentifierToken { get; }
 
         /// <summary>
         /// The number of occurrences of an identifier token matching the option.

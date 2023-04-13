@@ -8,7 +8,7 @@ namespace System.CommandLine.Parsing
     internal sealed class SymbolResultTree : Dictionary<CliSymbol, SymbolResult>
     {
         internal List<ParseError>? Errors;
-        internal List<Token>? UnmatchedTokens;
+        internal List<CliToken>? UnmatchedTokens;
 
         internal SymbolResultTree(List<string>? tokenizeErrors)
         {
@@ -55,7 +55,7 @@ namespace System.CommandLine.Parsing
 
         internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
 
-        internal void AddUnmatchedToken(Token token, CommandResult? commandResult)
+        internal void AddUnmatchedToken(CliToken token, CommandResult? commandResult)
         {
             (UnmatchedTokens ??= new()).Add(token);
 

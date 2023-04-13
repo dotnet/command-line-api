@@ -890,7 +890,7 @@ namespace System.CommandLine.Tests
             result.GetResult(option)
                   .IdentifierToken
                   .Should()
-                  .BeEquivalentTo(default(Token));
+                  .BeEquivalentTo(default(CliToken));
         }
 
         [Fact]
@@ -1357,9 +1357,9 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, argument),
-                       new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument));
+                       new CliToken("1", CliTokenType.Argument, argument),
+                       new CliToken("2", CliTokenType.Argument, argument),
+                       new CliToken("3", CliTokenType.Argument, argument));
         }
 
         [Fact]
@@ -1379,19 +1379,19 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, argument),
-                       new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument));
+                       new CliToken("1", CliTokenType.Argument, argument),
+                       new CliToken("2", CliTokenType.Argument, argument),
+                       new CliToken("3", CliTokenType.Argument, argument));
             command.Parse("1 2 3 4 5")
                    .CommandResult
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, argument),
-                       new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument),
-                       new Token("4", TokenType.Argument, argument),
-                       new Token("5", TokenType.Argument, argument));
+                       new CliToken("1", CliTokenType.Argument, argument),
+                       new CliToken("2", CliTokenType.Argument, argument),
+                       new CliToken("3", CliTokenType.Argument, argument),
+                       new CliToken("4", CliTokenType.Argument, argument),
+                       new CliToken("5", CliTokenType.Argument, argument));
         }
 
         [Fact]
@@ -1448,9 +1448,9 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default));
+                       new CliToken("1", CliTokenType.Argument, default),
+                       new CliToken("2", CliTokenType.Argument, default),
+                       new CliToken("3", CliTokenType.Argument, default));
         }
 
         [Fact]
@@ -1468,19 +1468,19 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default));
+                       new CliToken("1", CliTokenType.Argument, default),
+                       new CliToken("2", CliTokenType.Argument, default),
+                       new CliToken("3", CliTokenType.Argument, default));
             command.Parse("-x 1 -x 2 -x 3 -x 4 -x 5")
                    .GetResult(option)
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default),
-                       new Token("4", TokenType.Argument, default),
-                       new Token("5", TokenType.Argument, default));
+                       new CliToken("1", CliTokenType.Argument, default),
+                       new CliToken("2", CliTokenType.Argument, default),
+                       new CliToken("3", CliTokenType.Argument, default),
+                       new CliToken("4", CliTokenType.Argument, default),
+                       new CliToken("5", CliTokenType.Argument, default));
         }
 
         [Fact]

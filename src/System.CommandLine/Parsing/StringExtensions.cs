@@ -48,7 +48,7 @@ namespace System.CommandLine.Parsing
             this IReadOnlyList<string> args,
             CliConfiguration configuration,
             bool inferRootCommand,
-            out List<Token> tokens,
+            out List<CliToken> tokens,
             out List<string>? errors)
         {
             const int FirstArgIsNotRootCommand = -1;
@@ -59,7 +59,7 @@ namespace System.CommandLine.Parsing
             var foundDoubleDash = false;
             var foundEndOfDirectives = false;
 
-            var tokenList = new List<Token>(args.Count);
+            var tokenList = new List<CliToken>(args.Count);
 
             var knownTokens = configuration.RootCommand.ValidTokens(configuration.Directives);
 
@@ -148,11 +148,11 @@ namespace System.CommandLine.Parsing
                     {
                         switch (token.Type)
                         {
-                            case TokenType.Option:
+                            case CliTokenType.Option:
                                 tokenList.Add(Option(arg, (CliOption)token.Symbol!));
                                 break;
 
-                            case TokenType.Command:
+                            case CliTokenType.Command:
                                 CliCommand cmd = (CliCommand)token.Symbol!;
                                 if (cmd != currentCommand)
                                 {
@@ -175,7 +175,7 @@ namespace System.CommandLine.Parsing
                 }
                 else if (arg.TrySplitIntoSubtokens(out var first, out var rest) &&
                          knownTokens.TryGetValue(first, out var subtoken) &&
-                         subtoken.Type == TokenType.Option)
+                         subtoken.Type == CliTokenType.Option)
                 {
                     tokenList.Add(Option(first, (CliOption)subtoken.Symbol!));
 
@@ -191,19 +191,19 @@ namespace System.CommandLine.Parsing
                     tokenList.Add(Argument(arg));
                 }
 
-                Token Argument(string value) => new(value, TokenType.Argument, default, i);
+                CliToken Argument(string value) => new(value, CliTokenType.Argument, default, i);
 
-                Token CommandArgument(string value, CliCommand command) => new(value, TokenType.Argument, command, i);
+                CliToken CommandArgument(string value, CliCommand command) => new(value, CliTokenType.Argument, command, i);
 
-                Token OptionArgument(string value, CliOption option) => new(value, TokenType.Argument, option, i);
+                CliToken OptionArgument(string value, CliOption option) => new(value, CliTokenType.Argument, option, i);
 
-                Token Command(string value, CliCommand cmd) => new(value, TokenType.Command, cmd, i);
+                CliToken Command(string value, CliCommand cmd) => new(value, CliTokenType.Command, cmd, i);
 
-                Token Option(string value, CliOption option) => new(value, TokenType.Option, option, i);
+                CliToken Option(string value, CliOption option) => new(value, CliTokenType.Option, option, i);
 
-                Token DoubleDash() => new("--", TokenType.DoubleDash, default, i);
+                CliToken DoubleDash() => new("--", CliTokenType.DoubleDash, default, i);
 
-                Token Directive(string value, CliDirective? directive) => new(value, TokenType.Directive, directive, i);
+                CliToken Directive(string value, CliDirective? directive) => new(value, CliTokenType.Directive, directive, i);
             }
 
             tokens = tokenList;
@@ -229,24 +229,24 @@ namespace System.CommandLine.Parsing
                         {
                             if (alias[i] == ':' || alias[i] == '=')
                             {
-                                tokenList.Add(new Token(alias.Slice(i + 1).ToString(), TokenType.Argument, default, argumentIndex));
+                                tokenList.Add(new CliToken(alias.Slice(i + 1).ToString(), CliTokenType.Argument, default, argumentIndex));
                                 return true;
                             }
 
                             pCandidate[1] = alias[i];
-                            if (!knownTokens.TryGetValue(candidate, out Token? found))
+                            if (!knownTokens.TryGetValue(candidate, out CliToken? found))
                             {
-                                if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == TokenType.Option)
+                                if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == CliTokenType.Option)
                                 {
                                     // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
-                                    tokenList.Add(new Token(alias.Slice(i).ToString(), TokenType.Argument, default, argumentIndex));
+                                    tokenList.Add(new CliToken(alias.Slice(i).ToString(), CliTokenType.Argument, default, argumentIndex));
                                     return true;
                                 }
 
                                 return false;
                             }
 
-                            tokenList.Add(new Token(found.Value, found.Type, found.Symbol, argumentIndex));
+                            tokenList.Add(new CliToken(found.Value, found.Type, found.Symbol, argumentIndex));
                             if (i != alias.Length - 1 && ((CliOption)found.Symbol!).Greedy)
                             {
                                 int index = i + 1;
@@ -254,7 +254,7 @@ namespace System.CommandLine.Parsing
                                 {
                                     index++; // Last_bundled_option_can_accept_argument_with_colon_separator
                                 }
-                                tokenList.Add(new Token(alias.Slice(index).ToString(), TokenType.Argument, default, argumentIndex));
+                                tokenList.Add(new CliToken(alias.Slice(index).ToString(), CliTokenType.Argument, default, argumentIndex));
                                 return true;
                             }
                         }
@@ -270,7 +270,7 @@ namespace System.CommandLine.Parsing
                 {
                     var token = tokenList[tokenList.Count - 1];
 
-                    if (token.Type == TokenType.Option)
+                    if (token.Type == CliTokenType.Option)
                     {
                         if (token.Symbol is CliOption { Greedy: true } opt)
                         {
@@ -405,16 +405,16 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, Token> ValidTokens(this CliCommand command, IReadOnlyList<CliDirective>? directives)
+        private static Dictionary<string, CliToken> ValidTokens(this CliCommand command, IReadOnlyList<CliDirective>? directives)
         {
-            Dictionary<string, Token> tokens = new(StringComparer.Ordinal);
+            Dictionary<string, CliToken> tokens = new(StringComparer.Ordinal);
 
             if (directives is not null)
             {
                 for (int directiveIndex = 0; directiveIndex < directives.Count; directiveIndex++)
                 {
                     CliDirective directive = directives[directiveIndex];
-                    tokens[directive.Name] = new Token(directive.Name, TokenType.Directive, directive, Token.ImplicitPosition);
+                    tokens[directive.Name] = new CliToken(directive.Name, CliTokenType.Directive, directive, CliToken.ImplicitPosition);
                 }
             }
 
@@ -468,24 +468,24 @@ namespace System.CommandLine.Parsing
 
             return tokens;
 
-            static void AddCommandTokens(Dictionary<string, Token> tokens, CliCommand cmd)
+            static void AddCommandTokens(Dictionary<string, CliToken> tokens, CliCommand cmd)
             {
-                tokens.Add(cmd.Name, new Token(cmd.Name, TokenType.Command, cmd, Token.ImplicitPosition));
+                tokens.Add(cmd.Name, new CliToken(cmd.Name, CliTokenType.Command, cmd, CliToken.ImplicitPosition));
 
                 if (cmd._aliases is not null)
                 {
                     foreach (string childAlias in cmd._aliases)
                     {
-                        tokens.Add(childAlias, new Token(childAlias, TokenType.Command, cmd, Token.ImplicitPosition));
+                        tokens.Add(childAlias, new CliToken(childAlias, CliTokenType.Command, cmd, CliToken.ImplicitPosition));
                     }
                 }
             }
 
-            static void AddOptionTokens(Dictionary<string, Token> tokens, CliOption option)
+            static void AddOptionTokens(Dictionary<string, CliToken> tokens, CliOption option)
             {
                 if (!tokens.ContainsKey(option.Name))
                 {
-                    tokens.Add(option.Name, new Token(option.Name, TokenType.Option, option, Token.ImplicitPosition));
+                    tokens.Add(option.Name, new CliToken(option.Name, CliTokenType.Option, option, CliToken.ImplicitPosition));
                 }
 
                 if (option._aliases is not null)
@@ -494,7 +494,7 @@ namespace System.CommandLine.Parsing
                     {
                         if (!tokens.ContainsKey(childAlias))
                         {
-                            tokens.Add(childAlias, new Token(childAlias, TokenType.Option, option, Token.ImplicitPosition));
+                            tokens.Add(childAlias, new CliToken(childAlias, CliTokenType.Option, option, CliToken.ImplicitPosition));
                         }
                     }
                 }

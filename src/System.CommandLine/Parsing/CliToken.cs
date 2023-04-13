@@ -6,14 +6,14 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A unit of significant text on the command line.
     /// </summary>
-    public sealed class Token : IEquatable<Token>
+    public sealed class CliToken : IEquatable<CliToken>
     {
         internal const int ImplicitPosition = -1;
 
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
         /// <param name="symbol">The symbol represented by the token</param>
-        public Token(string? value, TokenType type, CliSymbol symbol)
+        public CliToken(string? value, CliTokenType type, CliSymbol symbol)
         {
             Value = value ?? "";
             Type = type;
@@ -21,7 +21,7 @@ namespace System.CommandLine.Parsing
             Position = ImplicitPosition;
         }
        
-        internal Token(string? value, TokenType type, CliSymbol? symbol, int position)
+        internal CliToken(string? value, CliTokenType type, CliSymbol? symbol, int position)
         {
             Value = value ?? "";
             Type = type;
@@ -41,7 +41,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The type of the token.
         /// </summary>
-        public TokenType Type { get; }
+        public CliTokenType Type { get; }
 
         /// <summary>
         /// The Symbol represented by the token (if any).
@@ -49,10 +49,10 @@ namespace System.CommandLine.Parsing
         internal CliSymbol? Symbol { get; set; }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj) => Equals(obj as Token);
+        public override bool Equals(object? obj) => Equals(obj as CliToken);
 
         /// <inheritdoc />
-        public bool Equals(Token? other) => other is not null && Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);
+        public bool Equals(CliToken? other) => other is not null && Value == other.Value && Type == other.Type && ReferenceEquals(Symbol, other.Symbol);
 
         /// <inheritdoc />
         public override int GetHashCode() => Value.GetHashCode() ^ (int)Type;
@@ -61,19 +61,19 @@ namespace System.CommandLine.Parsing
         public override string ToString() => Value;
 
         /// <summary>
-        /// Checks if two specified <see cref="Token"/> instances have the same value.
+        /// Checks if two specified <see cref="CliToken"/> instances have the same value.
         /// </summary>
-        /// <param name="left">The first <see cref="Token"/>.</param>
-        /// <param name="right">The second <see cref="Token"/>.</param>
+        /// <param name="left">The first <see cref="CliToken"/>.</param>
+        /// <param name="right">The second <see cref="CliToken"/>.</param>
         /// <returns><see langword="true" /> if the objects are equal.</returns>
-        public static bool operator ==(Token? left, Token? right) => left is null ? right is null : left.Equals(right);
+        public static bool operator ==(CliToken? left, CliToken? right) => left is null ? right is null : left.Equals(right);
 
         /// <summary>
-        /// Checks if two specified <see cref="Token"/> instances have different values.
+        /// Checks if two specified <see cref="CliToken"/> instances have different values.
         /// </summary>
-        /// <param name="left">The first <see cref="Token"/>.</param>
-        /// <param name="right">The second <see cref="Token"/>.</param>
+        /// <param name="left">The first <see cref="CliToken"/>.</param>
+        /// <param name="right">The second <see cref="CliToken"/>.</param>
         /// <returns><see langword="true" /> if the objects are not equal.</returns>
-        public static bool operator !=(Token? left, Token? right) => left is null ? right is not null : !left.Equals(right);
+        public static bool operator !=(CliToken? left, CliToken? right) => left is null ? right is not null : !left.Equals(right);
     }
 }

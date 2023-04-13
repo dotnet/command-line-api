@@ -12,7 +12,7 @@ namespace System.CommandLine.Parsing
     public abstract class SymbolResult
     {
         internal readonly SymbolResultTree SymbolResultTree;
-        private protected List<Token>? _tokens;
+        private protected List<CliToken>? _tokens;
 
         private protected SymbolResult(SymbolResultTree symbolResultTree, SymbolResult? parent)
         {
@@ -53,9 +53,9 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The list of tokens associated with this symbol result during parsing.
         /// </summary>
-        public IReadOnlyList<Token> Tokens => _tokens is not null ? _tokens : Array.Empty<Token>();
+        public IReadOnlyList<CliToken> Tokens => _tokens is not null ? _tokens : Array.Empty<CliToken>();
 
-        internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
+        internal void AddToken(CliToken token) => (_tokens ??= new()).Add(token);
 
         /// <summary>
         /// Adds an error message for this symbol result to it's parse tree.

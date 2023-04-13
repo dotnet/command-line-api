@@ -4,9 +4,9 @@
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// Identifies the type of a <see cref="Token"/>.
+    /// Identifies the type of a <see cref="CliToken"/>.
     /// </summary>
-    public enum TokenType
+    public enum CliTokenType
     {
         /// <summary>
         /// An argument token.
