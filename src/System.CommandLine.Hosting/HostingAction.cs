@@ -41,7 +41,7 @@ namespace System.CommandLine.Hosting
         public async override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
         {
             var argsRemaining = parseResult.UnmatchedTokens;
-            var hostBuilder = _hostBuilderFactory?.Invoke(argsRemaining)
+            var hostBuilder = _hostBuilderFactory?.Invoke(argsRemaining.ToArray())
                 ?? new HostBuilder();
             hostBuilder.Properties[typeof(ParseResult)] = parseResult;
 
