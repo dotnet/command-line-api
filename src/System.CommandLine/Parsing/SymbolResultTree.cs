@@ -8,7 +8,7 @@ namespace System.CommandLine.Parsing
     internal sealed class SymbolResultTree : Dictionary<CliSymbol, SymbolResult>
     {
         internal List<ParseError>? Errors;
-        internal List<Token>? UnmatchedTokens;
+        internal List<CliToken>? UnmatchedTokens;
 
         internal SymbolResultTree(List<string>? tokenizeErrors)
         {
@@ -25,16 +25,16 @@ namespace System.CommandLine.Parsing
 
         internal int ErrorCount => Errors?.Count ?? 0;
 
-        internal ArgumentResult? FindResultFor(CliArgument argument)
+        internal ArgumentResult? GetResult(CliArgument argument)
             => TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
 
-        internal CommandResult? FindResultFor(CliCommand command)
+        internal CommandResult? GetResult(CliCommand command)
             => TryGetValue(command, out SymbolResult? result) ? (CommandResult)result : default;
 
-        internal OptionResult? FindResultFor(CliOption option)
+        internal OptionResult? GetResult(CliOption option)
             => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
-        internal DirectiveResult? FindResultFor(CliDirective directive)
+        internal DirectiveResult? GetResult(CliDirective directive)
             => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
 
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
@@ -55,7 +55,7 @@ namespace System.CommandLine.Parsing
 
         internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
 
-        internal void AddUnmatchedToken(Token token, CommandResult? commandResult)
+        internal void AddUnmatchedToken(CliToken token, CommandResult? commandResult)
         {
             (UnmatchedTokens ??= new()).Add(token);
 

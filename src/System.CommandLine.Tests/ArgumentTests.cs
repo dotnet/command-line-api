@@ -312,7 +312,7 @@ namespace System.CommandLine.Tests
                 {
                     CustomParser = argResult =>
                     {
-                        resultForOptionX = argResult.FindResultFor(optionX);
+                        resultForOptionX = argResult.GetResult(optionX);
                         return string.Empty;
                     }
                 };
@@ -461,7 +461,7 @@ namespace System.CommandLine.Tests
                 {
                     CustomParser = result =>
                     {
-                        if (result.FindResultFor(optionWithError) is { } optionWithErrorResult)
+                        if (result.GetResult(optionWithError) is { } optionWithErrorResult)
                         {
                             var otherOptionError = optionWithErrorResult.Errors.SingleOrDefault()?.Message;
 
@@ -654,13 +654,13 @@ namespace System.CommandLine.Tests
 
                 var parseResult = command.Parse(commandLine);
 
-                parseResult.FindResultFor(argument1)
+                parseResult.GetResult(argument1)
                            .GetValueOrDefault<int[]>()
                            .Should()
                            .BeEquivalentTo(new[] { 1, 2, 3 },
                                                     options => options.WithStrictOrdering());
 
-                parseResult.FindResultFor(argument2)
+                parseResult.GetResult(argument2)
                            .GetValueOrDefault<int[]>()
                            .Should()
                            .BeEquivalentTo(new[] { 4, 5, 6, 7, 8 },
@@ -751,14 +751,14 @@ namespace System.CommandLine.Tests
 
                 var parseResult = command.Parse("1 2 3 4 5 6 7 8");
 
-                parseResult.FindResultFor(argument1)
+                parseResult.GetResult(argument1)
                            .Tokens
                            .Select(t => t.Value)
                            .Should()
                            .BeEquivalentTo(new[] { "1", "2", "3" },
                                            options => options.WithStrictOrdering());
 
-                parseResult.FindResultFor(argument2)
+                parseResult.GetResult(argument2)
                            .Tokens
                            .Select(t => t.Value)
                            .Should()

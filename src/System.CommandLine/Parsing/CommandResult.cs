@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
     {
         internal CommandResult(
             CliCommand command,
-            Token token,
+            CliToken token,
             SymbolResultTree symbolResultTree,
             CommandResult? parent = null) :
             base(symbolResultTree, parent)
@@ -30,7 +30,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The token that was parsed to specify the command.
         /// </summary>
-        public Token IdentifierToken { get; }
+        public CliToken IdentifierToken { get; }
 
         /// <summary>
         /// Child symbol results in the parse tree.

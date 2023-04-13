@@ -37,8 +37,8 @@ namespace System.CommandLine.Tests
             var result = new CliRootCommand { option, option2 }
                 .Parse("--flag");
 
-            result.FindResultFor(option).Should().NotBeNull();
-            result.FindResultFor(option2).Should().BeNull();
+            result.GetResult(option).Should().NotBeNull();
+            result.GetResult(option2).Should().BeNull();
         }
 
         [Fact]
@@ -50,8 +50,8 @@ namespace System.CommandLine.Tests
 
             var result = new CliRootCommand { optionOne, optionTwo }.Parse("-o -t");
 
-            result.FindResultFor(optionOne).Should().NotBeNull();
-            result.FindResultFor(optionTwo).Should().NotBeNull();
+            result.GetResult(optionOne).Should().NotBeNull();
+            result.GetResult(optionTwo).Should().NotBeNull();
         }
 
         [Theory]
@@ -76,7 +76,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result.FindResultFor(option).Tokens.Should().ContainSingle(a => a.Value == "some-value");
+            result.GetResult(option).Tokens.Should().ContainSingle(a => a.Value == "some-value");
         }
 
         [Fact]
@@ -88,7 +88,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result.FindResultFor(option).Tokens.Should().ContainSingle(a => a.Value == "there");
+            result.GetResult(option).Tokens.Should().ContainSingle(a => a.Value == "there");
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result.FindResultFor(option).Tokens.Should().ContainSingle(a => a.Value == "some-value");
+            result.GetResult(option).Tokens.Should().ContainSingle(a => a.Value == "some-value");
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().BeEmpty();
 
-            result.FindResultFor(option).Tokens.Should().ContainSingle(a => a.Value == "there");
+            result.GetResult(option).Tokens.Should().ContainSingle(a => a.Value == "there");
         }
 
         [Fact]
@@ -216,7 +216,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("-a -bc");
 
-            result.FindResultFor(optionA)
+            result.GetResult(optionA)
                   .Tokens
                   .Should()
                   .ContainSingle(t => t.Value == "-bc");
@@ -237,10 +237,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abcvalue");
-            result.FindResultFor(optionA).Should().NotBeNull();
-            result.FindResultFor(optionB).Should().NotBeNull();
+            result.GetResult(optionA).Should().NotBeNull();
+            result.GetResult(optionB).Should().NotBeNull();
 
-            result.FindResultFor(optionC)
+            result.GetResult(optionC)
                 .Tokens
                 .Should()
                 .ContainSingle(t => t.Value == "value");
@@ -261,10 +261,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abc=value");
-            result.FindResultFor(optionA).Should().NotBeNull();
-            result.FindResultFor(optionB).Should().NotBeNull();
+            result.GetResult(optionA).Should().NotBeNull();
+            result.GetResult(optionB).Should().NotBeNull();
 
-            result.FindResultFor(optionC)
+            result.GetResult(optionC)
                 .Tokens
                 .Should()
                 .ContainSingle(t => t.Value == "value");
@@ -285,10 +285,10 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abc:value");
-            result.FindResultFor(optionA).Should().NotBeNull();
-            result.FindResultFor(optionB).Should().NotBeNull();
+            result.GetResult(optionA).Should().NotBeNull();
+            result.GetResult(optionB).Should().NotBeNull();
 
-            result.FindResultFor(optionC)
+            result.GetResult(optionC)
                 .Tokens
                 .Should()
                 .ContainSingle(t => t.Value == "value");
@@ -309,15 +309,15 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-abvcalue");
-            result.FindResultFor(optionA).Should().NotBeNull();
-            result.FindResultFor(optionB).Should().NotBeNull();
+            result.GetResult(optionA).Should().NotBeNull();
+            result.GetResult(optionB).Should().NotBeNull();
 
-            result.FindResultFor(optionB)
+            result.GetResult(optionB)
                 .Tokens
                 .Should()
                 .ContainSingle(t => t.Value == "vcalue");
 
-            result.FindResultFor(optionC).Should().BeNull();
+            result.GetResult(optionC).Should().BeNull();
         }
 
         [Fact]
@@ -333,13 +333,13 @@ namespace System.CommandLine.Tests
 
             var result = parser.Parse("-a cat -v carrot -a dog");
 
-            result.FindResultFor(animalsOption)
+            result.GetResult(animalsOption)
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("cat", "dog");
 
-            result.FindResultFor(vegetablesOption)
+            result.GetResult(vegetablesOption)
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -360,13 +360,13 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -a cat -v carrot -a dog");
 
-            result.FindResultFor(animalsOption)
+            result.GetResult(animalsOption)
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("cat", "dog");
 
-            result.FindResultFor(vegetablesOption)
+            result.GetResult(vegetablesOption)
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
@@ -390,13 +390,13 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -a cat some-arg -v carrot");
 
-            result.FindResultFor(animalsOption)
+            result.GetResult(animalsOption)
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("cat");
 
-            result.FindResultFor(vegetablesOption)
+            result.GetResult(vegetablesOption)
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
@@ -593,7 +593,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            var optionResult = result.FindResultFor(option);
+            var optionResult = result.GetResult(option);
             optionResult.Tokens.Should().BeEmpty();
             result.CommandResult.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
         }
@@ -609,7 +609,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -x the-argument");
 
-            result.FindResultFor(option).Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
+            result.GetResult(option).Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
             result.CommandResult.Tokens.Should().BeEmpty();
         }
 
@@ -748,7 +748,7 @@ namespace System.CommandLine.Tests
             var result = outer.Parse("outer inner -x one -x two");
 
             result.RootCommandResult
-                  .FindResultFor(outerOption)
+                  .GetResult(outerOption)
                   .Should()
                   .BeNull();
         }
@@ -847,7 +847,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = command.Parse("command");
 
-            result.FindResultFor(option).Should().NotBeNull();
+            result.GetResult(option).Should().NotBeNull();
             GetValue(result, option).Should().Be("the-default");
         }
 
@@ -866,7 +866,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("command");
 
-            result.FindResultFor(option)
+            result.GetResult(option)
                   .Implicit
                   .Should()
                   .BeTrue();
@@ -887,10 +887,10 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("command");
 
-            result.FindResultFor(option)
+            result.GetResult(option)
                   .IdentifierToken
                   .Should()
-                  .BeEquivalentTo(default(Token));
+                  .BeEquivalentTo(default(CliToken));
         }
 
         [Fact]
@@ -907,7 +907,7 @@ namespace System.CommandLine.Tests
             };
             var result = command.Parse("command");
 
-            result.FindResultFor(argument)
+            result.GetResult(argument)
                   .Tokens
                   .Should()
                   .BeEmpty();
@@ -1061,7 +1061,7 @@ namespace System.CommandLine.Tests
             var parseResult = new CliRootCommand { option }.Parse(new[] { arg1, arg2 });
 
             parseResult
-                .FindResultFor(option)
+                .GetResult(option)
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -1295,7 +1295,7 @@ namespace System.CommandLine.Tests
 
             var result = new CliRootCommand { option }.Parse("noprefix");
 
-            result.FindResultFor(option).Should().NotBeNull();
+            result.GetResult(option).Should().NotBeNull();
         }
 
         [Fact]
@@ -1357,9 +1357,9 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, argument),
-                       new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument));
+                       new CliToken("1", CliTokenType.Argument, argument),
+                       new CliToken("2", CliTokenType.Argument, argument),
+                       new CliToken("3", CliTokenType.Argument, argument));
         }
 
         [Fact]
@@ -1379,19 +1379,19 @@ namespace System.CommandLine.Tests
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, argument),
-                       new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument));
+                       new CliToken("1", CliTokenType.Argument, argument),
+                       new CliToken("2", CliTokenType.Argument, argument),
+                       new CliToken("3", CliTokenType.Argument, argument));
             command.Parse("1 2 3 4 5")
                    .CommandResult
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, argument),
-                       new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument),
-                       new Token("4", TokenType.Argument, argument),
-                       new Token("5", TokenType.Argument, argument));
+                       new CliToken("1", CliTokenType.Argument, argument),
+                       new CliToken("2", CliTokenType.Argument, argument),
+                       new CliToken("3", CliTokenType.Argument, argument),
+                       new CliToken("4", CliTokenType.Argument, argument),
+                       new CliToken("5", CliTokenType.Argument, argument));
         }
 
         [Fact]
@@ -1410,7 +1410,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.RequiredArgumentMissing(result.FindResultFor(command.Arguments[0])));
+                  .Contain(LocalizationResources.RequiredArgumentMissing(result.GetResult(command.Arguments[0])));
         }
 
         [Fact]
@@ -1444,13 +1444,13 @@ namespace System.CommandLine.Tests
             };
 
             command.Parse("-x 1 -x 2 -x 3")
-                   .FindResultFor(option)
+                   .GetResult(option)
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default));
+                       new CliToken("1", CliTokenType.Argument, default),
+                       new CliToken("2", CliTokenType.Argument, default),
+                       new CliToken("3", CliTokenType.Argument, default));
         }
 
         [Fact]
@@ -1464,23 +1464,23 @@ namespace System.CommandLine.Tests
             };
 
             command.Parse("-x 1 -x 2 -x 3")
-                   .FindResultFor(option)
+                   .GetResult(option)
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default));
+                       new CliToken("1", CliTokenType.Argument, default),
+                       new CliToken("2", CliTokenType.Argument, default),
+                       new CliToken("3", CliTokenType.Argument, default));
             command.Parse("-x 1 -x 2 -x 3 -x 4 -x 5")
-                   .FindResultFor(option)
+                   .GetResult(option)
                    .Tokens
                    .Should()
                    .BeEquivalentTo(
-                       new Token("1", TokenType.Argument, default),
-                       new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default),
-                       new Token("4", TokenType.Argument, default),
-                       new Token("5", TokenType.Argument, default));
+                       new CliToken("1", CliTokenType.Argument, default),
+                       new CliToken("2", CliTokenType.Argument, default),
+                       new CliToken("3", CliTokenType.Argument, default),
+                       new CliToken("4", CliTokenType.Argument, default),
+                       new CliToken("5", CliTokenType.Argument, default));
         }
 
         [Fact]
@@ -1501,7 +1501,7 @@ namespace System.CommandLine.Tests
             result.Errors
                   .Select(e => e.Message)
                   .Should()
-                  .Contain(LocalizationResources.RequiredArgumentMissing(result.FindResultFor(option)));
+                  .Contain(LocalizationResources.RequiredArgumentMissing(result.GetResult(option)));
         }
 
         [Fact]

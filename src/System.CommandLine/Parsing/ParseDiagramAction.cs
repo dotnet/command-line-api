@@ -52,11 +52,11 @@ namespace System.CommandLine.Parsing
             Diagram(builder, parseResult.RootCommandResult, parseResult);
 
             var unmatchedTokens = parseResult.UnmatchedTokens;
-            if (unmatchedTokens.Length > 0)
+            if (unmatchedTokens.Count > 0)
             {
                 builder.Append("   ???-->");
 
-                for (var i = 0; i < unmatchedTokens.Length; i++)
+                for (var i = 0; i < unmatchedTokens.Count; i++)
                 {
                     var error = unmatchedTokens[i];
                     builder.Append(" ");

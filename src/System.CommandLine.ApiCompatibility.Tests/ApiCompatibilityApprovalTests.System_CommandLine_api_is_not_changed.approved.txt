@@ -136,15 +136,15 @@ System.CommandLine
     public CliConfiguration Configuration { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
-    public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
-    public System.String[] UnmatchedTokens { get; }
-    public System.CommandLine.Parsing.ArgumentResult FindResultFor(CliArgument argument)
-    public System.CommandLine.Parsing.CommandResult FindResultFor(CliCommand command)
-    public System.CommandLine.Parsing.OptionResult FindResultFor(CliOption option)
-    public System.CommandLine.Parsing.DirectiveResult FindResultFor(CliDirective directive)
-    public System.CommandLine.Parsing.SymbolResult FindResultFor(CliSymbol symbol)
+    public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.CliToken> Tokens { get; }
+    public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
     public System.CommandLine.Completions.CompletionContext GetCompletionContext()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
+    public System.CommandLine.Parsing.ArgumentResult GetResult(CliArgument argument)
+    public System.CommandLine.Parsing.CommandResult GetResult(CliCommand command)
+    public System.CommandLine.Parsing.OptionResult GetResult(CliOption option)
+    public System.CommandLine.Parsing.DirectiveResult GetResult(CliDirective directive)
+    public System.CommandLine.Parsing.SymbolResult GetResult(CliSymbol symbol)
     public T GetValue<T>(CliArgument<T> argument)
     public T GetValue<T>(CliOption<T> option)
     public T GetValue<T>(System.String name)
@@ -236,17 +236,33 @@ System.CommandLine.Parsing
     public static System.CommandLine.ParseResult Parse(System.CommandLine.CliCommand command, System.Collections.Generic.IReadOnlyList<System.String> args, System.CommandLine.CliConfiguration configuration = null)
     public static System.CommandLine.ParseResult Parse(System.CommandLine.CliCommand command, System.String commandLine, System.CommandLine.CliConfiguration configuration = null)
     public static System.Collections.Generic.IEnumerable<System.String> SplitCommandLine(System.String commandLine)
+  public class CliToken, System.IEquatable<CliToken>
+    public static System.Boolean op_Equality(CliToken left, CliToken right)
+    public static System.Boolean op_Inequality(CliToken left, CliToken right)
+    .ctor(System.String value, CliTokenType type, System.CommandLine.CliSymbol symbol)
+    public CliTokenType Type { get; }
+    public System.String Value { get; }
+    public System.Boolean Equals(System.Object obj)
+    public System.Boolean Equals(CliToken other)
+    public System.Int32 GetHashCode()
+    public System.String ToString()
+  public enum CliTokenType : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
+    Argument=0
+    Command=1
+    Option=2
+    DoubleDash=3
+    Directive=4
   public class CommandResult : SymbolResult
     public System.Collections.Generic.IEnumerable<SymbolResult> Children { get; }
     public System.CommandLine.CliCommand Command { get; }
-    public Token IdentifierToken { get; }
+    public CliToken IdentifierToken { get; }
     public System.String ToString()
   public class DirectiveResult : SymbolResult
     public System.CommandLine.CliDirective Directive { get; }
-    public Token Token { get; }
+    public CliToken Token { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> Values { get; }
   public class OptionResult : SymbolResult
-    public Token IdentifierToken { get; }
+    public CliToken IdentifierToken { get; }
     public System.Int32 IdentifierTokenCount { get; }
     public System.Boolean Implicit { get; }
     public System.CommandLine.CliOption Option { get; }
@@ -259,30 +275,14 @@ System.CommandLine.Parsing
   public abstract class SymbolResult
     public System.Collections.Generic.IEnumerable<ParseError> Errors { get; }
     public SymbolResult Parent { get; }
-    public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
+    public System.Collections.Generic.IReadOnlyList<CliToken> Tokens { get; }
     public System.Void AddError(System.String errorMessage)
-    public ArgumentResult FindResultFor(System.CommandLine.CliArgument argument)
-    public CommandResult FindResultFor(System.CommandLine.CliCommand command)
-    public OptionResult FindResultFor(System.CommandLine.CliOption option)
-    public DirectiveResult FindResultFor(System.CommandLine.CliDirective directive)
+    public ArgumentResult GetResult(System.CommandLine.CliArgument argument)
+    public CommandResult GetResult(System.CommandLine.CliCommand command)
+    public OptionResult GetResult(System.CommandLine.CliOption option)
+    public DirectiveResult GetResult(System.CommandLine.CliDirective directive)
     public T GetValue<T>(CliArgument<T> argument)
     public T GetValue<T>(CliOption<T> option)
-  public class Token, System.IEquatable<Token>
-    public static System.Boolean op_Equality(Token left, Token right)
-    public static System.Boolean op_Inequality(Token left, Token right)
-    .ctor(System.String value, TokenType type, System.CommandLine.CliSymbol symbol)
-    public TokenType Type { get; }
-    public System.String Value { get; }
-    public System.Boolean Equals(System.Object obj)
-    public System.Boolean Equals(Token other)
-    public System.Int32 GetHashCode()
-    public System.String ToString()
-  public enum TokenType : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
-    Argument=0
-    Command=1
-    Option=2
-    DoubleDash=3
-    Directive=4
   public delegate TryReplaceToken : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.AsyncCallback callback, System.Object object)

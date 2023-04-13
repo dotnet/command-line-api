@@ -98,7 +98,7 @@ namespace System.CommandLine.Parsing
 
                 while (!nextArgumentResult.ArgumentLimitReached && tokensToPass > 0)
                 {
-                    Token toPass = _tokens[numberOfTokens];
+                    CliToken toPass = _tokens[numberOfTokens];
                     _tokens.RemoveAt(numberOfTokens);
                     nextArgumentResult.AddToken(toPass);
                     --tokensToPass;
@@ -110,7 +110,7 @@ namespace System.CommandLine.Parsing
             // When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unmatched_tokens
             while (tokensToPass > 0)
             {
-                Token unmatched = _tokens[numberOfTokens];
+                CliToken unmatched = _tokens[numberOfTokens];
                 _tokens.RemoveAt(numberOfTokens);
                 SymbolResultTree.AddUnmatchedToken(unmatched, parent.Command.TreatUnmatchedTokensAsErrors ? parent : null);
                 --tokensToPass;

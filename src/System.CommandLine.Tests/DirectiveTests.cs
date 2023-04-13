@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = Parse(new CliOption<bool>("-y"), directive, "[parse] -y");
 
-            result.FindResultFor(directive).Should().NotBeNull();
+            result.GetResult(directive).Should().NotBeNull();
             result.Tokens.Should().Contain(t => t.Value == "[parse]");
         }
 
@@ -40,7 +40,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = Parse(new CliOption<bool>("-y"), directive, "-y [parse]");
 
-            result.FindResultFor(directive).Should().BeNull();
+            result.GetResult(directive).Should().BeNull();
         }
 
         [Fact]
@@ -55,8 +55,8 @@ namespace System.CommandLine.Tests
 
             var result = root.Parse("[parse] [suggest] -y", config);
 
-            result.FindResultFor(parseDirective).Should().NotBeNull();
-            result.FindResultFor(suggestDirective).Should().NotBeNull();
+            result.GetResult(parseDirective).Should().NotBeNull();
+            result.GetResult(suggestDirective).Should().NotBeNull();
         }
 
         [Theory]
@@ -179,7 +179,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = Parse(new CliOption<bool>("-y"), directive, $"{wholeText} -y");
 
-            result.FindResultFor(directive).Values.Single().Should().Be(expectedValue);
+            result.GetResult(directive).Values.Single().Should().Be(expectedValue);
         }
 
         [Fact]
@@ -189,7 +189,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = Parse(new CliOption<bool>("-y"), directive, "[parse] -y");
 
-            result.FindResultFor(directive).Values.Should().BeEmpty();
+            result.GetResult(directive).Values.Should().BeEmpty();
         }
 
         [Theory]
@@ -216,7 +216,7 @@ namespace System.CommandLine.Tests
 
             CliDirective directive = new("parse");
             ParseResult result = Parse(new CliOption<bool>("-y"), directive, $"{value} -y");
-            result.FindResultFor(directive).Should().BeNull();
+            result.GetResult(directive).Should().BeNull();
 
             result.UnmatchedTokens.Should().BeEquivalentTo(firstUnmatchedToken, secondUnmatchedToken);
         }
@@ -228,7 +228,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = Parse(new CliOption<bool>("-a"), directive, "[directive:one] [directive:two] -a");
 
-            result.FindResultFor(directive).Values.Should().BeEquivalentTo("one", "two");
+            result.GetResult(directive).Values.Should().BeEquivalentTo("one", "two");
         }
 
         private static ParseResult Parse(CliOption option, CliDirective directive, string commandLine)

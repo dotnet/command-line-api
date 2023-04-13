@@ -126,12 +126,12 @@ namespace System.CommandLine.Tests
 
                 var result = root.Parse("src.txt dest.txt");
 
-                result.FindResultFor(sourceArg)
+                result.GetResult(sourceArg)
                       .GetValueOrDefault<string>()
                       .Should()
                       .Be("src.txt");
                 
-                result.FindResultFor(destinationArg)
+                result.GetResult(destinationArg)
                       .GetValueOrDefault<string>()
                       .Should()
                       .Be("dest.txt");
@@ -257,7 +257,7 @@ namespace System.CommandLine.Tests
 
                 var result = rootCommand.Parse("");
 
-                result.FindResultFor(arg1).Should().NotBeNull();
+                result.GetResult(arg1).Should().NotBeNull();
                 result.GetValue(arg2).Should().Be("the-default");
             }
 

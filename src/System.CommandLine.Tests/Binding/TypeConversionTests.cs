@@ -688,7 +688,7 @@ namespace System.CommandLine.Tests.Binding
             var result = command.Parse("--items one --items two --items three");
 
             result.Errors.Should().BeEmpty();
-            result.FindResultFor(option).GetValueOrDefault<object>().Should().BeAssignableTo(argumentType);
+            result.GetResult(option).GetValueOrDefault<object>().Should().BeAssignableTo(argumentType);
         }
 
         [Fact]

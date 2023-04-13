@@ -130,7 +130,7 @@ namespace System.CommandLine.Tests
             getRequired
                 .Should()
                 .Throw<InvalidOperationException>()
-                .Where(ex => ex.Message == LocalizationResources.RequiredArgumentMissing(parseResult.FindResultFor(command.Arguments[0])));
+                .Where(ex => ex.Message == LocalizationResources.RequiredArgumentMissing(parseResult.GetResult(command.Arguments[0])));
         }
 
         [Fact]
