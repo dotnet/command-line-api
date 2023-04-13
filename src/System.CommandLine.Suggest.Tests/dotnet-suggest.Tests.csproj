@@ -13,6 +13,11 @@
     <Content Remove="EndToEndTestApp/**" />
     <EmbeddedResource Remove="EndToEndTestApp/**" />
     <None Remove="EndToEndTestApp/**" />
+    
+    <Compile Remove="WaitAndFailTestApp/**" />
+    <Content Remove="WaitAndFailTestApp/**" />
+    <EmbeddedResource Remove="WaitAndFailTestApp/**" />
+    <None Remove="WaitAndFailTestApp/**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,6 +71,12 @@
       </MSBuild>
 
       <MSBuild BuildInParallel="False" Projects="EndToEndTestApp/EndToEndTestApp.csproj" Targets="Build;Publish" Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath);Configuration=Release">
+      </MSBuild>
+      
+      <MSBuild BuildInParallel="False" Projects="WaitAndFailTestApp/WaitAndFailTestApp.csproj" Targets="Restore" Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);ForceRestoreToEvaluateSeparately=1;Configuration=Release">
+      </MSBuild>
+
+      <MSBuild BuildInParallel="False" Projects="WaitAndFailTestApp/WaitAndFailTestApp.csproj" Targets="Build;Publish" Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath);Configuration=Release">
       </MSBuild>
   
     </Target>
