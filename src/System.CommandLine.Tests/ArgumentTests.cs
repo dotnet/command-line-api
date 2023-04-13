@@ -442,6 +442,52 @@ namespace System.CommandLine.Tests
                       .Contain("UH UH");
             }
 
+            [Theory]
+            // The two different examples verify that the relative order of the symbols doesn't matter.
+            [InlineData("--option-with-error 123 --depends-on-option-with-error")]
+            [InlineData("--depends-on-option-with-error --option-with-error 123")]
+            public void Custom_parser_can_check_another_option_result_for_custom_errors(string commandLine)
+            {
+                var optionWithError = new CliOption<string>("--option-with-error")
+                {
+                    CustomParser = r =>
+                    {
+                        r.AddError("one");
+                        return r.Tokens[0].Value;
+                    }
+                };
+
+                var optionThatDependsOnOptionWithError = new CliOption<bool>("--depends-on-option-with-error")
+                {
+                    CustomParser = result =>
+                    {
+                        if (result.FindResultFor(optionWithError) is { } optionWithErrorResult)
+                        {
+                            var otherOptionError = optionWithErrorResult.Errors.SingleOrDefault()?.Message;
+
+                            result.AddError(otherOptionError + " " + "two");
+                        }
+
+                        return false;
+                    }
+                };
+
+                var command = new CliCommand("cmd")
+                {
+                    optionWithError,
+                    optionThatDependsOnOptionWithError
+                };
+
+                var parseResult = command.Parse(commandLine);
+
+                parseResult.Errors
+                           .Single(e => e.SymbolResult is OptionResult optResult &&
+                                        optResult.Option == optionThatDependsOnOptionWithError)
+                           .Message
+                           .Should()
+                           .Be("one two");
+            }
+
             [Fact]
             public void When_custom_conversion_fails_then_an_option_does_not_accept_further_arguments()
             {

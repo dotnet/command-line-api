@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
+using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -18,6 +18,31 @@ namespace System.CommandLine.Parsing
         {
             SymbolResultTree = symbolResultTree;
             Parent = parent;
+        }
+
+        /// <summary>
+        /// The parse errors associated with this symbol result.
+        /// </summary>
+        public IEnumerable<ParseError> Errors
+        {
+            get
+            {
+                var parseErrors = SymbolResultTree.Errors;
+
+                if (parseErrors is null)
+                {
+                    yield break;
+                }
+
+                for (var i = 0; i < parseErrors.Count; i++)
+                {
+                    var parseError = parseErrors[i];
+                    if (parseError.SymbolResult == this)
+                    {
+                        yield return parseError;
+                    }
+                }
+            }
         }
 
         /// <summary>
