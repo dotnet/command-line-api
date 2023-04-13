@@ -21,7 +21,7 @@ internal class SpecificSymbolValueSource : IValueSource
         switch (_symbol)
         {
             case CliOption option:
-                var optionResult = bindingContext?.ParseResult.FindResultFor(option);
+                var optionResult = bindingContext?.ParseResult.GetResult(option);
                 if (optionResult is not null)
                 {
                     boundValue = optionResult.GetValueOrDefault<object>();
@@ -29,7 +29,7 @@ internal class SpecificSymbolValueSource : IValueSource
                 }
                 break;
             case CliArgument argument:
-                var argumentResult = bindingContext?.ParseResult.FindResultFor(argument);
+                var argumentResult = bindingContext?.ParseResult.GetResult(argument);
                 if (argumentResult is not null)
                 {
                     boundValue = argumentResult.GetValueOrDefault<object>();

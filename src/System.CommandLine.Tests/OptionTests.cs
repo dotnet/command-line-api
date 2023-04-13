@@ -199,7 +199,7 @@ namespace System.CommandLine.Tests
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
             result.GetValue(optionA).Should().Be("value-for-a");
-            result.FindResultFor(optionB).Should().BeNull();
+            result.GetResult(optionB).Should().BeNull();
             result.GetValue(optionC).Should().Be("value-for-c");
         }
 
@@ -213,7 +213,7 @@ namespace System.CommandLine.Tests
 
             new CliRootCommand { option }
                 .Parse("")
-                .FindResultFor(option)
+                .GetResult(option)
                 .GetValueOrDefault<int>()
                 .Should()
                 .Be(123);
@@ -229,7 +229,7 @@ namespace System.CommandLine.Tests
 
             new CliRootCommand { option }
                 .Parse("")
-                .FindResultFor(option)
+                .GetResult(option)
                 .GetValueOrDefault<int>()
                 .Should()
                 .Be(123);
@@ -244,7 +244,7 @@ namespace System.CommandLine.Tests
 
             new CliRootCommand { option }
                 .Parse("")
-                .FindResultFor(option)
+                .GetResult(option)
                 .GetValueOrDefault<int>()
                 .Should()
                 .Be(123);
@@ -275,7 +275,7 @@ namespace System.CommandLine.Tests
             var option = new CliOption<string>("-x");
 
             var result = new CliRootCommand { option }.Parse("");
-            result.FindResultFor(option)
+            result.GetResult(option)
                 .Should()
                 .BeNull();
             result.GetValue(option)
@@ -290,7 +290,7 @@ namespace System.CommandLine.Tests
 
             var result = new CliRootCommand { option }.Parse("");
 
-            result.FindResultFor(option)
+            result.GetResult(option)
                 .Should()
                 .BeNull();
             result.GetValue(option)
@@ -322,7 +322,7 @@ namespace System.CommandLine.Tests
 
             var result = new CliRootCommand { option }.Parse("--name 123");
 
-            result.FindResultFor(option).IdentifierToken.Value.Should().Be("--name");
+            result.GetResult(option).IdentifierToken.Value.Should().Be("--name");
         }
 
         [Fact]
@@ -335,7 +335,7 @@ namespace System.CommandLine.Tests
 
             var result = new CliRootCommand { option }.Parse("-n 123");
 
-            result.FindResultFor(option).IdentifierToken.Value.Should().Be("-n");
+            result.GetResult(option).IdentifierToken.Value.Should().Be("-n");
         }
 
         [Theory]
@@ -356,7 +356,7 @@ namespace System.CommandLine.Tests
                 new CliOption<string>("-x")
             };
 
-            var optionResult = root.Parse(commandLine).FindResultFor(option);
+            var optionResult = root.Parse(commandLine).GetResult(option);
 
             optionResult.IdentifierTokenCount.Should().Be(expectedCount);
         }

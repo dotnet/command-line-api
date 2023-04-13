@@ -24,7 +24,7 @@ namespace System.CommandLine.Tests
 
                 var result = rootCommand.Parse("-o \"some stuff\" -- -o --one -x -y -z -o:foo");
 
-                result.FindResultFor(option).Should().NotBeNull();
+                result.GetResult(option).Should().NotBeNull();
 
                 result.GetValue(option).Should().BeEquivalentTo("some stuff");
 

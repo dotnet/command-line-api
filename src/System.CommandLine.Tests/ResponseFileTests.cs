@@ -47,7 +47,7 @@ namespace System.CommandLine.Tests
 
             var result = new CliRootCommand { option }.Parse($"@{CreateResponseFile("--flag")}");
 
-            result.FindResultFor(option).Should().NotBeNull();
+            result.GetResult(option).Should().NotBeNull();
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
                          }
                 .Parse($"@{responseFile}");
 
-            result.FindResultFor(optionOne).Should().NotBeNull();
+            result.GetResult(optionOne).Should().NotBeNull();
             result.GetValue(optionTwo).Should().Be(123);
             result.Errors.Should().BeEmpty();
         }
@@ -203,8 +203,8 @@ namespace System.CommandLine.Tests
                 optionTwo
             }.Parse($"@{responseFile}");
 
-            result.FindResultFor(optionOne).Should().NotBeNull();
-            result.FindResultFor(optionTwo).Should().NotBeNull();
+            result.GetResult(optionOne).Should().NotBeNull();
+            result.GetResult(optionTwo).Should().NotBeNull();
             result.Errors.Should().BeEmpty();
         }
 
@@ -220,8 +220,8 @@ namespace System.CommandLine.Tests
                              optionTwo
                          }.Parse("@nonexistent.rsp");
 
-            result.FindResultFor(optionOne).Should().BeNull();
-            result.FindResultFor(optionTwo).Should().BeNull();
+            result.GetResult(optionOne).Should().BeNull();
+            result.GetResult(optionTwo).Should().BeNull();
             result.Errors.Should().HaveCount(1);
             result.Errors.Single().Message.Should().Be("Response file not found 'nonexistent.rsp'.");
         }
@@ -239,8 +239,8 @@ namespace System.CommandLine.Tests
                          }
                 .Parse("@");
 
-            result.FindResultFor(optionOne).Should().BeNull();
-            result.FindResultFor(optionTwo).Should().BeNull();
+            result.GetResult(optionOne).Should().BeNull();
+            result.GetResult(optionTwo).Should().BeNull();
             result.Errors.Should().HaveCount(1);
             result.Errors
                   .Single()
@@ -264,8 +264,8 @@ namespace System.CommandLine.Tests
                                  optionTwo
                              }.Parse($"@{nonexistent}");
 
-                result.FindResultFor(optionOne).Should().BeNull();
-                result.FindResultFor(optionTwo).Should().BeNull();
+                result.GetResult(optionOne).Should().BeNull();
+                result.GetResult(optionTwo).Should().BeNull();
                 result.Errors.Should().HaveCount(1);
                 result.Errors.Single().Message.Should().StartWith($"Error reading response file '{nonexistent}'");
             }

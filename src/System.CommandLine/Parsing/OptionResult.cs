@@ -63,7 +63,7 @@ namespace System.CommandLine.Parsing
             => Option.Argument.Arity.MaximumNumberOfValues == (Implicit ? Tokens.Count - 1 : Tokens.Count);
 
         internal ArgumentConversionResult ArgumentConversionResult
-            => _argumentConversionResult ??= FindResultFor(Option.Argument)!.GetArgumentConversionResult();
+            => _argumentConversionResult ??= GetResult(Option.Argument)!.GetArgumentConversionResult();
 
         internal override bool UseDefaultValueFor(ArgumentResult argument) => Implicit;
     }

@@ -138,13 +138,13 @@ System.CommandLine
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.String[] UnmatchedTokens { get; }
-    public System.CommandLine.Parsing.ArgumentResult FindResultFor(CliArgument argument)
-    public System.CommandLine.Parsing.CommandResult FindResultFor(CliCommand command)
-    public System.CommandLine.Parsing.OptionResult FindResultFor(CliOption option)
-    public System.CommandLine.Parsing.DirectiveResult FindResultFor(CliDirective directive)
-    public System.CommandLine.Parsing.SymbolResult FindResultFor(CliSymbol symbol)
     public System.CommandLine.Completions.CompletionContext GetCompletionContext()
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.Nullable<System.Int32> position = null)
+    public System.CommandLine.Parsing.ArgumentResult GetResult(CliArgument argument)
+    public System.CommandLine.Parsing.CommandResult GetResult(CliCommand command)
+    public System.CommandLine.Parsing.OptionResult GetResult(CliOption option)
+    public System.CommandLine.Parsing.DirectiveResult GetResult(CliDirective directive)
+    public System.CommandLine.Parsing.SymbolResult GetResult(CliSymbol symbol)
     public T GetValue<T>(CliArgument<T> argument)
     public T GetValue<T>(CliOption<T> option)
     public T GetValue<T>(System.String name)
@@ -261,10 +261,10 @@ System.CommandLine.Parsing
     public SymbolResult Parent { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
     public System.Void AddError(System.String errorMessage)
-    public ArgumentResult FindResultFor(System.CommandLine.CliArgument argument)
-    public CommandResult FindResultFor(System.CommandLine.CliCommand command)
-    public OptionResult FindResultFor(System.CommandLine.CliOption option)
-    public DirectiveResult FindResultFor(System.CommandLine.CliDirective directive)
+    public ArgumentResult GetResult(System.CommandLine.CliArgument argument)
+    public CommandResult GetResult(System.CommandLine.CliCommand command)
+    public OptionResult GetResult(System.CommandLine.CliOption option)
+    public DirectiveResult GetResult(System.CommandLine.CliDirective directive)
     public T GetValue<T>(CliArgument<T> argument)
     public T GetValue<T>(CliOption<T> option)
   public class Token, System.IEquatable<Token>

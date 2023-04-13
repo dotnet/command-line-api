@@ -41,14 +41,14 @@ namespace System.CommandLine.Tests
                     var result = command.Parse("-a cat dog -v carrot");
 
                     result
-                        .FindResultFor(animalsOption)
+                        .GetResult(animalsOption)
                         .Tokens
                         .Select(t => t.Value)
                         .Should()
                         .BeEquivalentTo(new[] { "cat", "dog" });
 
                     result
-                        .FindResultFor(vegetablesOption)
+                        .GetResult(vegetablesOption)
                         .Tokens
                         .Select(t => t.Value)
                         .Should()
@@ -77,13 +77,13 @@ namespace System.CommandLine.Tests
 
                     var result = command.Parse("-a cat some-arg -v carrot");
 
-                    result.FindResultFor(animalsOption)
+                    result.GetResult(animalsOption)
                         .Tokens
                         .Select(t => t.Value)
                         .Should()
                         .BeEquivalentTo("cat");
 
-                    result.FindResultFor(vegetablesOption)
+                    result.GetResult(vegetablesOption)
                         .Tokens
                         .Select(t => t.Value)
                         .Should()
@@ -131,7 +131,7 @@ namespace System.CommandLine.Tests
 
                     _output.WriteLine(result.Diagram());
 
-                    var optionResult = result.FindResultFor(option);
+                    var optionResult = result.GetResult(option);
 
                     optionResult
                         .Tokens

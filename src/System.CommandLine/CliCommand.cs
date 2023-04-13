@@ -266,7 +266,7 @@ namespace System.CommandLine
                 {
                     CliCommand parentCommand = (CliCommand)parent.Symbol;
 
-                    if (context.IsEmpty || context.ParseResult.FindResultFor(parentCommand) is not null)
+                    if (context.IsEmpty || context.ParseResult.GetResult(parentCommand) is not null)
                     {
                         if (parentCommand.HasOptions)
                         {

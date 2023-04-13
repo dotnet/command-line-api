@@ -32,7 +32,7 @@ namespace System.CommandLine.Completions
 
             public override int Invoke(ParseResult parseResult)
             {
-                string? parsedValues = parseResult.FindResultFor(_directive)!.Values.SingleOrDefault();
+                string? parsedValues = parseResult.GetResult(_directive)!.Values.SingleOrDefault();
                 string? rawInput = parseResult.CommandLineText;
 
                 int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;

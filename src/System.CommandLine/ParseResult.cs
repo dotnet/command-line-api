@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -203,38 +203,38 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>A result for the specified argument, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public ArgumentResult? FindResultFor(CliArgument argument) =>
-            _rootCommandResult.FindResultFor(argument);
+        public ArgumentResult? GetResult(CliArgument argument) =>
+            _rootCommandResult.GetResult(argument);
 
         /// <summary>
         /// Gets the result, if any, for the specified command.
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>A result for the specified command, or <see langword="null"/> if it was not provided.</returns>
-        public CommandResult? FindResultFor(CliCommand command) =>
-            _rootCommandResult.FindResultFor(command);
+        public CommandResult? GetResult(CliCommand command) =>
+            _rootCommandResult.GetResult(command);
 
         /// <summary>
         /// Gets the result, if any, for the specified option.
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public OptionResult? FindResultFor(CliOption option) =>
-            _rootCommandResult.FindResultFor(option);
+        public OptionResult? GetResult(CliOption option) =>
+            _rootCommandResult.GetResult(option);
 
         /// <summary>
         /// Gets the result, if any, for the specified directive.
         /// </summary>
         /// <param name="directive">The directive for which to find a result.</param>
         /// <returns>A result for the specified directive, or <see langword="null"/> if it was not provided.</returns>
-        public DirectiveResult? FindResultFor(CliDirective directive) => _rootCommandResult.FindResultFor(directive);
+        public DirectiveResult? GetResult(CliDirective directive) => _rootCommandResult.GetResult(directive);
 
         /// <summary>
         /// Gets the result, if any, for the specified symbol.
         /// </summary>
         /// <param name="symbol">The symbol for which to find a result.</param>
         /// <returns>A result for the specified symbol, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public SymbolResult? FindResultFor(CliSymbol symbol)
+        public SymbolResult? GetResult(CliSymbol symbol)
             => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out SymbolResult? result) ? result : null;
 
         /// <summary>

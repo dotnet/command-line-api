@@ -17,7 +17,7 @@ namespace System.CommandLine.Hosting
             if (directive is null)
                 throw new ArgumentNullException(nameof(directive));
 
-            if (commandline.FindResultFor(directive) is not DirectiveResult result
+            if (commandline.GetResult(directive) is not DirectiveResult result
                 || result.Values.Count == 0)
             {
                 return config;

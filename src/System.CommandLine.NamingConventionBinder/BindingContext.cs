@@ -89,7 +89,7 @@ namespace System.CommandLine.Binding
                 else
                 {
                     ArgumentResult argumentResult = valueDescriptor is CliArgument argument 
-                        ? parseResult.FindResultFor(argument) is ArgumentResult found
+                        ? parseResult.GetResult(argument) is ArgumentResult found
                             ? found
                             : new ArgumentResult(argument, parseResult.RootCommandResult.SymbolResultTree, null)
                         : new ArgumentResult(new CliArgument<string>(valueDescriptor.ValueName), parseResult.RootCommandResult.SymbolResultTree, null);
