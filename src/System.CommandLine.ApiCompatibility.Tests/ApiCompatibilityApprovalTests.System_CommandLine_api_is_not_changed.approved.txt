@@ -256,6 +256,7 @@ System.CommandLine.Parsing
     public SymbolResult SymbolResult { get; }
     public System.String ToString()
   public abstract class SymbolResult
+    public System.Collections.Generic.IEnumerable<ParseError> Errors { get; }
     public SymbolResult Parent { get; }
     public System.Collections.Generic.IReadOnlyList<Token> Tokens { get; }
     public System.Void AddError(System.String errorMessage)
