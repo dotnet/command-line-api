@@ -41,8 +41,8 @@ namespace System.CommandLine.Suggest
                                          StartInfo = processStartInfo
                                      })
                 {
+                    
                     process.Start();
-                    process.BeginOutputReadLine();
                     
                     var stringBuilder = new StringBuilder();
                     process.OutputDataReceived += (sender, eventArgs) =>
@@ -52,13 +52,17 @@ namespace System.CommandLine.Suggest
                             stringBuilder.AppendLine(eventArgs.Data);
                         }
                     };
-                    
+                    process.BeginOutputReadLine();
                     if (process.WaitForExit(timeout) && process.ExitCode == 0)
                     {
+                        process.CancelOutputRead();
                         result = stringBuilder.ToString();
                     }
                     else
                     {
+#if DEBUG
+                    Program.LogDebug($"Killing the process after a timeout. Process exit code: {process.ExitCode}");
+#endif
                         process.Kill();
                     }
                 }
