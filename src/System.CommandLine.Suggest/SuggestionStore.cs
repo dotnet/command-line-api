@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Suggest
@@ -41,10 +42,20 @@ namespace System.CommandLine.Suggest
                                      })
                 {
                     process.Start();
-
+                    process.BeginOutputReadLine();
+                    
+                    var stringBuilder = new StringBuilder();
+                    process.OutputDataReceived += (sender, eventArgs) =>
+                    {
+                        if (eventArgs.Data != null)
+                        {
+                            stringBuilder.AppendLine(eventArgs.Data);
+                        }
+                    };
+                    
                     if (process.WaitForExit(timeout) && process.ExitCode == 0)
                     {
-                        result = process.StandardOutput.ReadToEnd();
+                        result = stringBuilder.ToString();
                     }
                     else
                     {
