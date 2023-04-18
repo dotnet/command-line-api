@@ -489,6 +489,38 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
+            public void Validation_reports_all_parse_errors()
+            {
+                CliOption<string> firstOptionWithError = new("--first-option-with-error");
+                firstOptionWithError.Validators.Add(optionResult => optionResult.AddError("first error"));
+                CliOption<string> secondOptionWithError = new("--second-option-with-error")
+                {
+                    CustomParser = r =>
+                    {
+                        r.AddError("second error");
+                        return r.Tokens[0].Value;
+                    }
+                };
+
+                CliCommand command = new ("cmd")
+                {
+                    firstOptionWithError,
+                    secondOptionWithError
+                };
+
+                ParseResult parseResult = command.Parse("cmd --first-option-with-error value1 --second-option-with-error value2");
+
+                OptionResult firstOptionResult = parseResult.GetResult(firstOptionWithError);
+                firstOptionResult.Errors.Single().Message.Should().Be("first error");
+
+                OptionResult secondOptionResult = parseResult.GetResult(secondOptionWithError);
+                secondOptionResult.Errors.Single().Message.Should().Be("second error");
+
+                parseResult.Errors.Should().Contain(error => error.SymbolResult == firstOptionResult);
+                parseResult.Errors.Should().Contain(error => error.SymbolResult == secondOptionResult);
+            }
+
+            [Fact]
             public void When_custom_conversion_fails_then_an_option_does_not_accept_further_arguments()
             {
                 var command = new CliCommand("the-command")
