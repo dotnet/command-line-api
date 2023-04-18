@@ -140,7 +140,7 @@ namespace System.CommandLine.Parsing
 
                     if (errorsBefore != SymbolResultTree.ErrorCount)
                     {
-                        break;
+                        continue;
                     }
                 }
 
