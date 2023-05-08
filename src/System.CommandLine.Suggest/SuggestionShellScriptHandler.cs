@@ -13,24 +13,37 @@ namespace System.CommandLine.Suggest
             switch (shellType)
             {
                 case ShellType.Bash:
-                    PrintToConsoleFrom(output, "dotnet-suggest-shim.bash");
+                    PrintToConsoleFrom(output, "dotnet-suggest-shim.bash", useUnixLineEndings: true);
                     break;
                 case ShellType.PowerShell:
-                    PrintToConsoleFrom(output, "dotnet-suggest-shim.ps1");
+                    PrintToConsoleFrom(output, "dotnet-suggest-shim.ps1", useUnixLineEndings: false);
                     break;
                 case ShellType.Zsh:
-                    PrintToConsoleFrom(output, "dotnet-suggest-shim.zsh");
+                    PrintToConsoleFrom(output, "dotnet-suggest-shim.zsh", useUnixLineEndings: true);
                     break;
                 default:
                     throw new SuggestionShellScriptException($"Shell '{shellType}' is not supported.");
             }
         }
 
-        private static void PrintToConsoleFrom(TextWriter output, string scriptName)
+        private static void PrintToConsoleFrom(TextWriter output, string scriptName, bool useUnixLineEndings)
         {
             var assemblyLocation = Assembly.GetAssembly(typeof(SuggestionShellScriptHandler)).Location;
             var directory = Path.GetDirectoryName(assemblyLocation);
-            output.Write(File.ReadAllText(Path.Combine(directory, scriptName)));
+            string scriptContent = File.ReadAllText(Path.Combine(directory, scriptName));
+            bool hasUnixLineEndings = !scriptContent.Contains("\r\n");
+            if (hasUnixLineEndings != useUnixLineEndings)
+            {
+                if (useUnixLineEndings)
+                {
+                    scriptContent = scriptContent.Replace("\r\n", "\n");
+                }
+                else
+                {
+                    scriptContent = scriptContent.Replace("\n", "\r\n");
+                }
+            }
+            output.Write(scriptContent);
         }
     }
 }

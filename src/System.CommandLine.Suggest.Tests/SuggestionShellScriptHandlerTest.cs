@@ -38,6 +38,7 @@ namespace System.CommandLine.Suggest.Tests
             await _configuration.InvokeAsync("script bash");
 
             _configuration.Output.ToString().Should().Contain("_dotnet_bash_complete()");
+            _configuration.Output.ToString().Should().NotContain("\r\n");
         }
 
         [Fact]
@@ -48,6 +49,7 @@ namespace System.CommandLine.Suggest.Tests
             await _configuration.InvokeAsync("script powershell");
 
             _configuration.Output.ToString().Should().Contain("Register-ArgumentCompleter");
+            _configuration.Output.ToString().Should().Contain("\r\n");
         }
 
         [Fact]
@@ -58,6 +60,7 @@ namespace System.CommandLine.Suggest.Tests
             await _configuration.InvokeAsync("script zsh");
             
             _configuration.Output.ToString().Should().Contain("_dotnet_zsh_complete()");
+            _configuration.Output.ToString().Should().NotContain("\r\n");
         }
     }
 }
