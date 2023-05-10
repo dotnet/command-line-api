@@ -9,7 +9,7 @@ On the machine where you'd like to enable completion, you'll need to do two thin
 1. Install the `dotnet-suggest` global tool:
 
 ```sh
-dotnet tool install dotnet-suggest
+dotnet tool install -g dotnet-suggest
 ```
 
 2. Install the completion script.
