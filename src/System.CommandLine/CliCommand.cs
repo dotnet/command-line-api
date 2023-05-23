@@ -110,7 +110,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(context =>
+            Action = new CliCommandAction(context =>
             {
                 action(context);
                 return 0;
@@ -128,7 +128,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(action);
+            Action = new CliCommandAction(action);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(async (context, cancellationToken) =>
+            Action = new CliCommandAction(async (context, cancellationToken) =>
             {
                 await action(context, cancellationToken);
                 return 0;
@@ -159,7 +159,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(action);
+            Action = new CliCommandAction(action);
         }
 
         /// <summary>

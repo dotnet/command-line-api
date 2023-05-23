@@ -6,16 +6,15 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation
 {
-    internal sealed class AnonymousCliAction : CliAction
+    public class CliCommandAction : CliAction
     {
-        // FIX: (AnonymousCliAction) rename to CliCommandAction, make public
         private readonly Func<ParseResult, CancellationToken, Task<int>>? _asyncAction;
         private readonly Func<ParseResult, int>? _syncAction;
 
-        internal AnonymousCliAction(Func<ParseResult, int> action)
+        internal CliCommandAction(Func<ParseResult, int> action)
             => _syncAction = action;
 
-        internal AnonymousCliAction(Func<ParseResult, CancellationToken, Task<int>> action)
+        internal CliCommandAction(Func<ParseResult, CancellationToken, Task<int>> action)
             => _asyncAction = action;
 
         public override int Invoke(ParseResult parseResult)
@@ -41,7 +40,7 @@ namespace System.CommandLine.Invocation
             }
             else
             {
-               return _syncAction!(parseResult);
+                return _syncAction!(parseResult);
             }
         }
     }
