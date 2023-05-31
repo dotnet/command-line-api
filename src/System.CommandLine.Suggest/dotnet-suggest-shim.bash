@@ -25,6 +25,4 @@ _dotnet_bash_register_complete()
 }
 
 _dotnet_bash_register_complete
-
 export DOTNET_SUGGEST_SCRIPT_VERSION="1.0.3"
-
