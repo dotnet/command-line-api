@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine
 {

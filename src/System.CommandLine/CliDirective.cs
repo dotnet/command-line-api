@@ -33,6 +33,7 @@ namespace System.CommandLine
         /// </summary>
         public virtual CliAction? Action { get; set; }
 
+        /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
             => Array.Empty<CompletionItem>();
     }

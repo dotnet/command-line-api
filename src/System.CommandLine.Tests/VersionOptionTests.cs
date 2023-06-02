@@ -111,13 +111,13 @@ namespace System.CommandLine.Tests
         public void Version_is_not_valid_with_other_tokens(string commandLine)
         {
             var subcommand = new CliCommand("subcommand");
-            subcommand.SetAction((_) => { });
+            subcommand.SetAction(_ => { });
             var rootCommand = new CliRootCommand
             {
                 subcommand,
-                new CliOption<bool>("-x"),
+                new CliOption<bool>("-x")
             };
-            rootCommand.SetAction((_) => { });
+            rootCommand.SetAction(_ => { });
 
             CliConfiguration configuration = new(rootCommand)
             {
