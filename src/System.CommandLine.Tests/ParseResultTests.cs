@@ -54,6 +54,23 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void GetResult_can_be_used_for_root_command_itself()
+        {
+            CliRootCommand rootCommand = new()
+            {
+                new CliCommand("the-command")
+                {
+                    new CliOption<int>("-c")
+                }
+            };
+
+            var result = rootCommand.Parse("the-command -c 123");
+
+            result.RootCommandResult.Command.Should().BeSameAs(rootCommand);
+            result.GetResult(rootCommand).Should().BeSameAs(result.RootCommandResult);
+        }
+
+        [Fact]
         public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
             var command = new CliCommand("outer")
