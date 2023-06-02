@@ -246,7 +246,28 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeEquivalentTo("test");
         }
-        
+
+        [Fact]
+        public void Command_GetCompletions_include_recursive_options_of_root_command()
+        {
+            CliRootCommand rootCommand = new()
+            {
+                new CliCommand("sub")
+                {
+                    new CliOption<int>("--option")
+                }
+            };
+
+            var result = rootCommand.Parse("sub --option 123 ");
+
+            _output.WriteLine(result.ToString());
+
+            result.GetCompletions()
+                  .Select(item => item.Label)
+                  .Should()
+                  .BeEquivalentTo("--help", "-?", "-h", "/?", "/h");
+        }
+
         [Fact]
         public void When_one_option_has_been_specified_then_it_and_its_siblings_will_still_be_suggested()
         {
@@ -414,7 +435,7 @@ namespace System.CommandLine.Tests
             result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
                   .Should()
-                  .BeEquivalentTo("rainier");
+                  .BeEquivalentTo("--help", "-?", "-h", "/?", "/h", "rainier");
         }
 
         [Fact]
