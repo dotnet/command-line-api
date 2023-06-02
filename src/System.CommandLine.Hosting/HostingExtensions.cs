@@ -1,4 +1,5 @@
 ﻿using System.CommandLine.Binding;
+using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
@@ -54,7 +55,7 @@ namespace System.CommandLine.Hosting
         public static CliCommand UseCommandHandler<THandler>(this CliCommand command)
             where THandler : CliAction
         {
-            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(CliAction.InvokeAsync)));
+            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(AsynchronousCliCommandAction.InvokeAsync)));
 
             return command;
         }

@@ -1,6 +1,8 @@
-﻿using System.CommandLine.Parsing;
-using System.Threading;
-using System.Threading.Tasks;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
@@ -22,7 +24,7 @@ namespace System.CommandLine
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private sealed class EnvironmentVariablesDirectiveAction : CliAction
+        private sealed class EnvironmentVariablesDirectiveAction : SynchronousCliAction
         {
             private readonly EnvironmentVariablesDirective _directive;
 
@@ -37,13 +39,6 @@ namespace System.CommandLine
                 SetEnvVars(parseResult);
 
                 return 0;
-            }
-
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-            {
-                SetEnvVars(parseResult);
-
-                return Task.FromResult(0);
             }
 
             private void SetEnvVars(ParseResult parseResult)

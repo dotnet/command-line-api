@@ -1,9 +1,8 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Help
 {
-    public sealed class HelpAction : CliAction
+    public sealed class HelpAction : SynchronousCliAction
     {
         private HelpBuilder? _builder;
 
@@ -29,10 +28,5 @@ namespace System.CommandLine.Help
 
             return 0;
         }
-
-        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-            => cancellationToken.IsCancellationRequested
-                ? Task.FromCanceled<int>(cancellationToken)
-                : Task.FromResult(Invoke(parseResult));
     }
 }

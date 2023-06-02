@@ -24,11 +24,32 @@ namespace System.CommandLine.Invocation
                 {
                     for (int i = 0; i < parseResult.NonexclusiveActions.Count; i++)
                     {
-                        await parseResult.NonexclusiveActions[i].InvokeAsync(parseResult, cts.Token);
+                        var action = parseResult.NonexclusiveActions[i];
+
+                        switch (action)
+                        {
+                            case SynchronousCliAction syncAction:
+                                syncAction.Invoke(parseResult);
+                                break;
+                            case AsynchronousCliAction asyncAction:
+                                await asyncAction.InvokeAsync(parseResult, cts.Token);
+                                break;
+                        }
                     }
                 }
 
-                Task<int> startedInvocation = parseResult.Action.InvokeAsync(parseResult, cts.Token);
+                Task<int> startedInvocation;
+                switch (parseResult.Action)
+                {
+                    case SynchronousCliAction syncAction:
+                        startedInvocation = Task.FromResult(syncAction.Invoke(parseResult));
+                        break;
+                    case AsynchronousCliAction asyncAction:
+                        startedInvocation = asyncAction.InvokeAsync(parseResult, cts.Token);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(parseResult.Action));
+                }
 
                 if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
                 {
@@ -71,11 +92,27 @@ namespace System.CommandLine.Invocation
                 {
                     for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
                     {
-                        parseResult.NonexclusiveActions[i].Invoke(parseResult);
+                        var action = parseResult.NonexclusiveActions[i];
+
+                        switch (action)
+                        {
+                            case SynchronousCliAction syncAction:
+                                syncAction.Invoke(parseResult);
+                                break;
+                            case AsynchronousCliAction _:
+                                throw new InvalidOperationException($"{nameof(AsynchronousCliAction)} called within non-async invocation.");
+                        }
                     }
                 }
 
-                return parseResult.Action.Invoke(parseResult);
+                switch (parseResult.Action)
+                {
+                    case SynchronousCliAction syncAction:
+                        return syncAction.Invoke(parseResult);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"{nameof(AsynchronousCliAction)} called within non-async invocation.");
+                }
             }
             catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
             {

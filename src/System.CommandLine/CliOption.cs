@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -116,11 +117,6 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            if (Argument is null)
-            {
-                return Array.Empty<CompletionItem>();
-            }
-
             List<CompletionItem>? completions = null;
 
             foreach (var completion in Argument.GetCompletions(context))

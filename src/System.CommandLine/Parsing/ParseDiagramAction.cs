@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.CommandLine.Binding;
+using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace System.CommandLine.Parsing
     /// Implements the <c>[diagram]</c> directive action, which when specified on the command line 
     /// will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
-    internal sealed class DiagramAction : CliAction
+    internal sealed class DiagramAction : SynchronousCliAction
     {
         private readonly int _parseErrorReturnValue;
 
@@ -25,21 +26,7 @@ namespace System.CommandLine.Parsing
             parseResult.Configuration.Output.WriteLine(Diagram(parseResult));
             return parseResult.Errors.Count == 0 ? 0 : _parseErrorReturnValue;
         }
-
-        public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            StringBuilder diagram = Diagram(parseResult);
-
-#if NET7_0_OR_GREATER
-            await parseResult.Configuration.Output.WriteLineAsync(diagram, cancellationToken);
-#else
-            await parseResult.Configuration.Output.WriteLineAsync(diagram.ToString());
-#endif
-            return parseResult.Errors.Count == 0 ? 0 : _parseErrorReturnValue;
-        }
-
+        
         /// <summary>
         /// Formats a string explaining a parse result.
         /// </summary>

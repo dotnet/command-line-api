@@ -1,4 +1,5 @@
 ﻿using System.CommandLine.Help;
+using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.Linq;
 using System.Threading;
@@ -126,7 +127,7 @@ namespace System.CommandLine.Tests
             Environment.GetEnvironmentVariable(_testVariableName).Should().Be("1");
         }
 
-        private class CustomHelpAction : CliAction
+        private class CustomHelpAction : SynchronousCliAction
         {
             public bool WasCalled { get; private set; }
 
@@ -134,12 +135,6 @@ namespace System.CommandLine.Tests
             {
                 WasCalled = true;
                 return 0;
-            }
-
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-            {
-                WasCalled = true;
-                return Task.FromResult(0);
             }
         }
     }

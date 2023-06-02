@@ -297,7 +297,36 @@ namespace System.CommandLine
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
         /// <returns>A value that can be used as a process exit code.</returns>
-        public int Invoke() => InvocationPipeline.Invoke(this);
+        public int Invoke()
+        {
+            var useAsync = false;
+
+            if (Action is AsynchronousCliAction)
+            {
+                useAsync = true;
+            }
+            else if (NonexclusiveActions is not null)
+            {
+                for (var i = 0; i < NonexclusiveActions.Count; i++)
+                {
+                    var action = NonexclusiveActions[i];
+                    if (action is AsynchronousCliAction)
+                    {
+                        useAsync = true;
+                        break;
+                    }
+                }
+            }
+
+            if (useAsync)
+            {
+                return InvocationPipeline.InvokeAsync(this, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return InvocationPipeline.Invoke(this);
+            }
+        }
 
         /// <summary>
         /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action

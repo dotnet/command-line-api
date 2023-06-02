@@ -4,6 +4,7 @@
 using System;
 using System.CommandLine;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading;
@@ -81,7 +82,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new CliRootCommand();
 
-            rootCommand.SetAction((_) => wasCalled = true);
+            rootCommand.SetAction(_ => wasCalled = true);
 
             int result = rootCommand.Parse("").Invoke();
 
@@ -136,7 +137,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new CliRootCommand
             {
-                Action = new CustomReturnCodeAction()
+                Action = new SynchronousCustomReturnCodeAction()
             };
 
             rootCommand.Parse("").Invoke().Should().Be(123);
@@ -147,7 +148,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             var rootCommand = new CliRootCommand
             {
-                Action = new CustomReturnCodeAction()
+                Action = new AsynchronousCustomReturnCodeAction()
             };
 
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(456);
@@ -247,7 +248,7 @@ namespace System.CommandLine.Tests.Invocation
             optionAction3.WasCalled.Should().BeFalse();
         }
 
-        internal sealed class OptionAction : CliAction
+        internal sealed class OptionAction : SynchronousCliAction
         {
             internal bool WasCalled = false;
 
@@ -256,9 +257,6 @@ namespace System.CommandLine.Tests.Invocation
                 WasCalled = true;
                 return 0;
             }
-
-            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
-                => Task.FromResult(Invoke(context));
         }
 
         [Theory]
@@ -310,16 +308,19 @@ namespace System.CommandLine.Tests.Invocation
             await command.Parse("test").InvokeAsync(cancellationToken: cts.Token);
         }
 
-        private class CustomReturnCodeAction : CliAction
+        private class SynchronousCustomReturnCodeAction : SynchronousCliAction
         {
             public override int Invoke(ParseResult context)
                 => 123;
+        }
 
+        private class AsynchronousCustomReturnCodeAction : AsynchronousCliAction
+        {
             public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
                 => Task.FromResult(456);
         }
 
-        private class NonexclusiveTestAction : CliAction
+        private class NonexclusiveTestAction : SynchronousCliAction
         {
             public NonexclusiveTestAction()
             {
@@ -339,17 +340,6 @@ namespace System.CommandLine.Tests.Invocation
                 }
 
                 return 0;
-            }
-
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-            {
-                HasBeenInvoked = true;
-                if (ThrowOnInvoke)
-                {
-                    throw new Exception("oops!");
-                }
-
-                return Task.FromResult(0);
             }
         }
     }

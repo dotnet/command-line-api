@@ -1,7 +1,6 @@
-﻿using System.Linq;
+﻿using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using System.Threading.Tasks;
-using System.Threading;
+using System.Linq;
 
 namespace System.CommandLine.Completions
 {
@@ -24,9 +23,9 @@ namespace System.CommandLine.Completions
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private sealed class SuggestDirectiveAction : CliAction
+        private sealed class SuggestDirectiveAction : SynchronousCliAction
         {
-            // FIX: (SuggestDirectiveAction) rename, make public
+            // FIX: (SuggestDirectiveAction) rename (CompletionAction?), make public
             private readonly SuggestDirective _directive;
 
             internal SuggestDirectiveAction(SuggestDirective suggestDirective) => _directive = suggestDirective;
@@ -51,11 +50,6 @@ namespace System.CommandLine.Completions
 
                 return 0;
             }
-
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-                => cancellationToken.IsCancellationRequested
-                    ? Task.FromCanceled<int>(cancellationToken)
-                    : Task.FromResult(Invoke(parseResult));
         }
     }
 }

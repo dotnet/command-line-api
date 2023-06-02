@@ -29,9 +29,6 @@ namespace System.CommandLine.Parsing
 
         internal bool ArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
 
-        // FIX: (ArgumentResult.Implicit) this can probably be removed
-        internal bool Implicit => Argument.HasDefaultValue && Tokens.Count == 0;
-
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= ValidateAndConvert(useValidators: true);
 
