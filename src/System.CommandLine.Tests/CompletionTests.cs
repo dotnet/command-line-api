@@ -247,7 +247,6 @@ namespace System.CommandLine.Tests
                   .BeEquivalentTo("test");
         }
 
-
         [Fact]
         public void Command_GetCompletions_include_recursive_options_of_root_command()
         {
@@ -436,7 +435,7 @@ namespace System.CommandLine.Tests
             result.GetCompletions(commandLine.Length + 1)
                   .Select(item => item.Label)
                   .Should()
-                  .BeEquivalentTo("rainier");
+                  .BeEquivalentTo("--help", "-?", "-h", "/?", "/h", "rainier");
         }
 
         [Fact]
