@@ -1332,6 +1332,59 @@ namespace System.CommandLine.Tests
             result.UnmatchedTokens.Should().BeEquivalentTo("unmatched-token");
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void When_a_command_line_has_unmatched_tokens_the_parse_result_action_should_depend_on_parsed_command_TreatUnmatchedTokensAsErrors(bool treatUnmatchedTokensAsErrors)
+        {
+            CliRootCommand rootCommand = new();
+            CliCommand subcommand = new("vstest")
+            {
+                new CliOption<string>("--Platform"),
+                new CliOption<string>("--Framework"),
+                new CliOption<string[]>("--logger")
+            };
+            subcommand.TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
+            rootCommand.Subcommands.Add(subcommand);
+
+            var result = rootCommand.Parse("vstest test1.dll test2.dll");
+
+            result.UnmatchedTokens.Should().BeEquivalentTo("test1.dll", "test2.dll");
+
+            if (treatUnmatchedTokensAsErrors)
+            {
+                result.Errors.Should().NotBeEmpty();
+                result.Action.Should().NotBeSameAs(result.CommandResult.Command.Action);
+            }
+            else
+            {
+                result.Errors.Should().BeEmpty();
+                result.Action.Should().BeSameAs(result.CommandResult.Command.Action);
+            }
+        }
+
+        [Fact]
+        public void RootCommand_TreatUnmatchedTokensAsErrors_set_to_false_has_precedence_over_subcommands()
+        {
+            CliRootCommand rootCommand = new();
+            rootCommand.TreatUnmatchedTokensAsErrors = false;
+            CliCommand subcommand = new("vstest")
+            {
+                new CliOption<string>("--Platform"),
+                new CliOption<string>("--Framework"),
+                new CliOption<string[]>("--logger")
+            };
+            subcommand.TreatUnmatchedTokensAsErrors = true; // the default, set to true to make it explicit
+            rootCommand.Subcommands.Add(subcommand);
+
+            var result = rootCommand.Parse("vstest test1.dll test2.dll");
+
+            result.UnmatchedTokens.Should().BeEquivalentTo("test1.dll", "test2.dll");
+
+            result.Errors.Should().BeEmpty();
+            result.Action.Should().BeSameAs(result.CommandResult.Command.Action);
+        }
+
         [Fact]
         public void Parse_can_not_be_called_with_null_args()
         {
