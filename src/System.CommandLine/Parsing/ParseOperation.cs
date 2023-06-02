@@ -36,6 +36,7 @@ namespace System.CommandLine.Parsing
                 _configuration.RootCommand,
                 CurrentToken,
                 _symbolResultTree);
+            _symbolResultTree.Add(_configuration.RootCommand, _rootCommandResult);
 
             Advance();
         }
