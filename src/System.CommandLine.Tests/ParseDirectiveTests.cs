@@ -18,14 +18,17 @@ namespace System.CommandLine.Tests
             this.output = output;
         }
 
-        [Fact]
-        public async Task Diagram_directive_writes_parse_diagram()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Diagram_directive_writes_parse_diagram(bool treatUnmatchedTokensAsErrors)
         {
             var rootCommand = new CliRootCommand();
             var subcommand = new CliCommand("subcommand");
             rootCommand.Subcommands.Add(subcommand);
             var option = new CliOption<int>("-c", "--count");
             subcommand.Options.Add(option);
+            subcommand.TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
             CliConfiguration config = new(rootCommand)
             {
@@ -39,10 +42,14 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
+            string expected = treatUnmatchedTokensAsErrors
+                ? $"[ {CliRootCommand.ExecutableName} ![ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine
+                : $"[ {CliRootCommand.ExecutableName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine;
+
             config.Output
                    .ToString()
                    .Should()
-                   .Be($"![ {CliRootCommand.ExecutableName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine);
+                   .Be(expected);
         }
 
         [Fact]
