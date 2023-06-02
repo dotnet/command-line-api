@@ -81,42 +81,43 @@ namespace System.CommandLine.Invocation
 
         internal static int Invoke(ParseResult parseResult)
         {
-            if (parseResult.Action is null)
+            switch (parseResult.Action)
             {
-                return ReturnCodeForMissingAction(parseResult);
-            }
+                case null:
+                    return ReturnCodeForMissingAction(parseResult);
 
-            try
-            {
-                if (parseResult.NonexclusiveActions is not null)
-                {
-                    for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                case SynchronousCliAction syncAction:
+                    try
                     {
-                        var action = parseResult.NonexclusiveActions[i];
-
-                        switch (action)
+                        if (parseResult.NonexclusiveActions is not null)
                         {
-                            case SynchronousCliAction syncAction:
-                                syncAction.Invoke(parseResult);
-                                break;
-                            case AsynchronousCliAction _:
-                                throw new InvalidOperationException($"{nameof(AsynchronousCliAction)} called within non-async invocation.");
-                        }
-                    }
-                }
+                            // FIX: (Invoke) Debug.Assert these pre-action checks?
+                            for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                            {
+                                if (parseResult.NonexclusiveActions[i] is not SynchronousCliAction)
+                                {
+                                    throw new InvalidOperationException($"{nameof(AsynchronousCliAction)} called within non-async invocation.");
+                                }
+                            }
 
-                switch (parseResult.Action)
-                {
-                    case SynchronousCliAction syncAction:
+                            for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                            {
+                                if (parseResult.NonexclusiveActions[i] is SynchronousCliAction syncPreaction)
+                                {
+                                    syncPreaction.Invoke(parseResult);
+                                }
+                            }
+                        }
+
                         return syncAction.Invoke(parseResult);
-                        break;
-                    default:
-                        throw new InvalidOperationException($"{nameof(AsynchronousCliAction)} called within non-async invocation.");
-                }
-            }
-            catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
-            {
-                return DefaultExceptionHandler(ex, parseResult.Configuration);
+                    }
+                    catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+                    {
+                        return DefaultExceptionHandler(ex, parseResult.Configuration);
+                    }
+
+                default:
+                    throw new InvalidOperationException($"{nameof(AsynchronousCliAction)} called within non-async invocation.");
             }
         }
 

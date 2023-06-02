@@ -128,18 +128,18 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().Contain(e => e.Message == "--version option cannot be combined with other arguments.");
         }
-
+        
         [Fact]
         public void Version_option_is_not_added_to_subcommands()
         {
             var childCommand = new CliCommand("subcommand");
-            childCommand.SetAction((_) => { });
+            childCommand.SetAction(_ => { });
 
             var rootCommand = new CliRootCommand
             {
                 childCommand
             };
-            rootCommand.SetAction((_) => { });
+            rootCommand.SetAction(_ => { });
 
             CliConfiguration configuration = new(rootCommand)
             {

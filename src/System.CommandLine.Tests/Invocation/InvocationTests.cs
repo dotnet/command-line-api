@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.CommandLine;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -96,7 +94,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new CliRootCommand();
 
-            rootCommand.SetAction((_, __) =>
+            rootCommand.SetAction((_, _) =>
             {
                 wasCalled = true;
 
@@ -115,7 +113,7 @@ namespace System.CommandLine.Tests.Invocation
             var wasCalled = false;
             var rootCommand = new CliRootCommand();
 
-            rootCommand.SetAction((_, __) =>
+            rootCommand.SetAction((_, _) =>
             {
                 wasCalled = true;
                 throw new Exception("oops!");
@@ -292,7 +290,7 @@ namespace System.CommandLine.Tests.Invocation
 
             returnCode.Should().Be(1);
         }
-
+        
         [Fact]
         public async Task Command_InvokeAsync_with_cancelation_token_invokes_command_handler()
         {

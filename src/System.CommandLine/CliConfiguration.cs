@@ -71,11 +71,6 @@ namespace System.CommandLine
         public bool EnableParseErrorReporting { get; set; } = true;
 
         /// <summary>
-        /// Configures the application to provide alternative suggestions when a parse error is detected. Disabled by default.
-        /// </summary>
-        public bool EnableTypoCorrections { get; set; } = false;
-
-        /// <summary>
         /// Enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="CancellationToken"/> 
         /// that can be passed to a <see cref="CliAction"/> during invocation.
         /// If not provided, a default timeout of 2 seconds is enforced.

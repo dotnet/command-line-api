@@ -65,12 +65,8 @@ namespace System.CommandLine.Parsing
 
             if (_primaryAction is null)
             {
-                if (_configuration.EnableTypoCorrections && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
-                    && _symbolResultTree.UnmatchedTokens is not null)
-                {
-                    _primaryAction = new TypoCorrectionAction();
-                }
-                else if (_configuration.EnableParseErrorReporting && _symbolResultTree.ErrorCount > 0)
+                if (_configuration.EnableParseErrorReporting && 
+                    _symbolResultTree.ErrorCount > 0)
                 {
                     _primaryAction = new ParseErrorAction();
                 }

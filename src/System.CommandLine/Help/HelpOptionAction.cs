@@ -15,6 +15,7 @@ namespace System.CommandLine.Help
             set => _builder = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        /// <inheritdoc />
         public override int Invoke(ParseResult parseResult)
         {
             var output = parseResult.Configuration.Output;

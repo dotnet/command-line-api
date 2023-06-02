@@ -6,8 +6,6 @@ using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace System.CommandLine.Parsing
 {
@@ -46,7 +44,7 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < unmatchedTokens.Count; i++)
                 {
                     var error = unmatchedTokens[i];
-                    builder.Append(" ");
+                    builder.Append(' ');
                     builder.Append(error);
                 }
             }
@@ -61,24 +59,24 @@ namespace System.CommandLine.Parsing
         {
             if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult))
             {
-                builder.Append("!");
+                builder.Append('!');
             }
 
             switch (symbolResult)
             {
-                case DirectiveResult directiveResult when directiveResult.Directive is not DiagramDirective:
+                case DirectiveResult { Directive: not DiagramDirective }:
                     break;
+
                 case ArgumentResult argumentResult:
                 {
                     var includeArgumentName =
-                        argumentResult.Argument.FirstParent!.Symbol is CliCommand command &&
-                        command.HasArguments && command.Arguments.Count > 1;
+                        argumentResult.Argument.FirstParent!.Symbol is CliCommand { HasArguments: true, Arguments.Count: > 1 };
 
                     if (includeArgumentName)
                     {
                         builder.Append("[ ");
                         builder.Append(argumentResult.Argument.Name);
-                        builder.Append(" ");
+                        builder.Append(' ');
                     }
 
                     if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
@@ -96,26 +94,26 @@ namespace System.CommandLine.Parsing
                                         break;
                                 
                                     case IEnumerable items:
-                                        builder.Append("<");
+                                        builder.Append('<');
                                         builder.Append(
                                             string.Join("> <",
                                                         items.Cast<object>().ToArray()));
-                                        builder.Append(">");
+                                        builder.Append('>');
                                         break;
 
                                     default:
-                                        builder.Append("<");
+                                        builder.Append('<');
                                         builder.Append(conversionResult.Value);
-                                        builder.Append(">");
+                                        builder.Append('>');
                                         break;
                                 }
 
                                 break;
 
                             default: // failures
-                                builder.Append("<");
+                                builder.Append('<');
                                 builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
-                                builder.Append(">");
+                                builder.Append('>');
 
                                 break;
                         }
@@ -135,7 +133,7 @@ namespace System.CommandLine.Parsing
 
                     if (optionResult is { Implicit: true })
                     {
-                        builder.Append("*");
+                        builder.Append('*');
                     }
 
                     builder.Append("[ ");
@@ -158,7 +156,7 @@ namespace System.CommandLine.Parsing
                             continue;
                         }
 
-                        builder.Append(" ");
+                        builder.Append(' ');
 
                         Diagram(builder, child, parseResult);
                     }

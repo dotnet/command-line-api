@@ -1,3 +1,4 @@
+using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -18,7 +19,6 @@ namespace System.CommandLine.Tests.Invocation
 
             CliConfiguration config = new(rootCommand)
             {
-                EnableTypoCorrections = true,
                 Output = new StringWriter()
             };
 
@@ -30,6 +30,31 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
+        public async Task Typo_corrections_can_be_disabled()
+        {
+            CliRootCommand rootCommand = new()
+            {
+                new CliOption<string>("info")
+            };
+
+            CliConfiguration config = new(rootCommand)
+            {
+                Output = new StringWriter()
+            };
+
+            var result = rootCommand.Parse("niof", config);
+
+            if (result.Action is ParseErrorAction parseError)
+            {
+                parseError.ShowTypoCorrections = false;
+            }
+
+            await result.InvokeAsync();
+
+            config.Output.ToString().Should().NotContain("Did you mean");
+        }
+
+        [Fact]
         public async Task When_there_are_no_matches_then_nothing_is_suggested()
         {
             var option = new CliOption<bool>("info");
@@ -37,7 +62,6 @@ namespace System.CommandLine.Tests.Invocation
 
             CliConfiguration configuration = new(rootCommand)
             {
-                EnableTypoCorrections = true,
                 Output = new StringWriter()
             };
 
@@ -56,7 +80,6 @@ namespace System.CommandLine.Tests.Invocation
 
             CliConfiguration configuration = new(rootCommand)
             {
-                EnableTypoCorrections = true,
                 Output = new StringWriter()
             };
 
@@ -83,7 +106,6 @@ namespace System.CommandLine.Tests.Invocation
             };
             CliConfiguration configuration = new(rootCommand)
             {
-                EnableTypoCorrections = true,
                 Output = new StringWriter()
             };
 
@@ -109,7 +131,6 @@ namespace System.CommandLine.Tests.Invocation
 
             CliConfiguration configuration = new(rootCommand)
             {
-                EnableTypoCorrections = true,
                 Output = new StringWriter()
             };
 
@@ -132,7 +153,6 @@ namespace System.CommandLine.Tests.Invocation
             };
             CliConfiguration configuration = new(rootCommand)
             {
-                EnableTypoCorrections = true,
                 EnableParseErrorReporting = false,
                 Output = new StringWriter()
             };
@@ -158,7 +178,6 @@ namespace System.CommandLine.Tests.Invocation
             };
             CliConfiguration config = new(rootCommand)
             {
-                EnableTypoCorrections = true,
                 Output = new StringWriter()
             };
 
@@ -179,7 +198,6 @@ namespace System.CommandLine.Tests.Invocation
             };
             CliConfiguration config = new(rootCommand)
             {
-                EnableTypoCorrections = true,
                 Output = new StringWriter()
             };
             var result = rootCommand.Parse("-all", config);

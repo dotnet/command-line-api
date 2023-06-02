@@ -5,7 +5,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Help;
-using System.Linq;
+using System.CommandLine.Invocation;
+using System.IO;
 using FluentAssertions;
 using Xunit;
 
@@ -37,28 +38,28 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void User_can_customize_parse_error_result_code()
+        public void Help_display_can_be_disabled()
         {
-            var root = new CliRootCommand
+            CliRootCommand rootCommand = new()
             {
-                new CliCommand("inner")
+                new CliOption<bool>("--verbose")
             };
 
-            CliConfiguration config = new (root)
+            CliConfiguration config = new(rootCommand)
             {
-                EnableParseErrorReporting = true
+                Output = new StringWriter()
             };
 
-            ParseResult parseResult = root.Parse("", config);
+            var result = rootCommand.Parse("oops", config);
 
-            int result = parseResult.Invoke();
-
-            if (parseResult.Errors.Any())
+            if (result.Action is ParseErrorAction parseError)
             {
-                result = 42;
+                parseError.ShowHelp = false;
             }
 
-            result.Should().Be(42);
+            result.Invoke();
+
+            config.Output.ToString().Should().NotContain("--verbose");
         }
 
         [Fact]
