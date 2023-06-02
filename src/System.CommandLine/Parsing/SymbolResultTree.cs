@@ -55,12 +55,17 @@ namespace System.CommandLine.Parsing
 
         internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
 
-        internal void AddUnmatchedToken(CliToken token, CommandResult? commandResult)
+        internal void AddUnmatchedToken(CliToken token, CommandResult commandResult, CommandResult rootCommandResult)
         {
             (UnmatchedTokens ??= new()).Add(token);
 
-            if (commandResult is not null)
+            if (commandResult.Command.TreatUnmatchedTokensAsErrors)
             {
+                if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
+                {
+                    return;
+                }
+
                 AddError(new ParseError(LocalizationResources.UnrecognizedCommandOrArgument(token.Value), commandResult));
             }
         }

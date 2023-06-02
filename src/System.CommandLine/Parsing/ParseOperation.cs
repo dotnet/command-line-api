@@ -359,8 +359,7 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            _symbolResultTree.AddUnmatchedToken(CurrentToken,
-                _rootCommandResult.Command.TreatUnmatchedTokensAsErrors ? _rootCommandResult : null);
+            _symbolResultTree.AddUnmatchedToken(CurrentToken, _innermostCommandResult, _rootCommandResult);
         }
 
         private void Validate()
