@@ -110,7 +110,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new SynchronousCliCommandAction(context =>
+            Action = new AnonymousSynchronousCliAction(context =>
             {
                 action(context);
                 return 0;
@@ -128,7 +128,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new SynchronousCliCommandAction(action);
+            Action = new AnonymousSynchronousCliAction(action);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AsynchronousCliCommandAction(async (context, cancellationToken) =>
+            Action = new AnonymousAsynchronousCliAction(async (context, cancellationToken) =>
             {
                 await action(context, cancellationToken);
                 return 0;
@@ -159,7 +159,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AsynchronousCliCommandAction(action);
+            Action = new AnonymousAsynchronousCliAction(action);
         }
 
         /// <summary>

@@ -333,7 +333,7 @@ namespace System.CommandLine.Parsing
                     {
                         _primaryAction = directive.Action;
                     }
-                    else 
+                    else
                     {
                         if (_nonexclusiveActions is null)
                         {

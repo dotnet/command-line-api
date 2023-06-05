@@ -38,35 +38,33 @@ namespace System.CommandLine.Invocation
                     }
                 }
 
-                Task<int> startedInvocation;
                 switch (parseResult.Action)
                 {
                     case SynchronousCliAction syncAction:
-                        startedInvocation = Task.FromResult(syncAction.Invoke(parseResult));
-                        break;
+                        return syncAction.Invoke(parseResult);
+
                     case AsynchronousCliAction asyncAction:
-                        startedInvocation = asyncAction.InvokeAsync(parseResult, cts.Token);
-                        break;
+                        var startedInvocation = asyncAction.InvokeAsync(parseResult, cts.Token);
+                        if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
+                        {
+                            terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
+                        }
+
+                        if (terminationHandler is null)
+                        {
+                            return await startedInvocation;
+                        }
+                        else
+                        {
+                            // Handlers may not implement cancellation.
+                            // In such cases, when CancelOnProcessTermination is configured and user presses Ctrl+C,
+                            // ProcessTerminationCompletionSource completes first, with the result equal to native exit code for given signal.
+                            Task<int> firstCompletedTask = await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task);
+                            return await firstCompletedTask; // return the result or propagate the exception
+                        }
+
                     default:
                         throw new ArgumentOutOfRangeException(nameof(parseResult.Action));
-                }
-
-                if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
-                {
-                    terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
-                }
-
-                if (terminationHandler is null)
-                {
-                    return await startedInvocation;
-                }
-                else
-                {
-                    // Handlers may not implement cancellation.
-                    // In such cases, when CancelOnProcessTermination is configured and user presses Ctrl+C,
-                    // ProcessTerminationCompletionSource completes first, with the result equal to native exit code for given signal.
-                    Task<int> firstCompletedTask = await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task);
-                    return await firstCompletedTask; // return the result or propagate the exception
                 }
             }
             catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)

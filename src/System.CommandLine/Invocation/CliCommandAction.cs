@@ -42,11 +42,11 @@ public abstract class AsynchronousCliAction : CliAction
     public abstract Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default);
 }
 
-public class SynchronousCliCommandAction : SynchronousCliAction
+internal class AnonymousSynchronousCliAction : SynchronousCliAction
 {
     private readonly Func<ParseResult, int> _syncAction;
 
-    internal SynchronousCliCommandAction(Func<ParseResult, int> action)
+    internal AnonymousSynchronousCliAction(Func<ParseResult, int> action)
         => _syncAction = action;
 
     /// <inheritdoc />
@@ -54,11 +54,11 @@ public class SynchronousCliCommandAction : SynchronousCliAction
         _syncAction(parseResult);
 }
 
-public class AsynchronousCliCommandAction : AsynchronousCliAction
+internal class AnonymousAsynchronousCliAction : AsynchronousCliAction
 {
     private readonly Func<ParseResult, CancellationToken, Task<int>> _asyncAction;
 
-    internal AsynchronousCliCommandAction(Func<ParseResult, CancellationToken, Task<int>> action)
+    internal AnonymousAsynchronousCliAction(Func<ParseResult, CancellationToken, Task<int>> action)
         => _asyncAction = action;
 
     /// <inheritdoc />

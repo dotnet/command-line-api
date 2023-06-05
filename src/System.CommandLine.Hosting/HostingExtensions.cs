@@ -55,7 +55,7 @@ namespace System.CommandLine.Hosting
         public static CliCommand UseCommandHandler<THandler>(this CliCommand command)
             where THandler : CliAction
         {
-            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(AsynchronousCliCommandAction.InvokeAsync)));
+            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(AsynchronousCliAction.InvokeAsync)));
 
             return command;
         }
