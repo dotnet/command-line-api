@@ -89,14 +89,19 @@ namespace System.CommandLine.Invocation
                     {
                         if (parseResult.NonexclusiveActions is not null)
                         {
-                            // FIX: (Invoke) Debug.Assert these pre-action checks?
+#if DEBUG
                             for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
                             {
-                                if (parseResult.NonexclusiveActions[i] is not SynchronousCliAction)
+                                var action = parseResult.NonexclusiveActions[i];
+
+                                if (action is not SynchronousCliAction)
                                 {
-                                    throw new InvalidOperationException($"{nameof(AsynchronousCliAction)} called within non-async invocation.");
+                                    parseResult.Configuration.EnableDefaultExceptionHandler = false;
+                                    throw new Exception(
+                                        $"This should not happen. An instance of {nameof(AsynchronousCliAction)} ({action}) was called within {nameof(InvocationPipeline)}.{nameof(Invoke)}. This is supposed to be detected earlier resulting in a call to {nameof(InvocationPipeline)}{nameof(InvokeAsync)}");
                                 }
                             }
+#endif
 
                             for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
                             {
