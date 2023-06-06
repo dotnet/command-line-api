@@ -23,7 +23,6 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
             _configuration = new CliConfiguration(new CliRootCommand { option })
             {
-                EnableTypoCorrections = true,
                 Output = System.IO.TextWriter.Null
             };
         }
