@@ -45,7 +45,9 @@ System.CommandLine
     public System.Collections.Generic.IList<CliCommand> Subcommands { get; }
     public System.Boolean TreatUnmatchedTokensAsErrors { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.CommandResult>> Validators { get; }
-    public System.Void Add(CliSymbol symbol)
+    public System.Void Add(CliArgument argument)
+    public System.Void Add(CliOption option)
+    public System.Void Add(CliCommand command)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.Collections.Generic.IEnumerator<CliSymbol> GetEnumerator()
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CliConfiguration configuration = null)
@@ -222,8 +224,8 @@ System.CommandLine.Invocation
   public abstract class AsynchronousCliAction : CliAction
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)
   public abstract class CliAction
-    public System.Boolean Exclusive { get; }
-    protected System.Void set_Exclusive(System.Boolean value)
+    public System.Boolean Terminating { get; }
+    protected System.Void set_Terminating(System.Boolean value)
   public class ParseErrorAction : SynchronousCliAction
     .ctor()
     public System.Boolean ShowHelp { get; set; }
