@@ -10,8 +10,7 @@ using System.Text;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// Implements the <c>[diagram]</c> directive action, which when specified on the command line 
-    /// will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
+    /// Implements the <c>[diagram]</c> directive action, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
     internal sealed class ParseDiagramAction : SynchronousCliAction
     {

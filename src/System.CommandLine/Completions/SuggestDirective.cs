@@ -1,56 +1,25 @@
 ﻿using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
-using System.Linq;
 
-namespace System.CommandLine.Completions
+namespace System.CommandLine.Completions;
+
+/// <summary>
+/// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
+/// </summary>
+/// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
+public sealed class SuggestDirective : CliDirective
 {
-    /// <summary>
-    /// Enables the use of the <c>[suggest]</c> directive which when specified in command line input short circuits normal command handling and writes a newline-delimited list of suggestions suitable for use by most shells to provide command line completions.
-    /// </summary>
-    /// <remarks>The <c>dotnet-suggest</c> tool requires the suggest directive to be enabled for an application to provide completions.</remarks>
-    public sealed class SuggestDirective : CliDirective
+    private CliAction? _action;
+
+    /// <inheritdoc />
+    public SuggestDirective() : base("suggest")
     {
-        private CliAction? _action;
-
-        /// <inheritdoc />
-        public SuggestDirective() : base("suggest")
-        {
-        }
-
-        /// <inheritdoc />
-        public override CliAction? Action
-        {
-            get => _action ??= new SuggestDirectiveAction(this);
-            set => _action = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        private sealed class SuggestDirectiveAction : SynchronousCliAction
-        {
-            // FIX: (SuggestDirectiveAction) rename (CompletionAction?), make public
-            private readonly SuggestDirective _directive;
-
-            internal SuggestDirectiveAction(SuggestDirective suggestDirective) => _directive = suggestDirective;
-
-            public override int Invoke(ParseResult parseResult)
-            {
-                string? parsedValues = parseResult.GetResult(_directive)!.Values.SingleOrDefault();
-                string? rawInput = parseResult.CommandLineText;
-
-                int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
-
-                var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != CliTokenType.Directive)?.Value ?? "";
-
-                var completionParseResult = parseResult.RootCommandResult.Command.Parse(commandLineToComplete, parseResult.Configuration);
-
-                var completions = completionParseResult.GetCompletions(position);
-
-                parseResult.Configuration.Output.WriteLine(
-                    string.Join(
-                        Environment.NewLine,
-                        completions));
-
-                return 0;
-            }
-        }
     }
+
+    /// <inheritdoc />
+    public override CliAction? Action
+    {
+        get => _action ??= new CompletionAction(this);
+        set => _action = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
 }
