@@ -1,4 +1,3 @@
-# dotnet suggest shell complete script start
 _dotnet_zsh_complete()
 {
     # debug lines, uncomment to get state variables passed to this function
@@ -36,4 +35,3 @@ _dotnet_zsh_complete()
 compdef _dotnet_zsh_complete $(dotnet-suggest list)
 
 export DOTNET_SUGGEST_SCRIPT_VERSION="1.0.0"
-# dotnet suggest shell complete script end
