@@ -1,3 +1,4 @@
+# dotnet suggest shell start
 if (Get-Command "dotnet-suggest" -errorAction SilentlyContinue)
 {
     $availableToComplete = (dotnet-suggest list) | Out-String
@@ -20,3 +21,4 @@ else
 }
 
 $env:DOTNET_SUGGEST_SCRIPT_VERSION = "1.0.2"
+# dotnet suggest script end

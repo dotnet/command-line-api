@@ -27,8 +27,11 @@ echo '. ~/.dotnet-suggest-shim.zsh' >>~/.zshrc
 ```
 
 ### PowerShell
-```sh
-?
+
+Add the contents of [dotnet-suggest-shim.ps1](https://github.com/dotnet/command-line-api/blob/master/src/System.CommandLine.Suggest/dotnet-suggest-shim.ps1) to your PowerShell profile. You can find the expected path to your PowerShell profile by running the following in your console:
+
+```console
+> echo $profile
 ```
 
 (For other shells, please [look for](https://github.com/dotnet/command-line-api/issues?q=is%3Aissue+is%3Aopen+label%3A%22shell+suggestion%22) or open an [issue](https://github.com/dotnet/command-line-api/issues).)
