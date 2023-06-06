@@ -5,6 +5,9 @@ using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Help
 {
+    /// <summary>
+    /// A standard option that indicates that command line help should be displayed.
+    /// </summary>
     public sealed class HelpOption : CliOption<bool>
     {
         private CliAction? _action;

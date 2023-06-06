@@ -12,6 +12,7 @@ namespace System.CommandLine.Completions
     {
         private CliAction? _action;
 
+        /// <inheritdoc />
         public SuggestDirective() : base("suggest")
         {
         }

@@ -2,6 +2,9 @@
 
 namespace System.CommandLine.Help
 {
+    /// <summary>
+    /// Provides command line help.
+    /// </summary>
     public sealed class HelpAction : SynchronousCliAction
     {
         private HelpBuilder? _builder;

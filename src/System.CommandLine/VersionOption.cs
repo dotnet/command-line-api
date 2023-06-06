@@ -7,6 +7,9 @@ using System.Linq;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// A standard option that indicates that version information should be displayed for the app.
+    /// </summary>
     public sealed class VersionOption : CliOption<bool>
     {
         private CliAction? _action;

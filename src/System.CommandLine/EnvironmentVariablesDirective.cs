@@ -13,6 +13,7 @@ namespace System.CommandLine
     {
         private CliAction? _action;
 
+        /// <inheritdoc />
         public EnvironmentVariablesDirective() : base("env")
         {
         }

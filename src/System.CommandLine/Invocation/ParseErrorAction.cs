@@ -7,10 +7,21 @@ using System.Linq;
 
 namespace System.CommandLine.Invocation;
 
+/// <summary>
+/// Provides command line output with error details in the case of a parsing error.
+/// </summary>
 public sealed class ParseErrorAction : SynchronousCliAction
 {
+    /// <summary>
+    /// Indicates whether to show help along with error details when an error is found during parsing.
+    /// </summary>
+    /// <remarks>When set to <see langword="true" />, indicates that help will be shown along with parse error details. When set to false, help will not be shown.</remarks>
     public bool ShowHelp { get; set; } = true;
 
+    /// <summary>
+    /// Indicates whether to show typo suggestions along with error details when an error is found during parsing.
+    /// </summary>
+    /// <remarks>When set to <see langword="true" />, indicates that suggestions will be shown along with parse error details. When set to false, suggestions will not be shown.</remarks>
     public bool ShowTypoCorrections { get; set; } = true;
 
     /// <inheritdoc />
