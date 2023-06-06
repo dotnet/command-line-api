@@ -197,7 +197,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override string ToString() => DiagramAction.Diagram(this).ToString();
+        public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
 
         /// <summary>
         /// Gets the result, if any, for the specified argument.

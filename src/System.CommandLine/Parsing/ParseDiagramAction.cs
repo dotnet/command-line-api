@@ -13,11 +13,11 @@ namespace System.CommandLine.Parsing
     /// Implements the <c>[diagram]</c> directive action, which when specified on the command line 
     /// will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
-    internal sealed class DiagramAction : SynchronousCliAction
+    internal sealed class ParseDiagramAction : SynchronousCliAction
     {
         private readonly int _parseErrorReturnValue;
 
-        internal DiagramAction(int parseErrorReturnValue) => _parseErrorReturnValue = parseErrorReturnValue;
+        internal ParseDiagramAction(int parseErrorReturnValue) => _parseErrorReturnValue = parseErrorReturnValue;
 
         public override int Invoke(ParseResult parseResult)
         {
