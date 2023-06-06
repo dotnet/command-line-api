@@ -5,9 +5,11 @@ using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Xunit;
 
 namespace System.CommandLine.Tests.Invocation
@@ -195,7 +197,8 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void Option_action_takes_precedence_over_command_action()
         {
-            OptionAction optionAction = new();
+            bool wasCalled = false;
+            SynchronousTestAction optionAction = new(_ => wasCalled = true);
             bool commandActionWasCalled = false;
 
             CliOption<bool> option = new("--test")
@@ -214,20 +217,24 @@ namespace System.CommandLine.Tests.Invocation
             ParseResult parseResult = command.Parse("cmd --test true");
 
             parseResult.Action.Should().NotBeNull();
-            optionAction.WasCalled.Should().BeFalse();
+            wasCalled.Should().BeFalse();
             commandActionWasCalled.Should().BeFalse();
 
             parseResult.Invoke().Should().Be(0);
-            optionAction.WasCalled.Should().BeTrue();
+            wasCalled.Should().BeTrue();
             commandActionWasCalled.Should().BeFalse();
         }
 
         [Fact]
         public void When_multiple_options_with_actions_are_present_then_only_the_last_one_is_invoked()
         {
-            OptionAction optionAction1 = new();
-            OptionAction optionAction2 = new();
-            OptionAction optionAction3 = new();
+            bool optionAction1WasCalled = false;
+            bool optionAction2WasCalled = false;
+            bool optionAction3WasCalled = false;
+
+            SynchronousTestAction optionAction1 = new(_ => optionAction1WasCalled = true);
+            SynchronousTestAction optionAction2 = new(_ => optionAction2WasCalled = true);
+            SynchronousTestAction optionAction3 = new(_ => optionAction3WasCalled = true);
 
             CliCommand command = new CliCommand("cmd")
             {
@@ -236,25 +243,44 @@ namespace System.CommandLine.Tests.Invocation
                 new CliOption<bool>("--3") { Action = optionAction3 }
             };
 
-            ParseResult parseResult = command.Parse("cmd --1 true --3 false --2 true ");
+            ParseResult parseResult = command.Parse("cmd --1 true --3 false --2 true");
+
+            using var _ = new AssertionScope();
 
             parseResult.Action.Should().Be(optionAction2);
-
             parseResult.Invoke().Should().Be(0);
-            optionAction1.WasCalled.Should().BeFalse();
-            optionAction2.WasCalled.Should().BeTrue();
-            optionAction3.WasCalled.Should().BeFalse();
+            optionAction1WasCalled.Should().BeFalse();
+            optionAction2WasCalled.Should().BeTrue();
+            optionAction3WasCalled.Should().BeFalse();
         }
 
-        internal sealed class OptionAction : SynchronousCliAction
+        [Fact]
+        public void Directive_action_takes_precedence_over_option_action()
         {
-            internal bool WasCalled = false;
+            bool optionActionWasCalled = false;
+            bool directiveActionWasCalled = false;
 
-            public override int Invoke(ParseResult context)
+            SynchronousTestAction optionAction = new(_ => optionActionWasCalled = true);
+            SynchronousTestAction directiveAction = new(_ => directiveActionWasCalled = true);
+
+            var directive = new CliDirective("directive")
             {
-                WasCalled = true;
-                return 0;
-            }
+                Action = directiveAction
+            };
+
+            CliCommand command = new CliCommand("cmd")
+            {
+                new CliOption<bool>("-x") { Action = optionAction }
+            };
+
+            ParseResult parseResult = command.Parse("[directive] cmd -x", new CliConfiguration(command) { Directives = { directive } });
+
+            using var _ = new AssertionScope();
+
+            parseResult.Action.Should().Be(directiveAction);
+            parseResult.Invoke().Should().Be(0);
+            optionActionWasCalled.Should().BeFalse();
+            directiveActionWasCalled.Should().BeTrue();
         }
 
         [Theory]
@@ -322,7 +348,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             public NonexclusiveTestAction()
             {
-                Exclusive = false;
+                Terminating = false;
             }
 
             public bool ThrowOnInvoke { get; set; }

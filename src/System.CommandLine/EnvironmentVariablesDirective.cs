@@ -31,7 +31,7 @@ namespace System.CommandLine
             internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive)
             {
                 _directive = directive;
-                Exclusive = false;
+                Terminating = false;
             }
 
             public override int Invoke(ParseResult parseResult)

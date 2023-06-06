@@ -18,7 +18,7 @@ namespace System.CommandLine.Parsing
         private int _index;
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested;
-        private bool _isDiagramRequested;
+        private bool _isTerminatingDirectiveSpecified;
         private CliAction? _primaryAction;
         private List<CliAction>? _nonexclusiveActions;
 
@@ -187,9 +187,8 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
-                // FIX: (ParseOption) can this be moved out to a CliAction?
-                // DiagramDirective has a precedence over --help and --version
-                if (!_isDiagramRequested)
+                // directives have a precedence over --help and --version
+                if (!_isTerminatingDirectiveSpecified)
                 {
                     if (option.Action is not null)
                     {
@@ -329,9 +328,10 @@ namespace System.CommandLine.Parsing
 
                 if (directive.Action is not null)
                 {
-                    if (directive.Action.Exclusive)
+                    if (directive.Action.Terminating)
                     {
                         _primaryAction = directive.Action;
+                        _isTerminatingDirectiveSpecified = true;
                     }
                     else
                     {
@@ -342,11 +342,6 @@ namespace System.CommandLine.Parsing
 
                         _nonexclusiveActions.Add(directive.Action);
                     }
-                }
-
-                if (directive is DiagramDirective)
-                {
-                    _isDiagramRequested = true;
                 }
             }
         }
