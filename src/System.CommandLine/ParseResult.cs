@@ -21,7 +21,7 @@ namespace System.CommandLine
         private readonly IReadOnlyList<CliToken> _unmatchedTokens;
         private CompletionContext? _completionContext;
         private readonly CliAction? _action;
-        private readonly List<CliAction>? _nonexclusiveActions;
+        private readonly List<CliAction>? _preActions;
         private Dictionary<string, SymbolResult?>? _namedResults;
 
         internal ParseResult(
@@ -33,13 +33,13 @@ namespace System.CommandLine
             List<ParseError>? errors,
             string? commandLineText = null,
             CliAction? action = null,
-            List<CliAction>? nonexclusiveActions = null)
+            List<CliAction>? preActions = null)
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             _action = action;
-            _nonexclusiveActions = nonexclusiveActions;
+            _preActions = preActions;
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
@@ -305,11 +305,11 @@ namespace System.CommandLine
             {
                 useAsync = true;
             }
-            else if (NonexclusiveActions is not null)
+            else if (PreActions is not null)
             {
-                for (var i = 0; i < NonexclusiveActions.Count; i++)
+                for (var i = 0; i < PreActions.Count; i++)
                 {
-                    var action = NonexclusiveActions[i];
+                    var action = PreActions[i];
                     if (action is AsynchronousCliAction)
                     {
                         useAsync = true;
@@ -334,7 +334,7 @@ namespace System.CommandLine
         /// </summary>
         public CliAction? Action => _action ?? CommandResult.Command.Action;
 
-        internal IReadOnlyList<CliAction>? NonexclusiveActions => _nonexclusiveActions;
+        internal IReadOnlyList<CliAction>? PreActions => _preActions;
 
         private SymbolResult SymbolToComplete(int? position = null)
         {

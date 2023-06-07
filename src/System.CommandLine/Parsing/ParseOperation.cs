@@ -65,8 +65,7 @@ namespace System.CommandLine.Parsing
 
             if (_primaryAction is null)
             {
-                if (_configuration.EnableParseErrorReporting && 
-                    _symbolResultTree.ErrorCount > 0)
+                if (_symbolResultTree.ErrorCount > 0)
                 {
                     _primaryAction = new ParseErrorAction();
                 }

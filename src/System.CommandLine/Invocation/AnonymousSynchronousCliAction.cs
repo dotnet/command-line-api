@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Invocation;
 
-internal class AnonymousSynchronousCliAction : SynchronousCliAction
+internal sealed class AnonymousSynchronousCliAction : SynchronousCliAction
 {
     private readonly Func<ParseResult, int> _syncAction;
 

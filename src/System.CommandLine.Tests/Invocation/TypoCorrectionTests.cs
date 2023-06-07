@@ -1,5 +1,7 @@
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -151,14 +153,18 @@ namespace System.CommandLine.Tests.Invocation
                 argument,
                 command
             };
+
             CliConfiguration configuration = new(rootCommand)
             {
-                EnableParseErrorReporting = false,
                 Output = new StringWriter()
             };
 
             var result = rootCommand.Parse("een", configuration);
 
+            var parseErrorAction = (ParseErrorAction)result.Action;
+            parseErrorAction.ShowHelp = false;
+            parseErrorAction.ShowTypoCorrections = true;
+            
             await result.InvokeAsync();
 
             configuration.Output.ToString().Should().NotContain("the-argument");

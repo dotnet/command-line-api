@@ -66,11 +66,6 @@ namespace System.CommandLine
         public bool EnableDefaultExceptionHandler { get; set; } = true;
 
         /// <summary>
-        /// Configures the command line to write error information to standard error when there are errors parsing command line input. Enabled by default.
-        /// </summary>
-        public bool EnableParseErrorReporting { get; set; } = true;
-
-        /// <summary>
         /// Enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="CancellationToken"/> 
         /// that can be passed to a <see cref="CliAction"/> during invocation.
         /// If not provided, a default timeout of 2 seconds is enforced.

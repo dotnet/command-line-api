@@ -5,7 +5,6 @@ using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -195,10 +194,10 @@ namespace System.CommandLine.Tests.Invocation
         }
         
         [Fact]
-        public void Option_action_takes_precedence_over_command_action()
+        public void Terminating_option_action_short_circuits_command_action()
         {
-            bool wasCalled = false;
-            SynchronousTestAction optionAction = new(_ => wasCalled = true);
+            bool optionActionWasCalled = false;
+            SynchronousTestAction optionAction = new(_ => optionActionWasCalled = true, terminating: true);
             bool commandActionWasCalled = false;
 
             CliOption<bool> option = new("--test")
@@ -214,15 +213,39 @@ namespace System.CommandLine.Tests.Invocation
                 commandActionWasCalled = true;
             });
 
-            ParseResult parseResult = command.Parse("cmd --test true");
+            ParseResult parseResult = command.Parse("cmd --test");
 
             parseResult.Action.Should().NotBeNull();
-            wasCalled.Should().BeFalse();
+            optionActionWasCalled.Should().BeFalse();
             commandActionWasCalled.Should().BeFalse();
 
             parseResult.Invoke().Should().Be(0);
-            wasCalled.Should().BeTrue();
+            optionActionWasCalled.Should().BeTrue();
             commandActionWasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Nonterminating_option_action_does_not_short_circuit_command_action()
+        {
+            bool optionActionWasCalled = false;
+            SynchronousTestAction optionAction = new(_ => optionActionWasCalled = true, terminating: false);
+            bool commandActionWasCalled = false;
+
+            CliOption<bool> option = new("--test")
+            {
+                Action = optionAction
+            };
+            CliCommand command = new CliCommand("cmd")
+            {
+                option
+            };
+            command.SetAction(_ => { commandActionWasCalled = true; });
+
+            ParseResult parseResult = command.Parse("cmd --test");
+
+            parseResult.Invoke().Should().Be(0);
+            optionActionWasCalled.Should().BeTrue();
+            commandActionWasCalled.Should().BeTrue();
         }
 
         [Fact]
@@ -286,7 +309,7 @@ namespace System.CommandLine.Tests.Invocation
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task Nonexclusive_actions_handle_exceptions_and_return_an_error_return_code(bool invokeAsync)
+        public async Task Nontermninating_actions_handle_exceptions_and_return_an_error_return_code(bool invokeAsync)
         {
             var nonexclusiveAction = new NonexclusiveTestAction
             {

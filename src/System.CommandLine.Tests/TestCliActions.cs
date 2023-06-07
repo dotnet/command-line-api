@@ -24,11 +24,11 @@ public class SynchronousTestAction : SynchronousCliAction
     }
 }
 
-public class AsynchronousNonterminatingTestAction : AsynchronousCliAction
+public class AsynchronousTestAction : AsynchronousCliAction
 {
     private readonly Action<ParseResult> _invoke;
 
-    public AsynchronousNonterminatingTestAction(Action<ParseResult> invoke, bool terminating = true)
+    public AsynchronousTestAction(Action<ParseResult> invoke, bool terminating = true)
     {
         _invoke = invoke;
         Terminating = terminating;

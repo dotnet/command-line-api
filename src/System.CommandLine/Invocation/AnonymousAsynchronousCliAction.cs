@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation;
 
-internal class AnonymousAsynchronousCliAction : AsynchronousCliAction
+internal sealed class AnonymousAsynchronousCliAction : AsynchronousCliAction
 {
     private readonly Func<ParseResult, CancellationToken, Task<int>> _asyncAction;
 

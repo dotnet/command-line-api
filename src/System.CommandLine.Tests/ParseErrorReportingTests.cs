@@ -1,9 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -23,16 +20,11 @@ public class ParseErrorReportingTests
             new HelpOption()
         };
 
-        CliConfiguration config = new (root)
-        {
-            EnableParseErrorReporting = true
-        };
-
-        var parseResult = root.Parse("", config);
+        var parseResult = root.Parse("");
 
         parseResult.Errors.Should().NotBeEmpty();
 
-        var result = config.Invoke("");
+        var result = parseResult.Invoke();
 
         result.Should().Be(1);
     }

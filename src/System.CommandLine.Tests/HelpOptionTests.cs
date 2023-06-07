@@ -179,12 +179,11 @@ namespace System.CommandLine.Tests
             CliConfiguration config = new(command)
             {
                 Output = new StringWriter(),
-                EnableParseErrorReporting = false
             };
 
             await config.InvokeAsync(helpAlias);
 
-            config.Output.ToString().Should().Be("");
+            config.Output.ToString().Should().NotContain(helpAlias);
         }
     }
 }

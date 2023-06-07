@@ -72,14 +72,14 @@ namespace System.CommandLine.Tests
             var testDirective = new TestDirective("test")
             {
                 Action = invokeAsync
-                             ? new AsynchronousNonterminatingTestAction(incrementCallCount, terminating: false)
+                             ? new AsynchronousTestAction(incrementCallCount, terminating: false)
                              : new SynchronousTestAction(incrementCallCount, terminating: false)
             };
 
             var config = new CliConfiguration(new CliRootCommand
             {
                 Action = invokeAsync
-                             ? new AsynchronousNonterminatingTestAction(verifyActionWasCalled, terminating: false)
+                             ? new AsynchronousTestAction(verifyActionWasCalled, terminating: false)
                              : new SynchronousTestAction(verifyActionWasCalled, terminating: false)
             })
             {

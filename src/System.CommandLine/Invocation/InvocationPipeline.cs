@@ -20,11 +20,11 @@ namespace System.CommandLine.Invocation
 
             try
             {
-                if (parseResult.NonexclusiveActions is not null)
+                if (parseResult.PreActions is not null)
                 {
-                    for (int i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                    for (int i = 0; i < parseResult.PreActions.Count; i++)
                     {
-                        var action = parseResult.NonexclusiveActions[i];
+                        var action = parseResult.PreActions[i];
 
                         switch (action)
                         {
@@ -87,12 +87,12 @@ namespace System.CommandLine.Invocation
                 case SynchronousCliAction syncAction:
                     try
                     {
-                        if (parseResult.NonexclusiveActions is not null)
+                        if (parseResult.PreActions is not null)
                         {
 #if DEBUG
-                            for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                            for (var i = 0; i < parseResult.PreActions.Count; i++)
                             {
-                                var action = parseResult.NonexclusiveActions[i];
+                                var action = parseResult.PreActions[i];
 
                                 if (action is not SynchronousCliAction)
                                 {
@@ -103,9 +103,9 @@ namespace System.CommandLine.Invocation
                             }
 #endif
 
-                            for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                            for (var i = 0; i < parseResult.PreActions.Count; i++)
                             {
-                                if (parseResult.NonexclusiveActions[i] is SynchronousCliAction syncPreaction)
+                                if (parseResult.PreActions[i] is SynchronousCliAction syncPreaction)
                                 {
                                     syncPreaction.Invoke(parseResult);
                                 }
