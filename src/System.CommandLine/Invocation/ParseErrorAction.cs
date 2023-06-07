@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Help;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,7 +24,9 @@ namespace System.CommandLine.Invocation
 
             ConsoleHelpers.ResetTerminalForegroundColor();
 
-            new HelpOption().Action!.Invoke(parseResult);
+            HelpOption helpOption = parseResult.RootCommandResult.Command.Options.FirstOrDefault(option => option is HelpOption) as HelpOption ?? new HelpOption();
+
+            helpOption.Action!.Invoke(parseResult);
 
             return 1;
         }

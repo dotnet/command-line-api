@@ -30,7 +30,7 @@ namespace System.CommandLine.Tests
 
                 var parseResult = command.Parse(commandLine);
 
-                var argumentResult = parseResult.FindResultFor(argument);
+                var argumentResult = parseResult.GetResult(argument);
 
                 argumentResult.Should().NotBeNull();
 
@@ -79,7 +79,7 @@ namespace System.CommandLine.Tests
 
                 var parseResult = command.Parse(commandLine);
 
-                var optionResult = parseResult.FindResultFor(option);
+                var optionResult = parseResult.GetResult(option);
 
                 optionResult.Should().NotBeNull();
 

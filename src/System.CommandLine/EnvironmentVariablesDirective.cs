@@ -48,7 +48,7 @@ namespace System.CommandLine
 
             private void SetEnvVars(ParseResult parseResult)
             {
-                DirectiveResult directiveResult = parseResult.FindResultFor(_directive)!;
+                DirectiveResult directiveResult = parseResult.GetResult(_directive)!;
 
                 for (int i = 0; i < directiveResult.Values.Count; i++)
                 {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void GetDefaultValue_returns_null_when_parse_delegate_returns_true_without_setting_a_value()
+            public void GetDefaultValue_returns_null_when_custom_parser_returns_true_without_setting_a_value()
             {
                 var argument = new CliArgument<string>("arg")
                 {
@@ -312,7 +312,7 @@ namespace System.CommandLine.Tests
                 {
                     CustomParser = argResult =>
                     {
-                        resultForOptionX = argResult.FindResultFor(optionX);
+                        resultForOptionX = argResult.GetResult(optionX);
                         return string.Empty;
                     }
                 };
@@ -405,7 +405,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void Multiple_command_arguments_can_have_custom_parse_delegates()
+            public void Multiple_arguments_can_have_custom_parsers()
             {
                 var root = new CliRootCommand
                 {
@@ -440,6 +440,84 @@ namespace System.CommandLine.Tests
                       .Select(e => e.Message)
                       .Should()
                       .Contain("UH UH");
+            }
+
+            [Theory]
+            // The two different examples verify that the relative order of the symbols doesn't matter.
+            [InlineData("--option-with-error 123 --depends-on-option-with-error")]
+            [InlineData("--depends-on-option-with-error --option-with-error 123")]
+            public void Custom_parser_can_check_another_option_result_for_custom_errors(string commandLine)
+            {
+                var optionWithError = new CliOption<string>("--option-with-error")
+                {
+                    CustomParser = r =>
+                    {
+                        r.AddError("one");
+                        return r.Tokens[0].Value;
+                    }
+                };
+
+                var optionThatDependsOnOptionWithError = new CliOption<bool>("--depends-on-option-with-error")
+                {
+                    CustomParser = result =>
+                    {
+                        if (result.GetResult(optionWithError) is { } optionWithErrorResult)
+                        {
+                            var otherOptionError = optionWithErrorResult.Errors.SingleOrDefault()?.Message;
+
+                            result.AddError(otherOptionError + " " + "two");
+                        }
+
+                        return false;
+                    }
+                };
+
+                var command = new CliCommand("cmd")
+                {
+                    optionWithError,
+                    optionThatDependsOnOptionWithError
+                };
+
+                var parseResult = command.Parse(commandLine);
+
+                parseResult.Errors
+                           .Single(e => e.SymbolResult is OptionResult optResult &&
+                                        optResult.Option == optionThatDependsOnOptionWithError)
+                           .Message
+                           .Should()
+                           .Be("one two");
+            }
+
+            [Fact]
+            public void Validation_reports_all_parse_errors()
+            {
+                CliOption<string> firstOptionWithError = new("--first-option-with-error");
+                firstOptionWithError.Validators.Add(optionResult => optionResult.AddError("first error"));
+                CliOption<string> secondOptionWithError = new("--second-option-with-error")
+                {
+                    CustomParser = r =>
+                    {
+                        r.AddError("second error");
+                        return r.Tokens[0].Value;
+                    }
+                };
+
+                CliCommand command = new ("cmd")
+                {
+                    firstOptionWithError,
+                    secondOptionWithError
+                };
+
+                ParseResult parseResult = command.Parse("cmd --first-option-with-error value1 --second-option-with-error value2");
+
+                OptionResult firstOptionResult = parseResult.GetResult(firstOptionWithError);
+                firstOptionResult.Errors.Single().Message.Should().Be("first error");
+
+                OptionResult secondOptionResult = parseResult.GetResult(secondOptionWithError);
+                secondOptionResult.Errors.Single().Message.Should().Be("second error");
+
+                parseResult.Errors.Should().Contain(error => error.SymbolResult == firstOptionResult);
+                parseResult.Errors.Should().Contain(error => error.SymbolResult == secondOptionResult);
             }
 
             [Fact]
@@ -500,7 +578,7 @@ namespace System.CommandLine.Tests
             }
 
             [Fact]
-            public void Parse_delegate_is_called_once_per_parse_operation_when_input_is_provided()
+            public void Custom_parser_is_called_once_per_parse_operation_when_input_is_provided()
             {
                 var i = 0;
 
@@ -608,13 +686,13 @@ namespace System.CommandLine.Tests
 
                 var parseResult = command.Parse(commandLine);
 
-                parseResult.FindResultFor(argument1)
+                parseResult.GetResult(argument1)
                            .GetValueOrDefault<int[]>()
                            .Should()
                            .BeEquivalentTo(new[] { 1, 2, 3 },
                                                     options => options.WithStrictOrdering());
 
-                parseResult.FindResultFor(argument2)
+                parseResult.GetResult(argument2)
                            .GetValueOrDefault<int[]>()
                            .Should()
                            .BeEquivalentTo(new[] { 4, 5, 6, 7, 8 },
@@ -705,14 +783,14 @@ namespace System.CommandLine.Tests
 
                 var parseResult = command.Parse("1 2 3 4 5 6 7 8");
 
-                parseResult.FindResultFor(argument1)
+                parseResult.GetResult(argument1)
                            .Tokens
                            .Select(t => t.Value)
                            .Should()
                            .BeEquivalentTo(new[] { "1", "2", "3" },
                                            options => options.WithStrictOrdering());
 
-                parseResult.FindResultFor(argument2)
+                parseResult.GetResult(argument2)
                            .Tokens
                            .Select(t => t.Value)
                            .Should()

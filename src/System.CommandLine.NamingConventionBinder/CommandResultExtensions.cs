@@ -20,7 +20,7 @@ internal static class CommandResultExtensions
 
             if (valueDescriptor.ValueName.IsMatch(RemovePrefix(argument.Name)))
             {
-                if (commandResult.FindResultFor(argument) is { } argumentResult)
+                if (commandResult.GetResult(argument) is { } argumentResult)
                 {
                     value = argumentResult.GetValueOrDefault<object>();
                 }
@@ -53,7 +53,7 @@ internal static class CommandResultExtensions
 
                 if (hasMatchingAlias)
                 {
-                    var optionResult = commandResult.FindResultFor(option);
+                    var optionResult = commandResult.GetResult(option);
 
                     if (optionResult is not null)
                     {

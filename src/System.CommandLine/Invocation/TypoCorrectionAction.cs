@@ -23,7 +23,7 @@ namespace System.CommandLine.Invocation
         private static int ProvideSuggestions(ParseResult result)
         {
             var unmatchedTokens = result.UnmatchedTokens;
-            for (var i = 0; i < unmatchedTokens.Length; i++)
+            for (var i = 0; i < unmatchedTokens.Count; i++)
             {
                 var token = unmatchedTokens[i];
 

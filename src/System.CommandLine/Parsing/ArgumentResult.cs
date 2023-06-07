@@ -98,7 +98,7 @@ namespace System.CommandLine.Parsing
 
                 while (!nextArgumentResult.ArgumentLimitReached && tokensToPass > 0)
                 {
-                    Token toPass = _tokens[numberOfTokens];
+                    CliToken toPass = _tokens[numberOfTokens];
                     _tokens.RemoveAt(numberOfTokens);
                     nextArgumentResult.AddToken(toPass);
                     --tokensToPass;
@@ -107,12 +107,18 @@ namespace System.CommandLine.Parsing
                 nextArgumentIndex++;
             }
 
+            CommandResult rootCommand = parent;
+            while (rootCommand.Parent is CommandResult nextLevel)
+            {
+                rootCommand = nextLevel;
+            }
+
             // When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unmatched_tokens
             while (tokensToPass > 0)
             {
-                Token unmatched = _tokens[numberOfTokens];
+                CliToken unmatched = _tokens[numberOfTokens];
                 _tokens.RemoveAt(numberOfTokens);
-                SymbolResultTree.AddUnmatchedToken(unmatched, parent.Command.TreatUnmatchedTokensAsErrors ? parent : null);
+                SymbolResultTree.AddUnmatchedToken(unmatched, parent, rootCommand);
                 --tokensToPass;
             }
         }
@@ -123,7 +129,7 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         public override void AddError(string errorMessage)
         {
-            SymbolResultTree.AddError(new ParseError(errorMessage, Parent is OptionResult option ? option : this));
+            SymbolResultTree.AddError(new ParseError(errorMessage, AppliesToPublicSymbolResult));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
         }
 
@@ -188,17 +194,29 @@ namespace System.CommandLine.Parsing
                 return ArgumentConversionResult.Success(this, value);
             }
 
-            return ReportErrorIfNeeded(ArgumentConversionResult.ArgumentConversionCannotParse(this, Argument.ValueType, Tokens[0].Value));
+            return ReportErrorIfNeeded(
+                ArgumentConversionResult.ArgumentConversionCannotParse(
+                    this,
+                    Argument.ValueType,
+                    Tokens.Count > 0 
+                        ? Tokens[0].Value
+                        : ""));
 
             ArgumentConversionResult ReportErrorIfNeeded(ArgumentConversionResult result)
             {
                 if (result.Result >= ArgumentConversionResultType.Failed)
                 {
-                    SymbolResultTree.AddError(new ParseError(result.ErrorMessage!, Parent is OptionResult option ? option : this));
+                    SymbolResultTree.AddError(new ParseError(result.ErrorMessage!, AppliesToPublicSymbolResult));
                 }
 
                 return result;
             }
         }
+
+        /// <summary>
+        /// Since Option.Argument is an internal implementation detail, this ArgumentResult applies to the OptionResult in public API if the parent is an OptionResult.
+        /// </summary>
+        private SymbolResult AppliesToPublicSymbolResult => 
+            Parent is OptionResult optionResult ? optionResult : this;
     }
 }

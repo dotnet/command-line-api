@@ -11,11 +11,11 @@
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(DisableArcade)' == '1'">
-    <TargetFrameworkForNETSDK>net7.0</TargetFrameworkForNETSDK>
+  <PropertyGroup Condition="'$(DotNetBuildFromSource)' == 'true'">
+    <TargetFrameworkForNETSDK>$(NetCurrent)</TargetFrameworkForNETSDK>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(DisableArcade)' != '1'">
+  <PropertyGroup Condition="'$(DotNetBuildFromSource)' != 'true'">
     <TargetFrameworkForNETSDK>net7.0</TargetFrameworkForNETSDK>
   </PropertyGroup>
 

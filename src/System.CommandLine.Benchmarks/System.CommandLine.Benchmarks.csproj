@@ -9,7 +9,7 @@
     <UseSharedCompilation>false</UseSharedCompilation>
 
     <!-- Supported target frameworks -->
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
 
     <!-- This repo does not produce any libraries, therefore generating docs is disabled -->
     <GenerateDocumentationFile>False</GenerateDocumentationFile>

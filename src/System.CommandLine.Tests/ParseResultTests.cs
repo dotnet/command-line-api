@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests
             {
                 option
             }.Parse("-x")
-             .FindResultFor(option);
+             .GetResult(option);
 
             result.Tokens.Should().BeEmpty();
         }
@@ -36,11 +36,11 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command -h");
 
-            result.FindResultFor(option).Should().NotBeNull();
+            result.GetResult(option).Should().NotBeNull();
         }
 
         [Fact]
-        public void FindResultFor_can_be_used_to_check_the_presence_of_an_implicit_option()
+        public void GetResult_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
             var option = new CliOption<int>("-c", "--count") { DefaultValueFactory = (_) => 5 };
             var command = new CliCommand("the-command")
@@ -50,7 +50,24 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("the-command");
 
-            result.FindResultFor(option).Should().NotBeNull();
+            result.GetResult(option).Should().NotBeNull();
+        }
+
+        [Fact]
+        public void GetResult_can_be_used_for_root_command_itself()
+        {
+            CliRootCommand rootCommand = new()
+            {
+                new CliCommand("the-command")
+                {
+                    new CliOption<int>("-c")
+                }
+            };
+
+            var result = rootCommand.Parse("the-command -c 123");
+
+            result.RootCommandResult.Command.Should().BeSameAs(rootCommand);
+            result.GetResult(rootCommand).Should().BeSameAs(result.RootCommandResult);
         }
 
         [Fact]

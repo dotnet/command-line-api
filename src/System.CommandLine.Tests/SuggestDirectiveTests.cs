@@ -79,9 +79,9 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("[suggest:4] \"eat\"")]
-        [InlineData("[suggest:6] \"eat --\"")]
-        public async Task It_writes_suggestions_for_option_aliases_under_subcommand(string commandLine)
+        [InlineData("[suggest:4] \"eat\"", new[] { "--fruit", "--help", "--vegetable", "-?", "-h", "/?", "/h" })]
+        [InlineData("[suggest:6] \"eat --\"", new[] { "--fruit", "--help", "--vegetable" })]
+        public async Task It_writes_suggestions_for_option_aliases_under_subcommand(string commandLine, string[] expectedCompletions)
         {
             CliRootCommand rootCommand = new() { _eatCommand };
             CliConfiguration config = new(rootCommand)
@@ -94,10 +94,12 @@ namespace System.CommandLine.Tests
 
             await result.InvokeAsync();
 
+            string expected = string.Join(NewLine, expectedCompletions) + NewLine;
+
             config.Output
                    .ToString()
                    .Should()
-                   .Be($"--fruit{NewLine}--vegetable{NewLine}");
+                   .Be(expected);
         }
 
         [Theory]

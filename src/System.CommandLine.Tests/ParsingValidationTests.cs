@@ -1297,7 +1297,7 @@ namespace System.CommandLine.Tests
                        .Should()
                        .Be("Required argument missing for option: '-o'.");
         }
-
+        
         private CliArgument<string> CreateArgumentWithAcceptOnlyFromAmong(string name, params string[] values)
         {
             CliArgument<string> argument = new(name);
