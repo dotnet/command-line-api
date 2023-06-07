@@ -246,9 +246,10 @@ namespace System.CommandLine.Parsing
                         break;
                     }
                 }
-                else if (argument.ValueType == typeof(bool) && 
+                else if ((argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?))  && 
                          !bool.TryParse(CurrentToken.Value, out _))
                 {
+                    // Don't greedily consume the following token for bool. The presence of the option token (i.e. a flag) is sufficient.
                     break;
                 }
 

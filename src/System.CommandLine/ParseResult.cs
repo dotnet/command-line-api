@@ -135,6 +135,7 @@ namespace System.CommandLine
         public T? GetValue<T>(string name)
         {
             var command = CommandResult.Command;
+
             if (_namedResults is null)
             {
                 // A null value means that given name exists, but was not parsed
@@ -180,12 +181,12 @@ namespace System.CommandLine
                 }
             }
 
-            static T? Convert(ArgumentConversionResult validatedResult)
+            static T Convert(ArgumentConversionResult validatedResult)
             {
                 var convertedResult = validatedResult.ConvertIfNeeded(typeof(T));
 
-                if (validatedResult.Result == ArgumentConversionResultType.Successful
-                    && convertedResult.Result == ArgumentConversionResultType.NoArgument)
+                if (validatedResult is { Result: ArgumentConversionResultType.Successful }
+                    && convertedResult is { Result: ArgumentConversionResultType.NoArgument })
                 {
                     // invalid cast has been detected, InvalidCastException will be thrown
                     return (T)validatedResult.Value!;
