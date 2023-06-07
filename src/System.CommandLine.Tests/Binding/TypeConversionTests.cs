@@ -8,6 +8,7 @@ using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
@@ -193,6 +194,30 @@ namespace System.CommandLine.Tests.Binding
                 .GetValue(option)
                 .Should()
                 .BeTrue();
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2210
+        public void Nullable_bool_with_unparseable_argument_does_not_throw()
+        {
+            CliRootCommand rootCommand = new();
+            CliOption<bool?> option = new("--test");
+            rootCommand.Options.Add(option);
+            var result = rootCommand.Parse("--test ouch");
+
+            result.Invoking(r =>  r.GetValue(option))
+                  .Should().NotThrow();
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2210
+        public void Bool_with_unparseable_argument_does_not_throw()
+        {
+            CliRootCommand rootCommand = new();
+            CliOption<bool> option = new("--test");
+            rootCommand.Options.Add(option);
+            var result = rootCommand.Parse("--test ouch");
+
+            result.Invoking(r => r.GetValue(option))
+                  .Should().NotThrow();
         }
 
         [Theory]
