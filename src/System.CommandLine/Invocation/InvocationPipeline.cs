@@ -105,9 +105,9 @@ namespace System.CommandLine.Invocation
 
                             for (var i = 0; i < parseResult.PreActions.Count; i++)
                             {
-                                if (parseResult.PreActions[i] is SynchronousCliAction syncPreaction)
+                                if (parseResult.PreActions[i] is SynchronousCliAction syncPreAction)
                                 {
-                                    syncPreaction.Invoke(parseResult);
+                                    syncPreAction.Invoke(parseResult);
                                 }
                             }
                         }

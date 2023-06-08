@@ -20,7 +20,7 @@ namespace System.CommandLine.Parsing
         private bool _isHelpRequested;
         private bool _isTerminatingDirectiveSpecified;
         private CliAction? _primaryAction;
-        private List<CliAction>? _nonexclusiveActions;
+        private List<CliAction>? _preActions;
 
         public ParseOperation(
             List<CliToken> tokens,
@@ -80,7 +80,7 @@ namespace System.CommandLine.Parsing
                 _symbolResultTree.Errors,
                 _rawInput,
                 _primaryAction,
-                _nonexclusiveActions);
+                _preActions);
         }
 
         private void ParseSubcommand()
@@ -186,17 +186,24 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
-                // directives have a precedence over --help and --version
-                if (!_isTerminatingDirectiveSpecified)
+                if (option.Action is not null)
                 {
-                    if (option.Action is not null)
+                    // directives have a precedence over --help and --version
+                    if (!_isTerminatingDirectiveSpecified)
                     {
                         if (option is HelpOption)
                         {
                             _isHelpRequested = true;
                         }
 
-                        _primaryAction = option.Action;
+                        if (option.Action.Terminating)
+                        {
+                            _primaryAction = option.Action;
+                        }
+                        else
+                        {
+                            AddPreAction(option.Action);
+                        }
                     }
                 }
 
@@ -334,15 +341,20 @@ namespace System.CommandLine.Parsing
                     }
                     else
                     {
-                        if (_nonexclusiveActions is null)
-                        {
-                            _nonexclusiveActions = new();
-                        }
-
-                        _nonexclusiveActions.Add(directive.Action);
+                        AddPreAction(directive.Action);
                     }
                 }
             }
+        }
+
+        private void AddPreAction(CliAction action)
+        {
+            if (_preActions is null)
+            {
+                _preActions = new();
+            }
+
+            _preActions.Add(action);
         }
 
         private void AddCurrentTokenToUnmatched()

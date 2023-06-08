@@ -134,10 +134,8 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public void Custom_RootCommand_Action_can_set_custom_result_code_via_Invoke()
         {
-            var rootCommand = new CliRootCommand
-            {
-                Action = new SynchronousCustomReturnCodeAction()
-            };
+            var rootCommand = new CliRootCommand();
+            rootCommand.SetAction(_ => 123);
 
             rootCommand.Parse("").Invoke().Should().Be(123);
         }
@@ -145,10 +143,8 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Custom_RootCommand_Action_can_set_custom_result_code_via_InvokeAsync()
         {
-            var rootCommand = new CliRootCommand
-            {
-                Action = new AsynchronousCustomReturnCodeAction()
-            };
+            var rootCommand = new CliRootCommand();
+            rootCommand.SetAction((_, _) => Task.FromResult(456));
 
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(456);
         }
@@ -239,7 +235,7 @@ namespace System.CommandLine.Tests.Invocation
             {
                 option
             };
-            command.SetAction(_ => { commandActionWasCalled = true; });
+            command.SetAction(_ => commandActionWasCalled = true);
 
             ParseResult parseResult = command.Parse("cmd --test");
 
@@ -309,12 +305,9 @@ namespace System.CommandLine.Tests.Invocation
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task Nontermninating_actions_handle_exceptions_and_return_an_error_return_code(bool invokeAsync)
+        public async Task Nontermninating_option_actions_handle_exceptions_and_return_an_error_return_code(bool invokeAsync)
         {
-            var nonexclusiveAction = new NonexclusiveTestAction
-            {
-                ThrowOnInvoke = true
-            };
+            var nonexclusiveAction = new SynchronousTestAction(_ => throw new Exception("oops!"), terminating: false);
 
             var command = new CliRootCommand
             {
@@ -323,6 +316,7 @@ namespace System.CommandLine.Tests.Invocation
                     Action = nonexclusiveAction
                 }
             };
+            command.SetAction(_ => 0);
 
             int returnCode;
 
@@ -353,41 +347,6 @@ namespace System.CommandLine.Tests.Invocation
 
             cts.Cancel();
             await command.Parse("test").InvokeAsync(cancellationToken: cts.Token);
-        }
-
-        private class SynchronousCustomReturnCodeAction : SynchronousCliAction
-        {
-            public override int Invoke(ParseResult context)
-                => 123;
-        }
-
-        private class AsynchronousCustomReturnCodeAction : AsynchronousCliAction
-        {
-            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
-                => Task.FromResult(456);
-        }
-
-        private class NonexclusiveTestAction : SynchronousCliAction
-        {
-            public NonexclusiveTestAction()
-            {
-                Terminating = false;
-            }
-
-            public bool ThrowOnInvoke { get; set; }
-
-            public bool HasBeenInvoked { get; private set; }
-
-            public override int Invoke(ParseResult parseResult)
-            {
-                HasBeenInvoked = true;
-                if (ThrowOnInvoke)
-                {
-                    throw new Exception("oops!");
-                }
-
-                return 0;
-            }
         }
     }
 }
