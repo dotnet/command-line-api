@@ -1,9 +1,11 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Help
 {
-    public sealed class HelpAction : CliAction
+    /// <summary>
+    /// Provides command line help.
+    /// </summary>
+    public sealed class HelpAction : SynchronousCliAction
     {
         private HelpBuilder? _builder;
 
@@ -16,6 +18,7 @@ namespace System.CommandLine.Help
             set => _builder = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        /// <inheritdoc />
         public override int Invoke(ParseResult parseResult)
         {
             var output = parseResult.Configuration.Output;
@@ -29,10 +32,5 @@ namespace System.CommandLine.Help
 
             return 0;
         }
-
-        public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-            => cancellationToken.IsCancellationRequested
-                ? Task.FromCanceled<int>(cancellationToken)
-                : Task.FromResult(Invoke(parseResult));
     }
 }

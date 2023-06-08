@@ -61,7 +61,7 @@ namespace System.CommandLine
                 if (_completionSources is null)
                 {
                     Type? valueType = ValueType;
-                    if (valueType == typeof(bool) || valueType == typeof(bool?))
+                    if (IsBoolean())
                     {
                         _completionSources = new ()
                         {

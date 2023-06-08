@@ -1,8 +1,13 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Invocation;
+
 namespace System.CommandLine.Help
 {
+    /// <summary>
+    /// A standard option that indicates that command line help should be displayed.
+    /// </summary>
     public sealed class HelpOption : CliOption<bool>
     {
         private CliAction? _action;

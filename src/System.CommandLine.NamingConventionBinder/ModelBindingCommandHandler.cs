@@ -129,7 +129,4 @@ public class ModelBindingCommandHandler : BindingHandler
                : _methodDescriptor.ParameterDescriptors
                                   .FirstOrDefault(x => x.ValueName == param.Name &&
                                                        x.ValueType == param.ParameterType);
-
-    /// <inheritdoc />
-    public override int Invoke(ParseResult parseResult) => InvokeAsync(parseResult, CancellationToken.None).GetAwaiter().GetResult();
 }

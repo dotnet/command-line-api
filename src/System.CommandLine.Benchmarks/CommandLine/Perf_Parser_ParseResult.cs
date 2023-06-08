@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Benchmarks.Helpers;
+using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -60,7 +61,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             // clear the contents, so each benchmark has the same starting state
             stringBuilder.Clear();
 
-            parseResult.Value.Action!.Invoke(parseResult.Value);
+            ((SynchronousCliAction)parseResult.Value.Action)!.Invoke(parseResult.Value);
 
             return stringBuilder.ToString();
         }
@@ -74,7 +75,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
             // clear the contents, so each benchmark has the same starting state
             stringBuilder.Clear();
 
-            await parseResult.Value.Action!.InvokeAsync(parseResult.Value);
+            await ((AsynchronousCliAction)parseResult.Value.Action!).InvokeAsync(parseResult.Value);
 
             return stringBuilder.ToString();
         }

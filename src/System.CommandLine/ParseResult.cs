@@ -21,7 +21,7 @@ namespace System.CommandLine
         private readonly IReadOnlyList<CliToken> _unmatchedTokens;
         private CompletionContext? _completionContext;
         private readonly CliAction? _action;
-        private readonly List<CliAction>? _nonexclusiveActions;
+        private readonly List<CliAction>? _preActions;
         private Dictionary<string, SymbolResult?>? _namedResults;
 
         internal ParseResult(
@@ -33,13 +33,13 @@ namespace System.CommandLine
             List<ParseError>? errors,
             string? commandLineText = null,
             CliAction? action = null,
-            List<CliAction>? nonexclusiveActions = null)
+            List<CliAction>? preActions = null)
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
             _action = action;
-            _nonexclusiveActions = nonexclusiveActions;
+            _preActions = preActions;
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
@@ -197,7 +197,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override string ToString() => DiagramAction.Diagram(this).ToString();
+        public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
 
         /// <summary>
         /// Gets the result, if any, for the specified argument.
@@ -297,7 +297,36 @@ namespace System.CommandLine
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
         /// <returns>A value that can be used as a process exit code.</returns>
-        public int Invoke() => InvocationPipeline.Invoke(this);
+        public int Invoke()
+        {
+            var useAsync = false;
+
+            if (Action is AsynchronousCliAction)
+            {
+                useAsync = true;
+            }
+            else if (PreActions is not null)
+            {
+                for (var i = 0; i < PreActions.Count; i++)
+                {
+                    var action = PreActions[i];
+                    if (action is AsynchronousCliAction)
+                    {
+                        useAsync = true;
+                        break;
+                    }
+                }
+            }
+
+            if (useAsync)
+            {
+                return InvocationPipeline.InvokeAsync(this, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return InvocationPipeline.Invoke(this);
+            }
+        }
 
         /// <summary>
         /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
@@ -305,7 +334,7 @@ namespace System.CommandLine
         /// </summary>
         public CliAction? Action => _action ?? CommandResult.Command.Action;
 
-        internal IReadOnlyList<CliAction>? NonexclusiveActions => _nonexclusiveActions;
+        internal IReadOnlyList<CliAction>? PreActions => _preActions;
 
         private SymbolResult SymbolToComplete(int? position = null)
         {

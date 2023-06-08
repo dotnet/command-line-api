@@ -447,7 +447,7 @@ namespace System.CommandLine.Tests.Help
                     commandWithCustomHelp
                 };
 
-                command.Options.OfType<HelpOption>().Single().Action = new HelpAction()
+                command.Options.OfType<HelpOption>().Single().Action = new HelpAction
                 {
                     Builder = helpBuilder
                 };

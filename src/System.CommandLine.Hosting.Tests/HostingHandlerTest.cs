@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.CommandLine.Invocation;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -101,8 +102,8 @@ namespace System.CommandLine.Hosting.Tests
             var service = new MyService();
 
             var cmd = new CliRootCommand();
-            cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyDerivedHandler>());
-            cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedHandler>());
+            cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyDerivedCliAction>());
+            cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedCliAction>());
             var config = new CliConfiguration(cmd)
                          .UseHost((builder) => {
                              builder.ConfigureServices(services =>
@@ -118,14 +119,9 @@ namespace System.CommandLine.Hosting.Tests
             service.StringValue.Should().Be("TEST");
         }
 
-        public abstract class MyBaseHandler : CliAction
+        public abstract class MyBaseCliAction : AsynchronousCliAction
         {
             public int IntOption { get; set; } // bound from option
-
-            public override int Invoke(ParseResult context)
-            {
-                return Act();
-            }
 
             public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             {
@@ -142,7 +138,7 @@ namespace System.CommandLine.Hosting.Tests
                 Options.Add(new CliOption<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
 
-            public class MyHandler : CliAction
+            public class MyHandler : AsynchronousCliAction
             {
                 private readonly MyService service;
 
@@ -152,13 +148,7 @@ namespace System.CommandLine.Hosting.Tests
                 }
 
                 public int IntOption { get; set; } // bound from option
-
-                public override int Invoke(ParseResult context)
-                {
-                    service.Value = IntOption;
-                    return IntOption;
-                }
-
+                
                 public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
@@ -166,11 +156,11 @@ namespace System.CommandLine.Hosting.Tests
                 }
             }
 
-            public class MyDerivedHandler : MyBaseHandler
+            public class MyDerivedCliAction : MyBaseCliAction
             {
                 private readonly MyService service;
 
-                public MyDerivedHandler(MyService service)
+                public MyDerivedCliAction(MyService service)
                 {
                     this.service = service;
                 }
@@ -191,7 +181,7 @@ namespace System.CommandLine.Hosting.Tests
                 Arguments.Add(new CliArgument<string>("One") {  Arity = ArgumentArity.ZeroOrOne });
             }
 
-            public class MyHandler : CliAction
+            public class MyHandler : AsynchronousCliAction
             {
                 private readonly MyService service;
 
@@ -203,9 +193,7 @@ namespace System.CommandLine.Hosting.Tests
                 public int IntOption { get; set; } // bound from option
 
                 public string One { get; set; }
-
-                public override int Invoke(ParseResult context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
-
+                
                 public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
@@ -214,11 +202,11 @@ namespace System.CommandLine.Hosting.Tests
                 }
             }
 
-            public class MyDerivedHandler : MyBaseHandler
+            public class MyDerivedCliAction : MyBaseCliAction
             {
                 private readonly MyService service;
 
-                public MyDerivedHandler(MyService service)
+                public MyDerivedCliAction(MyService service)
                 {
                     this.service = service;
                 }

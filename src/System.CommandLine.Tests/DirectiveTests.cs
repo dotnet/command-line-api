@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -67,14 +66,21 @@ namespace System.CommandLine.Tests
             var commandActionWasCalled = false;
             var directiveCallCount = 0;
 
+            Action<ParseResult> incrementCallCount = _ => directiveCallCount++;
+            Action<ParseResult> verifyActionWasCalled = _ => commandActionWasCalled = true;
+
             var testDirective = new TestDirective("test")
             {
-                Action = new NonexclusiveTestAction(_ => directiveCallCount++)
+                Action = invokeAsync
+                             ? new AsynchronousTestAction(incrementCallCount, terminating: false)
+                             : new SynchronousTestAction(incrementCallCount, terminating: false)
             };
 
             var config = new CliConfiguration(new CliRootCommand
             {
-                Action = new NonexclusiveTestAction(_ => commandActionWasCalled = true)
+                Action = invokeAsync
+                             ? new AsynchronousTestAction(verifyActionWasCalled, terminating: false)
+                             : new SynchronousTestAction(verifyActionWasCalled, terminating: false)
             })
             {
                 Directives = { testDirective }
@@ -106,15 +112,15 @@ namespace System.CommandLine.Tests
 
             var directiveOne = new TestDirective("one")
             {
-                Action = new NonexclusiveTestAction(_ => directiveOneActionWasCalled = true)
+                Action = new SynchronousTestAction(_ => directiveOneActionWasCalled = true, terminating: false)
             };
             var directiveTwo = new TestDirective("two")
             {
-                Action = new NonexclusiveTestAction(_ => directiveTwoActionWasCalled = true)
+                Action = new SynchronousTestAction(_ => directiveTwoActionWasCalled = true, terminating: false)
             };
             var config = new CliConfiguration(new CliRootCommand
             {
-                Action = new NonexclusiveTestAction(_ => commandActionWasCalled = true)
+                Action = new SynchronousTestAction(_ => commandActionWasCalled = true, terminating: false)
             })
             {
                 Directives = { directiveOne, directiveTwo }
@@ -140,29 +146,6 @@ namespace System.CommandLine.Tests
         {
             public TestDirective(string name) : base(name)
             {
-            }
-        }
-
-        private class NonexclusiveTestAction : CliAction
-        {
-            private readonly Action<ParseResult> _invoke;
-
-            public NonexclusiveTestAction(Action<ParseResult> invoke)
-            {
-                _invoke = invoke;
-                Exclusive = false;
-            }
-
-            public override int Invoke(ParseResult parseResult)
-            {
-                _invoke(parseResult);
-                return 0;
-            }
-
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-            {
-                ;
-                return Task.FromResult(Invoke(parseResult));
             }
         }
 

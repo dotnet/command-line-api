@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
@@ -14,8 +14,6 @@ public static class BindingContextExtensions
 {
     private sealed class DummyStateHoldingHandler : BindingHandler
     {
-        public override int Invoke(ParseResult parseResult) => 0;
-
         public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default) => Task.FromResult(0);
     }
 

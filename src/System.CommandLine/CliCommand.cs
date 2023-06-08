@@ -110,7 +110,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(context =>
+            Action = new AnonymousSynchronousCliAction(context =>
             {
                 action(context);
                 return 0;
@@ -128,7 +128,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(action);
+            Action = new AnonymousSynchronousCliAction(action);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(async (context, cancellationToken) =>
+            Action = new AnonymousAsynchronousCliAction(async (context, cancellationToken) =>
             {
                 await action(context, cancellationToken);
                 return 0;
@@ -159,33 +159,29 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(action);
+            Action = new AnonymousAsynchronousCliAction(action);
         }
 
         /// <summary>
-        /// Adds a <see cref="CliSymbol"/> to the command.
+        /// Adds a <see cref="CliArgument"/> to the command.
         /// </summary>
-        /// <param name="symbol">The symbol to add to the command.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# duck typing
-        public void Add(CliSymbol symbol)
-        {
-            // this method exists so users can use C# duck typing for adding symbols to the Command:
-            // new Command { option };
-            switch (symbol)
-            {
-                case CliOption option:
-                    Options.Add(option);
-                    break;
-                case CliArgument argument:
-                    Arguments.Add(argument);
-                    break;
-                case CliCommand command:
-                    Subcommands.Add(command);
-                    break;
-                default:
-                    throw new NotSupportedException();
-            }
-        }
+        /// <param name="argument">The option to add to the command.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer support
+        public void Add(CliArgument argument) =>  Arguments.Add(argument);
+        
+        /// <summary>
+        /// Adds a <see cref="CliOption"/> to the command.
+        /// </summary>
+        /// <param name="option">The option to add to the command.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer support
+        public void Add(CliOption option) =>  Options.Add(option);
+
+        /// <summary>
+        /// Adds a <see cref="CliCommand"/> to the command.
+        /// </summary>
+        /// <param name="command">The Command to add to the command.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer support
+        public void Add(CliCommand command) =>  Subcommands.Add(command);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,

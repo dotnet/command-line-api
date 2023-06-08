@@ -1,13 +1,15 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace System.CommandLine
 {
+    /// <summary>
+    /// A standard option that indicates that version information should be displayed for the app.
+    /// </summary>
     public sealed class VersionOption : CliOption<bool>
     {
         private CliAction? _action;
@@ -41,38 +43,22 @@ namespace System.CommandLine
             Validators.Add(static result =>
             {
                 if (result.Parent is CommandResult parent &&
-                    parent.Children.Where(r => !(r is OptionResult optionResult && optionResult.Option is VersionOption))
-                          .Any(NotImplicit))
+                    parent.Children.Any(r => r is not OptionResult { Option: VersionOption }))
                 {
                     result.AddError(LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.IdentifierToken?.Value ?? result.Option.Name));
                 }
             });
         }
 
-        private static bool NotImplicit(SymbolResult symbolResult)
-        {
-            return symbolResult switch
-            {
-                ArgumentResult argumentResult => !argumentResult.Implicit,
-                OptionResult optionResult => !optionResult.Implicit,
-                _ => true
-            };
-        }
-
         internal override bool Greedy => false;
 
-        private sealed class VersionOptionAction : CliAction
+        private sealed class VersionOptionAction : SynchronousCliAction
         {
             public override int Invoke(ParseResult parseResult)
             {
                 parseResult.Configuration.Output.WriteLine(CliRootCommand.ExecutableVersion);
                 return 0;
             }
-
-            public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-                => cancellationToken.IsCancellationRequested
-                    ? Task.FromCanceled<int>(cancellationToken)
-                    : Task.FromResult(Invoke(parseResult));
         }
     }
 }
