@@ -60,7 +60,6 @@ System.CommandLine
     .ctor(CliCommand rootCommand)
     public System.Collections.Generic.List<CliDirective> Directives { get; }
     public System.Boolean EnableDefaultExceptionHandler { get; set; }
-    public System.Boolean EnableParseErrorReporting { get; set; }
     public System.Boolean EnablePosixBundling { get; set; }
     public System.IO.TextWriter Error { get; set; }
     public System.IO.TextWriter Output { get; set; }
