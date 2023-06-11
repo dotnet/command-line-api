@@ -12,7 +12,7 @@ namespace System.CommandLine
         internal readonly CliArgument<T> _argument;
 
         /// <summary>
-        /// Initializes a new instance of the Option class.
+        /// Initializes a new instance of the <see cref="CliOption"/> class.
         /// </summary>
         /// <param name="name">The name of the option. It's used for parsing, displaying Help and creating parse errors.</param>>
         /// <param name="aliases">Optional aliases. Used for parsing, suggestions and displayed in Help.</param>
