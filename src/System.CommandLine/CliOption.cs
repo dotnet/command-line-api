@@ -35,6 +35,11 @@ namespace System.CommandLine
         internal abstract CliArgument Argument { get; }
 
         /// <summary>
+        /// Specifies if a default value is defined for the option.
+        /// </summary>
+        public bool HasDefaultValue => Argument.HasDefaultValue;
+
+        /// <summary>
         /// Gets or sets the name of the Option when displayed in help.
         /// </summary>
         /// <value>
