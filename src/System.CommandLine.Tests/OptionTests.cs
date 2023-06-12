@@ -4,14 +4,30 @@
 using System.CommandLine.Parsing;
 using FluentAssertions;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests
 {
     public partial class OptionTests
     {
+        [Fact]
+        public void By_default_there_is_no_default_value()
+        {
+            CliOption<string> option = new("name");
+
+            option.HasDefaultValue.Should().BeFalse();
+        }
+
+        [Fact]
+        public void When_default_value_factory_is_set_then_HasDefaultValue_is_true()
+        {
+            CliOption<string[]> option = new("name");
+
+            option.DefaultValueFactory = (_) => Array.Empty<string>();
+
+            option.HasDefaultValue.Should().BeTrue();
+        }
+
         [Fact]
         public void When_an_option_has_only_name_then_it_has_no_aliases()
         {

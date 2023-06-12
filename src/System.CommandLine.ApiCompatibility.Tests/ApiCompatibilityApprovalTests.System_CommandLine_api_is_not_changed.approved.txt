@@ -85,6 +85,7 @@ System.CommandLine
     public System.Boolean AllowMultipleArgumentsPerToken { get; set; }
     public ArgumentArity Arity { get; set; }
     public System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> CompletionSources { get; }
+    public System.Boolean HasDefaultValue { get; }
     public System.String HelpName { get; set; }
     public System.Boolean Recursive { get; set; }
     public System.Boolean Required { get; set; }
