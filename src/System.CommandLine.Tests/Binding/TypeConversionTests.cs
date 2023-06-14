@@ -8,20 +8,19 @@ using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
 {
     public class TypeConversionTests
     {
-        protected virtual T GetValue<T>(CliOption<T> option, string commandLine)
+        protected T GetValue<T>(CliOption<T> option, string commandLine)
         {
             var result = new CliRootCommand { option }.Parse(commandLine);
             return result.GetValue(option);
         }
 
-        protected virtual T GetValue<T>(CliArgument<T> argument, string commandLine)
+        protected T GetValue<T>(CliArgument<T> argument, string commandLine)
         {
             var result = new CliRootCommand { argument }.Parse(commandLine);
             return result.GetValue(argument);
