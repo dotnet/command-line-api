@@ -63,7 +63,7 @@ namespace System.CommandLine
         internal bool HasArguments => _arguments is not null && _arguments.Count > 0 ;
 
         /// <summary>
-        /// Represents all of the options for the command, including global options that have been applied to any of the command's ancestors.
+        /// Represents all of the options for the command, inherited options that have been applied to any of the command's ancestors.
         /// </summary>
         public IList<CliOption> Options => _options ??= new (this);
 

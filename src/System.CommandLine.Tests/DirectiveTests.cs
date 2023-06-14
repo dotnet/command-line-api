@@ -49,8 +49,8 @@ namespace System.CommandLine.Tests
             CliDirective parseDirective = new ("parse");
             CliDirective suggestDirective = new ("suggest");
             CliConfiguration config = new(root);
-            config.Directives.Add(parseDirective);
-            config.Directives.Add(suggestDirective);
+            root.Add(parseDirective);
+            root.Add(suggestDirective);
 
             var result = root.Parse("[parse] [suggest] -y", config);
 
@@ -80,11 +80,9 @@ namespace System.CommandLine.Tests
             {
                 Action = invokeAsync
                              ? new AsynchronousTestAction(verifyActionWasCalled, terminating: false)
-                             : new SynchronousTestAction(verifyActionWasCalled, terminating: false)
-            })
-            {
+                             : new SynchronousTestAction(verifyActionWasCalled, terminating: false),
                 Directives = { testDirective }
-            };
+            });
 
             if (invokeAsync)
             {
@@ -120,11 +118,8 @@ namespace System.CommandLine.Tests
             };
             var config = new CliConfiguration(new CliRootCommand
             {
-                Action = new SynchronousTestAction(_ => commandActionWasCalled = true, terminating: false)
-            })
-            {
-                Directives = { directiveOne, directiveTwo }
-            };
+                Action = new SynchronousTestAction(_ => commandActionWasCalled = true, terminating: false), Directives = { directiveOne, directiveTwo }
+            });
 
             if (invokeAsync)
             {
@@ -218,7 +213,7 @@ namespace System.CommandLine.Tests
         {
             CliRootCommand root = new() { option };
             CliConfiguration config = new(root);
-            config.Directives.Add(directive);
+            root.Directives.Add(directive);
 
             return root.Parse(commandLine, config);
         }

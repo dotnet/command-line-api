@@ -294,7 +294,7 @@ namespace System.CommandLine.Parsing
         {
             while (More(out CliTokenType currentTokenType) && currentTokenType == CliTokenType.Directive)
             {
-                if (_configuration.Directives.Count > 0)
+                if (_configuration.HasDirectives)
                 {
                     ParseDirective(); // kept in separate method to avoid JIT
                 }

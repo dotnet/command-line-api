@@ -16,17 +16,10 @@ namespace System.CommandLine.Tests
 {
     public partial class ParserTests
     {
-        private readonly ITestOutputHelper _output;
-
-        public ParserTests(ITestOutputHelper output)
-        {
-            _output = output;
-        }
-
-        protected virtual T GetValue<T>(ParseResult parseResult, CliOption<T> option)
+        private T GetValue<T>(ParseResult parseResult, CliOption<T> option)
             => parseResult.GetValue(option);
 
-        protected virtual T GetValue<T>(ParseResult parseResult, CliArgument<T> argument)
+        private T GetValue<T>(ParseResult parseResult, CliArgument<T> argument)
             => parseResult.GetValue(argument);
 
         [Fact]
@@ -1143,8 +1136,6 @@ namespace System.CommandLine.Tests
 
             var result = root.Parse("-a subcommand");
 
-            _output.WriteLine(result.ToString());
-
             GetValue(result, optionA).Should().Be("subcommand");
             result.CommandResult.Command.Should().BeSameAs(root);
         }
@@ -1246,8 +1237,6 @@ namespace System.CommandLine.Tests
             };
 
             var result = command.Parse("-x -x -x -y -y -x -y -y -y -x -x -y");
-
-            _output.WriteLine(result.Diagram());
 
             GetValue(result, optionX).Should().BeEquivalentTo(new[] { "-x", "-y", "-y" });
             GetValue(result, optionY).Should().BeEquivalentTo(new[] { "-x", "-y", "-x" });
@@ -1620,7 +1609,7 @@ namespace System.CommandLine.Tests
         {
             var option = new CliOption<string>("--exec-prefix")
             {
-                DefaultValueFactory = (_) => "/usr/local"
+                DefaultValueFactory = _ => "/usr/local"
             };
 
             var rootCommand = new CliRootCommand

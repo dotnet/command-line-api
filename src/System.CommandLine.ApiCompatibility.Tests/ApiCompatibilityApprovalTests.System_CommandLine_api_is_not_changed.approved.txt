@@ -58,7 +58,6 @@ System.CommandLine
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
   public class CliConfiguration
     .ctor(CliCommand rootCommand)
-    public System.Collections.Generic.List<CliDirective> Directives { get; }
     public System.Boolean EnableDefaultExceptionHandler { get; set; }
     public System.Boolean EnablePosixBundling { get; set; }
     public System.IO.TextWriter Error { get; set; }
@@ -103,6 +102,8 @@ System.CommandLine
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
+    public System.Collections.Generic.IList<CliDirective> Directives { get; }
+    public System.Void Add(CliDirective directive)
   public abstract class CliSymbol
     public System.String Description { get; set; }
     public System.Boolean Hidden { get; set; }

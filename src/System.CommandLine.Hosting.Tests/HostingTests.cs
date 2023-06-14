@@ -150,7 +150,7 @@ namespace System.CommandLine.Hosting.Tests
         }
 
         [Fact]
-        public async static Task UseHost_flows_config_directives_to_HostConfiguration()
+        public static async Task UseHost_flows_config_directives_to_HostConfiguration()
         {
             const string testKey = "Test";
             const string testValue = "Value";

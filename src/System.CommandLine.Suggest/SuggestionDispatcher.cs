@@ -71,14 +71,7 @@ namespace System.CommandLine.Suggest
                 CompleteScriptCommand,
             };
             root.TreatUnmatchedTokensAsErrors = false;
-            Configuration = new CliConfiguration(root)
-            {
-                Directives =
-                {
-                    new DiagramDirective(),
-                    new SuggestDirective(),
-                }
-            };
+            Configuration = new CliConfiguration(root);
         }
 
         private CliCommand CompleteScriptCommand { get; }
