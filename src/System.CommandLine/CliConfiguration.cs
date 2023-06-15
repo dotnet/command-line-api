@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
-using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 
 namespace System.CommandLine
@@ -26,17 +25,14 @@ namespace System.CommandLine
         public CliConfiguration(CliCommand rootCommand)
         {
             RootCommand = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
-            Directives = new()
-            {
-                new SuggestDirective()
-            };
         }
 
-        /// <summary>
-        /// Gets a mutable list of the enabled directives.
-        /// Currently only <see cref="SuggestDirective"/> is enabled by default.
-        /// </summary>
-        public List<CliDirective> Directives { get; }
+        internal bool HasDirectives =>
+            RootCommand switch
+            {
+                CliRootCommand root => root.Directives.Count > 0,
+                _ => false
+            };
 
         /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.

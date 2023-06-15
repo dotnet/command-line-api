@@ -853,10 +853,7 @@ namespace System.CommandLine.Tests
                          {
                              new CliOption<string>("--allows-one"),
                              new CliOption<string[]>("--allows-many")
-                         })
-            {
-                Directives = { new SuggestDirective() } 
-            };
+                         });
 
             var completions = configuration.Parse("--allows-one ").GetCompletions();
 

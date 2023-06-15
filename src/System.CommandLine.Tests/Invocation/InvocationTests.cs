@@ -287,12 +287,13 @@ namespace System.CommandLine.Tests.Invocation
                 Action = directiveAction
             };
 
-            CliCommand command = new CliCommand("cmd")
+            CliRootCommand command = new("cmd")
             {
-                new CliOption<bool>("-x") { Action = optionAction }
+                new CliOption<bool>("-x") { Action = optionAction },
+                directive
             };
 
-            ParseResult parseResult = command.Parse("[directive] cmd -x", new CliConfiguration(command) { Directives = { directive } });
+            ParseResult parseResult = command.Parse("[directive] cmd -x", new CliConfiguration(command));
 
             using var _ = new AssertionScope();
 
