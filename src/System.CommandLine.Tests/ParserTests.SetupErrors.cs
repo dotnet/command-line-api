@@ -32,7 +32,7 @@ public partial class ParserTests
             rootCommand.Invoking(c => c.Parse("")).Should().Throw<ArgumentException>();
         }
 
-        [Fact(Skip = "")]
+        [Fact(Skip = "https://github.com/dotnet/command-line-api/issues/2223")]
         public void When_command_names_collide_with_option_names_it_throws_on_parse()
         {
             var rootCommand = new CliRootCommand();
@@ -42,7 +42,7 @@ public partial class ParserTests
             rootCommand.Invoking(c => c.Parse("")).Should().Throw<ArgumentException>();
         }
 
-        [Fact(Skip = "")]
+        [Fact(Skip = "https://github.com/dotnet/command-line-api/issues/2223")]
         public void When_command_names_collide_with_option_aliases_it_throws_on_parse()
         {
             var rootCommand = new CliRootCommand();
