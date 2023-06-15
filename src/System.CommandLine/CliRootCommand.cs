@@ -38,7 +38,6 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the directives that are valid under the root command.
         /// </summary>
-        // FIX: (Directives) change to IList
         public IList<CliDirective> Directives { get; }
 
         /// <summary>
