@@ -387,13 +387,13 @@ namespace System.CommandLine.Tests.Help
 
                 parseResult.Invoke();
 
-                config.Output.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}{NewLine}");
+                config.Output.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}");
 
-                IEnumerable<Action<HelpContext>> CustomLayout(HelpContext _)
+                IEnumerable<Func<HelpContext, bool>> CustomLayout(HelpContext _)
                 {
-                    yield return ctx => ctx.Output.WriteLine("one");
-                    yield return ctx => ctx.Output.WriteLine("two");
-                    yield return ctx => ctx.Output.WriteLine("three");
+                    yield return ctx => { ctx.Output.WriteLine("one"); return true; };
+                    yield return ctx => { ctx.Output.WriteLine("two"); return true; };
+                    yield return ctx => { ctx.Output.WriteLine("three"); return true; };
                 }
             }
 
@@ -418,20 +418,20 @@ namespace System.CommandLine.Tests.Help
 
                 var output = config.Output.ToString();
 
-                var expected = $"first{NewLine}{NewLine}{defaultHelp}last{NewLine}{NewLine}";
+                var expected = $"first{NewLine}{NewLine}{defaultHelp}{NewLine}last{NewLine}{NewLine}";
 
                 output.Should().Be(expected);
 
-                IEnumerable<Action<HelpContext>> CustomLayout(HelpContext _)
+                IEnumerable<Func<HelpContext, bool>> CustomLayout(HelpContext _)
                 {
-                    yield return ctx => ctx.Output.WriteLine("first");
+                    yield return ctx => { ctx.Output.WriteLine("first"); return true; };
 
                     foreach (var section in HelpBuilder.Default.GetLayout())
                     {
                         yield return section;
                     }
 
-                    yield return ctx => ctx.Output.WriteLine("last");
+                    yield return ctx => { ctx.Output.WriteLine("last"); return true; };
                 }
             }
 
@@ -454,13 +454,10 @@ namespace System.CommandLine.Tests.Help
 
                 var config = new CliConfiguration(command);
                 helpBuilder.CustomizeLayout(c =>
-                                                c.Command == commandWithTypicalHelp
-                                                    ? HelpBuilder.Default.GetLayout()
-                                                    : new Action<HelpContext>[]
-                                                        {
-                                                            c => c.Output.WriteLine("Custom layout!")
-                                                        }
-                                                        .Concat(HelpBuilder.Default.GetLayout()));
+                    c.Command == commandWithTypicalHelp
+                        ? HelpBuilder.Default.GetLayout()
+                        : new Func<HelpContext, bool>[] { c => { c.Output.WriteLine("Custom layout!"); return true; } }
+                            .Concat(HelpBuilder.Default.GetLayout()));
 
                 var typicalOutput = new StringWriter();
                 config.Output = typicalOutput;
@@ -509,7 +506,7 @@ namespace System.CommandLine.Tests.Help
                     $"  <option>   description{NewLine}" +
                     $"  -?, -h,    Show help and {NewLine}" +
                     $"  --help     usage {NewLine}" +
-                    $"             information{NewLine}{NewLine}{NewLine}");
+                    $"             information{NewLine}{NewLine}");
             }
 
             [Fact]
@@ -531,11 +528,11 @@ namespace System.CommandLine.Tests.Help
                 parseResult.Invoke();
 
                 string result = config.Output.ToString();
-                result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}{NewLine}");
+                result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}");
 
-                IEnumerable<Action<HelpContext>> CustomLayout(HelpContext _)
+                IEnumerable<Func<HelpContext, bool>> CustomLayout(HelpContext _)
                 {
-                    yield return ctx => ctx.HelpBuilder.WriteColumns(new[] { new TwoColumnHelpRow("12345678", "1234567890") }, ctx);
+                    yield return ctx => { ctx.HelpBuilder.WriteColumns(new[] { new TwoColumnHelpRow("12345678", "1234567890") }, ctx); return true; };
                 }
             }
 

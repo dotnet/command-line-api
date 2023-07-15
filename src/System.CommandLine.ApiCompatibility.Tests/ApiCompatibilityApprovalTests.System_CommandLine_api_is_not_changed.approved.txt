@@ -184,7 +184,7 @@ System.CommandLine.Help
   public class HelpBuilder
     .ctor(System.Int32 maxWidth = 2147483647)
     public System.Int32 MaxWidth { get; }
-    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Action<HelpContext>>> getLayout)
+    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Func<HelpContext,System.Boolean>>> getLayout)
     public System.Void CustomizeSymbol(System.CommandLine.CliSymbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
     public System.Void CustomizeSymbol(System.CommandLine.CliSymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.CliSymbol symbol, HelpContext context)
@@ -192,18 +192,18 @@ System.CommandLine.Help
     public System.Void Write(System.CommandLine.CliCommand command, System.IO.TextWriter writer)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
    static class Default
-    public static System.Action<HelpContext> AdditionalArgumentsSection()
-    public static System.Action<HelpContext> CommandArgumentsSection()
-    public static System.Action<HelpContext> CommandUsageSection()
+    public static System.Func<HelpContext,System.Boolean> AdditionalArgumentsSection()
+    public static System.Func<HelpContext,System.Boolean> CommandArgumentsSection()
+    public static System.Func<HelpContext,System.Boolean> CommandUsageSection()
     public static System.String GetArgumentDefaultValue(System.CommandLine.CliArgument argument)
     public static System.String GetArgumentDescription(System.CommandLine.CliArgument argument)
     public static System.String GetArgumentUsageLabel(System.CommandLine.CliArgument argument)
     public static System.String GetCommandUsageLabel(System.CommandLine.CliCommand symbol)
-    public static System.Collections.Generic.IEnumerable<System.Action<HelpContext>> GetLayout()
+    public static System.Collections.Generic.IEnumerable<System.Func<HelpContext,System.Boolean>> GetLayout()
     public static System.String GetOptionUsageLabel(System.CommandLine.CliOption symbol)
-    public static System.Action<HelpContext> OptionsSection()
-    public static System.Action<HelpContext> SubcommandsSection()
-    public static System.Action<HelpContext> SynopsisSection()
+    public static System.Func<HelpContext,System.Boolean> OptionsSection()
+    public static System.Func<HelpContext,System.Boolean> SubcommandsSection()
+    public static System.Func<HelpContext,System.Boolean> SynopsisSection()
   public class HelpContext
     .ctor(HelpBuilder helpBuilder, System.CommandLine.CliCommand command, System.IO.TextWriter output, System.CommandLine.ParseResult parseResult = null)
     public System.CommandLine.CliCommand Command { get; }
