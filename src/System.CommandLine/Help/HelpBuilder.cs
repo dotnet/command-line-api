@@ -16,7 +16,7 @@ namespace System.CommandLine.Help
         private const string Indent = "  ";
 
         private Dictionary<CliSymbol, Customization>? _customizationsBySymbol;
-        private Func<HelpContext, IEnumerable<Action<HelpContext>>>? _getLayout;
+        private Func<HelpContext, IEnumerable<Func<HelpContext, bool>>>? _getLayout;
 
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
         public HelpBuilder(int maxWidth = int.MaxValue)
@@ -50,15 +50,11 @@ namespace System.CommandLine.Help
 
             foreach (var writeSection in GetLayout(context))
             {
-                writeSection(context);
-
-                if (!context.WasSectionSkipped)
+                if (writeSection(context))
                 {
                     context.Output.WriteLine();
                 }
             }
-
-            context.Output.WriteLine();
         }
 
         /// <summary>
@@ -86,8 +82,11 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Customizes the help sections that will be displayed.
         /// </summary>
-        /// <param name="getLayout">A delegate that returns the sections in the order in which they should be written.</param>
-        public void CustomizeLayout(Func<HelpContext, IEnumerable<Action<HelpContext>>> getLayout)
+        /// <param name="getLayout">
+        /// A delegate that returns the sections in the order in which they should be written.<br/>
+        /// The section delegate should return false if the section is empty, true otherwise.
+        /// </param>
+        public void CustomizeLayout(Func<HelpContext, IEnumerable<Func<HelpContext, bool>>> getLayout)
         {
             _getLayout = getLayout ?? throw new ArgumentNullException(nameof(getLayout));
         }
@@ -149,30 +148,27 @@ namespace System.CommandLine.Help
                 .Select(a => GetTwoColumnRow(a, context))
                 .Distinct();
 
-        private void WriteSubcommands(HelpContext context)
+        private bool WriteSubcommands(HelpContext context)
         {
             var subcommands = context.Command.Subcommands.Where(x => !x.Hidden).Select(x => GetTwoColumnRow(x, context)).ToArray();
-
-            if (subcommands.Length <= 0)
+            if (subcommands.Length > 0)
             {
-                context.WasSectionSkipped = true;
-                return;
+                WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
+                WriteColumns(subcommands, context);
+                return true;
             }
-
-            WriteHeading(LocalizationResources.HelpCommandsTitle(), null, context.Output);
-            WriteColumns(subcommands, context);
+            return false;
         }
 
-        private void WriteAdditionalArguments(HelpContext context)
+        private bool WriteAdditionalArguments(HelpContext context)
         {
-            if (context.Command.TreatUnmatchedTokensAsErrors)
+            if (!context.Command.TreatUnmatchedTokensAsErrors)
             {
-                context.WasSectionSkipped = true;
-                return;
+                WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
+                             LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
+                return true;
             }
-
-            WriteHeading(LocalizationResources.HelpAdditionalArgumentsTitle(),
-                         LocalizationResources.HelpAdditionalArgumentsDescription(), context.Output);
+            return false;
         }
 
         private void WriteHeading(string? heading, string? description, TextWriter writer)
@@ -311,7 +307,7 @@ namespace System.CommandLine.Help
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
-        private IEnumerable<Action<HelpContext>> GetLayout(HelpContext context)
+        private IEnumerable<Func<HelpContext, bool>> GetLayout(HelpContext context)
         {
             if (_getLayout is null)
             {
