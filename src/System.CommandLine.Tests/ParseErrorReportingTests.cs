@@ -9,7 +9,6 @@ using Xunit;
 using System.CommandLine.Tests.Utility;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions.Execution;
 
 namespace System.CommandLine.Tests;
 
