@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.CommandLine.Help;
 using System.Linq;
+using System.Threading;
 
 namespace System.CommandLine.Invocation;
 
@@ -59,7 +60,30 @@ public sealed class ParseErrorAction : SynchronousCliAction
 
     private static void WriteHelp(ParseResult parseResult)
     {
-        new HelpAction().Invoke(parseResult);
+        var availableHelpOptions =
+            parseResult
+                .CommandResult
+                .Command
+                .RecurseWhileNotNull(c => c.Parents.OfType<CliCommand>().FirstOrDefault())
+                .Select(c => c.Options.OfType<HelpOption>().FirstOrDefault());
+
+        if (availableHelpOptions.FirstOrDefault() is { Action: not null } helpOption)
+        {
+            switch (helpOption.Action)
+            {
+                case SynchronousCliAction syncAction:
+                    syncAction.Invoke(parseResult);
+                    break;
+
+                case AsynchronousCliAction asyncAction:
+                    asyncAction.InvokeAsync(parseResult, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+                    break;
+            }
+        }
+        else
+        {
+            new HelpAction().Invoke(parseResult);
+        }
     }
 
     private static void WriteTypoCorrectionSuggestions(ParseResult parseResult)
