@@ -320,7 +320,7 @@ namespace System.CommandLine
 
             if (useAsync)
             {
-                return InvocationPipeline.InvokeAsync(this, CancellationToken.None).GetAwaiter().GetResult();
+                return InvocationPipeline.InvokeAsync(this, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
             }
             else
             {

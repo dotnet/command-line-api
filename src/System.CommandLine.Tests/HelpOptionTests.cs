@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using System.CommandLine.Help;
+using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
@@ -70,7 +71,7 @@ namespace System.CommandLine.Tests
 
             await config.InvokeAsync($"command {value}");
 
-            console.ToString().Should().Contain("Usage:");
+            console.ToString().Should().ShowHelp();
         }
 
         [Fact]
@@ -86,7 +87,7 @@ namespace System.CommandLine.Tests
 
             await command.Parse("command -h", config).InvokeAsync();
 
-            config.Output.ToString().Should().BeEmpty();
+            config.Output.ToString().Should().NotShowHelp();
         }
 
         [Fact]
@@ -161,7 +162,7 @@ namespace System.CommandLine.Tests
 
             await config.InvokeAsync(helpAlias);
 
-            config.Output.ToString().Should().Contain("Usage:");
+            config.Output.ToString().Should().ShowHelp();
         }
 
         [Theory]
@@ -170,7 +171,7 @@ namespace System.CommandLine.Tests
         [InlineData("--help")]
         [InlineData("-?")]
         [InlineData("/?")]
-        public async Task Help_option_with_custom_aliases_default_aliases_replaced(string helpAlias)
+        public async Task Help_option_with_custom_aliases_does_not_recognize_default_aliases(string helpAlias)
         {
             CliRootCommand command = new();
             command.Options.Clear();
