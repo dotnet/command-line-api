@@ -86,6 +86,22 @@ public class ParseErrorReportingTests
         wasCalled.Should().BeTrue();
     }
 
+    [Fact]
+    public void When_no_help_option_is_present_then_help_is_not_shown_for_parse_errors()
+    {
+        CliRootCommand rootCommand = new();
+        rootCommand.Options.Clear();
+        var output = new StringWriter();
+        CliConfiguration config = new(rootCommand)
+        {
+            Output = output
+        };
+
+        config.Parse("oops").Invoke();
+
+        output.ToString().Should().NotShowHelp();
+    }
+
     private class SynchronousCustomHelpAction : SynchronousCliAction
     {
         private readonly Action _onInvoke;
