@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Help;
+using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading;
 
@@ -60,12 +61,12 @@ public sealed class ParseErrorAction : SynchronousCliAction
 
     private static void WriteHelp(ParseResult parseResult)
     {
+        // Find the most proximate help option (if any) and invoke its action.
         var availableHelpOptions =
             parseResult
                 .CommandResult
-                .Command
-                .RecurseWhileNotNull(c => c.Parents.OfType<CliCommand>().FirstOrDefault())
-                .Select(c => c.Options.OfType<HelpOption>().FirstOrDefault());
+                .RecurseWhileNotNull(r => r.Parent as CommandResult)
+                .Select(r => r.Command.Options.OfType<HelpOption>().FirstOrDefault());
 
         if (availableHelpOptions.FirstOrDefault() is { Action: not null } helpOption)
         {
@@ -79,10 +80,6 @@ public sealed class ParseErrorAction : SynchronousCliAction
                     asyncAction.InvokeAsync(parseResult, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
             }
-        }
-        else
-        {
-            new HelpAction().Invoke(parseResult);
         }
     }
 
