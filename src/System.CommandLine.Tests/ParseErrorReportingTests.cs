@@ -7,7 +7,7 @@ using System.IO;
 using FluentAssertions;
 using Xunit;
 using System.CommandLine.Tests.Utility;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests;
@@ -73,8 +73,8 @@ public class ParseErrorReportingTests
         CliRootCommand rootCommand = new();
         rootCommand.Options.Clear();
         CliAction customHelpAction = useAsyncAction
-                                         ? new AsynchronousCustomHelpAction(() => wasCalled = true)
-                                         : new SynchronousCustomHelpAction(() => wasCalled = true);
+                                         ? new AsynchronousTestAction(_ => wasCalled = true)
+                                         : new SynchronousTestAction(_ => wasCalled = true);
 
         rootCommand.Add(new HelpOption
         {
@@ -84,6 +84,31 @@ public class ParseErrorReportingTests
         rootCommand.Parse("oops").Invoke();
 
         wasCalled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task When_there_are_parse_errors_then_customized_help_action_on_ancestor_is_used_if_present()
+    {
+        bool rootHelpWasCalled = false;
+
+        var rootCommand = new CliRootCommand
+        {
+            new CliCommand("child")
+            {
+                new CliCommand("grandchild")
+            }
+        };
+
+        rootCommand.Options.OfType<HelpOption>().Single().Action = new SynchronousTestAction(_ =>
+        {
+            rootHelpWasCalled = true;
+        });
+
+        var config = new CliConfiguration(rootCommand);
+
+        await config.Parse("child grandchild oops").InvokeAsync();
+
+        rootHelpWasCalled.Should().BeTrue();
     }
 
     [Fact]
@@ -101,37 +126,5 @@ public class ParseErrorReportingTests
 
         output.ToString().Should().NotShowHelp();
     }
-
-    private class SynchronousCustomHelpAction : SynchronousCliAction
-    {
-        private readonly Action _onInvoke;
-
-        public SynchronousCustomHelpAction(Action onInvoke)
-        {
-            _onInvoke = onInvoke;
-        }
-
-        public override int Invoke(ParseResult parseResult)
-        {
-            _onInvoke();
-            return 0;
-        }
-    }
-
-    private class AsynchronousCustomHelpAction : AsynchronousCliAction
-    {
-        private readonly Action _onInvoke;
-
-        public AsynchronousCustomHelpAction(Action onInvoke)
-        {
-            _onInvoke = onInvoke;
-        }
-
-        public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-        {
-            await Task.Yield();
-            _onInvoke();
-            return 0;
-        }
-    }
+    
 }

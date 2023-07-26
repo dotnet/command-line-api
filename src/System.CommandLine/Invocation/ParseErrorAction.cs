@@ -68,7 +68,7 @@ public sealed class ParseErrorAction : SynchronousCliAction
                 .RecurseWhileNotNull(r => r.Parent as CommandResult)
                 .Select(r => r.Command.Options.OfType<HelpOption>().FirstOrDefault());
 
-        if (availableHelpOptions.FirstOrDefault() is { Action: not null } helpOption)
+        if (availableHelpOptions.FirstOrDefault(o => o is not null) is { Action: not null } helpOption)
         {
             switch (helpOption.Action)
             {
