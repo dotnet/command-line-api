@@ -145,10 +145,7 @@ namespace System.CommandLine.Hosting
         {
             _ = invocationContext ?? throw new ArgumentNullException(paramName: nameof(invocationContext));
             var hostModelBinder = new ModelBinder<IHost>();
-            var instance = hostModelBinder.CreateInstance(invocationContext.BindingContext);
-            if (instance is IHost host)
-              return host;            
-            return null;
+            return hostModelBinder.CreateInstance(invocationContext.BindingContext) as IHost;
         }
     }
 }
