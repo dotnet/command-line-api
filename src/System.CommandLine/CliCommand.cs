@@ -167,21 +167,18 @@ namespace System.CommandLine
         /// Adds a <see cref="CliArgument"/> to the command.
         /// </summary>
         /// <param name="argument">The option to add to the command.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer support
         public void Add(CliArgument argument) =>  Arguments.Add(argument);
         
         /// <summary>
         /// Adds a <see cref="CliOption"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer support
         public void Add(CliOption option) =>  Options.Add(option);
 
         /// <summary>
         /// Adds a <see cref="CliCommand"/> to the command.
         /// </summary>
         /// <param name="command">The Command to add to the command.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer support
         public void Add(CliCommand command) =>  Subcommands.Add(command);
 
         /// <summary>
