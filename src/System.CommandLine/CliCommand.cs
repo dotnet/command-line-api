@@ -22,7 +22,7 @@ namespace System.CommandLine
     /// <see cref="CliRootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class CliCommand : CliSymbol, IEnumerable<CliSymbol>
+    public class CliCommand : CliSymbol, IEnumerable
     {
         internal AliasSet? _aliases;
         private ChildSymbolList<CliArgument>? _arguments;
@@ -190,14 +190,10 @@ namespace System.CommandLine
         /// </summary>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
-        /// <summary>
-        /// Represents all of the symbols for the command.
-        /// </summary>
-        [DebuggerStepThrough]
-        public IEnumerator<CliSymbol> GetEnumerator() => Children.GetEnumerator();
-
         /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        [DebuggerStepThrough]
+        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer 
+        IEnumerator IEnumerable.GetEnumerator() => Children.GetEnumerator();
 
         /// <summary>
         /// Parses an array strings using the command.
