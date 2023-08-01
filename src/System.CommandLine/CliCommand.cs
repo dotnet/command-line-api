@@ -7,6 +7,7 @@ using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -60,14 +61,14 @@ namespace System.CommandLine
         /// </summary>
         public IList<CliArgument> Arguments => _arguments ??= new(this);
 
-        internal bool HasArguments => _arguments is not null && _arguments.Count > 0 ;
+        internal bool HasArguments => _arguments?.Count > 0 ;
 
         /// <summary>
         /// Represents all of the options for the command, inherited options that have been applied to any of the command's ancestors.
         /// </summary>
         public IList<CliOption> Options => _options ??= new (this);
 
-        internal bool HasOptions => _options is not null && _options.Count > 0;
+        internal bool HasOptions => _options?.Count > 0;
 
         /// <summary>
         /// Represents all of the subcommands for the command.
@@ -192,6 +193,7 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the symbols for the command.
         /// </summary>
+        [DebuggerStepThrough]
         public IEnumerator<CliSymbol> GetEnumerator() => Children.GetEnumerator();
 
         /// <inheritdoc />
@@ -257,7 +259,7 @@ namespace System.CommandLine
                     }
                 }
 
-                ParentNode? parent = FirstParent;
+                SymbolNode? parent = FirstParent;
                 while (parent is not null)
                 {
                     CliCommand parentCommand = (CliCommand)parent.Symbol;

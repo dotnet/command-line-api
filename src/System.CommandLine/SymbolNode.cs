@@ -3,12 +3,12 @@
 
 namespace System.CommandLine
 {
-    internal sealed class ParentNode
+    internal sealed class SymbolNode
     {
-        internal ParentNode(CliSymbol symbol) => Symbol = symbol;
+        internal SymbolNode(CliSymbol symbol) => Symbol = symbol;
 
         internal CliSymbol Symbol { get; }
 
-        internal ParentNode? Next { get; set; }
+        internal SymbolNode? Next { get; set; }
     }
 }

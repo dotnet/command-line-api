@@ -89,13 +89,11 @@ System.CommandLine
     public System.Boolean Recursive { get; set; }
     public System.Boolean Required { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
-    public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
   public class CliOption<T> : CliOption
     .ctor(System.String name, System.String[] aliases)
     public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
-    public System.Type ValueType { get; }
     public System.Void AcceptLegalFileNamesOnly()
     public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
@@ -290,8 +288,10 @@ System.CommandLine.Parsing
     public CommandResult GetResult(System.CommandLine.CliCommand command)
     public OptionResult GetResult(System.CommandLine.CliOption option)
     public DirectiveResult GetResult(System.CommandLine.CliDirective directive)
+    public SymbolResult GetResult(System.String name)
     public T GetValue<T>(CliArgument<T> argument)
     public T GetValue<T>(CliOption<T> option)
+    public T GetValue<T>(System.String name)
   public delegate TryReplaceToken : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.AsyncCallback callback, System.Object object)

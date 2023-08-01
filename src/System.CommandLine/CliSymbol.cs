@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliSymbol
     {
-        private ParentNode? _firstParent;
+        private SymbolNode? _firstParent;
 
         private protected CliSymbol(string name, bool allowWhitespace = false)
         {
@@ -32,22 +32,22 @@ namespace System.CommandLine
         /// <summary>
         /// Represents the first parent node.
         /// </summary>
-        internal ParentNode? FirstParent => _firstParent;
+        internal SymbolNode? FirstParent => _firstParent;
         
         internal void AddParent(CliSymbol symbol)
         {
             if (_firstParent == null)
             {
-                _firstParent = new ParentNode(symbol);
+                _firstParent = new SymbolNode(symbol);
             }
             else
             {
-                ParentNode current = _firstParent;
+                SymbolNode current = _firstParent;
                 while (current.Next is not null)
                 {
                     current = current.Next;
                 }
-                current.Next = new ParentNode(symbol);
+                current.Next = new SymbolNode(symbol);
             }
         }
 
@@ -63,7 +63,7 @@ namespace System.CommandLine
         {
             get
             {
-                ParentNode? parent = _firstParent;
+                SymbolNode? parent = _firstParent;
                 while (parent is not null)
                 {
                     yield return parent.Symbol;

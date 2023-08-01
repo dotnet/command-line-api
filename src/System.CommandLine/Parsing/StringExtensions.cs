@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -449,7 +449,7 @@ namespace System.CommandLine.Parsing
             while (current is not null)
             {
                 CliCommand? parentCommand = null;
-                ParentNode? parent = current.FirstParent;
+                SymbolNode? parent = current.FirstParent;
                 while (parent is not null)
                 {
                     if ((parentCommand = parent.Symbol as CliCommand) is not null)

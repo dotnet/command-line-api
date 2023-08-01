@@ -23,7 +23,15 @@ namespace System.CommandLine.Binding
                     return ConvertTokens(argumentResult, type, manyValues);
 
                 default:
-                    return None(argumentResult);
+
+                    if (argumentResult.Tokens.Count == 0)
+                    {
+                        return None(argumentResult);
+                    }
+                    else
+                    {
+                        throw new InvalidCastException();
+                    }
             }
         }
 
