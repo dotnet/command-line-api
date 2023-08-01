@@ -54,9 +54,9 @@ namespace System.CommandLine.Parsing
         /// Gets the parsed value or the default value for <see cref="Option"/>.
         /// </summary>
         /// <returns>The parsed value or the default value for <see cref="Option"/></returns>
-        [return: MaybeNull]
         public T GetValueOrDefault<T>() =>
-            ArgumentConversionResult.ConvertIfNeeded(typeof(T))
+            ArgumentConversionResult
+                .ConvertIfNeeded(typeof(T))
                 .GetValueOrDefault<T>();
 
         internal bool IsArgumentLimitReached

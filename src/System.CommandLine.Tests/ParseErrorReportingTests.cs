@@ -126,5 +126,4 @@ public class ParseErrorReportingTests
 
         output.ToString().Should().NotShowHelp();
     }
-    
 }

@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -490,8 +490,6 @@ namespace System.CommandLine.Parsing
 
             static void AddOptionTokens(Dictionary<string, CliToken> tokens, CliOption option)
             {
-                // FIX: (ValidTokens) precedence of non-recursive over recursive options requires also looking at parenting to do this correctly.
-
                 if (!tokens.ContainsKey(option.Name))
                 {
                     tokens.Add(option.Name, new CliToken(option.Name, CliTokenType.Option, option, CliToken.ImplicitPosition));

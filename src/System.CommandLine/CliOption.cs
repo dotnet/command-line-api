@@ -17,10 +17,6 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
 
-        private protected CliOption(string name) : base(name)
-        {
-        }
-
         private protected CliOption(string name, string[] aliases) : base(name)
         {
             if (aliases is { Length: > 0 }) 
@@ -70,11 +66,6 @@ namespace System.CommandLine
         /// Validators that will be called when the option is matched by the parser.
         /// </summary>
         public List<Action<OptionResult>> Validators => _validators ??= new();
-
-        /// <summary>
-        /// Gets or sets the <see cref="Type" /> that the option's parsed tokens will be converted to.
-        /// </summary>
-        public abstract Type ValueType { get; }
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 

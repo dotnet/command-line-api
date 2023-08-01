@@ -77,7 +77,7 @@ namespace System.CommandLine
         {
             error = null;
 
-            if (argumentResult.Parent is null || argumentResult.Parent is OptionResult { Implicit: true })
+            if (argumentResult.Parent is null or OptionResult { Implicit: true })
             {
                 return true;
             }
@@ -85,11 +85,6 @@ namespace System.CommandLine
             int tokenCount = argumentResult.Tokens.Count;
             if (tokenCount < argumentResult.Argument.Arity.MinimumNumberOfValues)
             {
-                if (argumentResult.Parent.UseDefaultValueFor(argumentResult))
-                {
-                    return true;
-                }
-
                 error = ArgumentConversionResult.Failure(
                     argumentResult,
                     LocalizationResources.RequiredArgumentMissing(argumentResult),
@@ -142,7 +137,7 @@ namespace System.CommandLine
         /// </summary>
         public static ArgumentArity OneOrMore => new(1, MaximumArity);
 
-        internal static ArgumentArity Default(CliArgument argument, ParentNode? firstParent)
+        internal static ArgumentArity Default(CliArgument argument, SymbolNode? firstParent)
         {
             if (argument.IsBoolean())
             {
