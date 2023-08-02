@@ -907,4 +907,84 @@ public class CustomParsingTests
         result.GetValue(second).Should().BeEmpty();
         result.GetValue(third).Should().BeEquivalentSequenceTo("1", "2", "3");
     }
+
+    [Fact]
+    public void GetResult_by_name_can_be_used_recursively_within_argument_custom_parsers()
+    {
+        ArgumentResult firstResult = null;
+        ArgumentResult secondResult = null;
+
+        var command = new CliRootCommand
+        {
+            new CliArgument<string>("first")
+            {
+                CustomParser = ctx =>
+                {
+                    secondResult = (ArgumentResult)ctx.GetResult("second");
+
+                    return ctx.Tokens.SingleOrDefault()?.Value;
+                },
+            },
+
+            new CliArgument<string>("second")
+            {
+                CustomParser = ctx =>
+                {
+                    firstResult = (ArgumentResult)ctx.GetResult("first");
+
+                    return ctx.Tokens.SingleOrDefault()?.Value;
+                },
+            },
+
+            new CliArgument<string>("third")
+        };
+
+        var result = command.Parse("one two three");
+
+        result.GetValue<string>("third").Should().Be("three");
+        firstResult.GetValueOrDefault<string>().Should().Be("one");
+        secondResult.GetValueOrDefault<string>().Should().Be("two");
+    }
+    
+    [Theory]
+    [InlineData("--first one --second two --third three")]
+    [InlineData("--third three --second two --first one")]
+    public void GetResult_by_name_can_be_used_recursively_within_custom_option_parsers(string commandLine)
+    {
+        OptionResult firstOptionResult = null;
+        OptionResult secondOptionResult = null;
+
+        var command = new CliRootCommand
+        {
+            new CliOption<string>("--first")
+            {
+                CustomParser = ctx =>
+                {
+                    secondOptionResult = (OptionResult)ctx.GetResult("--second");
+
+                    return ctx.Tokens.SingleOrDefault()?.Value;
+                },
+            },
+
+            new CliOption<string>("--second")
+            {
+                CustomParser = ctx =>
+                {
+                    firstOptionResult = (OptionResult)ctx.GetResult("--first");
+
+                    return ctx.Tokens.SingleOrDefault()?.Value;
+                },
+            },
+
+            new CliOption<string>("--third")
+        };
+
+        var parseResult = command.Parse(commandLine);
+
+        firstOptionResult.GetValueOrDefault<string>().Should().Be("one");
+        secondOptionResult.GetValueOrDefault<string>().Should().Be("two");
+        parseResult.GetValue<string>("--first").Should().Be("one");
+        parseResult.GetValue<string>("--second").Should().Be("two");
+        parseResult.GetValue<string>("--third").Should().Be("three");
+    }
 }

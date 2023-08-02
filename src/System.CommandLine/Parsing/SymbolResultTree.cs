@@ -78,7 +78,7 @@ namespace System.CommandLine.Parsing
 
         public SymbolResult? GetResult(string name)
         {
-            if (_symbolsByName == null)
+            if (_symbolsByName is null)
             {
                 _symbolsByName = new();  
                 PopulateSymbolsByName(_rootCommand);
