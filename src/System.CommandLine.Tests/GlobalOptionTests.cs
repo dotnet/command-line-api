@@ -9,17 +9,13 @@ namespace System.CommandLine.Tests
     public class GlobalOptionTests
     {
         [Fact]
-        public void Global_options_appear_in_options_list()
+        public void Global_options_appear_in_options_list_of_symbols_they_are_directly_added_to()
         {
             var root = new CliCommand("parent");
 
             var option = new CliOption<int>("--global") { Recursive = true };
 
             root.Options.Add(option);
-
-            var child = new CliCommand("child");
-
-            root.Subcommands.Add(child);
 
             root.Options.Should().Contain(option);
         }

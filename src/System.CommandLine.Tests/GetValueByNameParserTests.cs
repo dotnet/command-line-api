@@ -52,7 +52,7 @@ public class GetValueByNameTests
     }
 
     [Fact]
-    public void When_option_value_is_not_parsed_then_default_value_is_returned()
+    public void When_option_is_not_provided_then_default_value_is_returned()
     {
         CliRootCommand command = new()
         {
@@ -65,7 +65,23 @@ public class GetValueByNameTests
     }
 
     [Fact]
-    public void When_optional_argument_is_not_parsed_then_default_value_is_returned()
+    public void When_option_is_not_provided_then_configured_default_value_is_returned()
+    {
+        CliRootCommand command = new()
+        {
+            new CliOption<int>("--integer", "-i")
+            {
+                DefaultValueFactory = _ => 123
+            }
+        };
+
+        ParseResult parseResult = command.Parse("");
+
+        parseResult.GetValue<int>("--integer").Should().Be(123);
+    }
+
+    [Fact]
+    public void When_optional_argument_is_not_provided_then_default_value_is_returned()
     {
         CliRootCommand command = new()
         {
@@ -81,7 +97,24 @@ public class GetValueByNameTests
     }
 
     [Fact]
-    public void When_required_option_value_is_not_parsed_then_an_exception_is_thrown()
+    public void When_optional_argument_is_not_provided_then_configured_default_value_is_returned()
+    {
+        CliRootCommand command = new()
+        {
+            new CliArgument<int>("arg")
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+                DefaultValueFactory = _ => 123
+            }
+        };
+        
+        ParseResult parseResult = command.Parse("");
+
+        parseResult.GetValue<int>("arg").Should().Be(123);
+    }
+
+    [Fact]
+    public void When_required_option_value_is_not_provided_then_an_exception_is_thrown()
     {
         CliRootCommand command = new()
         {
@@ -102,7 +135,7 @@ public class GetValueByNameTests
     }
 
     [Fact]
-    public void When_required_argument_value_is_not_parsed_then_an_exception_is_thrown()
+    public void When_required_argument_value_is_not_provided_then_an_exception_is_thrown()
     {
         CliRootCommand command = new()
         {
@@ -134,7 +167,7 @@ public class GetValueByNameTests
         getRequired
             .Should()
             .Throw<ArgumentException>()
-            .Where(ex => ex.Message == $"No symbol result found for \"{nonExistingName}\" for command \"{command.Name}\".");
+            .Where(ex => ex.Message == $"No symbol result found with name \"{nonExistingName}\".");
     }
 
     [Fact]
@@ -157,8 +190,8 @@ public class GetValueByNameTests
 
         getConflicted
             .Should()
-            .Throw<NotSupportedException>()
-            .Where(ex => ex.Message == $"More than one symbol uses name \"{sameName}\" for command \"{command.Name}\".");
+            .Throw<InvalidOperationException>()
+            .Where(ex => ex.Message == $"Command {command.Name} has more than one child named \"{sameName}\".");
     }
 
     [Fact]
@@ -178,7 +211,7 @@ public class GetValueByNameTests
         ParseResult parseResult = command.Parse($"outer 123 inner {sameName} 456");
         parseResult.GetValue<int>(sameName).Should().Be(456);
 
-        parseResult = command.Parse($"outer 123");
+        parseResult = command.Parse("outer 123");
         parseResult.GetValue<int>(sameName).Should().Be(123);
     }
 
@@ -191,21 +224,21 @@ public class GetValueByNameTests
         {
             new CliArgument<int>(sameName)
             {
-                DefaultValueFactory = (_) => 123
+                DefaultValueFactory = _ => 123
             },
             new CliCommand("inner")
             {
                 new CliOption<int>(sameName)
                 {
-                    DefaultValueFactory = (_) => 456
+                    DefaultValueFactory = _ => 456
                 }
             }
         };
 
-        ParseResult parseResult = command.Parse($"outer inner 456");
+        ParseResult parseResult = command.Parse("outer inner 456");
         parseResult.GetValue<int>(sameName).Should().Be(456);
 
-        parseResult = command.Parse($"outer 123");
+        parseResult = command.Parse("outer 123");
         parseResult.GetValue<int>(sameName).Should().Be(123);
     }
 
@@ -236,7 +269,7 @@ public class GetValueByNameTests
     }
 
     [Fact]
-    public void When_casting_is_not_allowed_an_exception_is_thrown()
+    public void When_cast_is_invalid_then_an_exception_is_thrown()
     {
         const string Name = "name";
 
@@ -274,5 +307,23 @@ public class GetValueByNameTests
             .Should()
             .Throw<InvalidOperationException>()
             .Where(ex => ex.Message == LocalizationResources.RequiredOptionWasNotProvided("--required"));
+    }
+
+    [Fact]
+    public void Recursive_option_on_parent_command_can_be_looked_up_when_subcommand_is_specified()
+    {
+        var cmd = new CliRootCommand
+        {
+            new CliCommand("subcommand"),
+
+            new CliOption<string>("--opt")
+            {
+                Recursive = true
+            }
+        };
+
+        var result = cmd.Parse("subcommand --opt hello");
+
+        result.GetValue<string>("--opt").Should().Be("hello");
     }
 }

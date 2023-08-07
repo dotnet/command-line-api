@@ -23,7 +23,15 @@ namespace System.CommandLine.Binding
                     return ConvertTokens(argumentResult, type, manyValues);
 
                 default:
-                    return None(argumentResult);
+
+                    if (argumentResult.Tokens.Count == 0)
+                    {
+                        return None(argumentResult);
+                    }
+                    else
+                    {
+                        throw new InvalidCastException();
+                    }
             }
         }
 
@@ -181,12 +189,6 @@ namespace System.CommandLine.Binding
 
                 ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.IsBoolean() =>
                     Success(conversionResult.ArgumentResult, true),
-
-                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.Arity.MinimumNumberOfValues > 0 =>
-                    Failure(
-                        conversionResult.ArgumentResult,
-                        LocalizationResources.RequiredArgumentMissing(conversionResult.ArgumentResult),
-                        ArgumentConversionResultType.FailedMissingArgument),
                         
                 _ => conversionResult
             };

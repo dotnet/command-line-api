@@ -205,7 +205,7 @@ public partial class HelpBuilder
                 while (current is not null)
                 {
                     CliCommand? parentCommand = null;
-                    ParentNode? parent = current.FirstParent;
+                    SymbolNode? parent = current.FirstParent;
                     while (parent is not null)
                     {
                         if ((parentCommand = parent.Symbol as CliCommand) is not null)

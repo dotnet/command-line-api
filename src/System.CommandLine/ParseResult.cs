@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
 using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -22,7 +21,6 @@ namespace System.CommandLine
         private CompletionContext? _completionContext;
         private readonly CliAction? _action;
         private readonly List<CliAction>? _preActions;
-        private Dictionary<string, SymbolResult?>? _namedResults;
 
         internal ParseResult(
             CliConfiguration configuration,
@@ -131,70 +129,9 @@ namespace System.CommandLine
         /// <returns>The parsed value or a configured default.</returns>
         /// <exception cref="InvalidOperationException">Thrown when parsing resulted in parse error(s).</exception>
         /// <exception cref="ArgumentException">Thrown when there was no symbol defined for given name for the parsed command.</exception>
-        /// <exception cref="InvalidCastException">Thrown when parsed result can not be casted to <typeparamref name="T"/>.</exception>
+        /// <exception cref="InvalidCastException">Thrown when parsed result can not be cast to <typeparamref name="T"/>.</exception>
         public T? GetValue<T>(string name)
-        {
-            var command = CommandResult.Command;
-
-            if (_namedResults is null)
-            {
-                // A null value means that given name exists, but was not parsed
-                Dictionary<string, SymbolResult?> cache = new(StringComparer.Ordinal);
-
-                if (command.HasArguments)
-                {
-                    Populate(cache, command.Arguments);
-                }
-
-                if (command.HasOptions)
-                {
-                    Populate(cache, command.Options);
-                }
-
-                _namedResults = cache;
-            }
-
-            if (!_namedResults.TryGetValue(name, out SymbolResult? symbolResult))
-            {
-                throw new ArgumentException($"No symbol result found for \"{name}\" for command \"{command.Name}\".");
-            }
-
-            return symbolResult switch
-            {
-                ArgumentResult argumentResult => Convert(argumentResult.GetArgumentConversionResult()),
-                OptionResult optionResult => Convert(optionResult.ArgumentConversionResult),
-                _ => CliArgument<T>.CreateDefaultValue()
-            };
-
-            void Populate<TSymbol>(Dictionary<string, SymbolResult?> cache, IList<TSymbol> symbols) where TSymbol : CliSymbol
-            {
-                var symbolResultTree = CommandResult.SymbolResultTree;
-                for (int i = 0; i < symbols.Count; i++)
-                {
-                    if (cache.ContainsKey(symbols[i].Name))
-                    {
-                        throw new NotSupportedException($"More than one symbol uses name \"{symbols[i].Name}\" for command \"{command.Name}\".");
-                    }
-
-                    symbolResultTree.TryGetValue(symbols[i], out SymbolResult? parsedSymbol);
-                    cache.Add(symbols[i].Name, parsedSymbol);
-                }
-            }
-
-            static T Convert(ArgumentConversionResult validatedResult)
-            {
-                var convertedResult = validatedResult.ConvertIfNeeded(typeof(T));
-
-                if (validatedResult is { Result: ArgumentConversionResultType.Successful }
-                    && convertedResult is { Result: ArgumentConversionResultType.NoArgument })
-                {
-                    // invalid cast has been detected, InvalidCastException will be thrown
-                    return (T)validatedResult.Value!;
-                }
-
-                return convertedResult.GetValueOrDefault<T>();
-            }
-        }
+            => RootCommandResult.GetValue<T>(name);
 
         /// <inheritdoc />
         public override string ToString() => ParseDiagramAction.Diagram(this).ToString();

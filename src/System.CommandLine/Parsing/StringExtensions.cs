@@ -449,7 +449,7 @@ namespace System.CommandLine.Parsing
             while (current is not null)
             {
                 CliCommand? parentCommand = null;
-                ParentNode? parent = current.FirstParent;
+                SymbolNode? parent = current.FirstParent;
                 while (parent is not null)
                 {
                     if ((parentCommand = parent.Symbol as CliCommand) is not null)
@@ -490,8 +490,6 @@ namespace System.CommandLine.Parsing
 
             static void AddOptionTokens(Dictionary<string, CliToken> tokens, CliOption option)
             {
-                // FIX: (ValidTokens) precedence of non-recursive over recursive options requires also looking at parenting to do this correctly.
-
                 if (!tokens.ContainsKey(option.Name))
                 {
                     tokens.Add(option.Name, new CliToken(option.Name, CliTokenType.Option, option, CliToken.ImplicitPosition));
