@@ -1622,4 +1622,20 @@ namespace System.CommandLine.Tests
             GetValue(result, option).Should().BeEmpty();
         }
     }
+
+    public class ProofOfConceptTests
+    {
+        [Fact]
+        public void CanDefineSymbolsJustOnceToGetParsedValues()
+        {
+            (string target, int? count, bool resolve) = ProofOfConcept.Parse("-n 10 -a microsoft.com",
+                new CliArgument<string>("target_name"),
+                new CliOption<int?>("-n") { Description = "Number of echo requests to send" },
+                new CliOption<bool>("-a") { Description = "Resolve addresses to hostnames." });
+
+            Assert.Equal(10, count.Value);
+            Assert.True(resolve);
+            Assert.Equal("microsoft.com", target);
+        }
+    }
 }

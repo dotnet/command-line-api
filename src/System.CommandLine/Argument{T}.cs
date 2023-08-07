@@ -9,7 +9,7 @@ using System.IO;
 namespace System.CommandLine
 {
     /// <inheritdoc cref="CliArgument" />
-    public class CliArgument<T> : CliArgument
+    public class CliArgument<T> : CliArgument, ICliSymbol<T>
     {
         private Func<ArgumentResult, T?>? _customParser;
 
