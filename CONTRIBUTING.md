@@ -1,9 +1,7 @@
 Contributing
 ============
 
-Please read [.NET Core Guidelines](https://github.com/dotnet/runtime/blob/master/CONTRIBUTING.md) for more general information about coding styles, source structure, making pull requests, and more.
-While this project is in the early phases of development, some of the guidelines in this document -- such as API reviews -- do not yet apply as strongly.
-That said, please open a GitHub issue to discuss any API renames or changes before submitting PRs.
+Please read [.NET Guidelines](https://github.com/dotnet/runtime/blob/master/CONTRIBUTING.md) for more general information about coding styles, source structure, making pull requests, and more.
 
 ## Developer guide
 
@@ -11,18 +9,14 @@ This project can be developed on any platform. To get started, follow instructio
 
 ### Prerequisites
 
-This project depends on .NET Core 2.0. Before working on the project, check that .NET Core prerequisites have been met.
-
- - [Prerequisites for .NET Core on Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x)
- - [Prerequisites for .NET Core on Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x)
- - [Prerequisites for .NET Core on macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x)
+This project depends on .NET 7. Before working on the project, check that the [.NET SDK](https://dotnet.microsoft.com/en-us/download) is installed.
 
 ### Visual Studio
 
-This project supports [Visual Studio 2017](https://visualstudio.com) and [Visual Studio for Mac](https://www.visualstudio.com/vs/visual-studio-mac/). Any version, including the free Community Edition, should be sufficient so long as you install Visual Studio support for .NET Core development.
+This project supports [Visual Studio 2022](https://visualstudio.com). Any version, including the free Community Edition, should be sufficient.
 
 This project also supports using
-[Visual Studio Code](https://code.visualstudio.com). Install the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) and install the [.NET Core CLI](https://get.dot.net/core) to get started.
+[Visual Studio Code](https://code.visualstudio.com). Install the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit).
 
 ### Command line scripts
 
