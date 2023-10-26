@@ -2,7 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Completions;
+using System.Linq;
+using System.Runtime.InteropServices;
 using FluentAssertions;
+using FluentAssertions.Specialized;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -31,6 +34,32 @@ namespace System.CommandLine.Tests
                        .CommandLineText
                        .Should()
                        .Be(commandLine);
+        }
+
+        [Fact]
+        public void CommandLineText_is_parsed_when_option_is_in_name_equals_sign_value_format()
+        {
+            CliRootCommand command = new CliRootCommand
+            {
+                new CliCommand("inner")
+                {
+                    new CliOption<string>("--optionOne"),
+                    new CliOption<string>("--optionTwo")
+                }
+            };
+
+            var commandLine = "outer inner --optionOne argument1 --optionTwo=argument2";
+
+            var parseResult = command.Parse(commandLine);
+
+            parseResult.GetCompletionContext()
+                       .Should()
+                       .BeOfType<TextCompletionContext>()
+                       .Which
+                       .CommandLineText
+                       .Should()
+                       .Be(commandLine);
+
         }
 
         [Fact]
