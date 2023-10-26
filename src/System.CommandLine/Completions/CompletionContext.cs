@@ -87,8 +87,8 @@ namespace System.CommandLine.Completions
 
                 var textAfterCursor = rawInput.Substring(position.Value);
 
-                return textBeforeCursor.Split(' ').LastOrDefault() +
-                       textAfterCursor.Split(' ').FirstOrDefault();
+                return textBeforeCursor.Split(' ','=').LastOrDefault() +
+                       textAfterCursor.Split(' ','=').FirstOrDefault();
             }
 
             return "";
