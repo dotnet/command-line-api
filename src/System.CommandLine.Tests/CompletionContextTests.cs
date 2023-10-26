@@ -2,10 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Completions;
-using System.Linq;
-using System.Runtime.InteropServices;
 using FluentAssertions;
-using FluentAssertions.Specialized;
 using Xunit;
 
 namespace System.CommandLine.Tests
