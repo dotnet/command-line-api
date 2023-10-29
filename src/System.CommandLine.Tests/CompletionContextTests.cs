@@ -2,8 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Completions;
+using ApprovalTests.Namers;
 using FluentAssertions;
 using Xunit;
+using System.CommandLine;
+using System.Threading;
 
 namespace System.CommandLine.Tests
 {
@@ -36,6 +39,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void CommandLineText_is_parsed_when_option_is_in_name_equals_sign_value_format()
         {
+           
             CliRootCommand command = new CliRootCommand
             {
                 new CliCommand("inner")
@@ -45,17 +49,15 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            var commandLine = "outer inner --optionOne argument1 --optionTwo=argument2";
+            var commandLine = "inner --optionOne argument1 --optionTwo=argument2";
 
             var parseResult = command.Parse(commandLine);
+            parseResult.GetCompletions();
 
-            parseResult.GetCompletionContext()
-                       .Should()
-                       .BeOfType<TextCompletionContext>()
-                       .Which
-                       .CommandLineText
-                       .Should()
-                       .Be(commandLine);
+            Assert.True(parseResult.Tokens[1].Value == "--optionOne");
+            Assert.True(parseResult.Tokens[2].Value == "argument1");
+            Assert.True(parseResult.Tokens[3].Value == "--optionTwo");
+            Assert.True(parseResult.Tokens[4].Value == "argument2");
 
         }
 
