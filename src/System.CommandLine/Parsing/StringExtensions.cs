@@ -155,10 +155,28 @@ namespace System.CommandLine.Parsing
                         switch (token.Type)
                         {
                             case CliTokenType.Option:
+                                if (token?.Symbol?.CaseSensitive ?? false)
+                                {
+                                    // If the option is case sensitive, we need to make sure that the match was sensitive
+                                    if(!arg.Equals(token.Value, StringComparison.Ordinal))
+                                    {
+                                        // it doesn't match, so we need to keep going
+                                        break;
+                                    }
+                                }
                                 tokenList.Add(Option(arg, (CliOption)token.Symbol!));
                                 break;
 
                             case CliTokenType.Command:
+                                if (token?.Symbol?.CaseSensitive ?? false)
+                                {
+                                    // If the option is case sensitive, we need to make sure that the match was sensitive
+                                    if (!arg.Equals(token.Value, StringComparison.Ordinal))
+                                    {
+                                        // it doesn't match, so we need to keep going
+                                        break;
+                                    }
+                                }
                                 CliCommand cmd = (CliCommand)token.Symbol!;
                                 if (cmd != currentCommand)
                                 {
@@ -412,7 +430,7 @@ namespace System.CommandLine.Parsing
 
         private static Dictionary<string, CliToken> ValidTokens(this CliCommand command)
         {
-            Dictionary<string, CliToken> tokens = new(StringComparer.Ordinal);
+            Dictionary<string, CliToken> tokens = new(command.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
 
             if (command is CliRootCommand { Directives: IList<CliDirective> directives })
             {

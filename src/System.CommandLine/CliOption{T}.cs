@@ -20,9 +20,19 @@ namespace System.CommandLine
             : this(name, aliases, new CliArgument<T>(name))
         {
         }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CliOption"/> class.
+        /// </summary>
+        /// <param name="name">The name of the option. It's used for parsing, displaying Help and creating parse errors.</param>>
+        /// <param name="caseSensitive">Whether the option is case sensitive.</param>
+        /// <param name="aliases">Optional aliases. Used for parsing, suggestions and displayed in Help.</param>
+        public CliOption(string name, bool caseSensitive, params string[] aliases)
+            : this(name, aliases, new CliArgument<T>(name), caseSensitive)
+        {
+        }
 
-        private protected CliOption(string name, string[] aliases, CliArgument<T> argument)
-            : base(name, aliases)
+        private protected CliOption(string name, string[] aliases, CliArgument<T> argument, bool caseSensitive = true)
+            : base(name, aliases, caseSensitive)
         {
             argument.AddParent(this);
             _argument = argument;

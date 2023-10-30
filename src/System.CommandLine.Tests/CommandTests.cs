@@ -10,7 +10,10 @@ namespace System.CommandLine.Tests
 {
     public class CommandTests
     {
+        private const string caseSensitiveInvoke = "outer inner --option argument1";
+        private const string caseInsensitiveInvoke = "Outer Inner --Option argument1";
         private readonly CliCommand _outerCommand;
+        private readonly CliCommand _outerCommandInsensitive;
 
         public CommandTests()
         {
@@ -21,12 +24,31 @@ namespace System.CommandLine.Tests
                     new CliOption<string>("--option")
                 }
             };
+            _outerCommandInsensitive = new CliCommand("outer", caseSensitive: false)
+            {
+                new CliCommand("inner", caseSensitive: false)
+                {
+                    new CliOption<string>("--option", caseSensitive: false)
+                }
+            };
         }
 
         [Fact]
         public void Outer_command_is_identified_correctly_by_RootCommand()
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse(caseSensitiveInvoke);
+
+            result
+                .RootCommandResult
+                .Command
+                .Name
+                .Should()
+                .Be("outer");
+        }
+        [Fact]
+        public void Outer_command_is_identified_correctly_by_RootCommand_while_case_insensitive()
+        {
+            var result = _outerCommandInsensitive.Parse(caseInsensitiveInvoke);
 
             result
                 .RootCommandResult
@@ -39,7 +61,23 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Outer_command_is_identified_correctly_by_Parent_property()
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse(caseSensitiveInvoke);
+
+            result
+                .CommandResult
+                .Parent
+                .Should()
+                .BeOfType<CommandResult>()
+                .Which
+                .Command
+                .Name
+                .Should()
+                .Be("outer");
+        }
+        [Fact]
+        public void Outer_command_is_identified_correctly_by_Parent_property_while_case_insensitive()
+        {
+            var result = _outerCommandInsensitive.Parse(caseInsensitiveInvoke);
 
             result
                 .CommandResult
@@ -56,8 +94,54 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_is_identified_correctly()
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse(caseSensitiveInvoke);
 
+            result.CommandResult
+                  .Should()
+                  .BeOfType<CommandResult>()
+                  .Which
+                  .Command
+                  .Name
+                  .Should()
+                  .Be("inner");
+        }
+        [Fact]
+        public void Inner_command_is_identified_correctly_while_case_insensitive()
+        {
+            var result = _outerCommandInsensitive.Parse(caseInsensitiveInvoke);
+
+            result.CommandResult
+                  .Should()
+                  .BeOfType<CommandResult>()
+                  .Which
+                  .Command
+                  .Name
+                  .Should()
+                  .Be("inner");
+        }
+        [Fact]
+        public void Case_sensitive_inner_child_remains_case_sensitive()
+        {
+            var mixedCommand = new CliCommand("outer", caseSensitive: false)
+            {
+                new CliCommand("inner", caseSensitive: true)
+                {
+                    new CliOption<string>("--option", caseSensitive: false)
+                }
+            };
+            var result = mixedCommand.Parse(caseInsensitiveInvoke);
+            result.Errors.Should().NotBeEmpty();
+        }
+        public void Case_insensitive_inner_child_is_identified_correctly_while_outer_is_case_sensitive()
+        {
+            var mixedCommand = new CliCommand("outer")
+            {
+                new CliCommand("inner", caseSensitive: false)
+                {
+                    new CliOption<string>("--option", caseSensitive: false)
+                }
+            };
+            var result = mixedCommand.Parse("outer Inner --Option argument1");
             result.CommandResult
                   .Should()
                   .BeOfType<CommandResult>()
@@ -71,7 +155,23 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_option_is_identified_correctly()
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse(caseSensitiveInvoke);
+
+            result.CommandResult
+                  .Children
+                  .ElementAt(0)
+                  .Should()
+                  .BeOfType<OptionResult>()
+                  .Which
+                  .Option
+                  .Name
+                  .Should()
+                  .Be("--option");
+        }
+        [Fact]
+        public void Inner_command_option_is_identified_correctly_while_case_insensitive()
+        {
+            var result = _outerCommandInsensitive.Parse(caseInsensitiveInvoke);
 
             result.CommandResult
                   .Children
@@ -88,7 +188,20 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Inner_command_option_argument_is_identified_correctly()
         {
-            var result = _outerCommand.Parse("outer inner --option argument1");
+            var result = _outerCommand.Parse(caseSensitiveInvoke);
+
+            result.CommandResult
+                  .Children
+                  .ElementAt(0)
+                  .Tokens
+                  .Select(t => t.Value)
+                  .Should()
+                  .BeEquivalentTo("argument1");
+        }
+        [Fact]
+        public void Inner_command_option_argument_is_identified_correctly_while_case_insensitive()
+        {
+            var result = _outerCommandInsensitive.Parse(caseInsensitiveInvoke);
 
             result.CommandResult
                   .Children
@@ -134,6 +247,15 @@ namespace System.CommandLine.Tests
             var command = new CliCommand("original");
 
             command.Aliases.Add("added");
+
+            command.Aliases.Should().Contain("added");
+        }
+        [Fact]
+        public void Aliases_is_aware_of_added_alias_while_case_insensitive()
+        {
+            var command = new CliCommand("original", caseSensitive: false);
+
+            command.Aliases.Add("Added");
 
             command.Aliases.Should().Contain("added");
         }

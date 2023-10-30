@@ -12,9 +12,10 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliSymbol
     {
-        private protected CliSymbol(string name, bool allowWhitespace = false)
+        private protected CliSymbol(string name, bool allowWhitespace = false, bool caseSensitive = true)
         {
             Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
+            CaseSensitive = caseSensitive;
         }
 
         /// <summary>
@@ -53,6 +54,8 @@ namespace System.CommandLine
         /// Gets or sets a value indicating whether the symbol is hidden.
         /// </summary>
         public bool Hidden { get; set; }
+
+        internal bool CaseSensitive { get; set; } = true;
 
         /// <summary>
         /// Gets the parent symbols.

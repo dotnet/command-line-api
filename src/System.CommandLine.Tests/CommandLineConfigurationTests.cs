@@ -34,11 +34,63 @@ public class CliConfigurationTests
     }
 
     [Fact]
+    public void ThrowIfInvalid_throws_if_there_are_duplicate_case_insensitive_sibling_option_aliases_on_the_root_command()
+    {
+        var option1 = new CliOption<string>("--dupe", false);
+        var option2 = new CliOption<string>("-y");
+        option2.Aliases.Add("--Dupe");
+
+        var command = new CliRootCommand()
+        {
+            option1,
+            option2
+        };
+
+        var config = new CliConfiguration(command);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should()
+                .Throw<CliConfigurationException>()
+                .Which
+                .Message
+                .Should()
+                .Be($"Duplicate alias '--dupe' found on command '{command.Name}'.");
+    }
+
+    [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_option_aliases_on_a_subcommand()
     {
         var option1 = new CliOption<string>("--dupe");
         var option2 = new CliOption<string>("--ok");
         option2.Aliases.Add("--dupe");
+
+        var command = new CliRootCommand
+        {
+            new CliCommand("subcommand")
+            {
+                option1,
+                option2
+            }
+        };
+
+        var config = new CliConfiguration(command);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should()
+                .Throw<CliConfigurationException>()
+                .Which
+                .Message
+                .Should()
+                .Be("Duplicate alias '--dupe' found on command 'subcommand'.");
+    }
+    [Fact]
+    public void ThrowIfInvalid_throws_if_there_are_duplicate_case_insensitive_sibling_option_aliases_on_a_subcommand()
+    {
+        var option1 = new CliOption<string>("--dupe", false);
+        var option2 = new CliOption<string>("--ok");
+        option2.Aliases.Add("--Dupe");
 
         var command = new CliRootCommand
         {
@@ -85,6 +137,30 @@ public class CliConfigurationTests
                 .Should()
                 .Be($"Duplicate alias 'dupe' found on command '{rootCommand.Name}'.");
     }
+    [Fact]
+    public void ThrowIfInvalid_throws_if_there_are_duplicate_case_insensitive_sibling_subcommand_aliases_on_the_root_command()
+    {
+        var command1 = new CliCommand("dupe", caseSensitive: false);
+        var command2 = new CliCommand("not-a-dupe");
+        command2.Aliases.Add("Dupe");
+
+        var rootCommand = new CliRootCommand
+        {
+            command1,
+            command2
+        };
+
+        var config = new CliConfiguration(rootCommand);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should()
+                .Throw<CliConfigurationException>()
+                .Which
+                .Message
+                .Should()
+                .Be($"Duplicate alias 'dupe' found on command '{rootCommand.Name}'.");
+    }
 
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_subcommand_aliases_on_a_subcommand()
@@ -109,6 +185,29 @@ public class CliConfigurationTests
                 .Should()
                 .Be("Duplicate alias 'dupe' found on command 'subcommand'.");
     }
+    [Fact]
+    public void ThrowIfInvalid_throws_if_there_are_duplicate_case_insensitive_sibling_subcommand_aliases_on_a_subcommand()
+    {
+        var command = new CliRootCommand
+        {
+            new CliCommand("subcommand")
+            {
+                new CliCommand("dupe", caseSensitive: false),
+                new CliCommand("not-a-dupe") { Aliases = { "Dupe" } }
+            }
+        };
+
+        var config = new CliConfiguration(command);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should()
+                .Throw<CliConfigurationException>()
+                .Which
+                .Message
+                .Should()
+                .Be("Duplicate alias 'dupe' found on command 'subcommand'.");
+    }
 
     [Fact]
     public void ThrowIfInvalid_throws_if_sibling_command_and_option_aliases_collide_on_the_root_command()
@@ -116,6 +215,30 @@ public class CliConfigurationTests
         var option = new CliOption<string>("dupe");
         var command = new CliCommand("not-a-dupe");
         command.Aliases.Add("dupe");
+
+        var rootCommand = new CliRootCommand
+        {
+            option,
+            command
+        };
+
+        var config = new CliConfiguration(rootCommand);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should()
+                .Throw<CliConfigurationException>()
+                .Which
+                .Message
+                .Should()
+                .Be($"Duplicate alias 'dupe' found on command '{rootCommand.Name}'.");
+    }
+    [Fact]
+    public void ThrowIfInvalid_throws_if_case_insensitive_sibling_command_and_option_aliases_collide_on_the_root_command()
+    {
+        var option = new CliOption<string>("dupe", caseSensitive: false);
+        var command = new CliCommand("not-a-dupe");
+        command.Aliases.Add("Dupe");
 
         var rootCommand = new CliRootCommand
         {
@@ -162,6 +285,33 @@ public class CliConfigurationTests
                 .Should()
                 .Be("Duplicate alias 'dupe' found on command 'subcommand'.");
     }
+    [Fact]
+    public void ThrowIfInvalid_throws_if_case_insensitive_sibling_command_and_option_aliases_collide_on_a_subcommand()
+    {
+        var option = new CliOption<string>("dupe", caseSensitive: false);
+        var command = new CliCommand("not-a-dupe");
+        command.Aliases.Add("Dupe");
+
+        var rootCommand = new CliRootCommand
+        {
+            new CliCommand("subcommand")
+            {
+                option,
+                command
+            }
+        };
+
+        var config = new CliConfiguration(rootCommand);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should()
+                .Throw<CliConfigurationException>()
+                .Which
+                .Message
+                .Should()
+                .Be("Duplicate alias 'dupe' found on command 'subcommand'.");
+    }
 
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_global_option_aliases_on_the_root_command()
@@ -169,6 +319,28 @@ public class CliConfigurationTests
         var option1 = new CliOption<string>("--dupe") { Recursive = true };
         var option2 = new CliOption<string>("-y") { Recursive = true };
         option2.Aliases.Add("--dupe");
+
+        var command = new CliRootCommand();
+        command.Options.Add(option1);
+        command.Options.Add(option2);
+
+        var config = new CliConfiguration(command);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should()
+                .Throw<CliConfigurationException>()
+                .Which
+                .Message
+                .Should()
+                .Be($"Duplicate alias '--dupe' found on command '{command.Name}'.");
+    }
+    [Fact]
+    public void ThrowIfInvalid_throws_if_there_are_duplicate_case_insensitive_sibling_global_option_aliases_on_the_root_command()
+    {
+        var option1 = new CliOption<string>("--dupe", caseSensitive: false) { Recursive = true };
+        var option2 = new CliOption<string>("-y") { Recursive = true };
+        option2.Aliases.Add("--Dupe");
 
         var command = new CliRootCommand();
         command.Options.Add(option1);
@@ -204,6 +376,24 @@ public class CliConfigurationTests
 
         validate.Should().NotThrow();
     }
+    [Fact]
+    public void ThrowIfInvalid_does_not_throw_if_case_insensitive_global_option_alias_is_the_same_as_local_option_alias()
+    {
+        var rootCommand = new CliRootCommand
+        {
+            new CliCommand("subcommand")
+            {
+                new CliOption<string>("--dupe")
+            }
+        };
+        rootCommand.Options.Add(new CliOption<string>("--Dupe", caseSensitive: false) { Recursive = true });
+
+        var config = new CliConfiguration(rootCommand);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should().NotThrow();
+    }
 
     [Fact]
     public void ThrowIfInvalid_does_not_throw_if_global_option_alias_is_the_same_as_subcommand_alias()
@@ -216,6 +406,24 @@ public class CliConfigurationTests
             }
         };
         rootCommand.Options.Add(new CliOption<string>("--dupe") { Recursive = true });
+
+        var config = new CliConfiguration(rootCommand);
+
+        var validate = () => config.ThrowIfInvalid();
+
+        validate.Should().NotThrow();
+    }
+    [Fact]
+    public void ThrowIfInvalid_does_not_throw_if_case_insensitive_global_option_alias_is_the_same_as_subcommand_alias()
+    {
+        var rootCommand = new CliRootCommand
+        {
+            new CliCommand("subcommand")
+            {
+                new CliCommand("--dupe")
+            }
+        };
+        rootCommand.Options.Add(new CliOption<string>("--Dupe", caseSensitive: false) { Recursive = true });
 
         var config = new CliConfiguration(rootCommand);
 

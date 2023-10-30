@@ -35,7 +35,8 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command, shown in help.</param>
-        public CliCommand(string name, string? description = null) : base(name)
+        /// <param name="caseSensitive">Whether the command is case sensitive.</param>
+        public CliCommand(string name, string? description = null, bool caseSensitive = true) : base(name, caseSensitive: caseSensitive)
             => Description = description;
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace System.CommandLine
         /// Gets the unique set of strings that can be used on the command line to specify the command.
         /// </summary>
         /// <remarks>The collection does not contain the <see cref="CliSymbol.Name"/> of the Command.</remarks>
-        public ICollection<string> Aliases => _aliases ??= new();
+        public ICollection<string> Aliases => _aliases ??= new(CaseSensitive);
 
         /// <summary>
         /// Gets or sets the <see cref="CliAction"/> for the Command. The handler represents the action
@@ -308,6 +309,7 @@ namespace System.CommandLine
         }
 
         internal bool EqualsNameOrAlias(string name)
-            => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
+            => Name.Equals(name, CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase)
+            || (_aliases is not null && _aliases.Contains(name, CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase));
     }
 }
