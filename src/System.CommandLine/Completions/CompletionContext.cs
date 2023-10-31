@@ -87,8 +87,11 @@ namespace System.CommandLine.Completions
 
                 var textAfterCursor = rawInput.Substring(position.Value);
 
-                return textBeforeCursor.Split(' ','=').LastOrDefault() +
-                       textAfterCursor.Split(' ','=').FirstOrDefault();
+                var lastOrFirstWord = textBeforeCursor.Split(' ').LastOrDefault() +
+                       textAfterCursor.Split(' ').FirstOrDefault();
+
+                return (lastOrFirstWord.StartsWith("--")) ? lastOrFirstWord.Split('=').Last() : lastOrFirstWord;
+
             }
 
             return "";
