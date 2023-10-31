@@ -12,8 +12,6 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliSymbol
     {
-        private ParentNode? _firstParent;
-
         private protected CliSymbol(string name, bool allowWhitespace = false)
         {
             Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
@@ -32,22 +30,22 @@ namespace System.CommandLine
         /// <summary>
         /// Represents the first parent node.
         /// </summary>
-        internal ParentNode? FirstParent => _firstParent;
-        
+        internal SymbolNode? FirstParent { get; private set; }
+
         internal void AddParent(CliSymbol symbol)
         {
-            if (_firstParent == null)
+            if (FirstParent == null)
             {
-                _firstParent = new ParentNode(symbol);
+                FirstParent = new SymbolNode(symbol);
             }
             else
             {
-                ParentNode current = _firstParent;
+                SymbolNode current = FirstParent;
                 while (current.Next is not null)
                 {
                     current = current.Next;
                 }
-                current.Next = new ParentNode(symbol);
+                current.Next = new SymbolNode(symbol);
             }
         }
 
@@ -63,7 +61,7 @@ namespace System.CommandLine
         {
             get
             {
-                ParentNode? parent = _firstParent;
+                SymbolNode? parent = FirstParent;
                 while (parent is not null)
                 {
                     yield return parent.Symbol;

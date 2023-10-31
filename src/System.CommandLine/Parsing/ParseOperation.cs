@@ -31,7 +31,7 @@ namespace System.CommandLine.Parsing
             _tokens = tokens;
             _configuration = configuration;
             _rawInput = rawInput;
-            _symbolResultTree = new(tokenizeErrors);
+            _symbolResultTree = new(_configuration.RootCommand, tokenizeErrors);
             _innermostCommandResult = _rootCommandResult = new CommandResult(
                 _configuration.RootCommand,
                 CurrentToken,

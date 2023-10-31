@@ -21,12 +21,6 @@ namespace System.CommandLine
         {
         }
 
-        private protected CliOption(string name, CliArgument<T> argument) : base(name)
-        {
-            argument.AddParent(this);
-            _argument = argument;
-        }
-
         private protected CliOption(string name, string[] aliases, CliArgument<T> argument)
             : base(name, aliases)
         {
@@ -47,10 +41,7 @@ namespace System.CommandLine
             get => _argument.CustomParser;
             set => _argument.CustomParser = value;
         }
-
-        /// <inheritdoc />
-        public override Type ValueType => typeof(T);
-
+        
         internal sealed override CliArgument Argument => _argument;
 
         /// <summary>

@@ -123,7 +123,7 @@ public partial class HelpBuilder
         /// <summary>
         /// Gets the default sections to be written for command line help.
         /// </summary>
-        public static IEnumerable<Action<HelpContext>> GetLayout()
+        public static IEnumerable<Func<HelpContext, bool>> GetLayout()
         {
             yield return SynopsisSection();
             yield return CommandUsageSection();
@@ -136,49 +136,51 @@ public partial class HelpBuilder
         /// <summary>
         /// Writes a help section describing a command's synopsis.
         /// </summary>
-        public static Action<HelpContext> SynopsisSection() =>
+        public static Func<HelpContext, bool> SynopsisSection() =>
             ctx =>
             {
                 ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
+                return true;
             };
 
         /// <summary>
         /// Writes a help section describing a command's usage.
         /// </summary>
-        public static Action<HelpContext> CommandUsageSection() =>
+        public static Func<HelpContext, bool> CommandUsageSection() =>
             ctx =>
             {
                 ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpUsageTitle(), ctx.HelpBuilder.GetUsage(ctx.Command), ctx.Output);
+                return true;
             };
 
         ///  <summary>
         /// Writes a help section describing a command's arguments.
         ///  </summary>
-        public static Action<HelpContext> CommandArgumentsSection() =>
+        public static Func<HelpContext, bool> CommandArgumentsSection() =>
             ctx =>
             {
                 TwoColumnHelpRow[] commandArguments = ctx.HelpBuilder.GetCommandArgumentRows(ctx.Command, ctx).ToArray();
 
-                if (commandArguments.Length <= 0)
+                if (commandArguments.Length > 0)
                 {
-                    ctx.WasSectionSkipped = true;
-                    return;
+                    ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
+                    ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
+                    return true;
                 }
 
-                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpArgumentsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(commandArguments, ctx);
+                return false;
             };
 
         ///  <summary>
         /// Writes a help section describing a command's subcommands.
         ///  </summary>
-        public static Action<HelpContext> SubcommandsSection() =>
+        public static Func<HelpContext, bool> SubcommandsSection() =>
             ctx => ctx.HelpBuilder.WriteSubcommands(ctx);
 
         ///  <summary>
         /// Writes a help section describing a command's options.
         ///  </summary>
-        public static Action<HelpContext> OptionsSection() =>
+        public static Func<HelpContext, bool> OptionsSection() =>
             ctx =>
             {
                 List<TwoColumnHelpRow> optionRows = new();
@@ -203,7 +205,7 @@ public partial class HelpBuilder
                 while (current is not null)
                 {
                     CliCommand? parentCommand = null;
-                    ParentNode? parent = current.FirstParent;
+                    SymbolNode? parent = current.FirstParent;
                     while (parent is not null)
                     {
                         if ((parentCommand = parent.Symbol as CliCommand) is not null)
@@ -230,21 +232,20 @@ public partial class HelpBuilder
                     current = parentCommand;
                 }
 
-                if (optionRows.Count <= 0)
+                if (optionRows.Count > 0)
                 {
-                    ctx.WasSectionSkipped = true;
-                    return;
+                    ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
+                    ctx.HelpBuilder.WriteColumns(optionRows, ctx);
+                    return true;
                 }
 
-                ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpOptionsTitle(), null, ctx.Output);
-                ctx.HelpBuilder.WriteColumns(optionRows, ctx);
-                ctx.Output.WriteLine();
+                return false;
             };
 
         ///  <summary>
         /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="CliCommand.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
         ///  </summary>
-        public static Action<HelpContext> AdditionalArgumentsSection() =>
+        public static Func<HelpContext, bool> AdditionalArgumentsSection() =>
             ctx => ctx.HelpBuilder.WriteAdditionalArguments(ctx);
     }
 }

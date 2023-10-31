@@ -45,7 +45,5 @@ namespace System.CommandLine.Help
         /// A text writer to write output to.
         /// </summary>
         public TextWriter Output { get; }
-
-        internal bool WasSectionSkipped { get; set; }
     }
 }

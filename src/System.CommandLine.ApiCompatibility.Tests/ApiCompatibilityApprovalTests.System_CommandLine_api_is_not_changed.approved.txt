@@ -35,7 +35,7 @@ System.CommandLine
     public System.Void AcceptLegalFileNamesOnly()
     public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
-  public class CliCommand : CliSymbol, System.Collections.Generic.IEnumerable<CliSymbol>, System.Collections.IEnumerable
+  public class CliCommand : CliSymbol, System.Collections.IEnumerable
     .ctor(System.String name, System.String description = null)
     public System.CommandLine.Invocation.CliAction Action { get; set; }
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
@@ -49,7 +49,6 @@ System.CommandLine
     public System.Void Add(CliOption option)
     public System.Void Add(CliCommand command)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public System.Collections.Generic.IEnumerator<CliSymbol> GetEnumerator()
     public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CliConfiguration configuration = null)
     public ParseResult Parse(System.String commandLine, CliConfiguration configuration = null)
     public System.Void SetAction(System.Action<ParseResult> action)
@@ -89,17 +88,15 @@ System.CommandLine
     public System.Boolean Recursive { get; set; }
     public System.Boolean Required { get; set; }
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
-    public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
   public class CliOption<T> : CliOption
     .ctor(System.String name, System.String[] aliases)
     public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
-    public System.Type ValueType { get; }
     public System.Void AcceptLegalFileNamesOnly()
     public System.Void AcceptLegalFilePathsOnly()
     public System.Void AcceptOnlyFromAmong(System.String[] values)
-  public class CliRootCommand : CliCommand, System.Collections.Generic.IEnumerable<CliSymbol>, System.Collections.IEnumerable
+  public class CliRootCommand : CliCommand, System.Collections.IEnumerable
     public static System.String ExecutableName { get; }
     public static System.String ExecutablePath { get; }
     .ctor(System.String description = )
@@ -184,7 +181,7 @@ System.CommandLine.Help
   public class HelpBuilder
     .ctor(System.Int32 maxWidth = 2147483647)
     public System.Int32 MaxWidth { get; }
-    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Action<HelpContext>>> getLayout)
+    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Func<HelpContext,System.Boolean>>> getLayout)
     public System.Void CustomizeSymbol(System.CommandLine.CliSymbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
     public System.Void CustomizeSymbol(System.CommandLine.CliSymbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
     public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.CliSymbol symbol, HelpContext context)
@@ -192,18 +189,18 @@ System.CommandLine.Help
     public System.Void Write(System.CommandLine.CliCommand command, System.IO.TextWriter writer)
     public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
    static class Default
-    public static System.Action<HelpContext> AdditionalArgumentsSection()
-    public static System.Action<HelpContext> CommandArgumentsSection()
-    public static System.Action<HelpContext> CommandUsageSection()
+    public static System.Func<HelpContext,System.Boolean> AdditionalArgumentsSection()
+    public static System.Func<HelpContext,System.Boolean> CommandArgumentsSection()
+    public static System.Func<HelpContext,System.Boolean> CommandUsageSection()
     public static System.String GetArgumentDefaultValue(System.CommandLine.CliArgument argument)
     public static System.String GetArgumentDescription(System.CommandLine.CliArgument argument)
     public static System.String GetArgumentUsageLabel(System.CommandLine.CliArgument argument)
     public static System.String GetCommandUsageLabel(System.CommandLine.CliCommand symbol)
-    public static System.Collections.Generic.IEnumerable<System.Action<HelpContext>> GetLayout()
+    public static System.Collections.Generic.IEnumerable<System.Func<HelpContext,System.Boolean>> GetLayout()
     public static System.String GetOptionUsageLabel(System.CommandLine.CliOption symbol)
-    public static System.Action<HelpContext> OptionsSection()
-    public static System.Action<HelpContext> SubcommandsSection()
-    public static System.Action<HelpContext> SynopsisSection()
+    public static System.Func<HelpContext,System.Boolean> OptionsSection()
+    public static System.Func<HelpContext,System.Boolean> SubcommandsSection()
+    public static System.Func<HelpContext,System.Boolean> SynopsisSection()
   public class HelpContext
     .ctor(HelpBuilder helpBuilder, System.CommandLine.CliCommand command, System.IO.TextWriter output, System.CommandLine.ParseResult parseResult = null)
     public System.CommandLine.CliCommand Command { get; }
@@ -290,8 +287,10 @@ System.CommandLine.Parsing
     public CommandResult GetResult(System.CommandLine.CliCommand command)
     public OptionResult GetResult(System.CommandLine.CliOption option)
     public DirectiveResult GetResult(System.CommandLine.CliDirective directive)
+    public SymbolResult GetResult(System.String name)
     public T GetValue<T>(CliArgument<T> argument)
     public T GetValue<T>(CliOption<T> option)
+    public T GetValue<T>(System.String name)
   public delegate TryReplaceToken : System.MulticastDelegate, System.ICloneable, System.Runtime.Serialization.ISerializable
     .ctor(System.Object object, System.IntPtr method)
     public System.IAsyncResult BeginInvoke(System.String tokenToReplace, ref System.Collections.Generic.IReadOnlyList<System.String> replacementTokens, ref System.String& errorMessage, System.AsyncCallback callback, System.Object object)
