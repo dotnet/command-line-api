@@ -22,8 +22,4 @@
     <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
     <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
   </PropertyGroup>
-  <!-- Package versions -->
-  <PropertyGroup>
-    <MicrosoftSourceBuildIntermediatesourcebuildreferencepackagesPackageVersion>8.0.0-alpha.1.23356.4</MicrosoftSourceBuildIntermediatesourcebuildreferencepackagesPackageVersion>
-  </PropertyGroup>
 </Project>
