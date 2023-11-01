@@ -62,6 +62,31 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void CommandLineText_is_parsed_when_last_option_is_in_name_equals_sign_value_format()
+        {
+
+            CliRootCommand command = new CliRootCommand
+            {
+                new CliCommand("inner")
+                {
+                    new CliOption<string>("--optionOne"),
+                    new CliOption<string>("--optionTwo")
+                }
+            };
+
+            var commandLine = "inner --optionOne argument1 --optionTwo=argument2";
+
+            var parseResult = command.Parse(commandLine);
+            parseResult.GetCompletions();
+
+            Assert.True(parseResult.Tokens[1].Value == "--optionOne");
+            Assert.True(parseResult.Tokens[2].Value == "argument1");
+            Assert.True(parseResult.Tokens[3].Value == "--optionTwo");
+            Assert.True(parseResult.Tokens[4].Value == "argument2");
+
+        }
+
+        [Fact]
         public void CommandLineText_is_parsed_when_equal_sign_used_in_multiple_option_params()
         {
 
@@ -118,8 +143,7 @@ namespace System.CommandLine.Tests
             {
                 new CliCommand("inner")
                 {
-                    new CliOption<string>("--optionOne"),
-                    new CliOption<string>("--optionTwo")
+                    new CliOption<string>("--optionOne")
                 }
             };
 
@@ -131,31 +155,6 @@ namespace System.CommandLine.Tests
             Assert.True(parseResult.Tokens[0].Value == "inner");
             Assert.True(parseResult.Tokens[1].Value == "--optionOne");
             Assert.True(parseResult.Tokens[2].Value == "-=Yay=-");
-
-        }
-
-        [Fact]
-        public void CommandLineText_is_parsed_when_last_option_is_in_name_equals_sign_value_format()
-        {
-
-            CliRootCommand command = new CliRootCommand
-            {
-                new CliCommand("inner")
-                {
-                    new CliOption<string>("--optionOne"),
-                    new CliOption<string>("--optionTwo")
-                }
-            };
-
-            var commandLine = "inner --optionOne argument1 --optionTwo=argument2";
-
-            var parseResult = command.Parse(commandLine);
-            parseResult.GetCompletions();
-
-            Assert.True(parseResult.Tokens[1].Value == "--optionOne");
-            Assert.True(parseResult.Tokens[2].Value == "argument1");
-            Assert.True(parseResult.Tokens[3].Value == "--optionTwo");
-            Assert.True(parseResult.Tokens[4].Value == "argument2");
 
         }
 

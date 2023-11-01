@@ -90,7 +90,7 @@ namespace System.CommandLine.Completions
                 var lastOrFirstWord = textBeforeCursor.Split(' ').LastOrDefault() +
                        textAfterCursor.Split(' ').FirstOrDefault();
 
-                return (lastOrFirstWord.StartsWith("--")) ? lastOrFirstWord.Split('=').Last() : lastOrFirstWord;
+                return (lastOrFirstWord.StartsWith("--")) ? lastOrFirstWord.Split(new[] { '=' }, 2).Last() : lastOrFirstWord;
 
             }
 
