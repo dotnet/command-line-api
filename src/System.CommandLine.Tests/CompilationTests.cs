@@ -6,6 +6,7 @@
 using System.CommandLine.Suggest;
 using System.CommandLine.Tests.Utility;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using FluentAssertions;
 using Microsoft.DotNet.PlatformAbstractions;
