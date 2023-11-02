@@ -4,5 +4,9 @@
 <UsageData>
   <IgnorePatterns>
     <UsagePattern IdentityGlob="Microsoft.SourceBuild.Intermediate.*" />
+
+    <!-- Picks this up from the SDK. This is allowed for the repo build and won't be an issue with full VMR
+         build because it will be retrieved from the N-1 artifacts. -->
+    <UsagePattern IdentityGlob="Microsoft.NET.ILLink.Tasks/8.*" />
   </IgnorePatterns>
 </UsageData>
