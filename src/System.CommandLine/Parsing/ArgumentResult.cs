@@ -29,8 +29,6 @@ namespace System.CommandLine.Parsing
 
         internal bool ArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
 
-        internal bool Implicit => Argument.HasDefaultValue && Tokens.Count == 0;
-
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= ValidateAndConvert(useValidators: true);
 
@@ -108,11 +106,6 @@ namespace System.CommandLine.Parsing
             }
 
             CommandResult rootCommand = parent;
-            while (rootCommand.Parent is CommandResult nextLevel)
-            {
-                rootCommand = nextLevel;
-            }
-
             // When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unmatched_tokens
             while (tokensToPass > 0)
             {

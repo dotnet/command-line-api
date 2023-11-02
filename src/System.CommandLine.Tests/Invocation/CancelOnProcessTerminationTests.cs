@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.CommandLine.Tests.Utility;
 using System.Diagnostics;
@@ -61,11 +62,9 @@ namespace System.CommandLine.Tests.Invocation
             }.InvokeAsync(args);
         }
 
-        private sealed class CustomCliAction : CliAction
+        private sealed class CustomCliAction : AsynchronousCliAction
         {
-            public override int Invoke(ParseResult context) => throw new NotImplementedException();
-
-            public async override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
+            public override async Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken = default)
             {
                 Console.WriteLine(ChildProcessWaiting);
 

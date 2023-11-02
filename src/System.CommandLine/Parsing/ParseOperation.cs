@@ -18,9 +18,9 @@ namespace System.CommandLine.Parsing
         private int _index;
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested;
-        private bool _isDiagramRequested;
+        private bool _isTerminatingDirectiveSpecified;
         private CliAction? _primaryAction;
-        private List<CliAction>? _nonexclusiveActions;
+        private List<CliAction>? _preActions;
 
         public ParseOperation(
             List<CliToken> tokens,
@@ -31,7 +31,7 @@ namespace System.CommandLine.Parsing
             _tokens = tokens;
             _configuration = configuration;
             _rawInput = rawInput;
-            _symbolResultTree = new(tokenizeErrors);
+            _symbolResultTree = new(_configuration.RootCommand, tokenizeErrors);
             _innermostCommandResult = _rootCommandResult = new CommandResult(
                 _configuration.RootCommand,
                 CurrentToken,
@@ -65,12 +65,7 @@ namespace System.CommandLine.Parsing
 
             if (_primaryAction is null)
             {
-                if (_configuration.EnableTypoCorrections && _rootCommandResult.Command.TreatUnmatchedTokensAsErrors
-                    && _symbolResultTree.UnmatchedTokens is not null)
-                {
-                    _primaryAction = new TypoCorrectionAction();
-                }
-                else if (_configuration.EnableParseErrorReporting && _symbolResultTree.ErrorCount > 0)
+                if (_symbolResultTree.ErrorCount > 0)
                 {
                     _primaryAction = new ParseErrorAction();
                 }
@@ -85,7 +80,7 @@ namespace System.CommandLine.Parsing
                 _symbolResultTree.Errors,
                 _rawInput,
                 _primaryAction,
-                _nonexclusiveActions);
+                _preActions);
         }
 
         private void ParseSubcommand()
@@ -191,17 +186,24 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
-                // DiagramDirective has a precedence over --help and --version
-                if (!_isDiagramRequested)
+                if (option.Action is not null)
                 {
-                    if (option.Action is not null)
+                    // directives have a precedence over --help and --version
+                    if (!_isTerminatingDirectiveSpecified)
                     {
                         if (option is HelpOption)
                         {
                             _isHelpRequested = true;
                         }
 
-                        _primaryAction = option.Action;
+                        if (option.Action.Terminating)
+                        {
+                            _primaryAction = option.Action;
+                        }
+                        else
+                        {
+                            AddPreAction(option.Action);
+                        }
                     }
                 }
 
@@ -246,8 +248,7 @@ namespace System.CommandLine.Parsing
                         break;
                     }
                 }
-                else if ((argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?))  && 
-                         !bool.TryParse(CurrentToken.Value, out _))
+                else if (argument.IsBoolean() && !bool.TryParse(CurrentToken.Value, out _))
                 {
                     // Don't greedily consume the following token for bool. The presence of the option token (i.e. a flag) is sufficient.
                     break;
@@ -293,7 +294,7 @@ namespace System.CommandLine.Parsing
         {
             while (More(out CliTokenType currentTokenType) && currentTokenType == CliTokenType.Directive)
             {
-                if (_configuration.Directives.Count > 0)
+                if (_configuration.HasDirectives)
                 {
                     ParseDirective(); // kept in separate method to avoid JIT
                 }
@@ -332,26 +333,27 @@ namespace System.CommandLine.Parsing
 
                 if (directive.Action is not null)
                 {
-                    if (directive.Action.Exclusive)
+                    if (directive.Action.Terminating)
                     {
                         _primaryAction = directive.Action;
+                        _isTerminatingDirectiveSpecified = true;
                     }
-                    else 
+                    else
                     {
-                        if (_nonexclusiveActions is null)
-                        {
-                            _nonexclusiveActions = new();
-                        }
-
-                        _nonexclusiveActions.Add(directive.Action);
+                        AddPreAction(directive.Action);
                     }
-                }
-
-                if (directive is DiagramDirective)
-                {
-                    _isDiagramRequested = true;
                 }
             }
+        }
+
+        private void AddPreAction(CliAction action)
+        {
+            if (_preActions is null)
+            {
+                _preActions = new();
+            }
+
+            _preActions.Add(action);
         }
 
         private void AddCurrentTokenToUnmatched()

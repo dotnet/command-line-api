@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
-using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine
 {
@@ -25,17 +25,14 @@ namespace System.CommandLine
         public CliConfiguration(CliCommand rootCommand)
         {
             RootCommand = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
-            Directives = new()
-            {
-                new SuggestDirective()
-            };
         }
 
-        /// <summary>
-        /// Gets a mutable list of the enabled directives.
-        /// Currently only <see cref="SuggestDirective"/> is enabled by default.
-        /// </summary>
-        public List<CliDirective> Directives { get; }
+        internal bool HasDirectives =>
+            RootCommand switch
+            {
+                CliRootCommand root => root.Directives.Count > 0,
+                _ => false
+            };
 
         /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.
@@ -63,16 +60,6 @@ namespace System.CommandLine
         /// Enables a default exception handler to catch any unhandled exceptions thrown during invocation. Enabled by default.
         /// </summary>
         public bool EnableDefaultExceptionHandler { get; set; } = true;
-
-        /// <summary>
-        /// Configures the command line to write error information to standard error when there are errors parsing command line input. Enabled by default.
-        /// </summary>
-        public bool EnableParseErrorReporting { get; set; } = true;
-
-        /// <summary>
-        /// Configures the application to provide alternative suggestions when a parse error is detected. Disabled by default.
-        /// </summary>
-        public bool EnableTypoCorrections { get; set; } = false;
 
         /// <summary>
         /// Enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="CancellationToken"/> 

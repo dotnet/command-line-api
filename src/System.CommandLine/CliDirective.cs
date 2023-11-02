@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Collections.Generic;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine
 {
@@ -29,6 +33,7 @@ namespace System.CommandLine
         /// </summary>
         public virtual CliAction? Action { get; set; }
 
+        /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
             => Array.Empty<CompletionItem>();
     }

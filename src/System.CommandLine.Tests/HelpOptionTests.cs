@@ -3,188 +3,187 @@
 
 using FluentAssertions;
 using System.CommandLine.Help;
+using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests;
+
+public class HelpOptionTests
 {
-    public class HelpOptionTests
+    [Fact]
+    public async Task Help_option_writes_help_for_the_specified_command()
     {
-        [Fact]
-        public async Task Help_option_writes_help_for_the_specified_command()
+        CliCommand command = new CliRootCommand
         {
-            CliCommand command = new CliRootCommand
+            new CliCommand("command")
             {
-                new CliCommand("command")
-                {
-                    new CliCommand("subcommand")
-                }
-            };
+                new CliCommand("subcommand")
+            }
+        };
 
-            CliConfiguration config = new(command)
-            {
-                Output = new StringWriter()
-            };
+        CliConfiguration config = new(command)
+        {
+            Output = new StringWriter()
+        };
 
-            var result = command.Parse("command subcommand --help", config);
+        var result = command.Parse("command subcommand --help", config);
 
-            await result.InvokeAsync();
+        await result.InvokeAsync();
 
-            config.Output.ToString().Should().Contain($"{CliRootCommand.ExecutableName} command subcommand [options]");
-        }
+        config.Output.ToString().Should().Contain($"{CliRootCommand.ExecutableName} command subcommand [options]");
+    }
          
-        [Fact]
-        public async Task Help_option_interrupts_execution_of_the_specified_command()
+    [Fact]
+    public async Task Help_option_interrupts_execution_of_the_specified_command()
+    {
+        var wasCalled = false;
+        var command = new CliCommand("command") { new HelpOption() };
+        var subcommand = new CliCommand("subcommand");
+        subcommand.SetAction(_ => wasCalled = true);
+        command.Subcommands.Add(subcommand);
+
+        CliConfiguration config = new(command)
         {
-            var wasCalled = false;
-            var command = new CliCommand("command") { new HelpOption() };
-            var subcommand = new CliCommand("subcommand");
-            subcommand.SetAction(_ => wasCalled = true);
-            command.Subcommands.Add(subcommand);
+            Output = new StringWriter()
+        };
 
-            CliConfiguration config = new(command)
-            {
-                Output = new StringWriter()
-            };
+        await command.Parse("command subcommand --help", config).InvokeAsync();
 
-            await command.Parse("command subcommand --help", config).InvokeAsync();
+        wasCalled.Should().BeFalse();
+    }
 
-            wasCalled.Should().BeFalse();
-        }
-
-        [Theory]
-        [InlineData("-h")]
-        [InlineData("--help")]
-        [InlineData("-?")]
-        [InlineData("/?")]
-        public async Task Help_option_accepts_default_values(string value)
+    [Theory]
+    [InlineData("-h")]
+    [InlineData("--help")]
+    [InlineData("-?")]
+    [InlineData("/?")]
+    public async Task Help_option_accepts_default_values(string value)
+    {
+        CliConfiguration config = new(new CliCommand("command") { new HelpOption() })
         {
-            CliConfiguration config = new(new CliCommand("command") { new HelpOption() })
-            {
-                Output = new StringWriter()
-            };
+            Output = new StringWriter()
+        };
 
-            StringWriter console = new();
-            config.Output = console;
+        StringWriter console = new();
+        config.Output = console;
 
-            await config.InvokeAsync($"command {value}");
+        await config.InvokeAsync($"command {value}");
 
-            console.ToString().Should().Contain("Usage:");
-        }
+        console.ToString().Should().ShowHelp();
+    }
 
-        [Fact]
-        public async Task Help_option_does_not_display_when_option_defined_with_same_alias()
+    [Fact]
+    public async Task Help_option_does_not_display_when_option_defined_with_same_alias()
+    {
+        var command = new CliCommand("command");
+        command.Options.Add(new CliOption<bool>("-h"));
+
+        CliConfiguration config = new(command)
         {
-            var command = new CliCommand("command");
-            command.Options.Add(new CliOption<bool>("-h"));
+            Output = new StringWriter()
+        };
 
-            CliConfiguration config = new(command)
-            {
-                Output = new StringWriter()
-            };
+        await command.Parse("command -h", config).InvokeAsync();
 
-            await command.Parse("command -h", config).InvokeAsync();
+        config.Output.ToString().Should().NotShowHelp();
+    }
 
-            config.Output.ToString().Should().BeEmpty();
-        }
+    [Fact]
+    public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
+    {
+        CliRootCommand rootCommand = new();
 
-        [Fact]
-        public void There_are_no_parse_errors_when_help_is_invoked_on_root_command()
-        {
-            CliRootCommand rootCommand = new();
+        var result = rootCommand.Parse("-h");
 
-            var result = rootCommand.Parse("-h");
-
-            result.Errors
-                  .Should()
-                  .BeEmpty();
-        }
+        result.Errors
+              .Should()
+              .BeEmpty();
+    }
         
-        [Fact]
-        public void There_are_no_parse_errors_when_help_is_invoked_on_subcommand()
+    [Fact]
+    public void There_are_no_parse_errors_when_help_is_invoked_on_subcommand()
+    {
+        var root = new CliRootCommand
         {
-            var root = new CliRootCommand
-            {
-                new CliCommand("subcommand"),
-            };
+            new CliCommand("subcommand"),
+        };
 
-            var result = root.Parse("subcommand -h");
+        var result = root.Parse("subcommand -h");
 
-            result.Errors
-                  .Should()
-                  .BeEmpty();
-        }
+        result.Errors
+              .Should()
+              .BeEmpty();
+    }
 
-        [Fact]
-        public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_subcommands()
+    [Fact]
+    public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_subcommands()
+    {
+        var root = new CliRootCommand
         {
-            var root = new CliRootCommand
-            {
-                new CliCommand("subcommand"),
-            };
+            new CliCommand("subcommand"),
+        };
 
-            var result = root.Parse("-h");
+        var result = root.Parse("-h");
 
-            result.Errors.Should().BeEmpty();
-        }
+        result.Errors.Should().BeEmpty();
+    }
 
-        [Fact]
-        public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_required_options()
+    [Fact]
+    public void There_are_no_parse_errors_when_help_is_invoked_on_a_command_with_required_options()
+    {
+        var command = new CliRootCommand
         {
-            var command = new CliRootCommand
+            new CliOption<string>("-x")
             {
-                new CliOption<string>("-x")
-                {
-                    Required = true
-                },
-            };
+                Required = true
+            },
+        };
 
-            var result = command.Parse("-h");
+        var result = command.Parse("-h");
 
-            result.Errors.Should().BeEmpty();
-        }
+        result.Errors.Should().BeEmpty();
+    }
 
-        [Theory]
-        [InlineData("/lost")]
-        [InlineData("--confused")]
-        public async Task HelpOption_with_custom_aliases_uses_aliases(string helpAlias)
+    [Theory]
+    [InlineData("/lost")]
+    [InlineData("--confused")]
+    public async Task HelpOption_with_custom_aliases_uses_aliases(string helpAlias)
+    {
+        CliRootCommand command = new()
         {
-            CliRootCommand command = new()
-            {
-                new HelpOption("/lost", "--confused")
-            };
-            CliConfiguration config = new(command)
-            {
-                Output = new StringWriter()
-            };
-
-            await config.InvokeAsync(helpAlias);
-
-            config.Output.ToString().Should().Contain("Usage:");
-        }
-
-        [Theory]
-        [InlineData("-h")]
-        [InlineData("/h")]
-        [InlineData("--help")]
-        [InlineData("-?")]
-        [InlineData("/?")]
-        public async Task Help_option_with_custom_aliases_default_aliases_replaced(string helpAlias)
+            new HelpOption("/lost", "--confused")
+        };
+        CliConfiguration config = new(command)
         {
-            CliRootCommand command = new();
-            command.Options.Clear();
-            command.Options.Add(new HelpOption("--confused"));
+            Output = new StringWriter()
+        };
 
-            CliConfiguration config = new(command)
-            {
-                Output = new StringWriter(),
-                EnableParseErrorReporting = false
-            };
+        await config.InvokeAsync(helpAlias);
 
-            await config.InvokeAsync(helpAlias);
+        config.Output.ToString().Should().ShowHelp();
+    }
 
-            config.Output.ToString().Should().Be("");
-        }
+    [Theory]
+    [InlineData("-h")]
+    [InlineData("/h")]
+    [InlineData("--help")]
+    [InlineData("-?")]
+    [InlineData("/?")]
+    public async Task Help_option_with_custom_aliases_does_not_recognize_default_aliases(string helpAlias)
+    {
+        CliRootCommand command = new();
+        command.Options.Clear();
+        command.Options.Add(new HelpOption("--confused"));
+
+        CliConfiguration config = new(command)
+        {
+            Output = new StringWriter(),
+        };
+
+        await config.InvokeAsync(helpAlias);
+
+        config.Output.ToString().Should().NotContain(helpAlias);
     }
 }

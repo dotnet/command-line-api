@@ -1,10 +1,10 @@
-﻿using System.Threading;
+﻿using System.CommandLine.Invocation;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
-
 
 namespace System.CommandLine.Hosting.Tests
 {
@@ -16,16 +16,16 @@ namespace System.CommandLine.Hosting.Tests
             var service = new MyService();
 
             var config = new CliConfiguration(
-                new MyCommand().UseCommandHandler<MyCommand.MyHandler>()
+                new MyRootCommand().UseCommandHandler<MyHandler>()
                 )
-                .UseHost((builder) => {
+                .UseHost(builder => {
                     builder.ConfigureServices(services =>
                     {
-                        services.AddTransient(x => service);
+                        services.AddTransient(_ => service);
                     });
                 });
 
-            var result = await config.InvokeAsync(new string[] { "--int-option", "54"});
+            await config.InvokeAsync(new [] { "--int-option", "54"});
 
             service.Value.Should().Be(54);
         }
@@ -33,7 +33,7 @@ namespace System.CommandLine.Hosting.Tests
         [Fact]
         public static async Task Parameter_is_available_in_property()
         {
-            var config = new CliConfiguration(new MyCommand().UseCommandHandler<MyCommand.MyHandler>())
+            var config = new CliConfiguration(new MyRootCommand().UseCommandHandler<MyHandler>())
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -42,7 +42,7 @@ namespace System.CommandLine.Hosting.Tests
                     });
                 });
 
-            var result = await config.InvokeAsync(new string[] { "--int-option", "54"});
+            var result = await config.InvokeAsync(new [] { "--int-option", "54"});
 
             result.Should().Be(54);
         }
@@ -52,7 +52,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             var root = new CliRootCommand();
 
-            root.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyHandler>());
+            root.Subcommands.Add(new MyCommand().UseCommandHandler<MyHandler>());
             root.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
             var config = new CliConfiguration(root)
                 .UseHost(host =>
@@ -101,8 +101,8 @@ namespace System.CommandLine.Hosting.Tests
             var service = new MyService();
 
             var cmd = new CliRootCommand();
-            cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyCommand.MyDerivedHandler>());
-            cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedHandler>());
+            cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyDerivedCliAction>());
+            cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedCliAction>());
             var config = new CliConfiguration(cmd)
                          .UseHost((builder) => {
                              builder.ConfigureServices(services =>
@@ -118,14 +118,9 @@ namespace System.CommandLine.Hosting.Tests
             service.StringValue.Should().Be("TEST");
         }
 
-        public abstract class MyBaseHandler : CliAction
+        public abstract class MyBaseCliAction : AsynchronousCliAction
         {
             public int IntOption { get; set; } // bound from option
-
-            public override int Invoke(ParseResult context)
-            {
-                return Act();
-            }
 
             public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             {
@@ -135,51 +130,53 @@ namespace System.CommandLine.Hosting.Tests
             protected abstract int Act();
         }
 
+        public class MyRootCommand : CliRootCommand
+        {
+            public MyRootCommand()
+            {
+                Options.Add(new CliOption<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+            }
+        }
+
         public class MyCommand : CliCommand
         {
             public MyCommand() : base(name: "mycommand")
             {
                 Options.Add(new CliOption<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
+        }
 
-            public class MyHandler : CliAction
+        public class MyDerivedCliAction : MyBaseCliAction
+        {
+            private readonly MyService service;
+
+            public MyDerivedCliAction(MyService service)
             {
-                private readonly MyService service;
-
-                public MyHandler(MyService service)
-                {
-                    this.service = service;
-                }
-
-                public int IntOption { get; set; } // bound from option
-
-                public override int Invoke(ParseResult context)
-                {
-                    service.Value = IntOption;
-                    return IntOption;
-                }
-
-                public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
-                {
-                    service.Value = IntOption;
-                    return Task.FromResult(IntOption);
-                }
+                this.service = service;
             }
 
-            public class MyDerivedHandler : MyBaseHandler
+            protected override int Act()
             {
-                private readonly MyService service;
+                service.Value = IntOption;
+                return IntOption;
+            }
+        }
 
-                public MyDerivedHandler(MyService service)
-                {
-                    this.service = service;
-                }
+        public class MyHandler : AsynchronousCliAction
+        {
+            private readonly MyService service;
 
-                protected override int Act()
-                {
-                    service.Value = IntOption;
-                    return IntOption;
-                }
+            public MyHandler(MyService service)
+            {
+                this.service = service;
+            }
+
+            public int IntOption { get; set; } // bound from option
+
+            public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
+            {
+                service.Value = IntOption;
+                return Task.FromResult(IntOption);
             }
         }
 
@@ -191,7 +188,7 @@ namespace System.CommandLine.Hosting.Tests
                 Arguments.Add(new CliArgument<string>("One") {  Arity = ArgumentArity.ZeroOrOne });
             }
 
-            public class MyHandler : CliAction
+            public class MyHandler : AsynchronousCliAction
             {
                 private readonly MyService service;
 
@@ -203,9 +200,7 @@ namespace System.CommandLine.Hosting.Tests
                 public int IntOption { get; set; } // bound from option
 
                 public string One { get; set; }
-
-                public override int Invoke(ParseResult context) => InvokeAsync(context, CancellationToken.None).GetAwaiter().GetResult();
-
+                
                 public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
                 {
                     service.Value = IntOption;
@@ -214,11 +209,11 @@ namespace System.CommandLine.Hosting.Tests
                 }
             }
 
-            public class MyDerivedHandler : MyBaseHandler
+            public class MyDerivedCliAction : MyBaseCliAction
             {
                 private readonly MyService service;
 
-                public MyDerivedHandler(MyService service)
+                public MyDerivedCliAction(MyService service)
                 {
                     this.service = service;
                 }

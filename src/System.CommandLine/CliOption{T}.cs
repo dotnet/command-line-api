@@ -12,19 +12,13 @@ namespace System.CommandLine
         internal readonly CliArgument<T> _argument;
 
         /// <summary>
-        /// Initializes a new instance of the Option class.
+        /// Initializes a new instance of the <see cref="CliOption"/> class.
         /// </summary>
         /// <param name="name">The name of the option. It's used for parsing, displaying Help and creating parse errors.</param>>
         /// <param name="aliases">Optional aliases. Used for parsing, suggestions and displayed in Help.</param>
         public CliOption(string name, params string[] aliases) 
             : this(name, aliases, new CliArgument<T>(name))
         {
-        }
-
-        private protected CliOption(string name, CliArgument<T> argument) : base(name)
-        {
-            argument.AddParent(this);
-            _argument = argument;
         }
 
         private protected CliOption(string name, string[] aliases, CliArgument<T> argument)
@@ -47,10 +41,7 @@ namespace System.CommandLine
             get => _argument.CustomParser;
             set => _argument.CustomParser = value;
         }
-
-        /// <inheritdoc />
-        public override Type ValueType => typeof(T);
-
+        
         internal sealed override CliArgument Argument => _argument;
 
         /// <summary>

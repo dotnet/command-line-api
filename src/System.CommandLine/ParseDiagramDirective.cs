@@ -1,4 +1,5 @@
-﻿using System.CommandLine.Parsing;
+﻿using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 
 namespace System.CommandLine
 {
@@ -20,7 +21,7 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override CliAction? Action
         {
-            get => _action ??= new DiagramAction(ParseErrorReturnValue);
+            get => _action ??= new ParseDiagramAction(ParseErrorReturnValue);
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 

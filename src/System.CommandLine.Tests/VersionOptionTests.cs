@@ -111,13 +111,13 @@ namespace System.CommandLine.Tests
         public void Version_is_not_valid_with_other_tokens(string commandLine)
         {
             var subcommand = new CliCommand("subcommand");
-            subcommand.SetAction((_) => { });
+            subcommand.SetAction(_ => { });
             var rootCommand = new CliRootCommand
             {
                 subcommand,
-                new CliOption<bool>("-x"),
+                new CliOption<bool>("-x")
             };
-            rootCommand.SetAction((_) => { });
+            rootCommand.SetAction(_ => { });
 
             CliConfiguration configuration = new(rootCommand)
             {
@@ -128,18 +128,18 @@ namespace System.CommandLine.Tests
 
             result.Errors.Should().Contain(e => e.Message == "--version option cannot be combined with other arguments.");
         }
-
+        
         [Fact]
         public void Version_option_is_not_added_to_subcommands()
         {
             var childCommand = new CliCommand("subcommand");
-            childCommand.SetAction((_) => { });
+            childCommand.SetAction(_ => { });
 
             var rootCommand = new CliRootCommand
             {
                 childCommand
             };
-            rootCommand.SetAction((_) => { });
+            rootCommand.SetAction(_ => { });
 
             CliConfiguration configuration = new(rootCommand)
             {

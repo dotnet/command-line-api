@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -91,6 +90,14 @@ namespace System.CommandLine.Parsing
         /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
         public DirectiveResult? GetResult(CliDirective directive) => SymbolResultTree.GetResult(directive);
 
+        /// <summary>
+        /// Finds a result for a symbol having the specified name anywhere in the parse tree.
+        /// </summary>
+        /// <param name="name">The name of the symbol for which to find a result.</param>
+        /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
+        public SymbolResult? GetResult(string name) => 
+            SymbolResultTree.GetResult(name);
+
         /// <inheritdoc cref="ParseResult.GetValue{T}(CliArgument{T})"/>
         public T? GetValue<T>(CliArgument<T> argument)
         {
@@ -110,6 +117,31 @@ namespace System.CommandLine.Parsing
                 result.GetValueOrDefault<T>() is { } t)
             {
                 return t;
+            }
+
+            return CliArgument<T>.CreateDefaultValue();
+        }
+
+        /// <summary>
+        /// Gets the value for a symbol having the specified name anywhere in the parse tree.
+        /// </summary>
+        /// <param name="name">The name of the symbol for which to find a result.</param>
+        /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
+        public T? GetValue<T>(string name)
+        {
+            if (GetResult(name) is { } result)
+            {
+                if (result is OptionResult optionResult &&
+                    optionResult.GetValueOrDefault<T>() is { } optionValue)
+                {
+                    return optionValue;
+                }
+
+                if (result is ArgumentResult argumentResult &&
+                    argumentResult.GetValueOrDefault<T>() is { } argumentValue)
+                {
+                    return argumentValue;
+                }
             }
 
             return CliArgument<T>.CreateDefaultValue();

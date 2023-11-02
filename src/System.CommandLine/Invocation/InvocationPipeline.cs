@@ -20,32 +20,51 @@ namespace System.CommandLine.Invocation
 
             try
             {
-                if (parseResult.NonexclusiveActions is not null)
+                if (parseResult.PreActions is not null)
                 {
-                    for (int i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                    for (int i = 0; i < parseResult.PreActions.Count; i++)
                     {
-                        await parseResult.NonexclusiveActions[i].InvokeAsync(parseResult, cts.Token);
+                        var action = parseResult.PreActions[i];
+
+                        switch (action)
+                        {
+                            case SynchronousCliAction syncAction:
+                                syncAction.Invoke(parseResult);
+                                break;
+                            case AsynchronousCliAction asyncAction:
+                                await asyncAction.InvokeAsync(parseResult, cts.Token);
+                                break;
+                        }
                     }
                 }
 
-                Task<int> startedInvocation = parseResult.Action.InvokeAsync(parseResult, cts.Token);
+                switch (parseResult.Action)
+                {
+                    case SynchronousCliAction syncAction:
+                        return syncAction.Invoke(parseResult);
 
-                if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
-                {
-                    terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
-                }
+                    case AsynchronousCliAction asyncAction:
+                        var startedInvocation = asyncAction.InvokeAsync(parseResult, cts.Token);
+                        if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
+                        {
+                            terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
+                        }
 
-                if (terminationHandler is null)
-                {
-                    return await startedInvocation;
-                }
-                else
-                {
-                    // Handlers may not implement cancellation.
-                    // In such cases, when CancelOnProcessTermination is configured and user presses Ctrl+C,
-                    // ProcessTerminationCompletionSource completes first, with the result equal to native exit code for given signal.
-                    Task<int> firstCompletedTask = await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task);
-                    return await firstCompletedTask; // return the result or propagate the exception
+                        if (terminationHandler is null)
+                        {
+                            return await startedInvocation;
+                        }
+                        else
+                        {
+                            // Handlers may not implement cancellation.
+                            // In such cases, when CancelOnProcessTermination is configured and user presses Ctrl+C,
+                            // ProcessTerminationCompletionSource completes first, with the result equal to native exit code for given signal.
+                            Task<int> firstCompletedTask = await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task);
+                            return await firstCompletedTask; // return the result or propagate the exception
+                        }
+
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(parseResult.Action));
                 }
             }
             catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
@@ -60,26 +79,48 @@ namespace System.CommandLine.Invocation
 
         internal static int Invoke(ParseResult parseResult)
         {
-            if (parseResult.Action is null)
+            switch (parseResult.Action)
             {
-                return ReturnCodeForMissingAction(parseResult);
-            }
+                case null:
+                    return ReturnCodeForMissingAction(parseResult);
 
-            try
-            {
-                if (parseResult.NonexclusiveActions is not null)
-                {
-                    for (var i = 0; i < parseResult.NonexclusiveActions.Count; i++)
+                case SynchronousCliAction syncAction:
+                    try
                     {
-                        parseResult.NonexclusiveActions[i].Invoke(parseResult);
-                    }
-                }
+                        if (parseResult.PreActions is not null)
+                        {
+#if DEBUG
+                            for (var i = 0; i < parseResult.PreActions.Count; i++)
+                            {
+                                var action = parseResult.PreActions[i];
 
-                return parseResult.Action.Invoke(parseResult);
-            }
-            catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
-            {
-                return DefaultExceptionHandler(ex, parseResult.Configuration);
+                                if (action is not SynchronousCliAction)
+                                {
+                                    parseResult.Configuration.EnableDefaultExceptionHandler = false;
+                                    throw new Exception(
+                                        $"This should not happen. An instance of {nameof(AsynchronousCliAction)} ({action}) was called within {nameof(InvocationPipeline)}.{nameof(Invoke)}. This is supposed to be detected earlier resulting in a call to {nameof(InvocationPipeline)}{nameof(InvokeAsync)}");
+                                }
+                            }
+#endif
+
+                            for (var i = 0; i < parseResult.PreActions.Count; i++)
+                            {
+                                if (parseResult.PreActions[i] is SynchronousCliAction syncPreAction)
+                                {
+                                    syncPreAction.Invoke(parseResult);
+                                }
+                            }
+                        }
+
+                        return syncAction.Invoke(parseResult);
+                    }
+                    catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+                    {
+                        return DefaultExceptionHandler(ex, parseResult.Configuration);
+                    }
+
+                default:
+                    throw new InvalidOperationException($"{nameof(AsynchronousCliAction)} called within non-async invocation.");
             }
         }
 

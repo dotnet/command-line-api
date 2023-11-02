@@ -1,4 +1,5 @@
 ﻿using System.CommandLine.Binding;
+using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
 using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
@@ -10,20 +11,25 @@ namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
-        public static CliConfiguration UseHost(this CliConfiguration builder,
+        public static CliConfiguration UseHost(
+            this CliConfiguration config,
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null)
         {
-            builder.Directives.Add(new CliDirective("config"));
+            if (config.RootCommand is CliRootCommand root)
+            {
+                root.Add(new CliDirective(HostingAction.HostingDirectiveName));
+            }
 
-            HostingAction.SetHandlers(builder.RootCommand, hostBuilderFactory, configureHost);
+            HostingAction.SetHandlers(config.RootCommand, hostBuilderFactory, configureHost);
 
-            return builder;
+            return config;
         }
 
-        public static CliConfiguration UseHost(this CliConfiguration builder,
+        public static CliConfiguration UseHost(
+            this CliConfiguration config,
             Action<IHostBuilder> configureHost = null
-            ) => UseHost(builder, null, configureHost);
+        ) => UseHost(config, null, configureHost);
 
         public static IHostBuilder UseInvocationLifetime(this IHostBuilder host, Action<InvocationLifetimeOptions> configureOptions = null)
         {
@@ -54,7 +60,7 @@ namespace System.CommandLine.Hosting
         public static CliCommand UseCommandHandler<THandler>(this CliCommand command)
             where THandler : CliAction
         {
-            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(CliAction.InvokeAsync)));
+            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(AsynchronousCliAction.InvokeAsync)));
 
             return command;
         }

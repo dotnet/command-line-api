@@ -21,7 +21,7 @@ System.CommandLine.NamingConventionBinder
     public static System.Void AddModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, ModelBinder binder)
     public static System.CommandLine.Binding.BindingContext GetBindingContext(this System.CommandLine.ParseResult parseResult)
     public static ModelBinder GetOrCreateModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
-  public abstract class BindingHandler : System.CommandLine.CliAction
+  public abstract class BindingHandler : System.CommandLine.Invocation.AsynchronousCliAction
     public System.CommandLine.Binding.BindingContext GetBindingContext(System.CommandLine.ParseResult parseResult)
   public static class CommandHandler
     public static BindingHandler Create(System.Delegate delegate)
@@ -119,7 +119,6 @@ System.CommandLine.NamingConventionBinder
   public class ModelBindingCommandHandler : BindingHandler
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.CliArgument argument)
     public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.CliOption option)
-    public System.Int32 Invoke(System.CommandLine.ParseResult parseResult)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)
   public class ModelDescriptor
     public static ModelDescriptor FromType<T>()

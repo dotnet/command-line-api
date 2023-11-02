@@ -19,7 +19,7 @@ namespace System.CommandLine
             _parent = parent;
             _children = new();
         }
-
+        
         public T this[int index]
         {
             get => _children[index];

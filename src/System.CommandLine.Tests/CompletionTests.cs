@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Completions;
-using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Linq;
@@ -854,10 +853,7 @@ namespace System.CommandLine.Tests
                          {
                              new CliOption<string>("--allows-one"),
                              new CliOption<string[]>("--allows-many")
-                         })
-            {
-                Directives = { new SuggestDirective() } 
-            };
+                         });
 
             var completions = configuration.Parse("--allows-one ").GetCompletions();
 

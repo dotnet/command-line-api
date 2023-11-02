@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Completions;
+using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -16,10 +17,6 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
 
-        private protected CliOption(string name) : base(name)
-        {
-        }
-
         private protected CliOption(string name, string[] aliases) : base(name)
         {
             if (aliases is { Length: > 0 }) 
@@ -32,6 +29,11 @@ namespace System.CommandLine
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
         internal abstract CliArgument Argument { get; }
+
+        /// <summary>
+        /// Specifies if a default value is defined for the option.
+        /// </summary>
+        public bool HasDefaultValue => Argument.HasDefaultValue;
 
         /// <summary>
         /// Gets or sets the name of the Option when displayed in help.
@@ -64,11 +66,6 @@ namespace System.CommandLine
         /// Validators that will be called when the option is matched by the parser.
         /// </summary>
         public List<Action<OptionResult>> Validators => _validators ??= new();
-
-        /// <summary>
-        /// Gets or sets the <see cref="Type" /> that the option's parsed tokens will be converted to.
-        /// </summary>
-        public abstract Type ValueType { get; }
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 
@@ -116,11 +113,6 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
-            if (Argument is null)
-            {
-                return Array.Empty<CompletionItem>();
-            }
-
             List<CompletionItem>? completions = null;
 
             foreach (var completion in Argument.GetCompletions(context))

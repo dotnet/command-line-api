@@ -51,7 +51,12 @@ internal static class TypeExtensions
                      nonGeneric == typeof(ICollection) ||
                      nonGeneric == typeof(IEnumerable)
                 => Array.Empty<object>(),
-            _ when type.IsValueType => FormatterServices.GetUninitializedObject(type),
+            _ when type.IsValueType =>
+#if NET
+                RuntimeHelpers.GetUninitializedObject(type),
+#else
+                FormatterServices.GetUninitializedObject(type),
+#endif
             _ => null
         };
     }

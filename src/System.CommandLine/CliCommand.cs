@@ -7,6 +7,7 @@ using System.CommandLine.Completions;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -21,7 +22,7 @@ namespace System.CommandLine
     /// <see cref="CliRootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class CliCommand : CliSymbol, IEnumerable<CliSymbol>
+    public class CliCommand : CliSymbol, IEnumerable
     {
         internal AliasSet? _aliases;
         private ChildSymbolList<CliArgument>? _arguments;
@@ -60,14 +61,14 @@ namespace System.CommandLine
         /// </summary>
         public IList<CliArgument> Arguments => _arguments ??= new(this);
 
-        internal bool HasArguments => _arguments is not null && _arguments.Count > 0 ;
+        internal bool HasArguments => _arguments?.Count > 0 ;
 
         /// <summary>
-        /// Represents all of the options for the command, including global options that have been applied to any of the command's ancestors.
+        /// Represents all of the options for the command, inherited options that have been applied to any of the command's ancestors.
         /// </summary>
         public IList<CliOption> Options => _options ??= new (this);
 
-        internal bool HasOptions => _options is not null && _options.Count > 0;
+        internal bool HasOptions => _options?.Count > 0;
 
         /// <summary>
         /// Represents all of the subcommands for the command.
@@ -110,7 +111,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(context =>
+            Action = new AnonymousSynchronousCliAction(context =>
             {
                 action(context);
                 return 0;
@@ -128,7 +129,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(action);
+            Action = new AnonymousSynchronousCliAction(action);
         }
 
         /// <summary>
@@ -141,7 +142,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(async (context, cancellationToken) =>
+            Action = new AnonymousAsynchronousCliAction(async (context, cancellationToken) =>
             {
                 await action(context, cancellationToken);
                 return 0;
@@ -159,33 +160,26 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousCliAction(action);
+            Action = new AnonymousAsynchronousCliAction(action);
         }
 
         /// <summary>
-        /// Adds a <see cref="CliSymbol"/> to the command.
+        /// Adds a <see cref="CliArgument"/> to the command.
         /// </summary>
-        /// <param name="symbol">The symbol to add to the command.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# duck typing
-        public void Add(CliSymbol symbol)
-        {
-            // this method exists so users can use C# duck typing for adding symbols to the Command:
-            // new Command { option };
-            switch (symbol)
-            {
-                case CliOption option:
-                    Options.Add(option);
-                    break;
-                case CliArgument argument:
-                    Arguments.Add(argument);
-                    break;
-                case CliCommand command:
-                    Subcommands.Add(command);
-                    break;
-                default:
-                    throw new NotSupportedException();
-            }
-        }
+        /// <param name="argument">The option to add to the command.</param>
+        public void Add(CliArgument argument) =>  Arguments.Add(argument);
+        
+        /// <summary>
+        /// Adds a <see cref="CliOption"/> to the command.
+        /// </summary>
+        /// <param name="option">The option to add to the command.</param>
+        public void Add(CliOption option) =>  Options.Add(option);
+
+        /// <summary>
+        /// Adds a <see cref="CliCommand"/> to the command.
+        /// </summary>
+        /// <param name="command">The Command to add to the command.</param>
+        public void Add(CliCommand command) =>  Subcommands.Add(command);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
@@ -193,13 +187,10 @@ namespace System.CommandLine
         /// </summary>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
-        /// <summary>
-        /// Represents all of the symbols for the command.
-        /// </summary>
-        public IEnumerator<CliSymbol> GetEnumerator() => Children.GetEnumerator();
-
         /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        [DebuggerStepThrough]
+        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer 
+        IEnumerator IEnumerable.GetEnumerator() => Children.GetEnumerator();
 
         /// <summary>
         /// Parses an array strings using the command.
@@ -261,7 +252,7 @@ namespace System.CommandLine
                     }
                 }
 
-                ParentNode? parent = FirstParent;
+                SymbolNode? parent = FirstParent;
                 while (parent is not null)
                 {
                     CliCommand parentCommand = (CliCommand)parent.Symbol;

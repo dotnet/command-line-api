@@ -61,7 +61,7 @@ namespace System.CommandLine.Parsing
 
             var tokenList = new List<CliToken>(args.Count);
 
-            var knownTokens = configuration.RootCommand.ValidTokens(configuration.Directives);
+            var knownTokens = configuration.RootCommand.ValidTokens();
 
             int i = FirstArgumentIsRootCommand(args, configuration.RootCommand, inferRootCommand)
                 ? 0
@@ -101,9 +101,15 @@ namespace System.CommandLine.Parsing
                             ? arg.Substring(1, colonIndex - 1) // [name:value]
                             : arg.Substring(1, arg.Length - 2); // [name] is a legal directive
 
-                        CliDirective? directive = knownTokens.TryGetValue(directiveName, out var directiveToken)
-                            ? (CliDirective)directiveToken.Symbol!
-                            : null;
+                        CliDirective? directive;
+                        if (knownTokens.TryGetValue($"[{directiveName}]", out var directiveToken))
+                        {
+                            directive = (CliDirective)directiveToken.Symbol!;
+                        }
+                        else
+                        {
+                            directive = null;
+                        }
 
                         tokenList.Add(Directive(arg, directive));
                         continue;
@@ -158,8 +164,7 @@ namespace System.CommandLine.Parsing
                                 {
                                     if (cmd != configuration.RootCommand)
                                     {
-                                        knownTokens = cmd.ValidTokens(
-                                            directives: null); // config contains Directives, they are allowed only for RootCommand
+                                        knownTokens = cmd.ValidTokens(); // config contains Directives, they are allowed only for RootCommand
                                     }
                                     currentCommand = cmd;
                                     tokenList.Add(Command(arg, cmd));
@@ -405,16 +410,17 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private static Dictionary<string, CliToken> ValidTokens(this CliCommand command, IReadOnlyList<CliDirective>? directives)
+        private static Dictionary<string, CliToken> ValidTokens(this CliCommand command)
         {
             Dictionary<string, CliToken> tokens = new(StringComparer.Ordinal);
 
-            if (directives is not null)
+            if (command is CliRootCommand { Directives: IList<CliDirective> directives })
             {
-                for (int directiveIndex = 0; directiveIndex < directives.Count; directiveIndex++)
+                for (int i = 0; i < directives.Count; i++)
                 {
-                    CliDirective directive = directives[directiveIndex];
-                    tokens[directive.Name] = new CliToken(directive.Name, CliTokenType.Directive, directive, CliToken.ImplicitPosition);
+                    var directive = directives[i];
+                    var tokenString = $"[{directive.Name}]";
+                    tokens[tokenString] = new CliToken(tokenString, CliTokenType.Directive, directive, CliToken.ImplicitPosition);
                 }
             }
 
@@ -423,18 +429,19 @@ namespace System.CommandLine.Parsing
             if (command.HasSubcommands)
             {
                 var subCommands = command.Subcommands;
-                for (int childIndex = 0; childIndex < subCommands.Count; childIndex++)
+                for (int i = 0; i < subCommands.Count; i++)
                 {
-                    AddCommandTokens(tokens, subCommands[childIndex]);
+                    AddCommandTokens(tokens, subCommands[i]);
                 }
             }
 
             if (command.HasOptions)
             {
                 var options = command.Options;
-                for (int childIndex = 0; childIndex < options.Count; childIndex++)
+                
+                for (int i = 0; i < options.Count; i++)
                 {
-                    AddOptionTokens(tokens, options[childIndex]);
+                    AddOptionTokens(tokens, options[i]);
                 }
             }
 
@@ -442,7 +449,7 @@ namespace System.CommandLine.Parsing
             while (current is not null)
             {
                 CliCommand? parentCommand = null;
-                ParentNode? parent = current.FirstParent;
+                SymbolNode? parent = current.FirstParent;
                 while (parent is not null)
                 {
                     if ((parentCommand = parent.Symbol as CliCommand) is not null)

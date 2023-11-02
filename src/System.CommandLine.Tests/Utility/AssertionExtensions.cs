@@ -5,43 +5,49 @@ using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Execution;
+using FluentAssertions.Primitives;
 
-namespace System.CommandLine.Tests.Utility
+namespace System.CommandLine.Tests.Utility;
+
+public static class AssertionExtensions
 {
-    public static class AssertionExtensions
+    public static AndConstraint<GenericCollectionAssertions<T>> BeEquivalentSequenceTo<T>(
+        this GenericCollectionAssertions<T> assertions,
+        params object[] expectedValues)
     {
-        public static AndConstraint<GenericCollectionAssertions<T>> BeEquivalentSequenceTo<T>(
-            this GenericCollectionAssertions<T> assertions,
-            params object[] expectedValues)
+        var actualValues = assertions.Subject.ToArray();
+
+        actualValues
+            .Select(a => a?.GetType())
+            .Should()
+            .BeEquivalentTo(expectedValues.Select(e => e?.GetType()));
+
+        using (new AssertionScope())
         {
-            var actualValues = assertions.Subject.ToArray();
+            foreach (var tuple in actualValues
+                                  .Zip(expectedValues, (actual, expected) => (actual, expected))
+                                  .Where(t => (t.expected == null) || (t.expected.GetType().GetProperties().Length > 0)))
 
-            actualValues
-                .Select(a => a?.GetType())
-                .Should()
-                .BeEquivalentTo(expectedValues.Select(e => e?.GetType()));
-
-            using (new AssertionScope())
             {
-                foreach (var tuple in actualValues
-                                      .Zip(expectedValues, (actual, expected) => (actual, expected))
-                                      .Where(t => (t.expected == null) || (t.expected.GetType().GetProperties().Length > 0)))
-
-                {
-                    tuple.actual
-                         .Should()
-                         .BeEquivalentTo(tuple.expected);
-                }
+                tuple.actual
+                     .Should()
+                     .BeEquivalentTo(tuple.expected);
             }
-
-            return new AndConstraint<GenericCollectionAssertions<T>>(assertions);
         }
 
-        public static AndConstraint<StringCollectionAssertions> BeEquivalentSequenceTo(
-            this StringCollectionAssertions assertions,
-            params string[] expectedValues)
-        {
-            return assertions.BeEquivalentTo(expectedValues, c => c.WithStrictOrderingFor(s => s));
-        }
+        return new AndConstraint<GenericCollectionAssertions<T>>(assertions);
     }
+
+    public static AndConstraint<StringCollectionAssertions> BeEquivalentSequenceTo(
+        this StringCollectionAssertions assertions,
+        params string[] expectedValues)
+    {
+        return assertions.BeEquivalentTo(expectedValues, c => c.WithStrictOrderingFor(s => s));
+    }
+
+    public static AndConstraint<StringAssertions> ShowHelp(this StringAssertions output) => 
+        output.Subject.Should().Match("*Description:*Usage:*");
+
+    public static AndConstraint<StringAssertions> NotShowHelp(this StringAssertions output) => 
+        output.Subject.Should().NotMatch("*Description:*Usage:*");
 }
