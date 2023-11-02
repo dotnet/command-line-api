@@ -34,7 +34,13 @@ public class CompilationTests
 
     [ReleaseBuildOnlyFact]
     public void App_referencing_system_commandline_can_be_compiled_ahead_of_time()
-        => PublishAndValidate("NativeAOT", "AOT analysis warning");
+    {
+        // TODO: Re-enable OSX validation when TFM is upgraded to net8.0.
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            PublishAndValidate("NativeAOT", "AOT analysis warning");
+        }
+    }
 
     private void PublishAndValidate(string appName, string warningText, string additionalArgs = null)
     {
