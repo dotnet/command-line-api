@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the MIT license. See License.txt in the project root for full license information. -->
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-  </PropertyGroup>
+<Project>
   <!-- Repo Version Information -->
   <PropertyGroup>
     <!-- Default version number to global tool. -->
@@ -11,6 +6,8 @@
     <AutoGenerateAssemblyVersion>true</AutoGenerateAssemblyVersion>
     <PreReleaseVersionLabel>
     </PreReleaseVersionLabel>
+    <UsingToolSymbolUploader>true</UsingToolSymbolUploader>
+    <PublishWindowsPdb>true</PublishWindowsPdb>
   </PropertyGroup>
   <PropertyGroup Condition="'$(UseGlobalToolVersion)' == 'true'">
     <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
@@ -24,16 +21,5 @@
     <VersionPrefix>0.4.0</VersionPrefix>
     <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
     <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <UsingToolSourceLink>true</UsingToolSourceLink>
-    <UsingToolSymbolUploader>true</UsingToolSymbolUploader>
-    <PublishWindowsPdb>true</PublishWindowsPdb>
-  </PropertyGroup>
-  <!-- Package versions -->
-  <PropertyGroup>
-    <MicrosoftSourceBuildIntermediatesourcebuildreferencepackagesPackageVersion>9.0.0-alpha.1.23475.1</MicrosoftSourceBuildIntermediatesourcebuildreferencepackagesPackageVersion>
-    <MicrosoftSourceLinkGitHubVersion>1.2.0-beta-22518-02</MicrosoftSourceLinkGitHubVersion>
-    <MicrosoftDotNetXliffTasksVersion>1.0.0-beta.22631.1</MicrosoftDotNetXliffTasksVersion>
   </PropertyGroup>
 </Project>
