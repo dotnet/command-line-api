@@ -6,7 +6,6 @@
 using System.CommandLine.Suggest;
 using System.CommandLine.Tests.Utility;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using FluentAssertions;
 using Microsoft.DotNet.PlatformAbstractions;
@@ -37,7 +36,7 @@ public class CompilationTests
     public void App_referencing_system_commandline_can_be_compiled_ahead_of_time()
     {
         // TODO: Re-enable OSX validation when TFM is upgraded to net8.0.
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             PublishAndValidate("NativeAOT", "AOT analysis warning");
         }
