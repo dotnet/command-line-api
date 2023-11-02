@@ -53,7 +53,7 @@ internal static class TypeExtensions
                 => Array.Empty<object>(),
             _ when type.IsValueType =>
 #if NET
-                CompilerServices.GetUninitializedObject(type),
+                RuntimeHelpers.GetUninitializedObject(type),
 #else
                 FormatterServices.GetUninitializedObject(type),
 #endif
