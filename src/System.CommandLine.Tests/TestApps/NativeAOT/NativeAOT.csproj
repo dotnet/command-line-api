@@ -5,6 +5,7 @@
 		<TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
 		<!-- producing more detailed log output -->
 		<TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <PublishAot>true</PublishAot>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -15,7 +16,6 @@
 		<Reference Include="SystemCommandLineDll">
 			<HintPath>$(SystemCommandLineDllPath)</HintPath>
 		</Reference>
-		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-preview.3.22123.2" />
 	</ItemGroup>
 
 </Project>
