@@ -104,7 +104,10 @@ public sealed class ParseErrorAction : SynchronousCliAction
             }
         }
 
-        parseResult.Configuration.Output.WriteLine();
+        if (unmatchedTokens.Count != 0)
+        {
+            parseResult.Configuration.Output.WriteLine();
+        }
 
         static IEnumerable<string> GetPossibleTokens(CliCommand targetSymbol, string token)
         {
