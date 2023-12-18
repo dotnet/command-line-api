@@ -29,7 +29,6 @@
     <PackageReference Include="ApprovalTests" />
     <PackageReference Include="Microsoft.CSharp" />
     <PackageReference Include="FluentAssertions" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
   </ItemGroup>
