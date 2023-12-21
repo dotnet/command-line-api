@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace System.CommandLine.Suggest
@@ -40,16 +41,28 @@ namespace System.CommandLine.Suggest
                                          StartInfo = processStartInfo
                                      })
                 {
+                    
                     process.Start();
-
-                    Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
-
-                    if (readToEndTask.Wait(timeout))
+                    
+                    var stringBuilder = new StringBuilder();
+                    process.OutputDataReceived += (sender, eventArgs) =>
                     {
-                        result = readToEndTask.Result;
+                        if (eventArgs.Data != null)
+                        {
+                            stringBuilder.AppendLine(eventArgs.Data);
+                        }
+                    };
+                    process.BeginOutputReadLine();
+                    if (process.WaitForExit(timeout) && process.ExitCode == 0)
+                    {
+                        process.CancelOutputRead();
+                        result = stringBuilder.ToString();
                     }
                     else
                     {
+#if DEBUG
+                    Program.LogDebug($"Killing the process after a timeout. Process exit code: {process.ExitCode}");
+#endif
                         process.Kill();
                     }
                 }
