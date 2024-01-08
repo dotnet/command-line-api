@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>$(TargetFrameworkForNETSDK);net462</TargetFrameworks>
@@ -24,10 +24,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="ApprovalTests" Version="5.4.7" />
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />
+    <PackageReference Include="ApprovalTests" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
   </ItemGroup>
 
   <ItemGroup>

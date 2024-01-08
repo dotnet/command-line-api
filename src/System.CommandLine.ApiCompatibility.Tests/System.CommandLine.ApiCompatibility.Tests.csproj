@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ApprovalTests" Version="5.4.7" />
+    <PackageReference Include="ApprovalTests" />
   </ItemGroup>
 
   <ItemGroup>

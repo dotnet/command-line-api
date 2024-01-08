@@ -1,0 +1,37 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
+    <!-- Using multiple feeds isn't supported by Maestro: https://github.com/dotnet/arcade/issues/14155. -->
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Roslyn dependencies -->
+    <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.0.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.0.1" />
+    <!-- Runtime dependencies -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+    <!-- external dependencies -->
+    <PackageVersion Include="ApprovalTests" Version="5.4.7" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
+    <PackageVersion Include="FluentAssertions" Version="5.10.3" />
+    <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageVersion Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageVersion Include="System.Memory" Version="4.5.4" />
+    <PackageVersion Include="system.reactive.core" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(DisableArcade)' == '1'">
+    <!-- The xunit version should be kept in sync with the one that Arcade promotes -->
+    <PackageVersion Include="xunit" Version="2.4.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.1" />
+  </ItemGroup>
+  
+</Project>

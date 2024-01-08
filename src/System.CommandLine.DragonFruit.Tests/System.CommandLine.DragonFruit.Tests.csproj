@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
@@ -8,12 +8,12 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <NoWarn>1701;1702;1591</NoWarn>
+    <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
   
   <ItemGroup>
