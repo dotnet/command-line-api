@@ -1,17 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
-    <TargetFrameworks>$(TargetFrameworkForNETSDK)</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworkForNETSDK);net462</TargetFrameworks>
     <LangVersion>10</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="TestResults\**" />
-    <EmbeddedResource Remove="TestResults\**" />
-    <None Remove="TestResults\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Common\ArgumentBuilder.cs" Link="Utility\ArgumentBuilder.cs" />
@@ -27,17 +19,9 @@
   
   <ItemGroup>
     <PackageReference Include="ApprovalTests" />
-    <PackageReference Include="Microsoft.CSharp" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
   </ItemGroup>
-  
-  <ItemGroup Condition="'$(DisableArcade)' == '1'">
-    <PackageReference Include="xunit" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+
 </Project>

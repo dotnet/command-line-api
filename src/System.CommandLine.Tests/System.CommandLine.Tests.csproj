@@ -1,31 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
-    <TargetFrameworks>$(TargetFrameworkForNETSDK)</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworkForNETSDK);net462</TargetFrameworks>
     <GenerateProgramFile>false</GenerateProgramFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
   </PropertyGroup>
   
-  <ItemGroup>
-    <Compile Remove="TestResults\**" />
-    <EmbeddedResource Remove="TestResults\**" />
-    <None Remove="TestResults\**" />
-    
-    <Compile Remove="TestApps/**" />
-    <Content Remove="TestApps/**" />
-    <EmbeddedResource Remove="TestApps/**" />
-    <None Remove="TestApps/**" />
-
-    <Content Include="TestApps/**/*.csproj">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestApps/**/*.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-
+  <ItemGroup>   
+    <Content Include="TestApps/**/*.csproj" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="TestApps/**/*.cs" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   
   <ItemGroup>
@@ -42,18 +25,9 @@
   
   <ItemGroup>
     <PackageReference Include="ApprovalTests" />
-    <PackageReference Include="Microsoft.CSharp" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(DisableArcade)' == '1'">
-    <PackageReference Include="xunit" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

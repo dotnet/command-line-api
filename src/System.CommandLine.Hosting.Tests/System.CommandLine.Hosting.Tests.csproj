@@ -1,28 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(TargetFrameworkForNETSDK)</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net462</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworkForNETSDK);net462</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="TestResults\**" />
-    <EmbeddedResource Remove="TestResults\**" />
-    <None Remove="TestResults\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(DisableArcade)' == '1'">
-    <PackageReference Include="xunit" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
