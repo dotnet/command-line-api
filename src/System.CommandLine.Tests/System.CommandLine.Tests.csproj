@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  
+
   <PropertyGroup>
     <TargetFrameworks>$(TargetFrameworkForNETSDK);net462</TargetFrameworks>
     <GenerateProgramFile>false</GenerateProgramFile>
