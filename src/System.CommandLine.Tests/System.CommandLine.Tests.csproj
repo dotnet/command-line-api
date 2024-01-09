@@ -30,10 +30,13 @@
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx">
-      <LogicalName>System.CommandLine.Properties.Resources.resources</LogicalName>
-    </EmbeddedResource>
+    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx"
+                      LogicalName="System.CommandLine.Properties.Resources.resources" />
   </ItemGroup>
 
 </Project>
