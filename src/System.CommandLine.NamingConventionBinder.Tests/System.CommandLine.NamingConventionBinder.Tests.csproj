@@ -24,4 +24,8 @@
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
 </Project>
