@@ -10,12 +10,13 @@ using Xunit.Abstractions;
 using static System.Environment;
 using Process = System.CommandLine.Tests.Utility.Process;
 
-namespace System.CommandLine.Suggest.Tests
+namespace System.CommandLine.Suggest.Tests 
 {
     public class DotnetSuggestEndToEndTests : IDisposable
     {
         private readonly ITestOutputHelper _output;
         private readonly FileInfo _endToEndTestApp;
+        private readonly FileInfo _waitAndFailTestApp;
         private readonly FileInfo _dotnetSuggest;
         private readonly (string, string)[] _environmentVariables;
         private readonly DirectoryInfo _dotnetHostDir = DotnetMuxer.Path.Directory;
@@ -25,14 +26,15 @@ namespace System.CommandLine.Suggest.Tests
         {
             _output = output;
 
-            // delete sentinel files for EndToEndTestApp in order to trigger registration when it's run
+            // delete sentinel files for TestApps in order to trigger registration when it's run
             var sentinelsDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "system-commandline-sentinel-files"));
 
             if (sentinelsDir.Exists)
             {
-                var sentinels = sentinelsDir.GetFiles("*EndToEndTestApp*");
+                var sentinelsEndToEnd = sentinelsDir.GetFiles("*EndToEndTestApp*");
+                var sentinelsWaitAndFail = sentinelsDir.GetFiles("*WaitAndFailTestApp*");
 
-                foreach (var sentinel in sentinels)
+                foreach (var sentinel in sentinelsEndToEnd.Concat(sentinelsWaitAndFail))
                 {
                     sentinel.Delete();
                 }
@@ -43,12 +45,16 @@ namespace System.CommandLine.Suggest.Tests
                 "TestAssets");
 
             _endToEndTestApp = new DirectoryInfo(currentDirectory)
-                               .GetFiles("EndToEndTestApp".ExecutableName())
-                               .SingleOrDefault();
+                .GetFiles("EndToEndTestApp".ExecutableName())
+                .SingleOrDefault();
 
+            _waitAndFailTestApp = new DirectoryInfo(currentDirectory)
+                .GetFiles("WaitAndFailTestApp".ExecutableName())
+                .SingleOrDefault();
+            
             _dotnetSuggest = new DirectoryInfo(currentDirectory)
-                             .GetFiles("dotnet-suggest".ExecutableName())
-                             .SingleOrDefault();
+                .GetFiles("dotnet-suggest".ExecutableName())
+                .SingleOrDefault();
 
             PrepareTestHomeDirectoryToAvoidPolluteBuildMachineHome();
 
@@ -155,6 +161,41 @@ namespace System.CommandLine.Suggest.Tests
             stdOut.ToString()
                   .Should()
                   .Be($"--apple{NewLine}--banana{NewLine}--cherry{NewLine}--durian{NewLine}--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
+        }
+        
+        [ReleaseBuildOnlyFact]
+        public void Dotnet_suggest_fails_to_provide_suggestions_because_app_faulted()
+        {
+            // run "dotnet-suggest register" in explicit way
+            Process.RunToCompletion(
+                _dotnetSuggest.FullName,
+                $"register --command-path \"{_waitAndFailTestApp.FullName}\"",
+                stdOut: s => _output.WriteLine(s),
+                stdErr: s => _output.WriteLine(s),
+                environmentVariables: _environmentVariables).Should().Be(0);
+
+            var stdOut = new StringBuilder();
+            var stdErr = new StringBuilder();
+            
+            var commandLineToComplete = "a";
+            
+            Process.RunToCompletion(
+                _dotnetSuggest.FullName,
+                $"get -e \"{_waitAndFailTestApp.FullName}\" --position {commandLineToComplete.Length} -- \"{commandLineToComplete}\"",
+                stdOut: value => stdOut.AppendLine(value),
+                stdErr: value => stdErr.AppendLine(value),
+                environmentVariables: _environmentVariables);
+            
+            _output.WriteLine($"stdOut:{NewLine}{stdOut}{NewLine}");
+            _output.WriteLine($"stdErr:{NewLine}{stdErr}{NewLine}");
+            
+            stdErr.ToString()
+                .Should()
+                .BeEmpty();
+            
+            stdOut.ToString()
+                .Should()
+                .BeEmpty();
         }
     }
 }
