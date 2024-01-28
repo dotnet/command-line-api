@@ -38,7 +38,7 @@ namespace System.CommandLine.Suggest
 
                 using (var process = new Process
                                      {
-                                         StartInfo = processStartInfo
+                                         StartInfo = processStartInfo,
                                      })
                 {
                     
