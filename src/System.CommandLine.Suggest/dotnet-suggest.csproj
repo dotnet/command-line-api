@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
@@ -19,10 +20,7 @@
     <!--No warning for the scripts, it is part of the content, not to execuate-->
     <NoWarn>$(NoWarn);NU5110;NU5111;</NoWarn>
   </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
+
 
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
@@ -49,4 +47,5 @@
       <FileVersion></FileVersion>
     </PropertyGroup>
   </Target>
+
 </Project>

@@ -6,21 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ApprovalTests" Version="5.4.7" />
+    <PackageReference Include="ApprovalTests" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine.Hosting\System.CommandLine.Hosting.csproj" />
     <ProjectReference Include="..\System.CommandLine.NamingConventionBinder\System.CommandLine.NamingConventionBinder.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(DisableArcade)' == '1'">
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
 </Project>
