@@ -12,17 +12,17 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionStoreTests : IDisposable
     {
-        protected readonly ITestOutputHelper Output;
-        protected readonly FileInfo EndToEndTestApp;
-        protected readonly FileInfo WaitAndFailTestApp;
-        protected readonly FileInfo DotnetSuggest;
+        protected readonly ITestOutputHelper _output;
+        protected readonly FileInfo _endToEndTestApp;
+        protected readonly FileInfo _waitAndFailTestApp;
+        protected readonly FileInfo _dotnetSuggest;
         protected readonly (string, string)[] _environmentVariables;
         private readonly DirectoryInfo _dotnetHostDir = DotnetMuxer.Path.Directory;
         private static string _testRoot;
         
         public SuggestionStoreTests(ITestOutputHelper output)
         {
-            Output = output;
+            _output = output;
 
             // delete sentinel files for TestApps in order to trigger registration when it's run
             var sentinelsDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "system-commandline-sentinel-files"));
@@ -43,15 +43,15 @@ namespace System.CommandLine.Suggest.Tests
                 Directory.GetCurrentDirectory(),
                 "TestAssets");
 
-            EndToEndTestApp = new DirectoryInfo(currentDirectory)
+            _endToEndTestApp = new DirectoryInfo(currentDirectory)
                 .GetFiles("EndToEndTestApp".ExecutableName())
                 .SingleOrDefault();
 
-            WaitAndFailTestApp = new DirectoryInfo(currentDirectory)
+            _waitAndFailTestApp = new DirectoryInfo(currentDirectory)
                 .GetFiles("WaitAndFailTestApp".ExecutableName())
                 .SingleOrDefault();
             
-            DotnetSuggest = new DirectoryInfo(currentDirectory)
+            _dotnetSuggest = new DirectoryInfo(currentDirectory)
                 .GetFiles("dotnet-suggest".ExecutableName())
                 .SingleOrDefault();
 
@@ -79,8 +79,16 @@ namespace System.CommandLine.Suggest.Tests
         [ReleaseBuildOnlyFact]
         public void GetCompletions_obtains_suggestions_successfully()
         {
+            // run "dotnet-suggest register" in explicit way
+            Process.RunToCompletion(
+                _dotnetSuggest.FullName,
+                $"register --command-path \"{_endToEndTestApp.FullName}\"",
+                stdOut: s => _output.WriteLine(s),
+                stdErr: s => _output.WriteLine(s),
+                environmentVariables: _environmentVariables).Should().Be(0);
+            
             var store = new SuggestionStore();
-            var completions = store.GetCompletions(EndToEndTestApp.FullName, "[suggest:1] \"a\"", TimeSpan.FromSeconds(1));
+            var completions = store.GetCompletions(_endToEndTestApp.FullName, "[suggest:1] \"a\"", TimeSpan.FromSeconds(1));
             completions.Should().Be($"--apple{NewLine}--banana{NewLine}--durian{NewLine}");
         }
         
@@ -90,7 +98,7 @@ namespace System.CommandLine.Suggest.Tests
             var store = new SuggestionStore();
             var appHangingTimeSpanArgument = TimeSpan.FromMilliseconds(2000).ToString();
             var completions = store
-                .GetCompletions(WaitAndFailTestApp.FullName, appHangingTimeSpanArgument, TimeSpan.FromMilliseconds(1000));
+                .GetCompletions(_waitAndFailTestApp.FullName, appHangingTimeSpanArgument, TimeSpan.FromMilliseconds(1000));
             completions.Should().BeEmpty();
         }
         
@@ -100,8 +108,33 @@ namespace System.CommandLine.Suggest.Tests
             var store = new SuggestionStore();
             var appHangingTimeSpanArgument = TimeSpan.FromMilliseconds(0).ToString();
             var completions = store
-                .GetCompletions(WaitAndFailTestApp.FullName, appHangingTimeSpanArgument, TimeSpan.FromMilliseconds(1000));
+                .GetCompletions(_waitAndFailTestApp.FullName, appHangingTimeSpanArgument, TimeSpan.FromMilliseconds(1000));
             completions.Should().BeEmpty();
+        }
+        
+        [ReleaseBuildOnlyFact]
+        public void GetCompletions_throws_when_exeFileName_is_null()
+        {
+            var store = new SuggestionStore();
+            var act = () => store.GetCompletions(null, "[suggest:1] \"a\"", TimeSpan.FromSeconds(1));
+            act.Should().Throw<ArgumentException>();
+        }
+        
+        [ReleaseBuildOnlyFact]
+        public void GetCompletions_throws_when_exeFileName_is_empty()
+        {
+            var store = new SuggestionStore();
+            var act = () => store.GetCompletions("   ", "[suggest:1] \"a\"", TimeSpan.FromSeconds(1));
+            act.Should().Throw<ArgumentException>();
+        }
+        
+        [ReleaseBuildOnlyFact]
+        public void GetCompletions_throws_when_exeFile_does_not_exist()
+        {
+            var store = new SuggestionStore();
+            var act = () => store
+                .GetCompletions("thisExecutableDoesNotExist.exe", "[suggest:1] \"a\"", TimeSpan.FromSeconds(1));
+            act.Should().Throw<ArgumentException>();
         }
     }
 }
