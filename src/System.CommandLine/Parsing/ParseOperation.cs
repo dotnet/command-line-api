@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-//using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Parsing
 {
@@ -78,7 +77,7 @@ namespace System.CommandLine.Parsing
             }
 */
 
-            return new (
+            return new(
                 _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,

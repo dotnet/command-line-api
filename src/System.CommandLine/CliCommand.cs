@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-//using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -135,7 +134,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousSynchronousCliAction(action);
+        Action = new AnonymousSynchronousCliAction(action);
         }
 
         /// <summary>
