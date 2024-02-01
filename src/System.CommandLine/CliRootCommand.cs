@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 //using System.CommandLine.Completions;
-//using System.CommandLine.Help;
 using System.IO;
 using System.Reflection;
 

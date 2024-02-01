@@ -48,4 +48,8 @@
     <InternalsVisibleTo Include="System.CommandLine.NamingConventionBinder" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+  </ItemGroup>
+
 </Project>
