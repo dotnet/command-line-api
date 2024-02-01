@@ -6,16 +6,15 @@
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU5125;CS0618</NoWarn>
-    <NoWarn Condition=" '$(DotnetBuildFromSource)' == 'true' ">$(NoWarn);CS8714;CS8765;CS8600;CS8601;CS8602;CS8603;CS8604</NoWarn>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(DotNetBuildFromSource)' == 'true'">
+  <PropertyGroup Condition="'$(DotNetBuildFromSource)' == 'true' or '$(DotNetBuildSourceOnly)' == 'true'">
     <TargetFrameworkForNETSDK>$(NetCurrent)</TargetFrameworkForNETSDK>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(DotNetBuildFromSource)' != 'true'">
+  <PropertyGroup Condition="'$(DotNetBuildFromSource)' != 'true' and '$(DotNetBuildSourceOnly)' != 'true'">
     <TargetFrameworkForNETSDK>net7.0</TargetFrameworkForNETSDK>
   </PropertyGroup>
 
