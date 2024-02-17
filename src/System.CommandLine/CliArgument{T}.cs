@@ -11,6 +11,7 @@ namespace System.CommandLine
     /// <inheritdoc cref="CliArgument" />
     public class CliArgument<T> : CliArgument
     {
+        /*
         private Func<ArgumentResult, T?>? _customParser;
 
         /// <summary>
@@ -197,5 +198,6 @@ namespace System.CommandLine
 
             return default;
         }
+        */
     }
 }

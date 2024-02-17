@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>$(TargetFrameworkForNETSDK);net462</TargetFrameworks>
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
+    <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
   </PropertyGroup>
   
   <ItemGroup>   
@@ -12,10 +13,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Compile Include="..\Common\ArgumentBuilder.cs" Link="Utility\ArgumentBuilder.cs" />
-    <Compile Include="..\Common\OptionBuilder.cs" Link="Utility\OptionBuilder.cs" />
-    <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
-    <Compile Include="..\System.CommandLine\LocalizationResources.cs" Link="LocalizationResources.cs" />
+    <!--<Compile Include="..\Common\ArgumentBuilder.cs" Link="Utility\ArgumentBuilder.cs" />-->
+    <!--<Compile Include="..\Common\OptionBuilder.cs" Link="Utility\OptionBuilder.cs" />-->
+    <!--<Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />-->
+    <!--<Compile Include="..\System.CommandLine\LocalizationResources.cs" Link="LocalizationResources.cs" />-->
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
   </ItemGroup>
   

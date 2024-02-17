@@ -25,11 +25,13 @@
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
     <Compile Include="CliArgument.cs" />
+    <Compile Include="CliArgument{T}.cs" />
     <Compile Include="CliCommand.cs" />
     <Compile Include="CliConfiguration.cs" />
     <Compile Include="CliDirective.cs" />
     <Compile Include="CliOption.cs" />
     <Compile Include="CliOption{T}.cs" />
+    <Compile Include="CliRootCommand.cs" />
     <Compile Include="CliSymbol.cs" />
     <Compile Include="ParseResult.cs" />
     <Compile Include="Parsing\CliParser.cs" />
