@@ -23,13 +23,15 @@ namespace System.CommandLine
     /// <see cref="CliRootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class CliCommand : CliSymbol //, IEnumerable
+    public class CliCommand : CliSymbol, IEnumerable
     {
-    /*       
+/*
         internal AliasSet? _aliases;
+*/
         private ChildSymbolList<CliArgument>? _arguments;
         private ChildSymbolList<CliOption>? _options;
         private ChildSymbolList<CliCommand>? _subcommands;
+        /*
         private List<Action<CommandResult>>? _validators;
 
         /// <summary>
@@ -39,7 +41,7 @@ namespace System.CommandLine
         /// <param name="description">The description of the command, shown in help.</param>
         public CliCommand(string name, string? description = null) : base(name)
             => Description = description;
-
+        */
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
@@ -78,7 +80,7 @@ namespace System.CommandLine
         public IList<CliCommand> Subcommands => _subcommands ??= new(this);
 
         internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
-
+/*
         /// <summary>
         /// Validators to the command. Validators can be used
         /// to create custom validation logic.
@@ -188,12 +190,12 @@ namespace System.CommandLine
         /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
         /// </summary>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
-
+*/
         /// <inheritdoc />
         [DebuggerStepThrough]
         [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer 
         IEnumerator IEnumerable.GetEnumerator() => Children.GetEnumerator();
-
+/*
         /// <summary>
         /// Parses an array strings using the command.
         /// </summary>
@@ -308,9 +310,9 @@ namespace System.CommandLine
                 }
             }
         }
-
-        internal bool EqualsNameOrAlias(string name)
-            => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
-  */
-        }
+*/
+        internal bool EqualsNameOrAlias(string name) => Name.Equals(name, StringComparison.Ordinal);
+        // TODO: aliases
+        //|| (_aliases is not null && _aliases.Contains(name));
+    }
 }

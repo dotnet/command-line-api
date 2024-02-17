@@ -22,7 +22,7 @@ namespace System.CommandLine
         /// Gets or sets the description of the symbol.
         /// </summary>
         public string? Description { get; set; }
-
+        */
         /// <summary>
         /// Gets the name of the symbol.
         /// </summary>
@@ -49,6 +49,7 @@ namespace System.CommandLine
                 current.Next = new SymbolNode(symbol);
             }
         }
+        /*
 
         /// <summary>
         /// Gets or sets a value indicating whether the symbol is hidden.

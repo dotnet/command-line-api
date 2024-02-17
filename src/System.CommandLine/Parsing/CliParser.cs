@@ -149,8 +149,9 @@ namespace System.CommandLine.Parsing
             configuration ??= new CliConfiguration(command);
 
             arguments.Tokenize(
-                configuration,
+                configuration.RootCommand,
                 inferRootCommand: rawInput is not null,
+                configuration.EnablePosixBundling,
                 out List<CliToken> tokens,
                 out List<string>? tokenizationErrors);
 

@@ -20,11 +20,6 @@ namespace System.CommandLine
     public class CliRootCommand : CliCommand
     {
         /*
-        private static Assembly? _assembly;
-        private static string? _executablePath;
-        private static string? _executableName;
-        private static string? _executableVersion;
-
         /// <param name="description">The description of the command, shown in help.</param>
         public CliRootCommand(string description = "") : base(ExecutableName, description)
         {
@@ -45,38 +40,6 @@ namespace System.CommandLine
         /// Adds a <see cref="CliDirective"/> to the command.
         /// </summary>
         public void Add(CliDirective directive) => Directives.Add(directive);
-
-        internal static Assembly GetAssembly()
-            => _assembly ??= (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
-
-        /// <summary>
-        /// The name of the currently running executable.
-        /// </summary>
-        public static string ExecutableName
-            => _executableName ??= Path.GetFileNameWithoutExtension(ExecutablePath).Replace(" ", "");
-
-        /// <summary>
-        /// The path to the currently running executable.
-        /// </summary>
-        public static string ExecutablePath => _executablePath ??= Environment.GetCommandLineArgs()[0];
-        
-        internal static string ExecutableVersion => _executableVersion ??= GetExecutableVersion();
-
-        private static string GetExecutableVersion()
-        {
-            var assembly = GetAssembly();
-
-            var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-
-            if (assemblyVersionAttribute is null)
-            {
-                return assembly.GetName().Version?.ToString() ?? "";
-            }
-            else
-            {
-                return assemblyVersionAttribute.InformationalVersion;
-            }
-        }
         */
     }
 }

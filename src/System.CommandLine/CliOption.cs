@@ -89,10 +89,10 @@ namespace System.CommandLine
         /// </code>
         /// </example>
         public bool AllowMultipleArgumentsPerToken { get; set; }
-
-        internal virtual bool Greedy
-            => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
-
+        */
+        internal virtual bool Greedy => throw new NotImplementedException();
+        //    => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
+        /*
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
         /// </summary>

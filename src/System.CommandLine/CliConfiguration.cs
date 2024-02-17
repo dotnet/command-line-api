@@ -34,7 +34,7 @@ namespace System.CommandLine
                 CliRootCommand root => root.Directives.Count > 0,
                 _ => false
             };
-
+        */
         /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.
         /// </summary>
@@ -56,7 +56,7 @@ namespace System.CommandLine
         ///
         /// </remarks>
         public bool EnablePosixBundling { get; set; } = true;
-
+        /*
         /// <summary>
         /// Enables a default exception handler to catch any unhandled exceptions thrown during invocation. Enabled by default.
         /// </summary>
@@ -77,12 +77,12 @@ namespace System.CommandLine
         /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
         public TryReplaceToken? ResponseFileTokenReplacer { get; set; } = StringExtensions.TryReadResponseFile;
-
+        */
         /// <summary>
         /// Gets the root command.
         /// </summary>
         public CliCommand RootCommand { get; }
-
+        /*
         /// <summary>
         /// The standard output. Used by Help and other facilities that write non-error information.
         /// By default it's set to <see cref="Console.Out"/>.
