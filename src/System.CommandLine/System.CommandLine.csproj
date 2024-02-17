@@ -35,12 +35,14 @@
     <Compile Include="CliOption{T}.cs" />
     <Compile Include="CliRootCommand.cs" />
     <Compile Include="CliSymbol.cs" />
+    <Compile Include="LocalizationResources.cs" />
     <Compile Include="ParseResult.cs" />
     <Compile Include="Parsing\CliParser.cs" />
     <Compile Include="Parsing\CliToken.cs" />
     <Compile Include="Parsing\CliTokenType.cs" />
     <Compile Include="Parsing\ParseOperation.cs" />
     <Compile Include="Parsing\StringExtensions.cs" />
+    <Compile Include="Properties\Resources.Designer.cs" />
     <Compile Include="SymbolNode.cs" />
   </ItemGroup>
 

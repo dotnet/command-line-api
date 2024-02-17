@@ -24,8 +24,12 @@ namespace System.CommandLine.Parsing
                        .IndexOf(source,
                                 value,
                                 CompareOptions.OrdinalIgnoreCase);
+        */
+    }
 
-        internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
+    internal static class CliTokenizer
+    {
+        internal static (string? Prefix, string Alias) SplitPrefix(string rawAlias)
         {
             if (rawAlias[0] == '/')
             {
@@ -44,11 +48,9 @@ namespace System.CommandLine.Parsing
             return (null, rawAlias);
         }
 
-        */
-
         // this method is not returning a Value Tuple or a dedicated type to avoid JITting
         internal static void Tokenize(
-            this IReadOnlyList<string> args,
+            IReadOnlyList<string> args,
             CliCommand rootCommand,
             bool inferRootCommand,
             bool enablePosixBundling,
@@ -66,7 +68,7 @@ namespace System.CommandLine.Parsing
 
             var tokenList = new List<CliToken>(args.Count);
 
-            var knownTokens = rootCommand.ValidTokens();
+            var knownTokens = GetValidTokens(rootCommand);
 
             int i = FirstArgumentIsRootCommand(args, rootCommand, inferRootCommand)
                 ? 0
@@ -175,7 +177,7 @@ namespace System.CommandLine.Parsing
                                 {
                                     if (cmd != rootCommand)
                                     {
-                                        knownTokens = cmd.ValidTokens(); // config contains Directives, they are allowed only for RootCommand
+                                        knownTokens = GetValidTokens(cmd); // config contains Directives, they are allowed only for RootCommand
                                     }
                                     currentCommand = cmd;
                                     tokenList.Add(Command(arg, cmd));
@@ -189,7 +191,7 @@ namespace System.CommandLine.Parsing
                         }
                     }
                 }
-                else if (arg.TrySplitIntoSubtokens(out var first, out var rest) &&
+                else if (TrySplitIntoSubtokens(arg, out var first, out var rest) &&
                          knownTokens.TryGetValue(first, out var subtoken) &&
                          subtoken.Type == CliTokenType.Option)
                 {
@@ -328,15 +330,14 @@ namespace System.CommandLine.Parsing
 
             return false;
         }
-        /*
 
-        private static string? GetReplaceableTokenValue(this string arg) =>
+        private static string? GetReplaceableTokenValue(string arg) =>
             arg.Length > 1 && arg[0] == '@'
                 ? arg.Substring(1)
                 : null;
-        */
-        internal static bool TrySplitIntoSubtokens(
-            this string arg,
+
+        private static bool TrySplitIntoSubtokens(
+            string arg,
             out string first,
             out string? rest)
         {
@@ -358,7 +359,8 @@ namespace System.CommandLine.Parsing
             rest = null;
             return false;
         }
-        /*
+
+        // TODO: rename to TryTokenizeResponseFile
         internal static bool TryReadResponseFile(
             string filePath,
             out IReadOnlyList<string>? newTokens,
@@ -392,7 +394,7 @@ namespace System.CommandLine.Parsing
 
                     foreach (var p in SplitLine(line))
                     {
-                        if (p.GetReplaceableTokenValue() is { } path)
+                        if (GetReplaceableTokenValue(p) is { } path)
                         {
                             foreach (var q in ExpandResponseFile(path))
                             {
@@ -421,9 +423,9 @@ namespace System.CommandLine.Parsing
                     yield return word;
                 }
             }
-        }*/
+        }
 
-        private static Dictionary<string, CliToken> ValidTokens(this CliCommand command)
+        private static Dictionary<string, CliToken> GetValidTokens(CliCommand command)
         {
             Dictionary<string, CliToken> tokens = new(StringComparer.Ordinal);
 

@@ -13,6 +13,7 @@ namespace System.CommandLine
     /// </summary>
     internal static class LocalizationResources
     {
+/*
         /// <summary>
         ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects a single argument but {1} were provided.
         /// </summary>
@@ -86,7 +87,7 @@ namespace System.CommandLine
         /// </summary>
         internal static string UnrecognizedCommandOrArgument(string arg) =>
             GetResourceString(Properties.Resources.UnrecognizedCommandOrArgument, arg);
-
+*/
         /// <summary>
         ///   Interpolates values into a localized string similar to Response file not found &apos;{0}&apos;.
         /// </summary>
@@ -98,7 +99,7 @@ namespace System.CommandLine
         /// </summary>
         internal static string ErrorReadingResponseFile(string filePath, IOException e) =>
             GetResourceString(Properties.Resources.ErrorReadingResponseFile, filePath, e.Message);
-
+/*
         /// <summary>
         ///   Interpolates values into a localized string similar to Show help and usage information.
         /// </summary>
@@ -232,7 +233,7 @@ namespace System.CommandLine
         internal static string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType, IEnumerable<string> completions)
             => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption_Completions,
                 value, optionAlias, expectedType, Environment.NewLine + string.Join(Environment.NewLine, completions));
-
+*/
         /// <summary>
         /// Interpolates values into a localized string.
         /// </summary>
@@ -251,7 +252,8 @@ namespace System.CommandLine
             }
             return resourceString;
         }
-
+/*
         private static string GetOptionName(OptionResult optionResult) => optionResult.IdentifierToken?.Value ?? optionResult.Option.Name;
+*/
     }
 }
