@@ -19,6 +19,7 @@ namespace System.CommandLine
     /// </remarks>
     public class CliRootCommand : CliCommand
     {
+        /*
         private static Assembly? _assembly;
         private static string? _executablePath;
         private static string? _executableName;
@@ -76,5 +77,6 @@ namespace System.CommandLine
                 return assemblyVersionAttribute.InformationalVersion;
             }
         }
+        */
     }
 }

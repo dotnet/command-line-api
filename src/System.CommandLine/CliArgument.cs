@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Binding;
+//using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
-using System.CommandLine.Completions;
+//using System.CommandLine.Completions;
 using System.Linq;
 
 namespace System.CommandLine
@@ -14,6 +14,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliArgument : CliSymbol
     {
+        /*
         private ArgumentArity _arity;
         private TryConvertArgument? _convertArguments;
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
@@ -131,5 +132,6 @@ namespace System.CommandLine
         public override string ToString() => $"{nameof(CliArgument)}: {Name}";
 
         internal bool IsBoolean() => ValueType == typeof(bool) || ValueType == typeof(bool?);
+        */
     }
 }
