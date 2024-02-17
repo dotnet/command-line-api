@@ -24,6 +24,7 @@
    
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
+    <Compile Include="AliasSet.cs" />
     <Compile Include="ChildSymbolList{T}.cs" />
     <Compile Include="CliArgument.cs" />
     <Compile Include="CliArgument{T}.cs" />

@@ -500,8 +500,6 @@ namespace System.CommandLine.Parsing
             {
                 tokens.Add(cmd.Name, new CliToken(cmd.Name, CliTokenType.Command, cmd, CliToken.ImplicitPosition));
 
-                //TODO: Aliases
-                /*
                 if (cmd._aliases is not null)
                 {
                     foreach (string childAlias in cmd._aliases)
@@ -509,7 +507,6 @@ namespace System.CommandLine.Parsing
                         tokens.Add(childAlias, new CliToken(childAlias, CliTokenType.Command, cmd, CliToken.ImplicitPosition));
                     }
                 }
-                */
             }
 
             static void AddOptionTokens(Dictionary<string, CliToken> tokens, CliOption option)
@@ -519,8 +516,6 @@ namespace System.CommandLine.Parsing
                     tokens.Add(option.Name, new CliToken(option.Name, CliTokenType.Option, option, CliToken.ImplicitPosition));
                 }
 
-                //TODO: Aliases
-                /*
                 if (option._aliases is not null)
                 {
                     foreach (string childAlias in option._aliases)
@@ -531,7 +526,6 @@ namespace System.CommandLine.Parsing
                         }
                     }
                 }
-                */
             }
         }
     }

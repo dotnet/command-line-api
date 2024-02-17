@@ -76,7 +76,7 @@ namespace System.CommandLine
         /// Gets completions for the symbol.
         /// </summary>
         public abstract IEnumerable<CompletionItem> GetCompletions(CompletionContext context);
-
+*/
         /// <inheritdoc/>
         public override string ToString() => $"{GetType().Name}: {Name}";
 
@@ -101,6 +101,5 @@ namespace System.CommandLine
 
             return value;
         }
-        */
     }
 }

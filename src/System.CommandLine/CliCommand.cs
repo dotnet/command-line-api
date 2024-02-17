@@ -25,9 +25,7 @@ namespace System.CommandLine
     /// </remarks>
     public class CliCommand : CliSymbol, IEnumerable
     {
-/*
         internal AliasSet? _aliases;
-*/
         private ChildSymbolList<CliArgument>? _arguments;
         private ChildSymbolList<CliOption>? _options;
         private ChildSymbolList<CliCommand>? _subcommands;
@@ -311,8 +309,6 @@ namespace System.CommandLine
             }
         }
 */
-        internal bool EqualsNameOrAlias(string name) => Name.Equals(name, StringComparison.Ordinal);
-        // TODO: aliases
-        //|| (_aliases is not null && _aliases.Contains(name));
+        internal bool EqualsNameOrAlias(string name) => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
     }
 }

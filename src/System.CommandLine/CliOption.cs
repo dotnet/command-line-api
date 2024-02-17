@@ -14,8 +14,8 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliOption : CliSymbol
     {
-        /*
         internal AliasSet? _aliases;
+/*
         private List<Action<OptionResult>>? _validators;
 
         private protected CliOption(string name, string[] aliases) : base(name)
