@@ -1,22 +1,19 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Help;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using static System.Environment;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Extended.Tests
 {
     public class VersionOptionTests
     {
         private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                                                         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                                         .InformationalVersion;
+                                                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                                 .InformationalVersion;
 
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
@@ -46,6 +43,17 @@ namespace System.CommandLine.Tests
             await configuration.InvokeAsync("--version");
 
             wasCalled.Should().BeFalse();
+        }
+
+        [Fact]
+        public void When_the_version_option_is_specified_then_the_version_is_parsed()
+        {
+            ParseResult parseResult = CliParser.Parse (
+                new CliRootCommand(),
+                [ "--version"]);
+
+            parseResult.Errors.Should().BeEmpty();
+            parseResult.GetValue(configuration.RootCommand.Options.OfType<VersionOption>().Single()).Should().BeTrue();
         }
 
         [Fact]
@@ -89,7 +97,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_and_there_are_default_arguments_then_the_version_is_written_to_standard_out()
         {
-            CliRootCommand rootCommand = new ()
+            CliRootCommand rootCommand = new()
             {
                 new CliArgument<bool>("x") { DefaultValueFactory =(_) => true },
             };
@@ -111,13 +119,11 @@ namespace System.CommandLine.Tests
         public void Version_is_not_valid_with_other_tokens(string commandLine)
         {
             var subcommand = new CliCommand("subcommand");
-            subcommand.SetAction(_ => { });
             var rootCommand = new CliRootCommand
             {
                 subcommand,
                 new CliOption<bool>("-x")
             };
-            rootCommand.SetAction(_ => { });
 
             CliConfiguration configuration = new(rootCommand)
             {
@@ -133,13 +139,11 @@ namespace System.CommandLine.Tests
         public void Version_option_is_not_added_to_subcommands()
         {
             var childCommand = new CliCommand("subcommand");
-            childCommand.SetAction(_ => { });
 
             var rootCommand = new CliRootCommand
             {
                 childCommand
             };
-            rootCommand.SetAction(_ => { });
 
             CliConfiguration configuration = new(rootCommand)
             {
@@ -147,51 +151,45 @@ namespace System.CommandLine.Tests
             };
 
             configuration
-                  .RootCommand
-                  .Subcommands
-                  .Single(c => c.Name == "subcommand")
-                  .Options
-                  .Should()
-                  .BeEmpty();
+                .RootCommand
+                .Subcommands
+                .Single(c => c.Name == "subcommand")
+                .Options
+                .Should()
+                .BeEmpty();
         }
 
         [Fact]
-        public async Task Version_can_specify_additional_alias()
+        public void Version_can_specify_additional_alias()
         {
             CliRootCommand rootCommand = new();
 
+            VersionOption versionOption = new("-version", "-v");
             for (int i = 0; i < rootCommand.Options.Count; i++)
             {
                 if (rootCommand.Options[i] is VersionOption)
-                    rootCommand.Options[i] = new VersionOption("-v", "-version");
+                    rootCommand.Options[i] = versionOption;
             }
 
-            CliConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var parseResult = rootCommand.Parse("-version");
+            var versionSpecified = parseResult.GetValue(versionOption);
+            versionSpecified.Should().BeTrue();
 
-            await configuration.InvokeAsync("-v");
-            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
-
-            configuration.Output = new StringWriter();
-            await configuration.InvokeAsync("-version");
-            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
+            parseResult = rootCommand.Parse("-v");
+            versionSpecified = parseResult.GetValue(versionOption);
+            versionSpecified.Should().BeTrue();
         }
 
         [Fact]
         public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
         {
             var childCommand = new CliCommand("subcommand");
-            childCommand.SetAction((_) => { });
             var rootCommand = new CliRootCommand
             {
                 childCommand
             };
 
-            rootCommand.Options[1] = new VersionOption("-v");
-
-            rootCommand.SetAction((_) => { });
+            rootCommand.Options[0] = new VersionOption("-v");
 
             CliConfiguration configuration = new(rootCommand)
             {
