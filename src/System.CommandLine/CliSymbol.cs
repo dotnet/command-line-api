@@ -12,11 +12,11 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliSymbol
     {
-        /*
         private protected CliSymbol(string name, bool allowWhitespace = false)
         {
             Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
         }
+        /*
 
         /// <summary>
         /// Gets or sets the description of the symbol.

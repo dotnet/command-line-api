@@ -18,9 +18,13 @@ namespace System.CommandLine
         /// Initializes a new instance of the Argument class.
         /// </summary>
         /// <param name="name">The name of the argument. It's not used for parsing, only when displaying Help or creating parse errors.</param>>
+        /// 
+        */
         public CliArgument(string name) : base(name)
         {
         }
+
+        /*
 
         /// <summary>
         /// The delegate to invoke to create the default value.

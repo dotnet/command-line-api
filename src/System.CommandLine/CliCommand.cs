@@ -32,14 +32,18 @@ namespace System.CommandLine
         /*
         private List<Action<CommandResult>>? _validators;
 
+        */
         /// <summary>
         /// Initializes a new instance of the Command class.
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command, shown in help.</param>
-        public CliCommand(string name, string? description = null) : base(name)
-            => Description = description;
-        */
+        public CliCommand(string name)/*, string? description = null) */
+            : base(name) 
+        {
+        }
+            //=> Description = description;
+
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
@@ -165,6 +169,8 @@ namespace System.CommandLine
             Action = new AnonymousAsynchronousCliAction(action);
         }
 
+        */
+
         /// <summary>
         /// Adds a <see cref="CliArgument"/> to the command.
         /// </summary>
@@ -182,6 +188,8 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The Command to add to the command.</param>
         public void Add(CliCommand command) =>  Subcommands.Add(command);
+
+        /*
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,

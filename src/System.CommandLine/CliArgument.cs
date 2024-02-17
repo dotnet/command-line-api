@@ -20,10 +20,12 @@ namespace System.CommandLine
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
+        */
         private protected CliArgument(string name) : base(name, allowWhitespace: true)
         {
         }
 
+        /*
         /// <summary>
         /// Gets or sets the arity of the argument.
         /// </summary>

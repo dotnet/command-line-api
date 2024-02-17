@@ -11,23 +11,25 @@ namespace System.CommandLine
     {
         /*
         internal readonly CliArgument<T> _argument;
-
+        */
         /// <summary>
         /// Initializes a new instance of the <see cref="CliOption"/> class.
         /// </summary>
         /// <param name="name">The name of the option. It's used for parsing, displaying Help and creating parse errors.</param>>
         /// <param name="aliases">Optional aliases. Used for parsing, suggestions and displayed in Help.</param>
         public CliOption(string name, params string[] aliases) 
-            : this(name, aliases, new CliArgument<T>(name))
+        /*    : this(name, aliases, new CliArgument<T>(name))
         {
         }
 
         private protected CliOption(string name, string[] aliases, CliArgument<T> argument)
-            : base(name, aliases)
+         */   : base(name, aliases)
         {
-            argument.AddParent(this);
-            _argument = argument;
+            //argument.AddParent(this);
+            //_argument = argument;
         }
+
+        /*
 
         /// <inheritdoc cref="CliArgument{T}.DefaultValueFactory" />
         public Func<ArgumentResult, T>? DefaultValueFactory

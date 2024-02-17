@@ -18,7 +18,6 @@ namespace System.CommandLine
     /// </summary>
     public class CliDirective : CliSymbol
     {
-        /*
         /// <summary>
         /// Initializes a new instance of the Directive class.
         /// </summary>
@@ -28,6 +27,7 @@ namespace System.CommandLine
         {
         }
 
+        /*
         /// <summary>
         /// Gets or sets the <see cref="CliAction"/> for the Directive. The handler represents the action
         /// that will be performed when the Directive is invoked.

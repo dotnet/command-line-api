@@ -45,6 +45,7 @@
     <Compile Include="Parsing\StringExtensions.cs" />
     <Compile Include="Properties\Resources.Designer.cs" />
     <Compile Include="SymbolNode.cs" />
+    <InternalsVisibleTo Include="System.CommandLine.Tests"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

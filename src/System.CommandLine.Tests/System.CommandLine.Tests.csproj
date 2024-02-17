@@ -18,6 +18,8 @@
     <!--<Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />-->
     <!--<Compile Include="..\System.CommandLine\LocalizationResources.cs" Link="LocalizationResources.cs" />-->
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
+    <Compile Include="TokenizerTests.cs" />
+    <Compile Include="Utility\**\*.cs" Exclude="Utility\ParseResultExtensions.cs"/>
   </ItemGroup>
   
   <ItemGroup>
@@ -36,8 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx"
-                      LogicalName="System.CommandLine.Properties.Resources.resources" />
+    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx" LogicalName="System.CommandLine.Properties.Resources.resources" />
   </ItemGroup>
 
 </Project>

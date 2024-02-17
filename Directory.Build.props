@@ -7,7 +7,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU5125;CS0618</NoWarn>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>12.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DotNetBuildFromSource)' == 'true' or '$(DotNetBuildSourceOnly)' == 'true'">

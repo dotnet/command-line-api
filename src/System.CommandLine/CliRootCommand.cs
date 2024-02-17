@@ -19,17 +19,20 @@ namespace System.CommandLine
     /// </remarks>
     public class CliRootCommand : CliCommand
     {
-        /*
         /// <param name="description">The description of the command, shown in help.</param>
-        public CliRootCommand(string description = "") : base(ExecutableName, description)
+        public CliRootCommand(/*string description = "" */)
+            : base(CliExecutable.ExecutableName/*, description*/)
         {
+            /*
             Options.Add(new HelpOption());
             Options.Add(new VersionOption()); 
             Directives = new ChildSymbolList<CliDirective>(this)
             {
                 new SuggestDirective()
             };
+            */
         }
+        /*
      
         /// <summary>
         /// Represents all of the directives that are valid under the root command.

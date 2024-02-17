@@ -18,6 +18,8 @@ namespace System.CommandLine
 /*
         private List<Action<OptionResult>>? _validators;
 
+        */
+
         private protected CliOption(string name, string[] aliases) : base(name)
         {
             if (aliases is { Length: > 0 }) 
@@ -26,11 +28,11 @@ namespace System.CommandLine
             }
         }
 
+/*
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
         internal abstract CliArgument Argument { get; }
-
         /// <summary>
         /// Specifies if a default value is defined for the option.
         /// </summary>
