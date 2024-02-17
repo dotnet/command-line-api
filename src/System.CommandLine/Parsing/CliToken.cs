@@ -6,8 +6,9 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A unit of significant text on the command line.
     /// </summary>
-    public sealed class CliToken : IEquatable<CliToken>
+    public sealed class CliToken //: IEquatable<CliToken>
     {
+        /*
         internal const int ImplicitPosition = -1;
 
         /// <param name="value">The string value of the token.</param>
@@ -75,5 +76,6 @@ namespace System.CommandLine.Parsing
         /// <param name="right">The second <see cref="CliToken"/>.</param>
         /// <returns><see langword="true" /> if the objects are not equal.</returns>
         public static bool operator !=(CliToken? left, CliToken? right) => left is null ? right is not null : !left.Equals(right);
+        */
     }
 }

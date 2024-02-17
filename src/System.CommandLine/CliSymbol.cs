@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Completions;
+//using System.CommandLine.Completions;
 using System.Diagnostics;
 
 namespace System.CommandLine
@@ -12,6 +12,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliSymbol
     {
+        /*
         private protected CliSymbol(string name, bool allowWhitespace = false)
         {
             Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
@@ -99,5 +100,6 @@ namespace System.CommandLine
 
             return value;
         }
+        */
     }
 }

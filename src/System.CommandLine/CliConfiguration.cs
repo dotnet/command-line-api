@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
-using System.CommandLine.Invocation;
+//using System.CommandLine.Invocation;
 
 namespace System.CommandLine
 {
@@ -16,6 +16,7 @@ namespace System.CommandLine
     /// </summary>
     public class CliConfiguration
     {
+        /*
         private TextWriter? _output, _error;
 
         /// <summary>
@@ -220,6 +221,10 @@ namespace System.CommandLine
                 aliases = command.Options[index - command.Subcommands.Count]._aliases;
                 return command.Options[index - command.Subcommands.Count];
             }
+        }
+        */
+        public CliConfiguration(CliCommand command)
+        {
         }
     }
 }

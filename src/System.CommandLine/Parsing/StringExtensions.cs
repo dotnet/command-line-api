@@ -10,6 +10,7 @@ namespace System.CommandLine.Parsing
 {
     internal static class StringExtensions
     {
+        /*
         internal static bool ContainsCaseInsensitive(
             this string source,
             string value) =>
@@ -43,6 +44,8 @@ namespace System.CommandLine.Parsing
             return (null, rawAlias);
         }
 
+        */
+
         // this method is not returning a Value Tuple or a dedicated type to avoid JITting
         internal static void Tokenize(
             this IReadOnlyList<string> args,
@@ -51,7 +54,8 @@ namespace System.CommandLine.Parsing
             out List<CliToken> tokens,
             out List<string>? errors)
         {
-            const int FirstArgIsNotRootCommand = -1;
+            throw new NotImplementedException();
+           /* const int FirstArgIsNotRootCommand = -1;
 
             List<string>? errorList = null;
 
@@ -287,9 +291,9 @@ namespace System.CommandLine.Parsing
 
                 option = null;
                 return false;
-            }
+            }*/
         }
-
+        /*
         private static bool FirstArgumentIsRootCommand(IReadOnlyList<string> args, CliCommand rootCommand, bool inferRootCommand)
         {
             if (args.Count > 0)
@@ -507,5 +511,6 @@ namespace System.CommandLine.Parsing
                 }
             }
         }
+        */
     }
 }

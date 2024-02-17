@@ -2,13 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Help;
-using System.CommandLine.Invocation;
+//using System.CommandLine.Help;
+//using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Parsing
 {
     internal sealed class ParseOperation
     {
+        /*
         private readonly List<CliToken> _tokens;
         private readonly CliConfiguration _configuration;
         private readonly string? _rawInput;
@@ -379,6 +380,16 @@ namespace System.CommandLine.Parsing
 
                 currentResult = currentResult.Parent as CommandResult;
             }
+        }
+        */
+        public ParseOperation(List<CliToken> tokens, CliConfiguration configuration, List<string>? tokenizationErrors, string? rawInput)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal ParseResult Parse()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
@@ -9,6 +9,7 @@
     <LangVersion>latest</LangVersion>
     <Description>Support for parsing command lines, supporting both POSIX and Windows conventions and shell-agnostic command line completions.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkForNETSDK)'">
@@ -23,6 +24,15 @@
    
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
+    <Compile Include="CliCommand.cs" />
+    <Compile Include="CliConfiguration.cs" />
+    <Compile Include="CliSymbol.cs" />
+    <Compile Include="ParseResult.cs" />
+    <Compile Include="Parsing\CliParser.cs" />
+    <Compile Include="Parsing\CliToken.cs" />
+    <Compile Include="Parsing\CliTokenType.cs" />
+    <Compile Include="Parsing\ParseOperation.cs" />
+    <Compile Include="Parsing\StringExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

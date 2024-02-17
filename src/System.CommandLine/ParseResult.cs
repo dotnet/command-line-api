@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Completions;
-using System.CommandLine.Invocation;
+//using System.CommandLine.Completions;
+//using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +16,7 @@ namespace System.CommandLine
     /// </summary>
     public sealed class ParseResult
     {
+        /*
         private readonly CommandResult _rootCommandResult;
         private readonly IReadOnlyList<CliToken> _unmatchedTokens;
         private CompletionContext? _completionContext;
@@ -336,5 +337,6 @@ namespace System.CommandLine
                 return !optionResult.IsArgumentLimitReached;
             }
         }
+        */
     }
 }

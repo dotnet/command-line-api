@@ -3,8 +3,8 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Completions;
-using System.CommandLine.Invocation;
+//using System.CommandLine.Completions;
+//using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -14,6 +14,7 @@ using System.Threading;
 
 namespace System.CommandLine
 {
+
     /// <summary>
     /// Represents a specific action that the application performs.
     /// </summary>
@@ -22,8 +23,9 @@ namespace System.CommandLine
     /// <see cref="CliRootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class CliCommand : CliSymbol, IEnumerable
+    public class CliCommand : CliSymbol //, IEnumerable
     {
+    /*       
         internal AliasSet? _aliases;
         private ChildSymbolList<CliArgument>? _arguments;
         private ChildSymbolList<CliOption>? _options;
@@ -309,5 +311,6 @@ namespace System.CommandLine
 
         internal bool EqualsNameOrAlias(string name)
             => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
-    }
+  */
+        }
 }
