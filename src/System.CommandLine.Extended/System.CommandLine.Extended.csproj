@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
+    <Compile Include="VersionOption.cs" />
     <Compile Include="..\System.CommandLine\System.Diagnostics.CodeAnalysis\**\*.cs" Link="System.Diagnostics.CodeAnalysis\%(RecursiveDir)\%(Filename).%(Extension)" />
   </ItemGroup>
 
