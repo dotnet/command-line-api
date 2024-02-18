@@ -9,27 +9,25 @@ namespace System.CommandLine
     /// <typeparam name="T">The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.</typeparam>
     public class CliOption<T> : CliOption
     {
-        /*
+// TODO: do not expose private fields
         internal readonly CliArgument<T> _argument;
-        */
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CliOption"/> class.
         /// </summary>
         /// <param name="name">The name of the option. It's used for parsing, displaying Help and creating parse errors.</param>>
         /// <param name="aliases">Optional aliases. Used for parsing, suggestions and displayed in Help.</param>
         public CliOption(string name, params string[] aliases) 
-        /*    : this(name, aliases, new CliArgument<T>(name))
+            : this(name, aliases, new CliArgument<T>(name))
         {
         }
 
         private protected CliOption(string name, string[] aliases, CliArgument<T> argument)
-         */   : base(name, aliases)
+            : base(name, aliases)
         {
-            //argument.AddParent(this);
-            //_argument = argument;
+            argument.AddParent(this);
+            _argument = argument;
         }
-
-        /*
 
         /// <inheritdoc cref="CliArgument{T}.DefaultValueFactory" />
         public Func<ArgumentResult, T>? DefaultValueFactory
@@ -38,15 +36,20 @@ namespace System.CommandLine
             set => _argument.DefaultValueFactory = value;
         }
 
+// TODO: custom parser
+/*
         /// <inheritdoc cref="CliArgument{T}.CustomParser" />
         public Func<ArgumentResult, T?>? CustomParser
         {
             get => _argument.CustomParser;
             set => _argument.CustomParser = value;
         }
+*/
         
         internal sealed override CliArgument Argument => _argument;
 
+// TODO: completion, validator
+/* 
         /// <summary>
         /// Configures the option to accept only the specified values, and to suggest them as command line completions.
         /// </summary>

@@ -132,7 +132,8 @@ namespace System.CommandLine.Parsing
             {
                 return ReportErrorIfNeeded(arityFailure);
             }
-
+// TODO: validators
+/*
             // There is nothing that stops user-defined Validator from calling ArgumentResult.GetValueOrDefault.
             // In such cases, we can't call the validators again, as it would create infinite recursion.
             // GetArgumentConversionResult => ValidateAndConvert => Validator
@@ -150,7 +151,7 @@ namespace System.CommandLine.Parsing
                     return _conversionResult;
                 }
             }
-
+*/
             if (Parent!.UseDefaultValueFor(this))
             {
                 var defaultValue = Argument.GetDefaultValue(this);

@@ -27,10 +27,11 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public CliCommand Command { get; }
 
+        // FIXME: should CliToken be public or internal?
         /// <summary>
         /// The token that was parsed to specify the command.
         /// </summary>
-        public CliToken IdentifierToken { get; }
+        internal CliToken IdentifierToken { get; }
 
         /// <summary>
         /// Child symbol results in the parse tree.
@@ -48,12 +49,16 @@ namespace System.CommandLine.Parsing
         {
             if (completeValidation)
             {
-                if (Command.Action is null && Command.HasSubcommands)
+// TODO: invocation
+//                if (Command.Action is null && Command.HasSubcommands)
+                if (Command.HasSubcommands)
                 {
                     SymbolResultTree.InsertFirstError(
                         new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));
                 }
 
+// TODO: validators
+/*
                 if (Command.HasValidators)
                 {
                     int errorCountBefore = SymbolResultTree.ErrorCount;
@@ -67,6 +72,7 @@ namespace System.CommandLine.Parsing
                         return;
                     }
                 }
+*/
             }
 
             if (Command.HasOptions)
@@ -87,7 +93,9 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-                if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
+// TODO: VersionOption, recursive options
+//              if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
+                if (!completeValidation && !option.Argument.HasDefaultValue)
                 {
                     continue;
                 }
@@ -129,6 +137,8 @@ namespace System.CommandLine.Parsing
                     continue;
                 }
 
+// TODO: validators
+/*
                 if (optionResult.Option.HasValidators)
                 {
                     int errorsBefore = SymbolResultTree.ErrorCount;
@@ -143,6 +153,7 @@ namespace System.CommandLine.Parsing
                         continue;
                     }
                 }
+*/
 
                 _ = argumentResult.GetArgumentConversionResult();
             }

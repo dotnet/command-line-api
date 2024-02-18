@@ -13,13 +13,12 @@ namespace System.CommandLine
     /// </summary>
     internal static class LocalizationResources
     {
-/*
         /// <summary>
         ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects a single argument but {1} were provided.
         /// </summary>
         internal static string ExpectsOneArgument(OptionResult optionResult)
             => GetResourceString(Properties.Resources.OptionExpectsOneArgument, GetOptionName(optionResult), optionResult.Tokens.Count);
-
+/*
         /// <summary>
         ///   Interpolates values into a localized string similar to Directory does not exist: {0}.
         /// </summary>
@@ -49,7 +48,7 @@ namespace System.CommandLine
         /// </summary>
         internal static string InvalidCharactersInFileName(char invalidChar) =>
             GetResourceString(Properties.Resources.InvalidCharactersInFileName, invalidChar);
-
+*/
         /// <summary>
         ///   Interpolates values into a localized string similar to Required argument missing for command: {0}.
         /// </summary>
@@ -87,7 +86,7 @@ namespace System.CommandLine
         /// </summary>
         internal static string UnrecognizedCommandOrArgument(string arg) =>
             GetResourceString(Properties.Resources.UnrecognizedCommandOrArgument, arg);
-*/
+
         /// <summary>
         ///   Interpolates values into a localized string similar to Response file not found &apos;{0}&apos;.
         /// </summary>
@@ -201,7 +200,7 @@ namespace System.CommandLine
         /// </summary>
         internal static string ExceptionHandlerHeader()
             => GetResourceString(Properties.Resources.ExceptionHandlerHeader);
-
+*/
         /// <summary>
         ///   Interpolates values into a localized string similar to Cannot parse argument &apos;{0}&apos; as expected type {1}..
         /// </summary>
@@ -233,7 +232,7 @@ namespace System.CommandLine
         internal static string ArgumentConversionCannotParseForOption(string value, string optionAlias, Type expectedType, IEnumerable<string> completions)
             => GetResourceString(Properties.Resources.ArgumentConversionCannotParseForOption_Completions,
                 value, optionAlias, expectedType, Environment.NewLine + string.Join(Environment.NewLine, completions));
-*/
+
         /// <summary>
         /// Interpolates values into a localized string.
         /// </summary>
@@ -252,8 +251,7 @@ namespace System.CommandLine
             }
             return resourceString;
         }
-/*
+
         private static string GetOptionName(OptionResult optionResult) => optionResult.IdentifierToken?.Value ?? optionResult.Option.Name;
-*/
     }
 }

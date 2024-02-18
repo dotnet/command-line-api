@@ -8,6 +8,8 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public sealed class ParseError
     {
+        // TODO: add position
+        // TODO: reevaluate whether we should be exposing a SymbolResult here
         internal ParseError(
             string message, 
             SymbolResult? symbolResult = null)

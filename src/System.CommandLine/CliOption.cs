@@ -14,6 +14,7 @@ namespace System.CommandLine
     /// </summary>
     public abstract class CliOption : CliSymbol
     {
+        // TODO: don't expose field
         internal AliasSet? _aliases;
 /*
         private List<Action<OptionResult>>? _validators;
@@ -28,16 +29,18 @@ namespace System.CommandLine
             }
         }
 
-/*
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
         internal abstract CliArgument Argument { get; }
+
         /// <summary>
         /// Specifies if a default value is defined for the option.
         /// </summary>
         public bool HasDefaultValue => Argument.HasDefaultValue;
 
+// TODO: help
+/*
         /// <summary>
         /// Gets or sets the name of the Option when displayed in help.
         /// </summary>
@@ -50,6 +53,7 @@ namespace System.CommandLine
             get => Argument.HelpName;
             set => Argument.HelpName = value;
         }
+*/
 
         /// <summary>
         /// Gets or sets the arity of the option.
@@ -60,6 +64,8 @@ namespace System.CommandLine
             set => Argument.Arity = value;
         }
 
+// TODO: recursive options, validators, completion
+/*
         /// <summary>
         /// When set to true, this option will be applied to its immediate parent command or commands and recursively to their subcommands.
         /// </summary>
@@ -76,7 +82,9 @@ namespace System.CommandLine
         /// Gets the list of completion sources for the option.
         /// </summary>
         public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources => Argument.CompletionSources;
+*/
 
+// TODO: what does this even mean?
         /// <summary>
         /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
         /// </summary>
@@ -91,10 +99,11 @@ namespace System.CommandLine
         /// </code>
         /// </example>
         public bool AllowMultipleArgumentsPerToken { get; set; }
-        */
-        internal virtual bool Greedy => throw new NotImplementedException();
-        //    => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
-        /*
+
+// TODO: rename to IsGreedy
+        internal virtual bool Greedy => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
+        
+// TODO: rename to IsRequired
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
         /// </summary>
@@ -107,6 +116,8 @@ namespace System.CommandLine
         /// <remarks>The collection does not contain the <see cref="CliSymbol.Name"/> of the Option.</remarks>
         public ICollection<string> Aliases => _aliases ??= new();
 
+// TODO: invocation, completion
+/*
         /// <summary>
         /// Gets or sets the <see cref="CliAction"/> for the Option. The handler represents the action
         /// that will be performed when the Option is invoked.

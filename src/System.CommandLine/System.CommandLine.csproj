@@ -25,6 +25,14 @@
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
     <Compile Include="AliasSet.cs" />
+    <Compile Include="ArgumentArity.cs" />
+    <Compile Include="Binding\ArgumentConversionResult.cs" />
+    <Compile Include="Binding\ArgumentConversionResultType.cs" />
+    <Compile Include="Binding\ArgumentConverter.cs" />
+    <Compile Include="Binding\ArgumentConverter.DefaultValues.cs" />
+    <Compile Include="Binding\ArgumentConverter.StringConverters.cs" />
+    <Compile Include="Binding\TryConvertArgument.cs" />
+    <Compile Include="Binding\TypeExtensions.cs" />
     <Compile Include="ChildSymbolList{T}.cs" />
     <Compile Include="CliArgument.cs" />
     <Compile Include="CliArgument{T}.cs" />
@@ -38,14 +46,24 @@
     <Compile Include="CliSymbol.cs" />
     <Compile Include="LocalizationResources.cs" />
     <Compile Include="ParseResult.cs" />
+    <Compile Include="Parsing\ArgumentResult.cs" />
     <Compile Include="Parsing\CliParser.cs" />
     <Compile Include="Parsing\CliToken.cs" />
     <Compile Include="Parsing\CliTokenType.cs" />
+    <Compile Include="Parsing\CommandResult.cs" />
+    <Compile Include="Parsing\OptionResult.cs" />
+    <Compile Include="Parsing\ParseError.cs" />
     <Compile Include="Parsing\ParseOperation.cs" />
     <Compile Include="Parsing\StringExtensions.cs" />
+    <Compile Include="Parsing\SymbolResult.cs" />
+    <Compile Include="Parsing\SymbolResultTree.cs" />
     <Compile Include="Properties\Resources.Designer.cs" />
     <Compile Include="SymbolNode.cs" />
-    <InternalsVisibleTo Include="System.CommandLine.Tests"/>
+    <Compile Include="System.Diagnostics.CodeAnalysis\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="System.CommandLine.Tests" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

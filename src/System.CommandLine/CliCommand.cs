@@ -25,6 +25,7 @@ namespace System.CommandLine
     /// </remarks>
     public class CliCommand : CliSymbol, IEnumerable
     {
+        // TODO: don't expose field
         internal AliasSet? _aliases;
         private ChildSymbolList<CliArgument>? _arguments;
         private ChildSymbolList<CliOption>? _options;

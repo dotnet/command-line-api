@@ -16,29 +16,40 @@ namespace System.CommandLine
     /// </summary>
     public sealed class ParseResult
     {
-        /*
         private readonly CommandResult _rootCommandResult;
+// TODO: unmatched tokens, invocation, completion
+/*
         private readonly IReadOnlyList<CliToken> _unmatchedTokens;
         private CompletionContext? _completionContext;
         private readonly CliAction? _action;
         private readonly List<CliAction>? _preActions;
+*/
 
         internal ParseResult(
             CliConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<CliToken> tokens,
-            List<CliToken>? unmatchedTokens,
+// TODO: unmatched tokens
+//          List<CliToken>? unmatchedTokens,
             List<ParseError>? errors,
-            string? commandLineText = null,
+// TODO: commandLineText should be string array
+            string? commandLineText = null //,
+// TODO: invocation
+/*
             CliAction? action = null,
             List<CliAction>? preActions = null)
+*/
+            )
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
+            // TODO: invocation
+/*
             _action = action;
             _preActions = preActions;
+*/
 
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
@@ -55,11 +66,17 @@ namespace System.CommandLine
             }
 
             CommandLineText = commandLineText;
-            _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
+
+// TODO: unmatched tokens
+//          _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
+            
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
+// TODO: check that constructing empty ParseResult directly is correct
+/*
         internal static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
+*/
 
         /// <summary>
         /// A result indicating the command specified in the command line input.
@@ -81,10 +98,11 @@ namespace System.CommandLine
         /// </summary>
         public IReadOnlyList<ParseError> Errors { get; }
 
+        // TODO: don't expose tokens
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
         /// </summary>
-        public IReadOnlyList<CliToken> Tokens { get; }
+        internal IReadOnlyList<CliToken> Tokens { get; }
 
         /// <summary>
         /// Holds the value of a complete command line input prior to splitting and tokenization, when provided.
@@ -92,6 +110,8 @@ namespace System.CommandLine
         /// <remarks>This will not be set when the parser is called from <c>Program.Main</c>. It is primarily used when calculating suggestions via the <c>dotnet-suggest</c> tool.</remarks>
         internal string? CommandLineText { get; }
 
+        // TODO: CommandLineText, completion
+        /*
         /// <summary>
         /// Gets the list of tokens used on the command line that were not matched by the parser.
         /// </summary>
@@ -106,7 +126,7 @@ namespace System.CommandLine
                 CommandLineText is null
                     ? new CompletionContext(this)
                     : new TextCompletionContext(this, CommandLineText);
-
+        */
         /// <summary>
         /// Gets the parsed or default value for the specified argument.
         /// </summary>
@@ -134,8 +154,11 @@ namespace System.CommandLine
         public T? GetValue<T>(string name)
             => RootCommandResult.GetValue<T>(name);
 
+        // TODO: diagramming
+        /*
         /// <inheritdoc />
         public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
+        */
 
         /// <summary>
         /// Gets the result, if any, for the specified argument.
@@ -161,13 +184,15 @@ namespace System.CommandLine
         public OptionResult? GetResult(CliOption option) =>
             _rootCommandResult.GetResult(option);
 
+// TODO: Directives
+/*
         /// <summary>
         /// Gets the result, if any, for the specified directive.
         /// </summary>
         /// <param name="directive">The directive for which to find a result.</param>
         /// <returns>A result for the specified directive, or <see langword="null"/> if it was not provided.</returns>
         public DirectiveResult? GetResult(CliDirective directive) => _rootCommandResult.GetResult(directive);
-
+*/
         /// <summary>
         /// Gets the result, if any, for the specified symbol.
         /// </summary>
@@ -176,6 +201,8 @@ namespace System.CommandLine
         public SymbolResult? GetResult(CliSymbol symbol)
             => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out SymbolResult? result) ? result : null;
 
+// TODO: completion, invocation
+/*
         /// <summary>
         /// Gets completions based on a given parse result.
         /// </summary>

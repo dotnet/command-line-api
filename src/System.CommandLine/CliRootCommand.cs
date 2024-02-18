@@ -25,15 +25,16 @@ namespace System.CommandLine
         {
             /*
             Options.Add(new HelpOption());
-            Options.Add(new VersionOption()); 
+            Options.Add(new VersionOption());
             Directives = new ChildSymbolList<CliDirective>(this)
             {
                 new SuggestDirective()
             };
             */
         }
-        /*
-     
+
+// TODO: directives
+/*
         /// <summary>
         /// Represents all of the directives that are valid under the root command.
         /// </summary>
@@ -43,6 +44,6 @@ namespace System.CommandLine
         /// Adds a <see cref="CliDirective"/> to the command.
         /// </summary>
         public void Add(CliDirective directive) => Directives.Add(directive);
-        */
+*/
     }
 }

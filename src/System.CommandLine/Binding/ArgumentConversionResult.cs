@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Completions;
+//using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.Linq;
 
@@ -48,6 +48,8 @@ namespace System.CommandLine.Binding
             if (argumentResult.Parent is CommandResult commandResult)
             {
                 string alias = commandResult.Command.Name;
+// TODO: completion
+/*
                 CompletionItem[] completionItems = argumentResult.Argument.GetCompletions(CompletionContext.Empty).ToArray();
 
                 if (completionItems.Length > 0)
@@ -56,6 +58,7 @@ namespace System.CommandLine.Binding
                         value, alias, expectedType, completionItems.Select(ci => ci.Label));
                 }
                 else
+*/
                 {
                     return LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
                 }
@@ -63,6 +66,8 @@ namespace System.CommandLine.Binding
             else if (argumentResult.Parent is OptionResult optionResult)
             {
                 string alias = optionResult.Option.Name;
+// TODO: completion
+/*
                 CompletionItem[] completionItems = optionResult.Option.GetCompletions(CompletionContext.Empty).ToArray();
 
                 if (completionItems.Length > 0)
@@ -71,6 +76,7 @@ namespace System.CommandLine.Binding
                         value, alias, expectedType, completionItems.Select(ci => ci.Label));
                 }
                 else
+*/
                 {
                     return LocalizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
                 }

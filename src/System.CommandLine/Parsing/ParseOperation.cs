@@ -9,7 +9,6 @@ namespace System.CommandLine.Parsing
 {
     internal sealed class ParseOperation
     {
-        /*
         private readonly List<CliToken> _tokens;
         private readonly CliConfiguration _configuration;
         private readonly string? _rawInput;
@@ -20,19 +19,23 @@ namespace System.CommandLine.Parsing
         private CommandResult _innermostCommandResult;
         private bool _isHelpRequested;
         private bool _isTerminatingDirectiveSpecified;
+// TODO: invocation
+/*
         private CliAction? _primaryAction;
         private List<CliAction>? _preActions;
-
+*/
         public ParseOperation(
             List<CliToken> tokens,
+            CliCommand rootCommand,
             CliConfiguration configuration,
-            List<string>? tokenizeErrors,
+            List<string>? tokenizationErrors,
             string? rawInput)
         {
             _tokens = tokens;
             _configuration = configuration;
             _rawInput = rawInput;
-            _symbolResultTree = new(_configuration.RootCommand, tokenizeErrors);
+            _symbolResultTree = new(rootCommand, tokenizationErrors);
+
             _innermostCommandResult = _rootCommandResult = new CommandResult(
                 _configuration.RootCommand,
                 CurrentToken,
@@ -55,15 +58,18 @@ namespace System.CommandLine.Parsing
 
         internal ParseResult Parse()
         {
+// TODO: directives
+/*
             ParseDirectives();
-
+*/
             ParseCommandChildren();
-
             if (!_isHelpRequested)
             {
                 Validate();
             }
 
+// TODO: invocation
+/*
             if (_primaryAction is null)
             {
                 if (_symbolResultTree.ErrorCount > 0)
@@ -71,17 +77,23 @@ namespace System.CommandLine.Parsing
                     _primaryAction = new ParseErrorAction();
                 }
             }
+*/
 
             return new (
                 _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,
                 _tokens,
-                _symbolResultTree.UnmatchedTokens,
+// TODO: unmatched tokens
+//                _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
-                _rawInput,
+                _rawInput
+// TODO: invocation
+/*
                 _primaryAction,
                 _preActions);
+*/
+                );
         }
 
         private void ParseSubcommand()
@@ -187,6 +199,8 @@ namespace System.CommandLine.Parsing
 
             if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
             {
+// TODO: invocation, directives, help
+/*
                 if (option.Action is not null)
                 {
                     // directives have a precedence over --help and --version
@@ -207,7 +221,7 @@ namespace System.CommandLine.Parsing
                         }
                     }
                 }
-
+*/
                 optionResult = new OptionResult(
                     option,
                     _symbolResultTree,
@@ -221,7 +235,8 @@ namespace System.CommandLine.Parsing
                 optionResult = (OptionResult)symbolResult;
             }
 
-            optionResult.IdentifierTokenCount++;
+// TODO: IdentifierTokenCount
+//            optionResult.IdentifierTokenCount++;
 
             Advance();
 
@@ -290,7 +305,8 @@ namespace System.CommandLine.Parsing
                 }
             }
         }
-
+// TODO: directives
+/*
         private void ParseDirectives()
         {
             while (More(out CliTokenType currentTokenType) && currentTokenType == CliTokenType.Directive)
@@ -356,6 +372,7 @@ namespace System.CommandLine.Parsing
 
             _preActions.Add(action);
         }
+*/
 
         private void AddCurrentTokenToUnmatched()
         {
@@ -380,16 +397,6 @@ namespace System.CommandLine.Parsing
 
                 currentResult = currentResult.Parent as CommandResult;
             }
-        }
-        */
-        public ParseOperation(List<CliToken> tokens, CliConfiguration configuration, List<string>? tokenizationErrors, string? rawInput)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal ParseResult Parse()
-        {
-            throw new NotImplementedException();
         }
     }
 }

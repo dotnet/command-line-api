@@ -18,8 +18,8 @@ namespace System.CommandLine.Parsing
         /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
-        public static ParseResult Parse(CliCommand command, IReadOnlyList<string> args, CliConfiguration? configuration = null)
-            => Parse(command, args, null, configuration);
+        public static ParseResult Parse(CliCommand rootCommand, IReadOnlyList<string> args, CliConfiguration? configuration = null)
+            => Parse(rootCommand, args, null, configuration);
 
         /// <summary>
         /// Parses a command line string.
@@ -29,8 +29,8 @@ namespace System.CommandLine.Parsing
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
-        public static ParseResult Parse(CliCommand command, string commandLine, CliConfiguration? configuration = null)
-            => Parse(command, SplitCommandLine(commandLine).ToArray(), commandLine, configuration);
+        public static ParseResult Parse(CliCommand rootCommand, string commandLine, CliConfiguration? configuration = null)
+            => Parse(rootCommand, SplitCommandLine(commandLine).ToArray(), commandLine, configuration);
 
         /// <summary>
         /// Splits a string into a sequence of strings based on whitespace and quotation marks.
@@ -136,7 +136,7 @@ namespace System.CommandLine.Parsing
         }
 
         private static ParseResult Parse(
-            CliCommand command,
+            CliCommand rootCommand,
             IReadOnlyList<string> arguments,
             string? rawInput,
             CliConfiguration? configuration)
@@ -146,11 +146,11 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(arguments));
             }
 
-            configuration ??= new CliConfiguration(command);
+            configuration ??= new CliConfiguration(rootCommand);
 
             CliTokenizer.Tokenize(
                 arguments,
-                configuration.RootCommand,
+                rootCommand,
                 inferRootCommand: rawInput is not null,
                 configuration.EnablePosixBundling,
                 out List<CliToken> tokens,
@@ -158,6 +158,7 @@ namespace System.CommandLine.Parsing
 
             var operation = new ParseOperation(
                 tokens,
+                rootCommand,
                 configuration,
                 tokenizationErrors,
                 rawInput);

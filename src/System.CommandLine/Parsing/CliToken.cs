@@ -3,10 +3,12 @@
 
 namespace System.CommandLine.Parsing
 {
+    // FIXME: should CliToken be public or internal? made internal for now
+    // FIXME: should CliToken be a struct?
     /// <summary>
     /// A unit of significant text on the command line.
     /// </summary>
-    public sealed class CliToken : IEquatable<CliToken>
+    internal sealed class CliToken : IEquatable<CliToken>
     {
         internal const int ImplicitPosition = -1;
 
