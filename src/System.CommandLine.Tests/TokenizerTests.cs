@@ -24,12 +24,6 @@ namespace System.CommandLine.Tests
             List<string> errors = null;
             CliTokenizer.Tokenize(args,command,false, true, out tokens, out errors);
 
-            //result.GetResult(animalsOption)
-            //      .Tokens
-            //      .Select(t => t.Value)
-            //      .Should()
-            //      .BeEquivalentTo("cat", "dog");
-
             tokens
                 .Skip(1)
                 .Select(t => t.Value)

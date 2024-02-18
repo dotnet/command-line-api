@@ -120,7 +120,7 @@ namespace System.CommandLine.Parsing
         public override string ToString() => $"{nameof(ArgumentResult)} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
         /// <inheritdoc/>
-        public override void AddError(string errorMessage)
+        internal override void AddError(string errorMessage)
         {
             SymbolResultTree.AddError(new ParseError(errorMessage, AppliesToPublicSymbolResult));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);

@@ -37,10 +37,10 @@ namespace System.CommandLine.Parsing
             _symbolResultTree = new(rootCommand, tokenizationErrors);
 
             _innermostCommandResult = _rootCommandResult = new CommandResult(
-                _configuration.RootCommand,
+                rootCommand,
                 CurrentToken,
                 _symbolResultTree);
-            _symbolResultTree.Add(_configuration.RootCommand, _rootCommandResult);
+            _symbolResultTree.Add(rootCommand, _rootCommandResult);
 
             Advance();
         }
