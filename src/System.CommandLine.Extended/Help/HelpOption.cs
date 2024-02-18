@@ -30,8 +30,9 @@ namespace System.CommandLine.Help
         /// When added to a <see cref="CliCommand"/>, it configures the application to show help when given name or one of the aliases are specified on the command line.
         /// </summary>
         public HelpOption(string name, params string[] aliases)
-            : base(name, aliases, new CliArgument<bool>(name) { Arity = ArgumentArity.Zero })
+            : base(name, aliases)
         {
+            Arity = ArgumentArity.Zero;
             Recursive = true;
             Description = LocalizationResources.HelpOptionDescription();
         }

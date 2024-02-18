@@ -5,6 +5,7 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
     <OutputType>Library</OutputType>
+    <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,15 +14,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
     <Compile Include="..\Common\ArgumentBuilder.cs" Link="Utility\ArgumentBuilder.cs" />
     <Compile Include="..\Common\OptionBuilder.cs" Link="Utility\OptionBuilder.cs" />
-    <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\LocalizationResources.cs" Link="LocalizationResources.cs" />
+    -->
+    <Compile Include="..\System.CommandLine.Tests\Utility\**\*.cs" Link="Utility\%(RecursiveDir)%(Filename).%(Extension)" Exclude="..\System.CommandLine.Tests\Utility\ParseResultExtensions.cs" />
+    <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="..\System.CommandLine.Extended\System.CommandLine.Extended.csproj" />
   </ItemGroup>
 
   <ItemGroup>
