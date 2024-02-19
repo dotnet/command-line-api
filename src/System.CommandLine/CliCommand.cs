@@ -21,13 +21,14 @@ namespace System.CommandLine
     /// <see cref="CliRootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class CliCommand : CliSymbol, IEnumerable
+    public class CliCommand : CliSymbol, IEnumerable<CliSymbol>
     {
         // TODO: don't expose field
         internal AliasSet? _aliases;
         private ChildSymbolList<CliArgument>? _arguments;
         private ChildSymbolList<CliOption>? _options;
         private ChildSymbolList<CliCommand>? _subcommands;
+// TODO: validators
         /*
         private List<Action<CommandResult>>? _validators;
 
@@ -41,6 +42,7 @@ namespace System.CommandLine
             : base(name) 
         {
         }
+// TODO: help
             //=> Description = description;
 
         /// <summary>
@@ -188,8 +190,33 @@ namespace System.CommandLine
         /// <param name="command">The Command to add to the command.</param>
         public void Add(CliCommand command) =>  Subcommands.Add(command);
 
-        /*
+        // Hide from IntelliSense as it's only to support initializing via C# collection expression
+        // More specific efficient overloads are available for all supported symbol types.
+        [DebuggerStepThrough]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void Add(CliSymbol symbol)
+        {
+            if (symbol is CliCommand cmd)
+            {
+                Add(cmd);
+            }
+            else if (symbol is CliOption option)
+            {
+                Add(option);
+            }
+            else if (symbol is CliCommand command)
+            {
+                Add(command);
+            }
+            else
+            {
+// TODO: add a localized message here
+                throw new ArgumentException(null, nameof(symbol));
+            }
+        }
 
+// TODO: umatched tokens
+ /*
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
         /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
@@ -197,9 +224,16 @@ namespace System.CommandLine
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 */
         /// <inheritdoc />
+        // Hide from IntelliSense as it's only to support C# collection initializer
         [DebuggerStepThrough]
-        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         IEnumerator IEnumerable.GetEnumerator() => Children.GetEnumerator();
+
+        /// <inheritdoc />
+        // Hide from IntelliSense as it's only to support initializing via C# collection expression
+        [DebuggerStepThrough]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        IEnumerator<CliSymbol> IEnumerable<CliSymbol>.GetEnumerator() => Children.GetEnumerator();
 /*
         /// <summary>
         /// Parses an array strings using the command.

@@ -15,8 +15,8 @@ namespace System.CommandLine
         {
             Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
         }
+        // TODO: help
         /*
-
         /// <summary>
         /// Gets or sets the description of the symbol.
         /// </summary>
