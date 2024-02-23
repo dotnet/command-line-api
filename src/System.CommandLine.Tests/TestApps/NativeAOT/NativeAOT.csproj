@@ -8,12 +8,8 @@
     <PublishAot>true</PublishAot>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <SystemCommandLineDllPath Condition="'$(SystemCommandLineDllPath)' == ''">..\..\..\System.CommandLine\bin\$(Configuration)\$(TargetFramework)\System.CommandLine.dll</SystemCommandLineDllPath>
-  </PropertyGroup>
-
   <ItemGroup>
-    <ReferencePath Include="$(SystemCommandLineDllPath)" />
+    <ProjectReference Include="..\..\..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 
 </Project>

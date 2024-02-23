@@ -8,15 +8,11 @@
     <NoWarn>$(NoWarn);NU5125;CS0618</NoWarn>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>10.0</LangVersion>
-  </PropertyGroup>
 
-  <!-- When building from source, upgrade NetMinimum to the latest TFM. -->
-  <PropertyGroup Condition="'$(DotNetBuildFromSource)' == 'true' or '$(DotNetBuildSourceOnly)' == 'true'">
-    <NetMinimum>$(NetCurrent)</NetMinimum>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(DotNetBuildFromSource)' != 'true' and '$(DotNetBuildSourceOnly)' != 'true'">
     <NetMinimum>net8.0</NetMinimum>
+    <NetFrameworkMinimum>net462</NetFrameworkMinimum>
+    <!-- When building from source, upgrade NetMinimum to the latest TFM. -->
+    <NetMinimum Condition="'$(DotNetBuildFromSource)' == 'true' or '$(DotNetBuildSourceOnly)' == 'true'">$(NetCurrent)</NetMinimum>
   </PropertyGroup>
 
 </Project>

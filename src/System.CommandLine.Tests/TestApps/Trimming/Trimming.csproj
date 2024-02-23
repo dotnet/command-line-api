@@ -9,12 +9,11 @@
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <SystemCommandLineDllPath Condition="'$(SystemCommandLineDllPath)' == ''">..\..\..\System.CommandLine\bin\$(Configuration)\$(TargetFramework)\System.CommandLine.dll</SystemCommandLineDllPath>
-  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\System.CommandLine\System.CommandLine.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
-    <ReferencePath Include="$(SystemCommandLineDllPath)" />
     <TrimmerRootAssembly Include="System.CommandLine" />
   </ItemGroup>
 

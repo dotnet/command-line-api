@@ -17,13 +17,10 @@ namespace System.CommandLine.Tests;
 public class CompilationTests
 {
     private readonly ITestOutputHelper _output;
-    private readonly string _systemCommandLineDllPath;
 
     public CompilationTests(ITestOutputHelper output)
     {
         _output = output;
-
-        _systemCommandLineDllPath = typeof(CliCommand).Assembly.Location;
     }
 
     [ReleaseBuildOnlyTheory]
@@ -57,9 +54,8 @@ public class CompilationTests
             workingDirectory: workingDirectory);
 
         string publishCommand = string.Format(
-            "publish -c Release -r {0} --self-contained -p:SystemCommandLineDllPath=\"{1}\" -p:TreatWarningsAsErrors=true {2}",
+            "publish -c Release -r {0} --self-contained -p:TreatWarningsAsErrors=true {1}",
             rId,
-            _systemCommandLineDllPath,
             additionalArgs);
 
         var exitCode = Process.RunToCompletion(
