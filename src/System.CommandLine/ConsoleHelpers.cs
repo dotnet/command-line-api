@@ -10,7 +10,7 @@ namespace System.CommandLine
         private static readonly bool ColorsAreSupported = GetColorsAreSupported();
 
         private static bool GetColorsAreSupported()
-#if NET7_0_OR_GREATER
+#if NET
             => !(OperatingSystem.IsBrowser() || OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || OperatingSystem.IsTvOS())
 #else
             => !(RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))

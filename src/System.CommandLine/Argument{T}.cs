@@ -169,7 +169,7 @@ namespace System.CommandLine
         {
             if (default(T) is null && typeof(T) != typeof(string))
             {
-#if NET7_0_OR_GREATER
+#if NET
                 if (typeof(T).IsSZArray)
 #else
                 if (typeof(T).IsArray && typeof(T).GetArrayRank() == 1)

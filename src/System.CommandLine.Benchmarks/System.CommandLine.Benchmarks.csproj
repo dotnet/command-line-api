@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Supported target frameworks -->
+    <TargetFramework>$(NetMinimum)</TargetFramework>
+
     <OutputType>Exe</OutputType>
     <PlatformTarget>AnyCPU</PlatformTarget>
 
     <!-- Avoid spawning any-long living compiler processes to avoid BenchmarkDotNet issues with "file in use",
              and automation failing to clean up the folders once the runs are over -->
     <UseSharedCompilation>false</UseSharedCompilation>
-
-    <!-- Supported target frameworks -->
-    <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
 
     <!-- This repo does not produce any libraries, therefore generating docs is disabled -->
     <GenerateDocumentationFile>False</GenerateDocumentationFile>

@@ -1,6 +1,6 @@
 ﻿// adapted from: https://github.com/dotnet/runtime/blob/a5159b1a8840632ad34cf59c5aaf77040cb6ceda/src/libraries/System.Private.CoreLib/src/System/Diagnostics/CodeAnalysis/UnconditionalSuppressMessageAttribute.cs#L21
 
-#if !NET6_0_OR_GREATER
+#if !NET
 
 
 // Licensed to the .NET Foundation under one or more agreements.

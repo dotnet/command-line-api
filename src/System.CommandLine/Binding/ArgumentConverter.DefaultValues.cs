@@ -10,7 +10,7 @@ namespace System.CommandLine.Binding;
 
 internal static partial class ArgumentConverter
 {
-#if NET6_0_OR_GREATER
+#if NET
     private static ConstructorInfo? _listCtor;
 #endif
 
@@ -20,7 +20,7 @@ internal static partial class ArgumentConverter
 
     private static IList CreateEmptyList(Type listType)
     {
-#if NET6_0_OR_GREATER
+#if NET
         ConstructorInfo? listCtor = _listCtor;
 
         if (listCtor is null)

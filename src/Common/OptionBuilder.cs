@@ -18,7 +18,7 @@ internal static class OptionBuilder
     {
         var optionType = typeof(CliOption<>).MakeGenericType(valueType);
 
-#if NET6_0_OR_GREATER
+#if NET
         var ctor = (ConstructorInfo)optionType.GetMemberWithSameMetadataDefinitionAs(_ctor);
 #else
         var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(string[]) });

@@ -27,7 +27,7 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-#if NET6_0_OR_GREATER
+#if NET
         [typeof(DateOnly)] = (string input, out object? value) =>
         {
             if (DateOnly.TryParse(input, out var parsed))
@@ -195,7 +195,7 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-#if NET6_0_OR_GREATER
+#if NET
         [typeof(TimeOnly)] = (string input, out object? value) =>
         {
             if (TimeOnly.TryParse(input, out var parsed))

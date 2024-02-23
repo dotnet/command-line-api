@@ -623,7 +623,7 @@ namespace System.CommandLine.Tests.Binding
             GetValue(option, "-us 1.2.3.4").Should().Be(IPAddress.Parse("1.2.3.4"));
         }
 
-#if NETCOREAPP3_0_OR_GREATER
+#if NET
         [Fact]
         public void Values_can_be_correctly_converted_to_ipendpoint_when_custom_parser_is_provided()
         {
@@ -636,7 +636,7 @@ namespace System.CommandLine.Tests.Binding
         }
 #endif
 
-#if NET6_0_OR_GREATER
+#if NET
         [Fact]
         public void Values_can_be_correctly_converted_to_dateonly_without_the_parser_specifying_a_custom_converter()
             => GetValue(new CliOption<DateOnly>("-us"), "-us 2022-03-02").Should().Be(DateOnly.Parse("2022-03-02"));

@@ -752,7 +752,7 @@ public class ModelBinderTests
         public string BundleId { get; set; }
     }
 
-#if NETCOREAPP2_1_OR_GREATER
+#if NET
     [Theory]
     [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4 --int-value 1234")]
     [InlineData("--class-with-span-ctor a51ca309-84fa-452f-96be-51e47702ffb4")]

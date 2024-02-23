@@ -10,12 +10,13 @@
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
+  <!-- When building from source, upgrade NetMinimum to the latest TFM. -->
   <PropertyGroup Condition="'$(DotNetBuildFromSource)' == 'true' or '$(DotNetBuildSourceOnly)' == 'true'">
-    <TargetFrameworkForNETSDK>$(NetCurrent)</TargetFrameworkForNETSDK>
+    <NetMinimum>$(NetCurrent)</NetMinimum>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DotNetBuildFromSource)' != 'true' and '$(DotNetBuildSourceOnly)' != 'true'">
-    <TargetFrameworkForNETSDK>net7.0</TargetFrameworkForNETSDK>
+    <NetMinimum>net8.0</NetMinimum>
   </PropertyGroup>
 
 </Project>
