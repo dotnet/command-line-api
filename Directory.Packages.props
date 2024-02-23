@@ -30,8 +30,8 @@
 
   <ItemGroup Condition="'$(DisableArcade)' == '1'">
     <!-- The xunit version should be kept in sync with the one that Arcade promotes -->
-    <PackageVersion Include="xunit" Version="2.4.1" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageVersion Include="xunit" Version="2.4.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.3" />
   </ItemGroup>
   
 </Project>
