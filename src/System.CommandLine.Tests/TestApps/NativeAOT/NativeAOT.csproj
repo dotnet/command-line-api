@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 
 </Project>
