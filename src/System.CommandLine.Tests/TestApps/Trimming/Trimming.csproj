@@ -6,11 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublishTrimmed>true</PublishTrimmed>
-    <TrimmerSingleWarn>false</TrimmerSingleWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\System.CommandLine\System.CommandLine.csproj" BuildReference="false" />
   </ItemGroup>
 
   <ItemGroup>
