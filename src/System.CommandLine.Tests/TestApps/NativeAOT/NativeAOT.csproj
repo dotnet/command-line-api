@@ -3,13 +3,11 @@
   <PropertyGroup>
     <TargetFramework>$(NetMinimum)</TargetFramework>
     <OutputType>Exe</OutputType>
-    <!-- producing more detailed log output -->
-    <TrimmerSingleWarn>false</TrimmerSingleWarn>
     <PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\System.CommandLine\System.CommandLine.csproj" BuildReference="false" />
   </ItemGroup>
 
 </Project>
