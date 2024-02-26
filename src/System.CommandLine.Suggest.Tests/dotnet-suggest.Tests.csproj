@@ -3,10 +3,6 @@
   <PropertyGroup>
     <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);EndToEndTestApp\**</DefaultExcludesInProjectFolder>
-
-    <Rid Condition="'$(OS)' == 'Windows_NT'">win-x64</Rid>
-    <Rid Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">osx-x64</Rid>
-    <Rid Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">linux-x64</Rid>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +20,7 @@
     <!-- Sequence into build to make sure that publish assets are available for tests. -->
     <ProjectReference Include="EndToEndTestApp/EndToEndTestApp.csproj;
                                ../System.CommandLine.Suggest/dotnet-suggest.csproj"
-                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(OutputPath)/TestAssets;PublishAfterBuild=true"
+                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(NETCoreSdkPortableRuntimeIdentifier);PublishDir=$(OutputPath)/TestAssets;PublishAfterBuild=true"
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
 
