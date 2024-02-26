@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);EndToEndTestApp\**</DefaultExcludesInProjectFolder>
+
+    <TestAssetsPath>$([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssets</TestAssetsPath>
+    <Rid Condition="'$(OS)' == 'Windows_NT'">win-x64</Rid>
+    <Rid Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">osx-x64</Rid>
+    <Rid Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">linux-x64</Rid>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,34 +21,14 @@
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine.Suggest\dotnet-suggest.csproj" />
     <ProjectReference Include="..\System.CommandLine.Tests\System.CommandLine.Tests.csproj" />
+
+    <!-- Sequence into build to make sure that publish assets are available for tests. -->
+    <ProjectReference Include="../System.CommandLine.Suggest/dotnet-suggest.csproj"
+                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath)"
+                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="EndToEndTestApp/EndToEndTestApp.csproj"
+                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath)"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
-
-  <Target Name="DotnetSuggestIntegrationTestAssets"
-          BeforeTargets="Build"
-          Condition="'$(Configuration)' == 'Release' and
-                     '$(_SuppressAllTargets)' != 'true'">
-    <PropertyGroup>
-      <TestAssetsPath>$([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssets</TestAssetsPath>
-      <Rid Condition="'$(OS)' == 'Windows_NT'">win-x64</Rid>
-      <Rid Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">osx-x64</Rid>
-      <Rid Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">linux-x64</Rid>
-    </PropertyGroup>
-
-    <MSBuild Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj"
-             Targets="Restore"
-             AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);ForceRestoreToEvaluateSeparately=1" />
-
-    <MSBuild Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj"
-             Targets="Build;Publish"
-             AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath)" />
-
-    <MSBuild Projects="EndToEndTestApp/EndToEndTestApp.csproj"
-             Targets="Restore"
-             AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);ForceRestoreToEvaluateSeparately=1" />
-
-    <MSBuild Projects="EndToEndTestApp/EndToEndTestApp.csproj"
-             Targets="Build;Publish"
-             AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath)" />
-  </Target>
 
 </Project>
