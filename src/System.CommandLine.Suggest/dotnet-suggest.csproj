@@ -18,12 +18,12 @@
 
   <PropertyGroup>
     <!--No warning for the scripts, it is part of the content, not to execuate-->
-    <NoWarn>$(NoWarn);NU5110;NU5111;</NoWarn>
+    <NoWarn>$(NoWarn);NU5110;NU5111</NoWarn>
   </PropertyGroup>
 
-
+  <!-- Remove the PublishDir global property to avoid System.CommandLine being built twice with different global properties (race condition). -->
   <ItemGroup>
-    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" GlobalPropertiesToRemove="PublishDir;PublishAfterBuild" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,12 +40,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
-  <!-- Workaround https://github.com/dotnet/arcade/issues/2233 -->
-  <Target Name="_InitializeAssemblyVersion" BeforeTargets="GetAssemblyVersion">
-    <PropertyGroup>
-      <FileVersion></FileVersion>
-    </PropertyGroup>
-  </Target>
 
 </Project>

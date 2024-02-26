@@ -16,32 +16,12 @@
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine.Suggest\dotnet-suggest.csproj" />
     <ProjectReference Include="..\System.CommandLine.Tests\System.CommandLine.Tests.csproj" />
+
+    <!-- Sequence into build to make sure that publish assets are available for tests. -->
+    <ProjectReference Include="EndToEndTestApp/EndToEndTestApp.csproj;
+                               ../System.CommandLine.Suggest/dotnet-suggest.csproj"
+                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(NETCoreSdkPortableRuntimeIdentifier);PublishDir=$(OutputPath)/TestAssets;PublishAfterBuild=true"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
-
-  <Target Name="DotnetSuggestIntegrationTestAssets" BeforeTargets="Build" Condition="'$(Configuration)' == 'Release'">
-    <PropertyGroup>
-      <TestAssetsPath>$([System.IO.Path]::GetFullPath('$(OutputPath)'))/TestAssets</TestAssetsPath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-      <Rid>win-x64</Rid>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
-      <Rid>osx-x64</Rid>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">
-      <Rid>linux-x64</Rid>
-    </PropertyGroup>
-
-    <MSBuild BuildInParallel="False" Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj" Targets="Restore" Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);ForceRestoreToEvaluateSeparately=1;Configuration=Release" />
-
-    <MSBuild BuildInParallel="False" Projects="../System.CommandLine.Suggest/dotnet-suggest.csproj" Targets="Build;Publish" Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath);Configuration=Release" />
-    
-    <MSBuild BuildInParallel="False" Projects="EndToEndTestApp/EndToEndTestApp.csproj" Targets="Restore" Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);ForceRestoreToEvaluateSeparately=1;Configuration=Release" />
-
-    <MSBuild BuildInParallel="False" Projects="EndToEndTestApp/EndToEndTestApp.csproj" Targets="Build;Publish" Properties="UseAppHost=true;SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath);Configuration=Release" />
-  </Target>
 
 </Project>
