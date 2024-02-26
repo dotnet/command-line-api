@@ -24,10 +24,10 @@
 
     <!-- Sequence into build to make sure that publish assets are available for tests. -->
     <ProjectReference Include="../System.CommandLine.Suggest/dotnet-suggest.csproj"
-                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath)"
+                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath);PublishAfterBuild=true"
                       ReferenceOutputAssembly="false" />
     <ProjectReference Include="EndToEndTestApp/EndToEndTestApp.csproj"
-                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath)"
+                      AdditionalProperties="SelfContained=false;RuntimeIdentifier=$(Rid);PublishDir=$(TestAssetsPath);PublishAfterBuild=true"
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
 
