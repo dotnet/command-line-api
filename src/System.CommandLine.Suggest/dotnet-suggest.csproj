@@ -23,7 +23,7 @@
 
   <!-- Remove the PublishDir global property to avoid System.CommandLine being built twice with different global properties (race condition). -->
   <ItemGroup>
-    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" GlobalPropertiesToRemove="PublishDir" />
+    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" GlobalPropertiesToRemove="PublishDir;PublishAfterBuild" />
   </ItemGroup>
 
   <ItemGroup>
