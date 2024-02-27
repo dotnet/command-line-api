@@ -6,8 +6,4 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\System.CommandLine.DragonFruit\System.CommandLine.DragonFruit.csproj" />
-  </ItemGroup>
-
 </Project>
