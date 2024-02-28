@@ -1,21 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	
-	<PropertyGroup>
-		<OutputType>Exe</OutputType>
-		<TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
-		<!-- producing more detailed log output -->
-		<TrimmerSingleWarn>false</TrimmerSingleWarn>
+  <PropertyGroup>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
+    <OutputType>Exe</OutputType>
     <PublishAot>true</PublishAot>
-	</PropertyGroup>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<SystemCommandLineDllPath Condition="'$(SystemCommandLineDllPath)'==''">..\..\..\System.CommandLine\bin\Release\$(TargetFrameworkForNETSDK)\System.CommandLine.dll</SystemCommandLineDllPath>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<Reference Include="SystemCommandLineDll">
-			<HintPath>$(SystemCommandLineDllPath)</HintPath>
-		</Reference>
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src\System.CommandLine\System.CommandLine.csproj" BuildReference="false" />
+  </ItemGroup>
 
 </Project>
