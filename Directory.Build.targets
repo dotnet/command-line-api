@@ -14,4 +14,9 @@
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 
+	<Target Name="PublishAfterBuild"
+         AfterTargets="Build"
+         DependsOnTargets="Publish"
+         Condition="'$(PublishAfterBuild)' == 'true'" />
+
 </Project>
