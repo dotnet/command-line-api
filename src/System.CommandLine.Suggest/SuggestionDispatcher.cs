@@ -6,12 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.CommandLine.Completions;
+//using System.CommandLine.Completions;
 
 namespace System.CommandLine.Suggest
 {
     public class SuggestionDispatcher
     {
+        /*
         private readonly ISuggestionRegistration _suggestionRegistration;
         private readonly ISuggestionStore _suggestionStore;
 
@@ -289,5 +290,11 @@ namespace System.CommandLine.Suggest
 
             return $"{suggestDirective} \"{commandLine.Escape()}\"";
         }
+        */
+
+        // Adding these to allow compilation with code commented out
+        public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration) { }
+
+        public Task<int> InvokeAsync(string[] args) => throw new NotImplementedException();
     }
 }
