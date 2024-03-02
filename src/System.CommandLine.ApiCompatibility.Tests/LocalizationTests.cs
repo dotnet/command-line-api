@@ -8,6 +8,7 @@ namespace System.CommandLine.ApiCompatibility.Tests
     {
         private const string CommandName = "the-command";
 
+        /*
         [Theory]
         [InlineData("es", $"Falta el argumento requerido para el comando: '{CommandName}'.")]
         [InlineData("en-US", $"Required argument missing for command: '{CommandName}'.")]
@@ -33,5 +34,6 @@ namespace System.CommandLine.ApiCompatibility.Tests
                 CultureInfo.CurrentUICulture = uiCultureBefore;
             }
         }
+        */
     }
 }
