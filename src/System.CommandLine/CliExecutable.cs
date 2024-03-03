@@ -6,11 +6,11 @@ using System.Reflection;
 
 namespace System.CommandLine;
 
-//TODO: cull unused member, consider making public again
+//TODO: cull unused member, consider making public again. KAD: Made public because used by version. If not needed in core, move to S.CL.Subsystems
 /// <summary>
 /// Static helpers for determining information about the CLI executable.
 /// </summary>
-internal static class CliExecutable
+public static class CliExecutable
 {
     private static Assembly? _assembly;
     private static string? _executablePath;
@@ -31,7 +31,7 @@ internal static class CliExecutable
     /// </summary>
     public static string ExecutablePath => _executablePath ??= Environment.GetCommandLineArgs()[0];
 
-    internal static string ExecutableVersion => _executableVersion ??= GetExecutableVersion();
+    public static string ExecutableVersion => _executableVersion ??= GetExecutableVersion();
 
     private static string GetExecutableVersion()
     {
