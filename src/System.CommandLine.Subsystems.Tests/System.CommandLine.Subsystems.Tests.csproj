@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
    <PropertyGroup>
-    <TargetFrameworks>$(TargetFrameworkForNETSDK);net462</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworkForNETSDK)</TargetFrameworks>
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
     <OutputType>Library</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
   </PropertyGroup>
 
@@ -22,12 +24,15 @@
     <Compile Include="..\System.CommandLine.Tests\Utility\**\*.cs" Link="Utility\%(RecursiveDir)%(Filename).%(Extension)" Exclude="..\System.CommandLine.Tests\Utility\ParseResultExtensions.cs" />
     <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
-    <Compile Include="VersionOptionTests.cs" />
+    <Compile Include="AlternateSubsystems.cs" />
+    <Compile Include="VersionFunctionalTests.cs" />
+    <Compile Include="VersionSubsystemTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\System.CommandLine.Subsystems\System.CommandLine.Subsystems.csproj" />
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
-    <ProjectReference Include="..\System.CommandLine.Extended\System.CommandLine.Extended.csproj" />
+    <!--<ProjectReference Include="..\System.CommandLine.Extended\System.CommandLine.Extended.csproj" />-->
   </ItemGroup>
 
   <ItemGroup>
@@ -42,8 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx"
-                      LogicalName="System.CommandLine.Properties.Resources.resources" />
+    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx" LogicalName="System.CommandLine.Properties.Resources.resources" />
   </ItemGroup>
 
 </Project>

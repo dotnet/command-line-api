@@ -1,37 +1,37 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
-using System.Linq;
 using FluentAssertions;
 using Xunit;
 using System.CommandLine.Parsing;
 
-namespace System.CommandLine.Extended.Tests
+namespace System.CommandLine.Subsystems.Tests
 {
-    public class VersionOptionTests
+    public class VersionFunctionalTests
     {
-// TODO: invocation/output
-/*
-        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                                                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                                 .InformationalVersion;
+        private static readonly string? version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
+                                                 ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                                 ?.InformationalVersion;
+        private readonly string newLine = Environment.NewLine;
 
         [Fact]
-        public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
+        public void When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
-            CliConfiguration configuration = new(new CliRootCommand())
-            {
-                Output = new StringWriter()
-            };
+            var configuration = new CliConfiguration(new CliRootCommand());
+            var pipeline = new Pipeline();
+            var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+            pipeline.Version = new VersionSubsystem();
 
-            await configuration.InvokeAsync("--version");
+            var exit = pipeline.Execute(configuration, "-v", consoleHack);
 
-            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
+            exit.ExitCode.Should().Be(0);
+            exit.Handled.Should().BeTrue();
+            consoleHack.GetBuffer().Should().Be($"{version}{newLine}");
         }
 
+        // TODO: invocation/output
+        /*
         [Fact]
         public async Task When_the_version_option_is_specified_then_invocation_is_short_circuited()
         {
@@ -48,7 +48,9 @@ namespace System.CommandLine.Extended.Tests
 
             wasCalled.Should().BeFalse();
         }
+        */
 
+        /* Consider removing this test as it appears to test that the version option is added by default
         [Fact]
         public void When_the_version_option_is_specified_then_the_version_is_parsed()
         {
@@ -59,7 +61,10 @@ namespace System.CommandLine.Extended.Tests
             parseResult.Errors.Should().BeEmpty();
             parseResult.GetValue(configuration.RootCommand.Options.OfType<VersionOption>().Single()).Should().BeTrue();
         }
+        */
 
+        // TODO: Help
+        /*
         [Fact]
         public async Task Version_option_appears_in_help()
         {
@@ -71,13 +76,15 @@ namespace System.CommandLine.Extended.Tests
             await configuration.InvokeAsync("--help");
 
             configuration.Output
-                   .ToString()
-                   .Should()
-                   .Match("*Options:*--version*Show version information*");
+                    .ToString()
+                    .Should()
+                    .Match("*Options:*--version*Show version information*");
         }
 
+        // TODO: Defaults. These two tests appear to test whether the presence of a default factory on a different option breaks version
+        /*
         [Fact]
-        public async Task When_the_version_option_is_specified_and_there_are_default_options_then_the_version_is_written_to_standard_out()
+        public void When_the_version_option_is_specified_and_there_are_default_options_then_the_version_is_written_to_standard_out()
         {
             var rootCommand = new CliRootCommand
             {
@@ -116,13 +123,14 @@ namespace System.CommandLine.Extended.Tests
 
             configuration.Output.ToString().Should().Be($"{version}{NewLine}");
         }
-*/
+        */
 
         const string SkipValidationTests = "VersionOption does not yet do validation";
 
         [Theory]
         [InlineData("--version", "-x", Skip = SkipValidationTests)]
         [InlineData("--version", "subcommand", Skip = SkipValidationTests)]
+        // TODO: This test will fail because it expects version to always be added
         public void Version_is_not_valid_with_other_tokens(params string[] commandLine)
         {
             var subcommand = new CliCommand("subcommand");
@@ -136,8 +144,9 @@ namespace System.CommandLine.Extended.Tests
 
             result.Errors.Should().Contain(e => e.Message == "--version option cannot be combined with other arguments.");
         }
-        
+
         [Fact]
+        // TODO: This test will fail because it expects version to always be added
         public void Version_option_is_not_added_to_subcommands()
         {
             var childCommand = new CliCommand("subcommand");
@@ -155,6 +164,8 @@ namespace System.CommandLine.Extended.Tests
                 .BeEmpty();
         }
 
+        // TODO: Determine Ux for adding more aliases. There is no easy access point for the user to access the option, and not much reason to. Consider requiring override or possibly extra property.
+        /*
         [Fact]
         public void Version_can_specify_additional_alias()
         {
@@ -169,8 +180,12 @@ namespace System.CommandLine.Extended.Tests
             versionSpecified = parseResult.GetValue(versionOption);
             versionSpecified.Should().BeTrue();
         }
+        */
 
+        // TODO: Determine if the limitation to root is desirable
+        /*
         [Fact(Skip = SkipValidationTests)]
+        // TODO: This test will fail because it expects version to always be added
         public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
         {
             var childCommand = new CliCommand("subcommand");
@@ -185,5 +200,6 @@ namespace System.CommandLine.Extended.Tests
 
             result.Errors.Should().ContainSingle(e => e.Message == "-v option cannot be combined with other arguments.");
         }
+        */
     }
 }
