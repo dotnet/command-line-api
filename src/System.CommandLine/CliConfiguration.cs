@@ -224,6 +224,7 @@ namespace System.CommandLine
         */
         public CliConfiguration(CliCommand command)
         {
+            RootCommand = command;
         }
     }
 }
