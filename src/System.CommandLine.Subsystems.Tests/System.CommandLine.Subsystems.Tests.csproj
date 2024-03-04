@@ -25,6 +25,8 @@
     <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
     <Compile Include="AlternateSubsystems.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="PipelineTests.cs" />
     <Compile Include="VersionFunctionalTests.cs" />
     <Compile Include="VersionSubsystemTests.cs" />
   </ItemGroup>

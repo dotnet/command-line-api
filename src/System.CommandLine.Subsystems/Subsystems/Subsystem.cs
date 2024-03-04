@@ -17,6 +17,10 @@ public class Subsystem
     public static CliExit ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null) 
         => new(subsystem.ExecuteIfNeeded(new PipelineContext(parseResult,  rawInput, null,consoleHack)));
 
+    public static CliExit Execute(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
+        => subsystem.Execute(new PipelineContext(parseResult, rawInput, null, consoleHack));
+
+
     internal static PipelineContext ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack, PipelineContext? pipelineContext = null) 
         => subsystem.ExecuteIfNeeded(pipelineContext ?? new PipelineContext(parseResult, rawInput, null,consoleHack));
 
