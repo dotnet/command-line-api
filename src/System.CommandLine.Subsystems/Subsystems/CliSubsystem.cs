@@ -118,6 +118,7 @@ public abstract class CliSubsystem
     protected internal virtual CliConfiguration Initialize(CliConfiguration configuration) => configuration;
 
     // TODO: Determine if this is needed.
-    protected internal virtual PipelineContext TearDown(PipelineContext pipelineContext) => pipelineContext;
+    protected internal virtual CliExit TearDown(CliExit cliExit) 
+        => cliExit;
 
 }
