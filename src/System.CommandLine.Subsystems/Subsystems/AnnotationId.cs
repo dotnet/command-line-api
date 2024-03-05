@@ -6,4 +6,7 @@ namespace System.CommandLine.Subsystems;
 /// <summary>
 /// Describes the ID and type of an annotation.
 /// </summary>
-public record struct AnnotationId<TValue>(string Id);
+public record struct AnnotationId<TValue>(string Prefix, string Id)
+{
+    public override readonly string ToString() => $"{Prefix}.{Id}";
+}
