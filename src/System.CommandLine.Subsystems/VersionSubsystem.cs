@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Subsystems;
+using System.CommandLine.Subsystems.Annotations;
 using System.Reflection;
 
 namespace System.CommandLine;
@@ -11,10 +12,9 @@ public class VersionSubsystem : CliSubsystem
     private string? specificVersion = null;
 
     public VersionSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base("Version", annotationProvider, SubsystemKind.Version)
+        : base(VersionAnnotations.Prefix, annotationProvider, SubsystemKind.Version)
     {
     }
-
 
     // TODO: Should we block adding version anywhere but root?
     public string? SpecificVersion

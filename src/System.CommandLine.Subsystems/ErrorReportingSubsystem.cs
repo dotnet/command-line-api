@@ -2,13 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Subsystems;
+using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine;
 
 public class ErrorReportingSubsystem : CliSubsystem
 {
     public ErrorReportingSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base("ErrorReporting", annotationProvider, SubsystemKind.ErrorReporting)
+        : base(ErrorReportingAnnotations.Prefix, annotationProvider, SubsystemKind.ErrorReporting)
     { }
 
     // TODO: Stash option rather than using string

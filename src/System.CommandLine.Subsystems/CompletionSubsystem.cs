@@ -2,13 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Subsystems;
+using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine;
 
 public class CompletionSubsystem : CliSubsystem
 {
     public CompletionSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base("Completion", annotationProvider, SubsystemKind.Completion)
+        : base(CompletionAnnotations.Prefix, annotationProvider, SubsystemKind.Completion)
     { }
 
     // TODO: Figure out trigger for completions
