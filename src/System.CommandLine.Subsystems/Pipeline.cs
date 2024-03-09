@@ -16,9 +16,9 @@ public class Pipeline
     public ParseResult Parse(CliConfiguration configuration, string rawInput)
         => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
 
-    public ParseResult Parse(CliConfiguration configuration, string[] args)
+    public ParseResult Parse(CliConfiguration configuration, IReadOnlyList<string> args)
     {
-        InitializeSubsystems(configuration);
+        InitializeSubsystems(new InitializationContext(configuration, args));
         var parseResult = CliParser.Parse(configuration.RootCommand, args, configuration);
         return parseResult;
     }
@@ -39,17 +39,17 @@ public class Pipeline
         return new CliExit(pipelineContext);
     }
 
-    protected virtual void InitializeHelp(CliConfiguration configuration)
-        => Help?.Initialize(configuration);
+    protected virtual void InitializeHelp(InitializationContext context)
+        => Help?.Initialize(context);
 
-    protected virtual void InitializeVersion(CliConfiguration configuration)
-        => Version?.Initialize(configuration);
+    protected virtual void InitializeVersion(InitializationContext context)
+        => Version?.Initialize(context);
 
-    protected virtual void InitializeErrorReporting(CliConfiguration configuration)
-        => ErrorReporting?.Initialize(configuration);
+    protected virtual void InitializeCompletion(InitializationContext context)
+        => Completion?.Initialize(context);
 
-    protected virtual void InitializeCompletion(CliConfiguration configuration)
-        => Completion?.Initialize(configuration);
+    protected virtual void InitializeErrorReporting(InitializationContext context)
+        => ErrorReporting?.Initialize(context);
 
     protected virtual CliExit TearDownHelp(CliExit cliExit)
         => Help is null
@@ -61,15 +61,15 @@ public class Pipeline
                 ? cliExit
                 : Version.TearDown(cliExit);
 
+    protected virtual CliExit TearDownCompletion(CliExit cliExit)
+        => Completion is null
+                ? cliExit
+                : Completion.TearDown(cliExit);
+
     protected virtual CliExit TearDownErrorReporting(CliExit cliExit)
         => ErrorReporting is null
                 ? cliExit
                 : ErrorReporting.TearDown(cliExit);
-
-    protected virtual CliExit TearDownCompletions(CliExit cliExit)
-        => Completion is null
-                ? cliExit
-                : Completion.TearDown(cliExit);
 
     protected virtual void ExecuteHelp(PipelineContext context)
         => ExecuteIfNeeded(Help, context);
@@ -77,11 +77,11 @@ public class Pipeline
     protected virtual void ExecuteVersion(PipelineContext context)
         => ExecuteIfNeeded(Version, context);
 
+    protected virtual void ExecuteCompletion(PipelineContext context)
+        => ExecuteIfNeeded(Completion, context);
+
     protected virtual void ExecuteErrorReporting(PipelineContext context)
         => ExecuteIfNeeded(ErrorReporting, context);
-
-    protected virtual void ExecuteCompletions(PipelineContext context)
-        => ExecuteIfNeeded(Completion, context);
 
     // TODO: Consider whether this should be public. It would simplify testing, but would it do anything else
     // TODO: Confirm that it is OK for ConsoleHack to be unavailable in Initialize
@@ -94,12 +94,12 @@ public class Pipeline
     /// <remarks>
     /// Note to inheritors: The ordering of initializing should normally be in the reverse order than tear down 
     /// </remarks>
-    protected virtual void InitializeSubsystems(CliConfiguration configuration)
+    protected virtual void InitializeSubsystems(InitializationContext context)
     {
-        InitializeHelp(configuration);
-        InitializeVersion(configuration);
-        InitializeErrorReporting(configuration);
-        InitializeCompletion(configuration);
+        InitializeHelp(context);
+        InitializeVersion(context);
+        InitializeCompletion(context);
+        InitializeErrorReporting(context);
     }
 
     // TODO: Consider whether this should be public
