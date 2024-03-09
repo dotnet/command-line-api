@@ -85,9 +85,11 @@ namespace System.CommandLine.Parsing
                 _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,
+                _rootCommandResult.SymbolResultTree.GetValueResultDictionary(),
                 _tokens,
 // TODO: unmatched tokens
 //                _symbolResultTree.UnmatchedTokens,
+
                 _symbolResultTree.Errors,
                 _rawInput
 // TODO: invocation

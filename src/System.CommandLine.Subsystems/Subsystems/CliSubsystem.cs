@@ -62,7 +62,7 @@ public abstract class CliSubsystem
     /// <param name="value">An out parameter to contain the result</param>
     /// <remarks>
     /// This value is protected because these values are always retrieved from derived classes that offer
-    /// strongly typed explicit methods, such as help having `GAetDescription(Symbol symbol, "My help descrption")` method.
+    /// strongly typed explicit methods, such as help having `GetDescription(Symbol symbol, "My help description")` method.
     /// </remarks>
     protected internal void SetAnnotation<TValue>(CliSymbol symbol, AnnotationId<TValue> id, TValue value)
     {

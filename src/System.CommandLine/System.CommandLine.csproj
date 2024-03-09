@@ -27,6 +27,9 @@
     <Compile Include="AliasSet.cs" />
     <Compile Include="ArgumentArity.cs" />
     <Compile Include="Binding\ArgumentConversionResult.cs" />
+    <Compile Include="Parsing\CommandValueResult.cs" />
+    <Compile Include="Parsing\ValueResultExtensions.cs" />
+    <Compile Include="Parsing\ValueResultOutcome.cs" />
     <Compile Include="Binding\ArgumentConversionResultType.cs" />
     <Compile Include="Binding\ArgumentConverter.cs" />
     <Compile Include="Binding\ArgumentConverter.DefaultValues.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="Parsing\StringExtensions.cs" />
     <Compile Include="Parsing\SymbolResult.cs" />
     <Compile Include="Parsing\SymbolResultTree.cs" />
+    <Compile Include="Parsing\ValueResult.cs" />
     <Compile Include="Properties\Resources.Designer.cs" />
     <Compile Include="SymbolNode.cs" />
     <Compile Include="System.Diagnostics.CodeAnalysis\**\*.cs" />

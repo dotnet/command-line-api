@@ -187,7 +187,7 @@ namespace System.CommandLine.Parsing
 
                 return errors;
             }
-
+            
             static bool TryGetSymbolAndTokenType(Dictionary<string, (CliSymbol Symbol, CliTokenType TokenType)> validTokens,
                                                  string arg,
                                                  [NotNullWhen(true)] out CliSymbol? symbol,
