@@ -25,6 +25,7 @@ namespace System.CommandLine
 
         internal ParseResult(
             CliConfiguration configuration,
+// TODO: determine how rootCommandResult and commandResult differ
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<CliToken> tokens,
