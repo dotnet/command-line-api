@@ -1,8 +1,10 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+/*
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+*/
 using System.IO;
 using FluentAssertions;
 using Xunit;
@@ -12,8 +14,10 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests;
 
-public class ParseErrorReportingTests
+public class ErrorReportingFunctionalTests
 {
+    // TODO: these tests depend on help output
+    /*
     [Fact] // https://github.com/dotnet/command-line-api/issues/817
     public void Parse_error_reporting_reports_error_when_help_is_used_and_required_subcommand_is_missing()
     {
@@ -126,4 +130,5 @@ public class ParseErrorReportingTests
 
         output.ToString().Should().NotShowHelp();
     }
+    */
 }

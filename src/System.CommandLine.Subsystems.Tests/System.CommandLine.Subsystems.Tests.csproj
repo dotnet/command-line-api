@@ -39,6 +39,7 @@
     <Compile Include="TestData.cs" />
     <Compile Include="VersionFunctionalTests.cs" />
     <Compile Include="VersionSubsystemTests.cs" />
+    <Compile Include="ErrorReportingFunctionalTests.cs" />
     <Compile Include="ErrorReportingSubsystemTests.cs" />
   </ItemGroup>
 
