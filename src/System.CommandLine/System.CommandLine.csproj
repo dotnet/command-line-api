@@ -46,6 +46,7 @@
     <Compile Include="CliOption{T}.cs" />
     <Compile Include="CliRootCommand.cs" />
     <Compile Include="CliSymbol.cs" />
+    <Compile Include="ConsoleHelpers.cs" />
     <Compile Include="LocalizationResources.cs" />
     <Compile Include="ParseResult.cs" />
     <Compile Include="Parsing\ArgumentResult.cs" />
