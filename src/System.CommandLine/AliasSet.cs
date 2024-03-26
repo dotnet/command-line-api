@@ -8,16 +8,16 @@ namespace System.CommandLine
     {
         private readonly HashSet<string> _aliases;
 
-        internal AliasSet() => _aliases = new(StringComparer.Ordinal);
+        internal AliasSet(bool caseSensitive) => _aliases = new(caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
 
-        internal AliasSet(string[] aliases)
+        internal AliasSet(string[] aliases, bool caseSensitive)
         {
             foreach (string alias in aliases)
             {
                 CliSymbol.ThrowIfEmptyOrWithWhitespaces(alias, nameof(alias));
             }
 
-            _aliases = new(aliases, StringComparer.Ordinal);
+            _aliases = new(aliases, caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
         }
 
         public int Count => _aliases.Count;
@@ -28,6 +28,7 @@ namespace System.CommandLine
             => _aliases.Add(CliSymbol.ThrowIfEmptyOrWithWhitespaces(item, nameof(item)));
 
         internal bool Overlaps(AliasSet other) => _aliases.Overlaps(other._aliases);
+
 
         // a struct based enumerator for avoiding allocations
         public HashSet<string>.Enumerator GetEnumerator() => _aliases.GetEnumerator();

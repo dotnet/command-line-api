@@ -90,6 +90,13 @@ namespace System.CommandLine.Tests
 
             option.Aliases.Contains("O").Should().BeFalse();
         }
+        [Fact]
+        public void Option_aliases_are_case_insensitive_while_option_is_case_insensitive()
+        {
+            var option = new CliOption<string>("name", caseSensitive: false, "o");
+
+            option.Aliases.Contains("O").Should().BeTrue();
+        }
 
         [Fact]
         public void Aliases_contains_prefixed_short_value()
