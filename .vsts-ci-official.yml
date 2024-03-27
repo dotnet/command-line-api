@@ -31,7 +31,7 @@ extends:
   parameters:
     pool:
       name: NetCore1ESPool-Svc-Internal
-      image: 1es-windows-2022-pt
+      image: 1es-windows-2022
       os: windows
     customBuildTags:
     - ES365AIMigrationTooling
