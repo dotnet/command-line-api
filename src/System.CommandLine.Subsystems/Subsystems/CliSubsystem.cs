@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Subsystems.Annotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Subsystems;
@@ -12,7 +11,7 @@ namespace System.CommandLine.Subsystems;
 /// <param name="annotationProvider"></param>
 public abstract class CliSubsystem
 {
-    protected CliSubsystem(string name, IAnnotationProvider? annotationProvider, SubsystemKind subsystemKind)
+    protected CliSubsystem(string name, SubsystemKind subsystemKind, IAnnotationProvider? annotationProvider)
     {
         Name = name;
         _annotationProvider = annotationProvider;
@@ -115,7 +114,8 @@ public abstract class CliSubsystem
     /// <param name="configuration">The CLI configuration, which contains the RootCommand for customization</param>
     /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
     // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
-    protected internal virtual CliConfiguration Initialize(CliConfiguration configuration) => configuration;
+    protected internal virtual CliConfiguration Initialize(InitializationContext context)
+        => context.Configuration;
 
     // TODO: Determine if this is needed.
     protected internal virtual CliExit TearDown(CliExit cliExit) 

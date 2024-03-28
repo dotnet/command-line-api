@@ -51,6 +51,7 @@
     <Compile Include="Parsing\CliToken.cs" />
     <Compile Include="Parsing\CliTokenType.cs" />
     <Compile Include="Parsing\CommandResult.cs" />
+    <Compile Include="Parsing\Location.cs" />
     <Compile Include="Parsing\OptionResult.cs" />
     <Compile Include="Parsing\ParseError.cs" />
     <Compile Include="Parsing\ParseOperation.cs" />

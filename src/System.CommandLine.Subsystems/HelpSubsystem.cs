@@ -16,7 +16,7 @@ namespace System.CommandLine;
 //          .With(help.Description, "Greet the user");
 //
 public class HelpSubsystem(IAnnotationProvider? annotationProvider = null) 
-    : CliSubsystem(HelpAnnotations.Prefix, annotationProvider: annotationProvider, SubsystemKind.Help)
+    : CliSubsystem(HelpAnnotations.Prefix, SubsystemKind.Help, annotationProvider)
 {
     public void SetDescription(CliSymbol symbol, string description) 
         => SetAnnotation(symbol, HelpAnnotations.Description, description);
@@ -29,15 +29,16 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     public AnnotationAccessor<string> Description 
         => new(this, HelpAnnotations.Description);
 
-    protected internal override CliConfiguration Initialize(CliConfiguration configuration)
+    protected internal override CliConfiguration Initialize(InitializationContext context)
     {
         var option = new CliOption<bool>("--help", ["-h"])
         {
+            // TODO: Why don't we accept bool like any other bool option?
             Arity = ArgumentArity.Zero
         };
-        configuration.RootCommand.Add(option);
+        context.Configuration.RootCommand.Add(option);
 
-        return configuration;
+        return context.Configuration;
     }
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)
