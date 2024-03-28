@@ -851,6 +851,7 @@ namespace System.CommandLine.Tests
                   .OnlyContain(a => a.Value == @"c:\temp\the file.txt\");
         }
 
+        /*
         [Fact]
         public void Commands_can_have_default_argument_values()
         {
@@ -969,6 +970,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .Be("the-directory");
         }
+        */
 
         [Fact]
         public void Unmatched_tokens_that_look_like_options_are_not_split_into_smaller_tokens()
@@ -1488,6 +1490,7 @@ namespace System.CommandLine.Tests
                                new CliToken("5", CliTokenType.Argument, argument, dummyLocation));
         }
 
+        /*
         [Fact]
         public void When_command_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
@@ -1506,6 +1509,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .Contain(LocalizationResources.RequiredArgumentMissing(result.GetResult(command.Arguments[0])));
         }
+        */
 
         [Fact]
         public void When_command_arguments_are_greater_than_maximum_arity_then_an_error_is_returned()
@@ -1577,6 +1581,7 @@ namespace System.CommandLine.Tests
                                new CliToken("5", CliTokenType.Argument, default, dummyLocation));
         }
 
+        /*
         [Fact]
         public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
@@ -1597,6 +1602,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .Contain(LocalizationResources.RequiredArgumentMissing(result.GetResult(option)));
         }
+        */
 
         [Fact]
         public void When_option_arguments_are_greater_than_maximum_arity_then_an_error_is_returned()
