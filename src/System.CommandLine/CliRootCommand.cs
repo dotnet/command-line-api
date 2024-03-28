@@ -17,7 +17,9 @@ namespace System.CommandLine
     /// </remarks>
     public class CliRootCommand : CliCommand
     {
+        /*
         /// <param name="description">The description of the command, shown in help.</param>
+        */
         public CliRootCommand(/*string description = "" */)
             : base(CliExecutable.ExecutableName/*, description*/)
         {

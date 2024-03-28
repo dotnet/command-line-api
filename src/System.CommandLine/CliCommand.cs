@@ -37,7 +37,9 @@ namespace System.CommandLine
         /// Initializes a new instance of the Command class.
         /// </summary>
         /// <param name="name">The name of the command.</param>
+        /*
         /// <param name="description">The description of the command, shown in help.</param>
+        */
         public CliCommand(string name)/*, string? description = null) */
             : base(name) 
         {
