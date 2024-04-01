@@ -6,7 +6,10 @@
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
     <OutputType>Library</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>annotations</Nullable>
+    <!--   
     <Nullable>enable</Nullable>
+    -->
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
   </PropertyGroup>
 
@@ -23,7 +26,9 @@
     -->
     <Compile Include="..\System.CommandLine.Tests\Utility\**\*.cs" Link="Utility\%(RecursiveDir)%(Filename).%(Extension)" Exclude="..\System.CommandLine.Tests\Utility\ParseResultExtensions.cs" />
     <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
+    <!--
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
+    -->
     <Compile Include="AlternateSubsystems.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="PipelineTests.cs" />

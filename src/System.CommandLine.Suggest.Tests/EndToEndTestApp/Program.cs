@@ -1,5 +1,7 @@
 using System.CommandLine;
+/*
 using System.CommandLine.Help;
+*/
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using System.Threading;
@@ -8,7 +10,7 @@ namespace EndToEndTestApp
 {
     public class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             CliOption<string> appleOption = new ("--apple" );
             CliOption<string> bananaOption = new ("--banana");
@@ -23,19 +25,10 @@ namespace EndToEndTestApp
                 durianOption,
             };
 
-            rootCommand.SetAction((ParseResult ctx, CancellationToken cancellationToken) =>
-            {
-                string apple = ctx.GetValue(appleOption);
-                string banana = ctx.GetValue(bananaOption);
-                string cherry = ctx.GetValue(cherryOption);
-                string durian = ctx.GetValue(durianOption);
-
-                return Task.CompletedTask;
-            });
-
             CliConfiguration commandLine = new (rootCommand);
 
-            await commandLine.InvokeAsync(args);
+            var result = CliParser.Parse(commandLine.RootCommand, args, commandLine);
+
         }
     }
 }

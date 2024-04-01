@@ -15,8 +15,10 @@ namespace System.CommandLine.Parsing
 
         private int _index;
         private CommandResult _innermostCommandResult;
+        /*
         private bool _isHelpRequested;
         private bool _isTerminatingDirectiveSpecified;
+        */
 // TODO: invocation
 /*
         private CliAction? _primaryAction;
@@ -61,10 +63,12 @@ namespace System.CommandLine.Parsing
             ParseDirectives();
 */
             ParseCommandChildren();
+            /*
             if (!_isHelpRequested)
             {
                 Validate();
             }
+            */
 
 // TODO: invocation
 /*

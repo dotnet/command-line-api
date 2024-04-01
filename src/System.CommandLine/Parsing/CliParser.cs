@@ -11,10 +11,13 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public static class CliParser
     {
+        /*
+        /// <param name="command">The command to use to parse the command line input.</param>
+        */
         /// <summary>
         /// Parses a list of arguments.
         /// </summary>
-        /// <param name="command">The command to use to parse the command line input.</param>
+        /// <param name="rootCommand"></param>
         /// <param name="args">The string array typically passed to a program's <c>Main</c> method.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A <see cref="ParseResult"/> providing details about the parse operation.</returns>
@@ -24,7 +27,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Parses a command line string.
         /// </summary>
-        /// <param name="command">The command to use to parse the command line input.</param>
+        /// <param name="rootCommand">The command to use to parse the command line input.</param>
         /// <param name="commandLine">The complete command line input prior to splitting and tokenization. This input is not typically available when the parser is called from <c>Program.Main</c>. It is primarily used when calculating completions via the <c>dotnet-suggest</c> tool.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>

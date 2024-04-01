@@ -27,11 +27,13 @@ namespace System.CommandLine
         /// <summary>
         /// The delegate to invoke to create the default value.
         /// </summary>
+        /*
         /// <remarks>
         /// It's invoked when there was no parse input provided for given Argument.
         /// The same instance can be set as <see cref="CustomParser"/>, in such case
         /// the delegate is also invoked when an input was provided.
         /// </remarks>
+        */
         public Func<ArgumentResult, T>? DefaultValueFactory { get; set; }
 
 // TODO: custom parsers

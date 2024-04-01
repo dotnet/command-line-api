@@ -64,7 +64,9 @@ namespace System.CommandLine.Parsing
             var currentCommand = rootCommand;
             var foundDoubleDash = false;
             // TODO: Directives
+            /*
             var foundEndOfDirectives = false;
+            */
 
             var tokenList = new List<CliToken>(args.Count);
 
