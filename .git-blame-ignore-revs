@@ -1,0 +1,8 @@
+# .git-blame-ignore-revs
+# To configure git to use this file, run
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# Testing git-blame-ingore-revs on small scale
+# before considering broader use, by reverting 
+# bad autoformatter changes
+1aca22a0350e800b72f2275df12a58f0a1f72101
