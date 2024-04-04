@@ -1,6 +1,7 @@
-﻿﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
 using System.CommandLine.Subsystems;
 
@@ -10,8 +11,9 @@ public class Pipeline
 {
     public HelpSubsystem? Help { get; set; }
     public VersionSubsystem? Version { get; set; }
-    public ErrorReportingSubsystem? ErrorReporting { get; set; }
     public CompletionSubsystem? Completion { get; set; }
+    public DiagramSubsystem? Diagram { get; set; }
+    public ErrorReportingSubsystem? ErrorReporting { get; set; }
 
     public ParseResult Parse(CliConfiguration configuration, string rawInput)
         => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
@@ -48,6 +50,9 @@ public class Pipeline
     protected virtual void InitializeCompletion(InitializationContext context)
         => Completion?.Initialize(context);
 
+    protected virtual void InitializeDiagram(InitializationContext context)
+        => Diagram?.Initialize(context);
+
     protected virtual void InitializeErrorReporting(InitializationContext context)
         => ErrorReporting?.Initialize(context);
 
@@ -66,6 +71,11 @@ public class Pipeline
                 ? cliExit
                 : Completion.TearDown(cliExit);
 
+    protected virtual CliExit TearDownDiagram(CliExit cliExit)
+        => Diagram is null
+                ? cliExit
+                : Diagram.TearDown(cliExit);
+
     protected virtual CliExit TearDownErrorReporting(CliExit cliExit)
         => ErrorReporting is null
                 ? cliExit
@@ -79,6 +89,9 @@ public class Pipeline
 
     protected virtual void ExecuteCompletion(PipelineContext context)
         => ExecuteIfNeeded(Completion, context);
+
+    protected virtual void ExecuteDiagram(PipelineContext context)
+    => ExecuteIfNeeded(Diagram, context);
 
     protected virtual void ExecuteErrorReporting(PipelineContext context)
         => ExecuteIfNeeded(ErrorReporting, context);
@@ -99,6 +112,7 @@ public class Pipeline
         InitializeHelp(context);
         InitializeVersion(context);
         InitializeCompletion(context);
+        InitializeDiagram(context);
         InitializeErrorReporting(context);
     }
 
@@ -113,8 +127,9 @@ public class Pipeline
     /// </remarks>
     protected virtual CliExit TearDownSubsystems(CliExit cliExit)
     {
-        TearDownCompletions(cliExit);
         TearDownErrorReporting(cliExit);
+        TearDownDiagram(cliExit);
+        TearDownCompletion(cliExit);
         TearDownVersion(cliExit);
         TearDownHelp(cliExit);
         return cliExit;
@@ -124,8 +139,9 @@ public class Pipeline
     {
         ExecuteHelp(pipelineContext);
         ExecuteVersion(pipelineContext);
+        ExecuteCompletion(pipelineContext);
+        ExecuteDiagram(pipelineContext);
         ExecuteErrorReporting(pipelineContext);
-        ExecuteCompletions(pipelineContext);
     }
 
     protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineContext pipelineContext)

@@ -31,6 +31,30 @@ internal class TestData
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    internal class Diagram : IEnumerable<object[]>
+    {
+        // The tests define an x command, but -o and -v are just random values
+        private readonly List<object[]> _data =
+        [
+            ["[diagram]", true],
+            ["[diagram] x", true],
+            ["[diagram] -o", true],
+            ["[diagram] -v", true],
+            ["[diagram] x -v", true],
+            ["[diagramX]", false],
+            ["[diagram] [other]", true],
+            ["x", false],
+            ["-o", false],
+            ["x -x", false],
+            [null, false],
+            ["", false]
+        ];
+
+        public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
     internal class Directive : IEnumerable<object[]>
     {
         private readonly List<object[]> _data =
