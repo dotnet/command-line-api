@@ -12,7 +12,7 @@ public class VersionSubsystem : CliSubsystem
     private string? specificVersion = null;
 
     public VersionSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base(VersionAnnotations.Prefix, annotationProvider, SubsystemKind.Version)
+        : base(VersionAnnotations.Prefix, SubsystemKind.Version, annotationProvider)
     {
     }
 
@@ -34,16 +34,15 @@ public class VersionSubsystem : CliSubsystem
             ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion;
 
-
-    protected internal override CliConfiguration Initialize(CliConfiguration configuration)
+    protected internal override CliConfiguration Initialize(InitializationContext context)
     {
         var option = new CliOption<bool>("--version", ["-v"])
         {
             Arity = ArgumentArity.Zero
         };
-        configuration.RootCommand.Add(option);
+        context.Configuration.RootCommand.Add(option);
 
-        return configuration;
+        return context.Configuration;
     }
 
     // TODO: Stash option rather than using string

@@ -3,13 +3,8 @@
 
 namespace System.CommandLine.Subsystems;
 
-public enum SubsystemKind
+public class InitializationContext(CliConfiguration configuration, IReadOnlyList<string> args)
 {
-    Other = 0,
-    Help,
-    Version,
-    ErrorReporting,
-    Completion,
-    Diagram,
-    Response,
+    public CliConfiguration Configuration { get; } = configuration;
+    public IReadOnlyList<string> Args { get; } = args;
 }

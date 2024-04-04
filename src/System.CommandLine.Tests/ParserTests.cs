@@ -16,11 +16,20 @@ namespace System.CommandLine.Tests
 {
     public partial class ParserTests
     {
+        // TODO: Update testing strategy if we use Location in equality. Some will break
+        private readonly Location dummyLocation = new("", Location.Internal, -1, null);
+
         private T GetValue<T>(ParseResult parseResult, CliOption<T> option)
             => parseResult.GetValue(option);
 
         private T GetValue<T>(ParseResult parseResult, CliArgument<T> argument)
             => parseResult.GetValue(argument);
+
+        //[Fact]
+        //public void FailureTest()
+        //{
+        //    Assert.True(false);
+        //}
 
         [Fact]
         public void An_option_can_be_checked_by_object_instance()
@@ -1447,10 +1456,10 @@ namespace System.CommandLine.Tests
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
-                    new CliToken("1", CliTokenType.Argument, argument),
-                    new CliToken("2", CliTokenType.Argument, argument),
-                    new CliToken("3", CliTokenType.Argument, argument));
-                }
+                    new CliToken("1", CliTokenType.Argument, argument,dummyLocation),
+                    new CliToken("2", CliTokenType.Argument, argument, dummyLocation),
+                    new CliToken("3", CliTokenType.Argument, argument, dummyLocation));
+        }
 
         [Fact]
         public void Command_argument_arity_can_be_a_range_with_a_lower_bound_greater_than_1()
@@ -1469,19 +1478,19 @@ namespace System.CommandLine.Tests
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
-                    new CliToken("1", CliTokenType.Argument, argument),
-                    new CliToken("2", CliTokenType.Argument, argument),
-                    new CliToken("3", CliTokenType.Argument, argument));
+                    new CliToken("1", CliTokenType.Argument, argument, dummyLocation),
+                    new CliToken("2", CliTokenType.Argument, argument, dummyLocation),
+                    new CliToken("3", CliTokenType.Argument, argument, dummyLocation));
             CliParser.Parse(command, "1 2 3 4 5")
                 .CommandResult
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
-                    new CliToken("1", CliTokenType.Argument, argument),
-                    new CliToken("2", CliTokenType.Argument, argument),
-                    new CliToken("3", CliTokenType.Argument, argument),
-                    new CliToken("4", CliTokenType.Argument, argument),
-                    new CliToken("5", CliTokenType.Argument, argument));
+                    new CliToken("1", CliTokenType.Argument, argument, dummyLocation),
+                    new CliToken("2", CliTokenType.Argument, argument, dummyLocation),
+                    new CliToken("3", CliTokenType.Argument, argument, dummyLocation),
+                    new CliToken("4", CliTokenType.Argument, argument, dummyLocation),
+                    new CliToken("5", CliTokenType.Argument, argument, dummyLocation));
         }
 
 // TODO: Validation?
@@ -1541,9 +1550,9 @@ namespace System.CommandLine.Tests
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
-                    new CliToken("1", CliTokenType.Argument, default),
-                    new CliToken("2", CliTokenType.Argument, default),
-                    new CliToken("3", CliTokenType.Argument, default));
+                    new CliToken("1", CliTokenType.Argument, default, dummyLocation),
+                    new CliToken("2", CliTokenType.Argument, default, dummyLocation),
+                    new CliToken("3", CliTokenType.Argument, default, dummyLocation));
         }
 
         [Fact]
@@ -1561,19 +1570,19 @@ namespace System.CommandLine.Tests
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
-                    new CliToken("1", CliTokenType.Argument, default),
-                    new CliToken("2", CliTokenType.Argument, default),
-                    new CliToken("3", CliTokenType.Argument, default));
+                    new CliToken("1", CliTokenType.Argument, default, dummyLocation),
+                    new CliToken("2", CliTokenType.Argument, default, dummyLocation),
+                    new CliToken("3", CliTokenType.Argument, default, dummyLocation));
             CliParser.Parse(command, "-x 1 -x 2 -x 3 -x 4 -x 5")
                 .GetResult(option)
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
-                    new CliToken("1", CliTokenType.Argument, default),
-                    new CliToken("2", CliTokenType.Argument, default),
-                    new CliToken("3", CliTokenType.Argument, default),
-                    new CliToken("4", CliTokenType.Argument, default),
-                    new CliToken("5", CliTokenType.Argument, default));
+                    new CliToken("1", CliTokenType.Argument, default, dummyLocation),
+                    new CliToken("2", CliTokenType.Argument, default, dummyLocation),
+                    new CliToken("3", CliTokenType.Argument, default, dummyLocation),
+                    new CliToken("4", CliTokenType.Argument, default, dummyLocation),
+                    new CliToken("5", CliTokenType.Argument, default, dummyLocation));
         }
 
 // TODO: Validation?

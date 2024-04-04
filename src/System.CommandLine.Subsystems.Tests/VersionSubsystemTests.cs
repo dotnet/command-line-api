@@ -1,23 +1,21 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Reflection;
 using FluentAssertions;
 using Xunit;
 using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Subsystems.Tests
 {
-
     public class VersionSubsystemTests
     {
         [Fact]
         public void When_version_subsystem_is_used_the_version_option_is_added_to_the_root()
         {
             var rootCommand = new CliRootCommand
-                             {
-                                 new CliOption<bool>("-x")
-                             };
+            {
+                new CliOption<bool>("-x") // add option that is expected for the test data used here
+            };
             var configuration = new CliConfiguration(rootCommand);
             var pipeline = new Pipeline
             {
@@ -32,20 +30,18 @@ namespace System.CommandLine.Subsystems.Tests
                 .Count(x => x.Name == "--version")
                 .Should()
                 .Be(1);
-
         }
 
         [Theory]
-        [InlineData("--version", true)]
-        [InlineData("-v", true)]
-        [InlineData("-x", false)]
-        [InlineData("", false)]
+        [ClassData(typeof(TestData.Version))]
         public void Version_is_activated_only_when_requested(string input, bool result)
         {
-            CliRootCommand rootCommand = new();
+            CliRootCommand rootCommand = [new CliOption<bool>("-x")]; // add random option as empty CLIs are rare
             var configuration = new CliConfiguration(rootCommand);
             var versionSubsystem = new VersionSubsystem();
-            Subsystem.Initialize(versionSubsystem, configuration);
+            var args = CliParser.SplitCommandLine(input).ToList().AsReadOnly();
+
+            Subsystem.Initialize(versionSubsystem, configuration, args);
 
             var parseResult = CliParser.Parse(rootCommand, input, configuration);
             var isActive = Subsystem.GetIsActivated(versionSubsystem, parseResult);

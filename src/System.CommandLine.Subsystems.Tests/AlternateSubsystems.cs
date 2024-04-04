@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Directives;
 using System.CommandLine.Subsystems;
+using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine.Subsystems.Tests
 {
@@ -45,11 +47,11 @@ namespace System.CommandLine.Subsystems.Tests
             internal bool ExecutionWasRun;
             internal bool TeardownWasRun;
 
-            protected override CliConfiguration Initialize(CliConfiguration configuration)
+            protected override CliConfiguration Initialize(InitializationContext context)
             {
                 // marker hack needed because ConsoleHack not available in initialization
                 InitializationWasRun = true;
-                return base.Initialize(configuration);
+                return base.Initialize(context);
             }
 
             protected override CliExit Execute(PipelineContext pipelineContext)
@@ -64,6 +66,14 @@ namespace System.CommandLine.Subsystems.Tests
                 return base.TearDown(cliExit);
             }
         }
+
+        internal class StringDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
+            : DirectiveSubsystem("other",SubsystemKind.Other, annotationProvider)
+        { }
+
+        internal class BooleanDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
+            : DirectiveSubsystem("diagram", SubsystemKind.Other,  annotationProvider)
+        { }
 
     }
 }

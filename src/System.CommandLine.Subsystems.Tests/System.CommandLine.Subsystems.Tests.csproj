@@ -16,6 +16,7 @@
   <ItemGroup>
     <Content Include="TestApps/**/*.csproj" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="TestApps/**/*.cs" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Response_1.rsp" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,7 +32,11 @@
     -->
     <Compile Include="AlternateSubsystems.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="ResponseSubsystemTests.cs" />
+    <Compile Include="DirectiveSubsystemTests.cs" />
+    <Compile Include="DiagramSubsystemTests.cs" />
     <Compile Include="PipelineTests.cs" />
+    <Compile Include="TestData.cs" />
     <Compile Include="VersionFunctionalTests.cs" />
     <Compile Include="VersionSubsystemTests.cs" />
   </ItemGroup>

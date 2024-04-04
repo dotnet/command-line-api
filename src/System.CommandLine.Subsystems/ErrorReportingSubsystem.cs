@@ -9,7 +9,7 @@ namespace System.CommandLine;
 public class ErrorReportingSubsystem : CliSubsystem
 {
     public ErrorReportingSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base(ErrorReportingAnnotations.Prefix, annotationProvider, SubsystemKind.ErrorReporting)
+        : base(ErrorReportingAnnotations.Prefix, SubsystemKind.ErrorReporting, annotationProvider)
     { }
 
     // TODO: Stash option rather than using string
