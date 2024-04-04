@@ -11,4 +11,5 @@ public enum SubsystemKind
     ErrorReporting,
     Completion,
     Diagram,
+    Response,
 }
