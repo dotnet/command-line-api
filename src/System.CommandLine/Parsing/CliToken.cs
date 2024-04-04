@@ -3,6 +3,8 @@
 
 namespace System.CommandLine.Parsing
 {
+    // TODO: Include location in equality
+
     // FIXME: should CliToken be public or internal? made internal for now
     // FIXME: should CliToken be a struct?
     /// <summary>
@@ -10,35 +12,39 @@ namespace System.CommandLine.Parsing
     /// </summary>
     internal sealed class CliToken : IEquatable<CliToken>
     {
-        internal const int ImplicitPosition = -1;
+        public static CliToken CreateFromOtherToken(CliToken otherToken, string? arg, Location location)
+            => new(arg, otherToken.Type, otherToken.Symbol, location);
 
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
         /// <param name="symbol">The symbol represented by the token</param>
+        /// <param name="location">The location of the token</param>
+        /*
         public CliToken(string? value, CliTokenType type, CliSymbol symbol)
         {
             Value = value ?? "";
             Type = type;
             Symbol = symbol;
-            Position = ImplicitPosition;
+            Location = Location.CreateImplicit(value, value is null ? 0 : value.Length);
         }
-       
-        internal CliToken(string? value, CliTokenType type, CliSymbol? symbol, int position)
+        */
+
+        internal CliToken(string? value, CliTokenType type, CliSymbol? symbol, Location location)
         {
             Value = value ?? "";
             Type = type;
             Symbol = symbol;
-            Position = position;
+            Location = location;
         }
 
-        internal int Position { get; }
+        internal Location Location { get; }
 
         /// <summary>
         /// The string value of the token.
         /// </summary>
         public string Value { get; }
 
-        internal bool Implicit => Position == ImplicitPosition;
+        internal bool Implicit => Location.IsImplicit;
 
         /// <summary>
         /// The type of the token.

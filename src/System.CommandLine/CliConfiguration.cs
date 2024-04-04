@@ -55,6 +55,45 @@ namespace System.CommandLine
         ///
         /// </remarks>
         public bool EnablePosixBundling { get; set; } = true;
+
+        /// <summary>
+        /// Indicates whether the first argument of the passed string is the exe name
+        /// </summary>
+        /// <param name="args">The args of a command line, such as those passed to Main(string[] args)</param>
+        /// <returns></returns>
+        // TODO: If this is the right model, tuck this away because it should only be used by subsystems.
+        public bool FirstArgumentIsRootCommand(IReadOnlyList<string> args)
+        {
+            // TODO: This logic was previously that rawInput was null. Seems more sensible to look for an empty args array.From private static ParseResult Parse(CliCommand ,IReadOnlyList< string > ,string? ,CliConfiguration? ). CHeck logic and ensure test coverage
+            return args.Any()
+                ? FirstArgLooksLikeRoot(args.First(), RootCommand)
+                : false;
+
+            static bool FirstArgLooksLikeRoot(string firstArg, CliCommand rootCommand)
+            {
+                try
+                {
+                    return firstArg == CliExecutable.ExecutablePath || rootCommand.EqualsNameOrAlias(Path.GetFileName(firstArg));
+                }
+                catch // possible exception for illegal characters in path on .NET Framework
+                {
+                    return false;
+                }
+
+            }
+        }
+
+        private List<Location>? preprocessedLocations = null;
+        public IEnumerable<Location>? PreProcessedLocations => preprocessedLocations;
+        public void AddPreprocessedLocation(Location location)
+        {
+            if (preprocessedLocations is null)
+            {
+                preprocessedLocations = new List<Location>();
+            }
+            preprocessedLocations.Add(location);
+        }
+
         /*
         /// <summary>
         /// Enables a default exception handler to catch any unhandled exceptions thrown during invocation. Enabled by default.
@@ -67,6 +106,7 @@ namespace System.CommandLine
         /// If not provided, a default timeout of 2 seconds is enforced.
         /// </summary>
         public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2);
+        */
 
         /// <summary>
         /// Response file token replacer, enabled by default.
@@ -75,8 +115,8 @@ namespace System.CommandLine
         /// <remarks>
         /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
-        public TryReplaceToken? ResponseFileTokenReplacer { get; set; } = StringExtensions.TryReadResponseFile;
-        */
+        public Func<string, (List<string>? tokens, List<string>? errors)>? ResponseFileTokenReplacer { get; set; }
+
         /// <summary>
         /// Gets the root command.
         /// </summary>
