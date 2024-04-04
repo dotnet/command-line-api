@@ -31,6 +31,7 @@
     -->
     <Compile Include="AlternateSubsystems.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="DirectiveSubsystemTests.cs" />
     <Compile Include="PipelineTests.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="VersionFunctionalTests.cs" />
