@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
                     var conversionValue = GetArgumentConversionResult().Value;
                     var locations = Tokens.Select(token => token.Location).ToArray();
                     //TODO: Remove this wrapper later
-                    _valueResult = new ValueResult(Argument, conversionValue, locations, ValueResultExtensions.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
+                    _valueResult = new ValueResult(Argument, conversionValue, locations, ArgumentResult.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
                 }
                 return _valueResult;
             }
@@ -46,7 +46,6 @@ namespace System.CommandLine.Parsing
         public CliArgument Argument { get; }
 
         internal bool ArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
-
 
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= ValidateAndConvert(useValidators: true);
@@ -236,5 +235,13 @@ namespace System.CommandLine.Parsing
         /// </summary>
         private SymbolResult AppliesToPublicSymbolResult =>
             Parent is OptionResult optionResult ? optionResult : this;
+
+        internal static ValueResultOutcome GetValueResultOutcome(ArgumentConversionResultType? resultType)
+            => resultType switch
+            {
+                ArgumentConversionResultType.NoArgument => ValueResultOutcome.NoArgument,
+                ArgumentConversionResultType.Successful => ValueResultOutcome.Success,
+                _ => ValueResultOutcome.HasErrors
+            };
     }
 }

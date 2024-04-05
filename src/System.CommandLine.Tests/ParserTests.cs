@@ -562,8 +562,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_nested_commands_all_accept_arguments_then_the_nearest_captures_the_arguments()
         {
-            var command = new CliCommand(
-                "outer")
+            var command = new CliCommand("outer")
                     {
                         new CliArgument<string[]>("arg1"),
                         new CliCommand("inner")
@@ -803,11 +802,12 @@ namespace System.CommandLine.Tests
                         }
                     };
 
-            ParseResult result = CliParser.Parse(command, new[] { "the-command",
-                                                       "complete",
-                                                       "--position",
-                                                       "7",
-                                                       "the-command" });
+            ParseResult result = CliParser.Parse(command, new[] { 
+                        "the-command",
+                        "complete",
+                        "--position",
+                        "7",
+                        "the-command" });
 
             CommandResult completeResult = result.CommandResult;
 
@@ -974,7 +974,6 @@ namespace System.CommandLine.Tests
                   .Be("the-directory");
         }
         */
-
 
         [Fact]
         public void Unmatched_tokens_that_look_like_options_are_not_split_into_smaller_tokens()

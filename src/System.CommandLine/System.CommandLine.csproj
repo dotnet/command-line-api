@@ -28,7 +28,6 @@
     <Compile Include="ArgumentArity.cs" />
     <Compile Include="Binding\ArgumentConversionResult.cs" />
     <Compile Include="Parsing\CommandValueResult.cs" />
-    <Compile Include="Parsing\ValueResultExtensions.cs" />
     <Compile Include="Parsing\ValueResultOutcome.cs" />
     <Compile Include="Binding\ArgumentConversionResultType.cs" />
     <Compile Include="Binding\ArgumentConverter.cs" />

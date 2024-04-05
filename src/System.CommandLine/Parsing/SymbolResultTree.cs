@@ -72,7 +72,7 @@ namespace System.CommandLine.Parsing
             var dict = new Dictionary<CliSymbol, ValueResult>();
             foreach (KeyValuePair<CliSymbol, SymbolResult> pair in this)
             {               
-                    var result = pair.Value;
+                var result = pair.Value;
                 if (result is OptionResult optionResult)
                 {
                     dict.Add(pair.Key, optionResult.ValueResult);

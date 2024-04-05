@@ -23,7 +23,6 @@ namespace System.CommandLine.Tests
             List<CliToken> tokens = null;
             List<string> errors = null;
             Tokenizer.Tokenize(args, command, new CliConfiguration(command), true, out tokens, out errors);
-            Tokenizer.Tokenize(args, command, new CliConfiguration(command), true, out tokens, out errors);
 
             tokens
                 .Skip(1)

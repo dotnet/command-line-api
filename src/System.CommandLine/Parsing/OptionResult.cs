@@ -37,7 +37,7 @@ namespace System.CommandLine.Parsing
                     var conversionValue = ArgumentConversionResult.Value;
                     var locations = Tokens.Select(token => token.Location).ToArray();
                     //TODO: Remove this wrapper later
-                    _valueResult = new ValueResult(Option, conversionValue, locations, ValueResultExtensions.GetValueResultOutcome(ArgumentConversionResult?.Result)); // null is temporary here
+                    _valueResult = new ValueResult(Option, conversionValue, locations, ArgumentResult.GetValueResultOutcome(ArgumentConversionResult?.Result)); // null is temporary here
                 }
                 return _valueResult;
             }
