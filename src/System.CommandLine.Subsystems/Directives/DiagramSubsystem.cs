@@ -66,10 +66,10 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
             builder.Append('!');
         }
 
+        // TODO: Directives
+        /*
         switch (symbolResult)
         {
-            // TODO: Directives
-            /*
             case DirectiveResult { Directive: not DiagramDirective }:
                 break;
             */
@@ -174,7 +174,7 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
                     break;
                 }
             }
-            */
         }
+        */
     }
 }

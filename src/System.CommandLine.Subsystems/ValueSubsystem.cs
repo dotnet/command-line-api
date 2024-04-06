@@ -26,10 +26,11 @@ public class ValueSubsystem : CliSubsystem
 
     void SetCalculated(CliSymbol symbol, Func<ValueResult, object?> factory)
         => SetAnnotation(symbol, ValueAnnotations.Calculated, factory);
-    Func<ValueResult, object?> GetCalculated(CliSymbol symbol)
-      => TryGetAnnotation<Func<ValueResult, object?>>(symbol, ValueAnnotations.Calculated, out var value)
-                ? value
-                : null;
+    Func<ValueResult, object?>? GetCalculatedValue(CliSymbol symbol) 
+        => TryGetAnnotation<Func<ValueResult, object?>>(symbol, ValueAnnotations.Calculated, out var value)
+                    ? value
+                    : null;
+
     AnnotationAccessor<Func<ValueResult, object?>> Calculated
       => new(this, ValueAnnotations.Calculated);
 
