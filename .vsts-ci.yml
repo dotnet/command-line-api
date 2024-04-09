@@ -37,35 +37,11 @@ stages:
       jobs:
       - job: Windows
         pool:
-          # For public or PR jobs, use the hosted pool.  For internal jobs use the internal pool.
-          # Will eventually change this to two BYOC pools.
-          ${{ if ne(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore-Public
-            demands: ImageOverride -equals windows.vs2022.amd64.open
-          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Internal
-            demands: ImageOverride -equals windows.vs2022.amd64
+          name: NetCore-Public
+          demands: ImageOverride -equals windows.vs2022.amd64.open
         variables:
-        # Only enable publishing in official builds.
-        - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-          # Publish-Build-Assets provides: MaestroAccessToken, BotAccount-dotnet-maestro-bot-PAT
-          - group: DotNet-Symbol-Server-Pats
-          - group: Publish-Build-Assets
-          - name: _OfficialBuildArgs
-            value: /p:DotNetSignType=$(_SignType)
-                  /p:TeamName=$(_TeamName)
-                  /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines)
-                  /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory)
-                  /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-                  /p:PublishToSymbolServer=true
-                  /p:DotNetSymbolServerTokenMsdl=$(microsoft-symbol-server-pat)
-                  /p:DotNetSymbolServerTokenSymWeb=$(symweb-symbol-server-pat)
-          - name: _PublishUsingPipelines
-            value: true 
-        # else
-        - ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-          - name: _OfficialBuildArgs
-            value: ''
+        - name: _OfficialBuildArgs
+          value: ''
         strategy:
           matrix:
             ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
@@ -76,12 +52,7 @@ stages:
 
             Release:
               _BuildConfig: Release
-              # PRs or external builds are not signed.
-              ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-                _SignType: test
-              ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-                _SignType: real
-                _BuildArgs: $(_OfficialBuildArgs)
+              _SignType: test
         steps:
         - checkout: self
           clean: true
@@ -108,12 +79,8 @@ stages:
       - job: Ubuntu
         displayName: Ubuntu
         pool:
-          ${{ if eq(variables['System.TeamProject'], 'public') }}:
-            name: NetCore-Svc-Public
-            demands: ImageOverride -equals 1es-ubuntu-2004-open
-          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Svc-Internal
-            demands: ImageOverride -equals 1es-ubuntu-2004
+          name: NetCore-Svc-Public
+          demands: ImageOverride -equals 1es-ubuntu-2004-open
         strategy:
           matrix:
             ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
@@ -159,6 +126,3 @@ stages:
             --configuration $(_BuildConfig)
             --prepareMachine
           displayName: Build
-
-- ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-  - template: eng\common\templates\post-build\post-build.yml
