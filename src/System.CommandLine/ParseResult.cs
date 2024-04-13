@@ -87,7 +87,7 @@ namespace System.CommandLine
         /// <summary>
         /// A result indicating the command specified in the command line input.
         /// </summary>
-        public CommandResult CommandResult { get; }
+        internal CommandResult CommandResult { get; }
 
         /// <summary>
         /// The configuration used to produce the parse result.
@@ -97,7 +97,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the root command result.
         /// </summary>
-        public CommandResult RootCommandResult => _rootCommandResult;
+        internal CommandResult RootCommandResult => _rootCommandResult;
 
         /// <summary>
         /// Gets the parse errors found while parsing command line input.
@@ -180,7 +180,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>A result for the specified argument, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public ArgumentResult? GetResult(CliArgument argument) =>
+        internal ArgumentResult? GetResult(CliArgument argument) =>
             _rootCommandResult.GetResult(argument);
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>A result for the specified command, or <see langword="null"/> if it was not provided.</returns>
-        public CommandResult? GetResult(CliCommand command) =>
+        internal CommandResult? GetResult(CliCommand command) =>
             _rootCommandResult.GetResult(command);
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public OptionResult? GetResult(CliOption option) =>
+        internal OptionResult? GetResult(CliOption option) =>
             _rootCommandResult.GetResult(option);
 
 // TODO: Directives

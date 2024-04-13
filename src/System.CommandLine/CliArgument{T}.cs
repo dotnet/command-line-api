@@ -34,7 +34,7 @@ namespace System.CommandLine
         /// the delegate is also invoked when an input was provided.
         /// </remarks>
         */
-        public Func<ArgumentResult, T>? DefaultValueFactory { get; set; }
+        internal Func<ArgumentResult, T>? DefaultValueFactory { get; set; }
 
 // TODO: custom parsers
 /*

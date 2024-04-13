@@ -35,7 +35,7 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
         var builder = new StringBuilder(100);
 
 
-        Diagram(builder, parseResult.RootCommandResult, parseResult);
+        //Diagram(builder, parseResult.RootCommandResult, parseResult);
 
         // TODO: Unmatched tokens
         /*

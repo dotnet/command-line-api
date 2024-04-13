@@ -9,7 +9,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing a <see cref="Command" />.
     /// </summary>
-    public sealed class CommandResult : SymbolResult
+    internal sealed class CommandResult : SymbolResult
     {
         internal CommandResult(
             CliCommand command,

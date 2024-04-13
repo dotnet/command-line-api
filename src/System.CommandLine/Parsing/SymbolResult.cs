@@ -70,21 +70,21 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public ArgumentResult? GetResult(CliArgument argument) => SymbolResultTree.GetResult(argument);
+        internal ArgumentResult? GetResult(CliArgument argument) => SymbolResultTree.GetResult(argument);
 
         /// <summary>
         /// Finds a result for the specific command anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
-        public CommandResult? GetResult(CliCommand command) => SymbolResultTree.GetResult(command);
+        internal CommandResult? GetResult(CliCommand command) => SymbolResultTree.GetResult(command);
 
         /// <summary>
         /// Finds a result for the specific option anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public OptionResult? GetResult(CliOption option) => SymbolResultTree.GetResult(option);
+        internal OptionResult? GetResult(CliOption option) => SymbolResultTree.GetResult(option);
 
 // TODO: directives
 /*
