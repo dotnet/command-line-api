@@ -1,4 +1,4 @@
-[Proposal] Output in Powderhoue
+# [Proposal] Output in Powderhouse
 
 Output for the Powderhouse version of System.CommandLine will be used in these scenarios:
 
@@ -6,18 +6,28 @@ Output for the Powderhouse version of System.CommandLine will be used in these s
 * Error reporting
 * Optionally by applications using System.CommandLine
 
-While it is reasonable to allow System.CommandLine apps to access it's outputting system to provide consistent output, it is a not a goal to create a general outputting approach for .NET.
+While it is reasonable to allow System.CommandLine apps to access its outputting system to provide consistent output, it is a non-goal to create a general outputting approach for .NET.
 
-Output will be via an abstraction to allow outputting to multiple formats from a single definition, such as  output to plain text, fancy console, or markdown and orthogonally to multiple locations (console, files in different formats). This will result from multiple parts:
+Output will go to a TextWriter, either the standard TextWriter or one derived from it that has overloads that take other types - such as the layout types described here and supports a formatter model to handle them. This alternate design has a few advantages, including moving the project forward without this work, and in the future allowing simple output to be simple.
+
+Output will optionally allow outputting to multiple formats from a single definition, such as  output to plain text, fancy console, or markdown and orthogonally to multiple locations (console, files in different formats). This will result from multiple parts:
 
 * Content
-* Layout
-* Formatting
-* Output
+* Layout (Optional)
+* Output/TextWriter
+  * With formatting (Optional)
 
-The content will be the System.CommandLine and subsystem types. The output may be as simple as a stream. The rest of this proposal focuses on layout and formatting.
+The content will be plain text, text with ANSI codes, System.CommandLine types, or subsystem types. The output will be a TextWriter, which is an explicit decision not to support binary output with this API. The rest of this proposal focuses on layout and formatting.
+
+## Output
+
+Output will be to a TextWriter. We anticipate a StreamWriter under the hood that can handle writing to StdOut/StdError, memory, files, etc. 
+
+The TextWriter can be a FormattingTextWriter which can handle layout types, such as those described below. These will be created as they add value to the effort.
 
 ## Layout
+
+Layout is tied to formatters, and are optional. Code can write directly to the TextWriter.
 
 Layout will be via an open set of blocks:
 
@@ -101,9 +111,7 @@ For example, should the table for errors, options, and arguments (or commands in
 
 ## Formatters
 
-Formatters will output one or more block types and one or more output formats.
-
-_Note: Multiple formats allow simpler implementation of formatters for custom blocks, and will also make it easier to create custom fallback output._
+Formatters are needed when layout blocks are used, and otherwise optional. They are managed by a TextWriter.
 
 Scenarios are:
 
@@ -111,45 +119,9 @@ Scenarios are:
 * Formatters that override a specific block type for a custom look (such as customizing all tables)
 * Formatters that override a specific block (such as customizing only the option block)
 
-### Formatter API
-
-```csharp
-public abstract class Formatter
-   // possible configuration settings.
-   public abstract bool CanHandle(Block block, string formatId);
-   public abstract void Output(IEnumerable<Formatter> formatters, Stream stream, int treeLevel, Block block, string formatId);
-```
-
-The formatter is expected to use pattern matching to make falling back easier. An example for part of help to terminal (this can be thrown out by implementor, but illustrates a couple of details):
-
-```csharp
-public class TerminalFormatter
-   {
-   public void Output(IEnumerable<Formatter> formatters, Stream stream, int treeLevel, Block block, string formatId)
-   {
-
-      if (block is Section section)
-      {
-         // Terminal ignores treeLevel
-         stream.WriteLine(section.Title); // assuming an extension method called WriteLine
-         foreach (var childBlock in section.Blocks)
-         {
-            Output(stream, treeLevel, childBlock, formatId);
-            this.CanHandle(block, formatId)) // Container may handle block while child does not
-               ? Output(formatters, stream, treeLevel, block, formatId);
-               : formatters.Output(formatters, stream, treeLevel, block, formatId);
-         }
-      }
-      // ... Other block types
-   }
-}
-```
-
 Formatters are per block type, or block. This is important to allow customization of details without needing to copy the entire formatter. It also means that the current formatter may not support a block when another formatter does. That is because, as this is written, the current formatter is the one for the parent.
 
-> _Question:_ Should the current formatter have precedence? As this code is written, the current formatter does have precedence. If the conditional for CanHandle within this method is removed, such that formatters.Output is always called, then the current formatter does not have precedence. Thought example: A plain text formatter can supply adequate output for a section title. If the current formatter has precedence, then a terminal formatter would be required to implement sections, or output of the child blocks would be done by the plain text formatter instead of the terminal formatter. OTOH, having to peruse the formatters for every block sounds inefficient, and intuitively, it seems that sticking to the same formatter would result in a more consistent look. Alternative designs would include having a preferred formatter and using it if possible, creating a dictionary of block type and the best formatter, although this would not allow a different formatter for block data contents, or something else.
-
-The formatId is proposed as a string because that is what we can pass straight from the user for custom formats.
+> _Question for implementation:_ Should the current formatter have precedence? As this code is written, the current formatter does have precedence. If the conditional for CanHandle within this method is removed, such that formatters.Output is always called, then the current formatter does not have precedence. Thought example: A plain text formatter can supply adequate output for a section title. If the current formatter has precedence, then a terminal formatter would be required to implement sections, or output of the child blocks would be done by the plain text formatter instead of the terminal formatter. OTOH, having to peruse the formatters for every block sounds inefficient, and intuitively, it seems that sticking to the same formatter would result in a more consistent look. Alternative designs would include having a preferred formatter and using it if possible, creating a dictionary of block type and the best formatter, although this would not allow a different formatter for block data contents, or something else.
 
 ### No op
 
