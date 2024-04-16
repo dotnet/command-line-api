@@ -55,7 +55,7 @@
     <Compile Include="Parsing\CommandResult.cs" />
     <Compile Include="Parsing\Location.cs" />
     <Compile Include="Parsing\OptionResult.cs" />
-    <Compile Include="Parsing\ParseError.cs" />
+    <Compile Include="Parsing\CliDiagnostic.cs" />
     <Compile Include="Parsing\ParseOperation.cs" />
     <Compile Include="Parsing\StringExtensions.cs" />
     <Compile Include="Parsing\SymbolResult.cs" />
@@ -72,6 +72,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Memory" />
+    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 
   <ItemGroup>

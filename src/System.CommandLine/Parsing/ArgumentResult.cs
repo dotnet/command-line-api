@@ -141,7 +141,7 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         internal override void AddError(string errorMessage)
         {
-            SymbolResultTree.AddError(new ParseError(errorMessage, AppliesToPublicSymbolResult));
+            SymbolResultTree.AddError(new CliDiagnostic(errorMessage, AppliesToPublicSymbolResult));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
         }
 

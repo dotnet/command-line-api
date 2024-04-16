@@ -24,7 +24,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The parse errors associated with this symbol result.
         /// </summary>
-        public IEnumerable<ParseError> Errors
+        public IEnumerable<CliDiagnostic> Errors
         {
             get
             {

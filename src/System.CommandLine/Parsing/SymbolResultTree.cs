@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace System.CommandLine.Parsing
     internal sealed class SymbolResultTree : Dictionary<CliSymbol, SymbolResult>
     {
         private readonly CliCommand _rootCommand;
-        internal List<ParseError>? Errors;
+        internal List<CliDiagnostic>? Errors;
 // TODO: unmatched tokens
 /*
         internal List<CliToken>? UnmatchedTokens;
@@ -27,7 +27,7 @@ namespace System.CommandLine.Parsing
 
             if (tokenizeErrors is not null)
             {
-                Errors = new List<ParseError>(tokenizeErrors.Count);
+                Errors = new List<CliDiagnostic>(tokenizeErrors.Count);
 
                 for (var i = 0; i < tokenizeErrors.Count; i++)
                 {
@@ -87,8 +87,8 @@ namespace System.CommandLine.Parsing
             return dict;
         }
 
-        internal void AddError(ParseError parseError) => (Errors ??= new()).Add(parseError);
-        internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
+        internal void AddError(CliDiagnostic parseError) => (Errors ??= new()).Add(parseError);
+        internal void InsertFirstError(CliDiagnostic parseError) => (Errors ??= new()).Insert(0, parseError);
 
         internal void AddUnmatchedToken(CliToken token, CommandResult commandResult, CommandResult rootCommandResult)
         {

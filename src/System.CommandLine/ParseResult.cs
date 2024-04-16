@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace System.CommandLine
             */
 // TODO: unmatched tokens
 //          List<CliToken>? unmatchedTokens,
-            List<ParseError>? errors,
+            List<CliDiagnostic>? errors,
 // TODO: commandLineText should be string array
             string? commandLineText = null //,
 // TODO: invocation
@@ -75,8 +75,8 @@ namespace System.CommandLine
 
 // TODO: unmatched tokens
 //          _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
-
-            Errors = errors is not null ? errors : Array.Empty<ParseError>();
+            
+            Errors = errors is not null ? errors : Array.Empty<CliDiagnostic>();
         }
 
 // TODO: check that constructing empty ParseResult directly is correct
@@ -102,7 +102,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the parse errors found while parsing command line input.
         /// </summary>
-        public IReadOnlyList<ParseError> Errors { get; }
+        public IReadOnlyList<CliDiagnostic> Errors { get; }
 
         /*
         // TODO: don't expose tokens
