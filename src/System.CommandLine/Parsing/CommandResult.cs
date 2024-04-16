@@ -174,7 +174,7 @@ namespace System.CommandLine.Parsing
         }
 
         // TODO: Validation
-         private void ValidateArguments(bool completeValidation)
+        private void ValidateArguments(bool completeValidation)
         {
             var arguments = Command.Arguments;
             for (var i = 0; i < arguments.Count; i++)

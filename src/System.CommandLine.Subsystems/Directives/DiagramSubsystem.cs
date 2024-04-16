@@ -66,8 +66,8 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
             builder.Append('!');
         }
 
-        // TODO: Directives
-        /*
+// TODO: Directives
+/*
         switch (symbolResult)
         {
             case DirectiveResult { Directive: not DiagramDirective }:
@@ -175,6 +175,6 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
                 }
             }
         }
-        */
+*/
     }
 }

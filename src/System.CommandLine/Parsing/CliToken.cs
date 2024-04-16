@@ -19,7 +19,6 @@ namespace System.CommandLine.Parsing
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
         /// <param name="symbol">The symbol represented by the token</param>
-
         public CliToken(string? value, CliTokenType type, CliSymbol symbol)
         {
             Value = value ?? "";

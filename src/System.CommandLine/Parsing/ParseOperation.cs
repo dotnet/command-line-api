@@ -89,7 +89,6 @@ namespace System.CommandLine.Parsing
                 _tokens,
 // TODO: unmatched tokens
 //                _symbolResultTree.UnmatchedTokens,
-
                 _symbolResultTree.Errors,
                 _rawInput
 // TODO: invocation

@@ -10,10 +10,10 @@ namespace System.CommandLine.Parsing
     {
         private readonly CliCommand _rootCommand;
         internal List<ParseError>? Errors;
-        // TODO: unmatched tokens
-        /*
-                internal List<CliToken>? UnmatchedTokens;
-        */
+// TODO: unmatched tokens
+/*
+        internal List<CliToken>? UnmatchedTokens;
+*/
 
         // TODO: Looks like this is a SymboNode/linked list because a symbol may appear multiple
         // places in the tree and multiple symbols will have the same short name. The question is 
@@ -46,11 +46,11 @@ namespace System.CommandLine.Parsing
         internal OptionResult? GetResult(CliOption option)
             => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
-        //TODO: directives
-        /* 
-                internal DirectiveResult? GetResult(CliDirective directive)
-                    => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
-        */
+//TODO: directives
+/* 
+        internal DirectiveResult? GetResult(CliDirective directive)
+            => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
+*/
         // TODO: Determine how this is used. It appears to be O^n in the size of the tree and so if it is called multiple times, we should reconsider to avoid O^(N*M)
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
@@ -92,18 +92,18 @@ namespace System.CommandLine.Parsing
 
         internal void AddUnmatchedToken(CliToken token, CommandResult commandResult, CommandResult rootCommandResult)
         {
-            /*
-            // TODO: unmatched tokens
-                        (UnmatchedTokens ??= new()).Add(token);
+/*
+// TODO: unmatched tokens
+            (UnmatchedTokens ??= new()).Add(token);
 
-                        if (commandResult.Command.TreatUnmatchedTokensAsErrors)
-                        {
-                            if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
-                            {
-                                return;
-                            }
+            if (commandResult.Command.TreatUnmatchedTokensAsErrors)
+            {
+                if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
+                {
+                    return;
+                }
 
-            */
+*/
             AddError(new ParseError(LocalizationResources.UnrecognizedCommandOrArgument(token.Value), commandResult));
             //            }
         }
@@ -135,12 +135,12 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-        // TODO: symbolsbyname - this is inefficient
-        // results for some values may not be queried at all, dependent on other options
-        // so we could avoid using their value factories and adding them to the dictionary
-        // could we sort by name allowing us to do a binary search instead of allocating a dictionary?
-        // could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
-        // Additional Note: Couldn't commands know their children, and thus this involves querying the active command, and possibly the parents
+// TODO: symbolsbyname - this is inefficient
+// results for some values may not be queried at all, dependent on other options
+// so we could avoid using their value factories and adding them to the dictionary
+// could we sort by name allowing us to do a binary search instead of allocating a dictionary?
+// could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
+// Additional Note: Couldn't commands know their children, and thus this involves querying the active command, and possibly the parents
         private void PopulateSymbolsByName(CliCommand command)
         {
             if (command.HasArguments)

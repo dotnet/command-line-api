@@ -26,7 +26,7 @@ public class ResponseSubsystem()
         catch
         {
             // TODO: Switch to proper errors
-            return (null, 
+            return (null,
                     errors:
                     [
                         $"Failed to open response file {responseSourceName}"
