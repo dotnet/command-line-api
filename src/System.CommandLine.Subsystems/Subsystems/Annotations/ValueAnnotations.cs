@@ -12,6 +12,7 @@ public static class ValueAnnotations
 {
     public static string Prefix { get; } = nameof(SubsystemKind.Value);
 
-    public static AnnotationId<object> Explicit { get; } = new(Prefix, nameof(Explicit));
-    public static AnnotationId<Func<ValueResult, object?>> Calculated { get; } = new(Prefix, nameof(Calculated));
+    public static AnnotationId<object?> ExplicitDefault { get; } = new(Prefix, nameof(ExplicitDefault));
+    public static AnnotationId<Func<object?>?> DefaultCalculation { get; } = new(Prefix, nameof(DefaultCalculation));
+    public static AnnotationId<object?> Value { get; } = new(Prefix, nameof(Value));
 }
