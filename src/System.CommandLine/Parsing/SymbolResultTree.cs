@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -10,10 +9,10 @@ namespace System.CommandLine.Parsing
     {
         private readonly CliCommand _rootCommand;
         internal List<CliDiagnostic>? Errors;
-// TODO: unmatched tokens
-/*
-        internal List<CliToken>? UnmatchedTokens;
-*/
+        // TODO: unmatched tokens
+        /*
+                internal List<CliToken>? UnmatchedTokens;
+        */
 
         // TODO: Looks like this is a SymboNode/linked list because a symbol may appear multiple
         // places in the tree and multiple symbols will have the same short name. The question is 
@@ -31,7 +30,7 @@ namespace System.CommandLine.Parsing
 
                 for (var i = 0; i < tokenizeErrors.Count; i++)
                 {
-                    Errors.Add(new ParseError(tokenizeErrors[i]));
+                    Errors.Add(new CliDiagnostic(new("", "", tokenizeErrors[i], CliDiagnosticSeverity.Warning, null), []));
                 }
             }
         }
@@ -46,12 +45,11 @@ namespace System.CommandLine.Parsing
         internal OptionResult? GetResult(CliOption option)
             => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
-//TODO: directives
-/* 
-        internal DirectiveResult? GetResult(CliDirective directive)
-            => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
-*/
-        // TODO: Determine how this is used. It appears to be O^n in the size of the tree and so if it is called multiple times, we should reconsider to avoid O^(N*M)
+        //TODO: directives
+        /* 
+                internal DirectiveResult? GetResult(CliDirective directive)
+                    => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
+        */
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
             // Argument can't have children
@@ -71,7 +69,7 @@ namespace System.CommandLine.Parsing
         {
             var dict = new Dictionary<CliSymbol, ValueResult>();
             foreach (KeyValuePair<CliSymbol, SymbolResult> pair in this)
-            {               
+            {
                 var result = pair.Value;
                 if (result is OptionResult optionResult)
                 {
@@ -92,19 +90,19 @@ namespace System.CommandLine.Parsing
 
         internal void AddUnmatchedToken(CliToken token, CommandResult commandResult, CommandResult rootCommandResult)
         {
-/*
-// TODO: unmatched tokens
-            (UnmatchedTokens ??= new()).Add(token);
+            /*
+            // TODO: unmatched tokens
+                        (UnmatchedTokens ??= new()).Add(token);
 
-            if (commandResult.Command.TreatUnmatchedTokensAsErrors)
-            {
-                if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
-                {
-                    return;
-                }
+                        if (commandResult.Command.TreatUnmatchedTokensAsErrors)
+                        {
+                            if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
+                            {
+                                return;
+                            }
 
 */
-            AddError(new ParseError(LocalizationResources.UnrecognizedCommandOrArgument(token.Value), commandResult));
+            AddError(new CliDiagnostic(new("", "", LocalizationResources.UnrecognizedCommandOrArgument(token.Value), CliDiagnosticSeverity.Warning, null), [], symbolResult: commandResult));
             //            }
         }
 
@@ -113,7 +111,6 @@ namespace System.CommandLine.Parsing
             if (_symbolsByName is null)
             {
                 _symbolsByName = new();
-                // TODO: See if we can avoid populating the entire tree and just populate the portion/cone we need
                 PopulateSymbolsByName(_rootCommand);
             }
 
@@ -135,12 +132,11 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-// TODO: symbolsbyname - this is inefficient
-// results for some values may not be queried at all, dependent on other options
-// so we could avoid using their value factories and adding them to the dictionary
-// could we sort by name allowing us to do a binary search instead of allocating a dictionary?
-// could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
-// Additional Note: Couldn't commands know their children, and thus this involves querying the active command, and possibly the parents
+        // TODO: symbolsbyname - this is inefficient
+        // results for some values may not be queried at all, dependent on other options
+        // so we could avoid using their value factories and adding them to the dictionary
+        // could we sort by name allowing us to do a binary search instead of allocating a dictionary?
+        // could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
         private void PopulateSymbolsByName(CliCommand command)
         {
             if (command.HasArguments)

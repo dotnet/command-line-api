@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public abstract class SymbolResult
     {
-// TODO: make this a property and protected if possible
+        // TODO: make this a property and protected if possible
         internal readonly SymbolResultTree SymbolResultTree;
         private protected List<CliToken>? _tokens;
 
@@ -19,39 +19,39 @@ namespace System.CommandLine.Parsing
             SymbolResultTree = symbolResultTree;
             Parent = parent;
         }
-// TODO: this can be an extension method, do we need it?
-/*
-        /// <summary>
-        /// The parse errors associated with this symbol result.
-        /// </summary>
-        public IEnumerable<CliDiagnostic> Errors
-        {
-            get
-            {
-                var parseErrors = SymbolResultTree.Errors;
-
-                if (parseErrors is null)
+        // TODO: this can be an extension method, do we need it?
+        /*
+                /// <summary>
+                /// The parse errors associated with this symbol result.
+                /// </summary>
+                public IEnumerable<CliDiagnostic> Errors
                 {
-                    yield break;
-                }
-
-                for (var i = 0; i < parseErrors.Count; i++)
-                {
-                    var parseError = parseErrors[i];
-                    if (parseError.SymbolResult == this)
+                    get
                     {
-                        yield return parseError;
+                        var parseErrors = SymbolResultTree.Errors;
+
+                        if (parseErrors is null)
+                        {
+                            yield break;
+                        }
+
+                        for (var i = 0; i < parseErrors.Count; i++)
+                        {
+                            var parseError = parseErrors[i];
+                            if (parseError.SymbolResult == this)
+                            {
+                                yield return parseError;
+                            }
+                        }
                     }
                 }
-            }
-        }
-*/
+        */
         /// <summary>
         /// The parent symbol result in the parse tree.
         /// </summary>
         public SymbolResult? Parent { get; }
 
-// TODO: make internal because exposes tokens
+        // TODO: make internal because exposes tokens
         /// <summary>
         /// The list of tokens associated with this symbol result during parsing.
         /// </summary>
@@ -59,12 +59,12 @@ namespace System.CommandLine.Parsing
 
         internal void AddToken(CliToken token) => (_tokens ??= new()).Add(token);
 
-// TODO: made nonpublic, should we make public again?
+        // TODO: made nonpublic, should we make public again?
         /// <summary>
         /// Adds an error message for this symbol result to it's parse tree.
         /// </summary>
         /// <remarks>Setting an error will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
-        internal virtual void AddError(string errorMessage) => SymbolResultTree.AddError(new ParseError(errorMessage, this));
+        internal virtual void AddError(string errorMessage) => SymbolResultTree.AddError(new CliDiagnostic(new("", "", errorMessage, severity: CliDiagnosticSeverity.Error, null), [], symbolResult: this));
         /// <summary>
         /// Finds a result for the specific argument anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
@@ -86,21 +86,21 @@ namespace System.CommandLine.Parsing
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         public OptionResult? GetResult(CliOption option) => SymbolResultTree.GetResult(option);
 
-// TODO: directives
-/*
-        /// <summary>
-        /// Finds a result for the specific directive anywhere in the parse tree.
-        /// </summary>
-        /// <param name="directive">The directive for which to find a result.</param>
-        /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
-        public DirectiveResult? GetResult(CliDirective directive) => SymbolResultTree.GetResult(directive);
-*/
+        // TODO: directives
+        /*
+                /// <summary>
+                /// Finds a result for the specific directive anywhere in the parse tree.
+                /// </summary>
+                /// <param name="directive">The directive for which to find a result.</param>
+                /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
+                public DirectiveResult? GetResult(CliDirective directive) => SymbolResultTree.GetResult(directive);
+        */
         /// <summary>
         /// Finds a result for a symbol having the specified name anywhere in the parse tree.
         /// </summary>
         /// <param name="name">The name of the symbol for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public SymbolResult? GetResult(string name) => 
+        public SymbolResult? GetResult(string name) =>
             SymbolResultTree.GetResult(name);
 
         /// <inheritdoc cref="ParseResult.GetValue{T}(CliArgument{T})"/>

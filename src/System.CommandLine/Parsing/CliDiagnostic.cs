@@ -13,7 +13,7 @@ namespace System.CommandLine.Parsing
     internal static class ParseDiagnostics
     {
         public const string DirectiveIsNotDefinedId = "CMD0001";
-        public static readonly CliDiagnosticDescriptor DirectiveIsNotDefined = 
+        public static readonly CliDiagnosticDescriptor DirectiveIsNotDefined =
             new(
                 DirectiveIsNotDefinedId,
                 //TODO: use localized strings
@@ -61,7 +61,9 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Initializes a new instance of the <see cref="CliDiagnostic"/> class.
         /// </summary>
-        /// <param name="message">A message to explain the error to a user.</param>
+        /// <param name="descriptor">Contains information about the error.</param>
+        /// <param name="messageArgs">The arguments to be passed to the <see cref="CliDiagnosticDescriptor.MessageFormat"/> in the <paramref name="descriptor"/>.</param>
+        /// <param name="properties">Properties to be associated with the diagnostic.</param>
         /// <param name="symbolResult">The symbol result detailing the symbol that failed to parse and the tokens involved.</param>
         /// <param name="location">The location of the error.</param>
         public CliDiagnostic(
@@ -76,7 +78,7 @@ namespace System.CommandLine.Parsing
             //    throw new ArgumentException("Value cannot be null or whitespace.", nameof(message));
             //}
 
-            //Message = message;
+            Message = string.Format(descriptor.MessageFormat, messageArgs);
             SymbolResult = symbolResult;
         }
 
