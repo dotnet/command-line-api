@@ -56,8 +56,8 @@ namespace System.CommandLine.Tests
             errors.Should().BeNull();
             tokens.Count.Should().Be(3); 
             locations.Count.Should().Be(2);
-            locations[0].Should().Be("testhost from User[-1, 8, 0]; --hello from User[0, 7, 0]");
-            locations[1].Should().Be("testhost from User[-1, 8, 0]; world from User[1, 5, 0]");
+            locations[0].Should().Be($"{CliExecutable.ExecutableName} from User[-1, {CliExecutable.ExecutableName.Length}, 0]; --hello from User[0, 7, 0]");
+            locations[1].Should().Be($"{CliExecutable.ExecutableName} from User[-1, {CliExecutable.ExecutableName.Length}, 0]; world from User[1, 5, 0]");
         }
 
         [Fact]

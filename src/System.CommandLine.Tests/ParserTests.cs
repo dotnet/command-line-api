@@ -1748,7 +1748,7 @@ namespace System.CommandLine.Tests
             {
                 command
             };
-            var expectedOuterLocation = new Location("testhost", Location.User, -1, null);
+            var expectedOuterLocation = new Location(CliExecutable.ExecutableName, Location.User, -1, null);
             var expectedLocation1 = new Location("Kirk", Location.User, 1, expectedOuterLocation);
             var expectedLocation2 = new Location("Spock", Location.User, 2, expectedOuterLocation);
 
@@ -1775,7 +1775,7 @@ namespace System.CommandLine.Tests
             {
                 command
             };
-            var expectedOuterLocation = new Location("testhost", Location.User, -1, null);
+            var expectedOuterLocation = new Location(CliExecutable.ExecutableName, Location.User, -1, null);
             var expectedLocation1 = new Location("Kirk", Location.User, 3, expectedOuterLocation);
             var expectedLocation2 = new Location("Spock", Location.User, 5, expectedOuterLocation);
 
@@ -1802,7 +1802,7 @@ namespace System.CommandLine.Tests
             {
                 command
             };
-            var expectedOuterLocation = new Location("testhost", Location.User, -1, null);
+            var expectedOuterLocation = new Location(CliExecutable.ExecutableName, Location.User, -1, null);
             var expectedLocation1 = new Location("Kirk", Location.User, 1, expectedOuterLocation);
             var expectedLocation2 = new Location("Spock", Location.User, 2, expectedOuterLocation);
 
@@ -1826,7 +1826,7 @@ namespace System.CommandLine.Tests
             {
                 command
             };
-            var expectedOuterLocation = new Location("testhost", Location.User, -1, null);
+            var expectedOuterLocation = new Location(CliExecutable.ExecutableName, Location.User, -1, null);
             var expectedLocation1 = new Location("Kirk", Location.User, 3, expectedOuterLocation);
             var expectedLocation2 = new Location("Spock", Location.User, 5, expectedOuterLocation);
 
@@ -1852,7 +1852,7 @@ namespace System.CommandLine.Tests
             {
                 command
             };
-            var expectedOuterLocation = new Location("testhost", Location.User, -1, null);
+            var expectedOuterLocation = new Location(CliExecutable.ExecutableName, Location.User, -1, null);
             var expectedLocation1 = new Location("Kirk", Location.User, 2, expectedOuterLocation, 7);
             var expectedLocation2 = new Location("Spock", Location.User, 3, expectedOuterLocation, 8);
 
