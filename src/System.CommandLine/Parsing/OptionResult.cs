@@ -25,6 +25,24 @@ namespace System.CommandLine.Parsing
             IdentifierToken = token;
         }
 
+        private ValueResult? _valueResult;
+        public ValueResult ValueResult
+        {
+            get
+            {
+                if (_valueResult is null)
+                {
+                    // This is not lazy on the assumption that almost everything the user enters will be used, and ArgumentResult is no longer used for defaults
+                    // TODO: Make sure errors are added
+                    var conversionValue = ArgumentConversionResult.Value;
+                    var locations = Tokens.Select(token => token.Location).ToArray();
+                    //TODO: Remove this wrapper later
+                    _valueResult = new ValueResult(Option, conversionValue, locations, ArgumentResult.GetValueResultOutcome(ArgumentConversionResult?.Result)); // null is temporary here
+                }
+                return _valueResult;
+            }
+        }
+
         /// <summary>
         /// The option to which the result applies.
         /// </summary>

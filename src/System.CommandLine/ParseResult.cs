@@ -14,6 +14,8 @@ namespace System.CommandLine
     /// </summary>
     public sealed class ParseResult
     {
+        private readonly IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary = new Dictionary<CliSymbol, ValueResult>();
+
         private readonly CommandResult _rootCommandResult;
 // TODO: unmatched tokens, invocation, completion
 /*
@@ -28,6 +30,7 @@ namespace System.CommandLine
 // TODO: determine how rootCommandResult and commandResult differ
             CommandResult rootCommandResult,
             CommandResult commandResult,
+            Dictionary<CliSymbol, ValueResult> valueResults,
             List<CliToken> tokens,
 // TODO: unmatched tokens
 //          List<CliToken>? unmatchedTokens,
@@ -44,6 +47,7 @@ namespace System.CommandLine
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
+            valueResultDictionary = valueResults;
             // TODO: invocation
 /*
             _action = action;
@@ -68,7 +72,7 @@ namespace System.CommandLine
 
 // TODO: unmatched tokens
 //          _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
-            
+
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
@@ -98,11 +102,13 @@ namespace System.CommandLine
         public IReadOnlyList<ParseError> Errors { get; }
 
         // TODO: don't expose tokens
+        // TODO: This appears to be set, but only read during testing. Consider removing.
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
         /// </summary>
         internal IReadOnlyList<CliToken> Tokens { get; }
 
+        // TODO: This appears to be set, but never used. Consider removing.
         /// <summary>
         /// Holds the value of a complete command line input prior to splitting and tokenization, when provided.
         /// </summary>
@@ -158,6 +164,11 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
         */
+
+        public ValueResult? GetValueResult(CliSymbol symbol) 
+            => valueResultDictionary.TryGetValue(symbol, out var result) 
+                ? result 
+                : null;
 
         /// <summary>
         /// Gets the result, if any, for the specified argument.

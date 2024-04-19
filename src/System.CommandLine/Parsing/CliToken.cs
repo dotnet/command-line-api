@@ -15,11 +15,10 @@ namespace System.CommandLine.Parsing
         public static CliToken CreateFromOtherToken(CliToken otherToken, string? arg, Location location)
             => new(arg, otherToken.Type, otherToken.Symbol, location);
 
+        /*
         /// <param name="value">The string value of the token.</param>
         /// <param name="type">The type of the token.</param>
         /// <param name="symbol">The symbol represented by the token</param>
-        /// <param name="location">The location of the token</param>
-        /*
         public CliToken(string? value, CliTokenType type, CliSymbol symbol)
         {
             Value = value ?? "";
@@ -29,6 +28,10 @@ namespace System.CommandLine.Parsing
         }
         */
 
+        /// <param name="value">The string value of the token.</param>
+        /// <param name="type">The type of the token.</param>
+        /// <param name="symbol">The symbol represented by the token</param>
+        /// <param name="location">The location of the token in the args array or a response file</param>
         internal CliToken(string? value, CliTokenType type, CliSymbol? symbol, Location location)
         {
             Value = value ?? "";

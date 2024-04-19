@@ -50,7 +50,7 @@ namespace System.CommandLine.Parsing
             => Source == Implicit;
 
         public override string ToString()
-            => $"{(OuterLocation is null ? "" : OuterLocation.ToString() + "; ")}{Source} [{Start}, {Length}, {Offset}]";
+            => $"{(OuterLocation is null ? "" : OuterLocation.ToString() + "; ")}{Text} from {Source}[{Start}, {Length}, {Offset}]";
 
     }
 }

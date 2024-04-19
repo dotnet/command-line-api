@@ -8,8 +8,9 @@ public enum SubsystemKind
     Other = 0,
     Help,
     Version,
+    Value,
     ErrorReporting,
     Completion,
     Diagram,
-    Response,
+    Response
 }

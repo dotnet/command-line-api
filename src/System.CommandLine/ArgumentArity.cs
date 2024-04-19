@@ -58,11 +58,11 @@ namespace System.CommandLine
         /// </summary>
         public int MaximumNumberOfValues { get; }
 
-        internal bool IsNonDefault { get;  }
+        internal bool IsNonDefault { get; }
 
         /// <inheritdoc />
-        public bool Equals(ArgumentArity other) => 
-            other.MaximumNumberOfValues == MaximumNumberOfValues && 
+        public bool Equals(ArgumentArity other) =>
+            other.MaximumNumberOfValues == MaximumNumberOfValues &&
             other.MinimumNumberOfValues == MinimumNumberOfValues &&
             other.IsNonDefault == IsNonDefault;
 

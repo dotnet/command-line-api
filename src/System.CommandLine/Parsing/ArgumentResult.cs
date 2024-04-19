@@ -22,6 +22,24 @@ namespace System.CommandLine.Parsing
             Argument = argument ?? throw new ArgumentNullException(nameof(argument));
         }
 
+        private ValueResult? _valueResult;
+        public ValueResult ValueResult
+        {
+            get
+            {
+                if (_valueResult is null)
+                {
+                    // This is not lazy on the assumption that almost everything the user enters will be used, and ArgumentResult is no longer used for defaults
+                    // TODO: Make sure errors are added
+                    var conversionValue = GetArgumentConversionResult().Value;
+                    var locations = Tokens.Select(token => token.Location).ToArray();
+                    //TODO: Remove this wrapper later
+                    _valueResult = new ValueResult(Argument, conversionValue, locations, ArgumentResult.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
+                }
+                return _valueResult;
+            }
+        }
+
         /// <summary>
         /// The argument to which the result applies.
         /// </summary>
@@ -153,6 +171,9 @@ namespace System.CommandLine.Parsing
                 }
             }
 */
+
+            // TODO: defaults
+            /* 
             if (Parent!.UseDefaultValueFor(this))
             {
                 var defaultValue = Argument.GetDefaultValue(this);
@@ -160,6 +181,7 @@ namespace System.CommandLine.Parsing
                 // default value factory provided by the user might report an error, which sets _conversionResult
                 return _conversionResult ?? ArgumentConversionResult.Success(this, defaultValue);
             }
+            */
 
             if (Argument.ConvertArguments is null)
             {
@@ -193,7 +215,7 @@ namespace System.CommandLine.Parsing
                 ArgumentConversionResult.ArgumentConversionCannotParse(
                     this,
                     Argument.ValueType,
-                    Tokens.Count > 0 
+                    Tokens.Count > 0
                         ? Tokens[0].Value
                         : ""));
 
@@ -211,7 +233,15 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Since Option.Argument is an internal implementation detail, this ArgumentResult applies to the OptionResult in public API if the parent is an OptionResult.
         /// </summary>
-        private SymbolResult AppliesToPublicSymbolResult => 
+        private SymbolResult AppliesToPublicSymbolResult =>
             Parent is OptionResult optionResult ? optionResult : this;
+
+        internal static ValueResultOutcome GetValueResultOutcome(ArgumentConversionResultType? resultType)
+            => resultType switch
+            {
+                ArgumentConversionResultType.NoArgument => ValueResultOutcome.NoArgument,
+                ArgumentConversionResultType.Successful => ValueResultOutcome.Success,
+                _ => ValueResultOutcome.HasErrors
+            };
     }
 }

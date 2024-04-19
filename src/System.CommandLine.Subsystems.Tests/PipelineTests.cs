@@ -173,7 +173,6 @@ namespace System.CommandLine.Subsystems.Tests
             pipeline.Completion.Should().BeNull();
         }
 
-
         [Fact]
         public void Subsystems_can_access_each_others_data()
         {
