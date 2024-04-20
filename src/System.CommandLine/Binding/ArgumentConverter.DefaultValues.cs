@@ -14,7 +14,6 @@ internal static partial class ArgumentConverter
     private static ConstructorInfo? _listCtor;
 #endif
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]
     private static Array CreateArray(Type itemType, int capacity)
         => Array.CreateInstance(itemType, capacity);
 
