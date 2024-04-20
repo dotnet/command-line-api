@@ -20,9 +20,10 @@
     <!--
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
     -->
+    <Compile Include="ParseResultValueTests.cs" />
     <Compile Include="TokenizerTests.cs" />
     <Compile Include="ParserTests.cs" />
-    <Compile Include="Utility\**\*.cs" Exclude="Utility\ParseResultExtensions.cs"/>
+    <Compile Include="Utility\**\*.cs" Exclude="Utility\ParseResultExtensions.cs" />
   </ItemGroup>
   
   <ItemGroup>

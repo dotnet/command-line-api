@@ -13,10 +13,15 @@ public class ValueSubsystemTests
     [Fact]
     public void Value_is_always_activated()
     {
-        CliRootCommand rootCommand = [new CliCommand("x")];
+        CliRootCommand rootCommand = [
+            new CliCommand("x")
+            {
+                new CliOption<string>("--opt1")
+            }];
         var configuration = new CliConfiguration(rootCommand);
         var subsystem = new ValueSubsystem();
-        string[] args = ["x"];
+        var input = "x --opt1 Kirk";
+        var args = CliParser.SplitCommandLine(input).ToList();
 
         Subsystem.Initialize(subsystem, configuration, args);
         var parseResult = CliParser.Parse(rootCommand, args[0], configuration);
@@ -25,19 +30,28 @@ public class ValueSubsystemTests
         isActive.Should().BeTrue();
     }
 
-    [Theory]
-    [ClassData(typeof(TestData.Value))]
-    public void Diagram_is_activated_only_when_requested(string input, bool expectedIsActive)
+    [Fact]
+    public void ValueSubsystem_returns_values_that_are_entered()
     {
-        CliRootCommand rootCommand = [new CliCommand("x")];
+        CliRootCommand rootCommand = [
+            new CliCommand("x")
+            {
+                new CliOption<int>("--intValue"),
+                new CliOption<string>("--stringValue"),
+                new CliOption<bool>("--boolValue")
+            }];
         var configuration = new CliConfiguration(rootCommand);
-        var subsystem = new DiagramSubsystem();
-        var args = CliParser.SplitCommandLine(input).ToList().AsReadOnly();
+        var subsystem = new ValueSubsystem();
+        const int expected1 = 42;
+        const string expected2 = "43";
+        var input = $"x --intValue {expected1} --stringValue \"{expected2}\" --boolValue";
+        var args = CliParser.SplitCommandLine(input).ToList();
 
         Subsystem.Initialize(subsystem, configuration, args);
         var parseResult = CliParser.Parse(rootCommand, input, configuration);
-        var isActive = Subsystem.GetIsActivated(subsystem, parseResult);
 
-        isActive.Should().Be(expectedIsActive);
+        parseResult.GetValue<int>("--intValue").Should().Be(expected1);
+        parseResult.GetValue<string>("--stringValue").Should().Be(expected2);
+        parseResult.GetValue<bool>("--boolValue").Should().Be(true);
     }
 }

@@ -36,9 +36,21 @@ public class ValueResult
 
     public string? Error { get; }
 
-    public override string ToString()
-        => $"{nameof(ValueResult)} ({FormatOutcomeMessage()}) {ValueSymbol?.Name}";
+    public IEnumerable<string> TextForDisplay()
+    {
+        throw new NotImplementedException();
+    }
 
+    public IEnumerable<string> TextForCommandReconstruction()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override string ToString()
+        //=> $"{nameof(ValueResult)} ({FormatOutcomeMessage()}) {ValueSymbol?.Name}";
+        => $"{nameof(ArgumentResult)} {ValueSymbol.Name}: {string.Join(" ", TextForDisplay())}";
+
+ 
     // TODO: This definitely feels like the wrong place for this, (Some completion stuff was stripped out. This was a private method in ArgumentConversionResult
     private string FormatOutcomeMessage()
         => ValueSymbol switch

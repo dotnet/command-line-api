@@ -1256,12 +1256,12 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("-x -y")]
-        [InlineData("-x true -y")]
-        [InlineData("-x:true -y")]
-        [InlineData("-x=true -y")]
+        [InlineData("-x -y")] //
+        [InlineData("-x true -y")] //
+        [InlineData("-x:true -y")] //
+        [InlineData("-x=true -y")] //
         [InlineData("-x -y true")]
-        [InlineData("-x true -y true")]
+        [InlineData("-x true -y true")] //
         [InlineData("-x:true -y:true")]
         [InlineData("-x=true -y:true")]
         public void Boolean_options_are_not_greedy(string commandLine)
@@ -1872,6 +1872,28 @@ namespace System.CommandLine.Tests
             var result2 = commandResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
             result2.Locations.Single().Should().Be(expectedLocation2);
+        }
+
+        [Fact]
+        public void Locations_correct_for_collection()
+        {
+            var option1 = new CliOption<string[]>("--opt1");
+            option1.AllowMultipleArgumentsPerToken = true;
+            var rootCommand = new CliRootCommand
+                    {
+                        option1
+                    };
+            var expectedOuterLocation = new Location("testhost", Location.User, -1, null);
+            var expectedLocation1 = new Location("Kirk", Location.User, 2, expectedOuterLocation);
+            var expectedLocation2 = new Location("Spock", Location.User, 3, expectedOuterLocation);
+            var expectedLocation3 = new Location("Uhura", Location.User, 4, expectedOuterLocation);
+
+            var parseResult = CliParser.Parse(rootCommand, "subcommand --opt1 Kirk Spock Uhura");
+
+            var commandResult = parseResult.CommandResult;
+            parseResult.GetValue(option1);
+            var result1 = parseResult.GetValueResult(option1);
+            result1.Locations.Should().BeEquivalentTo([expectedLocation1, expectedLocation2, expectedLocation3]);
         }
 
         [Fact]

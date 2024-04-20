@@ -34,10 +34,17 @@ namespace System.CommandLine.Parsing
                 {
                     // This is not lazy on the assumption that almost everything the user enters will be used, and ArgumentResult is no longer used for defaults
                     // TODO: Make sure errors are added
-                    var conversionValue = ArgumentConversionResult.Value;
+                    var conversionResult = ArgumentConversionResult
+                            .ConvertIfNeeded(Option.Argument.ValueType);
+                    var conversionValue = conversionResult.Result switch
+                    {
+                        ArgumentConversionResultType.Successful => conversionResult.Value!,
+                        ArgumentConversionResultType.NoArgument => default!,
+                        _ => default // This is an error condition, and is handled below
+                    };
                     var locations = Tokens.Select(token => token.Location).ToArray();
                     //TODO: Remove this wrapper later
-                    _valueResult = new ValueResult(Option, conversionValue, locations, ArgumentResult.GetValueResultOutcome(ArgumentConversionResult?.Result)); // null is temporary here
+                    _valueResult = new ValueResult(Option, conversionValue, locations, ArgumentResult.GetValueResultOutcome(ArgumentConversionResult?.Result), conversionResult.ErrorMessage); 
                 }
                 return _valueResult;
             }
@@ -54,20 +61,20 @@ namespace System.CommandLine.Parsing
         /// <remarks>Implicit results commonly result from options having a default value.</remarks>
         public bool Implicit => IdentifierToken is null || IdentifierToken.Implicit;
 
-// TODO: make internal because exposes tokens
+        // TODO: make internal because exposes tokens
         /// <summary>
         /// The token that was parsed to specify the option.
         /// </summary>
         /// <remarks>An identifier token is a token that matches either the option's name or one of its aliases.</remarks>
         internal CliToken? IdentifierToken { get; }
 
-// TODO: do we even need IdentifierTokenCount
-/*
-        /// <summary>
-        /// The number of occurrences of an identifier token matching the option.
-        /// </summary>
-        public int IdentifierTokenCount { get; internal set; }
-*/
+        // TODO: do we even need IdentifierTokenCount
+        /*
+                /// <summary>
+                /// The number of occurrences of an identifier token matching the option.
+                /// </summary>
+                public int IdentifierTokenCount { get; internal set; }
+        */
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(OptionResult)}: {IdentifierToken?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";
 

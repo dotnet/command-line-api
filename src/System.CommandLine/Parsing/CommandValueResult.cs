@@ -7,5 +7,13 @@ namespace System.CommandLine.Parsing;
 
 public class CommandValueResult
 {
+    public CommandValueResult(CliCommand command, CommandValueResult parent)
+    {
+        Command = command;
+        Parent = parent;
+    }
     public IEnumerable<ValueResult> ValueResults { get; } = new List<ValueResult>();
+    public CliCommand Command { get; }
+    public CommandValueResult Parent { get; }
+
 }

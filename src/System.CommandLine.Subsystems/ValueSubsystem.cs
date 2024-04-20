@@ -12,19 +12,19 @@ public class ValueSubsystem : CliSubsystem
     // @mhutch: Is the TryGet on the sparse dictionaries how we should handle a case where the annotations will be sparse to support lazy? If so, should we have another method on
     // the annotation wrapper, or an alternative struct when there a TryGet makes sense? This API needs review, maybe next Tuesday.
     private PipelineContext? pipelineContext = null;
+    private Dictionary<CliSymbol, object?> cachedValues = new();
 
     public ValueSubsystem(IAnnotationProvider? annotationProvider = null)
         : base(ValueAnnotations.Prefix, SubsystemKind.Version, annotationProvider)
     { }
 
-    //TODO: ExplicitDefault might have a valid null value, and thus try pattern. DefaultCalculation is only null when not present. Consider whether to use the same pattern (try on DefaultCalculation, even though it is not needed)
-    internal void SetExplicitDefault(CliSymbol symbol, object? defaultValue)
-        => SetAnnotation(symbol, ValueAnnotations.ExplicitDefault, defaultValue);
-    internal object? GetExplicitDefault(CliSymbol symbol)
-      => TryGetAnnotation(symbol, ValueAnnotations.ExplicitDefault, out var defaultValue)
+    internal void SetDefaultValue(CliSymbol symbol, object? defaultValue)
+        => SetAnnotation(symbol, ValueAnnotations.DefaultValue, defaultValue);
+    internal object? GetDefaultValue(CliSymbol symbol)
+      => TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out var defaultValue)
                 ? defaultValue
                 : "";
-    internal bool TryGetExplicitDefault<T>(CliSymbol symbol, out T? defaultValue)
+    internal bool TryGetDefaultValue<T>(CliSymbol symbol, out T? defaultValue)
     {
         if (TryGetAnnotation(symbol, ValueAnnotations.Value, out var objectValue))
         {
@@ -34,17 +34,17 @@ public class ValueSubsystem : CliSubsystem
         defaultValue = default;
         return false;
     }
-    public AnnotationAccessor<object?> ExplicitDefault
-      => new(this, ValueAnnotations.ExplicitDefault);
+    public AnnotationAccessor<object?> DefaultValue
+      => new(this, ValueAnnotations.DefaultValue);
 
-    internal void SetDefaultCalculation(CliSymbol symbol, Func<object?> factory)
-        => SetAnnotation(symbol, ValueAnnotations.DefaultCalculation, factory);
-    internal Func<object?>? GetDefaultCalculation(CliSymbol symbol)
-        => TryGetAnnotation<Func<object?>?>(symbol, ValueAnnotations.DefaultCalculation, out var value)
+    internal void SetDefaultValueCalculation(CliSymbol symbol, Func<object?> factory)
+        => SetAnnotation(symbol, ValueAnnotations.DefaultValueCalculation, factory);
+    internal Func<object?>? GetDefaultValueCalculation(CliSymbol symbol)
+        => TryGetAnnotation<Func<object?>?>(symbol, ValueAnnotations.DefaultValueCalculation, out var value)
                     ? value
                     : null;
-    public AnnotationAccessor<Func<object?>?> DefaultCalculation
-      => new(this, ValueAnnotations.DefaultCalculation);
+    public AnnotationAccessor<Func<object?>?> DefaultValueCalculation
+      => new(this, ValueAnnotations.DefaultValueCalculation);
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)
          => true;
@@ -55,81 +55,47 @@ public class ValueSubsystem : CliSubsystem
         return CliExit.NotRun(pipelineContext.ParseResult);
     }
 
-    // TODO: Consider using a simple dictionary instead of the annotation (@mhutch) because with is not useful here
+
+    // TODO: Do it! Consider using a simple dictionary instead of the annotation (@mhutch) because with is not useful here
     private void SetValue<T>(CliSymbol symbol, object? value)
-        => SetAnnotation(symbol, ValueAnnotations.Value, value);
-    // TODO: Consider a way to disallow CliCommand here, as it creates a pit of failure.
+        => cachedValues.Add(symbol, value);
     private bool TryGetValue<T>(CliSymbol symbol, out T? value)
     {
-        if (TryGetAnnotation(symbol, ValueAnnotations.Value, out var objectValue))
+        if (cachedValues.TryGetValue(symbol, out var objectValue))
         {
-            value = (T)objectValue;
+            value = objectValue is null
+                ? default
+                :(T)objectValue;
             return true;
         }
         value = default;
         return false;
     }
-    // TODO: Is fluent style meaningful for Value?
-    //public AnnotationAccessor<object?> Value
-    //  => new(this, ValueAnnotations.Value);
 
     public T? GetValue<T>(CliOption option)
         => GetValueInternal<T>(option);
     public T? GetValue<T>(CliArgument argument)
     => GetValueInternal<T>(argument);
 
-    // TODO: @mhutch: I find this more readable than the if conditional version below. There will be at least two more blocks. Look good?
-    private T? GetValueInternal<T>(CliSymbol symbol)
+    private T? GetValueInternal<T>(CliSymbol? symbol)
         => symbol switch
         {
-            { } when TryGetValue<T>(symbol, out var value)
+            not null when TryGetValue<T>(symbol, out var value)
                 => value, // It has already been retrieved at least once
-            { } when pipelineContext?.ParseResult?.GetValueResult(symbol) is ValueResult valueResult
+            CliArgument  argument when pipelineContext?.ParseResult?.GetValueResult(argument) is ValueResult valueResult  // GetValue would always return a value
+                => UseValue(symbol, valueResult.GetValue<T>()), // Value was supplied during parsing, 
+            CliOption option when pipelineContext?.ParseResult?.GetValueResult(option) is ValueResult valueResult  // GetValue would always return a value
                 => UseValue(symbol, valueResult.GetValue<T>()), // Value was supplied during parsing
             // Value was not supplied during parsing, determine default now
-            { } when GetDefaultCalculation(symbol) is { } defaultValueCalculation
+            not null when DefaultValueCalculation.TryGet(symbol, out var  defaultValueCalculation)
                 => UseValue(symbol, CalculatedDefault<T>(symbol, defaultValueCalculation)),
-            { } when TryGetExplicitDefault<T>(symbol, out var explicitValue) 
+            not null when TryGetDefaultValue<T>(symbol, out var explicitValue) 
                 => UseValue(symbol, explicitValue),
+            //not null when GetDefaultFromEnvironmentVariable<T>(symbol, out var envName)
+            //    => UseValue(symbol, GetEnvByName(envName)),
             null => throw new ArgumentNullException(nameof(symbol)),
             _ => UseValue(symbol, default(T))
         };
-
-    //// The following is temporarily included for showing why the above weird code is cleaner
-    //public T? GetValue2<T>(CliSymbol symbol)
-    //{
-    //    if (TryGetValue<T>(symbol, out var value))
-    //    {
-    //        // It has already been retrieved at least once
-    //        return value;
-    //    }
-    //    if (pipelineContext?.ParseResult?.GetValueResult(symbol) is ValueResult valueResult)
-    //    {
-    //        // Value was supplied during parsing
-    //        return UseValue(symbol, valueResult.GetValue<T>());
-    //    }
-    //    // Value was not supplied during parsing, determine default now
-    //    if (GetDefaultCalculation(symbol) is { } defaultValueCalculation)
-    //    {
-    //        return UseValue(symbol, CalculatedDefault(symbol, defaultValueCalculation));
-    //    }
-    //    if (TryGetExplicitDefault<T>(symbol, out var explicitValue))
-    //    {
-    //        return UseValue(symbol, value);
-    //    }
-    //    value = default;
-    //    SetValue<T>(symbol, value);
-    //    return value;
-
-    //    static T? CalculatedDefault(CliSymbol symbol, Func<object?> defaultValueCalculation)
-    //    {
-    //        var objectValue = defaultValueCalculation();
-    //        var value = objectValue is null
-    //            ? default
-    //            : (T)objectValue;
-    //        return value;
-    //    }
-    //}
 
     private static T? CalculatedDefault<T>(CliSymbol symbol, Func<object?> defaultValueCalculation)
     {

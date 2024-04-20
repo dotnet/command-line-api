@@ -15,6 +15,7 @@ namespace System.CommandLine
     public sealed class ParseResult
     {
         private readonly IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary = new Dictionary<CliSymbol, ValueResult>();
+        private Dictionary<string, CliSymbol> symbolByName = null;
 
         private readonly CommandResult _rootCommandResult;
 // TODO: unmatched tokens, invocation, completion
@@ -57,6 +58,7 @@ namespace System.CommandLine
 */
             /*
             // skip the root command when populating Tokens property
+            /*
             if (tokens.Count > 1)
             {
                 // Since TokenizeResult.Tokens is not public and not used anywhere after the parsing,
@@ -77,6 +79,51 @@ namespace System.CommandLine
 //          _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
 
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
+        }
+
+        private Dictionary<string, CliSymbol> PopulateSymbolByName()
+        {
+            var commands = GetSelfAndAncestors(CommandResult);
+            var ret = new Dictionary<string, CliSymbol> { };
+
+            foreach (var command in commands)
+            {
+                if (command.HasOptions)
+                {
+                    foreach (var option in command.Options)
+                    {
+                        ret[option.Name] = option;
+                    }
+                }
+                if (command.HasArguments)
+                {
+                    foreach (var argument in command.Arguments)
+                    {
+                        ret[argument.Name] = argument;
+                    }
+                }
+            }
+            return ret;
+
+            static IEnumerable<CliCommand> GetSelfAndAncestors(CommandResult commandResult)
+            {
+                var ret = new List<CliCommand> { commandResult.Command };
+                while (commandResult.Parent is CommandResult parent)
+                {
+                    commandResult = parent;
+                    ret.Add(parent.Command);
+                }
+                ret.Reverse();
+                return ret;
+            }
+        }
+
+        public CliSymbol GetSymbolByName(string name)
+        {
+            symbolByName ??= PopulateSymbolByName();
+            return symbolByName.TryGetValue(name, out var symbol)
+                        ? symbol
+                        : throw new ArgumentException($"No symbol result found with name \"{name}\".");
         }
 
 // TODO: check that constructing empty ParseResult directly is correct
@@ -143,7 +190,7 @@ namespace System.CommandLine
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
         public T? GetValue<T>(CliArgument<T> argument)
-            => RootCommandResult.GetValue(argument);
+            => GetValueInternal<T>(argument);
 
         /// <summary>
         /// Gets the parsed or default value for the specified option.
@@ -151,7 +198,12 @@ namespace System.CommandLine
         /// <param name="option">The option for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
         public T? GetValue<T>(CliOption<T> option)
-            => RootCommandResult.GetValue(option);
+            => GetValueInternal<T>(option);
+
+        private T? GetValueInternal<T>(CliSymbol symbol)
+            => valueResultDictionary.TryGetValue(symbol, out var result)
+                ? (T?)result.Value
+                : default;
 
         /// <summary>
         /// Gets the parsed or default value for the specified symbol name, in the context of parsed command (not entire symbol tree).
@@ -170,9 +222,13 @@ namespace System.CommandLine
         public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
         */
 
-        public ValueResult? GetValueResult(CliSymbol symbol) 
-            => valueResultDictionary.TryGetValue(symbol, out var result) 
-                ? result 
+        public ValueResult? GetValueResult(CliOption option)
+            => GetValueResultInternal(option);
+        public ValueResult? GetValueResult(CliArgument argument)
+            => GetValueResultInternal(argument);
+        private ValueResult? GetValueResultInternal(CliSymbol symbol)
+            => valueResultDictionary.TryGetValue(symbol, out var result)
+                ? result
                 : null;
 
         /// <summary>
