@@ -497,6 +497,8 @@ namespace System.CommandLine.Tests
                             .Excluding(y => y.WhichGetterHas(CSharpAccessModifier.PrivateProtected)));
         }
 
+        // TODO: Tests tokens which is no longer exposed, and should be replaced by tests of location or removed
+        /*
         [Theory]
         [InlineData("--one 1 --many 1 --many 2")]
         [InlineData("--one 1 --many 1 --many 2 arg1 arg2")]
@@ -520,6 +522,7 @@ namespace System.CommandLine.Tests
 
             result.Tokens.Select(t => t.Value).Should().Equal(rawSplit);
         }
+        */
 
         /*
         [Fact]
@@ -1114,6 +1117,8 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo(new[] { arg2 });
         }
 
+        // TODO: Tests tokens which is no longer exposed, and should be replaced by tests of location or removed
+        /*
         [Fact] // https://github.com/dotnet/command-line-api/issues/1445
         public void Trailing_option_delimiters_are_ignored()
         {
@@ -1136,6 +1141,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentSequenceTo(new[] { "subcommand", "--directory", @"c:\" });
         }
+        */
 
         [Theory]
         [InlineData("-x -y")]
@@ -1620,6 +1626,8 @@ namespace System.CommandLine.Tests
                 .Contain(LocalizationResources.UnrecognizedCommandOrArgument("4"));
         }
 
+        // TODO: Tests tokens which is no longer exposed, and should be replaced with equivalent test using ParseResult
+        /*
         [Fact]
         public void Tokens_are_not_split_if_the_part_before_the_delimiter_is_not_an_option()
         {
@@ -1633,6 +1641,7 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo("url",
                                 "jdbc:sqlserver://10.0.0.2;databaseName=main");
         }
+        */
         /*
         [Fact]
         public void A_subcommand_wont_overflow_when_checking_maximum_argument_capacity()

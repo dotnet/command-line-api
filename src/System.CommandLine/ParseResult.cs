@@ -31,7 +31,9 @@ namespace System.CommandLine
             CommandResult rootCommandResult,
             CommandResult commandResult,
             Dictionary<CliSymbol, ValueResult> valueResults,
+            /*
             List<CliToken> tokens,
+            */
 // TODO: unmatched tokens
 //          List<CliToken>? unmatchedTokens,
             List<ParseError>? errors,
@@ -53,7 +55,7 @@ namespace System.CommandLine
             _action = action;
             _preActions = preActions;
 */
-
+            /*
             // skip the root command when populating Tokens property
             if (tokens.Count > 1)
             {
@@ -67,6 +69,7 @@ namespace System.CommandLine
             {
                 Tokens = Array.Empty<CliToken>();
             }
+            */
 
             CommandLineText = commandLineText;
 
@@ -101,12 +104,14 @@ namespace System.CommandLine
         /// </summary>
         public IReadOnlyList<ParseError> Errors { get; }
 
+        /*
         // TODO: don't expose tokens
         // TODO: This appears to be set, but only read during testing. Consider removing.
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
         /// </summary>
         internal IReadOnlyList<CliToken> Tokens { get; }
+        */
 
         // TODO: This appears to be set, but never used. Consider removing.
         /// <summary>

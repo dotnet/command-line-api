@@ -86,7 +86,9 @@ namespace System.CommandLine.Parsing
                 _rootCommandResult,
                 _innermostCommandResult,
                 _rootCommandResult.SymbolResultTree.GetValueResultDictionary(),
+                /*
                 _tokens,
+                */
 // TODO: unmatched tokens
 //                _symbolResultTree.UnmatchedTokens,
                 _symbolResultTree.Errors,
