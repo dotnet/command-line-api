@@ -49,10 +49,9 @@ public class ErrorReportingSubsystemTests
     }
 
     [Theory]
-    [InlineData("-v", false)]
-    [InlineData("-x", true)]
-    [InlineData("", false)]
-    public void GetIsActivated_tests(string input, bool result)
+    [InlineData("-x")]
+    [InlineData("-non_existant_option")]
+    public void GetIsActivated_GivenInvalidInput_SubsystemIsActive(string input)
     {
         var rootCommand = new CliRootCommand {new CliOption<bool>("-v")};
         var configuration = new CliConfiguration(rootCommand);
@@ -63,6 +62,23 @@ public class ErrorReportingSubsystemTests
         var parseResult = CliParser.Parse(rootCommand, input, configuration);
         var isActive = Subsystem.GetIsActivated(errorSubsystem, parseResult);
 
-        isActive.Should().Be(result);
+        isActive.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("-v")]
+    [InlineData("")]
+    public void GetIsActivated_GivenValidInput_SubsystemShouldNotBeActive(string input)
+    {
+        var rootCommand = new CliRootCommand { new CliOption<bool>("-v") };
+        var configuration = new CliConfiguration(rootCommand);
+        var errorSubsystem = new ErrorReportingSubsystem();
+        IReadOnlyList<string> args = [""];
+        Subsystem.Initialize(errorSubsystem, configuration, args);
+
+        var parseResult = CliParser.Parse(rootCommand, input, configuration);
+        var isActive = Subsystem.GetIsActivated(errorSubsystem, parseResult);
+
+        isActive.Should().BeFalse();
     }
 }
