@@ -47,6 +47,23 @@ namespace System.CommandLine.Tests
                   .Be("[ command ![ -x <ar> ] ]");
         }
 
+        // https://github.com/dotnet/command-line-api/issues/2392
+        [Fact]
+        public void Parse_diagram_with_option_argument_error_only_one_error_is_returned()
+        {
+            var command = new CliCommand("the-command")
+            {
+                new CliOption<int[]>("-x") { Arity = new ArgumentArity(2, 3)}
+            };
+
+            ParseResult parseResult = command.Parse("-x 1 -x 2 -x 3 -x 4");
+            _ = parseResult.Diagram();
+
+            parseResult.Errors
+                       .Should()
+                       .ContainSingle();
+        }
+
         [Fact]
         public void Parse_diagram_shows_type_conversion_errors()
         {
