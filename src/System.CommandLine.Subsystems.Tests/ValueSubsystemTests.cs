@@ -30,7 +30,7 @@ public class ValueSubsystemTests
         isActive.Should().BeTrue();
     }
 
-    [Fact(Skip ="WIP")]
+    [Fact(Skip = "WIP")]
     public void ValueSubsystem_returns_values_that_are_entered()
     {
         var consoleHack = new ConsoleHack().RedirectToBuffer(true);

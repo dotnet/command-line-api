@@ -97,6 +97,7 @@ namespace System.CommandLine.Parsing
         /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
         public DirectiveResult? GetResult(CliDirective directive) => SymbolResultTree.GetResult(directive);
 */
+        /* No longer used
         /// <summary>
         /// Finds a result for a symbol having the specified name anywhere in the parse tree.
         /// </summary>
@@ -105,7 +106,6 @@ namespace System.CommandLine.Parsing
         public SymbolResult? GetResult(string name) => 
             SymbolResultTree.GetResult(name);
 
-        /* Not used
         /// <inheritdoc cref="ParseResult.GetValue{T}(CliArgument{T})"/>
         public T? GetValue<T>(CliArgument<T> argument)
         {
@@ -129,7 +129,6 @@ namespace System.CommandLine.Parsing
 
             return CliArgument<T>.CreateDefaultValue();
         }
-        */
 
         /// <summary>
         /// Gets the value for a symbol having the specified name anywhere in the parse tree.
@@ -155,6 +154,7 @@ namespace System.CommandLine.Parsing
 
             return CliArgument<T>.CreateDefaultValue();
         }
+        */
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;
     }

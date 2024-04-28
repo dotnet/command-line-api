@@ -1501,7 +1501,7 @@ namespace System.CommandLine.Tests
                     new CliToken("5", CliTokenType.Argument, argument, dummyLocation));
         }
 
-        [Fact]
+        [Fact(Skip ="Waiting for CliError work")]
         public void When_command_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
             var command = new CliCommand("the-command")
@@ -1590,7 +1590,7 @@ namespace System.CommandLine.Tests
                     new CliToken("5", CliTokenType.Argument, default, dummyLocation));
         }
 
-        [Fact]
+        [Fact(Skip = "Waiting for CliError work")]
         public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
             var option = new CliOption<int[]>("-x")

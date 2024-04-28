@@ -75,6 +75,7 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the options for the command, inherited options that have been applied to any of the command's ancestors.
         /// </summary>
+        // TODO: Consider value of lazy here. It sets up a desire to use awkward approach (HasOptions) for a perf win. Applies to Options and Subcommands also.
         public IList<CliOption> Options => _options ??= new (this);
 
         internal bool HasOptions => _options?.Count > 0;
