@@ -18,13 +18,13 @@ public class ValueSubsystem : CliSubsystem
         : base(ValueAnnotations.Prefix, SubsystemKind.Version, annotationProvider)
     { }
 
-    internal void SetDefaultValue(CliSymbol symbol, object? defaultValue)
-        => SetAnnotation(symbol, ValueAnnotations.DefaultValue, defaultValue);
-    internal object? GetDefaultValue(CliSymbol symbol)
-      => TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out var defaultValue)
-                ? defaultValue
-                : "";
-    internal bool TryGetDefaultValue<T>(CliSymbol symbol, out T? defaultValue)
+    //internal void SetDefaultValue(CliSymbol symbol, object? defaultValue)
+    //    => SetAnnotation(symbol, ValueAnnotations.DefaultValue, defaultValue);
+    //internal object? GetDefaultValue(CliSymbol symbol)
+    //  => TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out var defaultValue)
+    //            ? defaultValue
+    //            : "";
+    private bool TryGetDefaultValue<T>(CliSymbol symbol, out T? defaultValue)
     {
         if (TryGetAnnotation(symbol, ValueAnnotations.Value, out var objectValue))
         {

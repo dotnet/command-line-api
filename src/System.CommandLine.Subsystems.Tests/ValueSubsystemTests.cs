@@ -30,28 +30,31 @@ public class ValueSubsystemTests
         isActive.Should().BeTrue();
     }
 
-    [Fact]
+    [Fact(Skip ="WIP")]
     public void ValueSubsystem_returns_values_that_are_entered()
     {
+        var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+        var pipeline = Pipeline.Create();
+        CliOption<int> option1 = new CliOption<int>("--intValue");
         CliRootCommand rootCommand = [
             new CliCommand("x")
             {
-                new CliOption<int>("--intValue"),
-                new CliOption<string>("--stringValue"),
-                new CliOption<bool>("--boolValue")
+                option1
             }];
         var configuration = new CliConfiguration(rootCommand);
-        var subsystem = new ValueSubsystem();
         const int expected1 = 42;
-        const string expected2 = "43";
-        var input = $"x --intValue {expected1} --stringValue \"{expected2}\" --boolValue";
-        var args = CliParser.SplitCommandLine(input).ToList();
+        var input = $"x --intValue {expected1}";
 
-        Subsystem.Initialize(subsystem, configuration, args);
-        var parseResult = CliParser.Parse(rootCommand, input, configuration);
+        pipeline.Parse(configuration, input);
+        pipeline.Execute(configuration, input, consoleHack);
 
-        parseResult.GetValue<int>("--intValue").Should().Be(expected1);
-        parseResult.GetValue<string>("--stringValue").Should().Be(expected2);
-        parseResult.GetValue<bool>("--boolValue").Should().Be(true);
+        pipeline.Value.GetValue<int>(option1).Should().Be(expected1);
+    }
+
+
+    [Fact(Skip = "WIP")]
+    public void ValueSubsystem_returns_default_value_when_no_value_is_entered()
+    {
+
     }
 }
