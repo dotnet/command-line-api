@@ -10,7 +10,12 @@ namespace System.CommandLine.Subsystems.Tests
     public class PipelineTests
     {
         private static Pipeline GetTestPipeline(VersionSubsystem versionSubsystem)
-        => Pipeline.Create(version: versionSubsystem);
+        {
+            var pipeline = Pipeline.CreateEmpty();
+            pipeline.Version = versionSubsystem;
+            return pipeline;
+        }
+
         private static CliConfiguration GetNewTestConfiguration()
         => new(new CliRootCommand { new CliOption<bool>("-x") }); // Add option expected by test data
 

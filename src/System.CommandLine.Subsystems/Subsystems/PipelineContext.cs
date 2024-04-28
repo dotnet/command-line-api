@@ -7,7 +7,7 @@ public class PipelineContext(ParseResult? parseResult, string rawInput, Pipeline
 {
     public ParseResult? ParseResult { get; } = parseResult;
     public string RawInput { get; } = rawInput;
-    public Pipeline Pipeline { get; } = pipeline ?? Pipeline.Create();
+    public Pipeline Pipeline { get; } = pipeline ?? Pipeline.CreateEmpty();
     public ConsoleHack ConsoleHack { get; } = consoleHack ?? new ConsoleHack();
 
     public bool AlreadyHandled { get; set; }

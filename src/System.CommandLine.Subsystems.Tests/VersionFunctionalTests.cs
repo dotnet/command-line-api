@@ -19,7 +19,7 @@ namespace System.CommandLine.Subsystems.Tests
         public void When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
             var configuration = new CliConfiguration(new CliRootCommand());
-            var pipeline = Pipeline.Create();
+            var pipeline = Pipeline.CreateEmpty();
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             pipeline.Version = new VersionSubsystem();
 

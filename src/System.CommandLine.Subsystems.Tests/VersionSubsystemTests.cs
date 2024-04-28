@@ -17,7 +17,8 @@ namespace System.CommandLine.Subsystems.Tests
                 new CliOption<bool>("-x") // add option that is expected for the test data used here
             };
             var configuration = new CliConfiguration(rootCommand);
-            var pipeline = Pipeline.Create(version: new VersionSubsystem());
+            var pipeline = Pipeline.CreateEmpty();
+            pipeline.Version = new VersionSubsystem();
 
             // Parse is used because directly calling Initialize would be unusual
             var result = pipeline.Parse(configuration, "");
@@ -95,7 +96,8 @@ namespace System.CommandLine.Subsystems.Tests
         public void Custom_version_subsystem_can_be_used()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var pipeline = Pipeline.Create(version: new AlternateSubsystems.AlternateVersion());
+            var pipeline = Pipeline.CreateEmpty();
+            pipeline.Version = new AlternateSubsystems.AlternateVersion();
 
             pipeline.Execute(new CliConfiguration(new CliRootCommand()), "-v", consoleHack);
             consoleHack.GetBuffer().Trim().Should().Be($"***{Constants.version}***");
@@ -105,7 +107,8 @@ namespace System.CommandLine.Subsystems.Tests
         public void Custom_version_subsystem_can_replace_standard()
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-            var pipeline = Pipeline.Create(version: new AlternateSubsystems.AlternateVersion());
+            var pipeline = Pipeline.CreateEmpty();
+            pipeline.Version = new AlternateSubsystems.AlternateVersion();
 
             pipeline.Execute(new CliConfiguration(new CliRootCommand()), "-v", consoleHack);
             consoleHack.GetBuffer().Trim().Should().Be($"***{Constants.version}***");
