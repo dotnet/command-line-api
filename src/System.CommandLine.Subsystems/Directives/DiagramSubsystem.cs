@@ -57,6 +57,7 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
         return builder;
     }
 
+    /*
     private static void Diagram(
         StringBuilder builder,
         SymbolResult symbolResult,
@@ -66,7 +67,7 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
         {
             builder.Append('!');
         }
-
+    */
 // TODO: Directives
 /*
         switch (symbolResult)
@@ -176,6 +177,6 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
                 }
             }
         }
-*/
     }
+*/
 }
