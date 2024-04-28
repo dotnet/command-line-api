@@ -36,3 +36,21 @@ public struct AnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<TValue
     /// <returns>True if the value was found, false otherwise.</returns>
     public readonly bool TryGet(CliSymbol symbol, [NotNullWhen(true)] out TValue? value) => owner.TryGetAnnotation(symbol, Id, out value);
 }
+
+/// <summary>
+/// Allows associating an annotation with a <see cref="CliSymbol"/>. The annotation will be stored by the accessor's owner <see cref="CliSubsystem"/>.
+/// </summary>
+public struct ValueAnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<TValue> id)
+{
+    /// <summary>
+    /// The ID of the annotation
+    /// </summary>
+    public AnnotationId<TValue> Id { get; }
+    public readonly void Set<TSymbolValue>(CliOption<TSymbolValue> symbol, TSymbolValue value)
+        where TSymbolValue : TValue
+        => owner.SetAnnotation(symbol, id, value);
+    public readonly void Set<TSymbolValue>(CliArgument<TSymbolValue> symbol, TSymbolValue value)
+        where TSymbolValue : TValue
+        => owner.SetAnnotation(symbol, id, value); 
+    public readonly bool TryGet(CliSymbol symbol, [NotNullWhen(true)] out TValue? value) => owner.TryGetAnnotation(symbol, id, out value);
+}
