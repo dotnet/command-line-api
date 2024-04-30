@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Directives;
-using System.CommandLine.Subsystems;
-using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine.Subsystems.Tests
 {
@@ -33,7 +31,7 @@ namespace System.CommandLine.Subsystems.Tests
             protected override CliExit Execute(PipelineContext pipelineContext)
             {
                 var help = pipelineContext.Pipeline.Help ?? throw new InvalidOperationException("Help cannot be null for this subsystem to work");
-                var data = help.GetDescription(Symbol);
+                string data = help.Description.Get(Symbol);
 
                 pipelineContext.ConsoleHack.WriteLine(data);
                 pipelineContext.AlreadyHandled = true;
@@ -68,11 +66,11 @@ namespace System.CommandLine.Subsystems.Tests
         }
 
         internal class StringDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
-           : DirectiveSubsystem("other",SubsystemKind.Diagram, annotationProvider)
+           : DirectiveSubsystem("other", SubsystemKind.Diagram, annotationProvider)
         { }
 
         internal class BooleanDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
-           : DirectiveSubsystem("diagram", SubsystemKind.Diagram,  annotationProvider)
+           : DirectiveSubsystem("diagram", SubsystemKind.Diagram, annotationProvider)
         { }
 
     }
