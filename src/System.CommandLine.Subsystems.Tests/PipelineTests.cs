@@ -10,10 +10,12 @@ namespace System.CommandLine.Subsystems.Tests
     public class PipelineTests
     {
         private static Pipeline GetTestPipeline(VersionSubsystem versionSubsystem)
-            => new()
-            {
-                Version = versionSubsystem
-            };
+        {
+            var pipeline = Pipeline.CreateEmpty();
+            pipeline.Version = versionSubsystem;
+            return pipeline;
+        }
+
         private static CliConfiguration GetNewTestConfiguration()
         => new(new CliRootCommand { new CliOption<bool>("-x") }); // Add option expected by test data
 
@@ -156,7 +158,7 @@ namespace System.CommandLine.Subsystems.Tests
         [Fact]
         public void Standard_pipeline_contains_expected_subsystems()
         {
-            var pipeline = new StandardPipeline();
+            var pipeline = Pipeline.Create();
             pipeline.Version.Should().BeOfType<VersionSubsystem>();
             pipeline.Help.Should().BeOfType<HelpSubsystem>();
             pipeline.ErrorReporting.Should().BeOfType<ErrorReportingSubsystem>();
@@ -166,7 +168,7 @@ namespace System.CommandLine.Subsystems.Tests
         [Fact]
         public void Normal_pipeline_contains_no_subsystems()
         {
-            var pipeline = new Pipeline();
+            var pipeline = Pipeline.CreateEmpty();;
             pipeline.Version.Should().BeNull();
             pipeline.Help.Should().BeNull();
             pipeline.ErrorReporting.Should().BeNull();
@@ -179,10 +181,8 @@ namespace System.CommandLine.Subsystems.Tests
             // TODO: Explore a mechanism that doesn't require the reference to retrieve data, this shows that it is awkward
             var symbol = new CliOption<bool>("-x");
             var console = GetNewTestConsole();
-            var pipeline = new StandardPipeline
-            {
-                Version = new AlternateSubsystems.VersionThatUsesHelpData(symbol)
-            };
+            var pipeline = Pipeline.Create(version : new AlternateSubsystems.VersionThatUsesHelpData(symbol));
+
             if (pipeline.Help is null) throw new InvalidOperationException();
             var rootCommand = new CliRootCommand
             {

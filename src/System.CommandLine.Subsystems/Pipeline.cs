@@ -9,11 +9,33 @@ namespace System.CommandLine;
 
 public class Pipeline
 {
+    public static Pipeline Create(HelpSubsystem? help = null,
+                                  VersionSubsystem? version = null,
+                                  CompletionSubsystem? completion = null,
+                                  DiagramSubsystem? diagram = null,
+                                  ErrorReportingSubsystem? errorReporting = null,
+                                  ValueSubsystem? value = null)
+        => new()
+        {
+            Help = help ?? new HelpSubsystem(),
+            Version = version ?? new VersionSubsystem(),
+            Completion = completion ?? new CompletionSubsystem(),
+            Diagram = diagram ?? new DiagramSubsystem(),
+            ErrorReporting = errorReporting ?? new ErrorReportingSubsystem(),
+            Value = value ?? new ValueSubsystem()
+        };
+
+    public static Pipeline CreateEmpty() 
+        => new();
+
+    private Pipeline() { }
+
     public HelpSubsystem? Help { get; set; }
     public VersionSubsystem? Version { get; set; }
     public CompletionSubsystem? Completion { get; set; }
     public DiagramSubsystem? Diagram { get; set; }
     public ErrorReportingSubsystem? ErrorReporting { get; set; }
+    public ValueSubsystem? Value { get; set; }
 
     public ParseResult Parse(CliConfiguration configuration, string rawInput)
         => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
