@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
@@ -9,6 +9,7 @@ namespace System.CommandLine.Parsing;
  * Pattern based on: 
  * https://github.com/mhutch/MonoDevelop.MSBuildEditor/blob/main/MonoDevelop.MSBuild/Analysis/MSBuildDiagnostic.cs
  * https://github.com/mhutch/MonoDevelop.MSBuildEditor/blob/main/MonoDevelop.MSBuild/Analysis/MSBuildDiagnosticDescriptor.cs
+ * https://github.com/dotnet/roslyn/blob/main/src/Compilers/Core/Portable/Diagnostic/DiagnosticDescriptor.cs
  */
 internal static class ParseDiagnostics
 {
@@ -54,7 +55,6 @@ public enum CliDiagnosticSeverity
 /// </summary>
 public sealed class CliDiagnostic
 {
-    // TODO: add position
     // TODO: reevaluate whether we should be exposing a SymbolResult here
     // TODO: Rename to CliError
 
