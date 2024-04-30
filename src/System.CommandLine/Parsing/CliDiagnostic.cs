@@ -10,6 +10,7 @@ namespace System.CommandLine.Parsing;
  * https://github.com/mhutch/MonoDevelop.MSBuildEditor/blob/main/MonoDevelop.MSBuild/Analysis/MSBuildDiagnostic.cs
  * https://github.com/mhutch/MonoDevelop.MSBuildEditor/blob/main/MonoDevelop.MSBuild/Analysis/MSBuildDiagnosticDescriptor.cs
  * https://github.com/dotnet/roslyn/blob/main/src/Compilers/Core/Portable/Diagnostic/DiagnosticDescriptor.cs
+ * https://github.com/dotnet/roslyn/blob/main/src/Compilers/Core/Portable/Diagnostic/Diagnostic.cs
  */
 internal static class ParseDiagnostics
 {
