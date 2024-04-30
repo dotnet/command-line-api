@@ -151,26 +151,26 @@ namespace System.CommandLine.Parsing
             {
                 return ReportErrorIfNeeded(arityFailure);
             }
-            // TODO: validators
-            /*
-                        // There is nothing that stops user-defined Validator from calling ArgumentResult.GetValueOrDefault.
-                        // In such cases, we can't call the validators again, as it would create infinite recursion.
-                        // GetArgumentConversionResult => ValidateAndConvert => Validator
-                        //        => GetValueOrDefault => ValidateAndConvert (again)
-                        if (useValidators && Argument.HasValidators)
-                        {
-                            for (var i = 0; i < Argument.Validators.Count; i++)
-                            {
-                                Argument.Validators[i](this);
-                            }
+// TODO: validators
+/*
+            // There is nothing that stops user-defined Validator from calling ArgumentResult.GetValueOrDefault.
+            // In such cases, we can't call the validators again, as it would create infinite recursion.
+            // GetArgumentConversionResult => ValidateAndConvert => Validator
+            //        => GetValueOrDefault => ValidateAndConvert (again)
+            if (useValidators && Argument.HasValidators)
+            {
+                for (var i = 0; i < Argument.Validators.Count; i++)
+                {
+                    Argument.Validators[i](this);
+                }
 
-                            // validator provided by the user might report an error, which sets _conversionResult
-                            if (_conversionResult is not null)
-                            {
-                                return _conversionResult;
-                            }
-                        }
-            */
+                // validator provided by the user might report an error, which sets _conversionResult
+                if (_conversionResult is not null)
+                {
+                    return _conversionResult;
+                }
+            }
+*/
             if (Parent!.UseDefaultValueFor(this))
             {
                 var defaultValue = Argument.GetDefaultValue(this);
