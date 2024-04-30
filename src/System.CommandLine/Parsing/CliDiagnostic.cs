@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation and contributors. All rights reserved.
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
@@ -68,24 +68,37 @@ public sealed class CliDiagnostic
     /// <param name="location">The location of the error.</param>
     public CliDiagnostic(
         CliDiagnosticDescriptor descriptor,
-        string[] messageArgs,
+        object?[]? messageArgs,
         ImmutableDictionary<string, object>? properties = null,
         SymbolResult? symbolResult = null,
         Location? location = null)
     {
-        //if (string.IsNullOrWhiteSpace(message))
-        //{
-        //    throw new ArgumentException("Value cannot be null or whitespace.", nameof(message));
-        //}
-
-        Message = string.Format(descriptor.MessageFormat, messageArgs);
+        Descriptor = descriptor;
+        MessageArgs = messageArgs;
+        Properties = properties;
         SymbolResult = symbolResult;
     }
 
     /// <summary>
     /// Gets a message to explain the error to a user.
     /// </summary>
-    public string Message { get; }
+    public string Message
+    {
+        get
+        {
+            if (MessageArgs is not null)
+            {
+                return string.Format(Descriptor.MessageFormat, MessageArgs);
+            }
+            return Descriptor.MessageFormat;
+        }
+    }
+
+    public ImmutableDictionary<string, object>? Properties { get; }
+
+    public CliDiagnosticDescriptor Descriptor { get; }
+
+    public object?[]? MessageArgs { get; }
 
     /// <summary>
     /// Gets the symbol result detailing the symbol that failed to parse and the tokens involved.
