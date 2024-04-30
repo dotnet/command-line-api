@@ -78,7 +78,7 @@ namespace System.CommandLine.Parsing
             var maxSkippedPositions = configuration.PreProcessedLocations is null
                                     || !configuration.PreProcessedLocations.Any()
                                         ? 0
-                                        : configuration.PreProcessedLocations.Max(x => x.Start);
+                                        : configuration.PreProcessedLocations.Max(x => x.Index);
 
 
             var validTokens = GetValidTokens(rootCommand);
@@ -111,7 +111,7 @@ namespace System.CommandLine.Parsing
 
                     if (i <= maxSkippedPositions
                         && configuration.PreProcessedLocations is not null
-                        && configuration.PreProcessedLocations.Any(x => x.Start == i))
+                        && configuration.PreProcessedLocations.Any(x => x.Index == i))
                     {
                         continue;
                     }
@@ -229,7 +229,7 @@ namespace System.CommandLine.Parsing
                             {
                                 string value = alias.Slice(i + 1).ToString();
                                 tokenList.Add(Argument(value,
-                                    Location.FromOuterLocation(value, outerLocation.Start, outerLocation, i + 1)));
+                                    Location.FromOuterLocation(value, outerLocation.Index, outerLocation, i + 1)));
                                 return true;
                             }
 
@@ -241,7 +241,7 @@ namespace System.CommandLine.Parsing
                                     // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
                                     string value = alias.Slice(i).ToString();
                                     tokenList.Add(Argument(value,
-                                        Location.FromOuterLocation(value, outerLocation.Start, outerLocation, i)));
+                                        Location.FromOuterLocation(value, outerLocation.Index, outerLocation, i)));
                                     return true;
                                 }
 
@@ -249,7 +249,7 @@ namespace System.CommandLine.Parsing
                             }
 
                             tokenList.Add(new CliToken(candidate, found.TokenType, found.Symbol,
-                                Location.FromOuterLocation(candidate, outerLocation.Start, outerLocation, i + 1)));
+                                Location.FromOuterLocation(candidate, outerLocation.Index, outerLocation, i + 1)));
 
                             if (i != alias.Length - 1 && ((CliOption)found.Symbol).Greedy)
                             {
@@ -260,7 +260,7 @@ namespace System.CommandLine.Parsing
                                 }
 
                                 string value = alias.Slice(index).ToString();
-                                tokenList.Add(Argument(value, Location.FromOuterLocation(value, outerLocation.Start, outerLocation, index)));
+                                tokenList.Add(Argument(value, Location.FromOuterLocation(value, outerLocation.Index, outerLocation, index)));
                                 return true;
                             }
                         }

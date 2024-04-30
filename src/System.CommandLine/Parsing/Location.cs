@@ -29,11 +29,11 @@ namespace System.CommandLine.Parsing
         internal static Location FromOuterLocation(string text, int start, Location outerLocation, int offset = 0)
             => new(text, outerLocation.Source, start, outerLocation, offset);
 
-        public Location(string text, string source, int start, Location? outerLocation, int offset = 0)
+        public Location(string text, string source, int index, Location? outerLocation, int offset = 0)
         {
             Text = text;
             Source = source;
-            Start = start;
+            Index = index;
             Length = text.Length;
             Offset = offset;
             OuterLocation = outerLocation;
@@ -41,7 +41,7 @@ namespace System.CommandLine.Parsing
 
         public string Text { get; }
         public string Source { get; }
-        public int Start { get; }
+        public int Index { get; }
         public int Offset { get; }
         public int Length { get; }
         public Location? OuterLocation { get; }
@@ -50,7 +50,7 @@ namespace System.CommandLine.Parsing
             => Source == Implicit;
 
         public override string ToString()
-            => $"{(OuterLocation is null ? "" : OuterLocation.ToString() + "; ")}{Text} from {Source}[{Start}, {Length}, {Offset}]";
+            => $"{(OuterLocation is null ? "" : OuterLocation.ToString() + "; ")}{Text} from {Source}[{Index}, {Length}, {Offset}]";
 
     }
 }
