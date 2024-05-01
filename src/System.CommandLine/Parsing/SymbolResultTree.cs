@@ -1,15 +1,14 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
     internal sealed class SymbolResultTree : Dictionary<CliSymbol, SymbolResult>
     {
         private readonly CliCommand _rootCommand;
-        internal List<ParseError>? Errors;
+        internal List<CliDiagnostic>? Errors;
 // TODO: unmatched tokens
 /*
         internal List<CliToken>? UnmatchedTokens;
@@ -27,11 +26,11 @@ namespace System.CommandLine.Parsing
 
             if (tokenizeErrors is not null)
             {
-                Errors = new List<ParseError>(tokenizeErrors.Count);
+                Errors = new List<CliDiagnostic>(tokenizeErrors.Count);
 
                 for (var i = 0; i < tokenizeErrors.Count; i++)
                 {
-                    Errors.Add(new ParseError(tokenizeErrors[i]));
+                    Errors.Add(new CliDiagnostic(new("", "", tokenizeErrors[i], CliDiagnosticSeverity.Warning, null), []));
                 }
             }
         }
@@ -51,7 +50,6 @@ namespace System.CommandLine.Parsing
         internal DirectiveResult? GetResult(CliDirective directive)
             => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
 */
-        // TODO: Determine how this is used. It appears to be O^n in the size of the tree and so if it is called multiple times, we should reconsider to avoid O^(N*M)
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
             // Argument can't have children
@@ -71,7 +69,7 @@ namespace System.CommandLine.Parsing
         {
             var dict = new Dictionary<CliSymbol, ValueResult>();
             foreach (KeyValuePair<CliSymbol, SymbolResult> pair in this)
-            {               
+            {
                 var result = pair.Value;
                 if (result is OptionResult optionResult)
                 {
@@ -87,8 +85,8 @@ namespace System.CommandLine.Parsing
             return dict;
         }
 
-        internal void AddError(ParseError parseError) => (Errors ??= new()).Add(parseError);
-        internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
+        internal void AddError(CliDiagnostic parseError) => (Errors ??= new()).Add(parseError);
+        internal void InsertFirstError(CliDiagnostic parseError) => (Errors ??= new()).Insert(0, parseError);
 
         internal void AddUnmatchedToken(CliToken token, CommandResult commandResult, CommandResult rootCommandResult)
         {
@@ -104,7 +102,7 @@ namespace System.CommandLine.Parsing
                 }
 
 */
-            AddError(new ParseError(LocalizationResources.UnrecognizedCommandOrArgument(token.Value), commandResult));
+            AddError(new CliDiagnostic(new("", "", LocalizationResources.UnrecognizedCommandOrArgument(token.Value), CliDiagnosticSeverity.Warning, null), [], symbolResult: commandResult));
             //            }
         }
 
@@ -113,7 +111,6 @@ namespace System.CommandLine.Parsing
             if (_symbolsByName is null)
             {
                 _symbolsByName = new();
-                // TODO: See if we can avoid populating the entire tree and just populate the portion/cone we need
                 PopulateSymbolsByName(_rootCommand);
             }
 
@@ -140,7 +137,6 @@ namespace System.CommandLine.Parsing
 // so we could avoid using their value factories and adding them to the dictionary
 // could we sort by name allowing us to do a binary search instead of allocating a dictionary?
 // could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
-// Additional Note: Couldn't commands know their children, and thus this involves querying the active command, and possibly the parents
         private void PopulateSymbolsByName(CliCommand command)
         {
             if (command.HasArguments)
