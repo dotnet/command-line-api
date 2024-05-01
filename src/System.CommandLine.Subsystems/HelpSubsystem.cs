@@ -15,34 +15,35 @@ namespace System.CommandLine;
 //        var command = new CliCommand("greet")
 //          .With(help.Description, "Greet the user");
 //
-public class HelpSubsystem(IAnnotationProvider? annotationProvider = null) 
+public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     : CliSubsystem(HelpAnnotations.Prefix, SubsystemKind.Help, annotationProvider)
 {
-    public void SetDescription(CliSymbol symbol, string description) 
+    public CliOption<bool> HelpOption { get; } = new CliOption<bool>("--help", ["-h"])
+    {
+        // TODO: Why don't we accept bool like any other bool option?
+        Arity = ArgumentArity.Zero
+    };
+
+    public void SetDescription(CliSymbol symbol, string description)
         => SetAnnotation(symbol, HelpAnnotations.Description, description);
 
-    public string GetDescription(CliSymbol symbol) 
+    public string GetDescription(CliSymbol symbol)
         => TryGetAnnotation<string>(symbol, HelpAnnotations.Description, out var value)
             ? value
             : "";
 
-    public AnnotationAccessor<string> Description 
+    public AnnotationAccessor<string> Description
         => new(this, HelpAnnotations.Description);
 
     protected internal override CliConfiguration Initialize(InitializationContext context)
     {
-        var option = new CliOption<bool>("--help", ["-h"])
-        {
-            // TODO: Why don't we accept bool like any other bool option?
-            Arity = ArgumentArity.Zero
-        };
-        context.Configuration.RootCommand.Add(option);
+        context.Configuration.RootCommand.Add(HelpOption);
 
         return context.Configuration;
     }
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)
-        => parseResult is not null && parseResult.GetValue<bool>("--help");
+        => parseResult is not null && parseResult.GetValue(HelpOption);
 
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {
