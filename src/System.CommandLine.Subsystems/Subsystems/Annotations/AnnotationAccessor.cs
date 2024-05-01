@@ -13,14 +13,14 @@ public struct AnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<TValue
     /// <summary>
     /// The ID of the annotation
     /// </summary>
-    public AnnotationId<TValue> Id { get; }
-    public readonly void Set(CliSymbol symbol, TValue value) => owner.SetAnnotation(symbol, id, value);
-    public readonly bool TryGet(CliSymbol symbol, [NotNullWhen(true)] out TValue? value) => owner.TryGetAnnotation(symbol, id, out value);
+    public AnnotationId<TValue> Id { get; } = id;
+    public readonly void Set(CliSymbol symbol, TValue value) => owner.SetAnnotation(symbol, Id, value);
+    public readonly bool TryGet(CliSymbol symbol, [NotNullWhen(true)] out TValue? value) => owner.TryGetAnnotation(symbol, Id, out value);
     public readonly TValue? Get(CliSymbol symbol)
     {
         if (TryGet(symbol, out var value))
         {
-            return value ?? defaultValue;
+            return value;
         }
         return defaultValue;
     }
