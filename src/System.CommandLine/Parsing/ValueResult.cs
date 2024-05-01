@@ -26,7 +26,9 @@ public class ValueResult
     internal object? Value { get; }
 
     public T? GetValue<T>()
-        => (T?)Value;
+        => Value is null
+            ? default
+            : (T?)Value;
 
     // This needs to be a collection because collection types have multiple tokens and they will not be simple offsets when response files are used
     // TODO: Consider more efficient ways to do this in the case where there is a single location

@@ -4,11 +4,16 @@
 using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
 using System.CommandLine.Subsystems;
+using System.Reflection.PortableExecutable;
 
 namespace System.CommandLine;
 
 public class Pipeline
 {
+    //TODO:  When we allow adding subsystems, this code will change
+    private IEnumerable<CliSubsystem?> Subsystems
+        => [Help, Version, Completion, Diagram, Value, ErrorReporting];
+
     public static Pipeline Create(HelpSubsystem? help = null,
                                   VersionSubsystem? version = null,
                                   CompletionSubsystem? completion = null,
@@ -63,61 +68,6 @@ public class Pipeline
         return new CliExit(pipelineContext);
     }
 
-    protected virtual void InitializeHelp(InitializationContext context)
-        => Help?.Initialize(context);
-
-    protected virtual void InitializeVersion(InitializationContext context)
-        => Version?.Initialize(context);
-
-    protected virtual void InitializeCompletion(InitializationContext context)
-        => Completion?.Initialize(context);
-
-    protected virtual void InitializeDiagram(InitializationContext context)
-        => Diagram?.Initialize(context);
-
-    protected virtual void InitializeErrorReporting(InitializationContext context)
-        => ErrorReporting?.Initialize(context);
-
-    protected virtual CliExit TearDownHelp(CliExit cliExit)
-        => Help is null
-                ? cliExit
-                : Help.TearDown(cliExit);
-
-    protected virtual CliExit? TearDownVersion(CliExit cliExit)
-        => Version is null
-                ? cliExit
-                : Version.TearDown(cliExit);
-
-    protected virtual CliExit TearDownCompletion(CliExit cliExit)
-        => Completion is null
-                ? cliExit
-                : Completion.TearDown(cliExit);
-
-    protected virtual CliExit TearDownDiagram(CliExit cliExit)
-        => Diagram is null
-                ? cliExit
-                : Diagram.TearDown(cliExit);
-
-    protected virtual CliExit TearDownErrorReporting(CliExit cliExit)
-        => ErrorReporting is null
-                ? cliExit
-                : ErrorReporting.TearDown(cliExit);
-
-    protected virtual void ExecuteHelp(PipelineContext context)
-        => ExecuteIfNeeded(Help, context);
-
-    protected virtual void ExecuteVersion(PipelineContext context)
-        => ExecuteIfNeeded(Version, context);
-
-    protected virtual void ExecuteCompletion(PipelineContext context)
-        => ExecuteIfNeeded(Completion, context);
-
-    protected virtual void ExecuteDiagram(PipelineContext context)
-    => ExecuteIfNeeded(Diagram, context);
-
-    protected virtual void ExecuteErrorReporting(PipelineContext context)
-        => ExecuteIfNeeded(ErrorReporting, context);
-
     // TODO: Consider whether this should be public. It would simplify testing, but would it do anything else
     // TODO: Confirm that it is OK for ConsoleHack to be unavailable in Initialize
     /// <summary>
@@ -131,11 +81,13 @@ public class Pipeline
     /// </remarks>
     protected virtual void InitializeSubsystems(InitializationContext context)
     {
-        InitializeHelp(context);
-        InitializeVersion(context);
-        InitializeCompletion(context);
-        InitializeDiagram(context);
-        InitializeErrorReporting(context);
+        foreach (var subsystem in Subsystems)
+        {
+            if ( subsystem is not null)
+            {
+            subsystem.Initialize(context);
+            }
+        }
     }
 
     // TODO: Consider whether this should be public
@@ -144,26 +96,31 @@ public class Pipeline
     /// Perform any cleanup operations
     /// </summary>
     /// <param name="pipelineContext">The context of the current execution</param>
-    /// <remarks>
-    /// Note to inheritors: The ordering of tear down should normally be in the reverse order than initializing
-    /// </remarks>
     protected virtual CliExit TearDownSubsystems(CliExit cliExit)
     {
-        TearDownErrorReporting(cliExit);
-        TearDownDiagram(cliExit);
-        TearDownCompletion(cliExit);
-        TearDownVersion(cliExit);
-        TearDownHelp(cliExit);
+        // TODO: Work on this design as the last cliExit wins and they may not all be well behaved
+        var subsystems = Subsystems.Reverse();
+        foreach (var subsystem in subsystems)
+        {
+            if (subsystem is not null)
+            {
+                cliExit = subsystem.TearDown(cliExit);
+            }
+        }
         return cliExit;
     }
 
     protected virtual void ExecuteSubsystems(PipelineContext pipelineContext)
     {
-        ExecuteHelp(pipelineContext);
-        ExecuteVersion(pipelineContext);
-        ExecuteCompletion(pipelineContext);
-        ExecuteDiagram(pipelineContext);
-        ExecuteErrorReporting(pipelineContext);
+        // TODO: Consider redesign where pipelineContext is not modifiable. 
+        // 
+        foreach (var subsystem in Subsystems)
+        {
+            if (subsystem is not null)
+            {
+                pipelineContext = subsystem.ExecuteIfNeeded(pipelineContext);
+            }
+        }
     }
 
     protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineContext pipelineContext)

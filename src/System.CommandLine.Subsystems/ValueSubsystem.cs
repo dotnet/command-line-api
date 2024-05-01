@@ -11,8 +11,9 @@ public class ValueSubsystem : CliSubsystem
 {
     // @mhutch: Is the TryGet on the sparse dictionaries how we should handle a case where the annotations will be sparse to support lazy? If so, should we have another method on
     // the annotation wrapper, or an alternative struct when there a TryGet makes sense? This API needs review, maybe next Tuesday.
-    private PipelineContext? pipelineContext = null;
+    //private PipelineContext? pipelineContext = null;
     private Dictionary<CliSymbol, object?> cachedValues = new();
+    private ParseResult? parseResult = null;
 
     public ValueSubsystem(IAnnotationProvider? annotationProvider = null)
         : base(ValueAnnotations.Prefix, SubsystemKind.Version, annotationProvider)
@@ -26,7 +27,7 @@ public class ValueSubsystem : CliSubsystem
     //            : "";
     private bool TryGetDefaultValue<T>(CliSymbol symbol, out T? defaultValue)
     {
-        if (TryGetAnnotation(symbol, ValueAnnotations.Value, out var objectValue))
+        if (TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out var objectValue))
         {
             defaultValue = (T)objectValue;
             return true;
@@ -47,14 +48,16 @@ public class ValueSubsystem : CliSubsystem
       => new(this, ValueAnnotations.DefaultValueCalculation);
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)
-         => true;
+    {
+        this.parseResult = parseResult;
+        return true;
+    }
 
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {
-        this.pipelineContext = pipelineContext;
-        return CliExit.NotRun(pipelineContext.ParseResult);
+        parseResult ??= pipelineContext.ParseResult;
+        return base.Execute(pipelineContext);
     }
-
 
     // TODO: Do it! Consider using a simple dictionary instead of the annotation (@mhutch) because with is not useful here
     private void SetValue<T>(CliSymbol symbol, object? value)
@@ -82,9 +85,9 @@ public class ValueSubsystem : CliSubsystem
         {
             not null when TryGetValue<T>(symbol, out var value)
                 => value, // It has already been retrieved at least once
-            CliArgument  argument when pipelineContext?.ParseResult?.GetValueResult(argument) is ValueResult valueResult  // GetValue would always return a value
+            CliArgument  argument when parseResult?.GetValueResult(argument) is { } valueResult  // GetValue not used because it  would always return a value
                 => UseValue(symbol, valueResult.GetValue<T>()), // Value was supplied during parsing, 
-            CliOption option when pipelineContext?.ParseResult?.GetValueResult(option) is ValueResult valueResult  // GetValue would always return a value
+            CliOption option when parseResult?.GetValueResult(option) is {} valueResult  // GetValue not used because it would always return a value
                 => UseValue(symbol, valueResult.GetValue<T>()), // Value was supplied during parsing
             // Value was not supplied during parsing, determine default now
             not null when DefaultValueCalculation.TryGet(symbol, out var  defaultValueCalculation)

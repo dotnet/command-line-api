@@ -30,11 +30,10 @@ public class ValueSubsystemTests
         isActive.Should().BeTrue();
     }
 
-    [Fact(Skip = "WIP")]
+    [Fact]
     public void ValueSubsystem_returns_values_that_are_entered()
     {
         var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-        var pipeline = Pipeline.Create();
         CliOption<int> option1 = new CliOption<int>("--intValue");
         CliRootCommand rootCommand = [
             new CliCommand("x")
@@ -42,19 +41,54 @@ public class ValueSubsystemTests
                 option1
             }];
         var configuration = new CliConfiguration(rootCommand);
+        var pipeline = Pipeline.CreateEmpty();
+        pipeline.Value = new ValueSubsystem();
         const int expected1 = 42;
         var input = $"x --intValue {expected1}";
 
-        pipeline.Parse(configuration, input);
+        var parseResult = pipeline.Parse(configuration, input); // assigned for debugging
+        pipeline.Execute(configuration, input, consoleHack);
+
+        pipeline.Value.GetValue<int>(option1).Should().Be(expected1);
+    }
+
+    [Fact]
+    public void ValueSubsystem_returns_default_value_when_no_value_is_entered()
+    {
+        var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+        CliOption<int> option1 = new CliOption<int>("--intValue");
+        CliRootCommand rootCommand = [option1];
+        var configuration = new CliConfiguration(rootCommand);
+        var pipeline = Pipeline.CreateEmpty();
+        pipeline.Value = new ValueSubsystem();
+        pipeline.Value.DefaultValue.Set(option1, 43);
+        const int expected1 = 43;
+        var input = $"";
+
+        var parseResult = pipeline.Parse(configuration, input); // assigned for debugging
         pipeline.Execute(configuration, input, consoleHack);
 
         pipeline.Value.GetValue<int>(option1).Should().Be(expected1);
     }
 
 
-    [Fact(Skip = "WIP")]
-    public void ValueSubsystem_returns_default_value_when_no_value_is_entered()
+    [Fact]
+    public void ValueSubsystem_returns_calculated_default_value_when_no_value_is_entered()
     {
+        var consoleHack = new ConsoleHack().RedirectToBuffer(true);
+        CliOption<int> option1 = new CliOption<int>("--intValue");
+        CliRootCommand rootCommand = [option1];
+        var configuration = new CliConfiguration(rootCommand);
+        var pipeline = Pipeline.CreateEmpty();
+        pipeline.Value = new ValueSubsystem();
+        var x = 42;
+        pipeline.Value.DefaultValueCalculation.Set(option1, () => x + 2);
+        const int expected1 = 44;
+        var input = $"";
 
+        var parseResult = pipeline.Parse(configuration, input); // assigned for debugging
+        pipeline.Execute(configuration, input, consoleHack);
+
+        pipeline.Value.GetValue<int>(option1).Should().Be(expected1);
     }
 }
