@@ -9,7 +9,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing an <see cref="Argument"/>.
     /// </summary>
-    public sealed class ArgumentResult : SymbolResult
+    internal sealed class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;
         private bool _onlyTakeHasBeenCalled;

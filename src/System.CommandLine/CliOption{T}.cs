@@ -30,7 +30,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc cref="CliArgument{T}.DefaultValueFactory" />
-        public Func<ArgumentResult, T>? DefaultValueFactory
+        internal Func<ArgumentResult, T>? DefaultValueFactory
         {
             get => _argument.DefaultValueFactory;
             set => _argument.DefaultValueFactory = value;
