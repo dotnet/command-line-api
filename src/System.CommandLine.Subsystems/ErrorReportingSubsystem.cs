@@ -26,7 +26,7 @@ public class ErrorReportingSubsystem : CliSubsystem
     protected internal override CliExit Execute(PipelineContext pipelineContext)
     {
         var _ = pipelineContext.ParseResult
-            ?? throw new ArgumentNullException($"{nameof(pipelineContext)}.ParseResult");
+            ?? throw new ArgumentException("The parse result has not been set", nameof(pipelineContext));
 
         Report(pipelineContext.ConsoleHack, pipelineContext.ParseResult.Errors);
 
