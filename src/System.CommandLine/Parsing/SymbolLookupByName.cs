@@ -12,9 +12,12 @@ namespace System.CommandLine.Parsing;
 // give correct results for many CLIs, and also, it built a dictionary for the full CLI tree, rather than just the
 // current commands and its ancestors, so in many cases, this will be faster. 
 //
-// Most importantly, that approach fails for options, like the previous global options, that appear on multiple
+// Most importantly, the previous approach fails for options, like the previous global options, that appear on multiple
 // commands, since we are now explicitly putting them on all commands.
 
+/// <summary>
+/// Provides a mechanism to lookup symbols by their name. This searches the symbols corresponding to the current command and its ancestors.
+/// </summary>
 public class SymbolLookupByName
 {
     private class CommandCache(CliCommand command)
@@ -25,6 +28,11 @@ public class SymbolLookupByName
 
     private List<CommandCache> cache;
 
+    /// <summary>
+    /// Creates a new symbol lookup tied to a specific parseResult. 
+    /// </summary>
+    /// <param name="parseResult"></param>
+    // TODO: If needed, consider a static list/dictionary of ParseResult to make general use easier.
     public SymbolLookupByName(ParseResult parseResult)
         => cache = BuildCache(parseResult);
 
@@ -121,12 +129,31 @@ public class SymbolLookupByName
         return false;
     }
 
+    /// <summary>
+    /// Gets the symbol with the requested name that appears nearest to the starting command, which defaults to the current or leaf command.
+    /// </summary>
+    /// <param name="name">The name to search for</param>
+    /// <param name="startCommand">The command to start searching up from, which defaults to the current command.</param>
+    /// <param name="skipAncestors">If true, only the starting command and no ancestors are searched.</param>
+    /// <param name="valuesOnly">If true, commands are ignored and only options and arguments are found.</param>
+    /// <returns>A tuple of the found symbol and its parent command. Throws if the name is not found.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the name is not found.</exception>
     public (CliSymbol symbol, CliCommand parent) GetSymbolAndParent(string name, CliCommand? startCommand = null, bool skipAncestors = false, bool valuesOnly = false)
         => TryGetSymbolAndParentInternal(name, out var symbol, out var parent, out var errorMessage, startCommand, skipAncestors, valuesOnly)
             ? (symbol, parent)
             : throw new InvalidOperationException(errorMessage);
 
-    public bool TryGetSymbol(string name, out CliSymbol symbol, CliCommand? startCommand = null, bool skipAncestors = false, bool valuesOnly = false)
+
+    /// <summary>
+    /// Returns true if the symbol is found, and provides the symbols as the `out` symbol parameter.
+    /// </summary>
+    /// <param name="name">The name to search for</param>
+    /// <param name="symbol">An out parameter to receive the symbol if it is found.</param>
+    /// <param name="startCommand">The command to start searching up from, which defaults to the current command.</param>
+    /// <param name="skipAncestors">If true, only the starting command and no ancestors are searched.</param>
+    /// <param name="valuesOnly">If true, commands are ignored and only options and arguments are found.</param>
+    /// <returns>True if a symbol with the requested name is found</returns>
+    public bool TryGetSymbol(string name, [NotNullWhen(true)] out CliSymbol? symbol, CliCommand? startCommand = null, bool skipAncestors = false, bool valuesOnly = false)
         => TryGetSymbolAndParentInternal(name, out symbol, out var _, out var _, startCommand, skipAncestors, valuesOnly);
 
 

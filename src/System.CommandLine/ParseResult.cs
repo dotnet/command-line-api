@@ -82,44 +82,7 @@ namespace System.CommandLine
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
-        //private Dictionary<string, CliSymbol> PopulateSymbolByName()
-        //{
-        //    var commands = GetSelfAndAncestors(CommandResult);
-        //    var ret = new Dictionary<string, CliSymbol> { };
-
-        //    foreach (var command in commands)
-        //    {
-        //        if (command.HasOptions)
-        //        {
-        //            foreach (var option in command.Options)
-        //            {
-        //                ret[option.Name] = option;
-        //            }
-        //        }
-        //        if (command.HasArguments)
-        //        {
-        //            foreach (var argument in command.Arguments)
-        //            {
-        //                ret[argument.Name] = argument;
-        //            }
-        //        }
-        //    }
-        //    return ret;
-
-        //    static IEnumerable<CliCommand> GetSelfAndAncestors(CommandResult commandResult)
-        //    {
-        //        var ret = new List<CliCommand> { commandResult.Command };
-        //        while (commandResult.Parent is CommandResult parent)
-        //        {
-        //            commandResult = parent;
-        //            ret.Add(parent.Command);
-        //        }
-        //        ret.Reverse();
-        //        return ret;
-        //    }
-        //}
-
-        public CliSymbol GetSymbolByName(string name, bool valuesOnly = false)
+        public CliSymbol? GetSymbolByName(string name, bool valuesOnly = false)
         {
 
             symbolLookupByName ??= new SymbolLookupByName(this);
@@ -232,10 +195,22 @@ namespace System.CommandLine
         public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
         */
 
+        /// <summary>
+        /// Gets the ValueResult, if any, for the specified option.
+        /// </summary>
+        /// <param name="option">The option for which to find a result.</param>
+        /// <returns>A result for the specified option, or <see langword="null"/> if it was not entered by the user.</returns>
         public ValueResult? GetValueResult(CliOption option)
             => GetValueResultInternal(option);
+
+        /// <summary>
+        /// Gets the result, if any, for the specified argument.
+        /// </summary>
+        /// <param name="argument">The argument for which to find a result.</param>
+        /// <returns>A result for the specified argument, or <see langword="default"/> if it was not entered by the user.</returns>
         public ValueResult? GetValueResult(CliArgument argument)
             => GetValueResultInternal(argument);
+
         private ValueResult? GetValueResultInternal(CliSymbol symbol)
             => valueResultDictionary.TryGetValue(symbol, out var result)
                 ? result
