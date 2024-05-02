@@ -1256,12 +1256,12 @@ namespace System.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData("-x -y")] //
-        [InlineData("-x true -y")] //
-        [InlineData("-x:true -y")] //
-        [InlineData("-x=true -y")] //
+        [InlineData("-x -y")]
+        [InlineData("-x true -y")]
+        [InlineData("-x:true -y")]
+        [InlineData("-x=true -y")]
         [InlineData("-x -y true")]
-        [InlineData("-x true -y true")] //
+        [InlineData("-x true -y true")]
         [InlineData("-x:true -y:true")]
         [InlineData("-x=true -y:true")]
         public void Boolean_options_are_not_greedy(string commandLine)

@@ -15,16 +15,15 @@ namespace System.CommandLine
     public sealed class ParseResult
     {
         private readonly IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary = new Dictionary<CliSymbol, ValueResult>();
-        private Dictionary<string, CliSymbol> symbolByName = null;
-        private SymbolLookupByName symbolLookupByName = null;
+        private SymbolLookupByName? symbolLookupByName = null;
 
-        private readonly CommandResult _rootCommandResult;
+        private readonly CommandResult? _rootCommandResult;
         // TODO: unmatched tokens, invocation, completion
         /*
-                private readonly IReadOnlyList<CliToken> _unmatchedTokens;
-                private CompletionContext? _completionContext;
-                private readonly CliAction? _action;
-                private readonly List<CliAction>? _preActions;
+        private readonly IReadOnlyList<CliToken> _unmatchedTokens;
+        private CompletionContext? _completionContext;
+        private readonly CliAction? _action;
+        private readonly List<CliAction>? _preActions;
         */
 
         internal ParseResult(
@@ -37,14 +36,14 @@ namespace System.CommandLine
             List<CliToken> tokens,
             */
             // TODO: unmatched tokens
-            //          List<CliToken>? unmatchedTokens,
+            // List<CliToken>? unmatchedTokens,
             List<ParseError>? errors,
             // TODO: commandLineText should be string array
             string? commandLineText = null //,
-                                           // TODO: invocation
+            // TODO: invocation
             /*
-                        CliAction? action = null,
-                        List<CliAction>? preActions = null)
+            CliAction? action = null,
+            List<CliAction>? preActions = null)
             */
             )
         {
@@ -54,8 +53,8 @@ namespace System.CommandLine
             valueResultDictionary = symbolResultTree.BuildValueResultDictionary();
             // TODO: invocation
             /*
-                        _action = action;
-                        _preActions = preActions;
+            _action = action;
+            _preActions = preActions;
             */
             /*
             // skip the root command when populating Tokens property
@@ -77,7 +76,7 @@ namespace System.CommandLine
             CommandLineText = commandLineText;
 
             // TODO: unmatched tokens
-            //          _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
+            // _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
 
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
@@ -93,7 +92,7 @@ namespace System.CommandLine
 
         // TODO: check that constructing empty ParseResult directly is correct
         /*
-                internal static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
+        internal static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
         */
 
         /// <summary>
@@ -244,12 +243,12 @@ namespace System.CommandLine
 
         // TODO: Directives
         /*
-                /// <summary>
-                /// Gets the result, if any, for the specified directive.
-                /// </summary>
-                /// <param name="directive">The directive for which to find a result.</param>
-                /// <returns>A result for the specified directive, or <see langword="null"/> if it was not provided.</returns>
-                public DirectiveResult? GetResult(CliDirective directive) => _rootCommandResult.GetResult(directive);
+        /// <summary>
+        /// Gets the result, if any, for the specified directive.
+        /// </summary>
+        /// <param name="directive">The directive for which to find a result.</param>
+        /// <returns>A result for the specified directive, or <see langword="null"/> if it was not provided.</returns>
+        public DirectiveResult? GetResult(CliDirective directive) => _rootCommandResult.GetResult(directive);
         */
         /* Replaced with GetValueResult 
         /// <summary>
@@ -262,167 +261,167 @@ namespace System.CommandLine
         */
         // TODO: completion, invocation
         /*
-                /// <summary>
-                /// Gets completions based on a given parse result.
-                /// </summary>
-                /// <param name="position">The position at which completions are requested.</param>
-                /// <returns>A set of completions for completion.</returns>
-                public IEnumerable<CompletionItem> GetCompletions(
-                    int? position = null)
+        /// <summary>
+        /// Gets completions based on a given parse result.
+        /// </summary>
+        /// <param name="position">The position at which completions are requested.</param>
+        /// <returns>A set of completions for completion.</returns>
+        public IEnumerable<CompletionItem> GetCompletions(
+            int? position = null)
+        {
+            SymbolResult currentSymbolResult = SymbolToComplete(position);
+
+            CliSymbol currentSymbol = currentSymbolResult switch
+            {
+                ArgumentResult argumentResult => argumentResult.Argument,
+                OptionResult optionResult => optionResult.Option,
+                DirectiveResult directiveResult => directiveResult.Directive,
+                _ => ((CommandResult)currentSymbolResult).Command
+            };
+
+            var context = GetCompletionContext();
+
+            if (position is not null &&
+                context is TextCompletionContext tcc)
+            {
+                context = tcc.AtCursorPosition(position.Value);
+            }
+
+            var completions = currentSymbol.GetCompletions(context);
+
+            string[] optionsWithArgumentLimitReached = currentSymbolResult is CommandResult commandResult
+                                                            ? OptionsWithArgumentLimitReached(commandResult)
+                                                            : Array.Empty<string>();
+
+            completions =
+                completions.Where(item => optionsWithArgumentLimitReached.All(s => s != item.Label));
+
+            return completions;
+
+            static string[] OptionsWithArgumentLimitReached(CommandResult commandResult) =>
+                commandResult
+                    .Children
+                    .OfType<OptionResult>()
+                    .Where(c => c.IsArgumentLimitReached)
+                    .Select(o => o.Option)
+                    .SelectMany(c => new[] { c.Name }.Concat(c.Aliases))
+                    .ToArray();
+        }
+
+        /// <summary>
+        /// Invokes the appropriate command handler for a parsed command line input.
+        /// </summary>
+        /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
+        /// <returns>A task whose result can be used as a process exit code.</returns>
+        public Task<int> InvokeAsync(CancellationToken cancellationToken = default)
+            => InvocationPipeline.InvokeAsync(this, cancellationToken);
+
+        /// <summary>
+        /// Invokes the appropriate command handler for a parsed command line input.
+        /// </summary>
+        /// <returns>A value that can be used as a process exit code.</returns>
+        public int Invoke()
+        {
+            var useAsync = false;
+
+            if (Action is AsynchronousCliAction)
+            {
+                useAsync = true;
+            }
+            else if (PreActions is not null)
+            {
+                for (var i = 0; i < PreActions.Count; i++)
                 {
-                    SymbolResult currentSymbolResult = SymbolToComplete(position);
-
-                    CliSymbol currentSymbol = currentSymbolResult switch
-                    {
-                        ArgumentResult argumentResult => argumentResult.Argument,
-                        OptionResult optionResult => optionResult.Option,
-                        DirectiveResult directiveResult => directiveResult.Directive,
-                        _ => ((CommandResult)currentSymbolResult).Command
-                    };
-
-                    var context = GetCompletionContext();
-
-                    if (position is not null &&
-                        context is TextCompletionContext tcc)
-                    {
-                        context = tcc.AtCursorPosition(position.Value);
-                    }
-
-                    var completions = currentSymbol.GetCompletions(context);
-
-                    string[] optionsWithArgumentLimitReached = currentSymbolResult is CommandResult commandResult
-                                                                   ? OptionsWithArgumentLimitReached(commandResult)
-                                                                   : Array.Empty<string>();
-
-                    completions =
-                        completions.Where(item => optionsWithArgumentLimitReached.All(s => s != item.Label));
-
-                    return completions;
-
-                    static string[] OptionsWithArgumentLimitReached(CommandResult commandResult) =>
-                        commandResult
-                            .Children
-                            .OfType<OptionResult>()
-                            .Where(c => c.IsArgumentLimitReached)
-                            .Select(o => o.Option)
-                            .SelectMany(c => new[] { c.Name }.Concat(c.Aliases))
-                            .ToArray();
-                }
-
-                /// <summary>
-                /// Invokes the appropriate command handler for a parsed command line input.
-                /// </summary>
-                /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
-                /// <returns>A task whose result can be used as a process exit code.</returns>
-                public Task<int> InvokeAsync(CancellationToken cancellationToken = default)
-                    => InvocationPipeline.InvokeAsync(this, cancellationToken);
-
-                /// <summary>
-                /// Invokes the appropriate command handler for a parsed command line input.
-                /// </summary>
-                /// <returns>A value that can be used as a process exit code.</returns>
-                public int Invoke()
-                {
-                    var useAsync = false;
-
-                    if (Action is AsynchronousCliAction)
+                    var action = PreActions[i];
+                    if (action is AsynchronousCliAction)
                     {
                         useAsync = true;
-                    }
-                    else if (PreActions is not null)
-                    {
-                        for (var i = 0; i < PreActions.Count; i++)
-                        {
-                            var action = PreActions[i];
-                            if (action is AsynchronousCliAction)
-                            {
-                                useAsync = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (useAsync)
-                    {
-                        return InvocationPipeline.InvokeAsync(this, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
-                    }
-                    else
-                    {
-                        return InvocationPipeline.Invoke(this);
+                        break;
                     }
                 }
+            }
 
-                /// <summary>
-                /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
-                /// that will be performed when the parse result is invoked.
-                /// </summary>
-                public CliAction? Action => _action ?? CommandResult.Command.Action;
+            if (useAsync)
+            {
+                return InvocationPipeline.InvokeAsync(this, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+            else
+            {
+                return InvocationPipeline.Invoke(this);
+            }
+        }
 
-                internal IReadOnlyList<CliAction>? PreActions => _preActions;
+        /// <summary>
+        /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
+        /// that will be performed when the parse result is invoked.
+        /// </summary>
+        public CliAction? Action => _action ?? CommandResult.Command.Action;
 
-                private SymbolResult SymbolToComplete(int? position = null)
+        internal IReadOnlyList<CliAction>? PreActions => _preActions;
+
+        private SymbolResult SymbolToComplete(int? position = null)
+        {
+            var commandResult = CommandResult;
+
+            var allSymbolResultsForCompletion = AllSymbolResultsForCompletion();
+
+            var currentSymbol = allSymbolResultsForCompletion.Last();
+
+            return currentSymbol;
+
+            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+            {
+                foreach (var item in commandResult.AllSymbolResults())
                 {
-                    var commandResult = CommandResult;
-
-                    var allSymbolResultsForCompletion = AllSymbolResultsForCompletion();
-
-                    var currentSymbol = allSymbolResultsForCompletion.Last();
-
-                    return currentSymbol;
-
-                    IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+                    if (item is CommandResult command)
                     {
-                        foreach (var item in commandResult.AllSymbolResults())
-                        {
-                            if (item is CommandResult command)
-                            {
-                                yield return command;
-                            }
-                            else if (item is OptionResult option)
-                            {
-                                if (WillAcceptAnArgument(this, position, option))
-                                {
-                                    yield return option;
-                                }
-                            }
-                        }
+                        yield return command;
                     }
-
-                    static bool WillAcceptAnArgument(
-                        ParseResult parseResult,
-                        int? position,
-                        OptionResult optionResult)
+                    else if (item is OptionResult option)
                     {
-                        if (optionResult.Implicit)
+                        if (WillAcceptAnArgument(this, position, option))
                         {
-                            return false;
+                            yield return option;
                         }
-
-                        if (!optionResult.IsArgumentLimitReached)
-                        {
-                            return true;
-                        }
-
-                        var completionContext = parseResult.GetCompletionContext();
-
-                        if (completionContext is TextCompletionContext textCompletionContext)
-                        {
-                            if (position.HasValue)
-                            {
-                                textCompletionContext = textCompletionContext.AtCursorPosition(position.Value);
-                            }
-
-                            if (textCompletionContext.WordToComplete.Length > 0)
-                            {
-                                var tokenToComplete = parseResult.Tokens.Last(t => t.Value == textCompletionContext.WordToComplete);
-
-                                return optionResult.Tokens.Contains(tokenToComplete);
-                            }
-                        }
-
-                        return !optionResult.IsArgumentLimitReached;
                     }
                 }
-                */
+            }
+
+            static bool WillAcceptAnArgument(
+                ParseResult parseResult,
+                int? position,
+                OptionResult optionResult)
+            {
+                if (optionResult.Implicit)
+                {
+                    return false;
+                }
+
+                if (!optionResult.IsArgumentLimitReached)
+                {
+                    return true;
+                }
+
+                var completionContext = parseResult.GetCompletionContext();
+
+                if (completionContext is TextCompletionContext textCompletionContext)
+                {
+                    if (position.HasValue)
+                    {
+                        textCompletionContext = textCompletionContext.AtCursorPosition(position.Value);
+                    }
+
+                    if (textCompletionContext.WordToComplete.Length > 0)
+                    {
+                        var tokenToComplete = parseResult.Tokens.Last(t => t.Value == textCompletionContext.WordToComplete);
+
+                        return optionResult.Tokens.Contains(tokenToComplete);
+                    }
+                }
+
+                return !optionResult.IsArgumentLimitReached;
+            }
+        }
+        */
     }
 }

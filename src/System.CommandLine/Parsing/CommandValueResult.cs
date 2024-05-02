@@ -18,7 +18,7 @@ public class CommandValueResult
     /// </summary>
     /// <param name="command">The CliCommand that the result is for.</param>
     /// <param name="parent">The parent command in the case of a CLI hierarchy, or null if there is no parent.</param>
-    internal CommandValueResult(CliCommand command, CommandValueResult parent = null)
+    internal CommandValueResult(CliCommand command, CommandValueResult? parent = null)
     {
         Command = command;
         Parent = parent;

@@ -70,10 +70,10 @@ namespace System.CommandLine.Parsing
 
         // TODO: do we even need IdentifierTokenCount
         /*
-                /// <summary>
-                /// The number of occurrences of an identifier token matching the option.
-                /// </summary>
-                public int IdentifierTokenCount { get; internal set; }
+        /// <summary>
+        /// The number of occurrences of an identifier token matching the option.
+        /// </summary>
+        public int IdentifierTokenCount { get; internal set; }
         */
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(OptionResult)}: {IdentifierToken?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";

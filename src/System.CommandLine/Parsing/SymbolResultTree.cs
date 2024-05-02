@@ -12,7 +12,7 @@ namespace System.CommandLine.Parsing
         internal List<ParseError>? Errors;
         // TODO: unmatched tokens
         /*
-                internal List<CliToken>? UnmatchedTokens;
+        internal List<CliToken>? UnmatchedTokens;
         */
 
         // TODO: Looks like this is a SymboNode/linked list because a symbol may appear multiple
@@ -89,19 +89,20 @@ namespace System.CommandLine.Parsing
         {
             /*
             // TODO: unmatched tokens
-                        (UnmatchedTokens ??= new()).Add(token);
+            (UnmatchedTokens ??= new()).Add(token);
 
-                        if (commandResult.Command.TreatUnmatchedTokensAsErrors)
-                        {
-                            if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
-                            {
-                                return;
-                            }
+            if (commandResult.Command.TreatUnmatchedTokensAsErrors)
+            {
+                if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
+                {
+                    return;
+                }
 
             */
             AddError(new ParseError(LocalizationResources.UnrecognizedCommandOrArgument(token.Value), commandResult));
-            //            }
+            /*
+            }
+            */
         }
-
     }
 }

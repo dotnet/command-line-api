@@ -29,7 +29,7 @@ public abstract class CliSubsystem
     public SubsystemKind SubsystemKind { get; }
 
     private DefaultAnnotationProvider? _defaultProvider;
-   private  readonly IAnnotationProvider? _annotationProvider;
+    private  readonly IAnnotationProvider? _annotationProvider;
 
     /// <summary>
     /// Attempt to retrieve the value for the symbol and annotation ID from the annotation provider.
