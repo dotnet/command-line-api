@@ -33,7 +33,7 @@ public struct AnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<TValue
     /// Retrieve the value for the annotation and symbol
     /// </summary>
     /// <param name="symbol">The CliSymbol the value is for.</param>
-    /// <param name="value">The value to retrieve/</param>
+    /// <param name="value">The value to retrieve.</param>
     /// <returns>True if the value was found, false otherwise.</returns>
     public readonly bool TryGet(CliSymbol symbol, [NotNullWhen(true)] out TValue? value) => owner.TryGetAnnotation(symbol, Id, out value);
 
