@@ -1883,7 +1883,7 @@ namespace System.CommandLine.Tests
                     {
                         option1
                     };
-            var expectedOuterLocation = new Location("testhost", Location.User, -1, null);
+            var expectedOuterLocation = new Location(CliExecutable.ExecutableName, Location.User, -1, null);
             var expectedLocation1 = new Location("Kirk", Location.User, 2, expectedOuterLocation);
             var expectedLocation2 = new Location("Spock", Location.User, 3, expectedOuterLocation);
             var expectedLocation3 = new Location("Uhura", Location.User, 4, expectedOuterLocation);

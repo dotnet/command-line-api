@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
-using System.Linq;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Xunit;
 
 namespace System.CommandLine.Tests;
@@ -26,8 +26,11 @@ public class ParseResultValueTests
 
         var symbol1 = parseResult.GetSymbolByName("--opt1");
         var symbol2 = parseResult.GetSymbolByName("--opt2");
-        symbol1.Should().Be(option1);
-        symbol2.Should().Be(option2);
+        using (new AssertionScope())
+        {
+            symbol1.Should().Be(option1);
+            symbol2.Should().Be(option2);
+        }
     }
 
     [Fact]

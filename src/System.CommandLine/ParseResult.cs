@@ -17,7 +17,7 @@ namespace System.CommandLine
         private readonly IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary = new Dictionary<CliSymbol, ValueResult>();
         private SymbolLookupByName? symbolLookupByName = null;
 
-        private readonly CommandResult? _rootCommandResult;
+        private readonly CommandResult _rootCommandResult;
         // TODO: unmatched tokens, invocation, completion
         /*
         private readonly IReadOnlyList<CliToken> _unmatchedTokens;
