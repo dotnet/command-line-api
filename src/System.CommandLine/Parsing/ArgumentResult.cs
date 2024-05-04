@@ -31,10 +31,11 @@ namespace System.CommandLine.Parsing
                 {
                     // This is not lazy on the assumption that almost everything the user enters will be used, and ArgumentResult is no longer used for defaults
                     // TODO: Make sure errors are added
-                    var conversionValue = GetArgumentConversionResult().Value;
+                    ArgumentConversionResult argumentConversionValue = GetArgumentConversionResult();
+                    var conversionValue = argumentConversionValue.Value;
                     var locations = Tokens.Select(token => token.Location).ToArray();
                     //TODO: Remove this wrapper later
-                    _valueResult = new ValueResult(Argument, conversionValue, locations, ArgumentResult.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
+                    _valueResult = new ValueResult(Argument, conversionValue, locations, GetValueResultOutcome(argumentConversionValue.Result));
                 }
                 return _valueResult;
             }

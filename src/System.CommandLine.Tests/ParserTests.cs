@@ -4,13 +4,11 @@
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.CommandLine.Tests.Utility;
-using System.IO;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
 using System.Linq;
 using FluentAssertions.Common;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
@@ -19,10 +17,10 @@ namespace System.CommandLine.Tests
         // TODO: Update testing strategy if we use Location in equality. Some will break
         private readonly Location dummyLocation = new("", Location.Internal, -1, null);
 
-        private T GetValue<T>(ParseResult parseResult, CliOption<T> option)
+        private static T GetValue<T>(ParseResult parseResult, CliOption<T> option)
             => parseResult.GetValue(option);
 
-        private T GetValue<T>(ParseResult parseResult, CliArgument<T> argument)
+        private static T GetValue<T>(ParseResult parseResult, CliArgument<T> argument)
             => parseResult.GetValue(argument);
 
         //[Fact]
@@ -1920,6 +1918,25 @@ namespace System.CommandLine.Tests
             var result2 = parseResult.GetValueResult(option2);
             result1.GetValue<string>().Should().Be("Kirk");
             result2.GetValue<string>().Should().Be("Spock");
+        }
+
+        // https://github.com/dotnet/command-line-api/issues/2392
+        [Fact]
+        public void Getting_argument_value_with_option_argument_error_the_only_a_single_error_is_returned()
+        {
+            var option = new CliOption<int[]>("-x") { Arity = new ArgumentArity(2, 3), AllowMultipleArgumentsPerToken = true };
+            var command = new CliCommand("the-command")
+            {
+                option
+            };
+
+            ParseResult parseResult = CliParser.Parse(command, "-x 1 2 3 4");
+
+            _ = parseResult.CommandResult.GetValue(option);
+            
+            parseResult.Errors
+                       .Should()
+                       .ContainSingle();
         }
     }
 }
