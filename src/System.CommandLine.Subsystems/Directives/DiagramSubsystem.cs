@@ -13,7 +13,7 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
     //protected internal override bool GetIsActivated(ParseResult? parseResult)
     //   => parseResult is not null && option is not null && parseResult.GetValue(option);
 
-    protected internal override CliExit Execute(PipelineContext pipelineContext)
+    protected internal override CliExit Execute(PipelineResult pipelineContext)
     {
         // Gather locations
         //var locations = pipelineContext.ParseResult.LocationMap

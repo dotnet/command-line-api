@@ -62,7 +62,7 @@ public class Pipeline
 
     public CliExit Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
     {
-        var pipelineContext = new PipelineContext(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
+        var pipelineContext = new PipelineResult(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
         ExecuteSubsystems(pipelineContext);
         return new CliExit(pipelineContext);
     }
@@ -109,7 +109,7 @@ public class Pipeline
         return cliExit;
     }
 
-    protected virtual void ExecuteSubsystems(PipelineContext pipelineContext)
+    protected virtual void ExecuteSubsystems(PipelineResult pipelineContext)
     {
         // TODO: Consider redesign where pipelineContext is not modifiable. 
         // 
@@ -122,7 +122,7 @@ public class Pipeline
         }
     }
 
-    protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineContext pipelineContext)
+    protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineResult pipelineContext)
     {
         if (subsystem is not null && (!pipelineContext.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
         {

@@ -34,7 +34,7 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     protected internal override bool GetIsActivated(ParseResult? parseResult)
         => parseResult is not null && parseResult.GetValue(HelpOption);
 
-    protected internal override CliExit Execute(PipelineContext pipelineContext)
+    protected internal override CliExit Execute(PipelineResult pipelineContext)
     {
         // TODO: Match testable output pattern
         pipelineContext.ConsoleHack.WriteLine("Help me!");

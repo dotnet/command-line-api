@@ -10,7 +10,7 @@ namespace System.CommandLine.Subsystems.Tests
     {
         internal class AlternateVersion : VersionSubsystem
         {
-            protected override CliExit Execute(PipelineContext pipelineContext)
+            protected override CliExit Execute(PipelineResult pipelineContext)
             {
                 pipelineContext.ConsoleHack.WriteLine($"***{CliExecutable.ExecutableVersion}***");
                 pipelineContext.AlreadyHandled = true;
@@ -29,7 +29,7 @@ namespace System.CommandLine.Subsystems.Tests
 
             private CliSymbol Symbol { get; }
 
-            protected override CliExit Execute(PipelineContext pipelineContext)
+            protected override CliExit Execute(PipelineResult pipelineContext)
             {
                 TryGetAnnotation(Symbol, HelpAnnotations.Description, out string? description);
                 pipelineContext.ConsoleHack.WriteLine(description);
@@ -51,7 +51,7 @@ namespace System.CommandLine.Subsystems.Tests
                 return base.Initialize(context);
             }
 
-            protected override CliExit Execute(PipelineContext pipelineContext)
+            protected override CliExit Execute(PipelineResult pipelineContext)
             {
                 ExecutionWasRun = true;
                 return base.Execute(pipelineContext);

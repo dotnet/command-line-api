@@ -3,7 +3,7 @@
 
 namespace System.CommandLine.Subsystems;
 
-public class PipelineContext(ParseResult? parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
+public class PipelineResult(ParseResult? parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
 {
     public ParseResult? ParseResult { get; } = parseResult;
     public string RawInput { get; } = rawInput;

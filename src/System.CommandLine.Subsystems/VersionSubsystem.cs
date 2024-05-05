@@ -49,7 +49,7 @@ public class VersionSubsystem : CliSubsystem
     protected internal override bool GetIsActivated(ParseResult? parseResult)
         => parseResult is not null && parseResult.GetValue<bool>("--version");
 
-    protected internal override CliExit Execute(PipelineContext pipelineContext)
+    protected internal override CliExit Execute(PipelineResult pipelineContext)
     {
         var subsystemVersion = SpecificVersion;
         var version = subsystemVersion is null
