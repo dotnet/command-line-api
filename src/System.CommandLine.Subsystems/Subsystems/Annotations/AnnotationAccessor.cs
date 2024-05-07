@@ -14,8 +14,7 @@ namespace System.CommandLine.Subsystems.Annotations;
 /// <typeparam name="TValue">The type of value to be stored</typeparam>
 /// <param name="owner">The subsystem that this annotation store data for.</param>
 /// <param name="id">The identifier for this annotation, since subsystems may have multiple annotations.</param>
-/// <param name="defaultValue">The default value to return if the annotation is not set.</param>
-public struct AnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<TValue> id, TValue? defaultValue = default)
+public struct AnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<TValue> id)
 {
     /// <summary>
     /// The identifier for this annotation, since subsystems may have multiple annotations.
@@ -36,18 +35,4 @@ public struct AnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<TValue
     /// <param name="value">The value to retrieve.</param>
     /// <returns>True if the value was found, false otherwise.</returns>
     public readonly bool TryGet(CliSymbol symbol, [NotNullWhen(true)] out TValue? value) => owner.TryGetAnnotation(symbol, Id, out value);
-
-    /// <summary>
-    /// Retrieve the value for the annotation and symbol
-    /// </summary>
-    /// <param name="symbol">The CliSymbol the value is for.</param>
-    /// <returns>The retrieved value or <see cref="defaultValue"/> if the value was not found.</returns>
-    public readonly TValue? Get(CliSymbol symbol)
-    {
-        if (TryGet(symbol, out var value))
-        {
-            return value;
-        }
-        return defaultValue;
-    }
 }

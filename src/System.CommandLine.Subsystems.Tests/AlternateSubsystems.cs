@@ -31,9 +31,9 @@ namespace System.CommandLine.Subsystems.Tests
             protected override CliExit Execute(PipelineContext pipelineContext)
             {
                 var help = pipelineContext.Pipeline.Help ?? throw new InvalidOperationException("Help cannot be null for this subsystem to work");
-                string data = help.Description.Get(Symbol);
+                help.Description.TryGet(Symbol, out var description);
 
-                pipelineContext.ConsoleHack.WriteLine(data);
+                pipelineContext.ConsoleHack.WriteLine(description);
                 pipelineContext.AlreadyHandled = true;
                 return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
             }
