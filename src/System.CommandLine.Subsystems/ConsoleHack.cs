@@ -10,7 +10,7 @@ public class ConsoleHack
     private readonly StringBuilder buffer = new();
     private bool redirecting = false;
 
-    public void WriteLine(string text)
+    public void WriteLine(string text = "")
     {
         if (redirecting)
         {
