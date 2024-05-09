@@ -4,7 +4,6 @@
 using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
 using System.CommandLine.Subsystems;
-using System.Reflection.PortableExecutable;
 
 namespace System.CommandLine;
 
@@ -30,7 +29,7 @@ public class Pipeline
             Value = value ?? new ValueSubsystem()
         };
 
-    public static Pipeline CreateEmpty() 
+    public static Pipeline CreateEmpty()
         => new();
 
     private Pipeline() { }
@@ -83,9 +82,9 @@ public class Pipeline
     {
         foreach (var subsystem in Subsystems)
         {
-            if ( subsystem is not null)
+            if (subsystem is not null)
             {
-            subsystem.Initialize(context);
+                subsystem.Initialize(context);
             }
         }
     }

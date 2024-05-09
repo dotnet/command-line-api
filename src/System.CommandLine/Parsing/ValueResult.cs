@@ -22,6 +22,7 @@ public class ValueResult
         Value = value;
         Locations = locations;
         Outcome = outcome;
+        // TODO: Probably a collection of errors here
         Error = error;
     }
 
@@ -40,8 +41,8 @@ public class ValueResult
             ValueResultOutcome outcome,
             // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
             string? error = null)
-        :this((CliSymbol)argument, value, locations, outcome,error)
-    {   }
+        : this((CliSymbol)argument, value, locations, outcome, error)
+    { }
 
     /// <summary>
     /// Creates a new ValueResult instance
@@ -97,7 +98,7 @@ public class ValueResult
     public string? Error { get; }
 
     /// <summary>
-    /// Returns test suitable for display. 
+    /// Returns text suitable for display. 
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
@@ -106,17 +107,28 @@ public class ValueResult
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Retrieve the portion of the user's entry that was used for this ValuResult.
+    /// </summary>
+    /// <returns>The text the user entered that resulted in this ValueResult.</returns>
+    /// <exception cref="NotImplementedException"></exception>
     public IEnumerable<string> TextForCommandReconstruction()
     {
+        // TODO: Write method to retrieve from location.
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Retrieve the portion of the user's entry that was used for this ValueResult.
+    /// </summary>
+    /// <returns>The text the user entered that resulted in this ValueResult.</returns>
+    /// <exception cref="NotImplementedException"></exception>
     public override string ToString()
-        //=> $"{nameof(ValueResult)} ({FormatOutcomeMessage()}) {ValueSymbol?.Name}";
         => $"{nameof(ArgumentResult)} {ValueSymbol.Name}: {string.Join(" ", TextForDisplay())}";
 
- 
-    // TODO: This definitely feels like the wrong place for this, (Some completion stuff was stripped out. This was a private method in ArgumentConversionResult
+
+    // TODO: This might not be the right place for this, (Some completion stuff was stripped out. This was a private method in ArgumentConversionResult)
+    /*
     private string FormatOutcomeMessage()
         => ValueSymbol switch
         {
@@ -135,4 +147,5 @@ public class ValueResult
             CliOption option => option.Argument.ValueType,
             _ => throw new NotImplementedException()
         };
+    */
 }

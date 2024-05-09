@@ -11,7 +11,7 @@ namespace System.CommandLine.Subsystems.Tests;
 public class ValueSubsystemTests
 {
     [Fact]
-    public void Value_is_always_activated()
+    public void ValueSubsystem_is_activated_by_default()
     {
         CliRootCommand rootCommand = [
             new CliCommand("x")
@@ -65,7 +65,6 @@ public class ValueSubsystemTests
         const int expected = 43;
         var input = $"";
 
-        var parseResult = pipeline.Parse(configuration, input); // assigned for debugging
         pipeline.Execute(configuration, input, consoleHack);
 
         pipeline.Value.GetValue<int>(option).Should().Be(expected);
@@ -84,7 +83,7 @@ public class ValueSubsystemTests
         var x = 42;
         pipeline.Value.DefaultValueCalculation.Set(option, () => x + 2);
         const int expected = 44;
-        var input = $"";
+        var input = "";
 
         var parseResult = pipeline.Parse(configuration, input); // assigned for debugging
         pipeline.Execute(configuration, input, consoleHack);

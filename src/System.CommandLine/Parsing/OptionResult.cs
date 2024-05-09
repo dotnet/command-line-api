@@ -36,10 +36,10 @@ namespace System.CommandLine.Parsing
                     // TODO: Make sure errors are added
                     var conversionResult = ArgumentConversionResult
                             .ConvertIfNeeded(Option.Argument.ValueType);
-                    var conversionValue = conversionResult.Result switch
+                    object? conversionValue = conversionResult.Result switch
                     {
-                        ArgumentConversionResultType.Successful => conversionResult.Value!,
-                        ArgumentConversionResultType.NoArgument => default!,
+                        ArgumentConversionResultType.Successful => conversionResult.Value,
+                        ArgumentConversionResultType.NoArgument => default,
                         _ => default // This is an error condition, and is handled below
                     };
                     var locations = Tokens.Select(token => token.Location).ToArray();

@@ -6,7 +6,7 @@ using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine;
 
-public class ValueSubsystem(IAnnotationProvider? annotationProvider = null) 
+public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
     : CliSubsystem(ValueAnnotations.Prefix, SubsystemKind.Value, annotationProvider)
 {
     private Dictionary<CliSymbol, object?> cachedValues = [];
@@ -22,7 +22,7 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
     /// Provides access to Get and Set methods for default value calculations for symbols
     /// </summary>
     public ValueFuncAnnotationAccessor<object?> DefaultValueCalculation
-      => new (this, ValueAnnotations.DefaultValueCalculation);
+      => new(this, ValueAnnotations.DefaultValueCalculation);
 
     // It is possible that another subsystems GetIsActivated method will access a value. 
     // If this is called from a GetIsActivated method of a subsystem in the early termination group, 
@@ -48,14 +48,17 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
     }
 
     private void SetValue<T>(CliSymbol symbol, object? value)
-        => cachedValues.Add(symbol, value);
+    {
+        cachedValues[symbol] = value;
+    }
+
     private bool TryGetValue<T>(CliSymbol symbol, out T? value)
     {
         if (cachedValues.TryGetValue(symbol, out var objectValue))
         {
             value = objectValue is null
                 ? default
-                :(T)objectValue;
+                : (T)objectValue;
             return true;
         }
         value = default;
@@ -68,24 +71,33 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
         => GetValueInternal<T>(argument);
 
     private T? GetValueInternal<T>(CliSymbol? symbol)
-        => symbol switch
+    {
+        return symbol switch
         {
             not null when TryGetValue<T>(symbol, out var value)
                 => value, // It has already been retrieved at least once
-            CliArgument  argument when parseResult?.GetValueResult(argument) is { } valueResult  // GetValue not used because it  would always return a value
+            CliArgument argument when parseResult?.GetValueResult(argument) is { } valueResult  // GetValue not used because it  would always return a value
                 => UseValue(symbol, valueResult.GetValue<T>()), // Value was supplied during parsing, 
-            CliOption option when parseResult?.GetValueResult(option) is {} valueResult  // GetValue not used because it would always return a value
+            CliOption option when parseResult?.GetValueResult(option) is { } valueResult  // GetValue not used because it would always return a value
                 => UseValue(symbol, valueResult.GetValue<T>()), // Value was supplied during parsing
             // Value was not supplied during parsing, determine default now
-            not null when DefaultValueCalculation.TryGet<T>(symbol, out var  defaultValueCalculation)
-                => UseValue(symbol, CalculatedDefault<T>(symbol, defaultValueCalculation)),
-            not null when DefaultValue.TryGet<T>(symbol, out var explicitValue) 
-                => UseValue<T>(symbol, (T)explicitValue),
+            // configuration values go here in precedence
             //not null when GetDefaultFromEnvironmentVariable<T>(symbol, out var envName)
             //    => UseValue(symbol, GetEnvByName(envName)),
+            not null when DefaultValueCalculation.TryGet(symbol, out var defaultValueCalculation)
+                => UseValue(symbol, CalculatedDefault<T>(symbol, defaultValueCalculation)),
+            not null when DefaultValue.TryGet<T>(symbol, out var explicitValue)
+                => UseValue<T>(symbol, (T)explicitValue),
             null => throw new ArgumentNullException(nameof(symbol)),
             _ => UseValue(symbol, default(T))
         };
+
+        TValue? UseValue<TValue>(CliSymbol symbol, TValue? value)
+        {
+            SetValue<TValue>(symbol, value);
+            return value;
+        }
+    }
 
     private static T? CalculatedDefault<T>(CliSymbol symbol, Func<object?> defaultValueCalculation)
     {
@@ -93,12 +105,6 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
         var value = objectValue is null
             ? default
             : (T)objectValue;
-        return value;
-    }
-
-    private T? UseValue<T>(CliSymbol symbol, T? value)
-    {
-        SetValue<T>(symbol, value);
         return value;
     }
 }

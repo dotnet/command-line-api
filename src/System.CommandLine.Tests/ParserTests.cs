@@ -1890,10 +1890,8 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand --opt1 Kirk Spock Uhura");
 
-            var commandResult = parseResult.CommandResult;
-            parseResult.GetValue(option1);
-            var result1 = parseResult.GetValueResult(option1);
-            result1.Locations.Should().BeEquivalentTo([expectedLocation1, expectedLocation2, expectedLocation3]);
+            var result = parseResult.GetValueResult(option1);
+            result.Locations.Should().BeEquivalentTo([expectedLocation1, expectedLocation2, expectedLocation3]);
         }
 
         [Fact]

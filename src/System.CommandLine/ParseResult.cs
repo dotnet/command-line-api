@@ -87,7 +87,7 @@ namespace System.CommandLine
             symbolLookupByName ??= new SymbolLookupByName(this);
             return symbolLookupByName.TryGetSymbol(name, out var symbol, valuesOnly: valuesOnly)
                         ? symbol
-                        : throw new ArgumentException($"No symbol result found with name \"{name}\".");
+                        : throw new ArgumentException($"No symbol result found with name \"{name}\".", nameof(name));
         }
 
         // TODO: check that constructing empty ParseResult directly is correct
@@ -206,7 +206,7 @@ namespace System.CommandLine
         /// Gets the result, if any, for the specified argument.
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
-        /// <returns>A result for the specified argument, or <see langword="default"/> if it was not entered by the user.</returns>
+        /// <returns>A result for the specified argument, or <see langword="null"/> if it was not entered by the user.</returns>
         public ValueResult? GetValueResult(CliArgument argument)
             => GetValueResultInternal(argument);
 

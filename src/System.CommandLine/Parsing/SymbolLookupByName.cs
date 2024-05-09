@@ -20,7 +20,7 @@ namespace System.CommandLine.Parsing;
 /// </summary>
 public class SymbolLookupByName
 {
-    private class CommandCache(CliCommand command)
+    private readonly struct CommandCache(CliCommand command)
     {
         public CliCommand Command { get; } = command;
         public Dictionary<string, CliSymbol> SymbolsByName { get; } = new();
@@ -62,15 +62,15 @@ public class SymbolLookupByName
 
         return cache;
 
-        static void AddSymbolsToCache(CommandCache CommandCache, IEnumerable<CliSymbol> symbols, CliCommand command)
+        static void AddSymbolsToCache(CommandCache commandCache, IEnumerable<CliSymbol> symbols, CliCommand command)
         {
             foreach (var symbol in symbols)
             {
-                if (CommandCache.SymbolsByName.ContainsKey(symbol.Name))
+                if (commandCache.SymbolsByName.ContainsKey(symbol.Name))
                 {
                     throw new InvalidOperationException($"Command {command.Name} has more than one child named \"{symbol.Name}\".");
                 }
-                CommandCache.SymbolsByName.Add(symbol.Name, symbol);
+                commandCache.SymbolsByName.Add(symbol.Name, symbol);
             }
         }
     }
@@ -133,15 +133,35 @@ public class SymbolLookupByName
     /// Gets the symbol with the requested name that appears nearest to the starting command, which defaults to the current or leaf command.
     /// </summary>
     /// <param name="name">The name to search for</param>
+    /// <param name="symbol">An out parameter to receive the symbol, if found.</param>
+    /// <param name="parent">An out parameter to receive the parent, if found.</param>
     /// <param name="startCommand">The command to start searching up from, which defaults to the current command.</param>
     /// <param name="skipAncestors">If true, only the starting command and no ancestors are searched.</param>
     /// <param name="valuesOnly">If true, commands are ignored and only options and arguments are found.</param>
     /// <returns>A tuple of the found symbol and its parent command. Throws if the name is not found.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the name is not found.</exception>
-    public (CliSymbol symbol, CliCommand parent) GetSymbolAndParent(string name, CliCommand? startCommand = null, bool skipAncestors = false, bool valuesOnly = false)
-        => TryGetSymbolAndParentInternal(name, out var symbol, out var parent, out var errorMessage, startCommand, skipAncestors, valuesOnly)
-            ? (symbol, parent)
-            : throw new InvalidOperationException(errorMessage);
+    // TODO: Add tests
+    public bool TryGetSymbolAndParent(string name,
+                                      [NotNullWhen(true)] out CliSymbol? symbol,
+                                      [NotNullWhen(true)] out CliCommand? parent,
+                                      CliCommand? startCommand = null,
+                                      bool skipAncestors = false,
+                                      bool valuesOnly = false)
+    {
+        if (TryGetSymbolAndParentInternal(name, out var storedSymbol, out var storedParent, out var errorMessage, startCommand, skipAncestors, valuesOnly))
+        {
+            symbol = storedSymbol;
+            parent = storedParent;
+            return true;
+        }
+        if (errorMessage is not null)
+        {
+            throw new InvalidOperationException(errorMessage);
+        }
+        symbol = null;
+        parent = null;
+        return false;
+    }
 
 
     /// <summary>
@@ -159,17 +179,12 @@ public class SymbolLookupByName
 
     private IEnumerable<CommandCache>? GetCommandCachesToUse(CliCommand currentCommand)
     {
-        if (cache[0].Command == currentCommand)
-        {
-            return cache;
-        }
-        for (int i = 1; i < cache.Count; i++) // we tested for 0 earlier
-        {
-            if (cache[i].Command == currentCommand)
-            {
-                return cache.Skip(i);
-            }
-        }
-        return null;
+        int index = FindIndex(cache, currentCommand);
+        return index == -1 
+            ? null 
+            : cache.Skip(index);
+
+        static int FindIndex(List<CommandCache> cache, CliCommand? currentCommand)
+            => cache.FindIndex(c => c.Command == currentCommand);
     }
 }

@@ -17,10 +17,10 @@ public class ParseResultValueTests
         var option2 = new CliOption<string>("--opt2");
 
         var rootCommand = new CliRootCommand
-                    {
-                        option1,
-                        option2
-                    };
+            {
+                option1,
+                option2
+            };
 
         var parseResult = CliParser.Parse(rootCommand, "--opt1 Kirk");
 
@@ -28,31 +28,32 @@ public class ParseResultValueTests
         var symbol2 = parseResult.GetSymbolByName("--opt2");
         using (new AssertionScope())
         {
-            symbol1.Should().Be(option1);
-            symbol2.Should().Be(option2);
+            symbol1.Should().Be(option1, "because option1 should be found for --opt1" );
+            symbol2.Should().Be(option2, "because option2 should be found for --opt2");
         }
     }
 
     [Fact]
     public void Nearest_symbol_found_when_multiple()
     {
-        var option1 = new CliOption<string>("--opt1", "-1");
-        var option2 = new CliOption<string>("--opt1", "-2");
+        // both options have the same name as that is the point of the test
+        var optionA = new CliOption<string>("--opt1", "-1");
+        var optionB = new CliOption<string>("--opt1", "-2");
 
         var command = new CliCommand("subcommand")
-                    {
-                        option2
-                    };
+            {
+                optionB
+            };
 
         var rootCommand = new CliRootCommand
-                    {
-                        command,
-                        option1
-                    };
+            {
+                command,
+                optionA
+            };
 
-        var parseResult = CliParser.Parse(rootCommand, "subcommand --opt2 Spock");
+        var parseResult = CliParser.Parse(rootCommand, "subcommand");
 
         var symbol = parseResult.GetSymbolByName("--opt1");
-        symbol.Should().Be(option2);
+        symbol.Should().Be(optionB, "because it is closer to the leaf/executing command");
     }
 }

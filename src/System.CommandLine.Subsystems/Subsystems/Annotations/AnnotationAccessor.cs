@@ -8,12 +8,6 @@ namespace System.CommandLine.Subsystems.Annotations;
 /// <summary>
 /// Allows associating an annotation with a <see cref="CliSymbol"/>. The annotation will be stored by the accessor's owner <see cref="CliSubsystem"/>.
 /// </summary>
-/// <remarks>
-/// The annotation will be stored by the accessor's owner <see cref="CliSubsystem"/>. 
-/// </summary>
-/// <typeparam name="TValue">The type of value to be stored</typeparam>
-/// <param name="owner">The subsystem that this annotation store data for.</param>
-/// <param name="id">The identifier for this annotation, since subsystems may have multiple annotations.</param>
 public struct AnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<TValue> id)
 {
     /// <summary>

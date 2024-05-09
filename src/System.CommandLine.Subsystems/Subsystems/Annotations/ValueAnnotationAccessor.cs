@@ -54,8 +54,12 @@ public struct ValueAnnotationAccessor<TValue>(CliSubsystem owner, AnnotationId<T
     {
         if (owner.TryGetAnnotation(symbol, id, out var storedValue))
         {
-            value = (TSymbolValue)storedValue;
-            return true;
+            if (storedValue is TSymbolValue symbolValue)
+            {
+                value = symbolValue;
+                return true;
+            }
+            throw new ArgumentException("The requested type is incorrect.", nameof(symbol));
         }
         value = default;
         return false;
