@@ -15,7 +15,7 @@ namespace System.CommandLine.Parsing
         internal List<CliToken>? UnmatchedTokens;
 */
 
-        // TODO: Looks like this is a SymboNode/linked list because a symbol may appear multiple
+        // TODO: Looks like this is a SymbolNode/linked list because a symbol may appear multiple
         // places in the tree and multiple symbols will have the same short name. The question is 
         // whether creating the multiple node instances is faster than just using lists. Could well be.
         private Dictionary<string, SymbolNode>? _symbolsByName;
