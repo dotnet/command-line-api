@@ -22,10 +22,14 @@ public abstract class CliSubsystem
     /// The name of the subsystem.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Defines the kind of subsystem, such as help or version
+    /// </summary>
     public SubsystemKind SubsystemKind { get; }
 
-    DefaultAnnotationProvider? _defaultProvider;
-    readonly IAnnotationProvider? _annotationProvider;
+    private DefaultAnnotationProvider? _defaultProvider;
+    private readonly IAnnotationProvider? _annotationProvider;
 
     /// <summary>
     /// Attempt to retrieve the value for the symbol and annotation ID from the annotation provider.
@@ -53,6 +57,24 @@ public abstract class CliSubsystem
         return false;
     }
 
+    /// <inheritdoc cref="CliSubsystem.SetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, TValue)"/>
+    /// <returns>A delegate that returns the value.</returns>
+    protected internal bool TryGetAnnotation<TValue>(CliSymbol symbol, AnnotationId<Func<TValue>> id, [NotNullWhen(true)] out Func<TValue>? value)
+    {
+        if (_defaultProvider is not null && _defaultProvider.TryGet(symbol, id, out var storedValue))
+        {
+            value = storedValue;
+            return true;
+        }
+        if (_annotationProvider is not null && _annotationProvider.TryGet(symbol, id, out var storedValue2))
+        {
+            value = storedValue2;
+            return true;
+        }
+        value = default;
+        return false;
+    }
+
     /// <summary>
     /// Set the value for the symbol and annotation ID in the annotation provider.
     /// </summary>
@@ -69,6 +91,16 @@ public abstract class CliSubsystem
         (_defaultProvider ??= new DefaultAnnotationProvider()).Set(symbol, id, value);
     }
 
+    /// <inheritdoc cref="CliSubsystem.SetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, TValue)"/>
+    /// <param name="value">A delegate that returns the value.</param>
+    protected internal void SetAnnotation<TValue>(CliSymbol symbol, AnnotationId<Func<TValue>> id, Func<TValue> value)
+    {
+        (_defaultProvider ??= new DefaultAnnotationProvider()).Set<Func<TValue>>(symbol, id, value);
+    }
+
+    /// <summary>
+    /// The subystem executes, even if another subsystem has handled the operation. This is expected to be used in things like error reporting.
+    /// </summary>
     protected internal virtual bool RunsEvenIfAlreadyHandled { get; protected set; }
 
     /// <summary>
@@ -76,16 +108,17 @@ public abstract class CliSubsystem
     /// </summary>
     /// <param name="pipelineContext">The context contains data like the ParseResult, and allows setting of values like whether execution was handled and the CLI should terminate </param>
     /// <returns>A CliExit object with information such as whether the CLI should terminate</returns>
-    protected internal virtual CliExit Execute(PipelineContext pipelineContext) => CliExit.NotRun(pipelineContext.ParseResult);
+    protected internal virtual CliExit Execute(PipelineContext pipelineContext)
+        => CliExit.NotRun(pipelineContext.ParseResult);
 
     internal PipelineContext ExecuteIfNeeded(PipelineContext pipelineContext)
-        => ExecuteIfNeeded(pipelineContext.ParseResult,  pipelineContext);
+        => ExecuteIfNeeded(pipelineContext.ParseResult, pipelineContext);
 
     internal PipelineContext ExecuteIfNeeded(ParseResult? parseResult, PipelineContext pipelineContext)
     {
-        if( GetIsActivated(parseResult))
+        if (GetIsActivated(parseResult))
         {
-            Execute(pipelineContext );
+            Execute(pipelineContext);
         }
         return pipelineContext;
     }
@@ -114,11 +147,12 @@ public abstract class CliSubsystem
     /// <param name="configuration">The CLI configuration, which contains the RootCommand for customization</param>
     /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
     // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
+    // TODO: Why does Intitialize return a configuration?
     protected internal virtual CliConfiguration Initialize(InitializationContext context)
         => context.Configuration;
 
     // TODO: Determine if this is needed.
-    protected internal virtual CliExit TearDown(CliExit cliExit) 
+    protected internal virtual CliExit TearDown(CliExit cliExit)
         => cliExit;
 
 }

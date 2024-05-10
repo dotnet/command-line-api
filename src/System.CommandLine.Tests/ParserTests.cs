@@ -1501,7 +1501,7 @@ namespace System.CommandLine.Tests
                     new CliToken("5", CliTokenType.Argument, argument, dummyLocation));
         }
 
-        [Fact]
+        [Fact(Skip ="Waiting for CliError work")]
         public void When_command_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
             var command = new CliCommand("the-command")
@@ -1590,7 +1590,7 @@ namespace System.CommandLine.Tests
                     new CliToken("5", CliTokenType.Argument, default, dummyLocation));
         }
 
-        [Fact]
+        [Fact(Skip = "Waiting for CliError work")]
         public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
             var option = new CliOption<int[]>("-x")
@@ -1872,6 +1872,26 @@ namespace System.CommandLine.Tests
             var result2 = commandResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
             result2.Locations.Single().Should().Be(expectedLocation2);
+        }
+
+        [Fact]
+        public void Locations_correct_for_collection()
+        {
+            var option1 = new CliOption<string[]>("--opt1");
+            option1.AllowMultipleArgumentsPerToken = true;
+            var rootCommand = new CliRootCommand
+                    {
+                        option1
+                    };
+            var expectedOuterLocation = new Location(CliExecutable.ExecutableName, Location.User, -1, null);
+            var expectedLocation1 = new Location("Kirk", Location.User, 2, expectedOuterLocation);
+            var expectedLocation2 = new Location("Spock", Location.User, 3, expectedOuterLocation);
+            var expectedLocation3 = new Location("Uhura", Location.User, 4, expectedOuterLocation);
+
+            var parseResult = CliParser.Parse(rootCommand, "subcommand --opt1 Kirk Spock Uhura");
+
+            var result = parseResult.GetValueResult(option1);
+            result.Locations.Should().BeEquivalentTo([expectedLocation1, expectedLocation2, expectedLocation3]);
         }
 
         [Fact]

@@ -15,48 +15,50 @@ namespace System.CommandLine
     public sealed class ParseResult
     {
         private readonly IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary = new Dictionary<CliSymbol, ValueResult>();
+        private SymbolLookupByName? symbolLookupByName = null;
 
         private readonly CommandResult _rootCommandResult;
-// TODO: unmatched tokens, invocation, completion
-/*
+        // TODO: unmatched tokens, invocation, completion
+        /*
         private readonly IReadOnlyList<CliToken> _unmatchedTokens;
         private CompletionContext? _completionContext;
         private readonly CliAction? _action;
         private readonly List<CliAction>? _preActions;
-*/
+        */
 
         internal ParseResult(
             CliConfiguration configuration,
-// TODO: determine how rootCommandResult and commandResult differ
+            // TODO: determine how rootCommandResult and commandResult differ
             CommandResult rootCommandResult,
             CommandResult commandResult,
-            Dictionary<CliSymbol, ValueResult> valueResults,
+            SymbolResultTree symbolResultTree,
             /*
             List<CliToken> tokens,
             */
-// TODO: unmatched tokens
-//          List<CliToken>? unmatchedTokens,
+            // TODO: unmatched tokens
+            // List<CliToken>? unmatchedTokens,
             List<ParseError>? errors,
-// TODO: commandLineText should be string array
+            // TODO: commandLineText should be string array
             string? commandLineText = null //,
-// TODO: invocation
-/*
+            // TODO: invocation
+            /*
             CliAction? action = null,
             List<CliAction>? preActions = null)
-*/
+            */
             )
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
-            valueResultDictionary = valueResults;
+            valueResultDictionary = symbolResultTree.BuildValueResultDictionary();
             // TODO: invocation
-/*
+            /*
             _action = action;
             _preActions = preActions;
-*/
+            */
             /*
             // skip the root command when populating Tokens property
+            /*
             if (tokens.Count > 1)
             {
                 // Since TokenizeResult.Tokens is not public and not used anywhere after the parsing,
@@ -73,16 +75,25 @@ namespace System.CommandLine
 
             CommandLineText = commandLineText;
 
-// TODO: unmatched tokens
-//          _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
+            // TODO: unmatched tokens
+            // _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
 
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
-// TODO: check that constructing empty ParseResult directly is correct
-/*
+        public CliSymbol? GetSymbolByName(string name, bool valuesOnly = false)
+        {
+
+            symbolLookupByName ??= new SymbolLookupByName(this);
+            return symbolLookupByName.TryGetSymbol(name, out var symbol, valuesOnly: valuesOnly)
+                        ? symbol
+                        : throw new ArgumentException($"No symbol result found with name \"{name}\".", nameof(name));
+        }
+
+        // TODO: check that constructing empty ParseResult directly is correct
+        /*
         internal static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
-*/
+        */
 
         /// <summary>
         /// A result indicating the command specified in the command line input.
@@ -143,7 +154,7 @@ namespace System.CommandLine
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
         public T? GetValue<T>(CliArgument<T> argument)
-            => RootCommandResult.GetValue(argument);
+            => GetValueInternal<T>(argument);
 
         /// <summary>
         /// Gets the parsed or default value for the specified option.
@@ -151,7 +162,12 @@ namespace System.CommandLine
         /// <param name="option">The option for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
         public T? GetValue<T>(CliOption<T> option)
-            => RootCommandResult.GetValue(option);
+            => GetValueInternal<T>(option);
+
+        private T? GetValueInternal<T>(CliSymbol symbol)
+            => valueResultDictionary.TryGetValue(symbol, out var result)
+                ? (T?)result.Value
+                : default;
 
         /// <summary>
         /// Gets the parsed or default value for the specified symbol name, in the context of parsed command (not entire symbol tree).
@@ -162,7 +178,15 @@ namespace System.CommandLine
         /// <exception cref="ArgumentException">Thrown when there was no symbol defined for given name for the parsed command.</exception>
         /// <exception cref="InvalidCastException">Thrown when parsed result can not be cast to <typeparamref name="T"/>.</exception>
         public T? GetValue<T>(string name)
-            => RootCommandResult.GetValue<T>(name);
+        {
+            var symbol = GetSymbolByName(name, valuesOnly: true);
+            return symbol switch
+            {
+                CliArgument<T> argument => GetValue(argument),
+                CliOption<T> option => GetValue(option),
+                _ => throw new InvalidOperationException("Unexpected symbol type")
+            };
+        }
 
         // TODO: diagramming
         /*
@@ -170,9 +194,25 @@ namespace System.CommandLine
         public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
         */
 
-        public ValueResult? GetValueResult(CliSymbol symbol) 
-            => valueResultDictionary.TryGetValue(symbol, out var result) 
-                ? result 
+        /// <summary>
+        /// Gets the ValueResult, if any, for the specified option.
+        /// </summary>
+        /// <param name="option">The option for which to find a result.</param>
+        /// <returns>A result for the specified option, or <see langword="null"/> if it was not entered by the user.</returns>
+        public ValueResult? GetValueResult(CliOption option)
+            => GetValueResultInternal(option);
+
+        /// <summary>
+        /// Gets the result, if any, for the specified argument.
+        /// </summary>
+        /// <param name="argument">The argument for which to find a result.</param>
+        /// <returns>A result for the specified argument, or <see langword="null"/> if it was not entered by the user.</returns>
+        public ValueResult? GetValueResult(CliArgument argument)
+            => GetValueResultInternal(argument);
+
+        private ValueResult? GetValueResultInternal(CliSymbol symbol)
+            => valueResultDictionary.TryGetValue(symbol, out var result)
+                ? result
                 : null;
 
         /// <summary>
@@ -183,6 +223,7 @@ namespace System.CommandLine
         internal ArgumentResult? GetResult(CliArgument argument) =>
             _rootCommandResult.GetResult(argument);
 
+        /* Not used
         /// <summary>
         /// Gets the result, if any, for the specified command.
         /// </summary>
@@ -190,6 +231,7 @@ namespace System.CommandLine
         /// <returns>A result for the specified command, or <see langword="null"/> if it was not provided.</returns>
         internal CommandResult? GetResult(CliCommand command) =>
             _rootCommandResult.GetResult(command);
+        */
 
         /// <summary>
         /// Gets the result, if any, for the specified option.
@@ -199,15 +241,16 @@ namespace System.CommandLine
         internal OptionResult? GetResult(CliOption option) =>
             _rootCommandResult.GetResult(option);
 
-// TODO: Directives
-/*
+        // TODO: Directives
+        /*
         /// <summary>
         /// Gets the result, if any, for the specified directive.
         /// </summary>
         /// <param name="directive">The directive for which to find a result.</param>
         /// <returns>A result for the specified directive, or <see langword="null"/> if it was not provided.</returns>
         public DirectiveResult? GetResult(CliDirective directive) => _rootCommandResult.GetResult(directive);
-*/
+        */
+        /* Replaced with GetValueResult 
         /// <summary>
         /// Gets the result, if any, for the specified symbol.
         /// </summary>
@@ -215,9 +258,9 @@ namespace System.CommandLine
         /// <returns>A result for the specified symbol, or <see langword="null"/> if it was not provided and no default was configured.</returns>
         public SymbolResult? GetResult(CliSymbol symbol)
             => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out SymbolResult? result) ? result : null;
-
-// TODO: completion, invocation
-/*
+        */
+        // TODO: completion, invocation
+        /*
         /// <summary>
         /// Gets completions based on a given parse result.
         /// </summary>
@@ -247,8 +290,8 @@ namespace System.CommandLine
             var completions = currentSymbol.GetCompletions(context);
 
             string[] optionsWithArgumentLimitReached = currentSymbolResult is CommandResult commandResult
-                                                           ? OptionsWithArgumentLimitReached(commandResult)
-                                                           : Array.Empty<string>();
+                                                            ? OptionsWithArgumentLimitReached(commandResult)
+                                                            : Array.Empty<string>();
 
             completions =
                 completions.Where(item => optionsWithArgumentLimitReached.All(s => s != item.Label));

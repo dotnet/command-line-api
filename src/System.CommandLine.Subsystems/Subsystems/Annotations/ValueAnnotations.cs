@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Parsing;
-
 namespace System.CommandLine.Subsystems.Annotations;
 
 /// <summary>
@@ -10,8 +8,15 @@ namespace System.CommandLine.Subsystems.Annotations;
 /// </summary>
 public static class ValueAnnotations
 {
-    public static string Prefix { get; } = nameof(SubsystemKind.Value);
+    internal static string Prefix { get; } = nameof(SubsystemKind.Value);
 
-    public static AnnotationId<object> Explicit { get; } = new(Prefix, nameof(Explicit));
-    public static AnnotationId<Func<ValueResult, object?>> Calculated { get; } = new(Prefix, nameof(Calculated));
+    /// <summary>
+    /// Provides Set and Get for default values
+    /// </summary>
+    public static AnnotationId<object?> DefaultValue { get; } = new(Prefix, nameof(DefaultValue));
+
+    /// <summary>
+    /// Provides Set and Get for default value calculations
+    /// </summary>
+    public static AnnotationId<Func<object?>> DefaultValueCalculation { get; } = new(Prefix, nameof(DefaultValueCalculation));
 }

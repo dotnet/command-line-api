@@ -79,4 +79,18 @@ internal class TestData
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
+
+    internal class Value : IEnumerable<object[]>
+    {
+        private readonly List<object[]> _data =
+        [
+            ["--intValue", 42],
+            ["--stringValue", "43"],
+            ["--boolValue", true]
+        ];
+
+        public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

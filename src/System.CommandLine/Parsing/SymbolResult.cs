@@ -8,7 +8,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced during parsing for a specific symbol.
     /// </summary>
-    public abstract class SymbolResult
+    internal abstract class SymbolResult
     {
 // TODO: make this a property and protected if possible
         internal readonly SymbolResultTree SymbolResultTree;
@@ -72,12 +72,14 @@ namespace System.CommandLine.Parsing
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
         internal ArgumentResult? GetResult(CliArgument argument) => SymbolResultTree.GetResult(argument);
 
+        /* Not used
         /// <summary>
         /// Finds a result for the specific command anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
         internal CommandResult? GetResult(CliCommand command) => SymbolResultTree.GetResult(command);
+        */
 
         /// <summary>
         /// Finds a result for the specific option anywhere in the parse tree, including parent and child symbol results.
@@ -95,6 +97,7 @@ namespace System.CommandLine.Parsing
         /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
         public DirectiveResult? GetResult(CliDirective directive) => SymbolResultTree.GetResult(directive);
 */
+        /* No longer used
         /// <summary>
         /// Finds a result for a symbol having the specified name anywhere in the parse tree.
         /// </summary>
@@ -151,6 +154,7 @@ namespace System.CommandLine.Parsing
 
             return CliArgument<T>.CreateDefaultValue();
         }
+        */
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;
     }
