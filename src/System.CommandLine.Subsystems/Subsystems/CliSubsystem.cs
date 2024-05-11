@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Subsystems.Annotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Subsystems;
@@ -28,74 +29,26 @@ public abstract class CliSubsystem
     /// </summary>
     public SubsystemKind SubsystemKind { get; }
 
-    private DefaultAnnotationProvider? _defaultProvider;
     private readonly IAnnotationProvider? _annotationProvider;
 
     /// <summary>
-    /// Attempt to retrieve the value for the symbol and annotation ID from the annotation provider.
+    /// Attempt to retrieve the <paramref name="symbol"/>'s value for the annotation <paramref name="id"/>. This will check the
+    /// annotation provider that was passed to the subsystem constructor, and the internal annotation storage.
     /// </summary>
     /// <typeparam name="TValue">The value of the type to retrieve</typeparam>
     /// <param name="symbol">The symbol the value is attached to</param>
-    /// <param name="id">The id for the value to be retrieved. For example, an annotation ID for help is description</param>
+    /// <param name="id">
+    /// The identifier for the annotation value to be retrieved.
+    /// For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
+    /// </param>
     /// <param name="value">An out parameter to contain the result</param>
     /// <returns>True if successful</returns>
     /// <remarks>
-    /// This value is protected because these values are always retrieved from derived classes that offer
-    /// strongly typed explicit methods, such as help having `GetDescription(Symbol symbol)` method.
+    /// This value is protected because it is a convenience for subsystem authors. It calls <see cref="SymbolAnnotationStorageExtensions"/>
     /// </remarks>
     protected internal bool TryGetAnnotation<TValue>(CliSymbol symbol, AnnotationId<TValue> id, [NotNullWhen(true)] out TValue? value)
     {
-        if (_defaultProvider is not null && _defaultProvider.TryGet(symbol, id, out value))
-        {
-            return true;
-        }
-        if (_annotationProvider is not null && _annotationProvider.TryGet(symbol, id, out value))
-        {
-            return true;
-        }
-        value = default;
-        return false;
-    }
-
-    /// <inheritdoc cref="CliSubsystem.SetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, TValue)"/>
-    /// <returns>A delegate that returns the value.</returns>
-    protected internal bool TryGetAnnotation<TValue>(CliSymbol symbol, AnnotationId<Func<TValue>> id, [NotNullWhen(true)] out Func<TValue>? value)
-    {
-        if (_defaultProvider is not null && _defaultProvider.TryGet(symbol, id, out var storedValue))
-        {
-            value = storedValue;
-            return true;
-        }
-        if (_annotationProvider is not null && _annotationProvider.TryGet(symbol, id, out var storedValue2))
-        {
-            value = storedValue2;
-            return true;
-        }
-        value = default;
-        return false;
-    }
-
-    /// <summary>
-    /// Set the value for the symbol and annotation ID in the annotation provider.
-    /// </summary>
-    /// <typeparam name="TValue">The value of the type to set</typeparam>
-    /// <param name="symbol">The symbol the value is attached to</param>
-    /// <param name="id">The id for the value to be set. For example, an annotation ID for help is description</param>
-    /// <param name="value">An out parameter to contain the result</param>
-    /// <remarks>
-    /// This value is protected because these values are always retrieved from derived classes that offer
-    /// strongly typed explicit methods, such as help having `GetDescription(Symbol symbol, "My help description")` method.
-    /// </remarks>
-    protected internal void SetAnnotation<TValue>(CliSymbol symbol, AnnotationId<TValue> id, TValue value)
-    {
-        (_defaultProvider ??= new DefaultAnnotationProvider()).Set(symbol, id, value);
-    }
-
-    /// <inheritdoc cref="CliSubsystem.SetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, TValue)"/>
-    /// <param name="value">A delegate that returns the value.</param>
-    protected internal void SetAnnotation<TValue>(CliSymbol symbol, AnnotationId<Func<TValue>> id, Func<TValue> value)
-    {
-        (_defaultProvider ??= new DefaultAnnotationProvider()).Set<Func<TValue>>(symbol, id, value);
+        return symbol.TryGetAnnotation(id, out value, _annotationProvider);
     }
 
     /// <summary>

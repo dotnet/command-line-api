@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Directives;
+using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine.Subsystems.Tests
 {
@@ -30,9 +31,7 @@ namespace System.CommandLine.Subsystems.Tests
 
             protected override CliExit Execute(PipelineContext pipelineContext)
             {
-                var help = pipelineContext.Pipeline.Help ?? throw new InvalidOperationException("Help cannot be null for this subsystem to work");
-                help.Description.TryGet(Symbol, out var description);
-
+                TryGetAnnotation(Symbol, HelpAnnotations.Description, out string? description);
                 pipelineContext.ConsoleHack.WriteLine(description);
                 pipelineContext.AlreadyHandled = true;
                 return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);

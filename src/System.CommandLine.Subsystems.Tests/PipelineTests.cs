@@ -186,7 +186,7 @@ namespace System.CommandLine.Subsystems.Tests
             if (pipeline.Help is null) throw new InvalidOperationException();
             var rootCommand = new CliRootCommand
             {
-                symbol.With(pipeline.Help.Description, "Testing")
+                symbol.WithDescription("Testing")
             };
 
             pipeline.Execute(new CliConfiguration(rootCommand), "-v", console);

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Subsystems;
 using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine;
@@ -10,13 +11,6 @@ namespace System.CommandLine;
 /// </summary>
 public static class SymbolAnnotationExtensions
 {
-    public static TSymbol With<TSymbol, TValue>(this TSymbol symbol, AnnotationAccessor<TValue> annotation, TValue value)
-        where TSymbol : CliSymbol
-    {
-        annotation.Set(symbol, value);
-        return symbol;
-    }
-
     public static TCommand With<TCommand>(this TCommand command, CliCommand subcommand)
         where TCommand : CliCommand
     {
