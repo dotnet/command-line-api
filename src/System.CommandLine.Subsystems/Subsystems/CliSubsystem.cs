@@ -44,11 +44,17 @@ public abstract class CliSubsystem
     /// <param name="value">An out parameter to contain the result</param>
     /// <returns>True if successful</returns>
     /// <remarks>
-    /// This value is protected because it is a convenience for subsystem authors. It calls <see cref="SymbolAnnotationStorageExtensions"/>
+    /// Subsystem authors must use this to access annotation values, as it respects the subsystem's <see cref="IAnnotationProvider"/> if it has one.
+    /// This value is protected because it is intended for use only by subsystem authors. It calls <see cref="AnnotationStorageExtensions"/>
     /// </remarks>
-    protected internal bool TryGetAnnotation<TValue>(CliSymbol symbol, AnnotationId<TValue> id, [NotNullWhen(true)] out TValue? value)
+    protected internal bool TryGetAnnotation<TValue>(CliSymbol symbol, AnnotationId<TValue> annotationId, [NotNullWhen(true)] out TValue? value)
     {
-        return symbol.TryGetAnnotation(id, out value, _annotationProvider);
+        if (_annotationProvider is not null && _annotationProvider.TryGet(symbol, annotationId, out value))
+        {
+            return true;
+        }
+
+        return symbol.TryGetAnnotation(annotationId, out value);
     }
 
     /// <summary>

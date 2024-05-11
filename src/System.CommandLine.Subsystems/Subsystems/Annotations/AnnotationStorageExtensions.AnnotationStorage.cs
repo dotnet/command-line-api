@@ -9,13 +9,17 @@ partial class AnnotationStorageExtensions
 {
     class AnnotationStorage : IAnnotationProvider
     {
-        record struct AnnotationKey(CliSymbol symbol, string annotationId);
+        record struct AnnotationKey(CliSymbol symbol, string prefix, string id)
+        {
+            public static AnnotationKey Create<TAnnotation> (CliSymbol symbol, AnnotationId<TAnnotation> annotationId)
+                => new (symbol, annotationId.Prefix, annotationId.Id);
+        }
 
         readonly Dictionary<AnnotationKey, object> annotations = [];
 
-        public bool TryGet<TValue>(CliSymbol symbol, AnnotationId<TValue> id, [NotNullWhen(true)] out TValue? value)
+        public bool TryGet<TValue>(CliSymbol symbol, AnnotationId<TValue> annotationId, [NotNullWhen(true)] out TValue? value)
         {
-            if (annotations.TryGetValue(new AnnotationKey(symbol, id.Id), out var obj))
+            if (annotations.TryGetValue(AnnotationKey.Create(symbol, annotationId), out var obj))
             {
                 value = (TValue)obj;
                 return true;
@@ -25,15 +29,16 @@ partial class AnnotationStorageExtensions
             return false;
         }
 
-        public void Set<TValue>(CliSymbol symbol, AnnotationId<TValue> id, TValue value)
+        public void Set<TValue>(CliSymbol symbol, AnnotationId<TValue> annotationId, TValue value)
         {
+            var key = AnnotationKey.Create(symbol, annotationId);
             if (value is not null)
             {
-                annotations[new AnnotationKey(symbol, id.Id)] = value;
+                annotations[key] = value;
             }
             else
             {
-                annotations.Remove(new AnnotationKey(symbol, id.Id));
+                annotations.Remove(key);
             }
         }
     }

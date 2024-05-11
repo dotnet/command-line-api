@@ -40,4 +40,7 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         pipelineContext.ConsoleHack.WriteLine("Help me!");
         return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
     }
+
+    public bool TryGetDescription (CliSymbol symbol, out string? description)
+        => TryGetAnnotation (symbol, HelpAnnotations.Description, out description);
 }

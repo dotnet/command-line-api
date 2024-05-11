@@ -50,7 +50,7 @@ public static partial class AnnotationStorageExtensions
     //
     // This is fine, as we will have the following well-defined threading behavior: an annotated grammar and pipeline may
     // only be constructed/modified from a single thread. Once the grammar/pipeline instance is fully constructed, it may
-    // be safely used from multiple threads.
+    // be safely used from multiple threads, but is not safe to further modify once in use.
 
     static readonly ConditionalWeakTable<CliSymbol, AnnotationStorage> symbolToAnnotationStorage = new();
 
@@ -68,7 +68,7 @@ public static partial class AnnotationStorageExtensions
         var storage = symbolToAnnotationStorage.GetValue(symbol, static (CliSymbol _) => new AnnotationStorage());
         storage.Set(symbol, annotationId, value);
     }
-    
+
     /// <summary>
     /// Sets the value for the annotation <paramref name="id"/> associated with the <paramref name="symbol"/> in the internal annotation storage,
     /// and returns the <paramref name="symbol"> to enable fluent construction of symbols with annotations.
@@ -79,6 +79,9 @@ public static partial class AnnotationStorageExtensions
     /// The identifier for the annotation. For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
     /// </param>
     /// <param name="value">The annotation value</param>
+    /// <returns>
+    /// The <paramref name="symbol">, to enable fluent construction of symbols with annotations.
+    /// </returns>
     public static TSymbol WithAnnotation<TSymbol, TValue>(this TSymbol symbol, AnnotationId<TValue> annotationId, TValue value) where TSymbol : CliSymbol
     {
         symbol.SetAnnotation(annotationId, value);
@@ -86,28 +89,24 @@ public static partial class AnnotationStorageExtensions
     }
 
     /// <summary>
-    /// Attempts to get the value for the annotation <paramref name="id"/> associated with the <paramref name="symbol"/>,
-    /// first from the optional <paramref name="provider"/>, and falling back to the internal annotation storage used to
-    /// store values set via <see cref="SetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, TValue)"/>.
+    /// Attempts to get the value for the annotation <paramref name="annotationId"/> associated with the <paramref name="symbol"/> in the internal annotation
+    /// storage used to store values set via <see cref="SetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, TValue)"/>.
     /// </summary>
     /// <typeparam name="TValue">The type of the annotation value</typeparam>
     /// <param name="symbol">The symbol that is annotated</param>
-    /// <param name="id">
+    /// <param name="annotationId">
     /// The identifier for the annotation. For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
     /// </param>
     /// <param name="value">The annotation value, if successful, otherwise <c>default</c></param>
-    /// <param name="provider">
-    /// An optional annotation provider that may implement custom or lazy construction of annotation values. Annotation returned by an annotation
-    /// provider take precedence over those stored in internal annotation storage.
-    /// </param>
     /// <returns>True if successful</returns>
-    public static bool TryGetAnnotation<TValue>(this CliSymbol symbol, AnnotationId<TValue> annotationId, [NotNullWhen(true)] out TValue? value, IAnnotationProvider? provider = null)
+    /// <remarks>
+    /// This is intended to be called by specialized ID-specific accessors for CLI authors such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)"/>.
+    /// Subsystems should not call it, as it does not account for values from the subsystem's <see cref="IAnnotationProvider"/>. They should instead call
+    /// <see cref="CliSubsystem.TryGetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, out TValue?)"/> or an ID-specific accessor on the subsystem such
+    /// <see cref="HelpSubsystem.TryGetDescription(CliSymbol, out string?)"/>.
+    /// </remarks>
+    public static bool TryGetAnnotation<TValue>(this CliSymbol symbol, AnnotationId<TValue> annotationId, [NotNullWhen(true)] out TValue? value)
     {
-        if (provider is not null && provider.TryGet(symbol, annotationId, out value))
-        {
-            return true;
-        }
-
         if (symbolToAnnotationStorage.TryGetValue(symbol, out var storage) && storage.TryGet (symbol, annotationId, out value))
         {
             return true;
@@ -116,23 +115,26 @@ public static partial class AnnotationStorageExtensions
         value = default;
         return false;
     }
+
     /// <summary>
-    /// Attempt to retrieve the <paramref name="symbol"/>'s value for the annotation <paramref name="id"/>
-    /// from the optional <paramref name="provider"/> and the internal annotation storage.
+    /// Attempts to get the value for the annotation <paramref name="annotationId"/> associated with the <paramref name="symbol"/> in the internal annotation
+    /// storage used to store values set via <see cref="SetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, TValue)"/>.
     /// </summary>
     /// <typeparam name="TValue">The type of the annotation value</typeparam>
     /// <param name="symbol">The symbol that is annotated</param>
-    /// <param name="id">
+    /// <param name="annotationId">
     /// The identifier for the annotation. For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
     /// </param>
-    /// <param name="provider">
-    /// An optional annotation provider that may implement custom or lazy construction of annotation values. Annotation returned by an annotation
-    /// provider take precedence over those stored in internal annotation storage.
-    /// </param>
     /// <returns>The annotation value, if successful, otherwise <c>default</c></returns>
-    public static TValue? GetAnnotationOrDefault<TValue>(this CliSymbol symbol, AnnotationId<TValue> annotationId, IAnnotationProvider? provider = null)
+    /// <remarks>
+    /// This is intended to be called by specialized ID-specific accessors for CLI authors such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)"/>.
+    /// Subsystems should not call it, as it does not account for values from the subsystem's <see cref="IAnnotationProvider"/>. They should instead call
+    /// <see cref="CliSubsystem.TryGetAnnotation{TValue}(CliSymbol, AnnotationId{TValue}, out TValue?)"/> or an ID-specific accessor on the subsystem such
+    /// <see cref="HelpSubsystem.TryGetDescription(CliSymbol, out string?)"/>.
+    /// </remarks>
+    public static TValue? GetAnnotationOrDefault<TValue>(this CliSymbol symbol, AnnotationId<TValue> annotationId)
     {
-        if (symbol.TryGetAnnotation(annotationId, out TValue? value, provider))
+        if (symbol.TryGetAnnotation(annotationId, out TValue? value))
         {
             return value;
         }
