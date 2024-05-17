@@ -12,18 +12,6 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
     private Dictionary<CliSymbol, object?> cachedValues = [];
     private ParseResult? parseResult = null;
 
-    /// <summary>
-    /// Provides access to Get and Set methods for default values for symbols
-    /// </summary>
-    public ValueAnnotationAccessor<object?> DefaultValue
-      => new(this, ValueAnnotations.DefaultValue);
-
-    /// <summary>
-    /// Provides access to Get and Set methods for default value calculations for symbols
-    /// </summary>
-    public ValueFuncAnnotationAccessor<object?> DefaultValueCalculation
-      => new(this, ValueAnnotations.DefaultValueCalculation);
-
     // It is possible that another subsystems GetIsActivated method will access a value. 
     // If this is called from a GetIsActivated method of a subsystem in the early termination group, 
     // it will fail. That is not an expected scenario.
@@ -72,6 +60,8 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
 
     private T? GetValueInternal<T>(CliSymbol? symbol)
     {
+        // NOTE: We use the subsystem's TryGetAnnotation here instead of the GetDefaultValue etc
+        // extension methods, as the subsystem's TryGetAnnotation respects its annotation provider
         return symbol switch
         {
             not null when TryGetValue<T>(symbol, out var value)
@@ -84,9 +74,9 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
             // configuration values go here in precedence
             //not null when GetDefaultFromEnvironmentVariable<T>(symbol, out var envName)
             //    => UseValue(symbol, GetEnvByName(envName)),
-            not null when DefaultValueCalculation.TryGet(symbol, out var defaultValueCalculation)
-                => UseValue(symbol, CalculatedDefault<T>(symbol, defaultValueCalculation)),
-            not null when DefaultValue.TryGet<T>(symbol, out var explicitValue)
+            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValueCalculation, out var defaultValueCalculation)
+                => UseValue(symbol, CalculatedDefault<T>(symbol, (Func<T?>) defaultValueCalculation)),
+            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out var explicitValue)
                 => UseValue<T>(symbol, (T)explicitValue),
             null => throw new ArgumentNullException(nameof(symbol)),
             _ => UseValue(symbol, default(T))
@@ -99,7 +89,7 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
         }
     }
 
-    private static T? CalculatedDefault<T>(CliSymbol symbol, Func<object?> defaultValueCalculation)
+    private static T? CalculatedDefault<T>(CliSymbol symbol, Func<T?> defaultValueCalculation)
     {
         var objectValue = defaultValueCalculation();
         var value = objectValue is null

@@ -24,9 +24,6 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         Arity = ArgumentArity.Zero
     };
 
-    public AnnotationAccessor<string> Description
-        => new(this, HelpAnnotations.Description);
-
     protected internal override CliConfiguration Initialize(InitializationContext context)
     {
         context.Configuration.RootCommand.Add(HelpOption);
@@ -43,4 +40,7 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         pipelineContext.ConsoleHack.WriteLine("Help me!");
         return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
     }
+
+    public bool TryGetDescription (CliSymbol symbol, out string? description)
+        => TryGetAnnotation (symbol, HelpAnnotations.Description, out description);
 }

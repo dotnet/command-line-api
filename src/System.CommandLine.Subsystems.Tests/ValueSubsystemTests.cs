@@ -61,7 +61,7 @@ public class ValueSubsystemTests
         var configuration = new CliConfiguration(rootCommand);
         var pipeline = Pipeline.CreateEmpty();
         pipeline.Value = new ValueSubsystem();
-        pipeline.Value.DefaultValue.Set(option, 43);
+        option.SetDefaultValue(43);
         const int expected = 43;
         var input = $"";
 
@@ -81,7 +81,7 @@ public class ValueSubsystemTests
         var pipeline = Pipeline.CreateEmpty();
         pipeline.Value = new ValueSubsystem();
         var x = 42;
-        pipeline.Value.DefaultValueCalculation.Set(option, () => x + 2);
+        option.SetDefaultValueCalculation(() => x + 2);
         const int expected = 44;
         var input = "";
 
