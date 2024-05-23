@@ -3,6 +3,7 @@
 
 using System.CommandLine.Subsystems;
 using System.CommandLine.Subsystems.Annotations;
+using System.Reflection.Metadata.Ecma335;
 
 namespace System.CommandLine;
 
