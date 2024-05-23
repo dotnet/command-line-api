@@ -57,7 +57,8 @@ public class Pipeline
     public PipelineResult Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
     {
         var pipelineResult = Execute(Parse(configuration, args), rawInput, consoleHack);
-        return TearDownSubsystems(pipelineResult);
+        TearDownSubsystems(pipelineResult);
+        return pipelineResult;
     }
 
     public PipelineResult Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
@@ -95,7 +96,7 @@ public class Pipeline
     /// Perform any cleanup operations
     /// </summary>
     /// <param name="pipelineResult">The context of the current execution</param>
-    protected virtual PipelineResult TearDownSubsystems(PipelineResult pipelineResult)
+    protected virtual void TearDownSubsystems(PipelineResult pipelineResult)
     {
         // TODO: Work on this design as the last pipelineResult wins and they may not all be well behaved
         var subsystems = Subsystems.Reverse();
@@ -103,10 +104,9 @@ public class Pipeline
         {
             if (subsystem is not null)
             {
-                pipelineResult = subsystem.TearDown(pipelineResult);
+                subsystem.TearDown(pipelineResult);
             }
         }
-        return pipelineResult;
     }
 
     protected virtual void ExecuteSubsystems(PipelineResult pipelineResult)
@@ -117,7 +117,7 @@ public class Pipeline
         {
             if (subsystem is not null)
             {
-                pipelineResult = subsystem.ExecuteIfNeeded(pipelineResult);
+                subsystem.ExecuteIfNeeded(pipelineResult);
             }
         }
     }

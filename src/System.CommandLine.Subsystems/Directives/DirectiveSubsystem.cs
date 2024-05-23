@@ -19,7 +19,7 @@ public abstract class DirectiveSubsystem : CliSubsystem
         Id = id ?? name;
     }
 
-    protected internal override CliConfiguration Initialize(InitializationContext context)
+    protected internal override void Initialize(InitializationContext context)
     {
         for (int i = 0; i < context.Args.Count; i++)
         {
@@ -50,8 +50,6 @@ public abstract class DirectiveSubsystem : CliSubsystem
                 break;
             }
         }
-
-        return context.Configuration;
     }
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)

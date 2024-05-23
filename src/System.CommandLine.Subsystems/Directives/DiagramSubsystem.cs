@@ -13,7 +13,7 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
     //protected internal override bool GetIsActivated(ParseResult? parseResult)
     //   => parseResult is not null && option is not null && parseResult.GetValue(option);
 
-    protected internal override PipelineResult Execute(PipelineResult pipelineResult)
+    protected internal override void Execute(PipelineResult pipelineResult)
     {
         // Gather locations
         //var locations = pipelineResult.ParseResult.LocationMap
@@ -21,7 +21,6 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
 
         pipelineResult.ConsoleHack.WriteLine("Output diagram");
         pipelineResult.SetSuccess();
-        return pipelineResult;
     }
 
 

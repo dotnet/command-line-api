@@ -67,11 +67,8 @@ public abstract class CliSubsystem
     /// </summary>
     /// <param name="pipelineResult">The context contains data like the ParseResult, and allows setting of values like whether execution was handled and the CLI should terminate </param>
     /// <returns>A PipelineResult object with information such as whether the CLI should terminate</returns>
-    protected internal virtual PipelineResult Execute(PipelineResult pipelineResult)
-    {
-        pipelineResult.NotRun(pipelineResult.ParseResult);
-        return pipelineResult;
-    }
+    protected internal virtual void Execute(PipelineResult pipelineResult) 
+        => pipelineResult.NotRun(pipelineResult.ParseResult);
 
     internal PipelineResult ExecuteIfNeeded(PipelineResult pipelineResult)
         => ExecuteIfNeeded(pipelineResult.ParseResult, pipelineResult);
@@ -110,11 +107,11 @@ public abstract class CliSubsystem
     /// <returns>True if parsing should continue</returns> // there might be a better design that supports a message
     // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
     // TODO: Why does Intitialize return a configuration?
-    protected internal virtual CliConfiguration Initialize(InitializationContext context)
-        => context.Configuration;
+    protected internal virtual void Initialize(InitializationContext context)
+    {}
 
     // TODO: Determine if this is needed.
-    protected internal virtual PipelineResult TearDown(PipelineResult pipelineResult)
-        => pipelineResult;
+    protected internal virtual void TearDown(PipelineResult pipelineResult)
+    {}
 
 }
