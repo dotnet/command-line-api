@@ -8,16 +8,16 @@ public class Subsystem
     public static void Initialize(CliSubsystem subsystem, CliConfiguration configuration, IReadOnlyList<string> args)
         => subsystem.Initialize(new InitializationContext(configuration, args));
 
-    public static CliExit Execute(CliSubsystem subsystem, PipelineResult pipelineResult)
+    public static PipelineResult Execute(CliSubsystem subsystem, PipelineResult pipelineResult)
         => subsystem.Execute(pipelineResult);
 
     public static bool GetIsActivated(CliSubsystem subsystem, ParseResult parseResult)
         => subsystem.GetIsActivated(parseResult);
 
-    public static CliExit ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
-        => new(subsystem.ExecuteIfNeeded(new PipelineResult(parseResult, rawInput, null, consoleHack)));
+    public static PipelineResult ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
+        => subsystem.ExecuteIfNeeded(new PipelineResult(parseResult, rawInput, null, consoleHack));
 
-    public static CliExit Execute(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
+    public static PipelineResult Execute(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
         => subsystem.Execute(new PipelineResult(parseResult, rawInput, null, consoleHack));
 
 

@@ -34,11 +34,12 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     protected internal override bool GetIsActivated(ParseResult? parseResult)
         => parseResult is not null && parseResult.GetValue(HelpOption);
 
-    protected internal override CliExit Execute(PipelineResult pipelineResult)
+    protected internal override PipelineResult Execute(PipelineResult pipelineResult)
     {
         // TODO: Match testable output pattern
         pipelineResult.ConsoleHack.WriteLine("Help me!");
-        return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
+        pipelineResult.SetSuccess();
+        return pipelineResult;
     }
 
     public bool TryGetDescription (CliSymbol symbol, out string? description)

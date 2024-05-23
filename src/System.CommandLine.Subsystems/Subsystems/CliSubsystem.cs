@@ -66,9 +66,12 @@ public abstract class CliSubsystem
     /// Executes the behavior of the subsystem. For example, help would write information to the console.
     /// </summary>
     /// <param name="pipelineResult">The context contains data like the ParseResult, and allows setting of values like whether execution was handled and the CLI should terminate </param>
-    /// <returns>A CliExit object with information such as whether the CLI should terminate</returns>
-    protected internal virtual CliExit Execute(PipelineResult pipelineResult)
-        => CliExit.NotRun(pipelineResult.ParseResult);
+    /// <returns>A PipelineResult object with information such as whether the CLI should terminate</returns>
+    protected internal virtual PipelineResult Execute(PipelineResult pipelineResult)
+    {
+        pipelineResult.NotRun(pipelineResult.ParseResult);
+        return pipelineResult;
+    }
 
     internal PipelineResult ExecuteIfNeeded(PipelineResult pipelineResult)
         => ExecuteIfNeeded(pipelineResult.ParseResult, pipelineResult);
@@ -111,7 +114,7 @@ public abstract class CliSubsystem
         => context.Configuration;
 
     // TODO: Determine if this is needed.
-    protected internal virtual CliExit TearDown(CliExit cliExit)
-        => cliExit;
+    protected internal virtual PipelineResult TearDown(PipelineResult pipelineResult)
+        => pipelineResult;
 
 }
