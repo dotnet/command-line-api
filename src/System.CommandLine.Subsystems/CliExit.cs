@@ -8,8 +8,8 @@ namespace System.CommandLine;
     // TODO: Consider what info is needed after invocation. If it's the whole pipeline context, consider collapsing this with that class.
 public class CliExit
 {
-    internal CliExit(PipelineResult pipelineContext)
-        : this(pipelineContext.ParseResult, pipelineContext.AlreadyHandled, pipelineContext.ExitCode)
+    internal CliExit(PipelineResult pipelineResult)
+        : this(pipelineResult.ParseResult, pipelineResult.AlreadyHandled, pipelineResult.ExitCode)
     { }
 
     private CliExit(ParseResult? parseResult, bool handled, int exitCode)

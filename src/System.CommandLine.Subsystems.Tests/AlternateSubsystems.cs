@@ -10,11 +10,11 @@ namespace System.CommandLine.Subsystems.Tests
     {
         internal class AlternateVersion : VersionSubsystem
         {
-            protected override CliExit Execute(PipelineResult pipelineContext)
+            protected override CliExit Execute(PipelineResult pipelineResult)
             {
-                pipelineContext.ConsoleHack.WriteLine($"***{CliExecutable.ExecutableVersion}***");
-                pipelineContext.AlreadyHandled = true;
-                return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
+                pipelineResult.ConsoleHack.WriteLine($"***{CliExecutable.ExecutableVersion}***");
+                pipelineResult.AlreadyHandled = true;
+                return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
             }
         }
 
@@ -29,12 +29,12 @@ namespace System.CommandLine.Subsystems.Tests
 
             private CliSymbol Symbol { get; }
 
-            protected override CliExit Execute(PipelineResult pipelineContext)
+            protected override CliExit Execute(PipelineResult pipelineResult)
             {
                 TryGetAnnotation(Symbol, HelpAnnotations.Description, out string? description);
-                pipelineContext.ConsoleHack.WriteLine(description);
-                pipelineContext.AlreadyHandled = true;
-                return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
+                pipelineResult.ConsoleHack.WriteLine(description);
+                pipelineResult.AlreadyHandled = true;
+                return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
             }
         }
 
@@ -51,10 +51,10 @@ namespace System.CommandLine.Subsystems.Tests
                 return base.Initialize(context);
             }
 
-            protected override CliExit Execute(PipelineResult pipelineContext)
+            protected override CliExit Execute(PipelineResult pipelineResult)
             {
                 ExecutionWasRun = true;
-                return base.Execute(pipelineContext);
+                return base.Execute(pipelineResult);
             }
 
             protected override CliExit TearDown(CliExit cliExit)

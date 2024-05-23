@@ -62,9 +62,9 @@ public class Pipeline
 
     public CliExit Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
     {
-        var pipelineContext = new PipelineResult(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
-        ExecuteSubsystems(pipelineContext);
-        return new CliExit(pipelineContext);
+        var pipelineResult = new PipelineResult(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
+        ExecuteSubsystems(pipelineResult);
+        return new CliExit(pipelineResult);
     }
 
     // TODO: Consider whether this should be public. It would simplify testing, but would it do anything else
@@ -94,7 +94,7 @@ public class Pipeline
     /// <summary>
     /// Perform any cleanup operations
     /// </summary>
-    /// <param name="pipelineContext">The context of the current execution</param>
+    /// <param name="pipelineResult">The context of the current execution</param>
     protected virtual CliExit TearDownSubsystems(CliExit cliExit)
     {
         // TODO: Work on this design as the last cliExit wins and they may not all be well behaved
@@ -109,24 +109,24 @@ public class Pipeline
         return cliExit;
     }
 
-    protected virtual void ExecuteSubsystems(PipelineResult pipelineContext)
+    protected virtual void ExecuteSubsystems(PipelineResult pipelineResult)
     {
-        // TODO: Consider redesign where pipelineContext is not modifiable. 
+        // TODO: Consider redesign where pipelineResult is not modifiable. 
         // 
         foreach (var subsystem in Subsystems)
         {
             if (subsystem is not null)
             {
-                pipelineContext = subsystem.ExecuteIfNeeded(pipelineContext);
+                pipelineResult = subsystem.ExecuteIfNeeded(pipelineResult);
             }
         }
     }
 
-    protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineResult pipelineContext)
+    protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineResult pipelineResult)
     {
-        if (subsystem is not null && (!pipelineContext.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
+        if (subsystem is not null && (!pipelineResult.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
         {
-            subsystem.ExecuteIfNeeded(pipelineContext);
+            subsystem.ExecuteIfNeeded(pipelineResult);
         }
     }
 

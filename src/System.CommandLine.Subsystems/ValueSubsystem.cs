@@ -29,10 +29,10 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
     /// <remarks>
     /// Note to inheritors: Call base for all ValueSubsystem methods that you override to ensure correct behavior
     /// </remarks>
-    protected internal override CliExit Execute(PipelineResult pipelineContext)
+    protected internal override CliExit Execute(PipelineResult pipelineResult)
     {
-        parseResult ??= pipelineContext.ParseResult;
-        return base.Execute(pipelineContext);
+        parseResult ??= pipelineResult.ParseResult;
+        return base.Execute(pipelineResult);
     }
 
     private void SetValue<T>(CliSymbol symbol, object? value)

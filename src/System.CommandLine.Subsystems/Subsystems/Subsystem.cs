@@ -8,8 +8,8 @@ public class Subsystem
     public static void Initialize(CliSubsystem subsystem, CliConfiguration configuration, IReadOnlyList<string> args)
         => subsystem.Initialize(new InitializationContext(configuration, args));
 
-    public static CliExit Execute(CliSubsystem subsystem, PipelineResult pipelineContext)
-        => subsystem.Execute(pipelineContext);
+    public static CliExit Execute(CliSubsystem subsystem, PipelineResult pipelineResult)
+        => subsystem.Execute(pipelineResult);
 
     public static bool GetIsActivated(CliSubsystem subsystem, ParseResult parseResult)
         => subsystem.GetIsActivated(parseResult);
@@ -21,9 +21,9 @@ public class Subsystem
         => subsystem.Execute(new PipelineResult(parseResult, rawInput, null, consoleHack));
 
 
-    internal static PipelineResult ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack, PipelineResult? pipelineContext = null)
-        => subsystem.ExecuteIfNeeded(pipelineContext ?? new PipelineResult(parseResult, rawInput, null, consoleHack));
+    internal static PipelineResult ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack, PipelineResult? pipelineResult = null)
+        => subsystem.ExecuteIfNeeded(pipelineResult ?? new PipelineResult(parseResult, rawInput, null, consoleHack));
 
-    internal static PipelineResult ExecuteIfNeeded(CliSubsystem subsystem, PipelineResult pipelineContext)
-        => subsystem.ExecuteIfNeeded(pipelineContext);
+    internal static PipelineResult ExecuteIfNeeded(CliSubsystem subsystem, PipelineResult pipelineResult)
+        => subsystem.ExecuteIfNeeded(pipelineResult);
 }
