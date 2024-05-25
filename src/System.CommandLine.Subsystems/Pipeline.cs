@@ -7,11 +7,10 @@ using System.CommandLine.Subsystems;
 
 namespace System.CommandLine;
 
-public class Pipeline
+public partial class Pipeline
 {
     //TODO:  When we allow adding subsystems, this code will change
-    private IEnumerable<CliSubsystem?> Subsystems
-        => [Help, Version, Completion, Diagram, Value, ErrorReporting];
+    private readonly Subsystems subsystems = new();
 
     public static Pipeline Create(HelpSubsystem? help = null,
                                   VersionSubsystem? version = null,
@@ -19,7 +18,8 @@ public class Pipeline
                                   DiagramSubsystem? diagram = null,
                                   ErrorReportingSubsystem? errorReporting = null,
                                   ValueSubsystem? value = null)
-        => new()
+    {
+        Pipeline pipeline = new()
         {
             Help = help ?? new HelpSubsystem(),
             Version = version ?? new VersionSubsystem(),
@@ -28,11 +28,45 @@ public class Pipeline
             ErrorReporting = errorReporting ?? new ErrorReportingSubsystem(),
             Value = value ?? new ValueSubsystem()
         };
+        // This order is based on: if the user entered both, which should they get?
+        // * It is reasonable to diagram help and completion. More reasonable than getting help on Diagram or Completion
+        // * A future version of Help and Version may take arguments/options. In that case, help on version is reasonable.
+        pipeline.AddSubsystem(pipeline.Diagram);
+        pipeline.AddSubsystem(pipeline.Completion);
+        pipeline.AddSubsystem(pipeline.Help);
+        pipeline.AddSubsystem(pipeline.Version);
+        //pipeline.AddSubsystem(pipeline.Value);
+        pipeline.AddSubsystem(pipeline.ErrorReporting);
+
+        return pipeline;
+    }
 
     public static Pipeline CreateEmpty()
         => new();
 
     private Pipeline() { }
+
+    public void AddSubsystem(CliSubsystem? subsystem, bool insertAtStart = false)
+        => subsystems.Add(subsystem, insertAtStart);
+
+    public void InsertSubsystemAfter(CliSubsystem? subsystem, CliSubsystem existingSubsystem)
+        => subsystems.Insert(subsystem, existingSubsystem);
+
+    public void InsertSubsystemBefore(CliSubsystem? subsystem, CliSubsystem existingSubsystem)
+        => subsystems.Insert(subsystem, existingSubsystem, true);
+
+    public IEnumerable<CliSubsystem> EarlyReturnSubsystems
+        => subsystems.EarlyReturnSubsystems;
+
+    public IEnumerable<CliSubsystem> ValidationSubsystems
+        => subsystems.ValidationSubsystems;
+
+    public IEnumerable<CliSubsystem> ExecutionSubsystems
+        => subsystems.ExecutionSubsystems;
+
+    public IEnumerable<CliSubsystem> FinishSubsystems
+        => subsystems.FinishSubsystems;
+
 
     public HelpSubsystem? Help { get; set; }
     public VersionSubsystem? Version { get; set; }
@@ -55,16 +89,16 @@ public class Pipeline
         => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
 
     public PipelineResult Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
-    {
-        var pipelineResult = Execute(Parse(configuration, args), rawInput, consoleHack);
-        TearDownSubsystems(pipelineResult);
-        return pipelineResult;
-    }
+        => Execute(Parse(configuration, args), rawInput, consoleHack);
 
     public PipelineResult Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
     {
         var pipelineResult = new PipelineResult(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
-        ExecuteSubsystems(pipelineResult);
+        ExecuteSubsystems(EarlyReturnSubsystems, pipelineResult);
+        ExecuteSubsystems(ValidationSubsystems, pipelineResult);
+        ExecuteSubsystems(ExecutionSubsystems, pipelineResult);
+        ExecuteSubsystems(FinishSubsystems, pipelineResult);
+        TearDownSubsystems(pipelineResult);
         return pipelineResult;
     }
 
@@ -81,7 +115,7 @@ public class Pipeline
     /// </remarks>
     protected virtual void InitializeSubsystems(InitializationContext context)
     {
-        foreach (var subsystem in Subsystems)
+        foreach (var subsystem in subsystems)
         {
             if (subsystem is not null)
             {
@@ -99,7 +133,7 @@ public class Pipeline
     protected virtual void TearDownSubsystems(PipelineResult pipelineResult)
     {
         // TODO: Work on this design as the last pipelineResult wins and they may not all be well behaved
-        var subsystems = Subsystems.Reverse();
+        var subsystems = this.subsystems.Reverse<CliSubsystem>();
         foreach (var subsystem in subsystems)
         {
             if (subsystem is not null)
@@ -109,25 +143,14 @@ public class Pipeline
         }
     }
 
-    protected virtual void ExecuteSubsystems(PipelineResult pipelineResult)
+    private static void ExecuteSubsystems(IEnumerable<CliSubsystem> subsystems, PipelineResult pipelineResult)
     {
-        // TODO: Consider redesign where pipelineResult is not modifiable. 
-        // 
-        foreach (var subsystem in Subsystems)
+        foreach (var subsystem in subsystems)
         {
-            if (subsystem is not null)
+            if (subsystem is not null && (!pipelineResult.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
             {
                 subsystem.ExecuteIfNeeded(pipelineResult);
             }
         }
     }
-
-    protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineResult pipelineResult)
-    {
-        if (subsystem is not null && (!pipelineResult.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
-        {
-            subsystem.ExecuteIfNeeded(pipelineResult);
-        }
-    }
-
 }

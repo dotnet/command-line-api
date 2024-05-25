@@ -75,7 +75,7 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
             //not null when GetDefaultFromEnvironmentVariable<T>(symbol, out var envName)
             //    => UseValue(symbol, GetEnvByName(envName)),
             not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValueCalculation, out var defaultValueCalculation)
-                => UseValue(symbol, CalculatedDefault<T>(symbol, (Func<T?>) defaultValueCalculation)),
+                => UseValue(symbol, CalculatedDefault<T>(symbol, (Func<T?>)defaultValueCalculation)),
             not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out var explicitValue)
                 => UseValue<T>(symbol, (T)explicitValue),
             null => throw new ArgumentNullException(nameof(symbol)),
