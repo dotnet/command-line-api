@@ -182,6 +182,7 @@ public partial class Pipeline
     /// </summary>
     public InvocationSubsystem? Invocation { get; }
 
+    // TODO: Are there use cases to replace this? Do we want new default values to require a new ValueSubsystem, which would block getting response providers from two sources.
     /// <summary>
     /// Gets the value subsystem which manages entered and default values.
     /// </summary>

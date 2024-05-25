@@ -8,4 +8,12 @@ namespace System.CommandLine;
 
 public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
     : CliSubsystem(ValidationAnnotations.Prefix, SubsystemKind.Validation, annotationProvider)
-{ }
+{
+    private readonly Dictionary<Type, List<(Type validationDataType, Func<object, object, bool> isValid)>> validators = [];
+
+    //protected internal override void Execute(PipelineResult pipelineResult)
+    //{
+    //    var values = pipelineResult.Pipeline.Value
+    //    if (!validators.TryGetValue()
+    //}
+}

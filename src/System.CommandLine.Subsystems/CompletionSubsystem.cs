@@ -9,7 +9,7 @@ namespace System.CommandLine;
 public class CompletionSubsystem : CliSubsystem
 {
     public CompletionSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base(CompletionAnnotations.Prefix, SubsystemKind.Completion, annotationProvider)
+        : base(CompletionAnnotations.Prefix, SubsystemKind.Completion,  annotationProvider)
     { }
 
     // TODO: Figure out trigger for completions
