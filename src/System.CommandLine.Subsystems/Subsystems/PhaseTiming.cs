@@ -3,15 +3,8 @@
 
 namespace System.CommandLine.Subsystems;
 
-public enum SubsystemKind
+public enum PhaseTiming
 {
-    Other = 0,
-    Help,
-    Version,
-    Value,
-    ErrorReporting,
-    Completion,
-    Diagram,
-    Response
+    Before = 0,
+    After
 }
-
