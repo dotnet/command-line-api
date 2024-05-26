@@ -6,12 +6,14 @@ namespace System.CommandLine.Subsystems;
 public enum SubsystemKind
 {
     Other = 0,
+    Diagram,
+    Completion,
     Help,
     Version,
-    Value,
+    Validation,
+    Invocation,
     ErrorReporting,
-    Completion,
-    Diagram,
-    Response
+    Value,
+    Response,
 }
 
