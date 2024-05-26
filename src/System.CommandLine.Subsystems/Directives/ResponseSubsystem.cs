@@ -9,26 +9,33 @@ namespace System.CommandLine.Directives;
 public class ResponseSubsystem()
     : CliSubsystem("Response", SubsystemKind.Response, null)
 {
+    public bool Enabled { get; set; }
+
     protected internal override void Initialize(InitializationContext context)
         => context.Configuration.ResponseFileTokenReplacer = Replacer;
 
-    public static (List<string>? tokens, List<string>? errors) Replacer(string responseSourceName)
+    public (List<string>? tokens, List<string>? errors) Replacer(string responseSourceName)
     {
-        try
+        if (Enabled)
         {
-            // TODO: Include checks from previous system.
-            var contents = File.ReadAllText(responseSourceName);
-            return (CliParser.SplitCommandLine(contents).ToList(), null);
+            try
+            {
+                // TODO: Include checks from previous system.
+                var contents = File.ReadAllText(responseSourceName);
+                return (CliParser.SplitCommandLine(contents).ToList(), null);
+            }
+            catch
+            {
+                // TODO: Switch to proper errors
+                return (null,
+                        errors:
+                        [
+                            $"Failed to open response file {responseSourceName}"
+                        ]);
+            }
         }
-        catch
-        {
-            // TODO: Switch to proper errors
-            return (null,
-                    errors:
-                    [
-                        $"Failed to open response file {responseSourceName}"
-                    ]);
-        }
+        // TODO: Confirm this is not an error state
+        return ([responseSourceName], null);
     }
 
     // TODO: File handling from previous system - ensure these checks are done (note: no tests caught these oversights

@@ -19,6 +19,7 @@ public class ResponseSubsystemTests
         var rootCommand = new CliRootCommand { option };
         var configuration = new CliConfiguration(rootCommand);
         var subsystem = new ResponseSubsystem();
+        subsystem.Enabled = true;
         string[] args = ["@Response_1.rsp"];
 
         Subsystem.Initialize(subsystem, configuration, args);
