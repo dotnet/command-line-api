@@ -10,13 +10,13 @@ namespace System.CommandLine;
 public partial class Pipeline
 {
     // TODO: Consider more phases that have obvious meanings, like first and last
-    private PipelinePhase diagramPhase = new(SubsystemKind.Diagram);
-    private PipelinePhase completionPhase = new(SubsystemKind.Completion);
-    private PipelinePhase helpPhase = new(SubsystemKind.Help);
-    private PipelinePhase versionPhase = new(SubsystemKind.Version);
-    private PipelinePhase validationPhase = new(SubsystemKind.Validation);
-    private PipelinePhase invocationPhase = new(SubsystemKind.Invocation);
-    private PipelinePhase errorReportingPhase = new(SubsystemKind.ErrorReporting);
+    private PipelinePhase<DiagramSubsystem> diagramPhase = new(SubsystemKind.Diagram);
+    private PipelinePhase<CompletionSubsystem> completionPhase = new(SubsystemKind.Completion);
+    private PipelinePhase<HelpSubsystem> helpPhase = new(SubsystemKind.Help);
+    private PipelinePhase<VersionSubsystem> versionPhase = new(SubsystemKind.Version);
+    private PipelinePhase<ValidationSubsystem> validationPhase = new(SubsystemKind.Validation);
+    private PipelinePhase<InvocationSubsystem> invocationPhase = new(SubsystemKind.Invocation);
+    private PipelinePhase<ErrorReportingSubsystem> errorReportingPhase = new(SubsystemKind.ErrorReporting);
     // TODO: Consider this naming as it sounds like it is a finishing phase
     private readonly IEnumerable<PipelinePhase> phases = [];
 
@@ -129,17 +129,8 @@ public partial class Pipeline
     /// </summary>
     public DiagramSubsystem? Diagram
     {
-        get
-            => diagramPhase.Subsystem switch
-            {
-                null => null,
-                DiagramSubsystem diagramSubsystem => diagramSubsystem,
-                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
-            };
-        set
-        {
-            diagramPhase.Subsystem = value;
-        }
+        get => diagramPhase.Subsystem;
+        set => diagramPhase.Subsystem = value;
     }
 
     /// <summary>
@@ -147,17 +138,9 @@ public partial class Pipeline
     /// </summary>
     public CompletionSubsystem? Completion
     {
-        get
-            => completionPhase.Subsystem switch
-            {
-                null => null,
-                CompletionSubsystem completionSubsystem => completionSubsystem,
-                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
-            };
-        set
-        {
-            completionPhase.Subsystem = value;
-        }
+        get => completionPhase.Subsystem;
+        set => completionPhase.Subsystem = value;
+
     }
 
     /// <summary>
@@ -165,17 +148,9 @@ public partial class Pipeline
     /// </summary>
     public HelpSubsystem? Help
     {
-        get
-            => helpPhase.Subsystem switch
-            {
-                null => null,
-                HelpSubsystem helpSubsystem => helpSubsystem,
-                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
-            };
-        set
-        {
-            helpPhase.Subsystem = value;
-        }
+        get => helpPhase.Subsystem;
+        set => helpPhase.Subsystem = value;
+
     }
 
     /// <summary>
@@ -183,17 +158,8 @@ public partial class Pipeline
     /// </summary>
     public VersionSubsystem? Version
     {
-        get
-            => versionPhase.Subsystem switch
-            {
-                null => null,
-                VersionSubsystem versionSubsystem => versionSubsystem,
-                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
-            };
-        set
-        {
-            versionPhase.Subsystem = value;
-        }
+        get => versionPhase.Subsystem;
+        set => versionPhase.Subsystem = value;
     }
 
     /// <summary>
@@ -201,17 +167,8 @@ public partial class Pipeline
     /// </summary>
     public ErrorReportingSubsystem? ErrorReporting
     {
-        get
-            => errorReportingPhase.Subsystem switch
-            {
-                null => null,
-                ErrorReportingSubsystem errorReportingSubsystem => errorReportingSubsystem,
-                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
-            };
-        set
-        {
-            errorReportingPhase.Subsystem = value;
-        }
+        get => errorReportingPhase.Subsystem;
+        set => errorReportingPhase.Subsystem = value;
     }
 
     /// <summary>
@@ -219,17 +176,8 @@ public partial class Pipeline
     /// </summary>
     public ValidationSubsystem? Validation
     {
-        get
-            => validationPhase.Subsystem switch
-            {
-                null => null,
-                ValidationSubsystem validationSubsystem => validationSubsystem,
-                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
-            };
-        set
-        {
-            validationPhase.Subsystem = value;
-        }
+        get => validationPhase.Subsystem;
+        set => validationPhase.Subsystem = value;
     }
 
 
@@ -238,17 +186,8 @@ public partial class Pipeline
     /// </summary>
     public InvocationSubsystem? Invocation
     {
-        get
-            => invocationPhase.Subsystem switch
-            {
-                null => null,
-                InvocationSubsystem invocationSubsystem => invocationSubsystem,
-                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
-            };
-        set
-        {
-            invocationPhase.Subsystem = value;
-        }
+        get => invocationPhase.Subsystem;
+        set => invocationPhase.Subsystem = value;
     }
 
 
