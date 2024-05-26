@@ -8,23 +8,22 @@ namespace System.CommandLine.Subsystems;
 /// case of several items before, and several items after will be quite rare.
 /// </summary>
 /// <remarks>
+/// <para>
 /// The most common case is that it is empty, and the most complicated
 /// case of several items before, and several items after will be quite rare. <br/>
+/// </para>
+/// <para>
+/// In the current design, this needs to be a reference type so values are synced.
+/// </para>
 /// </remarks>
-internal struct PipelinePhase
+internal class PipelinePhase(SubsystemKind kind)
 {
     private List<CliSubsystem>? before = null;
     private List<CliSubsystem>? after = null;
 
-    public PipelinePhase(CliSubsystem subsystem)
-    {
-        Subsystem = subsystem;
-    }
+    public readonly SubsystemKind Kind = kind;
 
-    public readonly SubsystemKind Kind 
-        => Subsystem.Kind;
-
-    internal CliSubsystem Subsystem { get;  set; }
+    internal CliSubsystem? Subsystem { get; set; }
 
     public void AddSubsystem(CliSubsystem subsystem, PhaseTiming timing = PhaseTiming.Before)
     {

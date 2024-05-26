@@ -9,15 +9,34 @@ namespace System.CommandLine;
 
 public partial class Pipeline
 {
-    //TODO:  When we allow adding subsystems, this code will change
-    private readonly Subsystems subsystems = new();
+    // TODO: Consider more phases that have obvious meanings, like first and last
+    private PipelinePhase diagramPhase = new(SubsystemKind.Diagram);
+    private PipelinePhase completionPhase = new(SubsystemKind.Completion);
+    private PipelinePhase helpPhase = new(SubsystemKind.Help);
+    private PipelinePhase versionPhase = new(SubsystemKind.Version);
+    private PipelinePhase validationPhase = new(SubsystemKind.Validation);
+    private PipelinePhase invocationPhase = new(SubsystemKind.Invocation);
+    private PipelinePhase errorReportingPhase = new(SubsystemKind.ErrorReporting);
+    // TODO: Consider this naming as it sounds like it is a finishing phase
+    private readonly IEnumerable<PipelinePhase> phases = [];
 
+    /// <summary>
+    /// Creates an instance of the pipeline using standard features.
+    /// </summary>
+    /// <param name="help">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</cref></param>
+    /// <param name="version">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</param>
+    /// <param name="completion">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</param>
+    /// <param name="diagram">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</param>
+    /// <param name="errorReporting">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</param>
+    /// <returns>A new pipeline.</returns>
+    /// <remarks>
+    /// Currently, the standard <see cref="ValueSubsystem"/>, <see cref="ValidationSubsystem"/> , and <see cref="ResponseSubsystem"/> cannot be replaced. <see cref="ResponseSubsystem"/> is disabled by default.
+    /// </remarks>
     public static Pipeline Create(HelpSubsystem? help = null,
                                   VersionSubsystem? version = null,
                                   CompletionSubsystem? completion = null,
                                   DiagramSubsystem? diagram = null,
-                                  ErrorReportingSubsystem? errorReporting = null,
-                                  ValueSubsystem? value = null)
+                                  ErrorReportingSubsystem? errorReporting = null)
     {
         Pipeline pipeline = new()
         {
@@ -26,54 +45,223 @@ public partial class Pipeline
             Completion = completion ?? new CompletionSubsystem(),
             Diagram = diagram ?? new DiagramSubsystem(),
             ErrorReporting = errorReporting ?? new ErrorReportingSubsystem(),
-            Value = value ?? new ValueSubsystem()
         };
-        // This order is based on: if the user entered both, which should they get?
-        // * It is reasonable to diagram help and completion. More reasonable than getting help on Diagram or Completion
-        // * A future version of Help and Version may take arguments/options. In that case, help on version is reasonable.
-        pipeline.AddSubsystem(pipeline.Diagram);
-        pipeline.AddSubsystem(pipeline.Completion);
-        pipeline.AddSubsystem(pipeline.Help);
-        pipeline.AddSubsystem(pipeline.Version);
-        //pipeline.AddSubsystem(pipeline.Value);
-        pipeline.AddSubsystem(pipeline.ErrorReporting);
+
 
         return pipeline;
     }
 
+    /// <summary>
+    /// Creates an instance of the pipeline with no features. Use this if you want to explicitly add features.
+    /// </summary>
+    /// <returns>A new pipeline.</returns>
+    /// <remarks>
+    /// The <cref>ValueSubsystem</cref> and <see cref="ResponseSubsystem"/> is always added and cannot be changed.
+    /// </remarks>
     public static Pipeline CreateEmpty()
         => new();
 
-    private Pipeline() { }
+    private Pipeline()
+    {
+        Value = new ValueSubsystem();
+        Response = new ResponseSubsystem();
+        Invocation = new InvocationSubsystem();
+        Validation = new ValidationSubsystem();
 
-    public void AddSubsystem(CliSubsystem? subsystem, bool insertAtStart = false)
-        => subsystems.Add(subsystem, insertAtStart);
+        // This order is based on: if the user entered both, which should they get?
+        // * It is reasonable to diagram help and completion. More reasonable than getting help on Diagram or Completion
+        // * A future version of Help and Version may take arguments/options. In that case, help on version is reasonable.
+        phases =
+        [
+            diagramPhase, completionPhase, helpPhase, versionPhase,
+            validationPhase, invocationPhase, errorReportingPhase
+        ];
+    }
 
-    public void InsertSubsystemAfter(CliSubsystem? subsystem, CliSubsystem existingSubsystem)
-        => subsystems.Insert(subsystem, existingSubsystem);
+    /// <summary>
+    /// Enables response files. They are disabled by default.
+    /// </summary>
+    public bool ResponseFilesEnabled
+    {
+        get => Response.Enabled;
+        set => Response.Enabled = value;
+    }
 
-    public void InsertSubsystemBefore(CliSubsystem? subsystem, CliSubsystem existingSubsystem)
-        => subsystems.Insert(subsystem, existingSubsystem, true);
+    /// <summary>
+    /// Adds a subsystem. Use the property for the subsystem to replace the standard property. Use this method if you want an an additional subsystem. 
+    /// </summary>
+    /// <param name="subsystem">The subsystem to add.</param>
+    /// <param name="timing"><see cref="PhaseTiming.Before"/> indicates that the subsystem should run before all other subsystems in the phase, and <see cref="PhaseTiming.After"/> indicates it should run after other subsystems. The default is <see cref="PhaseTiming.Before"/>.</param>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <remarks>
+    /// The phase in which the subsystem runs is determined by the subsystem.
+    /// </remarks>
+    public void AddSubsystem(CliSubsystem subsystem, PhaseTiming timing = PhaseTiming.Before)
+    {
+        switch (subsystem.Kind)
+        {
+            // TODO: Determine how Other should work. Do we have a kind and a phase? Perhaps just for Other subsystems. I think it is helpful to know it is something unforeseen
+            case SubsystemKind.Other:
+                break;
+            case SubsystemKind.Response:
+            case SubsystemKind.Value:
+                throw new InvalidOperationException($"You cannot add subsystems to {subsystem.Kind}");
+            case SubsystemKind.Diagram:
+                diagramPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Completion:
+                completionPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Help:
+                helpPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Version:
+                versionPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.ErrorReporting:
+                errorReportingPhase.AddSubsystem(subsystem, timing);
+                break;
+        }
+    }
 
-    public IEnumerable<CliSubsystem> EarlyReturnSubsystems
-        => subsystems.EarlyReturnSubsystems;
+    /// <summary>
+    /// Sets or gets the diagramming subsystem.
+    /// </summary>
+    public DiagramSubsystem? Diagram
+    {
+        get
+            => diagramPhase.Subsystem switch
+            {
+                null => null,
+                DiagramSubsystem diagramSubsystem => diagramSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            diagramPhase.Subsystem = value;
+        }
+    }
 
-    public IEnumerable<CliSubsystem> ValidationSubsystems
-        => subsystems.ValidationSubsystems;
+    /// <summary>
+    /// Sets or gets the completion subsystem.
+    /// </summary>
+    public CompletionSubsystem? Completion
+    {
+        get
+            => completionPhase.Subsystem switch
+            {
+                null => null,
+                CompletionSubsystem completionSubsystem => completionSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            completionPhase.Subsystem = value;
+        }
+    }
 
-    public IEnumerable<CliSubsystem> ExecutionSubsystems
-        => subsystems.ExecutionSubsystems;
+    /// <summary>
+    /// Sets or gets the help subsystem.
+    /// </summary>
+    public HelpSubsystem? Help
+    {
+        get
+            => helpPhase.Subsystem switch
+            {
+                null => null,
+                HelpSubsystem helpSubsystem => helpSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            helpPhase.Subsystem = value;
+        }
+    }
 
-    public IEnumerable<CliSubsystem> FinishSubsystems
-        => subsystems.FinishSubsystems;
+    /// <summary>
+    /// Sets or gets the version subsystem.
+    /// </summary>
+    public VersionSubsystem? Version
+    {
+        get
+            => versionPhase.Subsystem switch
+            {
+                null => null,
+                VersionSubsystem versionSubsystem => versionSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            versionPhase.Subsystem = value;
+        }
+    }
+
+    /// <summary>
+    /// Sets or gets the error reporting subsystem.
+    /// </summary>
+    public ErrorReportingSubsystem? ErrorReporting
+    {
+        get
+            => errorReportingPhase.Subsystem switch
+            {
+                null => null,
+                ErrorReportingSubsystem errorReportingSubsystem => errorReportingSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            errorReportingPhase.Subsystem = value;
+        }
+    }
+
+    /// <summary>
+    /// Sets or gets the validation subsystem
+    /// </summary>
+    public ValidationSubsystem? Validation
+    {
+        get
+            => validationPhase.Subsystem switch
+            {
+                null => null,
+                ValidationSubsystem validationSubsystem => validationSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            validationPhase.Subsystem = value;
+        }
+    }
 
 
-    public HelpSubsystem? Help { get; set; }
-    public VersionSubsystem? Version { get; set; }
-    public CompletionSubsystem? Completion { get; set; }
-    public DiagramSubsystem? Diagram { get; set; }
-    public ErrorReportingSubsystem? ErrorReporting { get; set; }
-    public ValueSubsystem? Value { get; set; }
+    /// <summary>
+    /// Sets or gets the invocation subsystem
+    /// </summary>
+    public InvocationSubsystem? Invocation
+    {
+        get
+            => invocationPhase.Subsystem switch
+            {
+                null => null,
+                InvocationSubsystem invocationSubsystem => invocationSubsystem,
+                _ => throw new InvalidOperationException("Version subsystem is not of the correct type")
+            };
+        set
+        {
+            invocationPhase.Subsystem = value;
+        }
+    }
+
+
+    // TODO: Are there use cases to replace this? Do we want new default values to require a new ValueSubsystem, which would block getting response providers from two sources.
+    /// <summary>
+    /// Sets or gets the value subsystem which manages entered and default values.
+    /// </summary>
+    public ValueSubsystem Value { get; }
+
+    /// <summary>
+    /// Sets or gets the response file subsystem
+    /// </summary>
+    public ResponseSubsystem Response { get; }
 
     public ParseResult Parse(CliConfiguration configuration, string rawInput)
         => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
@@ -94,10 +282,17 @@ public partial class Pipeline
     public PipelineResult Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
     {
         var pipelineResult = new PipelineResult(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
-        ExecuteSubsystems(EarlyReturnSubsystems, pipelineResult);
-        ExecuteSubsystems(ValidationSubsystems, pipelineResult);
-        ExecuteSubsystems(ExecutionSubsystems, pipelineResult);
-        ExecuteSubsystems(FinishSubsystems, pipelineResult);
+        foreach (var phase in phases)
+        {
+            // TODO: Allow subsystems to control short-circuiting
+            foreach (var subsystem in phase.GetSubsystems())
+            {
+                if (subsystem is not null && (!pipelineResult.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
+                {
+                    subsystem.ExecuteIfNeeded(pipelineResult);
+                }
+            }
+        }
         TearDownSubsystems(pipelineResult);
         return pipelineResult;
     }
@@ -115,11 +310,12 @@ public partial class Pipeline
     /// </remarks>
     protected virtual void InitializeSubsystems(InitializationContext context)
     {
-        foreach (var subsystem in subsystems)
+        foreach (var phase in phases)
         {
-            if (subsystem is not null)
+            // TODO: Allow subsystems to control short-circuiting? Not sure we need that for initialization
+            foreach (var subsystem in phase.GetSubsystems())
             {
-                subsystem.Initialize(context);
+                subsystem?.Initialize(context);
             }
         }
     }
@@ -133,23 +329,12 @@ public partial class Pipeline
     protected virtual void TearDownSubsystems(PipelineResult pipelineResult)
     {
         // TODO: Work on this design as the last pipelineResult wins and they may not all be well behaved
-        var subsystems = this.subsystems.Reverse<CliSubsystem>();
-        foreach (var subsystem in subsystems)
+        foreach (var phase in phases)
         {
-            if (subsystem is not null)
+            // TODO: Allow subsystems to control short-circuiting? Not sure we need that for teardown
+            foreach (var subsystem in phase.GetSubsystems())
             {
-                subsystem.TearDown(pipelineResult);
-            }
-        }
-    }
-
-    private static void ExecuteSubsystems(IEnumerable<CliSubsystem> subsystems, PipelineResult pipelineResult)
-    {
-        foreach (var subsystem in subsystems)
-        {
-            if (subsystem is not null && (!pipelineResult.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
-            {
-                subsystem.ExecuteIfNeeded(pipelineResult);
+                subsystem?.TearDown(pipelineResult);
             }
         }
     }
