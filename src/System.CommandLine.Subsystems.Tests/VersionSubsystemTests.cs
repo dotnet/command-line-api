@@ -52,7 +52,7 @@ namespace System.CommandLine.Subsystems.Tests
         {
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             var versionSubsystem = new VersionSubsystem();
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", null, consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineResult(null, "", null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(Constants.version);
         }
 
@@ -64,7 +64,7 @@ namespace System.CommandLine.Subsystems.Tests
             {
                 SpecificVersion = "42"
             };
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", null, consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineResult(null, "", null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be("42");
         }
 
@@ -76,7 +76,7 @@ namespace System.CommandLine.Subsystems.Tests
             {
                 SpecificVersion = null
             };
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", null, consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineResult(null, "", null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(Constants.version);
         }
 
@@ -88,7 +88,7 @@ namespace System.CommandLine.Subsystems.Tests
 
             var consoleHack = new ConsoleHack().RedirectToBuffer(true);
             var versionSubsystem = new VersionSubsystem();
-            Subsystem.Execute(versionSubsystem, new PipelineContext(null, "", null, consoleHack));
+            Subsystem.Execute(versionSubsystem, new PipelineResult(null, "", null, consoleHack));
             consoleHack.GetBuffer().Trim().Should().Be(Constants.version);
         }
 

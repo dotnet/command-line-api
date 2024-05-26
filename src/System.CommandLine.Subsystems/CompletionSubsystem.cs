@@ -18,9 +18,9 @@ public class CompletionSubsystem : CliSubsystem
             ? false
             : false;
 
-    protected internal override CliExit Execute(PipelineContext pipelineContext)
+    protected internal override CliExit Execute(PipelineResult pipelineResult)
     {
-        pipelineContext.ConsoleHack.WriteLine("Not yet implemented");
-        return CliExit.SuccessfullyHandled(pipelineContext.ParseResult);
+        pipelineResult.ConsoleHack.WriteLine("Not yet implemented");
+        return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
     }
 }
