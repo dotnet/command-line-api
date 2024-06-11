@@ -14,10 +14,23 @@ namespace System.CommandLine
     internal static class LocalizationResources
     {
         /// <summary>
-        ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects a single argument but {1} were provided.
+        ///   Interpolates values into a localized string similar to Option &apos;{0}&apos; expects a single argument but {1} were provided.
         /// </summary>
         internal static string ExpectsOneArgument(OptionResult optionResult)
             => GetResourceString(Properties.Resources.OptionExpectsOneArgument, GetOptionName(optionResult), optionResult.Tokens.Count);
+
+        /// <summary>
+        /// Interpolates values into a localized string similar to Option &apos;{0}&apos; expects at most {1} arguments but {2} were provided.
+        /// </summary>
+        internal static string OptionArgumentsMaximumExceeded(OptionResult optionResult, int maximumOptionArgumentsAllowed)
+           => OptionArgumentsMaximumExceeded(GetOptionName(optionResult), maximumOptionArgumentsAllowed, optionResult.Tokens.Count);
+
+        /// <summary>
+        /// Interpolates values into a localized string similar to Option &apos;{0}&apos; expects at most {1} arguments but {2} were provided.
+        /// </summary>
+        internal static string OptionArgumentsMaximumExceeded(string optionName, int maximumOptionArgumentsAllowed, int foundTokenCount)
+            => GetResourceString(Properties.Resources.OptionArgumentsMaximumExceeded, optionName, maximumOptionArgumentsAllowed, foundTokenCount);
+
 /*
         /// <summary>
         ///   Interpolates values into a localized string similar to Directory does not exist: {0}.

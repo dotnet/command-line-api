@@ -225,4 +225,7 @@
   <data name="ArgumentConversionCannotParseForOption_Completions" xml:space="preserve">
     <value>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</value>
   </data>
+  <data name="OptionArgumentsMaximumExceeded" xml:space="preserve">
+    <value>Option '{0}' expects at most {1} arguments but {2} were provided.</value>
+  </data>
 </root>
