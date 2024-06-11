@@ -43,7 +43,7 @@ namespace System.CommandLine.Subsystems.Tests
             var exit = pipeline.Execute(GetNewTestConfiguration(), input, console);
 
             exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().Be(shouldRun);
+            exit.AlreadyHandled.Should().Be(shouldRun);
             if (shouldRun)
             {
                 console.GetBuffer().Trim().Should().Be(TestData.AssemblyVersionString);
@@ -61,7 +61,7 @@ namespace System.CommandLine.Subsystems.Tests
             var exit = pipeline.Execute(result, input, console);
 
             exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().Be(shouldRun);
+            exit.AlreadyHandled.Should().Be(shouldRun);
             if (shouldRun)
             {
                 console.GetBuffer().Trim().Should().Be(TestData.AssemblyVersionString);
@@ -79,7 +79,7 @@ namespace System.CommandLine.Subsystems.Tests
             var exit = pipeline.Execute(GetNewTestConfiguration(), input, console);
 
             exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().Be(shouldRun);
+            exit.AlreadyHandled.Should().Be(shouldRun);
             versionSubsystem.InitializationWasRun.Should().BeTrue();
             versionSubsystem.ExecutionWasRun.Should().Be(shouldRun);
             versionSubsystem.TeardownWasRun.Should().BeTrue();
@@ -109,7 +109,7 @@ namespace System.CommandLine.Subsystems.Tests
                 var exit = Subsystem.Execute(versionSubsystem, parseResult, input, console);
                 exit.Should().NotBeNull();
                 exit.ExitCode.Should().Be(0);
-                exit.Handled.Should().BeTrue();
+                exit.AlreadyHandled.Should().BeTrue();
                 console.GetBuffer().Trim().Should().Be(TestData.AssemblyVersionString);
             }
         }
@@ -132,7 +132,7 @@ namespace System.CommandLine.Subsystems.Tests
             var exit = Subsystem.ExecuteIfNeeded(versionSubsystem, parseResult, input, console);
 
             exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().Be(shouldRun);
+            exit.AlreadyHandled.Should().Be(shouldRun);
             console.GetBuffer().Trim().Should().Be(expectedVersion);
         }
 

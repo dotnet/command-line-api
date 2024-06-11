@@ -34,30 +34,27 @@ public class VersionSubsystem : CliSubsystem
             ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion;
 
-    protected internal override CliConfiguration Initialize(InitializationContext context)
+    protected internal override void Initialize(InitializationContext context)
     {
         var option = new CliOption<bool>("--version", ["-v"])
         {
             Arity = ArgumentArity.Zero
         };
         context.Configuration.RootCommand.Add(option);
-
-        return context.Configuration;
     }
 
     // TODO: Stash option rather than using string
     protected internal override bool GetIsActivated(ParseResult? parseResult)
         => parseResult is not null && parseResult.GetValue<bool>("--version");
 
-    protected internal override CliExit Execute(PipelineResult pipelineResult)
+    protected internal override void Execute(PipelineResult pipelineResult)
     {
         var subsystemVersion = SpecificVersion;
         var version = subsystemVersion is null
             ? CliExecutable.ExecutableVersion
             : subsystemVersion;
         pipelineResult.ConsoleHack.WriteLine(version);
-        pipelineResult.AlreadyHandled = true;
-        return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
+        pipelineResult.SetSuccess();
     }
 }
 

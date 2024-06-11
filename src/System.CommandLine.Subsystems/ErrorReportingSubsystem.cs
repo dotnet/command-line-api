@@ -23,14 +23,14 @@ public class ErrorReportingSubsystem : CliSubsystem
         => parseResult is not null && parseResult.Errors.Any();
 
     // TODO: properly test execute directly when parse result is usable in tests
-    protected internal override CliExit Execute(PipelineResult pipelineResult)
+    protected internal override void Execute(PipelineResult pipelineResult)
     {
         var _ = pipelineResult.ParseResult
             ?? throw new ArgumentException("The parse result has not been set", nameof(pipelineResult));
 
         Report(pipelineResult.ConsoleHack, pipelineResult.ParseResult.Errors);
 
-        return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
+        pipelineResult.SetSuccess();
     }
 
     public void Report(ConsoleHack consoleHack, IReadOnlyList<ParseError> errors)

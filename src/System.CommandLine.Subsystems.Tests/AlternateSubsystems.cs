@@ -10,11 +10,10 @@ namespace System.CommandLine.Subsystems.Tests
     {
         internal class AlternateVersion : VersionSubsystem
         {
-            protected override CliExit Execute(PipelineResult pipelineResult)
+            protected override void Execute(PipelineResult pipelineResult)
             {
                 pipelineResult.ConsoleHack.WriteLine($"***{CliExecutable.ExecutableVersion}***");
-                pipelineResult.AlreadyHandled = true;
-                return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
+                pipelineResult.SetSuccess();
             }
         }
 
@@ -29,12 +28,12 @@ namespace System.CommandLine.Subsystems.Tests
 
             private CliSymbol Symbol { get; }
 
-            protected override CliExit Execute(PipelineResult pipelineResult)
+            protected override void Execute(PipelineResult pipelineResult)
             {
                 TryGetAnnotation(Symbol, HelpAnnotations.Description, out string? description);
                 pipelineResult.ConsoleHack.WriteLine(description);
                 pipelineResult.AlreadyHandled = true;
-                return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
+                pipelineResult.SetSuccess();
             }
         }
 
@@ -44,23 +43,23 @@ namespace System.CommandLine.Subsystems.Tests
             internal bool ExecutionWasRun;
             internal bool TeardownWasRun;
 
-            protected override CliConfiguration Initialize(InitializationContext context)
+            protected override void Initialize(InitializationContext context)
             {
+                base.Initialize(context);
                 // marker hack needed because ConsoleHack not available in initialization
                 InitializationWasRun = true;
-                return base.Initialize(context);
             }
 
-            protected override CliExit Execute(PipelineResult pipelineResult)
+            protected override void Execute(PipelineResult pipelineResult)
             {
                 ExecutionWasRun = true;
-                return base.Execute(pipelineResult);
+                base.Execute(pipelineResult);
             }
 
-            protected override CliExit TearDown(CliExit cliExit)
+            protected override void TearDown(PipelineResult pipelineResult)
             {
                 TeardownWasRun = true;
-                return base.TearDown(cliExit);
+                base.TearDown(pipelineResult);
             }
         }
 

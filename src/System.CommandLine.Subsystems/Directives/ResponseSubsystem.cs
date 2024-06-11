@@ -9,11 +9,8 @@ namespace System.CommandLine.Directives;
 public class ResponseSubsystem()
     : CliSubsystem("Response", SubsystemKind.Response, null)
 {
-    protected internal override CliConfiguration Initialize(InitializationContext context)
-    {
-        context.Configuration.ResponseFileTokenReplacer = Replacer;
-        return context.Configuration;
-    }
+    protected internal override void Initialize(InitializationContext context) 
+        => context.Configuration.ResponseFileTokenReplacer = Replacer;
 
     public static (List<string>? tokens, List<string>? errors) Replacer(string responseSourceName)
     {

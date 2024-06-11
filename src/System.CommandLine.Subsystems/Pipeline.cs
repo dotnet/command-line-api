@@ -51,20 +51,21 @@ public class Pipeline
         return parseResult;
     }
 
-    public CliExit Execute(CliConfiguration configuration, string rawInput, ConsoleHack? consoleHack = null)
+    public PipelineResult Execute(CliConfiguration configuration, string rawInput, ConsoleHack? consoleHack = null)
         => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
 
-    public CliExit Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
+    public PipelineResult Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
     {
-        var cliExit = Execute(Parse(configuration, args), rawInput, consoleHack);
-        return TearDownSubsystems(cliExit);
+        var pipelineResult = Execute(Parse(configuration, args), rawInput, consoleHack);
+        TearDownSubsystems(pipelineResult);
+        return pipelineResult;
     }
 
-    public CliExit Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
+    public PipelineResult Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
     {
         var pipelineResult = new PipelineResult(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
         ExecuteSubsystems(pipelineResult);
-        return new CliExit(pipelineResult);
+        return pipelineResult;
     }
 
     // TODO: Consider whether this should be public. It would simplify testing, but would it do anything else
@@ -95,18 +96,17 @@ public class Pipeline
     /// Perform any cleanup operations
     /// </summary>
     /// <param name="pipelineResult">The context of the current execution</param>
-    protected virtual CliExit TearDownSubsystems(CliExit cliExit)
+    protected virtual void TearDownSubsystems(PipelineResult pipelineResult)
     {
-        // TODO: Work on this design as the last cliExit wins and they may not all be well behaved
+        // TODO: Work on this design as the last pipelineResult wins and they may not all be well behaved
         var subsystems = Subsystems.Reverse();
         foreach (var subsystem in subsystems)
         {
             if (subsystem is not null)
             {
-                cliExit = subsystem.TearDown(cliExit);
+                subsystem.TearDown(pipelineResult);
             }
         }
-        return cliExit;
     }
 
     protected virtual void ExecuteSubsystems(PipelineResult pipelineResult)
@@ -117,7 +117,7 @@ public class Pipeline
         {
             if (subsystem is not null)
             {
-                pipelineResult = subsystem.ExecuteIfNeeded(pipelineResult);
+                subsystem.ExecuteIfNeeded(pipelineResult);
             }
         }
     }

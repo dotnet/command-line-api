@@ -8,22 +8,29 @@ public class Subsystem
     public static void Initialize(CliSubsystem subsystem, CliConfiguration configuration, IReadOnlyList<string> args)
         => subsystem.Initialize(new InitializationContext(configuration, args));
 
-    public static CliExit Execute(CliSubsystem subsystem, PipelineResult pipelineResult)
+    public static void Execute(CliSubsystem subsystem, PipelineResult pipelineResult)
         => subsystem.Execute(pipelineResult);
 
     public static bool GetIsActivated(CliSubsystem subsystem, ParseResult parseResult)
         => subsystem.GetIsActivated(parseResult);
 
-    public static CliExit ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
-        => new(subsystem.ExecuteIfNeeded(new PipelineResult(parseResult, rawInput, null, consoleHack)));
+    public static PipelineResult ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
+        => subsystem.ExecuteIfNeeded(new PipelineResult(parseResult, rawInput, null, consoleHack));
 
-    public static CliExit Execute(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
-        => subsystem.Execute(new PipelineResult(parseResult, rawInput, null, consoleHack));
-
+    public static PipelineResult Execute(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
+    {
+        var pipelineResult = new PipelineResult(parseResult, rawInput,null, consoleHack);
+        subsystem.Execute(pipelineResult);
+        return pipelineResult;
+    }
 
     internal static PipelineResult ExecuteIfNeeded(CliSubsystem subsystem, ParseResult parseResult, string rawInput, ConsoleHack? consoleHack, PipelineResult? pipelineResult = null)
-        => subsystem.ExecuteIfNeeded(pipelineResult ?? new PipelineResult(parseResult, rawInput, null, consoleHack));
+    {
+        pipelineResult ??= new PipelineResult(parseResult, rawInput, null, consoleHack);
+        subsystem.ExecuteIfNeeded(pipelineResult );
+        return pipelineResult;
+    }
 
-    internal static PipelineResult ExecuteIfNeeded(CliSubsystem subsystem, PipelineResult pipelineResult)
+    internal static void ExecuteIfNeeded(CliSubsystem subsystem, PipelineResult pipelineResult)
         => subsystem.ExecuteIfNeeded(pipelineResult);
 }

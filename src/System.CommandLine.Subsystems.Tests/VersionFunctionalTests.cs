@@ -26,7 +26,7 @@ namespace System.CommandLine.Subsystems.Tests
             var exit = pipeline.Execute(configuration, "-v", consoleHack);
 
             exit.ExitCode.Should().Be(0);
-            exit.Handled.Should().BeTrue();
+            exit.AlreadyHandled.Should().BeTrue();
             consoleHack.GetBuffer().Should().Be($"{version}{newLine}");
         }
 

@@ -24,21 +24,17 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         Arity = ArgumentArity.Zero
     };
 
-    protected internal override CliConfiguration Initialize(InitializationContext context)
-    {
-        context.Configuration.RootCommand.Add(HelpOption);
-
-        return context.Configuration;
-    }
+    protected internal override void Initialize(InitializationContext context) 
+        => context.Configuration.RootCommand.Add(HelpOption);
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)
         => parseResult is not null && parseResult.GetValue(HelpOption);
 
-    protected internal override CliExit Execute(PipelineResult pipelineResult)
+    protected internal override void Execute(PipelineResult pipelineResult)
     {
         // TODO: Match testable output pattern
         pipelineResult.ConsoleHack.WriteLine("Help me!");
-        return CliExit.SuccessfullyHandled(pipelineResult.ParseResult);
+        pipelineResult.SetSuccess();
     }
 
     public bool TryGetDescription (CliSymbol symbol, out string? description)
