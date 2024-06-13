@@ -93,4 +93,23 @@ internal class TestData
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
+
+    internal class Help : IEnumerable<object[]>
+    {
+        // This data only works if the CLI has a --version with a -v alias and also has a -x option
+        private readonly List<object[]> _data =
+        [
+            ["--help", true],
+            ["-h", true],
+            ["-hx", true],
+            ["-xh", true],
+            ["-x", false],
+            [null, false],
+            ["", false],
+        ];
+
+        public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

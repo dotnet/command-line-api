@@ -17,6 +17,15 @@ namespace System.CommandLine.Subsystems.Tests
             }
         }
 
+        internal class AlternateHelp : HelpSubsystem
+        {
+            protected override void Execute(PipelineResult pipelineResult)
+            {
+                pipelineResult.ConsoleHack.WriteLine($"***Help me!***");
+                pipelineResult.SetSuccess();
+            }
+        }
+
         internal class VersionThatUsesHelpData : VersionSubsystem
         {
             // for testing, this class accepts a symbol and accesses its description
