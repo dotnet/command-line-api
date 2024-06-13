@@ -28,9 +28,6 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     {
         AddOptionRecursively(context.Configuration.RootCommand, HelpOption);
 
-        // I imagine this method should belong to CliCommand
-        // or some extensions method, but I didn't want to change
-        // too much in this PR without consulting you first
         static void AddOptionRecursively(CliCommand command, CliOption option)
         {
             command.Add(option);
