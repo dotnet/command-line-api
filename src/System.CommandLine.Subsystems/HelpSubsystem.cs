@@ -24,8 +24,20 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         Arity = ArgumentArity.Zero
     };
 
-    protected internal override void Initialize(InitializationContext context) 
-        => context.Configuration.RootCommand.Add(HelpOption);
+    protected internal override void Initialize(InitializationContext context)
+    {
+        AddOptionRecursively(context.Configuration.RootCommand, HelpOption);
+
+        static void AddOptionRecursively(CliCommand command, CliOption option)
+        {
+            command.Add(option);
+
+            foreach (var subcommand in command.Subcommands)
+            {
+                AddOptionRecursively(subcommand, option);
+            }
+        }
+    }
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)
         => parseResult is not null && parseResult.GetValue(HelpOption);

@@ -93,4 +93,22 @@ internal class TestData
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
+
+    internal class Help : IEnumerable<object[]>
+    {
+        private readonly List<object[]> _data =
+        [
+            ["--help", true],
+            ["-h", true],
+            ["-hx", true],
+            ["-xh", true],
+            ["-x", false],
+            [null, false],
+            ["", false],
+        ];
+
+        public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }
