@@ -25,7 +25,6 @@ namespace System.CommandLine.Subsystems.Tests
             // Parse is used because directly calling Initialize would be unusual
             var result = pipeline.Parse(configuration, "");
 
-            rootCommand.Options.Should().NotBeNull();
             rootCommand.Options
                 .Count(x => x.Name == "--help")
                 .Should()
