@@ -21,7 +21,7 @@ namespace System.CommandLine.Subsystems.Tests
         {
             protected override void Execute(PipelineResult pipelineResult)
             {
-                pipelineResult.ConsoleHack.WriteLine($"***Help me!***");
+                pipelineResult.ConsoleHack.WriteLine("***Help me!***");
                 pipelineResult.SetSuccess();
             }
         }
