@@ -24,7 +24,7 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         Arity = ArgumentArity.Zero
     };
 
-    protected internal override void Initialize(InitializationContext context) 
+    protected internal override void Initialize(InitializationContext context)
         => context.Configuration.RootCommand.Add(HelpOption);
 
     protected internal override bool GetIsActivated(ParseResult? parseResult)
@@ -37,6 +37,6 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         pipelineResult.SetSuccess();
     }
 
-    public bool TryGetDescription (CliSymbol symbol, out string? description)
-        => TryGetAnnotation (symbol, HelpAnnotations.Description, out description);
+    public bool TryGetDescription(CliSymbol symbol, out string? description)
+        => TryGetAnnotation(symbol, HelpAnnotations.Description, out description);
 }

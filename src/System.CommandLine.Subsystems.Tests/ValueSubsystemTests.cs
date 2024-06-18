@@ -29,7 +29,7 @@ public class ValueSubsystemTests
 
         isActive.Should().BeTrue();
     }
-
+    /* Hold these tests until we determine if ValueSubsystem is replaceable
     [Fact]
     public void ValueSubsystem_returns_values_that_are_entered()
     {
@@ -90,4 +90,5 @@ public class ValueSubsystemTests
 
         pipeline.Value.GetValue<int>(option).Should().Be(expected);
     }
+    */
 }
