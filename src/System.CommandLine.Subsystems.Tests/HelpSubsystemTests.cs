@@ -81,7 +81,7 @@ namespace System.CommandLine.Subsystems.Tests
             pipeline.Help = new AlternateSubsystems.AlternateHelp();
 
             pipeline.Execute(new CliConfiguration(new CliRootCommand()), "-h", consoleHack);
-            consoleHack.GetBuffer().Trim().Should().Be($"***Help me!***");
+            consoleHack.GetBuffer().Trim().Should().Be("***Help me!***");
         }
     }
 }
