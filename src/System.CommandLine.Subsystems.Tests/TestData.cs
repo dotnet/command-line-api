@@ -96,7 +96,6 @@ internal class TestData
 
     internal class Help : IEnumerable<object[]>
     {
-        // This data only works if the CLI has a --version with a -v alias and also has a -x option
         private readonly List<object[]> _data =
         [
             ["--help", true],
