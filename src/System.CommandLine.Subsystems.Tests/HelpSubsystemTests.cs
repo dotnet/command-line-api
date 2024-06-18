@@ -72,15 +72,4 @@ public class HelpSubsystemTests
         pipeline.Execute(new CliConfiguration(new CliRootCommand()), "-h", consoleHack);
         consoleHack.GetBuffer().Trim().Should().Be("***Help me!***");
     }
-
-    [Fact]
-    public void Custom_help_subsystem_can_replace_standard()
-    {
-        var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-        var pipeline = Pipeline.CreateEmpty();
-        pipeline.Help = new AlternateSubsystems.AlternateHelp();
-
-        pipeline.Execute(new CliConfiguration(new CliRootCommand()), "-h", consoleHack);
-        consoleHack.GetBuffer().Trim().Should().Be("***Help me!***");
-    }
 }
