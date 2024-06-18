@@ -30,7 +30,6 @@ namespace System.CommandLine.Subsystems.Tests
                 .Should()
                 .Be(1);
             var subcommand = rootCommand.Subcommands.First();
-            subcommand.Options.Should().NotBeNull();
             subcommand.Options
                 .Count(x => x.Name == "--help")
                 .Should()
