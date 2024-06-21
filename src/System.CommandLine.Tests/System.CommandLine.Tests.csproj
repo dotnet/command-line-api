@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(TargetFrameworkForNETSDK);net462</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworkForNETSDK);$(NetFrameworkMinimum)</TargetFrameworks>
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
   </PropertyGroup>
