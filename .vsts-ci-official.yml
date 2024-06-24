@@ -1,0 +1,172 @@
+variables:
+  - name: _TeamName
+    value: DotNetCore
+  - name: _DotNetArtifactsCategory
+    value: .NETCore
+  - name: Codeql.Enabled
+    value: true
+
+# CI and PR triggers
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+
+pr:
+  autoCancel: false
+  branches:
+    include:
+    - '*'
+
+resources:
+  repositories:
+  - repository: 1ESPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    pool:
+      name: NetCore1ESPool-Svc-Internal
+      image: 1es-windows-2022
+      os: windows
+    customBuildTags:
+    - ES365AIMigrationTooling
+    stages:
+    - stage: build
+      displayName: Build and Test
+      jobs:
+      - template: /eng/common/templates-official/jobs/jobs.yml@self
+        parameters:
+          enableMicrobuild: true
+          enablePublishBuildArtifacts: true
+          enablePublishUsingPipelines: true
+          enablePublishTestResults: true
+          enablePublishBuildAssets: true
+          enableTelemetry: true
+          enableSourceBuild: true
+          helixRepo: dotnet/command-line-api
+          timeoutInMinutes: 180 # increase timeout since BAR publishing might wait a long time
+          jobs:
+          - job: Windows
+            pool:
+              name: NetCore1ESPool-Internal
+              demands: ImageOverride -equals windows.vs2022.amd64
+            variables:
+            - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
+              # Publish-Build-Assets provides: MaestroAccessToken, BotAccount-dotnet-maestro-bot-PAT
+              - group: DotNet-Symbol-Server-Pats
+              - group: Publish-Build-Assets
+              - name: _OfficialBuildArgs
+                value: /p:DotNetSignType=$(_SignType)
+                      /p:TeamName=$(_TeamName)
+                      /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines)
+                      /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory)
+                      /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+                      /p:PublishToSymbolServer=true
+                      /p:DotNetSymbolServerTokenMsdl=$(microsoft-symbol-server-pat)
+                      /p:DotNetSymbolServerTokenSymWeb=$(symweb-symbol-server-pat)
+              - name: _PublishUsingPipelines
+                value: true
+            # else
+            - ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
+              - name: _OfficialBuildArgs
+                value: ''
+            strategy:
+              matrix:
+                ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
+                  Debug:
+                    _BuildConfig: Debug
+                    _SignType: test
+                    _BuildArgs:
+
+                Release:
+                  _BuildConfig: Release
+                  # PRs are not signed.
+                  ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
+                    _SignType: test
+                  ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
+                    _SignType: real
+                    _BuildArgs: $(_OfficialBuildArgs)
+
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload package artifacts
+                condition: and(eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
+                targetPath: artifacts/packages/
+                artifactName: artifacts
+              - output: pipelineArtifact
+                displayName: Publish Artifact Symbols
+                condition: and(eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
+                targetPath: '$(Build.SourcesDirectory)\artifacts\SymStore\$(_BuildConfig)'
+                artifactName: 'NativeSymbols'
+
+            steps:
+            - checkout: self
+              clean: true
+            - script: eng\common\cibuild.cmd
+                -configuration $(_BuildConfig)
+                -prepareMachine
+                $(_BuildArgs)
+              displayName: Build and Publish
+
+          - job: Ubuntu
+            displayName: Ubuntu
+            pool:
+              name: NetCore1ESPool-Svc-Internal
+              demands: ImageOverride -equals 1es-ubuntu-2004
+              os: linux
+            strategy:
+              matrix:
+                ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
+                  Debug:
+                    _BuildConfig: Debug
+                    _SignType: none
+                Release:
+                  _BuildConfig: Release
+                  _SignType: none
+            steps:
+            - checkout: self
+              clean: true
+            - bash: |
+                wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+                sudo apt-add-repository "deb https://apt.llvm.org/focal/ llvm-toolchain-focal-9 main"
+                sudo apt-get update
+            - bash: |
+                sudo apt-get install cmake clang-9 libicu66 uuid-dev libcurl4-openssl-dev zlib1g-dev libkrb5-dev
+            - script: eng/common/cibuild.sh
+                --configuration $(_BuildConfig)
+                --prepareMachine
+              displayName: Build
+
+          - job: MacOS
+            displayName: MacOS
+            pool:
+              name: Azure Pipelines
+              image: macOS-latest
+              os: macOS
+            strategy:
+              matrix:
+                ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
+                  Debug:
+                    _BuildConfig: Debug
+                    _SignType: none
+                    _DotNetPublishToBlobFeed: false
+                Release:
+                  _BuildConfig: Release
+                  _SignType: none
+                  _DotNetPublishToBlobFeed: false
+            steps:
+            - checkout: self
+              clean: true
+            - script: eng/common/cibuild.sh
+                --configuration $(_BuildConfig)
+                --prepareMachine
+              displayName: Build
+
+    - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
+      - template: /eng/common/templates-official/post-build/post-build.yml@self
