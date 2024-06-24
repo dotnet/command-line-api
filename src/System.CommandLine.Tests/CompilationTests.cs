@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#if NET6_0_OR_GREATER
+#if NET
 
 using System.CommandLine.Suggest;
 using System.CommandLine.Tests.Utility;
@@ -17,13 +17,10 @@ namespace System.CommandLine.Tests;
 public class CompilationTests
 {
     private readonly ITestOutputHelper _output;
-    private readonly string _systemCommandLineDllPath;
 
     public CompilationTests(ITestOutputHelper output)
     {
         _output = output;
-
-        _systemCommandLineDllPath = typeof(CliCommand).Assembly.Location;
     }
 
     [ReleaseBuildOnlyTheory]
@@ -57,9 +54,8 @@ public class CompilationTests
             workingDirectory: workingDirectory);
 
         string publishCommand = string.Format(
-            "publish -c Release -r {0} --self-contained -p:SystemCommandLineDllPath=\"{1}\" -p:TreatWarningsAsErrors=true {2}",
+            "publish -c Release -r {0} --self-contained -p:TreatWarningsAsErrors=true {1}",
             rId,
-            _systemCommandLineDllPath,
             additionalArgs);
 
         var exitCode = Process.RunToCompletion(
