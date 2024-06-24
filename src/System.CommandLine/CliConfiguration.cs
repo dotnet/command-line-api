@@ -176,12 +176,12 @@ namespace System.CommandLine
                     {
                         CliSymbol symbol2 = GetChild(j, command, out AliasSet? aliases2);
 
-                        if (symbol1.Name.Equals(symbol2.Name, StringComparison.Ordinal)
-                            || (aliases1 is not null && aliases1.Contains(symbol2.Name)))
+                        if (symbol1.Name.Equals(symbol2.Name, symbol1.CaseSensitive && symbol2.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase)
+                            || (aliases1 is not null && aliases1.Contains(symbol2.Name, symbol1.CaseSensitive && symbol2.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)))
                         {
                             throw new CliConfigurationException($"Duplicate alias '{symbol2.Name}' found on command '{command.Name}'.");
                         }
-                        else if (aliases2 is not null && aliases2.Contains(symbol1.Name))
+                        else if (aliases2 is not null && aliases2.Contains(symbol1.Name, symbol1.CaseSensitive && symbol2.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase))
                         {
                             throw new CliConfigurationException($"Duplicate alias '{symbol1.Name}' found on command '{command.Name}'.");
                         }

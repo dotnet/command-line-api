@@ -17,11 +17,11 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
 
-        private protected CliOption(string name, string[] aliases) : base(name)
+        private protected CliOption(string name, string[] aliases, bool caseSensitive = true) : base(name, caseSensitive: caseSensitive)
         {
             if (aliases is { Length: > 0 }) 
             {
-                _aliases = new(aliases);
+                _aliases = new(aliases, caseSensitive);
             }
         }
 
@@ -102,7 +102,7 @@ namespace System.CommandLine
         /// Gets the unique set of strings that can be used on the command line to specify the Option.
         /// </summary>
         /// <remarks>The collection does not contain the <see cref="CliSymbol.Name"/> of the Option.</remarks>
-        public ICollection<string> Aliases => _aliases ??= new();
+        public ICollection<string> Aliases => _aliases ??= new(CaseSensitive);
 
         /// <summary>
         /// Gets or sets the <see cref="CliAction"/> for the Option. The handler represents the action
