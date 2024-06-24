@@ -9,14 +9,14 @@
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="8.0.0-beta.24170.6">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="8.0.0-beta.24321.3">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>8e3e00a76f467cc262dc14f6466ab884b2c4eb96</Sha>
+      <Sha>a95bcc256e9bdf47394e4dab04872811c16daaea</Sha>
     </Dependency>
     <!-- Intermediate is necessary for source build. -->
-    <Dependency Name="Microsoft.SourceBuild.Intermediate.arcade" Version="8.0.0-beta.24170.6">
+    <Dependency Name="Microsoft.SourceBuild.Intermediate.arcade" Version="8.0.0-beta.24321.3">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>8e3e00a76f467cc262dc14f6466ab884b2c4eb96</Sha>
+      <Sha>a95bcc256e9bdf47394e4dab04872811c16daaea</Sha>
       <SourceBuild RepoName="arcade" ManagedOnly="true" />
     </Dependency>
     <!-- Don't declare a separate xliff-tasks intermediate as Arcade 8.0 does not have xliff intermediate declared. -->
