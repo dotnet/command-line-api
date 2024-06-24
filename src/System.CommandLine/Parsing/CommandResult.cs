@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -125,7 +125,7 @@ namespace System.CommandLine.Parsing
                 // When_there_is_an_arity_error_then_further_errors_are_not_reported
                 if (!ArgumentArity.Validate(argumentResult, out var error))
                 {
-                    optionResult.AddError(error.ErrorMessage!);
+                    argumentResult.AddError(error.ErrorMessage!);
                     continue;
                 }
 
