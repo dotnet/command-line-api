@@ -4,10 +4,11 @@
     <TargetFramework>$(NetMinimum)</TargetFramework>
     <OutputType>Exe</OutputType>
     <PublishAot>true</PublishAot>
+    <BuildProjectReferences>false</BuildProjectReferences>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\System.CommandLine\System.CommandLine.csproj" BuildReference="false" />
+    <ProjectReference Include="$(RepoRoot)src\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 
 </Project>

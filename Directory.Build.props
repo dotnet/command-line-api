@@ -9,8 +9,11 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>10.0</LangVersion>
 
+    <!-- Hardcode these properties to support building without the Arcade SDK. -->
     <NetMinimum>net8.0</NetMinimum>
     <NetFrameworkMinimum>net462</NetFrameworkMinimum>
+    <NetFrameworkCurrent>net481</NetFrameworkCurrent>
+
     <!-- When building from source, upgrade NetMinimum to the latest TFM. -->
     <NetMinimum Condition="'$(DotNetBuildFromSource)' == 'true' or '$(DotNetBuildSourceOnly)' == 'true'">$(NetCurrent)</NetMinimum>
   </PropertyGroup>
