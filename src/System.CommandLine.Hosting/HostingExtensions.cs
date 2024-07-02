@@ -1,7 +1,8 @@
-﻿using System.CommandLine.Binding;
+﻿#nullable enable
+
+using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
-using CommandHandler = System.CommandLine.NamingConventionBinder.CommandHandler;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,35 +12,64 @@ namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
-        public static CliConfiguration UseHost(
+        public const string ConfigurationDirectiveName = "config";
+
+        private static CliConfiguration UseHost<THostBuilder>(
             this CliConfiguration config,
-            Func<string[], IHostBuilder> hostBuilderFactory,
-            Action<IHostBuilder> configureHost = null)
+            Func<string[], THostBuilder> hostBuilderFactory,
+            Action<THostBuilder>? configureHost = null,
+            Func<THostBuilder, IHostBuilder>? builderAsHostBuilder = null
+            )
         {
+            config.ProcessTerminationTimeout = null;
             if (config.RootCommand is CliRootCommand root)
             {
-                root.Add(new CliDirective(HostingAction.HostingDirectiveName));
+                root.Add(new CliDirective(ConfigurationDirectiveName));
             }
 
-            HostingAction.SetHandlers(config.RootCommand, hostBuilderFactory, configureHost);
+            HostingWrappingAction<THostBuilder>.SetHandlers(
+                config.RootCommand,
+                hostBuilderFactory,
+                configureHost,
+                builderAsHostBuilder
+                );
 
             return config;
         }
 
         public static CliConfiguration UseHost(
             this CliConfiguration config,
-            Action<IHostBuilder> configureHost = null
-        ) => UseHost(config, null, configureHost);
+            Func<string[], IHostBuilder>? hostBuilderFactory,
+            Action<IHostBuilder>? configureHost = null
+            ) => UseHost(
+                config,
+                hostBuilderFactory ?? Host.CreateDefaultBuilder,
+                configureHost,
+                builderAsHostBuilder: default
+                );
 
-        public static IHostBuilder UseInvocationLifetime(this IHostBuilder host, Action<InvocationLifetimeOptions> configureOptions = null)
-        {
-            return host.ConfigureServices(services =>
-            {
-                services.AddSingleton<IHostLifetime, InvocationLifetime>();
-                if (configureOptions is Action<InvocationLifetimeOptions>)
-                    services.Configure(configureOptions);
-            });
-        }
+        public static CliConfiguration UseHost(
+            this CliConfiguration config,
+            Action<IHostBuilder>? configureHost = null
+            ) => UseHost(config, hostBuilderFactory: null, configureHost);
+
+#if NET8_0_OR_GREATER
+        public static CliConfiguration UseHost(
+            this CliConfiguration config,
+            Func<string[], HostApplicationBuilder>? hostBuilderFactory,
+            Action<HostApplicationBuilder>? configureHost = null
+            ) => UseHost(
+                config,
+                hostBuilderFactory ?? Host.CreateApplicationBuilder,
+                configureHost,
+                static builder => new HostApplicationBuilderAsIHostBuilder(builder)
+                );
+
+        public static CliConfiguration UseHost(
+            this CliConfiguration config,
+            Action<HostApplicationBuilder>? configureHost = null
+        ) => UseHost(config, hostBuilderFactory: null, configureHost);
+#endif
 
         public static OptionsBuilder<TOptions> BindCommandLine<TOptions>(
             this OptionsBuilder<TOptions> optionsBuilder)
@@ -57,11 +87,10 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static CliCommand UseCommandHandler<THandler>(this CliCommand command)
-            where THandler : CliAction
+        public static CliCommand UseHostedService<THostedService>(this CliCommand command)
+            where THostedService : CliHostedService
         {
-            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(AsynchronousCliAction.InvokeAsync)));
-
+            command.Action = HostedServiceAction.Create<THostedService>();
             return command;
         }
 
@@ -70,10 +99,10 @@ namespace System.CommandLine.Hosting
             _ = hostBuilder ?? throw new ArgumentNullException(nameof(hostBuilder));
 
             if (hostBuilder.Properties.TryGetValue(typeof(ParseResult), out var ctxObj) &&
-                ctxObj is ParseResult invocationContext)
-                return invocationContext;
+                ctxObj is ParseResult parseResult)
+                return parseResult;
 
-            throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
+            throw new InvalidOperationException("Host builder has no command-line parse result registered to it.");
         }
 
         public static ParseResult GetParseResult(this HostBuilderContext context)
@@ -81,17 +110,18 @@ namespace System.CommandLine.Hosting
             _ = context ?? throw new ArgumentNullException(nameof(context));
 
             if (context.Properties.TryGetValue(typeof(ParseResult), out var ctxObj) &&
-                ctxObj is ParseResult invocationContext)
-                return invocationContext;
+                ctxObj is ParseResult parseResult)
+                return parseResult;
 
-            throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
+            throw new InvalidOperationException("Host builder context has no command-line parse result registered to it.");
         }
 
-        public static IHost GetHost(this ParseResult parseResult)
+        public static IHost? GetHost(this ParseResult parseResult)
         {
             _ = parseResult ?? throw new ArgumentNullException(paramName: nameof(parseResult));
             var hostModelBinder = new ModelBinder<IHost>();
-            return (IHost)hostModelBinder.CreateInstance(parseResult.GetBindingContext());
+            var bindingContext = parseResult.GetBindingContext();
+            return (IHost?)hostModelBinder.CreateInstance(bindingContext);
         }
     }
 }

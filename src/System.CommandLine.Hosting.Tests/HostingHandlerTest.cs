@@ -118,6 +118,31 @@ namespace System.CommandLine.Hosting.Tests
             service.StringValue.Should().Be("TEST");
         }
 
+        [Fact]
+        public static void CommandHandler_is_not_a_HostingAction()
+        {
+            var command = new MyRootCommand().UseCommandHandler<MyHandler>();
+            var action = command.Action;
+
+            bool isHostingAction = HostingAction.IsHostingAction(action);
+
+            isHostingAction.Should().BeFalse();
+        }
+
+        [Fact]
+        public static void UseHost_creates_a_HostingAction()
+        {
+            var config = new CliConfiguration(
+                new MyRootCommand().UseCommandHandler<MyHandler>()
+                )
+                .UseHost();
+            var action = config.RootCommand.Action;
+
+            bool isHostingAction = HostingAction.IsHostingAction(action);
+
+            isHostingAction.Should().BeTrue();
+        }
+
         public abstract class MyBaseCliAction : AsynchronousCliAction
         {
             public int IntOption { get; set; } // bound from option
@@ -231,6 +256,8 @@ namespace System.CommandLine.Hosting.Tests
 
         public class MyService
         {
+            public MyService() { }
+
             public Func<int> Action { get; set; }
 
             public int Value { get; set; }
