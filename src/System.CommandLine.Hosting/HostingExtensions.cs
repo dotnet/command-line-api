@@ -104,6 +104,61 @@ namespace System.CommandLine.Hosting
             return command;
         }
 
+        public static HostingAction<IHostBuilder> UseHost(
+            this AsynchronousCliAction action,
+            Func<string[], IHostBuilder>? hostBuilderFactory,
+            Action<IHostBuilder>? configureHost = null
+            )
+        {
+            _ = action ?? throw new ArgumentNullException(nameof(action));
+            if (HostingAction.IsHostingAction(action))
+                return action as HostingAction<IHostBuilder> 
+                    ?? throw new InvalidOperationException(
+                        "Specified CliAction instance is a hosting action, but its HostBuilder generic type argument is not equal to IHostBuilder."
+                        );
+
+            var wrappingAction = new HostingWrappingAction<IHostBuilder>(
+                action,
+                hostBuilderFactory ?? Host.CreateDefaultBuilder,
+                configureHost
+                );
+            return wrappingAction;
+        }
+
+        public static HostingAction<IHostBuilder> UseHost(
+            this AsynchronousCliAction action,
+            Action<IHostBuilder>? configureHost = null
+            ) => UseHost(action, hostBuilderFactory: default, configureHost);
+
+#if NET8_0_OR_GREATER
+        public static HostingAction<HostApplicationBuilder> UseHost(
+            this AsynchronousCliAction action,
+            Func<string[], HostApplicationBuilder>? hostBuilderFactory,
+            Action<HostApplicationBuilder>? configureHost = null
+            )
+        {
+            _ = action ?? throw new ArgumentNullException(nameof(action));
+            if (HostingAction.IsHostingAction(action))
+                return action as HostingAction<HostApplicationBuilder> 
+                    ?? throw new InvalidOperationException(
+                        "Specified CliAction instance is a hosting action, but its HostBuilder generic type argument is not equal to HostApplicationBuilder."
+                        );
+
+            var wrappingAction = new HostingWrappingAction<HostApplicationBuilder>(
+                action,
+                hostBuilderFactory ?? Host.CreateApplicationBuilder,
+                configureHost,
+                static builder => new HostApplicationBuilderAsIHostBuilder(builder)
+                );
+            return wrappingAction;
+        }
+
+        public static HostingAction<HostApplicationBuilder> UseHost(
+            this AsynchronousCliAction action,
+            Action<HostApplicationBuilder>? configureHost = null
+            ) => UseHost(action, hostBuilderFactory: default, configureHost);
+#endif
+
         public static ParseResult GetParseResult(this IHostBuilder hostBuilder)
         {
             _ = hostBuilder ?? throw new ArgumentNullException(nameof(hostBuilder));

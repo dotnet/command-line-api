@@ -44,7 +44,7 @@ internal sealed class HostingWrappingAction<THostBuilder> : HostingAction<THostB
         }
     }
 
-    private HostingWrappingAction(
+    internal HostingWrappingAction(
         AsynchronousCliAction? wrappedAction,
         Func<string[], THostBuilder> hostBuilderFactory,
         Action<THostBuilder>? configureHost = null,
