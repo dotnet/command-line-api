@@ -94,6 +94,16 @@ namespace System.CommandLine.Hosting
             return command;
         }
 
+        public static CliCommand UseCommandHandler<THandler>(this CliCommand command)
+            where THandler : CliAction
+        {
+            command.Action = CommandHandler.Create(
+                typeof(THandler)
+                .GetMethod(nameof(AsynchronousCliAction.InvokeAsync))!
+                );
+            return command;
+        }
+
         public static ParseResult GetParseResult(this IHostBuilder hostBuilder)
         {
             _ = hostBuilder ?? throw new ArgumentNullException(nameof(hostBuilder));
