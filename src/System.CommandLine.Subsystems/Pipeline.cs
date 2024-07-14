@@ -9,16 +9,14 @@ namespace System.CommandLine;
 
 public partial class Pipeline
 {
-    // TODO: Consider more phases that have obvious meanings, like first and last
-    private PipelinePhase<DiagramSubsystem> diagramPhase = new(SubsystemKind.Diagram);
-    private PipelinePhase<CompletionSubsystem> completionPhase = new(SubsystemKind.Completion);
-    private PipelinePhase<HelpSubsystem> helpPhase = new(SubsystemKind.Help);
-    private PipelinePhase<VersionSubsystem> versionPhase = new(SubsystemKind.Version);
-    private PipelinePhase<ValidationSubsystem> validationPhase = new(SubsystemKind.Validation);
-    private PipelinePhase<InvocationSubsystem> invocationPhase = new(SubsystemKind.Invocation);
-    private PipelinePhase<ErrorReportingSubsystem> errorReportingPhase = new(SubsystemKind.ErrorReporting);
-    // TODO: Consider this naming as it sounds like it is a finishing phase
-    private readonly IEnumerable<PipelinePhase> phases = [];
+    private readonly PipelinePhase<DiagramSubsystem> diagramPhase = new(SubsystemKind.Diagram);
+    private readonly PipelinePhase<CompletionSubsystem> completionPhase = new(SubsystemKind.Completion);
+    private readonly PipelinePhase<HelpSubsystem> helpPhase = new(SubsystemKind.Help);
+    private readonly PipelinePhase<VersionSubsystem> versionPhase = new(SubsystemKind.Version);
+    private readonly PipelinePhase<ValidationSubsystem> validationPhase = new(SubsystemKind.Validation);
+    private readonly PipelinePhase<InvocationSubsystem> invocationPhase = new(SubsystemKind.Invocation);
+    private readonly PipelinePhase<ErrorReportingSubsystem> errorReportingPhase = new(SubsystemKind.ErrorReporting);
+    private readonly IEnumerable<PipelinePhase> phases;
 
     /// <summary>
     /// Creates an instance of the pipeline using standard features.
@@ -37,8 +35,7 @@ public partial class Pipeline
                                   CompletionSubsystem? completion = null,
                                   DiagramSubsystem? diagram = null,
                                   ErrorReportingSubsystem? errorReporting = null)
-    {
-        Pipeline pipeline = new()
+        => new()
         {
             Help = help ?? new HelpSubsystem(),
             Version = version ?? new VersionSubsystem(),
@@ -46,10 +43,6 @@ public partial class Pipeline
             Diagram = diagram ?? new DiagramSubsystem(),
             ErrorReporting = errorReporting ?? new ErrorReportingSubsystem(),
         };
-
-
-        return pipeline;
-    }
 
     /// <summary>
     /// Creates an instance of the pipeline with no features. Use this if you want to explicitly add features.
@@ -88,21 +81,21 @@ public partial class Pipeline
     }
 
     /// <summary>
-    /// Adds a subsystem. Use the property for the subsystem to replace the standard property. Use this method if you want an an additional subsystem. 
+    /// Adds a subsystem.
     /// </summary>
     /// <param name="subsystem">The subsystem to add.</param>
     /// <param name="timing"><see cref="PhaseTiming.Before"/> indicates that the subsystem should run before all other subsystems in the phase, and <see cref="PhaseTiming.After"/> indicates it should run after other subsystems. The default is <see cref="PhaseTiming.Before"/>.</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <remarks>
-    /// The phase in which the subsystem runs is determined by the subsystem.
+    /// The phase in which the subsystem runs is determined by the subsystem's 'Kind' property.
+    /// <br/>
+    /// To replace one of hte standard subsystems, use the `Pipeline.(subsystem)` property, such as `myPipeline.Help = new OtherHelp();`
     /// </remarks>
     public void AddSubsystem(CliSubsystem subsystem, PhaseTiming timing = PhaseTiming.Before)
     {
         switch (subsystem.Kind)
         {
-            // TODO: Determine how Other should work. Do we have a kind and a phase? Perhaps just for Other subsystems. I think it is helpful to know it is something unforeseen
             case SubsystemKind.Other:
-                break;
             case SubsystemKind.Response:
             case SubsystemKind.Value:
                 throw new InvalidOperationException($"You cannot add subsystems to {subsystem.Kind}");
@@ -117,6 +110,12 @@ public partial class Pipeline
                 break;
             case SubsystemKind.Version:
                 versionPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Validation:
+                validationPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Invocation:
+                invocationPhase.AddSubsystem(subsystem, timing);
                 break;
             case SubsystemKind.ErrorReporting:
                 errorReportingPhase.AddSubsystem(subsystem, timing);
@@ -140,7 +139,6 @@ public partial class Pipeline
     {
         get => completionPhase.Subsystem;
         set => completionPhase.Subsystem = value;
-
     }
 
     /// <summary>
@@ -150,7 +148,6 @@ public partial class Pipeline
     {
         get => helpPhase.Subsystem;
         set => helpPhase.Subsystem = value;
-
     }
 
     /// <summary>
@@ -171,6 +168,7 @@ public partial class Pipeline
         set => errorReportingPhase.Subsystem = value;
     }
 
+    // TODO: Consider whether replacing the validation subsystem is valuable
     /// <summary>
     /// Sets or gets the validation subsystem
     /// </summary>
@@ -180,7 +178,7 @@ public partial class Pipeline
         set => validationPhase.Subsystem = value;
     }
 
-
+    // TODO: Consider whether replacing the invocation subsystem is valuable
     /// <summary>
     /// Sets or gets the invocation subsystem
     /// </summary>
@@ -190,15 +188,13 @@ public partial class Pipeline
         set => invocationPhase.Subsystem = value;
     }
 
-
-    // TODO: Are there use cases to replace this? Do we want new default values to require a new ValueSubsystem, which would block getting response providers from two sources.
     /// <summary>
-    /// Sets or gets the value subsystem which manages entered and default values.
+    /// Gets the value subsystem which manages entered and default values.
     /// </summary>
     public ValueSubsystem Value { get; }
 
     /// <summary>
-    /// Sets or gets the response file subsystem
+    /// Gets the response file subsystem
     /// </summary>
     public ResponseSubsystem Response { get; }
 
