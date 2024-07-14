@@ -9,6 +9,4 @@ namespace System.CommandLine.Subsystems.Annotations;
 public static class VersionAnnotations
 {
     public static string Prefix { get; } = nameof(SubsystemKind.Version);
-
-    public static AnnotationId<string> Version { get; } = new(Prefix, nameof(Version));
 }
