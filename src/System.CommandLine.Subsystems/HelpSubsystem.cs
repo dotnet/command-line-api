@@ -18,6 +18,14 @@ namespace System.CommandLine;
 public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     : CliSubsystem(HelpAnnotations.Prefix, SubsystemKind.Help, annotationProvider)
 {
+    /// <summary>
+    /// Gets the help option, which allows the user to customize
+    /// </summary>
+    /// <remarks>
+    /// By design, the user can modify the help option but not replace it. This allows us to 
+    /// do the fastest possible lookup of whether help was called, and we aren't clear why 
+    /// the option would need to be replaced
+    /// </remarks>
     public CliOption<bool> HelpOption { get; } = new CliOption<bool>("--help", ["-h"])
     {
         // TODO: Why don't we accept bool like any other bool option?
