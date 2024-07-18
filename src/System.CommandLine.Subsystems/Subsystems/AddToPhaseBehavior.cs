@@ -3,8 +3,9 @@
 
 namespace System.CommandLine.Subsystems;
 
-public enum PhaseTiming
+public enum AddToPhaseBehavior
 {
-    Before = 0,
-    After
+    SubsystemRecommendation = 0,
+    Prepend,
+    Append
 }

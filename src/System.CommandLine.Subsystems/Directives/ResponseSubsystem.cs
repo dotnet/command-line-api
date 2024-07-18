@@ -16,26 +16,25 @@ public class ResponseSubsystem()
 
     public (List<string>? tokens, List<string>? errors) Replacer(string responseSourceName)
     {
-        if (Enabled)
+        if (!Enabled)
         {
-            try
-            {
-                // TODO: Include checks from previous system.
-                var contents = File.ReadAllText(responseSourceName);
-                return (CliParser.SplitCommandLine(contents).ToList(), null);
-            }
-            catch
-            {
-                // TODO: Switch to proper errors
-                return (null,
-                        errors:
-                        [
-                            $"Failed to open response file {responseSourceName}"
-                        ]);
-            }
+            return ([responseSourceName], null);
         }
-        // TODO: Confirm this is not an error state
-        return ([responseSourceName], null);
+        try
+        {
+            // TODO: Include checks from previous system.
+            var contents = File.ReadAllText(responseSourceName);
+            return (CliParser.SplitCommandLine(contents).ToList(), null);
+        }
+        catch
+        {
+            // TODO: Switch to proper errors
+            return (null,
+                    errors:
+                    [
+                        $"Failed to open response file {responseSourceName}"
+                    ]);
+        }
     }
 
     // TODO: File handling from previous system - ensure these checks are done (note: no tests caught these oversights

@@ -12,7 +12,7 @@ namespace System.CommandLine.Subsystems;
 /// <param name="annotationProvider"></param>
 public abstract class CliSubsystem
 {
-    protected CliSubsystem(string name, SubsystemKind subsystemKind,  IAnnotationProvider? annotationProvider)
+    protected CliSubsystem(string name, SubsystemKind subsystemKind, IAnnotationProvider? annotationProvider)
     {
         Name = name;
         _annotationProvider = annotationProvider;
@@ -28,6 +28,7 @@ public abstract class CliSubsystem
     /// Defines the kind of subsystem, such as help or version
     /// </summary>
     public SubsystemKind Kind { get; }
+    public AddToPhaseBehavior RecommendedAddToPhaseBehavior { get; }
 
     private readonly IAnnotationProvider? _annotationProvider;
 

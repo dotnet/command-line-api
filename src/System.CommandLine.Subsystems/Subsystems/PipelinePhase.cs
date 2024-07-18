@@ -19,9 +19,10 @@ internal class PipelinePhase(SubsystemKind kind)
     /// <remarks>
     /// Adding a subsystem that is not of the normal phase type is expected and OK.
     /// </remarks>
-    public void AddSubsystem(CliSubsystem subsystem, PhaseTiming timing = PhaseTiming.Before)
+    internal void AddSubsystem(CliSubsystem subsystem, AddToPhaseBehavior timing)
     {
-        List<CliSubsystem>? addToList = timing == PhaseTiming.Before
+        timing = timing == AddToPhaseBehavior.SubsystemRecommendation ? subsystem.RecommendedAddToPhaseBehavior : timing;
+        List<CliSubsystem>? addToList = timing == AddToPhaseBehavior.Prepend
             ? CreateBeforeIfNeeded()
             : CreateAfterIfNeeded();
 
@@ -40,26 +41,16 @@ internal class PipelinePhase(SubsystemKind kind)
         return after;
     }
 
-    public IEnumerable<CliSubsystem> GetSubsystems()
-    {
-        List<CliSubsystem> ret = CliSubsystem is null
-                                    ? []
-                                    : [CliSubsystem];
-        if (before is not null)
-        {
-            // TODO: Confirm that we want to reverse the before list.
-            ret.AddRange(((IEnumerable<CliSubsystem>)before).Reverse());
-        }
-        if (after is not null)
-        {
-            ret.AddRange(after);
-        }
-        return ret;
-    }
+    public IEnumerable<CliSubsystem> GetSubsystems() 
+        => [
+            .. (before is null ? [] : before),
+            .. (CliSubsystem is null ? new List<CliSubsystem> { } : [CliSubsystem]),
+            .. (after is null ? [] : after)
+            ];
 }
 
 /// <summary>
-/// This struct manages one phase. The most common case is that it is empty, and the most complicated
+/// This manages one phase. The most common case is that it is empty, and the most complicated
 /// case of several items before, and several items after will be quite rare.
 /// </summary>
 /// <remarks>

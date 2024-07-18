@@ -21,11 +21,11 @@ public partial class Pipeline
     /// <summary>
     /// Creates an instance of the pipeline using standard features.
     /// </summary>
-    /// <param name="help">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</cref></param>
-    /// <param name="version">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</param>
-    /// <param name="completion">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</param>
-    /// <param name="diagram">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</param>
-    /// <param name="errorReporting">A help subsystem to replace the standard one. To add a subsystem, use <cref>AddSubsystem.</param>
+    /// <param name="help">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <param name="version">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <param name="completion">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <param name="diagram">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <param name="errorReporting">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
     /// <returns>A new pipeline.</returns>
     /// <remarks>
     /// Currently, the standard <see cref="ValueSubsystem"/>, <see cref="ValidationSubsystem"/> , and <see cref="ResponseSubsystem"/> cannot be replaced. <see cref="ResponseSubsystem"/> is disabled by default.
@@ -89,9 +89,9 @@ public partial class Pipeline
     /// <remarks>
     /// The phase in which the subsystem runs is determined by the subsystem's 'Kind' property.
     /// <br/>
-    /// To replace one of hte standard subsystems, use the `Pipeline.(subsystem)` property, such as `myPipeline.Help = new OtherHelp();`
+    /// To replace one of the standard subsystems, use the `Pipeline.(subsystem)` property, such as `myPipeline.Help = new OtherHelp();`
     /// </remarks>
-    public void AddSubsystem(CliSubsystem subsystem, PhaseTiming timing = PhaseTiming.Before)
+    public void AddSubsystem(CliSubsystem subsystem, AddToPhaseBehavior timing = AddToPhaseBehavior.SubsystemRecommendation)
     {
         switch (subsystem.Kind)
         {
@@ -111,6 +111,8 @@ public partial class Pipeline
             case SubsystemKind.Version:
                 versionPhase.AddSubsystem(subsystem, timing);
                 break;
+            // You can add Validation and Invocation subsystems, but you can't remove the core.
+            // Other things may need to be run in the phase.
             case SubsystemKind.Validation:
                 validationPhase.AddSubsystem(subsystem, timing);
                 break;
@@ -172,21 +174,13 @@ public partial class Pipeline
     /// <summary>
     /// Sets or gets the validation subsystem
     /// </summary>
-    public ValidationSubsystem? Validation
-    {
-        get => validationPhase.Subsystem;
-        set => validationPhase.Subsystem = value;
-    }
+    public ValidationSubsystem? Validation { get; }
 
     // TODO: Consider whether replacing the invocation subsystem is valuable
     /// <summary>
     /// Sets or gets the invocation subsystem
     /// </summary>
-    public InvocationSubsystem? Invocation
-    {
-        get => invocationPhase.Subsystem;
-        set => invocationPhase.Subsystem = value;
-    }
+    public InvocationSubsystem? Invocation { get; }
 
     /// <summary>
     /// Gets the value subsystem which manages entered and default values.
@@ -222,6 +216,7 @@ public partial class Pipeline
             // TODO: Allow subsystems to control short-circuiting
             foreach (var subsystem in phase.GetSubsystems())
             {
+                // TODO: RunEvenIfAlreadyHandled needs more thought and laying out the scenarios
                 if (subsystem is not null && (!pipelineResult.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
                 {
                     subsystem.ExecuteIfNeeded(pipelineResult);
@@ -250,7 +245,7 @@ public partial class Pipeline
             // TODO: Allow subsystems to control short-circuiting? Not sure we need that for initialization
             foreach (var subsystem in phase.GetSubsystems())
             {
-                subsystem?.Initialize(context);
+                subsystem.Initialize(context);
             }
         }
     }
@@ -269,7 +264,7 @@ public partial class Pipeline
             // TODO: Allow subsystems to control short-circuiting? Not sure we need that for teardown
             foreach (var subsystem in phase.GetSubsystems())
             {
-                subsystem?.TearDown(pipelineResult);
+                subsystem.TearDown(pipelineResult);
             }
         }
     }
