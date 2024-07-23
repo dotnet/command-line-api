@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DotNetBuildFromSource)' != 'true' and '$(DotNetBuildSourceOnly)' != 'true'">
-    <TargetFrameworkForNETSDK>net8</TargetFrameworkForNETSDK>
+    <TargetFrameworkForNETSDK>net8.0</TargetFrameworkForNETSDK>
   </PropertyGroup>
 
 </Project>
