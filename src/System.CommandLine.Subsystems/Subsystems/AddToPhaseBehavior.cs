@@ -3,17 +3,9 @@
 
 namespace System.CommandLine.Subsystems;
 
-public enum SubsystemKind
+public enum AddToPhaseBehavior
 {
-    Other = 0,
-    Diagram,
-    Completion,
-    Help,
-    Version,
-    Validation,
-    Invocation,
-    ErrorReporting,
-    Value,
-    Response,
+    SubsystemRecommendation = 0,
+    Prepend,
+    Append
 }
-

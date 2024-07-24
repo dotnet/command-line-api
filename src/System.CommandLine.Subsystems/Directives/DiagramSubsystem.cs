@@ -7,7 +7,7 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Directives;
 
-public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
+public class DiagramSubsystem(IAnnotationProvider? annotationProvider = null)
     : DirectiveSubsystem("diagram", SubsystemKind.Diagram, annotationProvider)
 {
     //protected internal override bool GetIsActivated(ParseResult? parseResult)
@@ -68,8 +68,8 @@ public class DiagramSubsystem( IAnnotationProvider? annotationProvider = null)
             builder.Append('!');
         }
     */
-// TODO: Directives
-/*
+    // TODO: Directives
+    /*
         switch (symbolResult)
         {
             case DirectiveResult { Directive: not DiagramDirective }:

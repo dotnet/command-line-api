@@ -9,11 +9,17 @@ namespace System.CommandLine.Directives;
 public class ResponseSubsystem()
     : CliSubsystem("Response", SubsystemKind.Response, null)
 {
-    protected internal override void Initialize(InitializationContext context) 
+    public bool Enabled { get; set; }
+
+    protected internal override void Initialize(InitializationContext context)
         => context.Configuration.ResponseFileTokenReplacer = Replacer;
 
-    public static (List<string>? tokens, List<string>? errors) Replacer(string responseSourceName)
+    public (List<string>? tokens, List<string>? errors) Replacer(string responseSourceName)
     {
+        if (!Enabled)
+        {
+            return ([responseSourceName], null);
+        }
         try
         {
             // TODO: Include checks from previous system.

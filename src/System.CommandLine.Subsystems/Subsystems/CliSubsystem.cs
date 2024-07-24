@@ -16,7 +16,7 @@ public abstract class CliSubsystem
     {
         Name = name;
         _annotationProvider = annotationProvider;
-        SubsystemKind = subsystemKind;
+        Kind = subsystemKind;
     }
 
     /// <summary>
@@ -27,7 +27,8 @@ public abstract class CliSubsystem
     /// <summary>
     /// Defines the kind of subsystem, such as help or version
     /// </summary>
-    public SubsystemKind SubsystemKind { get; }
+    public SubsystemKind Kind { get; }
+    public AddToPhaseBehavior RecommendedAddToPhaseBehavior { get; }
 
     private readonly IAnnotationProvider? _annotationProvider;
 
@@ -67,7 +68,7 @@ public abstract class CliSubsystem
     /// </summary>
     /// <param name="pipelineResult">The context contains data like the ParseResult, and allows setting of values like whether execution was handled and the CLI should terminate </param>
     /// <returns>A PipelineResult object with information such as whether the CLI should terminate</returns>
-    protected internal virtual void Execute(PipelineResult pipelineResult) 
+    protected internal virtual void Execute(PipelineResult pipelineResult)
         => pipelineResult.NotRun(pipelineResult.ParseResult);
 
     internal PipelineResult ExecuteIfNeeded(PipelineResult pipelineResult)
@@ -108,10 +109,10 @@ public abstract class CliSubsystem
     // TODO: Because of this and similar usage, consider combining CLI declaration and config. ArgParse calls this the parser, which I like
     // TODO: Why does Intitialize return a configuration?
     protected internal virtual void Initialize(InitializationContext context)
-    {}
+    { }
 
     // TODO: Determine if this is needed.
     protected internal virtual void TearDown(PipelineResult pipelineResult)
-    {}
+    { }
 
 }

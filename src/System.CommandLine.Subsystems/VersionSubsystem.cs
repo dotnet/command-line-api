@@ -29,7 +29,7 @@ public class VersionSubsystem : CliSubsystem
         set => specificVersion = value;
     }
 
-    public static string? AssemblyVersion(Assembly assembly) 
+    public static string? AssemblyVersion(Assembly assembly)
         => assembly
             ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion;

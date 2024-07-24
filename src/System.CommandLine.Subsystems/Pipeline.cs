@@ -7,18 +7,34 @@ using System.CommandLine.Subsystems;
 
 namespace System.CommandLine;
 
-public class Pipeline
+public partial class Pipeline
 {
-    //TODO:  When we allow adding subsystems, this code will change
-    private IEnumerable<CliSubsystem?> Subsystems
-        => [Help, Version, Completion, Diagram, Value, ErrorReporting];
+    private readonly PipelinePhase<DiagramSubsystem> diagramPhase = new(SubsystemKind.Diagram);
+    private readonly PipelinePhase<CompletionSubsystem> completionPhase = new(SubsystemKind.Completion);
+    private readonly PipelinePhase<HelpSubsystem> helpPhase = new(SubsystemKind.Help);
+    private readonly PipelinePhase<VersionSubsystem> versionPhase = new(SubsystemKind.Version);
+    private readonly PipelinePhase<ValidationSubsystem> validationPhase = new(SubsystemKind.Validation);
+    private readonly PipelinePhase<InvocationSubsystem> invocationPhase = new(SubsystemKind.Invocation);
+    private readonly PipelinePhase<ErrorReportingSubsystem> errorReportingPhase = new(SubsystemKind.ErrorReporting);
+    private readonly IEnumerable<PipelinePhase> phases;
 
+    /// <summary>
+    /// Creates an instance of the pipeline using standard features.
+    /// </summary>
+    /// <param name="help">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <param name="version">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <param name="completion">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <param name="diagram">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <param name="errorReporting">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
+    /// <returns>A new pipeline.</returns>
+    /// <remarks>
+    /// Currently, the standard <see cref="ValueSubsystem"/>, <see cref="ValidationSubsystem"/> , and <see cref="ResponseSubsystem"/> cannot be replaced. <see cref="ResponseSubsystem"/> is disabled by default.
+    /// </remarks>
     public static Pipeline Create(HelpSubsystem? help = null,
                                   VersionSubsystem? version = null,
                                   CompletionSubsystem? completion = null,
                                   DiagramSubsystem? diagram = null,
-                                  ErrorReportingSubsystem? errorReporting = null,
-                                  ValueSubsystem? value = null)
+                                  ErrorReportingSubsystem? errorReporting = null)
         => new()
         {
             Help = help ?? new HelpSubsystem(),
@@ -26,20 +42,155 @@ public class Pipeline
             Completion = completion ?? new CompletionSubsystem(),
             Diagram = diagram ?? new DiagramSubsystem(),
             ErrorReporting = errorReporting ?? new ErrorReportingSubsystem(),
-            Value = value ?? new ValueSubsystem()
         };
 
+    /// <summary>
+    /// Creates an instance of the pipeline with no features. Use this if you want to explicitly add features.
+    /// </summary>
+    /// <returns>A new pipeline.</returns>
+    /// <remarks>
+    /// The <cref>ValueSubsystem</cref> and <see cref="ResponseSubsystem"/> is always added and cannot be changed.
+    /// </remarks>
     public static Pipeline CreateEmpty()
         => new();
 
-    private Pipeline() { }
+    private Pipeline()
+    {
+        Value = new ValueSubsystem();
+        Response = new ResponseSubsystem();
+        Invocation = new InvocationSubsystem();
+        Validation = new ValidationSubsystem();
 
-    public HelpSubsystem? Help { get; set; }
-    public VersionSubsystem? Version { get; set; }
-    public CompletionSubsystem? Completion { get; set; }
-    public DiagramSubsystem? Diagram { get; set; }
-    public ErrorReportingSubsystem? ErrorReporting { get; set; }
-    public ValueSubsystem? Value { get; set; }
+        // This order is based on: if the user entered both, which should they get?
+        // * It is reasonable to diagram help and completion. More reasonable than getting help on Diagram or Completion
+        // * A future version of Help and Version may take arguments/options. In that case, help on version is reasonable.
+        phases =
+        [
+            diagramPhase, completionPhase, helpPhase, versionPhase,
+            validationPhase, invocationPhase, errorReportingPhase
+        ];
+    }
+
+    /// <summary>
+    /// Enables response files. They are disabled by default.
+    /// </summary>
+    public bool ResponseFilesEnabled
+    {
+        get => Response.Enabled;
+        set => Response.Enabled = value;
+    }
+
+    /// <summary>
+    /// Adds a subsystem.
+    /// </summary>
+    /// <param name="subsystem">The subsystem to add.</param>
+    /// <param name="timing"><see cref="PhaseTiming.Before"/> indicates that the subsystem should run before all other subsystems in the phase, and <see cref="PhaseTiming.After"/> indicates it should run after other subsystems. The default is <see cref="PhaseTiming.Before"/>.</param>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <remarks>
+    /// The phase in which the subsystem runs is determined by the subsystem's 'Kind' property.
+    /// <br/>
+    /// To replace one of the standard subsystems, use the `Pipeline.(subsystem)` property, such as `myPipeline.Help = new OtherHelp();`
+    /// </remarks>
+    public void AddSubsystem(CliSubsystem subsystem, AddToPhaseBehavior timing = AddToPhaseBehavior.SubsystemRecommendation)
+    {
+        switch (subsystem.Kind)
+        {
+            case SubsystemKind.Other:
+            case SubsystemKind.Response:
+            case SubsystemKind.Value:
+                throw new InvalidOperationException($"You cannot add subsystems to {subsystem.Kind}");
+            case SubsystemKind.Diagram:
+                diagramPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Completion:
+                completionPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Help:
+                helpPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Version:
+                versionPhase.AddSubsystem(subsystem, timing);
+                break;
+            // You can add Validation and Invocation subsystems, but you can't remove the core.
+            // Other things may need to be run in the phase.
+            case SubsystemKind.Validation:
+                validationPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.Invocation:
+                invocationPhase.AddSubsystem(subsystem, timing);
+                break;
+            case SubsystemKind.ErrorReporting:
+                errorReportingPhase.AddSubsystem(subsystem, timing);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Sets or gets the diagramming subsystem.
+    /// </summary>
+    public DiagramSubsystem? Diagram
+    {
+        get => diagramPhase.Subsystem;
+        set => diagramPhase.Subsystem = value;
+    }
+
+    /// <summary>
+    /// Sets or gets the completion subsystem.
+    /// </summary>
+    public CompletionSubsystem? Completion
+    {
+        get => completionPhase.Subsystem;
+        set => completionPhase.Subsystem = value;
+    }
+
+    /// <summary>
+    /// Sets or gets the help subsystem.
+    /// </summary>
+    public HelpSubsystem? Help
+    {
+        get => helpPhase.Subsystem;
+        set => helpPhase.Subsystem = value;
+    }
+
+    /// <summary>
+    /// Sets or gets the version subsystem.
+    /// </summary>
+    public VersionSubsystem? Version
+    {
+        get => versionPhase.Subsystem;
+        set => versionPhase.Subsystem = value;
+    }
+
+    /// <summary>
+    /// Sets or gets the error reporting subsystem.
+    /// </summary>
+    public ErrorReportingSubsystem? ErrorReporting
+    {
+        get => errorReportingPhase.Subsystem;
+        set => errorReportingPhase.Subsystem = value;
+    }
+
+    // TODO: Consider whether replacing the validation subsystem is valuable
+    /// <summary>
+    /// Sets or gets the validation subsystem
+    /// </summary>
+    public ValidationSubsystem? Validation { get; }
+
+    // TODO: Consider whether replacing the invocation subsystem is valuable
+    /// <summary>
+    /// Sets or gets the invocation subsystem
+    /// </summary>
+    public InvocationSubsystem? Invocation { get; }
+
+    /// <summary>
+    /// Gets the value subsystem which manages entered and default values.
+    /// </summary>
+    public ValueSubsystem Value { get; }
+
+    /// <summary>
+    /// Gets the response file subsystem
+    /// </summary>
+    public ResponseSubsystem Response { get; }
 
     public ParseResult Parse(CliConfiguration configuration, string rawInput)
         => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
@@ -55,16 +206,24 @@ public class Pipeline
         => Execute(configuration, CliParser.SplitCommandLine(rawInput).ToArray(), rawInput, consoleHack);
 
     public PipelineResult Execute(CliConfiguration configuration, string[] args, string rawInput, ConsoleHack? consoleHack = null)
-    {
-        var pipelineResult = Execute(Parse(configuration, args), rawInput, consoleHack);
-        TearDownSubsystems(pipelineResult);
-        return pipelineResult;
-    }
+        => Execute(Parse(configuration, args), rawInput, consoleHack);
 
     public PipelineResult Execute(ParseResult parseResult, string rawInput, ConsoleHack? consoleHack = null)
     {
         var pipelineResult = new PipelineResult(parseResult, rawInput, this, consoleHack ?? new ConsoleHack());
-        ExecuteSubsystems(pipelineResult);
+        foreach (var phase in phases)
+        {
+            // TODO: Allow subsystems to control short-circuiting
+            foreach (var subsystem in phase.GetSubsystems())
+            {
+                // TODO: RunEvenIfAlreadyHandled needs more thought and laying out the scenarios
+                if (subsystem is not null && (!pipelineResult.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
+                {
+                    subsystem.ExecuteIfNeeded(pipelineResult);
+                }
+            }
+        }
+        TearDownSubsystems(pipelineResult);
         return pipelineResult;
     }
 
@@ -81,9 +240,10 @@ public class Pipeline
     /// </remarks>
     protected virtual void InitializeSubsystems(InitializationContext context)
     {
-        foreach (var subsystem in Subsystems)
+        foreach (var phase in phases)
         {
-            if (subsystem is not null)
+            // TODO: Allow subsystems to control short-circuiting? Not sure we need that for initialization
+            foreach (var subsystem in phase.GetSubsystems())
             {
                 subsystem.Initialize(context);
             }
@@ -99,35 +259,13 @@ public class Pipeline
     protected virtual void TearDownSubsystems(PipelineResult pipelineResult)
     {
         // TODO: Work on this design as the last pipelineResult wins and they may not all be well behaved
-        var subsystems = Subsystems.Reverse();
-        foreach (var subsystem in subsystems)
+        foreach (var phase in phases)
         {
-            if (subsystem is not null)
+            // TODO: Allow subsystems to control short-circuiting? Not sure we need that for teardown
+            foreach (var subsystem in phase.GetSubsystems())
             {
                 subsystem.TearDown(pipelineResult);
             }
         }
     }
-
-    protected virtual void ExecuteSubsystems(PipelineResult pipelineResult)
-    {
-        // TODO: Consider redesign where pipelineResult is not modifiable. 
-        // 
-        foreach (var subsystem in Subsystems)
-        {
-            if (subsystem is not null)
-            {
-                subsystem.ExecuteIfNeeded(pipelineResult);
-            }
-        }
-    }
-
-    protected static void ExecuteIfNeeded(CliSubsystem? subsystem, PipelineResult pipelineResult)
-    {
-        if (subsystem is not null && (!pipelineResult.AlreadyHandled || subsystem.RunsEvenIfAlreadyHandled))
-        {
-            subsystem.ExecuteIfNeeded(pipelineResult);
-        }
-    }
-
 }
