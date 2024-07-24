@@ -23,7 +23,7 @@ jobs:
     value: ${{ parameters.sourceIndexPackageSource }}
   - name: BinlogPath
     value: ${{ parameters.binlogPath }}
-  - template: /eng/common/templates/variables/pool-providers.yml
+  - template: /eng/common/templates-official/variables/pool-providers.yml
 
   ${{ if ne(parameters.pool, '') }}:
     pool: ${{ parameters.pool }}
@@ -34,7 +34,8 @@ jobs:
         demands: ImageOverride -equals windows.vs2019.amd64.open
       ${{ if eq(variables['System.TeamProject'], 'internal') }}:
         name: $(DncEngInternalBuildPool)
-        demands: ImageOverride -equals windows.vs2019.amd64
+        image: windows.vs2022.amd64
+        os: windows
 
   steps:
   - ${{ each preStep in parameters.preSteps }}:
