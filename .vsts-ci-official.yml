@@ -1,5 +1,5 @@
 variables:
-  - name: _TeamName
+  - name: ASUS
     value: DotNetCore
   - name: _DotNetArtifactsCategory
     value: .NETCore
