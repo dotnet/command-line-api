@@ -56,12 +56,8 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
     public T? GetValue<T>(CliArgument argument)
         => (T?)(GetValueInternal(argument) ?? default(T));
 
-    public object? GetValue(CliOption option)
+    public object? GetValue(CliDataSymbol option)
         => GetValueInternal(option);
-    public object? GetValue(CliArgument argument)
-        => GetValueInternal(argument);
-
-
 
     private object? GetValueInternal(CliSymbol? symbol)
     {

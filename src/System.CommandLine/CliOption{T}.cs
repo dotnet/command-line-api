@@ -29,6 +29,8 @@ namespace System.CommandLine
             _argument = argument;
         }
 
+        public override Type ValueType => Argument.ValueType;
+
         /// <inheritdoc cref="CliArgument{T}.DefaultValueFactory" />
         internal Func<ArgumentResult, T>? DefaultValueFactory
         {

@@ -27,6 +27,7 @@
     <Compile Include="AliasSet.cs" />
     <Compile Include="ArgumentArity.cs" />
     <Compile Include="Binding\ArgumentConversionResult.cs" />
+    <Compile Include="CliDataSymbol.cs" />
     <Compile Include="Parsing\CommandValueResult.cs" />
     <Compile Include="Parsing\SymbolLookupByName.cs" />
     <Compile Include="Parsing\ValueResultOutcome.cs" />
