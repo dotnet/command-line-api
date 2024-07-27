@@ -74,10 +74,8 @@ public class ValueResult
     /// </summary>
     /// <typeparam name="T">The type to return</typeparam>
     /// <returns>The value, cast to the requested type.</returns>
-    public T? GetValue<T>()
-        => Value is null
-            ? default
-            : (T?)Value;
+    public object? GetValue()
+        => Value;
 
     /// <summary>
     /// Gets the locations at which the tokens that made up the value appeared.

@@ -1707,9 +1707,9 @@ namespace System.CommandLine.Tests
             var commandResult = parseResult.CommandResult;
             commandResult.ValueResults.Should().HaveCount(2);
             var result1 = commandResult.ValueResults[0];
-            result1.GetValue<string>().Should().Be("Kirk");
+            result1.GetValue().Should().Be("Kirk");
             var result2 = commandResult.ValueResults[1];
-            result2.GetValue<string>().Should().Be("Spock");
+            result2.GetValue().Should().Be("Spock");
         }
 
         [Fact]
@@ -1732,9 +1732,9 @@ namespace System.CommandLine.Tests
             var commandResult = parseResult.CommandResult;
             commandResult.ValueResults.Should().HaveCount(2);
             var result1 = commandResult.ValueResults[0];
-            result1.GetValue<string>().Should().Be("Kirk");
+            result1.GetValue().Should().Be("Kirk");
             var result2 = commandResult.ValueResults[1];
-            result2.GetValue<string>().Should().Be("Spock");
+            result2.GetValue().Should().Be("Spock");
         }
 
         [Fact]
@@ -1908,8 +1908,8 @@ namespace System.CommandLine.Tests
 
             var result1 = parseResult.GetValueResult(argument1);
             var result2 = parseResult.GetValueResult(argument2);
-            result1.GetValue<string>().Should().Be("Kirk");
-            result2.GetValue<string>().Should().Be("Spock");
+            result1.GetValue().Should().Be("Kirk");
+            result2.GetValue().Should().Be("Spock");
         }
 
         [Fact]
@@ -1932,8 +1932,8 @@ namespace System.CommandLine.Tests
 
             var result1 = parseResult.GetValueResult(option1);
             var result2 = parseResult.GetValueResult(option2);
-            result1.GetValue<string>().Should().Be("Kirk");
-            result2.GetValue<string>().Should().Be("Spock");
+            result1.GetValue().Should().Be("Kirk");
+            result2.GetValue().Should().Be("Spock");
         }
     }
 }
