@@ -10,8 +10,8 @@ namespace System.CommandLine.Parsing;
 /// </summary>
 public class ValueResult
 {
-    private ValueResult(
-        CliSymbol valueSymbol,
+    public ValueResult(
+        CliDataSymbol valueSymbol,
         object? value,
         IEnumerable<Location> locations,
         ValueResultOutcome outcome,
@@ -27,45 +27,9 @@ public class ValueResult
     }
 
     /// <summary>
-    /// Creates a new ValueResult instance
-    /// </summary>
-    /// <param name="argument">The CliArgument the value is for.</param>
-    /// <param name="value">The entered value.</param>
-    /// <param name="locations">The locations list.</param>
-    /// <param name="outcome">True if parsing and converting the value was successful.</param>
-    /// <param name="error">The CliError if parsing or converting failed, otherwise null.</param>
-    internal ValueResult(
-            CliArgument argument,
-            object? value,
-            IEnumerable<Location> locations,
-            ValueResultOutcome outcome,
-            // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
-            string? error = null)
-        : this((CliSymbol)argument, value, locations, outcome, error)
-    { }
-
-    /// <summary>
-    /// Creates a new ValueResult instance
-    /// </summary>
-    /// <param name="option">The CliOption the value is for.</param>
-    /// <param name="value">The entered value.</param>
-    /// <param name="locations">The locations list.</param>
-    /// <param name="outcome">True if parsing and converting the value was successful.</param>
-    /// <param name="error">The CliError if parsing or converting failed, otherwise null.</param>
-    internal ValueResult(
-        CliOption option,
-        object? value,
-        IEnumerable<Location> locations,
-        ValueResultOutcome outcome,
-        // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
-        string? error = null)
-    : this((CliSymbol)option, value, locations, outcome, error)
-    { }
-
-    /// <summary>
     /// The CliSymbol the value is for. This is always a CliOption or CliArgument.
     /// </summary>
-    public CliSymbol ValueSymbol { get; }
+    public CliDataSymbol ValueSymbol { get; }
 
     internal object? Value { get; }
 
