@@ -51,6 +51,7 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
         return false;
     }
 
+    // These throw. Consider TryGet variations
     public T? GetValue<T>(CliOption option)
         => (T?)(GetValueInternal(option) ?? default(T));
     public T? GetValue<T>(CliArgument argument)

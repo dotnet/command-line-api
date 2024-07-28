@@ -8,24 +8,17 @@ namespace System.CommandLine.Validation;
 
 public class RangeValidator : Validator
 {
-    public override IEnumerable<ParseError>? Validate<T>(CliSymbol symbol, DataTrait trait, Pipeline pipeline, ValidationSubsystem validationSubsystem)
-    {
-        List<ParseError>? parseErrors = null;
-        if (symbol is not CliDataSymbol dataSymbol)
-        {
-            throw new InvalidOperationException("Range validation only works on options and arguments");
-        }
-        if (trait is not RangeData range)
-        {
-            throw new InvalidOperationException("Range validation failed to find bounds");
-        }
+    public RangeValidator(string name) : base("Range")
+    { }
 
-        var value = GetValue(dataSymbol, pipeline);
-        var valueType = dataSymbol.ValueType;
-        if (value is not IComparable comparableValue)
-        {
-            throw new InvalidOperationException("Range validation only works on options and arguments that can be compared");
-        }
+    public override IEnumerable<ParseError>? Validate(CliSymbol symbol, DataTrait trait, Pipeline pipeline, ValidationSubsystem validationSubsystem)
+    {
+
+        List<ParseError>? parseErrors = null;
+
+        var dataSymbol = GetDataSymbolOrThrow(symbol);
+        var range = GetDataTraitOrThrow<RangeData>(trait);
+        var comparableValue = GetValueAsTypeOrThrow<IComparable>(dataSymbol, pipeline);
 
         if (range.LowerBound is not null)
         {
@@ -42,9 +35,7 @@ public class RangeValidator : Validator
                 AddValidationError(parseErrors, $"The value for {0} is above the upper bound of {1}", [symbol.Name, range.UpperBound]);
             }
         }
-
         return parseErrors;
-
     }
 
 
