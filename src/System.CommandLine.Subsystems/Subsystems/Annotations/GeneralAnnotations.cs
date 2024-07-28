@@ -1,4 +1,4 @@
-﻿using System.CommandLine.Subsystems.DataTraits;
+﻿using System.CommandLine.Validation.DataTraits;
 
 namespace System.CommandLine.Subsystems.Annotations;
 

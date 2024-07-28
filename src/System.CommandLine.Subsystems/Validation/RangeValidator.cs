@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
-using System.CommandLine.Subsystems.DataTraits;
+using System.CommandLine.Validation.DataTraits;
 
-namespace System.CommandLine.Subsystems.Validation;
+namespace System.CommandLine.Validation;
 
 public class RangeValidator : Validator
 {

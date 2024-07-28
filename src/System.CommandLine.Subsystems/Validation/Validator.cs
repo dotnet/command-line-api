@@ -2,13 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
-using System.CommandLine.Subsystems.DataTraits;
 
-namespace System.CommandLine.Subsystems.Validation; 
+namespace System.CommandLine.Validation;
 
 public abstract class Validator
 {
-    protected object? GetValue(CliDataSymbol symbol, Pipeline pipeline) 
+    protected object? GetValue(CliDataSymbol symbol, Pipeline pipeline)
         => pipeline.Value.GetValue(symbol);
 
     public abstract IEnumerable<ParseError>? Validate<T>(CliSymbol symbol, DataTrait trait, Pipeline pipeline, ValidationSubsystem validationSubsystem);
