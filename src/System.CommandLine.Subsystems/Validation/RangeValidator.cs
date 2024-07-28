@@ -3,28 +3,30 @@
 
 using System.CommandLine.Parsing;
 using System.CommandLine.Validation.DataTraits;
+using System.ComponentModel.DataAnnotations;
 
 namespace System.CommandLine.Validation;
 
-public class RangeValidator : Validator
+public class RangeValidator : DataValidator
 {
     public RangeValidator(string name) : base("Range")
     { }
 
-    public override IEnumerable<ParseError>? Validate(CliSymbol symbol, DataTrait trait, Pipeline pipeline, ValidationSubsystem validationSubsystem)
+    public override IEnumerable<ParseError>? Validate(ValueResult valueResult, DataTrait trait, ValidationContext context)
     {
 
         List<ParseError>? parseErrors = null;
+        var dataSymbol = valueResult.ValueSymbol;
 
-        var dataSymbol = GetDataSymbolOrThrow(symbol);
-        var range = GetDataTraitOrThrow<RangeData>(trait);
-        var comparableValue = GetValueAsTypeOrThrow<IComparable>(dataSymbol, pipeline);
+        var range = GetTypedTraitOrThrow<RangeData>(trait);
+        var value = valueResult.GetValue();
+        var comparableValue = GetValueAsTypeOrThrow<IComparable>(value);
 
         if (range.LowerBound is not null)
         {
             if (comparableValue.CompareTo(range.LowerBound) <= 0)
             {
-                AddValidationError(parseErrors, $"The value for {0} is below the lower bound of {1}", [symbol.Name, range.LowerBound]);
+                AddValidationError(parseErrors, $"The value for {0} is below the lower bound of {1}", [dataSymbol.Name, range.LowerBound]);
             }
         }
 
@@ -32,7 +34,7 @@ public class RangeValidator : Validator
         {
             if (comparableValue.CompareTo(range.UpperBound) >= 0)
             {
-                AddValidationError(parseErrors, $"The value for {0} is above the upper bound of {1}", [symbol.Name, range.UpperBound]);
+                AddValidationError(parseErrors, $"The value for {0} is above the upper bound of {1}", [dataSymbol.Name, range.UpperBound]);
             }
         }
         return parseErrors;
