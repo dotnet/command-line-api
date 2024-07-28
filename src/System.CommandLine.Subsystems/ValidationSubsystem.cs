@@ -3,17 +3,50 @@
 
 using System.CommandLine.Subsystems;
 using System.CommandLine.Subsystems.Annotations;
+using System.CommandLine.Validation;
 
 namespace System.CommandLine;
 
 public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
     : CliSubsystem(ValidationAnnotations.Prefix, SubsystemKind.Validation, annotationProvider)
 {
-    private readonly Dictionary<Type, List<(Type validationDataType, Func<object, object, bool> isValid)>> validators = [];
+    private readonly Dictionary<Type, List<Validator>> validators = [];
 
-    //protected internal override void Execute(PipelineResult pipelineResult)
-    //{
-    //    var values = pipelineResult.Pipeline.Value
-    //    if (!validators.TryGetValue()
-    //}
+    public void AddValidator(Type type, Validator validator)
+    {
+        if (!validators.TryGetValue(type, out var validatorList))
+        {
+            validators.Add(type, [validator]);
+            return;
+        }
+        validatorList.Add(validator);
+    }
+
+    public void RemoveValidator(Type type, Validator validator)
+    {
+        if (!validators.TryGetValue(type, out var validatorList))
+        {
+            return; // nothing to do
+        }
+        validatorList.Remove(validator);
+    }
+
+    public void ClearValidatorsForType(Type type)
+    {
+        if (!validators.TryGetValue(type, out var validatorList))
+        {
+            return; // nothing to do
+        }
+        validatorList.Clear();
+    }
+
+    public void ClearAllValidators(Type type)
+    {
+        validators.Clear();
+    }
+
+    protected internal override void Execute(PipelineResult pipelineResult)
+    {
+       // var symbolResults = pipelineResult.ParseResult.SymbolResults();
+    }
 }
