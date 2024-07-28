@@ -16,12 +16,16 @@ public class CommandValueResult
     /// <summary>
     /// Creates a CommandValueResult instance
     /// </summary>
-    /// <param name="command">The CliCommand that the result is for.</param>
+    /// <param name="commandValueResult">The CommandResult used to build the CommandValueResult.</param>
     /// <param name="parent">The parent command in the case of a CLI hierarchy, or null if there is no parent.</param>
-    internal CommandValueResult(CliCommand command, CommandValueResult? parent = null)
+    internal CommandValueResult(CommandResult commandValueResult, CommandResult? parent = null)
     {
-        Command = command;
-        Parent = parent;
+        Command = commandValueResult.Command;
+        ValueResults = commandValueResult.ValueResults;
+        if (parent is not null)
+        {
+            Parent = new CommandValueResult(parent);
+        }
     }
 
     /// <summary>

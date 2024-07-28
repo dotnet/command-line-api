@@ -40,7 +40,7 @@ namespace System.CommandLine
             List<ParseError>? errors,
             // TODO: commandLineText should be string array
             string? commandLineText = null //,
-            // TODO: invocation
+                                           // TODO: invocation
             /*
             CliAction? action = null,
             List<CliAction>? preActions = null)
@@ -99,6 +99,22 @@ namespace System.CommandLine
         /// A result indicating the command specified in the command line input.
         /// </summary>
         internal CommandResult CommandResult { get; }
+
+        private CommandValueResult? commandValueResult = null;
+        public CommandValueResult CommandValueResult
+        {
+            get
+            {
+                if (commandValueResult is null)
+                {
+                    commandValueResult = new CommandValueResult(CommandResult);
+                }
+                return commandValueResult;
+            }
+        }
+
+        public IEnumerable<ValueResult> AllValueResults
+            => valueResultDictionary.Values;
 
         /// <summary>
         /// The configuration used to produce the parse result.
