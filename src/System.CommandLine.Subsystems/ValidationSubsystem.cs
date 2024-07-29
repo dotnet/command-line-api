@@ -57,6 +57,7 @@ public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
         // Not sure whether to do commands or values first
         ValidateCommands(commandResults, errors, commandValidators, validationContext);
         ValidateValues(commandResults, errors, dataValidators, validationContext);
+        pipelineResult.AddErrors(errors);
 
         // TODO: Consider which of these local methods to make protected and possibly overridable
         static void ValidateValues(IEnumerable<CommandValueResult> commandResults, List<ParseError> errors,

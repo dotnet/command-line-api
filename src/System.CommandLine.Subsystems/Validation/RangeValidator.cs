@@ -21,11 +21,12 @@ public class RangeValidator : DataValidator<RangeData>
         var range = GetTypedTraitOrThrow<RangeData>(trait);
         var comparableValue = GetValueAsTypeOrThrow<IComparable>(value);
 
+        // TODO: Replace the strings we are comparing with a diagnostic ID when we update ParseError
         if (range.LowerBound is not null)
         {
             if (comparableValue.CompareTo(range.LowerBound) <= 0)
             {
-                AddValidationError(parseErrors, $"The value for {0} is below the lower bound of {1}", [dataSymbol.Name, range.LowerBound]);
+                AddValidationError(ref parseErrors, $"The value for '{dataSymbol.Name}' is below the lower bound of {range.LowerBound}", []);
             }
         }
 
@@ -33,7 +34,7 @@ public class RangeValidator : DataValidator<RangeData>
         {
             if (comparableValue.CompareTo(range.UpperBound) >= 0)
             {
-                AddValidationError(parseErrors, $"The value for {0} is above the upper bound of {1}", [dataSymbol.Name, range.UpperBound]);
+                AddValidationError(ref parseErrors, $"The value for '{dataSymbol.Name}' is above the upper bound of {range.UpperBound}", []);
             }
         }
         return parseErrors;
