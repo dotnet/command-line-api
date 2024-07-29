@@ -30,7 +30,7 @@ public abstract class DataValidator
             ? typedValue
             : throw new InvalidOperationException($"{Name} validation does not apply to this type");
 
-    public abstract IEnumerable<ParseError>? Validate(ValueResult valueResult, DataTrait trait, ValidationContext validationContext);
+    public abstract IEnumerable<ParseError>? Validate(object? value, ValueResult valueResult, DataTrait trait, ValidationContext validationContext);
 
     /// <summary>
     /// 

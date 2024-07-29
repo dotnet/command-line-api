@@ -12,14 +12,13 @@ public class RangeValidator : DataValidator
     public RangeValidator(string name) : base("Range")
     { }
 
-    public override IEnumerable<ParseError>? Validate(ValueResult valueResult, DataTrait trait, ValidationContext context)
+    public override IEnumerable<ParseError>? Validate(object? value, ValueResult valueResult, DataTrait trait, ValidationContext context)
     {
 
         List<ParseError>? parseErrors = null;
         var dataSymbol = valueResult.ValueSymbol;
 
         var range = GetTypedTraitOrThrow<RangeData>(trait);
-        var value = valueResult.GetValue();
         var comparableValue = GetValueAsTypeOrThrow<IComparable>(value);
 
         if (range.LowerBound is not null)
