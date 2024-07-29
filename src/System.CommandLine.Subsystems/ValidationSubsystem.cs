@@ -9,6 +9,7 @@ using System.CommandLine.Validation.DataTraits;
 
 namespace System.CommandLine;
 
+// TODO: Add support for terminating validator. This is needed at least for required because it would be annoying to get an error that you forgot to enter something, and also all the validation errors for the default value Probably other uses, so generalize to termintating.
 public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
     : CliSubsystem(ValidationAnnotations.Prefix, SubsystemKind.Validation, annotationProvider)
 {
@@ -40,54 +41,90 @@ public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
 
     protected internal override void Execute(PipelineResult pipelineResult)
     {
-        var validationContext = new ValidationContext(pipelineResult.Pipeline, this);
+        if (pipelineResult.ParseResult is null)
+        {
+            // Nothing to do, validation is called prior to parsing. Is this an exception or error?
+            return;
+        }
+        var validationContext = new ValidationContext(pipelineResult.Pipeline, this, pipelineResult.ParseResult);
         var errors = new List<ParseError>();
         if (pipelineResult.ParseResult is null)
         {
             return; // nothing to do
         }
+        CommandValueResult commandResult = pipelineResult.ParseResult.CommandValueResult;
+            var commandResults = GetResultAndParents(commandResult);
         // Not sure whether to do commands or values first
-        ValidateCommands(pipelineResult.ParseResult.CommandValueResult, errors, commandValidators, validationContext);
-        ValidateValues(pipelineResult.ParseResult.AllValueResults, errors, dataValidators,validationContext);
+        ValidateCommands(commandResults, errors, commandValidators, validationContext);
+        ValidateValues(commandResults, errors, dataValidators, validationContext);
 
-        static void ValidateValues(IEnumerable<ValueResult> allValueResults, List<ParseError> errors,
+        // TODO: Consider which of these local methods to make protected and possibly overridable
+        static void ValidateValues(IEnumerable<CommandValueResult> commandResults, List<ParseError> errors,
             Dictionary<Type, DataValidator> validators, ValidationContext validationContext)
         {
-            foreach (var result in allValueResults)
+            var dataSymbols = GetDataSymbols(commandResults);
+            foreach (var dataSymbol in dataSymbols)
             {
-                if (result.ValueSymbol is not CliDataSymbol dataSymbol)
+                ValidateValue(dataSymbol, errors, validators, validationContext);
+            }
+        }
+
+        static void ValidateValue(CliDataSymbol dataSymbol, List<ParseError> errors, Dictionary<Type, DataValidator> validators, ValidationContext validationContext)
+        {
+            // TODO: If this remains local, this test may not be needed
+            if (validationContext.ParseResult is null)
+            {
+                // Nothing to do, validation is called prior to parsing. Any error should be reported elsewhere
+                return;
+            }
+            var traits = dataSymbol.GetDataTraits();
+            if (traits is null)
+            {
+                return; // This is a common case, and nothing to do
+            }
+            var value = validationContext.Pipeline.Value.GetValue(dataSymbol);
+            var valueResult = validationContext.ParseResult.GetValueResult(dataSymbol);
+            foreach (var trait in traits)
+            {
+                if (!validators.TryGetValue(trait.GetType(), out var validator))
                 {
-                    return; // nothing to do
+                    // TODO: This seems an issue - an exception or an error that a validator is missing
+                    continue;
                 }
-                var traits = dataSymbol.GetDataTraits();
-                if (traits is null)
+                var newErrors = validator.Validate(value, valueResult, trait, validationContext);
+                if (newErrors is not null)
                 {
-                    return;
-                }
-                foreach (var trait in traits)
-                {
-                    if (!validators.TryGetValue(trait.GetType(), out var validator))
-                    {
-                        // TODO: This seems an issue - an exception or an error that a validator is missing
-                        continue;
-                    }
-                    var newErrors = validator.Validate(result, trait, validationContext);
-                    if (newErrors is not null)
-                    {
-                        errors.AddRange(newErrors);
-                    }
+                    errors.AddRange(newErrors);
                 }
             }
         }
 
-        static void ValidateCommands(CommandValueResult commandValueResult, List<ParseError> errors,
-            Dictionary<Type, CommandValidator> validators, ValidationContext validationContext)
+        static IEnumerable<CliDataSymbol> GetDataSymbols(IEnumerable<CommandValueResult> commandResults)
+            => commandResults
+                .SelectMany(cr => cr.ValueResults
+                .Select(c => c.ValueSymbol))
+                .Distinct()
+                .ToList();
+
+        static IEnumerable<CommandValueResult> GetResultAndParents(CommandValueResult commandResult)
         {
-            // Walk up the results tree. Not needed for ValueResults because they are collapsed
-            var current = commandValueResult;
+            var list = new List<CommandValueResult>();
+            var current = commandResult;
             while (current is not null)
             {
-                var symbol = current.Command;
+                list.Add(current);
+                current = current.Parent;
+            }
+            return list;
+        }
+
+        static void ValidateCommands(IEnumerable<CommandValueResult> commandValueResults, List<ParseError> errors,
+        Dictionary<Type, CommandValidator> validators, ValidationContext validationContext)
+        {
+            // Walk up the results tree. Not needed for ValueResults because they are collapsed
+            foreach (var commandValueResult in commandValueResults)
+            {
+                var symbol = commandValueResult.Command;
                 var traits = symbol.GetDataTraits();
                 if (traits is null)
                 {
@@ -106,7 +143,6 @@ public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
                         errors.AddRange(newErrors);
                     }
                 }
-                current = current.Parent;
             }
         }
 
