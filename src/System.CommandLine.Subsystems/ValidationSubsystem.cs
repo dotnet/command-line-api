@@ -46,7 +46,7 @@ public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
             // Nothing to do, validation is called prior to parsing. Is this an exception or error?
             return;
         }
-        var validationContext = new ValidationContext(pipelineResult.Pipeline, this, pipelineResult.ParseResult);
+        var validationContext = new ValidationContext(pipelineResult, this);
         var errors = new List<ParseError>();
         if (pipelineResult.ParseResult is null)
         {

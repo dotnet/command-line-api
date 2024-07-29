@@ -5,15 +5,15 @@ namespace System.CommandLine.Validation
 {
     public class ValidationContext
     {
-        public ValidationContext(Pipeline pipeline, ValidationSubsystem validationSubsystem, ParseResult? parseResult)
+        public ValidationContext(PipelineResult pipelineResult, ValidationSubsystem validationSubsystem)
         {
-            Pipeline = pipeline;
+            PipelineResult = pipelineResult;
             ValidationSubsystem = validationSubsystem;
-            ParseResult = parseResult;
         }
 
-        public Pipeline Pipeline { get; }
+        public PipelineResult PipelineResult { get; }
+        public Pipeline Pipeline => PipelineResult.Pipeline;
         public ValidationSubsystem ValidationSubsystem { get; }
-        public ParseResult? ParseResult { get; }
+        public ParseResult? ParseResult => PipelineResult.ParseResult;
     }
 }
