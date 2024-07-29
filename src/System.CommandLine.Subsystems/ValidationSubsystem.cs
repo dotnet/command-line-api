@@ -39,6 +39,12 @@ public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
         dataValidators.Clear();
     }
 
+    protected internal override bool GetIsActivated(ParseResult? parseResult)
+    {
+        // TODO: If we decide to throw on null parseResult, then this is correct. If we decide that is normal/ok, this should also do the check as an optimization
+        return true;
+    }
+
     protected internal override void Execute(PipelineResult pipelineResult)
     {
         if (pipelineResult.ParseResult is null)
