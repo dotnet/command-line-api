@@ -211,20 +211,12 @@ namespace System.CommandLine
         */
 
         /// <summary>
-        /// Gets the ValueResult, if any, for the specified option.
+        /// Gets the ValueResult, if any, for the specified option or argument.
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not entered by the user.</returns>
-        public ValueResult? GetValueResult(CliOption option)
-            => GetValueResultInternal(option);
-
-        /// <summary>
-        /// Gets the result, if any, for the specified argument.
-        /// </summary>
-        /// <param name="argument">The argument for which to find a result.</param>
-        /// <returns>A result for the specified argument, or <see langword="null"/> if it was not entered by the user.</returns>
-        public ValueResult? GetValueResult(CliArgument argument)
-            => GetValueResultInternal(argument);
+        public ValueResult? GetValueResult(CliDataSymbol dataSymbol)
+            => GetValueResultInternal(dataSymbol);
 
         private ValueResult? GetValueResultInternal(CliSymbol symbol)
             => valueResultDictionary.TryGetValue(symbol, out var result)
