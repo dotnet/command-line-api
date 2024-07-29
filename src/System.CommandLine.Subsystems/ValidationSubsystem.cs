@@ -10,14 +10,22 @@ using System.CommandLine.Validation.DataTraits;
 namespace System.CommandLine;
 
 // TODO: Add support for terminating validator. This is needed at least for required because it would be annoying to get an error that you forgot to enter something, and also all the validation errors for the default value Probably other uses, so generalize to termintating.
-public class ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
-    : CliSubsystem(ValidationAnnotations.Prefix, SubsystemKind.Validation, annotationProvider)
+public class ValidationSubsystem : CliSubsystem
 {
     // The Type key is the DataTrait type
     private readonly Dictionary<Type, DataValidator> dataValidators = [];
     private readonly Dictionary<Type, CommandValidator> commandValidators = [];
 
-    public void AddValidator<TDataTrait>(CommandValidator validator)
+    public ValidationSubsystem(IAnnotationProvider? annotationProvider = null) 
+        : base(ValidationAnnotations.Prefix, SubsystemKind.Validation, annotationProvider)
+    {
+        IEnumerable<DataValidator> dataValidatorList = [
+            new RangeValidator()
+            ];
+        dataValidators = dataValidatorList.ToDictionary(v => v.DataTraitType);
+    }
+
+    public void AddOrReplaceValidator<TDataTrait>(CommandValidator validator)
         where TDataTrait : DataTrait
         => commandValidators[typeof(TDataTrait)] = validator;
 
