@@ -213,7 +213,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the ValueResult, if any, for the specified option or argument.
         /// </summary>
-        /// <param name="option">The option for which to find a result.</param>
+        /// <param name="dataSymbol">The option or argument for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not entered by the user.</returns>
         public ValueResult? GetValueResult(CliDataSymbol dataSymbol)
             => GetValueResultInternal(dataSymbol);

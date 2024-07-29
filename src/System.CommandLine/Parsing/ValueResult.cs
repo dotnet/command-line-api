@@ -36,8 +36,7 @@ public class ValueResult
     /// <summary>
     /// Returns the value, or the default for the type.
     /// </summary>
-    /// <typeparam name="T">The type to return</typeparam>
-    /// <returns>The value, cast to the requested type.</returns>
+    /// <returns>The value as object, for use when type is not known at compile time.</returns>
     public object? GetValue()
         => Value;
 
