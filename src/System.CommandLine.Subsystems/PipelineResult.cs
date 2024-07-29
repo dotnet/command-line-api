@@ -5,16 +5,23 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine;
 
-public class PipelineResult(ParseResult? parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
+public class PipelineResult(ParseResult parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
 {
     private readonly List<ParseError> errors = [];
     public ParseResult? ParseResult { get; } = parseResult;
+    private ValueProvider valueProvider { get; } = new ValueProvider(parseResult);
     public string RawInput { get; } = rawInput;
     public Pipeline Pipeline { get; } = pipeline ?? Pipeline.CreateEmpty();
     public ConsoleHack ConsoleHack { get; } = consoleHack ?? new ConsoleHack();
 
     public bool AlreadyHandled { get; set; }
     public int ExitCode { get; set; }
+
+    public T? GetValue<T>(CliDataSymbol dataSymbol)
+        => valueProvider.GetValue<T>(dataSymbol);
+
+    public object? GetValue(CliDataSymbol option)
+        => valueProvider.GetValue(option);
 
     public void AddErrors(IEnumerable<ParseError> errors)
     {

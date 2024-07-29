@@ -56,10 +56,9 @@ public partial class Pipeline
 
     private Pipeline()
     {
-        Value = new ValueSubsystem();
         Response = new ResponseSubsystem();
-        Invocation = new InvocationSubsystem();
-        Validation = new ValidationSubsystem();
+        invocationPhase.Subsystem = new InvocationSubsystem();
+        validationPhase.Subsystem = new ValidationSubsystem();
 
         // This order is based on: if the user entered both, which should they get?
         // * It is reasonable to diagram help and completion. More reasonable than getting help on Diagram or Completion
@@ -174,19 +173,13 @@ public partial class Pipeline
     /// <summary>
     /// Sets or gets the validation subsystem
     /// </summary>
-    public ValidationSubsystem? Validation { get; }
+    public ValidationSubsystem? Validation => validationPhase.Subsystem;
 
     // TODO: Consider whether replacing the invocation subsystem is valuable
     /// <summary>
     /// Sets or gets the invocation subsystem
     /// </summary>
-    public InvocationSubsystem? Invocation { get; }
-
-    // TODO: Are there use cases to replace this? Do we want new default values to require a new ValueSubsystem, which would block getting response providers from two sources.
-    /// <summary>
-    /// Gets the value subsystem which manages entered and default values.
-    /// </summary>
-    public ValueSubsystem Value { get; }
+    public InvocationSubsystem? Invocation => invocationPhase.Subsystem;
 
     /// <summary>
     /// Gets the response file subsystem

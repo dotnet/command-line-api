@@ -97,7 +97,7 @@ public class ValidationSubsystem : CliSubsystem
             {
                 return; // This is a common case, and nothing to do
             }
-            var value = validationContext.Pipeline.Value.GetValue(dataSymbol);
+            var value = validationContext.PipelineResult.GetValue(dataSymbol);
             var valueResult = validationContext.ParseResult.GetValueResult(dataSymbol);
             foreach (var trait in traits)
             {
