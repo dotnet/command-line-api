@@ -9,9 +9,13 @@ namespace System.CommandLine.Validation;
 public abstract class DataValidator
 {
     public string Name { get; }
+    public Type DataTraitType { get; }
 
-    protected DataValidator(string name)
-        => Name = name;
+    protected DataValidator(string name, Type dataTraitType)
+    {
+        Name = name;
+        DataTraitType = dataTraitType;
+    }
 
     // These methods provide consistent messages
     protected CliDataSymbol GetDataSymbolOrThrow(CliSymbol symbol)
@@ -48,4 +52,12 @@ public abstract class DataValidator
         parseErrors.Add(new ParseError(message));
         return parseErrors;
     }
+}
+
+public abstract class DataValidator<TDataTrait>(string name) : DataValidator(name, typeof(TDataTrait))
+    where TDataTrait : DataTrait
+{
+    protected TDataTrait GetTypedTraitOrThrow(DataTrait trait)
+        => GetTypedTraitOrThrow<TDataTrait>(trait);
+
 }

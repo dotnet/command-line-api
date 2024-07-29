@@ -7,9 +7,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace System.CommandLine.Validation;
 
-public class RangeValidator : DataValidator
+public class RangeValidator : DataValidator<RangeData>
 {
-    public RangeValidator(string name) : base("Range")
+    public RangeValidator() : base("Range")
     { }
 
     public override IEnumerable<ParseError>? Validate(object? value, ValueResult valueResult, DataTrait trait, ValidationContext context)
