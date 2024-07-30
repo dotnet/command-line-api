@@ -1,4 +1,4 @@
-﻿using System.CommandLine.Validation.DataTraits;
+﻿using System.CommandLine.Validation.Traits;
 
 namespace System.CommandLine.Subsystems.Annotations;
 
@@ -6,5 +6,5 @@ public class GeneralAnnotations
 {
     public static string Prefix { get; } = string.Empty;
 
-    public static AnnotationId<List<DataTrait>> DataTraits { get; } = new(Prefix, nameof(DataTraits));
+    public static AnnotationId<List<Trait>> DataTraits { get; } = new(Prefix, nameof(DataTraits));
 }

@@ -1,5 +1,5 @@
 ﻿using System.CommandLine.Subsystems.Annotations;
-using System.CommandLine.Validation.DataTraits;
+using System.CommandLine.Validation.Traits;
 
 namespace System.CommandLine.Validation;
 
@@ -17,4 +17,7 @@ public static class ValidationExtensions
 
         symbol.SetDataTrait(range);
     }
+    public static void SetInclusiveGroup(this CliCommand symbol, IEnumerable<CliDataSymbol> group) 
+        => symbol.SetDataTrait(new InclusiveGroup(group));
+
 }

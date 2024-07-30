@@ -20,9 +20,14 @@ public class ValidationSubsystem : CliSubsystem
         : base(ValidationAnnotations.Prefix, SubsystemKind.Validation, annotationProvider)
     {
         IEnumerable<DataValidator> dataValidatorList = [
-            new RangeValidator()
+            new RangeValidator(),
             ];
+        IEnumerable<CommandValidator> commandValidatorList = [
+            new InclusiveGroupValidator(),
+            ];
+
         dataValidators = dataValidatorList.ToDictionary(v => v.TraitType);
+        commandValidators = commandValidatorList.ToDictionary(v => v.TraitType);
     }
 
     // TODO: Force validators to be of the specified trait type
