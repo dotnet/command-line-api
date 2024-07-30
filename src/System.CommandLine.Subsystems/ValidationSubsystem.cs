@@ -9,6 +9,22 @@ using System.CommandLine.Validation.Traits;
 
 namespace System.CommandLine;
 
+// Notes on this version: 
+// - There are intrinsic differences between annotations that apply to the symbol, and those that apply to the symbol data
+//   - The second group requires a valid ParseResult
+//   - The first group will rarely (never?) affect validation or completion
+//   - I needed a name for info for data, as a base class. Currently calling it these "Traits"
+//   - Commands also need to have info for data, which apply to themselves as a data container
+// - We get a massive perf win if we have a list of info per symbol. 
+//   - If we consider a CLI of 100 commands, options and arguments, a set of 20 validators, and an average of 0.5 traits that matter to validation
+//     - Looking up looping through validators and asking if the symbol supports its data is 2,000 dictionary lookups
+//     - Looking through the annotations for the symbol and looking up the validator by trait type is 50 dictionary lookups.
+//   - Also, it seems reasonable to have the option to display an error that no validation was found, which requires looping through the annotations for the symbol at some point
+//     - Defining things like range and then having them silently fail if the pipeline is setup incorrectly seems bad
+//   - I can't currently get all the annotations for a symbol, so I faked it by adding an annotation that was a list.
+//   - Yes, this means we currently have a List in a Dictionary<AnnotationId, object> in a Dictionary<Symbol, Dictionary<AnnotationId, object>> or something like that
+//   - If we can get all the data for the symbol, I can filter to the base type for data traits.
+
 // TODO: Add support for terminating validator. This is needed at least for required because it would be annoying to get an error that you forgot to enter something, and also all the validation errors for the default value Probably other uses, so generalize to termintating.
 public class ValidationSubsystem : CliSubsystem
 {
