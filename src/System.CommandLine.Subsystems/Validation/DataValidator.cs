@@ -2,29 +2,29 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
-using System.CommandLine.Validation.DataTraits;
+using System.CommandLine.Validation.Traits;
 
 namespace System.CommandLine.Validation;
 
 public abstract class DataValidator
 {
     public string Name { get; }
-    public Type DataTraitType { get; }
+    public Type TraitType { get; }
 
-    protected DataValidator(string name, Type dataTraitType)
+    protected DataValidator(string name, Type traitType)
     {
         Name = name;
-        DataTraitType = dataTraitType;
+        TraitType = traitType;
     }
 
     // These methods provide consistent messages
-    protected CliDataSymbol GetDataSymbolOrThrow(CliSymbol symbol)
+    protected CliDataSymbol GetSymbolOrThrow(CliSymbol symbol)
         => symbol is CliDataSymbol dataSymbol
             ? dataSymbol
             : throw new ArgumentException($"{Name} validation only works on options and arguments");
 
-    protected TDataTrait GetTypedTraitOrThrow<TDataTrait>(DataTrait trait)
-        where TDataTrait : DataTrait
+    protected TDataTrait GetTypedTraitOrThrow<TDataTrait>(Trait trait)
+        where TDataTrait : Trait
         => trait is TDataTrait typedTrait
             ? typedTrait
             : throw new ArgumentException($"{Name} validation failed to find bounds");
@@ -34,7 +34,7 @@ public abstract class DataValidator
             ? typedValue
             : throw new InvalidOperationException($"{Name} validation does not apply to this type");
 
-    public abstract IEnumerable<ParseError>? Validate(object? value, ValueResult? valueResult, DataTrait trait, ValidationContext validationContext);
+    public abstract IEnumerable<ParseError>? Validate(object? value, ValueResult? valueResult, Trait trait, ValidationContext validationContext);
 
     /// <summary>
     /// 
@@ -55,10 +55,11 @@ public abstract class DataValidator
     }
 }
 
-public abstract class DataValidator<TDataTrait>(string name) : DataValidator(name, typeof(TDataTrait))
-    where TDataTrait : DataTrait
+public abstract class DataValidator<TDataTrait>(string name) 
+    : DataValidator(name, typeof(TDataTrait))
+    where TDataTrait : Trait
 {
-    protected TDataTrait GetTypedTraitOrThrow(DataTrait trait)
+    protected TDataTrait GetTypedTraitOrThrow(Trait trait)
         => GetTypedTraitOrThrow<TDataTrait>(trait);
 
 }

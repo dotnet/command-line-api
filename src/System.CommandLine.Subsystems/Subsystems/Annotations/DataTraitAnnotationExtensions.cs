@@ -1,12 +1,12 @@
-﻿using System.CommandLine.Validation.DataTraits;
+﻿using System.CommandLine.Validation.Traits;
 
 namespace System.CommandLine.Subsystems.Annotations
 {
-    public static class DataTraitAnnotationExtensions
+    public static class TraitAnnotationExtensions
     {
         public static void SetDataTrait<TSymbol, TDataTrait>(this TSymbol symbol, TDataTrait dataTrait)
             where TSymbol : CliSymbol
-            where TDataTrait : DataTrait
+            where TDataTrait : Trait
         {
             if (!symbol.TryGetAnnotation(GeneralAnnotations.DataTraits, out var dataTraits))
             {
@@ -16,8 +16,12 @@ namespace System.CommandLine.Subsystems.Annotations
             dataTraits.Add(dataTrait);
         }
 
-        public static List<DataTrait>? GetDataTraits<TSymbol>(this TSymbol symbol) 
-            where TSymbol : CliSymbol
+        public static List<Trait>? GetDataTraits(this CliDataSymbol symbol) 
+        {
+            return symbol.GetAnnotationOrDefault(GeneralAnnotations.DataTraits);
+        }
+
+        public static List<Trait>? GetCommandTraits(this CliCommand symbol)
         {
             return symbol.GetAnnotationOrDefault(GeneralAnnotations.DataTraits);
         }

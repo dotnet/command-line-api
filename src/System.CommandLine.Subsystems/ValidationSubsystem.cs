@@ -5,7 +5,7 @@ using System.CommandLine.Parsing;
 using System.CommandLine.Subsystems;
 using System.CommandLine.Subsystems.Annotations;
 using System.CommandLine.Validation;
-using System.CommandLine.Validation.DataTraits;
+using System.CommandLine.Validation.Traits;
 
 namespace System.CommandLine;
 
@@ -22,23 +22,24 @@ public class ValidationSubsystem : CliSubsystem
         IEnumerable<DataValidator> dataValidatorList = [
             new RangeValidator()
             ];
-        dataValidators = dataValidatorList.ToDictionary(v => v.DataTraitType);
+        dataValidators = dataValidatorList.ToDictionary(v => v.TraitType);
     }
 
-    public void AddOrReplaceValidator<TDataTrait>(CommandValidator validator)
-        where TDataTrait : DataTrait
-        => commandValidators[typeof(TDataTrait)] = validator;
+    // TODO: Force validators to be of the specified trait type
+    public void AddOrReplaceCommandValidator<TCommmandTrait>(CommandValidator validator)
+        where TCommmandTrait : Trait
+        => commandValidators[typeof(TCommmandTrait)] = validator;
 
-    public void RemoveValidator<TDataTrait>(CommandValidator validator)
-        where TDataTrait : DataTrait
-        => commandValidators.Remove(typeof(TDataTrait));
+    public void RemoveCommandValidator<TCommmandTrait>()
+        where TCommmandTrait : Trait
+        => commandValidators.Remove(typeof(TCommmandTrait));
 
-    public void AddValidator<TDataTrait>(DataValidator validator)
-        where TDataTrait : DataTrait
+    public void AddDataValidator<TDataTrait>(DataValidator<TDataTrait> validator)
+        where TDataTrait : Trait
         => dataValidators[typeof(TDataTrait)] = validator;
 
-    public void RemoveValidator<TDataTrait>(DataValidator validator)
-        where TDataTrait : DataTrait
+    public void RemoveDataValidator<TDataTrait>()
+        where TDataTrait : Trait
         => dataValidators.Remove(typeof(TDataTrait));
 
     public void ClearValidators(Type type)
@@ -140,7 +141,7 @@ public class ValidationSubsystem : CliSubsystem
             foreach (var commandValueResult in commandValueResults)
             {
                 var symbol = commandValueResult.Command;
-                var traits = symbol.GetDataTraits();
+                var traits = symbol.GetCommandTraits();
                 if (traits is null)
                 {
                     return;

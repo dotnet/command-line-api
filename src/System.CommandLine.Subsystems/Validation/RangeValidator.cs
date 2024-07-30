@@ -2,8 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
-using System.CommandLine.Validation.DataTraits;
-using System.ComponentModel.DataAnnotations;
+using System.CommandLine.Validation.Traits;
 
 namespace System.CommandLine.Validation;
 
@@ -12,12 +11,12 @@ public class RangeValidator : DataValidator<RangeData>
     public RangeValidator() : base("Range")
     { }
 
-    public override IEnumerable<ParseError>? Validate(object? value, ValueResult valueResult, DataTrait trait, ValidationContext context)
+    public override IEnumerable<ParseError>? Validate(object? value, 
+        ValueResult valueResult, Trait trait, ValidationContext context)
     {
 
         List<ParseError>? parseErrors = null;
         var dataSymbol = valueResult.ValueSymbol;
-
         var range = GetTypedTraitOrThrow<RangeData>(trait);
         var comparableValue = GetValueAsTypeOrThrow<IComparable>(value);
 
