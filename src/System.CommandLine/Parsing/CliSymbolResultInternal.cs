@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The parse errors associated with this symbol result.
         /// </summary>
-        public IEnumerable<ParseError> Errors
+        public IEnumerable<CliDiagnostic> Errors
         {
             get
             {
@@ -64,7 +64,7 @@ namespace System.CommandLine.Parsing
         /// Adds an error message for this symbol result to it's parse tree.
         /// </summary>
         /// <remarks>Setting an error will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
-        internal virtual void AddError(string errorMessage) => SymbolResultTree.AddError(new ParseError(errorMessage, this));
+        internal virtual void AddError(string errorMessage) => SymbolResultTree.AddError(new CliDiagnostic(new("", "", errorMessage, severity: CliDiagnosticSeverity.Error, null), [], symbolResult: this));
         /// <summary>
         /// Finds a result for the specific argument anywhere in the parse tree, including parent and child symbol results.
         /// </summary>

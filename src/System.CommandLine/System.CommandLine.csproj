@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
@@ -58,7 +58,7 @@
     <Compile Include="Parsing\CliCommandResultInternal.cs" />
     <Compile Include="Parsing\Location.cs" />
     <Compile Include="Parsing\CliOptionResultInternal.cs" />
-    <Compile Include="Parsing\ParseError.cs" />
+    <Compile Include="Parsing\CliDiagnostic.cs" />
     <Compile Include="Parsing\ParseOperation.cs" />
     <Compile Include="Parsing\StringExtensions.cs" />
     <Compile Include="Parsing\CliSymbolResultInternal.cs" />
@@ -76,6 +76,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Memory" />
+    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 
   <ItemGroup>

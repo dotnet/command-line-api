@@ -49,6 +49,7 @@ namespace System.CommandLine.Parsing
         public bool IsImplicit
             => Source == Implicit;
 
+        /// <inheritdoc/>
         public override string ToString()
             => $"{(OuterLocation is null ? "" : OuterLocation.ToString() + "; ")}{Text} from {Source}[{Index}, {Length}, {Offset}]";
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -121,7 +121,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the parse errors found while parsing command line input.
         /// </summary>
-        public IReadOnlyList<ParseError> Errors { get; }
+        public IReadOnlyList<CliDiagnostic> Errors { get; }
 
         /*
         // TODO: don't expose tokens

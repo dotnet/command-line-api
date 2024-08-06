@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -84,7 +84,7 @@ namespace System.CommandLine.Parsing
                 if (Command.HasSubcommands)
                 {
                     SymbolResultTree.InsertFirstError(
-                        new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));
+                        new CliDiagnostic(new("validateSubCommandError", "Validation Error", LocalizationResources.RequiredCommandWasNotProvided(), CliDiagnosticSeverity.Warning, null), [], symbolResult: this));
                 }
 
                 // TODO: validators

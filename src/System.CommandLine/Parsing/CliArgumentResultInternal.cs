@@ -140,7 +140,7 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         internal override void AddError(string errorMessage)
         {
-            SymbolResultTree.AddError(new ParseError(errorMessage, AppliesToPublicSymbolResult));
+            SymbolResultTree.AddError(new CliDiagnostic(new("", "", errorMessage, CliDiagnosticSeverity.Warning, null), [], symbolResult: AppliesToPublicSymbolResult));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
         }
 
@@ -170,9 +170,6 @@ namespace System.CommandLine.Parsing
                 }
             }
 */
-
-            // TODO: defaults
-            /* 
             if (Parent!.UseDefaultValueFor(this))
             {
                 var defaultValue = Argument.GetDefaultValue(this);
@@ -180,7 +177,6 @@ namespace System.CommandLine.Parsing
                 // default value factory provided by the user might report an error, which sets _conversionResult
                 return _conversionResult ?? ArgumentConversionResult.Success(this, defaultValue);
             }
-            */
 
             if (Argument.ConvertArguments is null)
             {
@@ -222,7 +218,7 @@ namespace System.CommandLine.Parsing
             {
                 if (result.Result >= ArgumentConversionResultType.Failed)
                 {
-                    SymbolResultTree.AddError(new ParseError(result.ErrorMessage!, AppliesToPublicSymbolResult));
+                    SymbolResultTree.AddError(new CliDiagnostic(new("ArgumentConversionResultTypeFailed", "Type Conversion Failed", result.ErrorMessage!, CliDiagnosticSeverity.Warning, null), [], symbolResult: AppliesToPublicSymbolResult));
                 }
 
                 return result;
