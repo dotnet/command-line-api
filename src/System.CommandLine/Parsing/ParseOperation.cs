@@ -85,7 +85,7 @@ namespace System.CommandLine.Parsing
                 _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,
-                _rootCommandResult.SymbolResultTree,
+                _rootCommandResult.SymbolResultTree.BuildValueResultDictionary(),
                 /*
                 _tokens,
                 */

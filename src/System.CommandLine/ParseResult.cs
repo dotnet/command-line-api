@@ -17,6 +17,7 @@ namespace System.CommandLine
         private readonly IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary = new Dictionary<CliSymbol, ValueResult>();
         private SymbolLookupByName? symbolLookupByName = null;
 
+        // TODO: Remove usage and remove
         private readonly CommandResult _rootCommandResult;
         // TODO: unmatched tokens, invocation, completion
         /*
@@ -28,10 +29,11 @@ namespace System.CommandLine
 
         internal ParseResult(
             CliConfiguration configuration,
-            // TODO: determine how rootCommandResult and commandResult differ
+            // TODO: Remove RootCommandResult - it is the root of the CommandValueResult ancestors (fix that)
             CommandResult rootCommandResult,
+            // TODO: Replace with CommandValueResult and remove CommandResult
             CommandResult commandResult,
-            SymbolResultTree symbolResultTree,
+            IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary,
             /*
             List<CliToken> tokens,
             */
@@ -50,7 +52,8 @@ namespace System.CommandLine
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             CommandResult = commandResult;
-            valueResultDictionary = symbolResultTree.BuildValueResultDictionary();
+            CommandValueResult = commandResult.CommandValueResult;
+            this.valueResultDictionary = valueResultDictionary;
             // TODO: invocation
             /*
             _action = action;
@@ -98,7 +101,10 @@ namespace System.CommandLine
         /// <summary>
         /// A result indicating the command specified in the command line input.
         /// </summary>
+        // TODO: Update SymbolLookupByName to use CommandValueResult, then remove
         internal CommandResult CommandResult { get; }
+
+        public CommandValueResult CommandValueResult { get; }
 
         /// <summary>
         /// The configuration used to produce the parse result.
@@ -108,6 +114,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the root command result.
         /// </summary>
+        /// TODO: Update usage and then remove
         internal CommandResult RootCommandResult => _rootCommandResult;
 
         /// <summary>
@@ -215,6 +222,7 @@ namespace System.CommandLine
                 ? result
                 : null;
 
+        // TODO: Update tests and remove all use of things deriving from SymbolResult from this class
         /// <summary>
         /// Gets the result, if any, for the specified argument.
         /// </summary>

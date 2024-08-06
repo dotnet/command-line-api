@@ -38,7 +38,23 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
-        public IReadOnlyList<ValueResult> ValueResults => Children.Select(GetValueResult).OfType<ValueResult>().ToList();
+        private CommandValueResult? commandValueResult;
+        public CommandValueResult CommandValueResult
+        {
+            get
+            {
+                if (commandValueResult is null)
+                {
+                    var parent = Parent is CommandResult commandResult
+                        ? commandResult.CommandValueResult 
+                        : null;
+                    commandValueResult = new CommandValueResult(Command, parent);
+                }
+                // Reset unless we put tests in place to ensure it is not called in error handling before SymbolTree processing is complete
+                commandValueResult.ValueResults = Children.Select(GetValueResult).OfType<ValueResult>().ToList();
+                return commandValueResult;
+            }
+        }
 
         private ValueResult? GetValueResult(SymbolResult symbolResult)
             => symbolResult switch
@@ -59,30 +75,30 @@ namespace System.CommandLine.Parsing
         {
             if (completeValidation)
             {
-// TODO: invocation
-//                if (Command.Action is null && Command.HasSubcommands)
+                // TODO: invocation
+                //                if (Command.Action is null && Command.HasSubcommands)
                 if (Command.HasSubcommands)
                 {
                     SymbolResultTree.InsertFirstError(
                         new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));
                 }
 
-// TODO: validators
-/*
-                if (Command.HasValidators)
-                {
-                    int errorCountBefore = SymbolResultTree.ErrorCount;
-                    for (var i = 0; i < Command.Validators.Count; i++)
-                    {
-                        Command.Validators[i](this);
-                    }
+                // TODO: validators
+                /*
+                                if (Command.HasValidators)
+                                {
+                                    int errorCountBefore = SymbolResultTree.ErrorCount;
+                                    for (var i = 0; i < Command.Validators.Count; i++)
+                                    {
+                                        Command.Validators[i](this);
+                                    }
 
-                    if (SymbolResultTree.ErrorCount != errorCountBefore)
-                    {
-                        return;
-                    }
-                }
-*/
+                                    if (SymbolResultTree.ErrorCount != errorCountBefore)
+                                    {
+                                        return;
+                                    }
+                                }
+                */
             }
 
             // TODO: Validation
@@ -104,8 +120,8 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-// TODO: VersionOption, recursive options
-//              if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
+                // TODO: VersionOption, recursive options
+                //              if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
                 if (!completeValidation && !option.Argument.HasDefaultValue)
                 {
                     continue;
@@ -148,23 +164,23 @@ namespace System.CommandLine.Parsing
                     continue;
                 }
 
-// TODO: validators
-/*
-                if (optionResult.Option.HasValidators)
-                {
-                    int errorsBefore = SymbolResultTree.ErrorCount;
+                // TODO: validators
+                /*
+                                if (optionResult.Option.HasValidators)
+                                {
+                                    int errorsBefore = SymbolResultTree.ErrorCount;
 
-                    for (var j = 0; j < optionResult.Option.Validators.Count; j++)
-                    {
-                        optionResult.Option.Validators[j](optionResult);
-                    }
+                                    for (var j = 0; j < optionResult.Option.Validators.Count; j++)
+                                    {
+                                        optionResult.Option.Validators[j](optionResult);
+                                    }
 
-                    if (errorsBefore != SymbolResultTree.ErrorCount)
-                    {
-                        continue;
-                    }
-                }
-*/
+                                    if (errorsBefore != SymbolResultTree.ErrorCount)
+                                    {
+                                        continue;
+                                    }
+                                }
+                */
 
                 // TODO: Ensure all argument conversions are run for entered values
                 /*
