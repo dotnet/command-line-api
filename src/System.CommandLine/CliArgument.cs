@@ -10,16 +10,17 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a value that can be passed on the command line to a <see cref="CliCommand">command</see> or <see cref="CliOption">option</see>.
     /// </summary>
-    public abstract class CliArgument : CliSymbol
+    public abstract class CliArgument : CliDataSymbol
     {
         private ArgumentArity _arity;
-// TODO: custom parser, completion, validators
-/*
+        // TODO: custom parser, completion, validators
+        /*
         private TryConvertArgument? _convertArguments;
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
-*/
-        private protected CliArgument(string name) : base(name, allowWhitespace: true)
+        */
+        private protected CliArgument(string name)
+            : base(name, allowWhitespace: true)
         {
         }
 
@@ -39,24 +40,24 @@ namespace System.CommandLine
             }
             set => _arity = value;
         }
-// TODO: help, completion
-/*
+        // TODO: help, completion
+        /*
         /// <summary>
         /// The name used in help output to describe the argument. 
         /// </summary>
         public string? HelpName { get; set; }
-*/
+        */
         internal TryConvertArgument? ConvertArguments => ArgumentConverter.GetConverter(this);
-// TODO: custom parsers
-/*
+        // TODO: custom parsers
+        /*
         {
             get => _convertArguments ??= ArgumentConverter.GetConverter(this);
             set => _convertArguments = value;
         }
-*/
+        */
 
-// TODO: completion;
-/*
+        // TODO: completion;
+        /*
         /// <summary>
         /// Gets the list of completion sources for the argument.
         /// </summary>
@@ -94,13 +95,8 @@ namespace System.CommandLine
                 return _completionSources;
             }
         }
-*/
-        /// <summary>
-        /// Gets or sets the <see cref="Type" /> that the argument's parsed tokens will be converted to.
-        /// </summary>
-        public abstract Type ValueType { get; }
 
-/* TODO: validators
+        /* TODO: validators
         /// <summary>
         /// Provides a list of argument validators. Validators can be used
         /// to provide custom errors based on user input.
@@ -108,7 +104,7 @@ namespace System.CommandLine
         public List<Action<ArgumentResult>> Validators => _validators ??= new ();
 
         internal bool HasValidators => (_validators?.Count ?? 0) > 0;
-*/
+        */
         /// <summary>
         /// Gets the default value for the argument.
         /// </summary>
@@ -124,8 +120,8 @@ namespace System.CommandLine
         /// Specifies if a default value is defined for the argument.
         /// </summary>
         public abstract bool HasDefaultValue { get; }
-// TODO: completion
-/*
+        // TODO: completion
+        /*
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
         {
@@ -134,10 +130,8 @@ namespace System.CommandLine
                    .Distinct()
                    .OrderBy(c => c.SortText, StringComparer.OrdinalIgnoreCase);
         }
-*/
+        */
         /// <inheritdoc />
         public override string ToString() => $"{nameof(CliArgument)}: {Name}";
-
-        internal bool IsBoolean() => ValueType == typeof(bool) || ValueType == typeof(bool?);
     }
 }

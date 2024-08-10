@@ -10,22 +10,24 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    public abstract class CliOption : CliSymbol
+    public abstract class CliOption : CliDataSymbol
     {
-        // TODO: don't expose field
         internal AliasSet? _aliases;
-/*
+        /*
         private List<Action<OptionResult>>? _validators;
 
         */
 
-        private protected CliOption(string name, string[] aliases) : base(name)
+        private protected CliOption(string name, string[] aliases)
+            : base(name)
         {
-            if (aliases is { Length: > 0 }) 
+            if (aliases is { Length: > 0 })
             {
                 _aliases = new(aliases);
             }
         }
+
+        public override Type ValueType => Argument.ValueType;
 
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
@@ -37,8 +39,8 @@ namespace System.CommandLine
         /// </summary>
         public bool HasDefaultValue => Argument.HasDefaultValue;
 
-// TODO: help
-/*
+        // TODO: help
+        /*
         /// <summary>
         /// Gets or sets the name of the Option when displayed in help.
         /// </summary>
@@ -51,7 +53,7 @@ namespace System.CommandLine
             get => Argument.HelpName;
             set => Argument.HelpName = value;
         }
-*/
+        */
 
         /// <summary>
         /// Gets or sets the arity of the option.
@@ -62,8 +64,8 @@ namespace System.CommandLine
             set => Argument.Arity = value;
         }
 
-// TODO: recursive options, validators, completion
-/*
+        // TODO: recursive options, validators, completion
+        /*
         /// <summary>
         /// When set to true, this option will be applied to its immediate parent command or commands and recursively to their subcommands.
         /// </summary>
@@ -80,9 +82,9 @@ namespace System.CommandLine
         /// Gets the list of completion sources for the option.
         /// </summary>
         public List<Func<CompletionContext, IEnumerable<CompletionItem>>> CompletionSources => Argument.CompletionSources;
-*/
+        */
 
-// TODO: what does this even mean?
+        // TODO: what does this even mean?
         /// <summary>
         /// Gets a value that indicates whether multiple argument tokens are allowed for each option identifier token.
         /// </summary>
@@ -98,10 +100,10 @@ namespace System.CommandLine
         /// </example>
         public bool AllowMultipleArgumentsPerToken { get; set; }
 
-// TODO: rename to IsGreedy
+        // TODO: rename to IsGreedy
         internal virtual bool Greedy => Argument.Arity.MinimumNumberOfValues > 0 && Argument.ValueType != typeof(bool);
-        
-// TODO: rename to IsRequired
+
+        // TODO: rename to IsRequired and move to Validation
         /// <summary>
         /// Indicates whether the option is required when its parent command is invoked.
         /// </summary>
@@ -114,8 +116,8 @@ namespace System.CommandLine
         /// <remarks>The collection does not contain the <see cref="CliSymbol.Name"/> of the Option.</remarks>
         public ICollection<string> Aliases => _aliases ??= new();
 
-// TODO: invocation, completion
-/*
+        // TODO: invocation, completion
+        /*
         /// <summary>
         /// Gets or sets the <see cref="CliAction"/> for the Option. The handler represents the action
         /// that will be performed when the Option is invoked.
