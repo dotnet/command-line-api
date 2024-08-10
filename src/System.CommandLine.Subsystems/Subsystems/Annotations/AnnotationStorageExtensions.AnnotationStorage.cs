@@ -11,25 +11,16 @@ partial class AnnotationStorageExtensions
     {
         record struct AnnotationKey(CliSymbol symbol, string prefix, string id)
         {
-            public static AnnotationKey Create<TAnnotation> (CliSymbol symbol, AnnotationId<TAnnotation> annotationId)
+            public static AnnotationKey Create (CliSymbol symbol, AnnotationId annotationId)
                 => new (symbol, annotationId.Prefix, annotationId.Id);
         }
 
         readonly Dictionary<AnnotationKey, object> annotations = [];
 
-        public bool TryGet<TValue>(CliSymbol symbol, AnnotationId<TValue> annotationId, [NotNullWhen(true)] out TValue? value)
-        {
-            if (annotations.TryGetValue(AnnotationKey.Create(symbol, annotationId), out var obj))
-            {
-                value = (TValue)obj;
-                return true;
-            }
+        public bool TryGet(CliSymbol symbol, AnnotationId annotationId, [NotNullWhen(true)] out object? value)
+            => annotations.TryGetValue(AnnotationKey.Create(symbol, annotationId), out value);
 
-            value = default;
-            return false;
-        }
-
-        public void Set<TValue>(CliSymbol symbol, AnnotationId<TValue> annotationId, TValue value)
+        public void Set(CliSymbol symbol, AnnotationId annotationId, object? value)
         {
             var key = AnnotationKey.Create(symbol, annotationId);
             if (value is not null)

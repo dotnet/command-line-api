@@ -45,9 +45,9 @@ public static class ValueAnnotationExtensions
     /// </remarks>
     public static TValue? GetDefaultValueAnnotation<TValue>(this CliOption<TValue> option)
     {
-        if (option.TryGetAnnotation(ValueAnnotations.DefaultValue, out var defaultValue))
+        if (option.TryGetAnnotation(ValueAnnotations.DefaultValue, out TValue? defaultValue))
         {
-            return (TValue?)defaultValue;
+            return defaultValue;
         }
         return default;
     }
@@ -90,7 +90,7 @@ public static class ValueAnnotationExtensions
     /// </remarks>
     public static TValue? GetDefaultValueAnnotation<TValue>(this CliArgument<TValue> argument)
     {
-        if (argument.TryGetAnnotation(ValueAnnotations.DefaultValue, out var defaultValue))
+        if (argument.TryGetAnnotation(ValueAnnotations.DefaultValue, out TValue? defaultValue))
         {
             return (TValue?)defaultValue;
         }
@@ -134,9 +134,9 @@ public static class ValueAnnotationExtensions
     /// </remarks>
     public static Func<TValue?>? GetDefaultValueCalculation<TValue>(this CliOption<TValue> option)
     {
-        if (option.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out var defaultValueCalculation))
+        if (option.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out Func<TValue?>? defaultValueCalculation))
         {
-            return (Func<TValue?>)defaultValueCalculation;
+            return defaultValueCalculation;
         }
         return default;
     }
@@ -179,9 +179,9 @@ public static class ValueAnnotationExtensions
     /// </remarks>
     public static Func<TValue?>? GetDefaultValueCalculation<TValue>(this CliArgument<TValue> argument)
     {
-        if (argument.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out var defaultValueCalculation))
+        if (argument.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out Func<TValue?>? defaultValueCalculation))
         {
-            return (Func<TValue?>)defaultValueCalculation;
+            return defaultValueCalculation;
         }
         return default;
     }

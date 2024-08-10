@@ -74,10 +74,10 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
             // configuration values go here in precedence
             //not null when GetDefaultFromEnvironmentVariable<T>(symbol, out var envName)
             //    => UseValue(symbol, GetEnvByName(envName)),
-            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValueCalculation, out var defaultValueCalculation)
+            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValueCalculation, out Func<T?>? defaultValueCalculation)
                 => UseValue(symbol, CalculatedDefault<T>(symbol, (Func<T?>)defaultValueCalculation)),
-            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out var explicitValue)
-                => UseValue<T>(symbol, (T)explicitValue),
+            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out T? explicitValue)
+                => UseValue(symbol, explicitValue),
             null => throw new ArgumentNullException(nameof(symbol)),
             _ => UseValue(symbol, default(T))
         };

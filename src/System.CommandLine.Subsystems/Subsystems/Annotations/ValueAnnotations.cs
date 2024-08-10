@@ -14,18 +14,20 @@ public static class ValueAnnotations
     /// Default value for an option or argument
     /// </summary>
     /// <remarks>
-    /// Although the type is <see cref="object?"/>, it must actually be the same type as the type
-    /// parameter of the <see cref="CliArgument{T}"/> or <see cref="CliOption{T}"/>.
+    /// Must be actually the same type as the type parameter of
+    /// the <see cref="CliArgument{T}"/> or <see cref="CliOption{T}"/>.
     /// </remarks>
-    public static AnnotationId<object?> DefaultValue { get; } = new(Prefix, nameof(DefaultValue));
+    public static AnnotationId DefaultValue { get; } = new(Prefix, nameof(DefaultValue));
 
     /// <summary>
     /// Default value calculation for an option or argument
     /// </summary>
     /// <remarks>
-    /// Although the type is <see cref="object?"/>, it must actually be a <see cref="Func{TResult}">
-    /// with a type parameter matching the the type parameter type of the <see cref="CliArgument{T}"/>
-    /// or <see cref="CliOption{T}"/>
+    /// Please use the extension methods and do not call this directly.
+    /// <para>
+    /// Must return a <see cref="Func{TValue}"> with the same type parameter as
+    /// the <see cref="CliArgument{T}"/> or <see cref="CliOption{T}"/>.
+    /// </para>
     /// </remarks>
-    public static AnnotationId<object> DefaultValueCalculation { get; } = new(Prefix, nameof(DefaultValueCalculation));
+    public static AnnotationId DefaultValueCalculation { get; } = new(Prefix, nameof(DefaultValueCalculation));
 }

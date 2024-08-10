@@ -45,6 +45,6 @@ public static class HelpAnnotationExtensions
     /// </remarks>
     public static string? GetDescription<TSymbol>(this TSymbol symbol) where TSymbol : CliSymbol
     {
-        return symbol.GetAnnotationOrDefault(HelpAnnotations.Description);
+        return symbol.GetAnnotationOrDefault<string>(HelpAnnotations.Description);
     }
 }
