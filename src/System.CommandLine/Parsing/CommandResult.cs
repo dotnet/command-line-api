@@ -67,16 +67,19 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(CommandResult)}: {IdentifierToken.Value} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
+        // TODO: DefaultValues
+        /*
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;
+        */
 
+        // TODO: Validation
+        /*
         /// <param name="completeValidation">Only the inner most command goes through complete validation.</param>
         internal void Validate(bool completeValidation)
         {
             if (completeValidation)
             {
-                // TODO: invocation
-                //                if (Command.Action is null && Command.HasSubcommands)
                 if (Command.HasSubcommands)
                 {
                     SymbolResultTree.InsertFirstError(
@@ -84,21 +87,19 @@ namespace System.CommandLine.Parsing
                 }
 
                 // TODO: validators
-                /*
-                                if (Command.HasValidators)
-                                {
-                                    int errorCountBefore = SymbolResultTree.ErrorCount;
-                                    for (var i = 0; i < Command.Validators.Count; i++)
-                                    {
-                                        Command.Validators[i](this);
-                                    }
+                if (Command.HasValidators)
+                {
+                    int errorCountBefore = SymbolResultTree.ErrorCount;
+                    for (var i = 0; i < Command.Validators.Count; i++)
+                    {
+                        Command.Validators[i](this);
+                    }
 
-                                    if (SymbolResultTree.ErrorCount != errorCountBefore)
-                                    {
-                                        return;
-                                    }
-                                }
-                */
+                    if (SymbolResultTree.ErrorCount != errorCountBefore)
+                    {
+                        return;
+                    }
+                }
             }
 
             // TODO: Validation
@@ -121,7 +122,7 @@ namespace System.CommandLine.Parsing
                 var option = options[i];
 
                 // TODO: VersionOption, recursive options
-                //              if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
+                // if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
                 if (!completeValidation && !option.Argument.HasDefaultValue)
                 {
                     continue;
@@ -165,27 +166,23 @@ namespace System.CommandLine.Parsing
                 }
 
                 // TODO: validators
-                /*
-                                if (optionResult.Option.HasValidators)
-                                {
-                                    int errorsBefore = SymbolResultTree.ErrorCount;
+                if (optionResult.Option.HasValidators)
+                {
+                    int errorsBefore = SymbolResultTree.ErrorCount;
 
-                                    for (var j = 0; j < optionResult.Option.Validators.Count; j++)
-                                    {
-                                        optionResult.Option.Validators[j](optionResult);
-                                    }
+                    for (var j = 0; j < optionResult.Option.Validators.Count; j++)
+                    {
+                        optionResult.Option.Validators[j](optionResult);
+                    }
 
-                                    if (errorsBefore != SymbolResultTree.ErrorCount)
-                                    {
-                                        continue;
-                                    }
-                                }
-                */
+                    if (errorsBefore != SymbolResultTree.ErrorCount)
+                    {
+                        continue;
+                    }
+                }
 
                 // TODO: Ensure all argument conversions are run for entered values
-                /*
                 _ = argumentResult.GetArgumentConversionResult();
-                */
             }
         }
 
@@ -226,5 +223,6 @@ namespace System.CommandLine.Parsing
                 _ = argumentResult.GetArgumentConversionResult();
             }
         }
+        */
     }
 }

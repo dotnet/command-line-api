@@ -93,6 +93,9 @@ namespace System.CommandLine.Parsing
         internal ArgumentConversionResult ArgumentConversionResult
             => _argumentConversionResult ??= GetResult(Option.Argument)!.GetArgumentConversionResult();
 
+        // TODO: Default values
+        /*
         internal override bool UseDefaultValueFor(ArgumentResult argument) => Implicit;
+        */
     }
 }
