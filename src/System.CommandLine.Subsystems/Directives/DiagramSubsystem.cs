@@ -76,78 +76,78 @@ public class DiagramSubsystem(IAnnotationProvider? annotationProvider = null)
                 break;
             */
 
-            // TODO: This logic is deeply tied to internal types/properties. These aren't things we probably want to expose like SymbolNode. See #2349 for alternatives
-            /*
-            case ArgumentResult argumentResult:
+    // TODO: This logic is deeply tied to internal types/properties. These aren't things we probably want to expose like SymbolNode. See #2349 for alternatives
+    /*
+        case ArgumentResult argumentResult:
+            {
+                var includeArgumentName =
+                    argumentResult.Argument.FirstParent!.Symbol is CliCommand { HasArguments: true, Arguments.Count: > 1 };
+
+                if (includeArgumentName)
                 {
-                    var includeArgumentName =
-                        argumentResult.Argument.FirstParent!.Symbol is CliCommand { HasArguments: true, Arguments.Count: > 1 };
-
-                    if (includeArgumentName)
-                    {
-                        builder.Append("[ ");
-                        builder.Append(argumentResult.Argument.Name);
-                        builder.Append(' ');
-                    }
-
-                    if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
-                    {
-                        ArgumentConversionResult conversionResult = argumentResult.GetArgumentConversionResult();
-                        switch (conversionResult.Result)
-                        {
-                            case ArgumentConversionResultType.NoArgument:
-                                break;
-                            case ArgumentConversionResultType.Successful:
-                                switch (conversionResult.Value)
-                                {
-                                    case string s:
-                                        builder.Append($"<{s}>");
-                                        break;
-
-                                    case IEnumerable items:
-                                        builder.Append('<');
-                                        builder.Append(
-                                            string.Join("> <",
-                                                        items.Cast<object>().ToArray()));
-                                        builder.Append('>');
-                                        break;
-
-                                    default:
-                                        builder.Append('<');
-                                        builder.Append(conversionResult.Value);
-                                        builder.Append('>');
-                                        break;
-                                }
-
-                                break;
-
-                            default: // failures
-                                builder.Append('<');
-                                builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
-                                builder.Append('>');
-
-                                break;
-                        }
-                    }
-
-                    if (includeArgumentName)
-                    {
-                        builder.Append(" ]");
-                    }
-
-                    break;
+                    builder.Append("[ ");
+                    builder.Append(argumentResult.Argument.Name);
+                    builder.Append(' ');
                 }
 
-            default:
+                if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
                 {
-                    OptionResult? optionResult = symbolResult as OptionResult;
-
-                    if (optionResult is { Implicit: true })
+                    ArgumentConversionResult conversionResult = argumentResult.GetArgumentConversionResult();
+                    switch (conversionResult.Result)
                     {
-                        builder.Append('*');
-                    }
+                        case ArgumentConversionResultType.NoArgument:
+                            break;
+                        case ArgumentConversionResultType.Successful:
+                            switch (conversionResult.Value)
+                            {
+                                case string s:
+                                    builder.Append($"<{s}>");
+                                    break;
 
-                    builder.Append("[ ");
+                                case IEnumerable items:
+                                    builder.Append('<');
+                                    builder.Append(
+                                        string.Join("> <",
+                                                    items.Cast<object>().ToArray()));
+                                    builder.Append('>');
+                                    break;
+
+                                default:
+                                    builder.Append('<');
+                                    builder.Append(conversionResult.Value);
+                                    builder.Append('>');
+                                    break;
+                            }
+
+                            break;
+
+                        default: // failures
+                            builder.Append('<');
+                            builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
+                            builder.Append('>');
+
+                            break;
+                    }
+                }
+
+                if (includeArgumentName)
+                {
+                    builder.Append(" ]");
+                }
+
+                break;
+            }
+
+        default:
+            {
+                OptionResult? optionResult = symbolResult as OptionResult;
+
+                if (optionResult is { Implicit: true })
+                {
+                    builder.Append('*');
+                }
+
+                builder.Append("[ ");
 
                     if (optionResult is not null)
                     {
@@ -167,16 +167,16 @@ public class DiagramSubsystem(IAnnotationProvider? annotationProvider = null)
                             continue;
                         }
 
-                        builder.Append(' ');
+                    builder.Append(' ');
 
-                        Diagram(builder, child, parseResult);
-                    }
-
-                    builder.Append(" ]");
-                    break;
+                    Diagram(builder, child, parseResult);
                 }
+
+                builder.Append(" ]");
+                break;
             }
         }
     }
+}
 */
 }

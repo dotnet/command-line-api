@@ -39,7 +39,7 @@ public static class ValueAnnotationExtensions
     /// <param name="option">The option</param>
     /// <returns>The option's default value annotation if any, otherwise <see langword="null"/></returns>
     /// <remarks>
-    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="ValueSubsystem.GetValue{T}(CliOption)"/>,
+    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="PipelineResult.GetValue{T}(CliOption)"/>,
     /// which calculates the actual default value, based on the default value annotation and default value calculation,
     /// whether directly stored on the symbol or from the subsystem's <see cref="IAnnotationProvider"/>.
     /// </remarks>
@@ -84,7 +84,7 @@ public static class ValueAnnotationExtensions
     /// <param name="argument">The argument</param>
     /// <returns>The argument's default value annotation if any, otherwise <see langword="null"/></returns>
     /// <remarks>
-    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="ValueSubsystem.GetValue{T}(CliArgument)"/>,
+    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="PipelineResult.GetValue{T}(CliArgument)"/>,
     /// which calculates the actual default value, based on the default value annotation and default value calculation,
     /// whether directly stored on the symbol or from the subsystem's <see cref="IAnnotationProvider"/>.
     /// </remarks>
@@ -128,7 +128,7 @@ public static class ValueAnnotationExtensions
     /// <param name="option">The option</param>
     /// <returns>The option's default value calculation if any, otherwise <see langword="null"/></returns>
     /// <remarks>
-    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="ValueSubsystem.GetValue{T}(CliOption)"/>,
+    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="PipelineResult.GetValue{T}(CliOption)"/>,
     /// which calculates the actual default value, based on the default value annotation and default value calculation,
     /// whether directly stored on the symbol or from the subsystem's <see cref="IAnnotationProvider"/>.
     /// </remarks>
@@ -173,7 +173,7 @@ public static class ValueAnnotationExtensions
     /// <param name="argument">The argument</param>
     /// <returns>The argument's default value calculation if any, otherwise <see langword="null"/></returns>
     /// <remarks>
-    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="ValueSubsystem.GetValue{T}(CliArgument)"/>,
+    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="PipelineResult.GetValue{T}(CliArgument)"/>,
     /// which calculates the actual default value, based on the default value annotation and default value calculation,
     /// whether directly stored on the symbol or from the subsystem's <see cref="IAnnotationProvider"/>.
     /// </remarks>

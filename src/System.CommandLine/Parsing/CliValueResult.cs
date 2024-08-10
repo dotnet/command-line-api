@@ -11,7 +11,7 @@ namespace System.CommandLine.Parsing;
 public class CliValueResult : CliSymbolResult
 {
     private CliValueResult(
-        CliSymbol valueSymbol,
+        CliValueSymbol valueSymbol,
         object? value,
         IEnumerable<Location> locations,
         ValueResultOutcome outcome,
@@ -65,7 +65,7 @@ public class CliValueResult : CliSymbolResult
     /// <summary>
     /// The CliSymbol the value is for. This is always a CliOption or CliArgument.
     /// </summary>
-    public CliSymbol ValueSymbol { get; }
+    public CliDataSymbol ValueSymbol { get; }
 
     internal object? Value { get; }
 
@@ -78,6 +78,25 @@ public class CliValueResult : CliSymbolResult
         => Value is null
             ? default
             : (T?)Value;
+
+    /// <summary>
+    /// Returns the value, or the default for the type.
+    /// </summary>
+    /// <typeparam name="T">The type to return</typeparam>
+    /// <returns>The value, cast to the requested type.</returns>
+    public object? GetValue()
+        => Value is null
+            ? default
+            : Value;
+
+
+    /// <summary>
+    /// Gets the locations at which the tokens that made up the value appeared.
+    /// </summary>
+    /// <remarks>
+    /// This needs to be a collection because collection types have multiple tokens and they will not be simple offsets when response files are used.
+    /// </remarks>
+    public IEnumerable<Location> Locations { get; }
 
     /// <summary>
     /// True when parsing and converting the value was successful

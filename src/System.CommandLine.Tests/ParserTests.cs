@@ -146,8 +146,7 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo("-x", "-y", "-z");
         }
 
-        /*
-
+        /* Retain this test, but not sure how to test outcome. UnmatchedTokens removed for now.
         [Fact]
         public void Options_short_forms_do_not_get_unbundled_if_unbundling_is_turned_off()
         {
@@ -167,9 +166,9 @@ namespace System.CommandLine.Tests
                 EnablePosixBundling = false
             };
 
-            var result = rootCommand.Parse("the-command -xyz", configuration);
+            var result = CliParser.Parse(rootCommand, "the-command -xyz", configuration);
 
-            result.UnmatchedTokens
+            result.CommandResult.UnmatchedTokens
                 .Should()
                 .BeEquivalentTo("-xyz");
         }
@@ -365,14 +364,13 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo("carrot");
         }
 
-        /*
         [Fact]
         public void Options_can_be_specified_multiple_times_and_their_arguments_are_collated()
         {
+            var animalsOption = new CliOption<string[]>("-a", "--animals");
             // TODO: tests AcceptOnlyFromAmong, fix
             // TODO: This test does not appear to use AcceptOnlyFromAmong. Consider if test can just use normal strings
-            var animalsOption = new CliOption<string[]>("-a", "--animals");
-            animalsOption.AcceptOnlyFromAmong("dog", "cat", "sheep");
+            //animalsOption.AcceptOnlyFromAmong("dog", "cat", "sheep");
             var vegetablesOption = new CliOption<string[]>("-v", "--vegetables");
             CliCommand command =
                 new CliCommand("the-command") {
@@ -380,7 +378,7 @@ namespace System.CommandLine.Tests
                     vegetablesOption
                 };
 
-            var result = command.Parse("the-command -a cat -v carrot -a dog");
+            var result = CliParser.Parse(command, "the-command -a cat -v carrot -a dog");
 
             result.GetResult(animalsOption)
                 .Tokens
@@ -394,7 +392,6 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("carrot");
         }
-        */
 
         [Fact]
         public void When_an_option_is_not_respecified_but_limit_is_reached_then_the_following_token_is_considered_an_argument_to_the_parent_command()
@@ -524,7 +521,7 @@ namespace System.CommandLine.Tests
         }
         */
 
-        /*
+        /* These two tests should remain in core, this method testing will not work in core. Figure out another way to validate result.
         [Fact]
         public void An_outer_command_with_the_same_name_does_not_capture()
         {
@@ -589,7 +586,7 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo("arg2");
         }
 
-        /*
+        /* This test should remain in core, this method testing will not work in core. Figure out another way to validate result.
         [Fact]
         public void Nested_commands_with_colliding_names_cannot_both_be_applied()
         {
@@ -737,10 +734,8 @@ namespace System.CommandLine.Tests
                 .ContainSingle(o => o is CliOptionResultInternal && ((CliOptionResultInternal)o).Option.Name == "-x");
         }
 
-        /*
-
+        /* Tests unmatched tokens, needs fix
         [Fact]
-        // TODO: tests unmatched tokens, needs fix
         public void Arguments_only_apply_to_the_nearest_command()
         {
             var outer = new CliCommand("outer")
@@ -858,127 +853,126 @@ namespace System.CommandLine.Tests
                 .OnlyContain(a => a.Value == @"c:\temp\the file.txt\");
         }
 
-// TODO: Default values
-/*
-        [Fact]
-        public void Commands_can_have_default_argument_values()
-        {
-            var argument = new CliArgument<string>("the-arg")
-            {
-                DefaultValueFactory = (_) => "default"
-            };
+        /* These tests should be split and those using an explicit default value moved to subsystem, and those using the type default should remain in core (?). This might not be meaningful if the type conversion is correct. What value other than the type default could be used.
+                [Fact]
+                public void Commands_can_have_default_argument_values()
+                {
+                    var argument = new CliArgument<string>("the-arg")
+                    {
+                        DefaultValueFactory = (_) => "default"
+                    };
 
-            var command = new CliCommand("command")
-            {
-                argument
-            };
+                    var command = new CliCommand("command")
+                    {
+                        argument
+                    };
 
-            ParseResult result = CliParser.Parse(command, "command");
+                    ParseResult result = CliParser.Parse(command, "command");
 
-            GetValue(result, argument)
-                .Should()
-                .Be("default");
-        }
+                    GetValue(result, argument)
+                        .Should()
+                        .Be("default");
+                }
 
-        [Fact]
-        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
-        {
-            var command = new CliCommand("command");
-            var option = new CliOption<string>("-o", "--option")
-            {
-                DefaultValueFactory = (_) => "the-default"
-            };
-            command.Options.Add(option);
+                [Fact]
+                public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
+                {
+                    var command = new CliCommand("command");
+                    var option = new CliOption<string>("-o", "--option")
+                    {
+                        DefaultValueFactory = (_) => "the-default"
+                    };
+                    command.Options.Add(option);
 
-            ParseResult result = CliParser.Parse(command, "command");
+                    ParseResult result = CliParser.Parse(command, "command");
 
-            result.GetResult(option).Should().NotBeNull();
-            GetValue(result, option).Should().Be("the-default");
-        }
+                    result.GetResult(option).Should().NotBeNull();
+                    GetValue(result, option).Should().Be("the-default");
+                }
 
-        [Fact]
-        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
-        {
-            var option = new CliOption<string>("-o", "--option")
-            {
-                DefaultValueFactory = (_) => "the-default"
-            };
+                [Fact]
+                public void When_an_option_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
+                {
+                    var option = new CliOption<string>("-o", "--option")
+                    {
+                        DefaultValueFactory = (_) => "the-default"
+                    };
 
-            var command = new CliCommand("command")
-            {
-                option
-            };
+                    var command = new CliCommand("command")
+                    {
+                        option
+                    };
 
-            var result = CliParser.Parse(command, "command");
+                    var result = CliParser.Parse(command, "command");
 
-            result.GetResult(option)
-                .Implicit
-                .Should()
-                .BeTrue();
-        }
+                    result.GetResult(option)
+                        .Implicit
+                        .Should()
+                        .BeTrue();
+                }
 
-        [Fact]
-        public void When_an_option_with_a_default_value_is_not_matched_then_there_are_no_tokens()
-        {
-            var option = new CliOption<string>("-o")
-            {
-                DefaultValueFactory = (_) => "the-default"
-            };
+                [Fact]
+                public void When_an_option_with_a_default_value_is_not_matched_then_there_are_no_tokens()
+                {
+                    var option = new CliOption<string>("-o")
+                    {
+                        DefaultValueFactory = (_) => "the-default"
+                    };
 
-            var command = new CliCommand("command")
-            {
-                option
-            };
+                    var command = new CliCommand("command")
+                    {
+                        option
+                    };
 
-            var result = CliParser.Parse(command, "command");
+                    var result = CliParser.Parse(command, "command");
 
-            result.GetResult(option)
-                .IdentifierToken
-                .Should()
-                .BeEquivalentTo(default(CliToken));
-        }
+                    result.GetResult(option)
+                        .IdentifierToken
+                        .Should()
+                        .BeEquivalentTo(default(CliToken));
+                }
 
-        [Fact]
-        public void When_an_argument_with_a_default_value_is_not_matched_then_there_are_no_tokens()
-        {
-            var argument = new CliArgument<string>("o")
-            {
-                DefaultValueFactory = (_) => "the-default"
-            };
+                [Fact]
+                public void When_an_argument_with_a_default_value_is_not_matched_then_there_are_no_tokens()
+                {
+                    var argument = new CliArgument<string>("o")
+                    {
+                        DefaultValueFactory = (_) => "the-default"
+                    };
 
-            var command = new CliCommand("command")
-            {
-                argument
-            };
-            var result = CliParser.Parse(command, "command");
+                    var command = new CliCommand("command")
+                    {
+                        argument
+                    };
+                    var result = CliParser.Parse(command, "command");
 
-            result.GetResult(argument)
-                .Tokens
-                .Should()
-                .BeEmpty();
-        }
+                    result.GetResult(argument)
+                        .Tokens
+                        .Should()
+                        .BeEmpty();
+                }
 
-        [Fact]
-        public void Command_default_argument_value_does_not_override_parsed_value()
-        {
-            var argument = new CliArgument<DirectoryInfo>("the-arg")
-            {
-                DefaultValueFactory = (_) => new DirectoryInfo(Directory.GetCurrentDirectory())
-            };
+                [Fact]
+                public void Command_default_argument_value_does_not_override_parsed_value()
+                {
+                    var argument = new CliArgument<DirectoryInfo>("the-arg")
+                    {
+                        DefaultValueFactory = (_) => new DirectoryInfo(Directory.GetCurrentDirectory())
+                    };
 
-            var command = new CliCommand("inner")
-            {
-                argument
-            };
+                    var command = new CliCommand("inner")
+                    {
+                        argument
+                    };
 
-            var result = CliParser.Parse(command, "the-directory");
+                    var result = CliParser.Parse(command, "the-directory");
 
-            GetValue(result, argument)
-                .Name
-                .Should()
-                .Be("the-directory");
-        }
-*/
+                    GetValue(result, argument)
+                        .Name
+                        .Should()
+                        .Be("the-directory");
+                }
+        */
 
         [Fact]
         public void Unmatched_tokens_that_look_like_options_are_not_split_into_smaller_tokens()
@@ -1003,7 +997,7 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo("-p:RandomThing=random");
         }
 
-        /*
+        /* Unmatched tokens
         [Fact]
         public void The_default_behavior_of_unmatched_tokens_resulting_in_errors_can_be_turned_off()
         {
@@ -1117,10 +1111,9 @@ namespace System.CommandLine.Tests
                 .BeEquivalentTo(new[] { arg2 });
         }
 
-        // TODO: Tests tokens which is no longer exposed, and should be replaced by tests of location or removed
-        /*
+        /* Tests tokens which is no longer exposed, and should be replaced by tests of location or removed 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1445
-        public void Trailing_option_delimiters_are_ignored()
+        public void Trailing_option_delimiters_are_ignored()  // (colon after directory)
         {
             var rootCommand = new CliRootCommand
             {
@@ -1362,7 +1355,7 @@ namespace System.CommandLine.Tests
             GetValue(result, option).Should().BeTrue();
         }
 
-        /*
+        /* Unmatched tokens
         [Fact]
         public void When_a_command_line_has_unmatched_tokens_they_are_not_applied_to_subsequent_options()
         {
@@ -1501,7 +1494,7 @@ namespace System.CommandLine.Tests
                     new CliToken("5", CliTokenType.Argument, argument, dummyLocation));
         }
 
-        [Fact(Skip ="Waiting for CliError work")]
+        [Fact(Skip = "Waiting for CliError work")]
         public void When_command_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
             var command = new CliCommand("the-command")
@@ -1626,8 +1619,7 @@ namespace System.CommandLine.Tests
                 .Contain(LocalizationResources.UnrecognizedCommandOrArgument("4"));
         }
 
-        // TODO: Tests tokens which is no longer exposed, and should be replaced with equivalent test using ParseResult
-        /*
+        /* Tokens
         [Fact]
         public void Tokens_are_not_split_if_the_part_before_the_delimiter_is_not_an_option()
         {
@@ -1642,7 +1634,8 @@ namespace System.CommandLine.Tests
                                 "jdbc:sqlserver://10.0.0.2;databaseName=main");
         }
         */
-        /*
+
+        /* Completions. Move to subsystem.
         [Fact]
         public void A_subcommand_wont_overflow_when_checking_maximum_argument_capacity()
         {
@@ -1692,7 +1685,7 @@ namespace System.CommandLine.Tests
             GetValue(result, option).Should().BeEmpty();
         }
 
-        // TODO: Tests below are from Powderhouse. Consider whether this the right location considering how large the file is
+        // TODO: Tests below are from Powderhouse. Consider whether this the right location considering how large the file is. Consider `Trait("Version", "Powderhouse")]`
         [Fact]
         public void CommandResult_contains_argument_ValueResults()
         {
@@ -1713,9 +1706,9 @@ namespace System.CommandLine.Tests
             var commandResult = parseResult.CommandResult;
             commandResult.ValueResults.Should().HaveCount(2);
             var result1 = commandResult.ValueResults[0];
-            result1.GetValue<string>().Should().Be("Kirk");
+            result1.GetValue().Should().Be("Kirk");
             var result2 = commandResult.ValueResults[1];
-            result2.GetValue<string>().Should().Be("Spock");
+            result2.GetValue().Should().Be("Spock");
         }
 
         [Fact]
@@ -1738,9 +1731,9 @@ namespace System.CommandLine.Tests
             var commandResult = parseResult.CommandResult;
             commandResult.ValueResults.Should().HaveCount(2);
             var result1 = commandResult.ValueResults[0];
-            result1.GetValue<string>().Should().Be("Kirk");
+            result1.GetValue().Should().Be("Kirk");
             var result2 = commandResult.ValueResults[1];
-            result2.GetValue<string>().Should().Be("Spock");
+            result2.GetValue().Should().Be("Spock");
         }
 
         [Fact]
@@ -1914,8 +1907,8 @@ namespace System.CommandLine.Tests
 
             var result1 = parseResult.GetValueResult(argument1);
             var result2 = parseResult.GetValueResult(argument2);
-            result1.GetValue<string>().Should().Be("Kirk");
-            result2.GetValue<string>().Should().Be("Spock");
+            result1.GetValue().Should().Be("Kirk");
+            result2.GetValue().Should().Be("Spock");
         }
 
         [Fact]
@@ -1938,8 +1931,8 @@ namespace System.CommandLine.Tests
 
             var result1 = parseResult.GetValueResult(option1);
             var result2 = parseResult.GetValueResult(option2);
-            result1.GetValue<string>().Should().Be("Kirk");
-            result2.GetValue<string>().Should().Be("Spock");
+            result1.GetValue().Should().Be("Kirk");
+            result2.GetValue().Should().Be("Spock");
         }
     }
 }

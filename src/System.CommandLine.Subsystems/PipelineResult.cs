@@ -9,7 +9,10 @@ public class PipelineResult(ParseResult? parseResult, string rawInput, Pipeline?
 {
     private readonly List<ParseError> errors = [];
     public ParseResult? ParseResult { get; } = parseResult;
+    private ValueProvider valueProvider { get; } = new ValueProvider(parseResult);
     public string RawInput { get; } = rawInput;
+
+    // TODO: Consider behavior when pipeline is null - this is probably a core user accessing some subsystems
     public Pipeline Pipeline { get; } = pipeline ?? Pipeline.CreateEmpty();
     public ConsoleHack ConsoleHack { get; } = consoleHack ?? new ConsoleHack();
 

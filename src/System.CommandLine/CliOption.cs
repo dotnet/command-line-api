@@ -15,7 +15,6 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         /*
         private List<Action<OptionResult>>? _validators;
-
         */
 
         private protected CliOption(string name, string[] aliases)

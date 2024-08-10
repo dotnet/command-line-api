@@ -102,10 +102,25 @@ namespace System.CommandLine
         /// <summary>
         /// A result indicating the command specified in the command line input.
         /// </summary>
-        // TODO: Update SymbolLookupByName to use CommandValueResult, then remove
-        internal CliCommandResultInternal CommandResultInternal { get; }
+        internal CommandResult CommandResult { get; }
+ 
+        private CommandValueResult? commandValueResult = null;
+        public CommandValueResult CommandValueResult
+        {
+            get
+            {
+                if (commandValueResult is null)
+                {
+                    commandValueResult = new CommandValueResult(CommandResult);
+                }
+                return commandValueResult;
+            }
+        }
 
-        public CliCommandResult CommandResult { get; }
+        public IEnumerable<ValueResult> AllValueResults
+            => valueResultDictionary.Values;
+
+
 
         /// <summary>
         /// The configuration used to produce the parse result.
