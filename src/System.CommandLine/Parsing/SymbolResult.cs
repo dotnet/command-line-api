@@ -156,6 +156,9 @@ namespace System.CommandLine.Parsing
         }
         */
 
+        // TODO: DefaultValues
+        /*
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;
+        */
     }
 }

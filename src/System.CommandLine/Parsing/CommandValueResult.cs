@@ -27,7 +27,7 @@ public class CommandValueResult
     /// <summary>
     /// The ValueResult instances for user entered data. This is a sparse list.
     /// </summary>
-    public IEnumerable<ValueResult> ValueResults { get; } = new List<ValueResult>();
+    public IReadOnlyList<ValueResult> ValueResults { get; internal set; } = [];
 
     /// <summary>
     /// The CliCommand that the result is for. 

@@ -85,7 +85,7 @@ namespace System.CommandLine.Parsing
                 _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,
-                _rootCommandResult.SymbolResultTree,
+                _rootCommandResult.SymbolResultTree.BuildValueResultDictionary(),
                 /*
                 _tokens,
                 */
@@ -389,6 +389,8 @@ namespace System.CommandLine.Parsing
             _symbolResultTree.AddUnmatchedToken(CurrentToken, _innermostCommandResult, _rootCommandResult);
         }
 
+        // TODO: Validation
+        /*
         private void Validate()
         {
             // Only the inner most command goes through complete validation,
@@ -403,5 +405,6 @@ namespace System.CommandLine.Parsing
                 currentResult = currentResult.Parent as CommandResult;
             }
         }
+        */
     }
 }

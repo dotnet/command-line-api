@@ -139,9 +139,9 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "the-command -xyz");
 
-            result.CommandResult
-                .Children
-                .Select(o => ((OptionResult)o).Option.Name)
+            result.CommandValueResult
+                .ValueResults
+                .Select(o => o.ValueSymbol.Name)
                 .Should()
                 .BeEquivalentTo("-x", "-y", "-z");
         }
@@ -1710,11 +1710,11 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand Kirk Spock");
 
-            var commandResult = parseResult.CommandResult;
-            commandResult.ValueResults.Should().HaveCount(2);
-            var result1 = commandResult.ValueResults[0];
+            var commandValueResult = parseResult.CommandValueResult;
+            commandValueResult.ValueResults.Should().HaveCount(2);
+            var result1 = commandValueResult.ValueResults.First();
             result1.GetValue<string>().Should().Be("Kirk");
-            var result2 = commandResult.ValueResults[1];
+            var result2 = commandValueResult.ValueResults.Skip(1).First();
             result2.GetValue<string>().Should().Be("Spock");
         }
 
@@ -1735,11 +1735,11 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1 Kirk --opt2 Spock");
 
-            var commandResult = parseResult.CommandResult;
-            commandResult.ValueResults.Should().HaveCount(2);
-            var result1 = commandResult.ValueResults[0];
+            var commandValueResult = parseResult.CommandValueResult;
+            commandValueResult.ValueResults.Should().HaveCount(2);
+            var result1 = commandValueResult.ValueResults[0];
             result1.GetValue<string>().Should().Be("Kirk");
-            var result2 = commandResult.ValueResults[1];
+            var result2 = commandValueResult.ValueResults[1];
             result2.GetValue<string>().Should().Be("Spock");
         }
 
@@ -1763,9 +1763,9 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand Kirk Spock");
 
-            var commandResult = parseResult.CommandResult;
-            var result1 = commandResult.ValueResults[0];
-            var result2 = commandResult.ValueResults[1];
+            var commandValueResult = parseResult.CommandValueResult;
+            var result1 = commandValueResult.ValueResults[0];
+            var result2 = commandValueResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
             result2.Locations.Single().Should().Be(expectedLocation2);
         }
@@ -1790,9 +1790,9 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1 Kirk --opt2 Spock");
 
-            var commandResult = parseResult.CommandResult;
-            var result1 = commandResult.ValueResults[0];
-            var result2 = commandResult.ValueResults[1];
+            var commandValueResult = parseResult.CommandValueResult;
+            var result1 = commandValueResult.ValueResults[0];
+            var result2 = commandValueResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
             result2.Locations.Single().Should().Be(expectedLocation2);
         }
@@ -1817,8 +1817,8 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand Kirk Spock");
 
-            var commandResult = parseResult.CommandResult;
-            var result1 = commandResult.ValueResults.Single();
+            var commandValueResult = parseResult.CommandValueResult;
+            var result1 = commandValueResult.ValueResults.Single();
             result1.Locations.First().Should().Be(expectedLocation1);
             result1.Locations.Skip(1).Single().Should().Be(expectedLocation2);
         }
@@ -1841,8 +1841,8 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1 Kirk --opt1 Spock");
 
-            var commandResult = parseResult.CommandResult;
-            var result1 = commandResult.ValueResults.Single();
+            var commandValueResult = parseResult.CommandValueResult;
+            var result1 = commandValueResult.ValueResults.Single();
             result1.Locations.First().Should().Be(expectedLocation1);
             result1.Locations.Skip(1).Single().Should().Be(expectedLocation2);
         }
@@ -1867,9 +1867,9 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1:Kirk --opt11=Spock");
 
-            var commandResult = parseResult.CommandResult;
-            var result1 = commandResult.ValueResults[0];
-            var result2 = commandResult.ValueResults[1];
+            var commandValueResult = parseResult.CommandValueResult;
+            var result1 = commandValueResult.ValueResults[0];
+            var result2 = commandValueResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
             result2.Locations.Single().Should().Be(expectedLocation2);
         }

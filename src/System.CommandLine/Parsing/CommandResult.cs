@@ -38,7 +38,23 @@ namespace System.CommandLine.Parsing
         /// </summary>
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
-        public IReadOnlyList<ValueResult> ValueResults => Children.Select(GetValueResult).OfType<ValueResult>().ToList();
+        private CommandValueResult? commandValueResult;
+        public CommandValueResult CommandValueResult
+        {
+            get
+            {
+                if (commandValueResult is null)
+                {
+                    var parent = Parent is CommandResult commandResult
+                        ? commandResult.CommandValueResult 
+                        : null;
+                    commandValueResult = new CommandValueResult(Command, parent);
+                }
+                // Reset unless we put tests in place to ensure it is not called in error handling before SymbolTree processing is complete
+                commandValueResult.ValueResults = Children.Select(GetValueResult).OfType<ValueResult>().ToList();
+                return commandValueResult;
+            }
+        }
 
         private ValueResult? GetValueResult(SymbolResult symbolResult)
             => symbolResult switch
@@ -51,24 +67,26 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         public override string ToString() => $"{nameof(CommandResult)}: {IdentifierToken.Value} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
+        // TODO: DefaultValues
+        /*
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;
+        */
 
+        // TODO: Validation
+        /*
         /// <param name="completeValidation">Only the inner most command goes through complete validation.</param>
         internal void Validate(bool completeValidation)
         {
             if (completeValidation)
             {
-// TODO: invocation
-//                if (Command.Action is null && Command.HasSubcommands)
                 if (Command.HasSubcommands)
                 {
                     SymbolResultTree.InsertFirstError(
                         new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));
                 }
 
-// TODO: validators
-/*
+                // TODO: validators
                 if (Command.HasValidators)
                 {
                     int errorCountBefore = SymbolResultTree.ErrorCount;
@@ -82,7 +100,6 @@ namespace System.CommandLine.Parsing
                         return;
                     }
                 }
-*/
             }
 
             // TODO: Validation
@@ -104,8 +121,8 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-// TODO: VersionOption, recursive options
-//              if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
+                // TODO: VersionOption, recursive options
+                // if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
                 if (!completeValidation && !option.Argument.HasDefaultValue)
                 {
                     continue;
@@ -148,8 +165,7 @@ namespace System.CommandLine.Parsing
                     continue;
                 }
 
-// TODO: validators
-/*
+                // TODO: validators
                 if (optionResult.Option.HasValidators)
                 {
                     int errorsBefore = SymbolResultTree.ErrorCount;
@@ -164,12 +180,9 @@ namespace System.CommandLine.Parsing
                         continue;
                     }
                 }
-*/
 
                 // TODO: Ensure all argument conversions are run for entered values
-                /*
                 _ = argumentResult.GetArgumentConversionResult();
-                */
             }
         }
 
@@ -210,5 +223,6 @@ namespace System.CommandLine.Parsing
                 _ = argumentResult.GetArgumentConversionResult();
             }
         }
+        */
     }
 }
