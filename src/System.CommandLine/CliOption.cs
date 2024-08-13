@@ -10,7 +10,7 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    public abstract class CliOption : CliDataSymbol
+    public abstract class CliOption : CliValueSymbol
     {
         internal AliasSet? _aliases;
         /*

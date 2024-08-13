@@ -3,9 +3,9 @@
 
 namespace System.CommandLine;
 
-public abstract class CliDataSymbol : CliSymbol
+public abstract class CliValueSymbol : CliSymbol
 {
-    protected CliDataSymbol(string name, bool allowWhitespace = false)
+    protected CliValueSymbol(string name, bool allowWhitespace = false)
         : base(name, allowWhitespace)
     { }
 

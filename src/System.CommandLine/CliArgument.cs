@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 
@@ -10,7 +9,7 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a value that can be passed on the command line to a <see cref="CliCommand">command</see> or <see cref="CliOption">option</see>.
     /// </summary>
-    public abstract class CliArgument : CliDataSymbol
+    public abstract class CliArgument : CliValueSymbol
     {
         private ArgumentArity _arity;
         // TODO: custom parser, completion, validators
