@@ -10,5 +10,8 @@ public static class HelpAnnotations
 {
     public static string Prefix { get; } = nameof(SubsystemKind.Help);
 
-    public static AnnotationId<string> Description { get; } = new(Prefix, nameof(Description));
+    /// <summary>
+    /// The description of the symbol, as a plain text <see cref="string"/>.
+    /// </summary>
+    public static AnnotationId Description { get; } = new(Prefix, nameof(Description));
 }

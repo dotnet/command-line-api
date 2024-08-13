@@ -11,5 +11,5 @@ namespace System.CommandLine.Subsystems;
 /// </summary>
 public interface IAnnotationProvider
 {
-    bool TryGet<TValue>(CliSymbol symbol, AnnotationId<TValue> id, [NotNullWhen(true)] out TValue? value);
+    bool TryGet(CliSymbol symbol, AnnotationId id, [NotNullWhen(true)] out object? value);
 }
