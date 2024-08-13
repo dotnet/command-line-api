@@ -53,10 +53,10 @@ namespace System.CommandLine.Parsing
 
         private static void Diagram(
             StringBuilder builder,
-            SymbolResult symbolResult,
+            CliSymbolResultInternal symbolResult,
             ParseResult parseResult)
         {
-            if (parseResult.Errors.Any(e => e.SymbolResult == symbolResult))
+            if (parseResult.Errors.Any(e => e.SymbolResultInternal == symbolResult))
             {
                 builder.Append('!');
             }
@@ -143,10 +143,10 @@ namespace System.CommandLine.Parsing
                     }
                     else
                     {
-                        builder.Append(((CommandResult)symbolResult).IdentifierToken.Value);
+                        builder.Append(((CliCommandResultInternal)symbolResult).IdentifierToken.Value);
                     }
 
-                    foreach (SymbolResult child in symbolResult.SymbolResultTree.GetChildren(symbolResult))
+                    foreach (CliSymbolResultInternal child in symbolResult.SymbolResultTree.GetChildren(symbolResult))
                     {
                         if (child is ArgumentResult arg &&
                             (arg.Argument.ValueType == typeof(bool) ||

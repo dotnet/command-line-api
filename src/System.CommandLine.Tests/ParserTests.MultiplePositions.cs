@@ -136,10 +136,10 @@ namespace System.CommandLine.Tests
                 var result = outer.Parse(commandLine);
 
                 result.Errors.Should().BeEmpty();
-                result.CommandResult
+                result.CommandResultInternal
                     .Parent
                     .Should()
-                    .BeOfType<CommandResult>()
+                    .BeOfType<CommandResultInternal>()
                     .Which
                     .Command
                     .Name

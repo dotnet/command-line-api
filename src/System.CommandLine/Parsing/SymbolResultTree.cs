@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
-    internal sealed class SymbolResultTree : Dictionary<CliSymbol, SymbolResult>
+    internal sealed class SymbolResultTree : Dictionary<CliSymbol, CliSymbolResultInternal>
     {
         private readonly CliCommand _rootCommand;
         internal List<ParseError>? Errors;
@@ -37,22 +37,22 @@ namespace System.CommandLine.Parsing
 
         internal int ErrorCount => Errors?.Count ?? 0;
 
-        internal ArgumentResult? GetResult(CliArgument argument)
-            => TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
+        internal CliArgumentResultInternal? GetResult(CliArgument argument)
+            => TryGetValue(argument, out CliSymbolResultInternal? result) ? (CliArgumentResultInternal)result : default;
 
-        internal CommandResult? GetResult(CliCommand command)
-            => TryGetValue(command, out var result) ? (CommandResult)result : default;
+        internal CliCommandResultInternal? GetResult(CliCommand command)
+            => TryGetValue(command, out var result) ? (CliCommandResultInternal)result : default;
 
-        internal OptionResult? GetResult(CliOption option)
-            => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
+        internal CliOptionResultInternal? GetResult(CliOption option)
+            => TryGetValue(option, out CliSymbolResultInternal? result) ? (CliOptionResultInternal)result : default;
 
         // TODO: Determine how this is used. It appears to be O^n in the size of the tree and so if it is called multiple times, we should reconsider to avoid O^(N*M)
-        internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
+        internal IEnumerable<CliSymbolResultInternal> GetChildren(CliSymbolResultInternal parent)
         {
             // Argument can't have children
-            if (parent is not ArgumentResult)
+            if (parent is not CliArgumentResultInternal)
             {
-                foreach (KeyValuePair<CliSymbol, SymbolResult> pair in this)
+                foreach (KeyValuePair<CliSymbol, CliSymbolResultInternal> pair in this)
                 {
                     if (ReferenceEquals(parent, pair.Value.Parent))
                     {
@@ -62,18 +62,18 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        internal IReadOnlyDictionary<CliSymbol, ValueResult> BuildValueResultDictionary()
+        internal IReadOnlyDictionary<CliSymbol, CliValueResult> BuildValueResultDictionary()
         {
-            var dict = new Dictionary<CliSymbol, ValueResult>();
-            foreach (KeyValuePair<CliSymbol, SymbolResult> pair in this)
+            var dict = new Dictionary<CliSymbol, CliValueResult>();
+            foreach (KeyValuePair<CliSymbol, CliSymbolResultInternal> pair in this)
             {
                 var result = pair.Value;
-                if (result is OptionResult optionResult)
+                if (result is CliOptionResultInternal optionResult)
                 {
                     dict.Add(pair.Key, optionResult.ValueResult);
                     continue;
                 }
-                if (result is ArgumentResult argumentResult)
+                if (result is CliArgumentResultInternal argumentResult)
                 {
                     dict.Add(pair.Key, argumentResult.ValueResult);
                     continue;
@@ -85,7 +85,7 @@ namespace System.CommandLine.Parsing
         internal void AddError(ParseError parseError) => (Errors ??= new()).Add(parseError);
         internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
 
-        internal void AddUnmatchedToken(CliToken token, CommandResult commandResult, CommandResult rootCommandResult)
+        internal void AddUnmatchedToken(CliToken token, CliCommandResultInternal commandResult, CliCommandResultInternal rootCommandResult)
         {
             /*
             // TODO: unmatched tokens

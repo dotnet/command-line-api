@@ -73,11 +73,11 @@ namespace System.CommandLine
         public override int GetHashCode()
             => MaximumNumberOfValues ^ MinimumNumberOfValues ^ IsNonDefault.GetHashCode();
 
-        internal static bool Validate(ArgumentResult argumentResult, [NotNullWhen(false)] out ArgumentConversionResult? error)
+        internal static bool Validate(CliArgumentResultInternal argumentResult, [NotNullWhen(false)] out ArgumentConversionResult? error)
         {
             error = null;
 
-            if (argumentResult.Parent is null or OptionResult { Implicit: true })
+            if (argumentResult.Parent is null or CliOptionResultInternal { Implicit: true })
             {
                 return true;
             }
@@ -95,7 +95,7 @@ namespace System.CommandLine
 
             if (tokenCount > argumentResult.Argument.Arity.MaximumNumberOfValues)
             {
-                if (argumentResult.Parent is OptionResult optionResult)
+                if (argumentResult.Parent is CliOptionResultInternal optionResult)
                 {
                     if (!optionResult.Option.AllowMultipleArgumentsPerToken)
                     {

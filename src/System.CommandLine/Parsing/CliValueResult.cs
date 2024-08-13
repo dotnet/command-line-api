@@ -8,9 +8,9 @@ namespace System.CommandLine.Parsing;
 /// <summary>
 /// The publicly facing class for argument and option data.
 /// </summary>
-public class ValueResult
+public class CliValueResult : CliSymbolResult
 {
-    private ValueResult(
+    private CliValueResult(
         CliSymbol valueSymbol,
         object? value,
         IEnumerable<Location> locations,
@@ -34,7 +34,7 @@ public class ValueResult
     /// <param name="locations">The locations list.</param>
     /// <param name="outcome">True if parsing and converting the value was successful.</param>
     /// <param name="error">The CliError if parsing or converting failed, otherwise null.</param>
-    internal ValueResult(
+    internal CliValueResult(
             CliArgument argument,
             object? value,
             IEnumerable<Location> locations,
@@ -52,7 +52,7 @@ public class ValueResult
     /// <param name="locations">The locations list.</param>
     /// <param name="outcome">True if parsing and converting the value was successful.</param>
     /// <param name="error">The CliError if parsing or converting failed, otherwise null.</param>
-    internal ValueResult(
+    internal CliValueResult(
         CliOption option,
         object? value,
         IEnumerable<Location> locations,
@@ -124,7 +124,7 @@ public class ValueResult
     /// <returns>The text the user entered that resulted in this ValueResult.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public override string ToString()
-        => $"{nameof(ArgumentResult)} {ValueSymbol.Name}: {string.Join(" ", TextForDisplay())}";
+        => $"{nameof(CliArgumentResultInternal)} {ValueSymbol.Name}: {string.Join(" ", TextForDisplay())}";
 
 
     // TODO: This might not be the right place for this, (Some completion stuff was stripped out. This was a private method in ArgumentConversionResult)

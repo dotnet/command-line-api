@@ -11,10 +11,10 @@ namespace System.CommandLine.Parsing
         private readonly CliConfiguration _configuration;
         private readonly string? _rawInput;
         private readonly SymbolResultTree _symbolResultTree;
-        private readonly CommandResult _rootCommandResult;
+        private readonly CliCommandResultInternal _rootCommandResult;
 
         private int _index;
-        private CommandResult _innermostCommandResult;
+        private CliCommandResultInternal _innermostCommandResult;
         /*
         private bool _isHelpRequested;
         private bool _isTerminatingDirectiveSpecified;
@@ -36,7 +36,7 @@ namespace System.CommandLine.Parsing
             _rawInput = rawInput;
             _symbolResultTree = new(rootCommand, tokenizationErrors);
 
-            _innermostCommandResult = _rootCommandResult = new CommandResult(
+            _innermostCommandResult = _rootCommandResult = new CliCommandResultInternal(
                 rootCommand,
                 CurrentToken,
                 _symbolResultTree);
@@ -105,7 +105,7 @@ namespace System.CommandLine.Parsing
         {
             CliCommand command = (CliCommand)CurrentToken.Symbol!;
 
-            _innermostCommandResult = new CommandResult(
+            _innermostCommandResult = new CliCommandResultInternal(
                 command,
                 CurrentToken,
                 _symbolResultTree,
@@ -162,10 +162,10 @@ namespace System.CommandLine.Parsing
                         }
 
                         if (!(_symbolResultTree.TryGetValue(argument, out var symbolResult)
-                            && symbolResult is ArgumentResult argumentResult))
+                            && symbolResult is CliArgumentResultInternal argumentResult))
                         {
                             argumentResult =
-                                new ArgumentResult(
+                                new CliArgumentResultInternal(
                                     argument,
                                     _symbolResultTree,
                                     _innermostCommandResult);
@@ -200,9 +200,9 @@ namespace System.CommandLine.Parsing
         private void ParseOption()
         {
             CliOption option = (CliOption)CurrentToken.Symbol!;
-            OptionResult optionResult;
+            CliOptionResultInternal optionResult;
 
-            if (!_symbolResultTree.TryGetValue(option, out SymbolResult? symbolResult))
+            if (!_symbolResultTree.TryGetValue(option, out CliSymbolResultInternal? symbolResult))
             {
 // TODO: invocation, directives, help
 /*
@@ -227,7 +227,7 @@ namespace System.CommandLine.Parsing
                     }
                 }
 */
-                optionResult = new OptionResult(
+                optionResult = new CliOptionResultInternal(
                     option,
                     _symbolResultTree,
                     CurrentToken,
@@ -237,7 +237,7 @@ namespace System.CommandLine.Parsing
             }
             else
             {
-                optionResult = (OptionResult)symbolResult;
+                optionResult = (CliOptionResultInternal)symbolResult;
             }
 
 // TODO: IdentifierTokenCount
@@ -248,7 +248,7 @@ namespace System.CommandLine.Parsing
             ParseOptionArguments(optionResult);
         }
 
-        private void ParseOptionArguments(OptionResult optionResult)
+        private void ParseOptionArguments(CliOptionResultInternal optionResult)
         {
             var argument = optionResult.Option.Argument;
 
@@ -275,10 +275,10 @@ namespace System.CommandLine.Parsing
                     break;
                 }
 
-                if (!(_symbolResultTree.TryGetValue(argument, out SymbolResult? symbolResult)
-                    && symbolResult is ArgumentResult argumentResult))
+                if (!(_symbolResultTree.TryGetValue(argument, out CliSymbolResultInternal? symbolResult)
+                    && symbolResult is CliArgumentResultInternal argumentResult))
                 {
-                    argumentResult = new ArgumentResult(
+                    argumentResult = new CliArgumentResultInternal(
                             argument,
                             _symbolResultTree,
                             optionResult);
@@ -305,7 +305,7 @@ namespace System.CommandLine.Parsing
             {
                 if (!_symbolResultTree.ContainsKey(argument))
                 {
-                    var argumentResult = new ArgumentResult(argument, _symbolResultTree, optionResult);
+                    var argumentResult = new CliArgumentResultInternal(argument, _symbolResultTree, optionResult);
                     _symbolResultTree.Add(argument, argumentResult);
                 }
             }
@@ -395,12 +395,12 @@ namespace System.CommandLine.Parsing
             // for other commands only a subset of options is checked.
             _innermostCommandResult.Validate(completeValidation: true);
 
-            CommandResult? currentResult = _innermostCommandResult.Parent as CommandResult;
+            CliCommandResultInternal? currentResult = _innermostCommandResult.Parent as CliCommandResultInternal;
             while (currentResult is not null)
             {
                 currentResult.Validate(completeValidation: false);
 
-                currentResult = currentResult.Parent as CommandResult;
+                currentResult = currentResult.Parent as CliCommandResultInternal;
             }
         }
     }

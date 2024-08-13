@@ -139,9 +139,9 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "the-command -xyz");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Children
-                .Select(o => ((OptionResult)o).Option.Name)
+                .Select(o => ((CliOptionResultInternal)o).Option.Name)
                 .Should()
                 .BeEquivalentTo("-x", "-y", "-z");
         }
@@ -189,9 +189,9 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "the-command --xyz");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Children
-                .Select(o => ((OptionResult)o).Option.Name)
+                .Select(o => ((CliOptionResultInternal)o).Option.Name)
                 .Should()
                 .BeEquivalentTo("--xyz");
         }
@@ -211,7 +211,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = CliParser.Parse(outer, "outer inner -abc");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -425,7 +425,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("carrot");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -443,17 +443,17 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "outer --inner1 argument1 --inner2 argument2");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Children
                 .Should()
                 .ContainSingle(o =>
-                    ((OptionResult)o).Option.Name == "--inner1" &&
+                    ((CliOptionResultInternal)o).Option.Name == "--inner1" &&
                     o.Tokens.Single().Value == "argument1");
-            result.CommandResult
+            result.CommandResultInternal
                 .Children
                 .Should()
                 .ContainSingle(o =>
-                    ((OptionResult)o).Option.Name == "--inner2" &&
+                    ((CliOptionResultInternal)o).Option.Name == "--inner2" &&
                     o.Tokens.Single().Value == "argument2");
         }
 
@@ -576,13 +576,13 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "outer arg1 inner arg2");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Parent
                 .Tokens.Select(t => t.Value)
                 .Should()
                 .BeEquivalentTo("arg1");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -631,7 +631,7 @@ namespace System.CommandLine.Tests
 
             var optionResult = result.GetResult(option);
             optionResult.Tokens.Should().BeEmpty();
-            result.CommandResult.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
+            result.CommandResultInternal.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
         }
 
         [Fact]
@@ -646,7 +646,7 @@ namespace System.CommandLine.Tests
             var result = CliParser.Parse(command, "the-command -x the-argument");
 
             result.GetResult(option).Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-argument");
-            result.CommandResult.Tokens.Should().BeEmpty();
+            result.CommandResultInternal.Tokens.Should().BeEmpty();
         }
 
         [Fact]
@@ -698,18 +698,18 @@ namespace System.CommandLine.Tests
 
             ParseResult result = CliParser.Parse(outer, "outer inner -x");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Parent
                 .Should()
-                .BeOfType<CommandResult>()
+                .BeOfType<CliCommandResultInternal>()
                 .Which
                 .Children
                 .Should()
-                .AllBeAssignableTo<CommandResult>();
-            result.CommandResult
+                .AllBeAssignableTo<CliCommandResultInternal>();
+            result.CommandResultInternal
                 .Children
                 .Should()
-                .ContainSingle(o => ((OptionResult)o).Option.Name == "-x");
+                .ContainSingle(o => ((CliOptionResultInternal)o).Option.Name == "-x");
         }
 
         [Fact]
@@ -723,18 +723,18 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(outer, "outer -x inner");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Children
                 .Should()
                 .BeEmpty();
-            result.CommandResult
+            result.CommandResultInternal
                 .Parent
                 .Should()
-                .BeOfType<CommandResult>()
+                .BeOfType<CliCommandResultInternal>()
                 .Which
                 .Children
                 .Should()
-                .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "-x");
+                .ContainSingle(o => o is CliOptionResultInternal && ((CliOptionResultInternal)o).Option.Name == "-x");
         }
 
         /*
@@ -754,12 +754,12 @@ namespace System.CommandLine.Tests
 
             ParseResult result = outer.Parse("outer inner arg1 arg2");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Parent
                 .Tokens
                 .Should()
                 .BeEmpty();
-            result.CommandResult
+            result.CommandResultInternal
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -814,7 +814,7 @@ namespace System.CommandLine.Tests
                     "the-command"
                 });
 
-            CommandResult completeResult = result.CommandResult;
+            CliCommandResultInternal completeResult = result.CommandResultInternal;
 
             completeResult.Tokens.Select(t => t.Value).Should().BeEquivalentTo("the-command");
         }
@@ -832,7 +832,7 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, commandText);
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -852,7 +852,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = CliParser.Parse(command, commandText);
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Tokens
                 .Should()
                 .OnlyContain(a => a.Value == @"c:\temp\the file.txt\");
@@ -996,7 +996,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = CliParser.Parse(outer, "outer inner -p:RandomThing=random");
 
-            result.CommandResult
+            result.CommandResultInternal
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -1042,32 +1042,32 @@ namespace System.CommandLine.Tests
             };
 
             CliParser.Parse(outerCommand, "outer inner")
-                .CommandResult
+                .CommandResultInternal
                 .Command
                 .Should()
                 .BeSameAs(innerCommand);
 
             CliParser.Parse(outerCommand, "outer --inner")
-                .CommandResult
+                .CommandResultInternal
                 .Command
                 .Should()
                 .BeSameAs(outerCommand);
 
             CliParser.Parse(outerCommand, "outer --inner inner")
-                .CommandResult
+                .CommandResultInternal
                 .Command
                 .Should()
                 .BeSameAs(innerCommand);
 
             CliParser.Parse(outerCommand, "outer --inner inner")
-                .CommandResult
+                .CommandResultInternal
                 .Parent
                 .Should()
-                .BeOfType<CommandResult>()
+                .BeOfType<CliCommandResultInternal>()
                 .Which
                 .Children
                 .Should()
-                .Contain(o => ((OptionResult)o).Option == option);
+                .Contain(o => ((CliOptionResultInternal)o).Option == option);
         }
 
         [Fact]
@@ -1082,14 +1082,14 @@ namespace System.CommandLine.Tests
                 option2
             };
 
-            CliParser.Parse(rootCommand, "-a").CommandResult
+            CliParser.Parse(rootCommand, "-a").CommandResultInternal
                 .Children
-                .Select(s => ((OptionResult)s).Option)
+                .Select(s => ((CliOptionResultInternal)s).Option)
                 .Should()
                 .BeEquivalentTo(option1);
-            CliParser.Parse(rootCommand, "--a").CommandResult
+            CliParser.Parse(rootCommand, "--a").CommandResultInternal
                 .Children
-                .Select(s => ((OptionResult)s).Option)
+                .Select(s => ((CliOptionResultInternal)s).Option)
                 .Should()
                 .BeEquivalentTo(option2);
         }
@@ -1196,7 +1196,7 @@ namespace System.CommandLine.Tests
             var result = CliParser.Parse(rootCommand, "-a subcommand");
 
             GetValue(result, optionA).Should().Be("subcommand");
-            result.CommandResult.Command.Should().BeSameAs(rootCommand);
+            result.CommandResultInternal.Command.Should().BeSameAs(rootCommand);
         }
 
         [Fact]
@@ -1214,7 +1214,7 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(rootCommand, "subcommand one two three subcommand four");
 
-            result.CommandResult.Command.Should().BeSameAs(subcommand);
+            result.CommandResultInternal.Command.Should().BeSameAs(subcommand);
 
             GetValue(result, argument)
                 .Should()
@@ -1406,12 +1406,12 @@ namespace System.CommandLine.Tests
             if (treatUnmatchedTokensAsErrors)
             {
                 result.Errors.Should().NotBeEmpty();
-                result.Action.Should().NotBeSameAs(result.CommandResult.Command.Action);
+                result.Action.Should().NotBeSameAs(result.CommandResultInternal.Command.Action);
             }
             else
             {
                 result.Errors.Should().BeEmpty();
-                result.Action.Should().BeSameAs(result.CommandResult.Command.Action);
+                result.Action.Should().BeSameAs(result.CommandResultInternal.Command.Action);
             }
         }
 
@@ -1435,7 +1435,7 @@ namespace System.CommandLine.Tests
             result.UnmatchedTokens.Should().BeEquivalentTo("test1.dll", "test2.dll");
 
             result.Errors.Should().BeEmpty();
-            result.Action.Should().BeSameAs(result.CommandResult.Command.Action);
+            result.Action.Should().BeSameAs(result.CommandResultInternal.Command.Action);
         }
         */
 
@@ -1460,7 +1460,7 @@ namespace System.CommandLine.Tests
             };
 
             CliParser.Parse(command, "1 2 3")
-                .CommandResult
+                .CommandResultInternal
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
@@ -1482,7 +1482,7 @@ namespace System.CommandLine.Tests
             };
 
             CliParser.Parse(command, "1 2 3")
-                .CommandResult
+                .CommandResultInternal
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
@@ -1490,7 +1490,7 @@ namespace System.CommandLine.Tests
                     new CliToken("2", CliTokenType.Argument, argument, dummyLocation),
                     new CliToken("3", CliTokenType.Argument, argument, dummyLocation));
             CliParser.Parse(command, "1 2 3 4 5")
-                .CommandResult
+                .CommandResultInternal
                 .Tokens
                 .Should()
                 .BeEquivalentTo(
@@ -1710,7 +1710,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand Kirk Spock");
 
-            var commandResult = parseResult.CommandResult;
+            var commandResult = parseResult.CommandResultInternal;
             commandResult.ValueResults.Should().HaveCount(2);
             var result1 = commandResult.ValueResults[0];
             result1.GetValue<string>().Should().Be("Kirk");
@@ -1735,7 +1735,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1 Kirk --opt2 Spock");
 
-            var commandResult = parseResult.CommandResult;
+            var commandResult = parseResult.CommandResultInternal;
             commandResult.ValueResults.Should().HaveCount(2);
             var result1 = commandResult.ValueResults[0];
             result1.GetValue<string>().Should().Be("Kirk");
@@ -1763,7 +1763,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand Kirk Spock");
 
-            var commandResult = parseResult.CommandResult;
+            var commandResult = parseResult.CommandResultInternal;
             var result1 = commandResult.ValueResults[0];
             var result2 = commandResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
@@ -1790,7 +1790,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1 Kirk --opt2 Spock");
 
-            var commandResult = parseResult.CommandResult;
+            var commandResult = parseResult.CommandResultInternal;
             var result1 = commandResult.ValueResults[0];
             var result2 = commandResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
@@ -1817,7 +1817,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand Kirk Spock");
 
-            var commandResult = parseResult.CommandResult;
+            var commandResult = parseResult.CommandResultInternal;
             var result1 = commandResult.ValueResults.Single();
             result1.Locations.First().Should().Be(expectedLocation1);
             result1.Locations.Skip(1).Single().Should().Be(expectedLocation2);
@@ -1841,7 +1841,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1 Kirk --opt1 Spock");
 
-            var commandResult = parseResult.CommandResult;
+            var commandResult = parseResult.CommandResultInternal;
             var result1 = commandResult.ValueResults.Single();
             result1.Locations.First().Should().Be(expectedLocation1);
             result1.Locations.Skip(1).Single().Should().Be(expectedLocation2);
@@ -1867,7 +1867,7 @@ namespace System.CommandLine.Tests
 
             var parseResult = CliParser.Parse(rootCommand, "subcommand arg1 --opt1:Kirk --opt11=Spock");
 
-            var commandResult = parseResult.CommandResult;
+            var commandResult = parseResult.CommandResultInternal;
             var result1 = commandResult.ValueResults[0];
             var result2 = commandResult.ValueResults[1];
             result1.Locations.Single().Should().Be(expectedLocation1);
