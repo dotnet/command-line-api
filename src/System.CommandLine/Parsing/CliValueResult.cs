@@ -17,10 +17,10 @@ public class CliValueResult : CliSymbolResult
         ValueResultOutcome outcome,
         // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
         string? error = null)
+        : base(locations)
     {
         ValueSymbol = valueSymbol;
         Value = value;
-        Locations = locations;
         Outcome = outcome;
         // TODO: Probably a collection of errors here
         Error = error;
@@ -78,14 +78,6 @@ public class CliValueResult : CliSymbolResult
         => Value is null
             ? default
             : (T?)Value;
-
-    /// <summary>
-    /// Gets the locations at which the tokens that made up the value appeared.
-    /// </summary>
-    /// <remarks>
-    /// This needs to be a collection because collection types have multiple tokens and they will not be simple offsets when response files are used.
-    /// </remarks>
-    public IEnumerable<Location> Locations { get; }
 
     /// <summary>
     /// True when parsing and converting the value was successful
