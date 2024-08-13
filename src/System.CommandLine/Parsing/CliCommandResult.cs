@@ -17,8 +17,13 @@ public class CliCommandResult : CliSymbolResult
     /// Creates a CommandValueResult instance
     /// </summary>
     /// <param name="command">The CliCommand that the result is for.</param>
+    /// <param name="locations"></param>
     /// <param name="parent">The parent command in the case of a CLI hierarchy, or null if there is no parent.</param>
-    internal CliCommandResult(CliCommand command, CliCommandResult? parent = null)
+    internal CliCommandResult(
+        CliCommand command,
+        IEnumerable<Location> locations,
+        CliCommandResult? parent = null)
+        : base(locations)
     {
         Command = command;
         Parent = parent;
