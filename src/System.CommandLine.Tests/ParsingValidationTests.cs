@@ -46,9 +46,9 @@ namespace System.CommandLine.Tests
             var result = new CliRootCommand { option }.Parse("-x something_else");
 
             result.Errors
-                  .Where(e => e.SymbolResult != null)
+                  .Where(e => e.SymbolResultInternal != null)
                   .Should()
-                  .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == option.Name);
+                  .Contain(e => ((OptionResult)e.SymbolResultInternal).Option.Name == option.Name);
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
@@ -67,7 +67,7 @@ namespace System.CommandLine.Tests
                .Should()
                .Be(LocalizationResources.UnrecognizedArgument("c", new []{ "a", "b"}));
             error
-                .SymbolResult
+                .SymbolResultInternal
                 .Should()
                 .BeOfType<OptionResult>();
 
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .Be(LocalizationResources.UnrecognizedArgument("c", new []{ "a", "b"}));
             error
-                .SymbolResult
+                .SymbolResultInternal
                 .Should()
                 .BeOfType<ArgumentResult>();
         }
@@ -380,7 +380,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => ((OptionResult)e.SymbolResult).Option == option)
+                  .Contain(e => ((OptionResult)e.SymbolResultInternal).Option == option)
                   .Which
                   .Message
                   .Should()
@@ -407,7 +407,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
+                  .Contain(e => ((ArgumentResult)e.SymbolResultInternal).Argument == argument)
                   .Which
                   .Message
                   .Should()
@@ -476,7 +476,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .HaveCount(1)
                   .And
-                  .Contain(e => ((OptionResult)e.SymbolResult).Option == option)
+                  .Contain(e => ((OptionResult)e.SymbolResultInternal).Option == option)
                   .Which
                   .Message
                   .Should()
@@ -613,7 +613,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument == command.Arguments.First() &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResultInternal).Argument == command.Arguments.First() &&
                                     e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }   
             
@@ -635,7 +635,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "-x" &&
+                      .Contain(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "-x" &&
                                     e.Message == $"Character not allowed in a path: '{invalidCharacter}'.");
             }
 
@@ -698,7 +698,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument == command.Arguments.First() &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResultInternal).Argument == command.Arguments.First() &&
                                     e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
 
@@ -721,7 +721,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "-x" &&
+                      .Contain(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "-x" &&
                                     e.Message == $"Character not allowed in a file name: '{invalidCharacter}'.");
             }
 
@@ -781,7 +781,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResultInternal).Argument.Name == "to" &&
                                     e.Message == $"File does not exist: '{path}'.");
             }
 
@@ -800,7 +800,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "--to" &&
+                      .Contain(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "--to" &&
                                     e.Message == $"File does not exist: '{path}'.");
             }
 
@@ -819,7 +819,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResultInternal).Argument.Name == "to" &&
                                     e.Message == $"Directory does not exist: '{path}'.");
             }
 
@@ -838,7 +838,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "--to" &&
+                      .Contain(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "--to" &&
                                     e.Message == $"Directory does not exist: '{path}'.");
             }
 
@@ -857,7 +857,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument == command.Arguments.First() &&
+                      .Contain(e => ((ArgumentResult)e.SymbolResultInternal).Argument == command.Arguments.First() &&
                                     e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -876,7 +876,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "--to" &&
+                      .Contain(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "--to" &&
                                     e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -895,7 +895,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" && 
+                      .Contain(e => ((ArgumentResult)e.SymbolResultInternal).Argument.Name == "to" && 
                                     e.Message == $"File does not exist: '{path}'.");
             }
             
@@ -914,7 +914,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .Contain(e => ((OptionResult)e.SymbolResult).Option.Name == "--to" && 
+                      .Contain(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "--to" && 
                                     e.Message == $"File does not exist: '{path}'.");
             }
 
@@ -933,7 +933,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
+                      .ContainSingle(e => ((ArgumentResult)e.SymbolResultInternal).Argument.Name == "to" &&
                                           e.Message == $"Directory does not exist: '{path}'.");
             }
 
@@ -952,7 +952,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .ContainSingle(e => ((OptionResult)e.SymbolResult).Option.Name == "--to" &&
+                      .ContainSingle(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "--to" &&
                                           e.Message == $"Directory does not exist: '{path}'.");
             }
 
@@ -973,7 +973,7 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
-                      .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
+                      .ContainSingle(e => ((ArgumentResult)e.SymbolResultInternal).Argument.Name == "to" &&
                                           e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -992,7 +992,7 @@ namespace System.CommandLine.Tests
 
                 result.Errors
                       .Should()
-                      .ContainSingle(e => ((OptionResult)e.SymbolResult).Option.Name == "--to" &&
+                      .ContainSingle(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "--to" &&
                                           e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -1011,7 +1011,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument.Name == "to" &&
+                      .ContainSingle(e => ((ArgumentResult)e.SymbolResultInternal).Argument.Name == "to" &&
                                           e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -1030,7 +1030,7 @@ namespace System.CommandLine.Tests
                       .Should()
                       .HaveCount(1)
                       .And
-                      .ContainSingle(e => ((OptionResult)e.SymbolResult).Option.Name == "--to" &&
+                      .ContainSingle(e => ((OptionResult)e.SymbolResultInternal).Option.Name == "--to" &&
                                           e.Message == $"File or directory does not exist: '{path}'.");
             }
 
@@ -1123,7 +1123,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message.Equals(LocalizationResources.RequiredCommandWasNotProvided()) &&
-                           ((CommandResult)e.SymbolResult).Command.Name.Equals("inner"));
+                           ((CliCommandResultInternal)e.SymbolResultInternal).Command.Name.Equals("inner"));
         }
 
         [Fact]
@@ -1139,7 +1139,7 @@ namespace System.CommandLine.Tests
                   .Should()
                   .ContainSingle(
                       e => e.Message.Equals(LocalizationResources.RequiredCommandWasNotProvided()) &&
-                           ((CommandResult)e.SymbolResult).Command == rootCommand);
+                           ((CliCommandResultInternal)e.SymbolResultInternal).Command == rootCommand);
         }
 
         [Fact]
@@ -1155,7 +1155,7 @@ namespace System.CommandLine.Tests
             var result = outer.Parse("outer inner");
 
             result.Errors.Should().BeEmpty();
-            result.CommandResult.Command.Should().BeSameAs(inner);
+            result.CommandResultInternal.Command.Should().BeSameAs(inner);
         }
 
         [Fact]

@@ -34,7 +34,7 @@ namespace System.CommandLine
         /// the delegate is also invoked when an input was provided.
         /// </remarks>
         */
-        internal Func<ArgumentResult, T>? DefaultValueFactory { get; set; }
+        internal Func<CliArgumentResultInternal, T>? DefaultValueFactory { get; set; }
 
 // TODO: custom parsers
 /*
@@ -81,7 +81,7 @@ namespace System.CommandLine
         /// <inheritdoc />
         public override bool HasDefaultValue => DefaultValueFactory is not null;
 
-        internal override object? GetDefaultValue(ArgumentResult argumentResult)
+        internal override object? GetDefaultValue(CliArgumentResultInternal argumentResult)
         {
             if (DefaultValueFactory is null)
             {

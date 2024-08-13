@@ -15,7 +15,7 @@ internal class ParseResultMatchingValueSource : IValueSource
     {
         if (!string.IsNullOrEmpty(valueDescriptor.ValueName))
         {
-            CommandResult? commandResult = bindingContext?.ParseResult.CommandResult;
+            CliCommandResultInternal? commandResult = bindingContext?.ParseResult.CommandResultInternal;
 
             while (commandResult is { })
             {
@@ -34,7 +34,7 @@ internal class ParseResultMatchingValueSource : IValueSource
                     return true;
                 }
 
-                commandResult = commandResult.Parent as CommandResult;
+                commandResult = commandResult.Parent as CliCommandResultInternal;
             }
         }
 

@@ -9,10 +9,10 @@ namespace System.CommandLine.Parsing
     public sealed class ParseError
     {
         // TODO: add position
-        // TODO: reevaluate whether we should be exposing a SymbolResult here
+        // TODO: reevaluate whether we should be exposing a CliSymbolResultInternal here
         internal ParseError(
             string message, 
-            SymbolResult? symbolResult = null)
+            CliSymbolResultInternal? symbolResult = null)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -21,7 +21,7 @@ namespace System.CommandLine.Parsing
           
             Message = message;
             /*
-            SymbolResult = symbolResult;
+            CliSymbolResultInternal = symbolResult;
             */
         }
 
@@ -45,7 +45,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The symbol result detailing the symbol that failed to parse and the tokens involved.
         /// </summary>
-        public SymbolResult? SymbolResult { get; }
+        public CliSymbolResultInternal? CliSymbolResultInternal { get; }
         */
 
         /// <inheritdoc />

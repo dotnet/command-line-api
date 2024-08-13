@@ -8,43 +8,43 @@ namespace System.CommandLine.Binding
 {
     internal sealed class ArgumentConversionResult
     {
-        internal readonly ArgumentResult ArgumentResult;
+        internal readonly CliArgumentResultInternal ArgumentResultInternal;
         internal readonly object? Value;
         internal readonly string? ErrorMessage;
         internal ArgumentConversionResultType Result;
 
-        private ArgumentConversionResult(ArgumentResult argumentResult, string error, ArgumentConversionResultType failure)
+        private ArgumentConversionResult(CliArgumentResultInternal argumentResult, string error, ArgumentConversionResultType failure)
         {
-            ArgumentResult = argumentResult;
+            ArgumentResultInternal = argumentResult;
             ErrorMessage = error;
             Result = failure;
         }
 
-        private ArgumentConversionResult(ArgumentResult argumentResult, object? value, ArgumentConversionResultType result)
+        private ArgumentConversionResult(CliArgumentResultInternal argumentResult, object? value, ArgumentConversionResultType result)
         {
-            ArgumentResult = argumentResult;
+            ArgumentResultInternal = argumentResult;
             Value = value;
             Result = result;
         }
 
-        internal static ArgumentConversionResult Failure(ArgumentResult argumentResult, string error, ArgumentConversionResultType reason)
+        internal static ArgumentConversionResult Failure(CliArgumentResultInternal argumentResult, string error, ArgumentConversionResultType reason)
             => new(argumentResult, error, reason);
 
-        internal static ArgumentConversionResult ArgumentConversionCannotParse(ArgumentResult argumentResult, Type expectedType, string value)
+        internal static ArgumentConversionResult ArgumentConversionCannotParse(CliArgumentResultInternal argumentResult, Type expectedType, string value)
             => new(argumentResult, FormatErrorMessage(argumentResult, expectedType, value), ArgumentConversionResultType.FailedType);
 
-        public static ArgumentConversionResult Success(ArgumentResult argumentResult, object? value)
+        public static ArgumentConversionResult Success(CliArgumentResultInternal argumentResult, object? value)
             => new(argumentResult, value, ArgumentConversionResultType.Successful);
 
-        internal static ArgumentConversionResult None(ArgumentResult argumentResult)
+        internal static ArgumentConversionResult None(CliArgumentResultInternal argumentResult)
             => new(argumentResult, value: null, ArgumentConversionResultType.NoArgument);
 
         private static string FormatErrorMessage(
-            ArgumentResult argumentResult,
+            CliArgumentResultInternal argumentResult,
             Type expectedType,
             string value)
         {
-            if (argumentResult.Parent is CommandResult commandResult)
+            if (argumentResult.Parent is CliCommandResultInternal commandResult)
             {
                 string alias = commandResult.Command.Name;
 // TODO: completion
@@ -62,7 +62,7 @@ namespace System.CommandLine.Binding
                     return LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
                 }
             }
-            else if (argumentResult.Parent is OptionResult optionResult)
+            else if (argumentResult.Parent is CliOptionResultInternal optionResult)
             {
                 string alias = optionResult.Option.Name;
 // TODO: completion

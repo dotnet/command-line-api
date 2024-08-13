@@ -8,7 +8,7 @@ namespace System.CommandLine.NamingConventionBinder;
 internal static class CommandResultExtensions
 {
     internal static bool TryGetValueForArgument(
-        this CommandResult commandResult,
+        this CliCommandResultInternal commandResult,
         IValueDescriptor valueDescriptor,
         out object? value)
     {
@@ -38,7 +38,7 @@ internal static class CommandResultExtensions
     }
 
     internal static bool TryGetValueForOption(
-        this CommandResult commandResult,
+        this CliCommandResultInternal commandResult,
         IValueDescriptor valueDescriptor,
         out object? value)
     {

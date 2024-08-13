@@ -14,11 +14,11 @@ namespace System.CommandLine
     /// </summary>
     public sealed class ParseResult
     {
-        private readonly IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary = new Dictionary<CliSymbol, ValueResult>();
+        private readonly IReadOnlyDictionary<CliSymbol, CliValueResult> valueResultDictionary = new Dictionary<CliSymbol, CliValueResult>();
         private SymbolLookupByName? symbolLookupByName = null;
 
         // TODO: Remove usage and remove
-        private readonly CommandResult _rootCommandResult;
+        private readonly CliCommandResultInternal _rootCommandResult;
         // TODO: unmatched tokens, invocation, completion
         /*
         private readonly IReadOnlyList<CliToken> _unmatchedTokens;
@@ -30,10 +30,10 @@ namespace System.CommandLine
         internal ParseResult(
             CliConfiguration configuration,
             // TODO: Remove RootCommandResult - it is the root of the CommandValueResult ancestors (fix that)
-            CommandResult rootCommandResult,
+            CliCommandResultInternal rootCommandResult,
             // TODO: Replace with CommandValueResult and remove CommandResult
-            CommandResult commandResult,
-            IReadOnlyDictionary<CliSymbol, ValueResult> valueResultDictionary,
+            CliCommandResultInternal commandResult,
+            IReadOnlyDictionary<CliSymbol, CliValueResult> valueResultDictionary,
             /*
             List<CliToken> tokens,
             */
@@ -51,8 +51,9 @@ namespace System.CommandLine
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
-            CommandResult = commandResult;
-            CommandValueResult = commandResult.CommandValueResult;
+            // TODO: Why do we need this?
+            CommandResultInternal = commandResult;
+            CommandResult = commandResult.CommandValueResult;
             this.valueResultDictionary = valueResultDictionary;
             // TODO: invocation
             /*
@@ -102,9 +103,9 @@ namespace System.CommandLine
         /// A result indicating the command specified in the command line input.
         /// </summary>
         // TODO: Update SymbolLookupByName to use CommandValueResult, then remove
-        internal CommandResult CommandResult { get; }
+        internal CliCommandResultInternal CommandResultInternal { get; }
 
-        public CommandValueResult CommandValueResult { get; }
+        public CliCommandResult CommandResult { get; }
 
         /// <summary>
         /// The configuration used to produce the parse result.
@@ -114,8 +115,8 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the root command result.
         /// </summary>
-        /// TODO: Update usage and then remove
-        internal CommandResult RootCommandResult => _rootCommandResult;
+        // TODO: Update usage and then remove
+        internal CliCommandResultInternal RootCommandResult => _rootCommandResult;
 
         /// <summary>
         /// Gets the parse errors found while parsing command line input.
@@ -206,7 +207,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not entered by the user.</returns>
-        public ValueResult? GetValueResult(CliOption option)
+        public CliValueResult? GetValueResult(CliOption option)
             => GetValueResultInternal(option);
 
         /// <summary>
@@ -214,10 +215,10 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>A result for the specified argument, or <see langword="null"/> if it was not entered by the user.</returns>
-        public ValueResult? GetValueResult(CliArgument argument)
+        public CliValueResult? GetValueResult(CliArgument argument)
             => GetValueResultInternal(argument);
 
-        private ValueResult? GetValueResultInternal(CliSymbol symbol)
+        private CliValueResult? GetValueResultInternal(CliSymbol symbol)
             => valueResultDictionary.TryGetValue(symbol, out var result)
                 ? result
                 : null;
@@ -228,7 +229,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>A result for the specified argument, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        internal ArgumentResult? GetResult(CliArgument argument) =>
+        internal CliArgumentResultInternal? GetResult(CliArgument argument) =>
             _rootCommandResult.GetResult(argument);
 
         /* Not used
@@ -237,7 +238,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>A result for the specified command, or <see langword="null"/> if it was not provided.</returns>
-        internal CommandResult? GetResult(CliCommand command) =>
+        internal CliCommandResultInternal? GetResult(CliCommand command) =>
             _rootCommandResult.GetResult(command);
         */
 
@@ -246,7 +247,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        internal OptionResult? GetResult(CliOption option) =>
+        internal CliOptionResultInternal? GetResult(CliOption option) =>
             _rootCommandResult.GetResult(option);
 
         // TODO: Directives
@@ -264,8 +265,8 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="symbol">The symbol for which to find a result.</param>
         /// <returns>A result for the specified symbol, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public SymbolResult? GetResult(CliSymbol symbol)
-            => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out SymbolResult? result) ? result : null;
+        public CliSymbolResultInternal? GetResult(CliSymbol symbol)
+            => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out CliSymbolResultInternal? result) ? result : null;
         */
         // TODO: completion, invocation
         /*
@@ -277,14 +278,14 @@ namespace System.CommandLine
         public IEnumerable<CompletionItem> GetCompletions(
             int? position = null)
         {
-            SymbolResult currentSymbolResult = SymbolToComplete(position);
+            CliSymbolResultInternal currentSymbolResult = SymbolToComplete(position);
 
             CliSymbol currentSymbol = currentSymbolResult switch
             {
                 ArgumentResult argumentResult => argumentResult.Argument,
                 OptionResult optionResult => optionResult.Option,
                 DirectiveResult directiveResult => directiveResult.Directive,
-                _ => ((CommandResult)currentSymbolResult).Command
+                _ => ((CliCommandResultInternal)currentSymbolResult).Command
             };
 
             var context = GetCompletionContext();
@@ -297,7 +298,7 @@ namespace System.CommandLine
 
             var completions = currentSymbol.GetCompletions(context);
 
-            string[] optionsWithArgumentLimitReached = currentSymbolResult is CommandResult commandResult
+            string[] optionsWithArgumentLimitReached = currentSymbolResult is CliCommandResultInternal commandResult
                                                             ? OptionsWithArgumentLimitReached(commandResult)
                                                             : Array.Empty<string>();
 
@@ -306,7 +307,7 @@ namespace System.CommandLine
 
             return completions;
 
-            static string[] OptionsWithArgumentLimitReached(CommandResult commandResult) =>
+            static string[] OptionsWithArgumentLimitReached(CliCommandResultInternal commandResult) =>
                 commandResult
                     .Children
                     .OfType<OptionResult>()
@@ -363,13 +364,13 @@ namespace System.CommandLine
         /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
         /// that will be performed when the parse result is invoked.
         /// </summary>
-        public CliAction? Action => _action ?? CommandResult.Command.Action;
+        public CliAction? Action => _action ?? CliCommandResultInternal.Command.Action;
 
         internal IReadOnlyList<CliAction>? PreActions => _preActions;
 
-        private SymbolResult SymbolToComplete(int? position = null)
+        private CliSymbolResultInternal SymbolToComplete(int? position = null)
         {
-            var commandResult = CommandResult;
+            var commandResult = CliCommandResultInternal;
 
             var allSymbolResultsForCompletion = AllSymbolResultsForCompletion();
 
@@ -377,11 +378,11 @@ namespace System.CommandLine
 
             return currentSymbol;
 
-            IEnumerable<SymbolResult> AllSymbolResultsForCompletion()
+            IEnumerable<CliSymbolResultInternal> AllSymbolResultsForCompletion()
             {
                 foreach (var item in commandResult.AllSymbolResults())
                 {
-                    if (item is CommandResult command)
+                    if (item is CliCommandResultInternal command)
                     {
                         yield return command;
                     }

@@ -47,7 +47,7 @@ namespace System.CommandLine
         {
             Validators.Add(static result =>
             {
-                if (result.Parent is CommandResult parent &&
+                if (result.Parent is CliCommandResultInternal parent &&
                     parent.Children.Any(r => r is not OptionResult { Option: VersionOption }))
                 {
                     result.AddError(LocalizationResources.VersionOptionCannotBeCombinedWithOtherArguments(result.IdentifierToken?.Value ?? result.Option.Name));

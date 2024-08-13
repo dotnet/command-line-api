@@ -10,23 +10,23 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing an <see cref="Option" />.
     /// </summary>
-    internal sealed class OptionResult : SymbolResult
+    internal sealed class CliOptionResultInternal : CliSymbolResultInternal
     {
         private ArgumentConversionResult? _argumentConversionResult;
 
-        internal OptionResult(
+        internal CliOptionResultInternal(
             CliOption option,
             SymbolResultTree symbolResultTree,
             CliToken? token = null,
-            CommandResult? parent = null) :
+            CliCommandResultInternal? parent = null) :
             base(symbolResultTree, parent)
         {
             Option = option ?? throw new ArgumentNullException(nameof(option));
             IdentifierToken = token;
         }
 
-        private ValueResult? _valueResult;
-        public ValueResult ValueResult
+        private CliValueResult? _valueResult;
+        public CliValueResult ValueResult
         {
             get
             {
@@ -44,7 +44,7 @@ namespace System.CommandLine.Parsing
                     };
                     var locations = Tokens.Select(token => token.Location).ToArray();
                     //TODO: Remove this wrapper later
-                    _valueResult = new ValueResult(Option, conversionValue, locations, ArgumentResult.GetValueResultOutcome(ArgumentConversionResult?.Result), conversionResult.ErrorMessage); 
+                    _valueResult = new CliValueResult(Option, conversionValue, locations, CliArgumentResultInternal.GetValueResultOutcome(ArgumentConversionResult?.Result), conversionResult.ErrorMessage); 
                 }
                 return _valueResult;
             }
@@ -76,7 +76,7 @@ namespace System.CommandLine.Parsing
         public int IdentifierTokenCount { get; internal set; }
         */
         /// <inheritdoc/>
-        public override string ToString() => $"{nameof(OptionResult)}: {IdentifierToken?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";
+        public override string ToString() => $"{nameof(CliOptionResultInternal)}: {IdentifierToken?.Value ?? Option.Name} {string.Join(" ", Tokens.Select(t => t.Value))}";
 
         /// <summary>
         /// Gets the parsed value or the default value for <see cref="Option"/>.

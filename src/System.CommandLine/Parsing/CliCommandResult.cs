@@ -9,16 +9,16 @@ namespace System.CommandLine.Parsing;
 /// Provides the publicly facing command result
 /// </summary>
 /// <remarks>
-/// The name is temporary as we expect to later name this CommandResult and the previous one to CommandResultInternal
+/// The name is temporary as we expect to later name this CliCommandResultInternal and the previous one to CommandResultInternal
 /// </remarks>
-public class CommandValueResult
+public class CliCommandResult : CliSymbolResult
 {
     /// <summary>
     /// Creates a CommandValueResult instance
     /// </summary>
     /// <param name="command">The CliCommand that the result is for.</param>
     /// <param name="parent">The parent command in the case of a CLI hierarchy, or null if there is no parent.</param>
-    internal CommandValueResult(CliCommand command, CommandValueResult? parent = null)
+    internal CliCommandResult(CliCommand command, CliCommandResult? parent = null)
     {
         Command = command;
         Parent = parent;
@@ -27,7 +27,7 @@ public class CommandValueResult
     /// <summary>
     /// The ValueResult instances for user entered data. This is a sparse list.
     /// </summary>
-    public IReadOnlyList<ValueResult> ValueResults { get; internal set; } = [];
+    public IEnumerable<CliValueResult> ValueResults { get; } = [];
 
     /// <summary>
     /// The CliCommand that the result is for. 
@@ -37,6 +37,6 @@ public class CommandValueResult
     /// <summary>
     /// The command's parent if one exists, otherwise, null
     /// </summary>
-    public CommandValueResult? Parent { get; }
+    public CliCommandResult? Parent { get; }
 
 }

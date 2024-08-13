@@ -42,10 +42,10 @@ namespace System.CommandLine.Tests
             var result = _outerCommand.Parse("outer inner --option argument1");
 
             result
-                .CommandResult
+                .CommandResultInternal
                 .Parent
                 .Should()
-                .BeOfType<CommandResult>()
+                .BeOfType<CommandResultInternal>()
                 .Which
                 .Command
                 .Name
@@ -58,9 +58,9 @@ namespace System.CommandLine.Tests
         {
             var result = _outerCommand.Parse("outer inner --option argument1");
 
-            result.CommandResult
+            result.CommandResultInternal
                   .Should()
-                  .BeOfType<CommandResult>()
+                  .BeOfType<CommandResultInternal>()
                   .Which
                   .Command
                   .Name
@@ -73,7 +73,7 @@ namespace System.CommandLine.Tests
         {
             var result = _outerCommand.Parse("outer inner --option argument1");
 
-            result.CommandResult
+            result.CommandResultInternal
                   .Children
                   .ElementAt(0)
                   .Should()
@@ -90,7 +90,7 @@ namespace System.CommandLine.Tests
         {
             var result = _outerCommand.Parse("outer inner --option argument1");
 
-            result.CommandResult
+            result.CommandResultInternal
                   .Children
                   .ElementAt(0)
                   .Tokens
@@ -114,14 +114,14 @@ namespace System.CommandLine.Tests
 
             var result = outer.Parse("outer arg1 inner arg2 arg3");
 
-            result.CommandResult
+            result.CommandResultInternal
                   .Parent
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
                   .BeEquivalentTo("arg1");
 
-            result.CommandResult
+            result.CommandResultInternal
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
@@ -200,7 +200,7 @@ namespace System.CommandLine.Tests
 
             var result = outer.Parse(input);
 
-            result.CommandResult.Command.Name.Should().Be(expectedCommand);
+            result.CommandResultInternal.Command.Name.Should().Be(expectedCommand);
         }
 
         [Fact]
@@ -214,7 +214,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("that");
 
-            result.CommandResult.Command.Should().BeSameAs(command);
+            result.CommandResultInternal.Command.Should().BeSameAs(command);
             result.Errors.Should().BeEmpty();
         }
 
@@ -228,7 +228,7 @@ namespace System.CommandLine.Tests
 
             var result = command.Parse("that");
 
-            result.CommandResult.Command.Should().BeSameAs(command);
+            result.CommandResultInternal.Command.Should().BeSameAs(command);
             result.Errors.Should().BeEmpty();
         }
 
@@ -245,7 +245,7 @@ namespace System.CommandLine.Tests
 
             var result = rootCommand.Parse("that");
 
-            result.CommandResult.Command.Should().BeSameAs(subcommand);
+            result.CommandResultInternal.Command.Should().BeSameAs(subcommand);
             result.Errors.Should().BeEmpty();
         }
 

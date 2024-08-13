@@ -24,7 +24,7 @@ namespace System.CommandLine.Help
             var output = parseResult.Configuration.Output;
 
             var helpContext = new HelpContext(Builder,
-                                              parseResult.CommandResult.Command,
+                                              parseResult.CommandResultInternal.Command,
                                               output,
                                               parseResult);
 

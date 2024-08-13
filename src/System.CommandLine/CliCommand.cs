@@ -30,7 +30,7 @@ namespace System.CommandLine
         private ChildSymbolList<CliCommand>? _subcommands;
 // TODO: validators
         /*
-        private List<Action<CommandResult>>? _validators;
+        private List<Action<CliCommandResult>>? _validators;
 
         */
         /// <summary>
@@ -91,7 +91,7 @@ namespace System.CommandLine
         /// Validators to the command. Validators can be used
         /// to create custom validation logic.
         /// </summary>
-        public List<Action<CommandResult>> Validators => _validators ??= new ();
+        public List<Action<CliCommandResult>> Validators => _validators ??= new ();
 
         internal bool HasValidators => _validators is not null && _validators.Count > 0;
 

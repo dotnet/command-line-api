@@ -87,7 +87,7 @@ namespace System.CommandLine.Tests
             }
             .Parse($"@{responseFile}");
 
-            result.CommandResult
+            result.CliCommandResultInternal
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
@@ -111,7 +111,7 @@ namespace System.CommandLine.Tests
                          }
                 .Parse($"subcommand @{responseFile}");
 
-            result.CommandResult
+            result.CommandResultInternal
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
@@ -132,7 +132,7 @@ namespace System.CommandLine.Tests
                          }
                 .Parse($"@{responseFile} one two three");
 
-            result.CommandResult
+            result.CommandResultInternal
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
@@ -156,7 +156,7 @@ namespace System.CommandLine.Tests
                          }
                 .Parse($"subcommand @{responseFile}");
 
-            result.CommandResult
+            result.CommandResultInternal
                   .Tokens
                   .Select(t => t.Value)
                   .Should()
