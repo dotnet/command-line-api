@@ -95,7 +95,7 @@ public class CustomParsingTests
         new CliRootCommand { argument }.Parse("x")
                                        .Errors
                                        .Should()
-                                       .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
+                                       .ContainSingle(e => ((ArgumentResult)e.SymbolResultInternal).Argument == argument)
                                        .Which
                                        .Message
                                        .Should()
@@ -117,7 +117,7 @@ public class CustomParsingTests
         new CliRootCommand { argument }.Parse("")
                                        .Errors
                                        .Should()
-                                       .ContainSingle(e => ((ArgumentResult)e.SymbolResult).Argument == argument)
+                                       .ContainSingle(e => ((ArgumentResult)e.SymbolResultInternal).Argument == argument)
                                        .Which
                                        .Message
                                        .Should()
@@ -256,7 +256,7 @@ public class CustomParsingTests
             .Parent
             .Parent
             .Should()
-            .BeOfType<CommandResult>()
+            .BeOfType<CliCommandResultInternal>()
             .Which
             .Command
             .Should()
@@ -268,7 +268,7 @@ public class CustomParsingTests
     [InlineData("-y value-y -x value-x")]
     public void Symbol_can_be_found_without_explicitly_traversing_result_tree(string commandLine)
     {
-        SymbolResult resultForOptionX = null;
+        CliSymbolResultInternal resultForOptionX = null;
         var optionX = new CliOption<string>("-x")
         {
             CustomParser = _ => string.Empty
@@ -322,7 +322,7 @@ public class CustomParsingTests
         argumentResult
             .Parent
             .Should()
-            .BeOfType<CommandResult>()
+            .BeOfType<CliCommandResultInternal>()
             .Which
             .Command
             .Should()
@@ -447,7 +447,7 @@ public class CustomParsingTests
         var parseResult = command.Parse(commandLine);
 
         parseResult.Errors
-                   .Single(e => e.SymbolResult is OptionResult optResult &&
+                   .Single(e => e.SymbolResultInternal is OptionResult optResult &&
                                 optResult.Option == optionThatDependsOnOptionWithError)
                    .Message
                    .Should()
@@ -482,8 +482,8 @@ public class CustomParsingTests
         OptionResult secondOptionResult = parseResult.GetResult(secondOptionWithError);
         secondOptionResult.Errors.Single().Message.Should().Be("second error");
 
-        parseResult.Errors.Should().Contain(error => error.SymbolResult == firstOptionResult);
-        parseResult.Errors.Should().Contain(error => error.SymbolResult == secondOptionResult);
+        parseResult.Errors.Should().Contain(error => error.SymbolResultInternal == firstOptionResult);
+        parseResult.Errors.Should().Contain(error => error.SymbolResultInternal == secondOptionResult);
     }
 
     [Fact]
@@ -504,7 +504,7 @@ public class CustomParsingTests
 
         var result = command.Parse("the-command -x nope yep");
 
-        result.CommandResult.Tokens.Count.Should().Be(1);
+        result.CommandResultInternal.Tokens.Count.Should().Be(1);
     }
             
     [Fact]

@@ -10,7 +10,7 @@ namespace System.CommandLine.Binding
     internal static partial class ArgumentConverter
     {
         internal static ArgumentConversionResult ConvertObject(
-            ArgumentResult argumentResult,
+            CliArgumentResultInternal argumentResult,
             Type type,
             object? value)
         {
@@ -36,7 +36,7 @@ namespace System.CommandLine.Binding
         }
 
         private static ArgumentConversionResult ConvertToken(
-            ArgumentResult argumentResult,
+            CliArgumentResultInternal argumentResult,
             Type type,
             CliToken token)
         {
@@ -81,7 +81,7 @@ namespace System.CommandLine.Binding
         }
 
         private static ArgumentConversionResult ConvertTokens(
-            ArgumentResult argumentResult,
+            CliArgumentResultInternal argumentResult,
             Type type,
             IReadOnlyList<CliToken> tokens)
         {
@@ -110,7 +110,7 @@ namespace System.CommandLine.Binding
                         break;
 
                     default: // failures
-                        if (argumentResult.Parent is CommandResult)
+                        if (argumentResult.Parent is CliCommandResultInternal)
                         {
                             argumentResult.OnlyTake(i);
 
@@ -132,15 +132,15 @@ namespace System.CommandLine.Binding
                 if (argument.ValueType.TryGetNullableType(out var nullableType) &&
                     StringConverters.TryGetValue(nullableType, out var convertNullable))
                 {
-                    return (ArgumentResult result, out object? value) => ConvertSingleString(result, convertNullable, out value);
+                    return (CliArgumentResultInternal result, out object? value) => ConvertSingleString(result, convertNullable, out value);
                 }
 
                 if (StringConverters.TryGetValue(argument.ValueType, out var convert1))
                 {
-                    return (ArgumentResult result, out object? value) => ConvertSingleString(result, convert1, out value);
+                    return (CliArgumentResultInternal result, out object? value) => ConvertSingleString(result, convert1, out value);
                 }
 
-                static bool ConvertSingleString(ArgumentResult result, TryConvertString convert, out object? value) =>
+                static bool ConvertSingleString(CliArgumentResultInternal result, TryConvertString convert, out object? value) =>
                     convert(result.Tokens[result.Tokens.Count - 1].Value, out value);
             }
 
@@ -183,12 +183,12 @@ namespace System.CommandLine.Binding
             return conversionResult.Result switch
             {
                 ArgumentConversionResultType.Successful when !toType.IsInstanceOfType(conversionResult.Value) =>
-                    ConvertObject(conversionResult.ArgumentResult,
+                    ConvertObject(conversionResult.ArgumentResultInternal,
                                   toType,
                                   conversionResult.Value),
 
-                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.IsBoolean() =>
-                    Success(conversionResult.ArgumentResult, true),
+                ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResultInternal.Argument.IsBoolean() =>
+                    Success(conversionResult.ArgumentResultInternal, true),
                         
                 _ => conversionResult
             };
@@ -204,7 +204,7 @@ namespace System.CommandLine.Binding
             };
         }
 
-        public static bool TryConvertArgument(ArgumentResult argumentResult, out object? value)
+        public static bool TryConvertArgument(CliArgumentResultInternal argumentResult, out object? value)
         {
             var argument = argumentResult.Argument;
 

@@ -110,10 +110,10 @@ namespace System.CommandLine
         /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
         public object? GetDefaultValue()
         {
-            return GetDefaultValue(new ArgumentResult(this, null!, null));
+            return GetDefaultValue(new CliArgumentResultInternal(this, null!, null));
         }
 
-        internal abstract object? GetDefaultValue(ArgumentResult argumentResult);
+        internal abstract object? GetDefaultValue(CliArgumentResultInternal argumentResult);
 
         /// <summary>
         /// Specifies if a default value is defined for the argument.

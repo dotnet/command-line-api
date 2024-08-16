@@ -43,7 +43,7 @@ public class SymbolLookupByName
             return cache;
         }
         cache = [];
-        var commandResult = parseResult.CommandResult;
+        var commandResult = parseResult.CommandResultInternal;
         while (commandResult is not null)
         {
             var command = commandResult.Command;
@@ -57,7 +57,7 @@ public class SymbolLookupByName
             AddSymbolsToCache(commandCache, command.Options, command);
             AddSymbolsToCache(commandCache, command.Arguments, command);
             AddSymbolsToCache(commandCache, command.Subcommands, command);
-            commandResult = (CommandResult?)commandResult.Parent;
+            commandResult = (CliCommandResultInternal?)commandResult.Parent;
         }
 
         return cache;
@@ -95,7 +95,7 @@ public class SymbolLookupByName
                                                bool skipAncestors,
                                                bool valuesOnly)
     {
-        startCommand ??= cache.First().Command;  // The construction of the dictionary makes this the parseResult.CommandResult - current command
+        startCommand ??= cache.First().Command;  // The construction of the dictionary makes this the parseResult.CliCommandResultInternal - current command
         var commandCaches = GetCommandCachesToUse(startCommand);
         if (commandCaches is null || !commandCaches.Any())
         {

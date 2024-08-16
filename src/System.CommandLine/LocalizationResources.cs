@@ -16,7 +16,7 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to Command &apos;{0}&apos; expects a single argument but {1} were provided.
         /// </summary>
-        internal static string ExpectsOneArgument(OptionResult optionResult)
+        internal static string ExpectsOneArgument(CliOptionResultInternal optionResult)
             => GetResourceString(Properties.Resources.OptionExpectsOneArgument, GetOptionName(optionResult), optionResult.Tokens.Count);
 /*
         /// <summary>
@@ -52,15 +52,15 @@ namespace System.CommandLine
         /// <summary>
         ///   Interpolates values into a localized string similar to Required argument missing for command: {0}.
         /// </summary>
-        internal static string RequiredArgumentMissing(ArgumentResult argumentResult) =>
-            argumentResult.Parent is CommandResult commandResult
+        internal static string RequiredArgumentMissing(CliArgumentResultInternal argumentResult) =>
+            argumentResult.Parent is CliCommandResultInternal commandResult
                 ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, commandResult.IdentifierToken.Value)
-                : RequiredArgumentMissing((OptionResult)argumentResult.Parent!);
+                : RequiredArgumentMissing((CliOptionResultInternal)argumentResult.Parent!);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to Required argument missing for option: {0}.
         /// </summary>
-        internal static string RequiredArgumentMissing(OptionResult optionResult) =>
+        internal static string RequiredArgumentMissing(CliOptionResultInternal optionResult) =>
             GetResourceString(Properties.Resources.OptionRequiredArgumentMissing, GetOptionName(optionResult));
 
         /// <summary>
@@ -252,6 +252,6 @@ namespace System.CommandLine
             return resourceString;
         }
 
-        private static string GetOptionName(OptionResult optionResult) => optionResult.IdentifierToken?.Value ?? optionResult.Option.Name;
+        private static string GetOptionName(CliOptionResultInternal optionResult) => optionResult.IdentifierToken?.Value ?? optionResult.Option.Name;
     }
 }

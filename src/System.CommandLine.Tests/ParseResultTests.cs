@@ -94,12 +94,12 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "outer inner-one inner-two");
 
-            result.CommandResult.Command.Name.Should().Be("inner-one");
+            result.CommandResultInternal.Command.Name.Should().Be("inner-one");
             result.Errors.Count.Should().Be(1);
 
             var result2 = CliParser.Parse(command, "outer inner-two inner-one");
 
-            result2.CommandResult.Command.Name.Should().Be("inner-two");
+            result2.CommandResultInternal.Command.Name.Should().Be("inner-two");
             result2.Errors.Count.Should().Be(1);
         }
 

@@ -6,6 +6,6 @@ using System.CommandLine.Parsing;
 namespace System.CommandLine.Binding
 {
     internal delegate bool TryConvertArgument(
-        ArgumentResult argumentResult,
+        CliArgumentResultInternal argumentResult,
         out object? value);
 }

@@ -8,13 +8,13 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced during parsing for a specific symbol.
     /// </summary>
-    internal abstract class SymbolResult
+    internal abstract class CliSymbolResultInternal
     {
 // TODO: make this a property and protected if possible
         internal readonly SymbolResultTree SymbolResultTree;
         private protected List<CliToken>? _tokens;
 
-        private protected SymbolResult(SymbolResultTree symbolResultTree, SymbolResult? parent)
+        private protected CliSymbolResultInternal(SymbolResultTree symbolResultTree, CliSymbolResultInternal? parent)
         {
             SymbolResultTree = symbolResultTree;
             Parent = parent;
@@ -38,7 +38,7 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < parseErrors.Count; i++)
                 {
                     var parseError = parseErrors[i];
-                    if (parseError.SymbolResult == this)
+                    if (parseError.CliSymbolResultInternal == this)
                     {
                         yield return parseError;
                     }
@@ -49,7 +49,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The parent symbol result in the parse tree.
         /// </summary>
-        public SymbolResult? Parent { get; }
+        public CliSymbolResultInternal? Parent { get; }
 
 // TODO: make internal because exposes tokens
         /// <summary>
@@ -70,7 +70,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        internal ArgumentResult? GetResult(CliArgument argument) => SymbolResultTree.GetResult(argument);
+        internal CliArgumentResultInternal? GetResult(CliArgument argument) => SymbolResultTree.GetResult(argument);
 
         /* Not used
         /// <summary>
@@ -78,7 +78,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
-        internal CommandResult? GetResult(CliCommand command) => SymbolResultTree.GetResult(command);
+        internal CliCommandResultInternal? GetResult(CliCommand command) => SymbolResultTree.GetResult(command);
         */
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        internal OptionResult? GetResult(CliOption option) => SymbolResultTree.GetResult(option);
+        internal CliOptionResultInternal? GetResult(CliOption option) => SymbolResultTree.GetResult(option);
 
 // TODO: directives
 /*
@@ -103,7 +103,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="name">The name of the symbol for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public SymbolResult? GetResult(string name) => 
+        public CliSymbolResultInternal? GetResult(string name) => 
             SymbolResultTree.GetResult(name);
 
         /// <inheritdoc cref="ParseResult.GetValue{T}(CliArgument{T})"/>

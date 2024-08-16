@@ -9,21 +9,21 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing an <see cref="Argument"/>.
     /// </summary>
-    internal sealed class ArgumentResult : SymbolResult
+    internal sealed class CliArgumentResultInternal : CliSymbolResultInternal
     {
         private ArgumentConversionResult? _conversionResult;
         private bool _onlyTakeHasBeenCalled;
 
-        internal ArgumentResult(
+        internal CliArgumentResultInternal(
             CliArgument argument,
             SymbolResultTree symbolResultTree,
-            SymbolResult? parent) : base(symbolResultTree, parent)
+            CliSymbolResultInternal? parent) : base(symbolResultTree, parent)
         {
             Argument = argument ?? throw new ArgumentNullException(nameof(argument));
         }
 
-        private ValueResult? _valueResult;
-        public ValueResult ValueResult
+        private CliValueResult? _valueResult;
+        public CliValueResult ValueResult
         {
             get
             {
@@ -33,7 +33,7 @@ namespace System.CommandLine.Parsing
                     // TODO: Make sure errors are added
                     var conversionValue = GetArgumentConversionResult().Value;
                     var locations = Tokens.Select(token => token.Location).ToArray();
-                    _valueResult = new ValueResult(Argument, conversionValue, locations, ArgumentResult.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
+                    _valueResult = new CliValueResult(Argument, conversionValue, locations, CliArgumentResultInternal.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
                 }
                 return _valueResult;
             }
@@ -65,7 +65,7 @@ namespace System.CommandLine.Parsing
         /// <param name="numberOfTokens">The number of tokens to take. The rest are passed on.</param>
         /// <exception cref="ArgumentOutOfRangeException">numberOfTokens - Value must be at least 1.</exception>
         /// <exception cref="InvalidOperationException">Thrown if this method is called more than once.</exception>
-        /// <exception cref="NotSupportedException">Thrown if this method is called by Option-owned ArgumentResult.</exception>
+        /// <exception cref="NotSupportedException">Thrown if this method is called by Option-owned CliArgumentResultInternal.</exception>
         public void OnlyTake(int numberOfTokens)
         {
             if (numberOfTokens < 0)
@@ -78,9 +78,9 @@ namespace System.CommandLine.Parsing
                 throw new InvalidOperationException($"{nameof(OnlyTake)} can only be called once.");
             }
 
-            if (Parent is OptionResult)
+            if (Parent is CliOptionResultInternal)
             {
-                throw new NotSupportedException($"{nameof(OnlyTake)} is supported only for a {nameof(CliCommand)}-owned {nameof(ArgumentResult)}");
+                throw new NotSupportedException($"{nameof(OnlyTake)} is supported only for a {nameof(CliCommand)}-owned {nameof(CliArgumentResultInternal)}");
             }
 
             _onlyTakeHasBeenCalled = true;
@@ -90,7 +90,7 @@ namespace System.CommandLine.Parsing
                 return;
             }
 
-            CommandResult parent = (CommandResult)Parent!;
+            CliCommandResultInternal parent = (CliCommandResultInternal)Parent!;
             var arguments = parent.Command.Arguments;
             int argumentIndex = arguments.IndexOf(Argument);
             int nextArgumentIndex = argumentIndex + 1;
@@ -99,16 +99,16 @@ namespace System.CommandLine.Parsing
             while (tokensToPass > 0 && nextArgumentIndex < arguments.Count)
             {
                 CliArgument nextArgument = parent.Command.Arguments[nextArgumentIndex];
-                ArgumentResult nextArgumentResult;
+                CliArgumentResultInternal nextArgumentResult;
 
-                if (SymbolResultTree.TryGetValue(nextArgument, out SymbolResult? symbolResult))
+                if (SymbolResultTree.TryGetValue(nextArgument, out CliSymbolResultInternal? symbolResult))
                 {
-                    nextArgumentResult = (ArgumentResult)symbolResult;
+                    nextArgumentResult = (CliArgumentResultInternal)symbolResult;
                 }
                 else
                 {
                     // it might have not been parsed yet or due too few arguments, so we add it now
-                    nextArgumentResult = new ArgumentResult(nextArgument, SymbolResultTree, Parent);
+                    nextArgumentResult = new CliArgumentResultInternal(nextArgument, SymbolResultTree, Parent);
                     SymbolResultTree.Add(nextArgument, nextArgumentResult);
                 }
 
@@ -123,7 +123,7 @@ namespace System.CommandLine.Parsing
                 nextArgumentIndex++;
             }
 
-            CommandResult rootCommand = parent;
+            CliCommandResultInternal rootCommand = parent;
             // When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unmatched_tokens
             while (tokensToPass > 0)
             {
@@ -135,7 +135,7 @@ namespace System.CommandLine.Parsing
         }
 
         /// <inheritdoc/>
-        public override string ToString() => $"{nameof(ArgumentResult)} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
+        public override string ToString() => $"{nameof(CliArgumentResultInternal)} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
         /// <inheritdoc/>
         internal override void AddError(string errorMessage)
@@ -232,8 +232,8 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Since Option.Argument is an internal implementation detail, this ArgumentResult applies to the OptionResult in public API if the parent is an OptionResult.
         /// </summary>
-        private SymbolResult AppliesToPublicSymbolResult =>
-            Parent is OptionResult optionResult ? optionResult : this;
+        private CliSymbolResultInternal AppliesToPublicSymbolResult =>
+            Parent is CliOptionResultInternal optionResult ? optionResult : this;
 
         internal static ValueResultOutcome GetValueResultOutcome(ArgumentConversionResultType? resultType)
             => resultType switch

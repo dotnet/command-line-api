@@ -66,8 +66,8 @@ public sealed class ParseErrorAction : SynchronousCliAction
         // Find the most proximate help option (if any) and invoke its action.
         var availableHelpOptions =
             parseResult
-                .CommandResult
-                .RecurseWhileNotNull(r => r.Parent as CommandResult)
+                .CommandResultInternal
+                .RecurseWhileNotNull(r => r.Parent as CommandResultInternal)
                 .Select(r => r.Command.Options.OfType<HelpOption>().FirstOrDefault()); 
         if (availableHelpOptions.FirstOrDefault(o => o is not null) is { Action: not null } helpOption)
         {
@@ -92,7 +92,7 @@ public sealed class ParseErrorAction : SynchronousCliAction
             var token = unmatchedTokens[i];
 
             bool first = true;
-            foreach (string suggestion in GetPossibleTokens(parseResult.CommandResult.Command, token))
+            foreach (string suggestion in GetPossibleTokens(parseResult.CommandResultInternal.Command, token))
             {
                 if (first)
                 {

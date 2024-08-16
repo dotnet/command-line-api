@@ -5,7 +5,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// A result produced when parsing an <see cref="Directive"/>.
     /// </summary>
-    public sealed class DirectiveResult : SymbolResult
+    public sealed class DirectiveResult : CliSymbolResultInternal
     {
         private List<string>? _values;
 

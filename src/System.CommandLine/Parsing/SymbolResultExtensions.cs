@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    internal static class SymbolResultExtensions
+    internal static class SymbolResultInternalExtensions
     {
-        internal static IEnumerable<SymbolResult> AllSymbolResults(this CommandResult commandResult)
+        internal static IEnumerable<CliSymbolResultInternal> AllSymbolResults(this CliCommandResultInternal commandResult)
         {
             yield return commandResult;
 
