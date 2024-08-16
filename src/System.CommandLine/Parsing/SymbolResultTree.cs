@@ -37,13 +37,13 @@ namespace System.CommandLine.Parsing
 
         internal int ErrorCount => Errors?.Count ?? 0;
 
-        internal CliArgumentResultInternal? GetResult(CliArgument argument)
+        internal CliArgumentResultInternal? GetResultInternal(CliArgument argument)
             => TryGetValue(argument, out CliSymbolResultInternal? result) ? (CliArgumentResultInternal)result : default;
 
-        internal CliCommandResultInternal? GetResult(CliCommand command)
+        internal CliCommandResultInternal? GetResultInternal(CliCommand command)
             => TryGetValue(command, out var result) ? (CliCommandResultInternal)result : default;
 
-        internal CliOptionResultInternal? GetResult(CliOption option)
+        internal CliOptionResultInternal? GetResultInternal(CliOption option)
             => TryGetValue(option, out CliSymbolResultInternal? result) ? (CliOptionResultInternal)result : default;
 
         // TODO: Determine how this is used. It appears to be O^n in the size of the tree and so if it is called multiple times, we should reconsider to avoid O^(N*M)

@@ -70,7 +70,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        internal CliArgumentResultInternal? GetResult(CliArgument argument) => SymbolResultTree.GetResult(argument);
+        internal CliArgumentResultInternal? GetResult(CliArgument argument) => SymbolResultTree.GetResultInternal(argument);
 
         /* Not used
         /// <summary>
@@ -86,7 +86,7 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        internal CliOptionResultInternal? GetResult(CliOption option) => SymbolResultTree.GetResult(option);
+        internal CliOptionResultInternal? GetResult(CliOption option) => SymbolResultTree.GetResultInternal(option);
 
 // TODO: directives
 /*

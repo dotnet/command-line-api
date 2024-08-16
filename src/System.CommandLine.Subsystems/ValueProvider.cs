@@ -37,28 +37,26 @@ internal class ValueProvider
     public T? GetValue<T>(CliValueSymbol valueSymbol)
         => GetValueInternal<T>(valueSymbol);
 
-    private T? GetValueInternal<T>(CliSymbol? symbol)
+    private T? GetValueInternal<T>(CliValueSymbol? valueSymbol)
     {
         // NOTE: We use the subsystem's TryGetAnnotation here instead of the GetDefaultValue etc
         // extension methods, as the subsystem's TryGetAnnotation respects its annotation provider
-        return symbol switch
+        return valueSymbol switch
         {
-            not null when TryGetValue<T>(symbol, out var value)
+            { } when TryGetValue<T>(valueSymbol, out var value)
                 => value, // It has already been retrieved at least once
-            CliArgument argument when parseResult?.GetValueResult(argument) is { } valueResult  // GetValue not used because it  would always return a value
-                => UseValue(symbol, valueResult.GetValue<T>()), // Value was supplied during parsing, 
-            CliOption option when parseResult?.GetValueResult(option) is { } valueResult  // GetValue not used because it would always return a value
-                => UseValue(symbol, valueResult.GetValue<T>()), // Value was supplied during parsing
+            { } when parseResult?.GetValueResult(valueSymbol) is { } valueResult  // GetValue not used because it  would always return a value
+                => UseValue(valueSymbol, valueResult.GetValue<T>()), // Value was supplied during parsing, 
             // Value was not supplied during parsing, determine default now
             // configuration values go here in precedence
             //not null when GetDefaultFromEnvironmentVariable<T>(symbol, out var envName)
             //    => UseValue(symbol, GetEnvByName(envName)),
-            not null when symbol.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out Func<T?>? defaultValueCalculation)
-                => UseValue(symbol, CalculatedDefault<T>(symbol, (Func<T?>)defaultValueCalculation)),
-            not null when symbol.TryGetAnnotation(ValueAnnotations.DefaultValue, out T? explicitValue)
-                => UseValue(symbol, explicitValue),
-            null => throw new ArgumentNullException(nameof(symbol)),
-            _ => UseValue(symbol, default(T))
+            { } when valueSymbol.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out Func<T?>? defaultValueCalculation)
+                => UseValue(valueSymbol, CalculatedDefault<T>(valueSymbol, (Func<T?>)defaultValueCalculation)),
+            { } when valueSymbol.TryGetAnnotation( ValueAnnotations.DefaultValue, out T? explicitValue)
+                => UseValue(valueSymbol, explicitValue),
+            null => throw new ArgumentNullException(nameof(valueSymbol)),
+            _ => UseValue(valueSymbol, default(T))
         };
 
         TValue? UseValue<TValue>(CliSymbol symbol, TValue? value)
@@ -68,7 +66,7 @@ internal class ValueProvider
         }
     }
 
-    private static T? CalculatedDefault<T>(CliSymbol symbol, Func<T?> defaultValueCalculation)
+    private static T? CalculatedDefault<T>(CliValueSymbol valueSymbol, Func<T?> defaultValueCalculation)
     {
         var objectValue = defaultValueCalculation();
         var value = objectValue is null
