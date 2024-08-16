@@ -47,10 +47,9 @@ namespace System.CommandLine.Parsing
                 if (commandResult is null)
                 {
                     var parent = Parent is CliCommandResultInternal commandResultInternal
-                        ? commandResultInternal.CommandResult 
+                        ? commandResultInternal.CommandResult
                         : null;
-                    // TODO: Resolve the NRT warning for locations
-                    commandResult = new CliCommandResult(Command, parent?.Locations, parent);
+                    commandResult = new CliCommandResult(Command, Tokens.Select(t => t.Location), parent);
                 }
                 // Reset unless we put tests in place to ensure it is not called in error handling before SymbolTree processing is complete
                 commandResult.ValueResults = Children.Select(GetValueResult).OfType<CliValueResult>().ToList();
