@@ -53,7 +53,7 @@ internal class ValueProvider
             //    => UseValue(symbol, GetEnvByName(envName)),
             { } when valueSymbol.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out Func<T?>? defaultValueCalculation)
                 => UseValue(valueSymbol, CalculatedDefault<T>(valueSymbol, (Func<T?>)defaultValueCalculation)),
-            { } when valueSymbol.TryGetAnnotation( ValueAnnotations.DefaultValue, out T? explicitValue)
+            { } when valueSymbol.TryGetAnnotation(ValueAnnotations.DefaultValue, out T? explicitValue)
                 => UseValue(valueSymbol, explicitValue),
             null => throw new ArgumentNullException(nameof(valueSymbol)),
             _ => UseValue(valueSymbol, default(T))
