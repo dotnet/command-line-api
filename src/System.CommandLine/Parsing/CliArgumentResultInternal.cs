@@ -33,7 +33,7 @@ namespace System.CommandLine.Parsing
                     // TODO: Make sure errors are added
                     var conversionValue = GetArgumentConversionResult().Value;
                     var locations = Tokens.Select(token => token.Location).ToArray();
-                    _valueResult = new ValueResult(Argument, conversionValue, locations, ArgumentResult.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
+                    _valueResult = new CliValueResult(Argument, conversionValue, locations, CliArgumentResultInternal.GetValueResultOutcome(GetArgumentConversionResult()?.Result)); // null is temporary here
                 }
                 return _valueResult;
             }

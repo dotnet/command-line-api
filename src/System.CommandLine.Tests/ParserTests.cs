@@ -141,7 +141,7 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                 .ValueResults
-                .Select(o => ((OptionResult)o).Option.Name)
+                .Select(o => ((CliValueResult)o).ValueSymbol.Name)
                 .Should()
                 .BeEquivalentTo("-x", "-y", "-z");
         }
@@ -1714,7 +1714,7 @@ namespace System.CommandLine.Tests
             commandResult.ValueResults.Should().HaveCount(2);
             var result1 = commandResult.ValueResults[0];
             result1.GetValue<string>().Should().Be("Kirk");
-            var result2 = commandValueResult.ValueResults[1];
+            var result2 = commandResult.ValueResults[1];
             result2.GetValue<string>().Should().Be("Spock");
         }
 

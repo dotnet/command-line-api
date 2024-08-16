@@ -32,7 +32,7 @@ public class CliCommandResult : CliSymbolResult
     /// <summary>
     /// The ValueResult instances for user entered data. This is a sparse list.
     /// </summary>
-    public IEnumerable<CliValueResult> ValueResults { get; } = [];
+    public IReadOnlyList<CliValueResult> ValueResults { get; internal set; } = [];
 
     /// <summary>
     /// The CliCommand that the result is for. 

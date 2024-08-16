@@ -32,7 +32,7 @@ namespace System.CommandLine
             // TODO: Remove RootCommandResult - it is the root of the CommandValueResult ancestors (fix that)
             CliCommandResultInternal rootCommandResult,
             // TODO: Replace with CommandValueResult and remove CommandResult
-            CliCommandResultInternal commandResult,
+            CliCommandResultInternal commandResultInternal,
             IReadOnlyDictionary<CliSymbol, CliValueResult> valueResultDictionary,
             /*
             List<CliToken> tokens,
@@ -52,8 +52,8 @@ namespace System.CommandLine
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             // TODO: Why do we need this?
-            CommandResultInternal = commandResult;
-            CommandResult = commandResult.CommandValueResult;
+            CommandResultInternal = commandResultInternal;
+            CommandResult = commandResultInternal.CommandResult;
             this.valueResultDictionary = valueResultDictionary;
             // TODO: invocation
             /*
