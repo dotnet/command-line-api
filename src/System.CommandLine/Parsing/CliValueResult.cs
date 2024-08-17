@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing;
 /// </summary>
 public class CliValueResult : CliSymbolResult
 {
-    private CliValueResult(
+    internal CliValueResult(
         CliValueSymbol valueSymbol,
         object? value,
         IEnumerable<Location> locations,
@@ -25,42 +25,6 @@ public class CliValueResult : CliSymbolResult
         // TODO: Probably a collection of errors here
         Error = error;
     }
-
-    /// <summary>
-    /// Creates a new ValueResult instance
-    /// </summary>
-    /// <param name="argument">The CliArgument the value is for.</param>
-    /// <param name="value">The entered value.</param>
-    /// <param name="locations">The locations list.</param>
-    /// <param name="outcome">True if parsing and converting the value was successful.</param>
-    /// <param name="error">The CliError if parsing or converting failed, otherwise null.</param>
-    internal CliValueResult(
-            CliArgument argument,
-            object? value,
-            IEnumerable<Location> locations,
-            ValueResultOutcome outcome,
-            // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
-            string? error = null)
-        : this((CliValueSymbol)argument, value, locations, outcome, error)
-    { }
-
-    /// <summary>
-    /// Creates a new ValueResult instance
-    /// </summary>
-    /// <param name="option">The CliOption the value is for.</param>
-    /// <param name="value">The entered value.</param>
-    /// <param name="locations">The locations list.</param>
-    /// <param name="outcome">True if parsing and converting the value was successful.</param>
-    /// <param name="error">The CliError if parsing or converting failed, otherwise null.</param>
-    internal CliValueResult(
-        CliOption option,
-        object? value,
-        IEnumerable<Location> locations,
-        ValueResultOutcome outcome,
-        // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
-        string? error = null)
-    : this((CliValueSymbol)option, value, locations, outcome, error)
-    { }
 
     /// <summary>
     /// The CliSymbol the value is for. This is always a CliOption or CliArgument.
@@ -88,15 +52,6 @@ public class CliValueResult : CliSymbolResult
         => Value is null
             ? default
             : Value;
-
-
-    /// <summary>
-    /// Gets the locations at which the tokens that made up the value appeared.
-    /// </summary>
-    /// <remarks>
-    /// This needs to be a collection because collection types have multiple tokens and they will not be simple offsets when response files are used.
-    /// </remarks>
-    public IEnumerable<Location> Locations { get; }
 
     /// <summary>
     /// True when parsing and converting the value was successful

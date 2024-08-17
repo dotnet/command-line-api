@@ -52,7 +52,8 @@ namespace System.CommandLine
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             // TODO: Why do we need this?
-            CommandResult = commandResultInternal;
+            CommandResultInternal = commandResultInternal;
+            CommandResult = commandResultInternal.CommandResult;
             this.valueResultDictionary = valueResultDictionary;
             // TODO: invocation
             /*
@@ -101,25 +102,10 @@ namespace System.CommandLine
         /// <summary>
         /// A result indicating the command specified in the command line input.
         /// </summary>
-        internal CliCommandResultInternal CommandResult { get; }
- 
-        private CliCommandResult? commandValueResult = null;
-        public CliCommandResult CommandValueResult
-        {
-            get
-            {
-                if (commandValueResult is null)
-                {
-                    commandValueResult = new CliCommandResult(CommandResult.Command, CommandResult.Tokens.Select(t=>t.Location) );
-                }
-                return commandValueResult;
-            }
-        }
+        // TODO: Update SymbolLookupByName to use CommandValueResult, then remove
+        internal CliCommandResultInternal CommandResultInternal { get; }
 
-        public IEnumerable<CliValueResult> AllValueResults
-            => valueResultDictionary.Values;
-
-
+        public CliCommandResult CommandResult { get; }
 
         /// <summary>
         /// The configuration used to produce the parse result.

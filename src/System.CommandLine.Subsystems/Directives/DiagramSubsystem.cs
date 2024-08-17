@@ -67,17 +67,17 @@ public class DiagramSubsystem(IAnnotationProvider? annotationProvider = null)
         {
             builder.Append('!');
         }
-    */
-    // TODO: Directives
-    /*
+        */
+        // TODO: Directives
+        /*
         switch (symbolResult)
         {
             case DirectiveResult { Directive: not DiagramDirective }:
                 break;
             */
 
-    // TODO: This logic is deeply tied to internal types/properties. These aren't things we probably want to expose like SymbolNode. See #2349 for alternatives
-    /*
+        // TODO: This logic is deeply tied to internal types/properties. These aren't things we probably want to expose like SymbolNode. See #2349 for alternatives
+        /*
         case ArgumentResult argumentResult:
             {
                 var includeArgumentName =
@@ -177,6 +177,5 @@ public class DiagramSubsystem(IAnnotationProvider? annotationProvider = null)
             }
         }
     }
-}
 */
 }

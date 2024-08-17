@@ -56,7 +56,6 @@ public partial class Pipeline
 
     private Pipeline()
     {
-        //Value = new ValueProvider();
         Response = new ResponseSubsystem();
         Invocation = new InvocationSubsystem();
         Validation = new ValidationSubsystem();
@@ -181,11 +180,6 @@ public partial class Pipeline
     /// Gets the invocation subsystem
     /// </summary>
     public InvocationSubsystem? Invocation { get; }
-
-    ///// <summary>
-    ///// Gets the value subsystem which manages entered and default values.
-    ///// </summary>
-    //public ValueProvider Value { get; }
 
     /// <summary>
     /// Gets the response file subsystem

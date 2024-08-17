@@ -10,25 +10,8 @@ namespace System.CommandLine.Subsystems.Tests;
 
 public class ValueSubsystemTests
 {
-    //[Fact]
-    //public void ValueSubsystem_is_activated_by_default()
-    //{
-    //    CliRootCommand rootCommand = [
-    //        new CliCommand("x")
-    //        {
-    //            new CliOption<string>("--opt1")
-    //        }];
-    //    var configuration = new CliConfiguration(rootCommand);
-    //    var subsystem = new ValueProvider();
-    //    var input = "x --opt1 Kirk";
-    //    var args = CliParser.SplitCommandLine(input).ToList();
+    // TODO: Add various default value tests
 
-    //    Subsystem.Initialize(subsystem, configuration, args);
-    //    var parseResult = CliParser.Parse(rootCommand, args[0], configuration);
-    //    var isActive = Subsystem.GetIsActivated(subsystem, parseResult);
-
-    //    isActive.Should().BeTrue();
-    //}
     /* Hold these tests until we determine if ValueSubsystem is replaceable
     [Fact]
     public void ValueSubsystem_returns_values_that_are_entered()
