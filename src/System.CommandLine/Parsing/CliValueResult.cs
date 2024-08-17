@@ -46,7 +46,6 @@ public class CliValueResult : CliSymbolResult
     /// <summary>
     /// Returns the value, or the default for the type.
     /// </summary>
-    /// <typeparam name="T">The type to return</typeparam>
     /// <returns>The value, cast to the requested type.</returns>
     public object? GetValue()
         => Value is null
