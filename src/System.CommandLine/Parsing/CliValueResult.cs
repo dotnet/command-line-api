@@ -41,7 +41,7 @@ public class CliValueResult : CliSymbolResult
             ValueResultOutcome outcome,
             // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
             string? error = null)
-        : this((CliSymbol)argument, value, locations, outcome, error)
+        : this((CliValueSymbol)argument, value, locations, outcome, error)
     { }
 
     /// <summary>
@@ -59,13 +59,13 @@ public class CliValueResult : CliSymbolResult
         ValueResultOutcome outcome,
         // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
         string? error = null)
-    : this((CliSymbol)option, value, locations, outcome, error)
+    : this((CliValueSymbol)option, value, locations, outcome, error)
     { }
 
     /// <summary>
     /// The CliSymbol the value is for. This is always a CliOption or CliArgument.
     /// </summary>
-    public CliDataSymbol ValueSymbol { get; }
+    public CliSymbol ValueSymbol { get; }
 
     internal object? Value { get; }
 

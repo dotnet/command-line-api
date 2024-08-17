@@ -139,7 +139,7 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "the-command -xyz");
 
-            result.CommandResult
+            result.CommandValueResult
                 .ValueResults
                 .Select(o => ((CliValueResult)o).ValueSymbol.Name)
                 .Should()
@@ -188,7 +188,7 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "the-command --xyz");
 
-            result.CommandResultInternal
+            result.CommandResult
                 .Children
                 .Select(o => ((CliOptionResultInternal)o).Option.Name)
                 .Should()
@@ -210,7 +210,7 @@ namespace System.CommandLine.Tests
 
             ParseResult result = CliParser.Parse(outer, "outer inner -abc");
 
-            result.CommandResultInternal
+            result.CommandResult
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -422,7 +422,7 @@ namespace System.CommandLine.Tests
                 .Should()
                 .BeEquivalentTo("carrot");
 
-            result.CommandResultInternal
+            result.CommandResult
                 .Tokens
                 .Select(t => t.Value)
                 .Should()
@@ -440,13 +440,13 @@ namespace System.CommandLine.Tests
 
             var result = CliParser.Parse(command, "outer --inner1 argument1 --inner2 argument2");
 
-            result.CommandResultInternal
+            result.CommandResult
                 .Children
                 .Should()
                 .ContainSingle(o =>
                     ((CliOptionResultInternal)o).Option.Name == "--inner1" &&
                     o.Tokens.Single().Value == "argument1");
-            result.CommandResultInternal
+            result.CommandResult
                 .Children
                 .Should()
                 .ContainSingle(o =>

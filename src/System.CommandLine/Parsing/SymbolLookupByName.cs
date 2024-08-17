@@ -43,7 +43,7 @@ public class SymbolLookupByName
             return cache;
         }
         cache = [];
-        var commandResult = parseResult.CommandResultInternal;
+        var commandResult = parseResult.CommandResult;
         while (commandResult is not null)
         {
             var command = commandResult.Command;

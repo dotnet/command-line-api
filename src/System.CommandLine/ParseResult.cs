@@ -52,8 +52,7 @@ namespace System.CommandLine
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
             // TODO: Why do we need this?
-            CommandResultInternal = commandResultInternal;
-            CommandResult = commandResultInternal.CommandResult;
+            CommandResult = commandResultInternal;
             this.valueResultDictionary = valueResultDictionary;
             // TODO: invocation
             /*
@@ -102,22 +101,22 @@ namespace System.CommandLine
         /// <summary>
         /// A result indicating the command specified in the command line input.
         /// </summary>
-        internal CommandResult CommandResult { get; }
+        internal CliCommandResultInternal CommandResult { get; }
  
-        private CommandValueResult? commandValueResult = null;
-        public CommandValueResult CommandValueResult
+        private CliCommandResult? commandValueResult = null;
+        public CliCommandResult CommandValueResult
         {
             get
             {
                 if (commandValueResult is null)
                 {
-                    commandValueResult = new CommandValueResult(CommandResult);
+                    commandValueResult = new CliCommandResult(CommandResult.Command, CommandResult.Tokens.Select(t=>t.Location) );
                 }
                 return commandValueResult;
             }
         }
 
-        public IEnumerable<ValueResult> AllValueResults
+        public IEnumerable<CliValueResult> AllValueResults
             => valueResultDictionary.Values;
 
 

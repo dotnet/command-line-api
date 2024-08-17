@@ -34,8 +34,8 @@ internal class ValueProvider
         return false;
     }
 
-    public T? GetValue<T>(CliDataSymbol dataSymbol)
-        => GetValueInternal<T>(dataSymbol);
+    public T? GetValue<T>(CliValueSymbol valueSymbol)
+        => GetValueInternal<T>(valueSymbol);
 
     private T? GetValueInternal<T>(CliSymbol? symbol)
     {
@@ -53,9 +53,9 @@ internal class ValueProvider
             // configuration values go here in precedence
             //not null when GetDefaultFromEnvironmentVariable<T>(symbol, out var envName)
             //    => UseValue(symbol, GetEnvByName(envName)),
-            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValueCalculation, out Func<T?>? defaultValueCalculation)
+            not null when symbol.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out Func<T?>? defaultValueCalculation)
                 => UseValue(symbol, CalculatedDefault<T>(symbol, (Func<T?>)defaultValueCalculation)),
-            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out T? explicitValue)
+            not null when symbol.TryGetAnnotation(ValueAnnotations.DefaultValue, out T? explicitValue)
                 => UseValue(symbol, explicitValue),
             null => throw new ArgumentNullException(nameof(symbol)),
             _ => UseValue(symbol, default(T))
