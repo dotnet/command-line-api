@@ -76,78 +76,78 @@ public class DiagramSubsystem(IAnnotationProvider? annotationProvider = null)
                 break;
             */
 
-        // TODO: This logic is deeply tied to internal types/properties. These aren't things we probably want to expose like SymbolNode. See #2349 for alternatives
-        /*
-        case ArgumentResult argumentResult:
-            {
-                var includeArgumentName =
-                    argumentResult.Argument.FirstParent!.Symbol is CliCommand { HasArguments: true, Arguments.Count: > 1 };
-
-                if (includeArgumentName)
+            // TODO: This logic is deeply tied to internal types/properties. These aren't things we probably want to expose like SymbolNode. See #2349 for alternatives
+            /*
+            case ArgumentResult argumentResult:
                 {
-                    builder.Append("[ ");
-                    builder.Append(argumentResult.Argument.Name);
-                    builder.Append(' ');
-                }
+                    var includeArgumentName =
+                        argumentResult.Argument.FirstParent!.Symbol is CliCommand { HasArguments: true, Arguments.Count: > 1 };
 
-                if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
-                {
-                    ArgumentConversionResult conversionResult = argumentResult.GetArgumentConversionResult();
-                    switch (conversionResult.Result)
+                    if (includeArgumentName)
                     {
-                        case ArgumentConversionResultType.NoArgument:
-                            break;
-                        case ArgumentConversionResultType.Successful:
-                            switch (conversionResult.Value)
-                            {
-                                case string s:
-                                    builder.Append($"<{s}>");
-                                    break;
-
-                                case IEnumerable items:
-                                    builder.Append('<');
-                                    builder.Append(
-                                        string.Join("> <",
-                                                    items.Cast<object>().ToArray()));
-                                    builder.Append('>');
-                                    break;
-
-                                default:
-                                    builder.Append('<');
-                                    builder.Append(conversionResult.Value);
-                                    builder.Append('>');
-                                    break;
-                            }
-
-                            break;
-
-                        default: // failures
-                            builder.Append('<');
-                            builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
-                            builder.Append('>');
-
-                            break;
+                        builder.Append("[ ");
+                        builder.Append(argumentResult.Argument.Name);
+                        builder.Append(' ');
                     }
+
+                    if (argumentResult.Argument.Arity.MaximumNumberOfValues > 0)
+                    {
+                        ArgumentConversionResult conversionResult = argumentResult.GetArgumentConversionResult();
+                        switch (conversionResult.Result)
+                        {
+                            case ArgumentConversionResultType.NoArgument:
+                                break;
+                            case ArgumentConversionResultType.Successful:
+                                switch (conversionResult.Value)
+                                {
+                                    case string s:
+                                        builder.Append($"<{s}>");
+                                        break;
+
+                                    case IEnumerable items:
+                                        builder.Append('<');
+                                        builder.Append(
+                                            string.Join("> <",
+                                                        items.Cast<object>().ToArray()));
+                                        builder.Append('>');
+                                        break;
+
+                                    default:
+                                        builder.Append('<');
+                                        builder.Append(conversionResult.Value);
+                                        builder.Append('>');
+                                        break;
+                                }
+
+                                break;
+
+                            default: // failures
+                                builder.Append('<');
+                                builder.Append(string.Join("> <", symbolResult.Tokens.Select(t => t.Value)));
+                                builder.Append('>');
+
+                                break;
+                        }
+                    }
+
+                    if (includeArgumentName)
+                    {
+                        builder.Append(" ]");
+                    }
+
+                    break;
                 }
 
-                if (includeArgumentName)
+            default:
                 {
-                    builder.Append(" ]");
-                }
+                    OptionResult? optionResult = symbolResult as OptionResult;
 
-                break;
-            }
+                    if (optionResult is { Implicit: true })
+                    {
+                        builder.Append('*');
+                    }
 
-        default:
-            {
-                OptionResult? optionResult = symbolResult as OptionResult;
-
-                if (optionResult is { Implicit: true })
-                {
-                    builder.Append('*');
-                }
-
-                builder.Append("[ ");
+                    builder.Append("[ ");
 
                     if (optionResult is not null)
                     {

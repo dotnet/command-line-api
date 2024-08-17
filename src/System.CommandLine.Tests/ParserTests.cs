@@ -854,124 +854,124 @@ namespace System.CommandLine.Tests
         }
 
         /* These tests should be split and those using an explicit default value moved to subsystem, and those using the type default should remain in core (?). This might not be meaningful if the type conversion is correct. What value other than the type default could be used.
-                [Fact]
-                public void Commands_can_have_default_argument_values()
-                {
-                    var argument = new CliArgument<string>("the-arg")
-                    {
-                        DefaultValueFactory = (_) => "default"
-                    };
+        [Fact]
+        public void Commands_can_have_default_argument_values()
+        {
+            var argument = new CliArgument<string>("the-arg")
+            {
+                DefaultValueFactory = (_) => "default"
+            };
 
-                    var command = new CliCommand("command")
-                    {
-                        argument
-                    };
+            var command = new CliCommand("command")
+            {
+                argument
+            };
 
-                    ParseResult result = CliParser.Parse(command, "command");
+            ParseResult result = CliParser.Parse(command, "command");
 
-                    GetValue(result, argument)
-                        .Should()
-                        .Be("default");
-                }
+            GetValue(result, argument)
+                .Should()
+                .Be("default");
+        }
 
-                [Fact]
-                public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
-                {
-                    var command = new CliCommand("command");
-                    var option = new CliOption<string>("-o", "--option")
-                    {
-                        DefaultValueFactory = (_) => "the-default"
-                    };
-                    command.Options.Add(option);
+        [Fact]
+        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_can_still_be_accessed_as_though_it_had_been_applied()
+        {
+            var command = new CliCommand("command");
+            var option = new CliOption<string>("-o", "--option")
+            {
+                DefaultValueFactory = (_) => "the-default"
+            };
+            command.Options.Add(option);
 
-                    ParseResult result = CliParser.Parse(command, "command");
+            ParseResult result = CliParser.Parse(command, "command");
 
-                    result.GetResult(option).Should().NotBeNull();
-                    GetValue(result, option).Should().Be("the-default");
-                }
+            result.GetResult(option).Should().NotBeNull();
+            GetValue(result, option).Should().Be("the-default");
+        }
 
-                [Fact]
-                public void When_an_option_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
-                {
-                    var option = new CliOption<string>("-o", "--option")
-                    {
-                        DefaultValueFactory = (_) => "the-default"
-                    };
+        [Fact]
+        public void When_an_option_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
+        {
+            var option = new CliOption<string>("-o", "--option")
+            {
+                DefaultValueFactory = (_) => "the-default"
+            };
 
-                    var command = new CliCommand("command")
-                    {
-                        option
-                    };
+            var command = new CliCommand("command")
+            {
+                option
+            };
 
-                    var result = CliParser.Parse(command, "command");
+            var result = CliParser.Parse(command, "command");
 
-                    result.GetResult(option)
-                        .Implicit
-                        .Should()
-                        .BeTrue();
-                }
+            result.GetResult(option)
+                .Implicit
+                .Should()
+                .BeTrue();
+        }
 
-                [Fact]
-                public void When_an_option_with_a_default_value_is_not_matched_then_there_are_no_tokens()
-                {
-                    var option = new CliOption<string>("-o")
-                    {
-                        DefaultValueFactory = (_) => "the-default"
-                    };
+        [Fact]
+        public void When_an_option_with_a_default_value_is_not_matched_then_there_are_no_tokens()
+        {
+            var option = new CliOption<string>("-o")
+            {
+                DefaultValueFactory = (_) => "the-default"
+            };
 
-                    var command = new CliCommand("command")
-                    {
-                        option
-                    };
+            var command = new CliCommand("command")
+            {
+                option
+            };
 
-                    var result = CliParser.Parse(command, "command");
+            var result = CliParser.Parse(command, "command");
 
-                    result.GetResult(option)
-                        .IdentifierToken
-                        .Should()
-                        .BeEquivalentTo(default(CliToken));
-                }
+            result.GetResult(option)
+                .IdentifierToken
+                .Should()
+                .BeEquivalentTo(default(CliToken));
+        }
 
-                [Fact]
-                public void When_an_argument_with_a_default_value_is_not_matched_then_there_are_no_tokens()
-                {
-                    var argument = new CliArgument<string>("o")
-                    {
-                        DefaultValueFactory = (_) => "the-default"
-                    };
+        [Fact]
+        public void When_an_argument_with_a_default_value_is_not_matched_then_there_are_no_tokens()
+        {
+            var argument = new CliArgument<string>("o")
+            {
+                DefaultValueFactory = (_) => "the-default"
+            };
 
-                    var command = new CliCommand("command")
-                    {
-                        argument
-                    };
-                    var result = CliParser.Parse(command, "command");
+            var command = new CliCommand("command")
+            {
+                argument
+            };
+            var result = CliParser.Parse(command, "command");
 
-                    result.GetResult(argument)
-                        .Tokens
-                        .Should()
-                        .BeEmpty();
-                }
+            result.GetResult(argument)
+                .Tokens
+                .Should()
+                .BeEmpty();
+        }
 
-                [Fact]
-                public void Command_default_argument_value_does_not_override_parsed_value()
-                {
-                    var argument = new CliArgument<DirectoryInfo>("the-arg")
-                    {
-                        DefaultValueFactory = (_) => new DirectoryInfo(Directory.GetCurrentDirectory())
-                    };
+        [Fact]
+        public void Command_default_argument_value_does_not_override_parsed_value()
+        {
+            var argument = new CliArgument<DirectoryInfo>("the-arg")
+            {
+                DefaultValueFactory = (_) => new DirectoryInfo(Directory.GetCurrentDirectory())
+            };
 
-                    var command = new CliCommand("inner")
-                    {
-                        argument
-                    };
+            var command = new CliCommand("inner")
+            {
+                argument
+            };
 
-                    var result = CliParser.Parse(command, "the-directory");
+            var result = CliParser.Parse(command, "the-directory");
 
-                    GetValue(result, argument)
-                        .Name
-                        .Should()
-                        .Be("the-directory");
-                }
+            GetValue(result, argument)
+                .Name
+                .Should()
+                .Be("the-directory");
+        }
         */
 
         [Fact]
