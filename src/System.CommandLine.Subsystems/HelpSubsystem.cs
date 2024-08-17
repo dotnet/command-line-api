@@ -38,7 +38,7 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
     protected internal override bool GetIsActivated(ParseResult? parseResult)
         => parseResult is not null && parseResult.GetValue(HelpOption);
 
-    protected internal override void Execute(PipelineResult pipelineResult)
+    public override void Execute(PipelineResult pipelineResult)
     {
         // TODO: Match testable output pattern
         pipelineResult.ConsoleHack.WriteLine("Help me!");

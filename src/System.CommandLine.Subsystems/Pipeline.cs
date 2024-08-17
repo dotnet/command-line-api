@@ -58,7 +58,7 @@ public partial class Pipeline
     {
         Response = new ResponseSubsystem();
         Invocation = new InvocationSubsystem();
-        Validation = new ValidationSubsystem();
+        Validation = ValidationSubsystem.Create();
 
         // This order is based on: if the user entered both, which should they get?
         // * It is reasonable to diagram help and completion. More reasonable than getting help on Diagram or Completion

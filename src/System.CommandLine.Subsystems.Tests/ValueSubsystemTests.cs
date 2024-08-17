@@ -18,7 +18,6 @@ public class ValueSubsystemTests
         var rootCommand = new CliRootCommand { option };
         var configuration = new CliConfiguration(rootCommand);
         var pipeline = Pipeline.Create();
-        var consoleHack = new ConsoleHack().RedirectToBuffer(true);
         var input = "--intOpt 42";
 
         var parseResult = CliParser.Parse(rootCommand, input, configuration);

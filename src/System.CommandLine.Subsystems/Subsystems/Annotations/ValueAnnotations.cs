@@ -14,7 +14,7 @@ public static class ValueAnnotations
     /// Default value for an option or argument
     /// </summary>
     /// <remarks>
-    /// Must be actually the same type as the type parameter of
+    /// Should be the same type as the type parameter of
     /// the <see cref="CliArgument{T}"/> or <see cref="CliOption{T}"/>.
     /// </remarks>
     public static AnnotationId DefaultValue { get; } = new(Prefix, nameof(DefaultValue));
@@ -25,7 +25,7 @@ public static class ValueAnnotations
     /// <remarks>
     /// Please use the extension methods and do not call this directly.
     /// <para>
-    /// Must return a <see cref="Func{TValue}"> with the same type parameter as
+    /// Should use a <see cref="Func{TValue}"> with the same type parameter as
     /// the <see cref="CliArgument{T}"/> or <see cref="CliOption{T}"/>.
     /// </para>
     /// </remarks>
