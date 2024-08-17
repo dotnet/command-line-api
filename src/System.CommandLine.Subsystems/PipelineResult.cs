@@ -7,6 +7,7 @@ namespace System.CommandLine;
 
 public class PipelineResult(ParseResult? parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
 {
+    // TODO: Try to build workflow so it is illegal to create this without a ParseResult
     private readonly List<ParseError> errors = [];
     public ParseResult? ParseResult { get; } = parseResult;
     private ValueProvider valueProvider { get; } = new ValueProvider(parseResult);
@@ -18,6 +19,16 @@ public class PipelineResult(ParseResult? parseResult, string rawInput, Pipeline?
 
     public bool AlreadyHandled { get; set; }
     public int ExitCode { get; set; }
+
+    public T? GetValue<T>(CliValueSymbol dataSymbol)
+     => valueProvider.GetValue<T>(dataSymbol);
+
+    public object? GetValue(CliValueSymbol option)
+        => valueProvider.GetValue<object?>(option);
+
+    public CliValueResult GetValueResult(CliValueSymbol dataSymbol)
+     => parseResult.GetValueResult(dataSymbol);
+
 
     public void AddErrors(IEnumerable<ParseError> errors)
     {
