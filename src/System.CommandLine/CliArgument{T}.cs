@@ -13,7 +13,7 @@ namespace System.CommandLine
     {
         // TODO: custom parser
         /*
-                private Func<ArgumentResult, T?>? _customParser;
+        private Func<ArgumentResult, T?>? _customParser;
         */
         /// <summary>
         /// Initializes a new instance of the Argument class.
@@ -38,7 +38,7 @@ namespace System.CommandLine
 
         // TODO: custom parsers
         /*
-            /// <summary>
+        /// <summary>
         /// A custom argument parser.
         /// </summary>
         /// <remarks>
