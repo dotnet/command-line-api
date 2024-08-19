@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis.cs" />
+    <Compile Include="..\Common\Compat\**\*.cs" Link="Compat\%(RecursiveDir)%(Filename).%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

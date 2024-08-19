@@ -11,4 +11,8 @@
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Common\Compat\**\*.cs" Link="Compat\%(RecursiveDir)%(Filename).%(Extension)" />
+  </ItemGroup>
+
 </Project>
