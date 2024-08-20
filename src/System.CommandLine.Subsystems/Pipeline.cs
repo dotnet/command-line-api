@@ -28,7 +28,7 @@ public partial class Pipeline
     /// <param name="errorReporting">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
     /// <returns>A new pipeline.</returns>
     /// <remarks>
-    /// Currently, the standard <see cref="ValueSubsystem"/>, <see cref="ValidationSubsystem"/> , and <see cref="ResponseSubsystem"/> cannot be replaced. <see cref="ResponseSubsystem"/> is disabled by default.
+    /// The <see cref="ValueProvider"/>, <see cref="Directives.ResponseSubystem"/>, <see cref="InvocationSubsystem"/>, and <see cref="ValidationSubsystem"/> cannot be replaced.
     /// </remarks>
     public static Pipeline Create(HelpSubsystem? help = null,
                                   VersionSubsystem? version = null,
@@ -56,7 +56,6 @@ public partial class Pipeline
 
     private Pipeline()
     {
-        Value = new ValueSubsystem();
         Response = new ResponseSubsystem();
         Invocation = new InvocationSubsystem();
         Validation = new ValidationSubsystem();
@@ -172,20 +171,15 @@ public partial class Pipeline
 
     // TODO: Consider whether replacing the validation subsystem is valuable
     /// <summary>
-    /// Sets or gets the validation subsystem
+    /// Gets the validation subsystem
     /// </summary>
     public ValidationSubsystem? Validation { get; }
 
     // TODO: Consider whether replacing the invocation subsystem is valuable
     /// <summary>
-    /// Sets or gets the invocation subsystem
+    /// Gets the invocation subsystem
     /// </summary>
     public InvocationSubsystem? Invocation { get; }
-
-    /// <summary>
-    /// Gets the value subsystem which manages entered and default values.
-    /// </summary>
-    public ValueSubsystem Value { get; }
 
     /// <summary>
     /// Gets the response file subsystem

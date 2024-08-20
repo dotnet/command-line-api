@@ -11,10 +11,10 @@ namespace System.CommandLine
     /// <inheritdoc cref="CliArgument" />
     public class CliArgument<T> : CliArgument
     {
-// TODO: custom parser
-/*
+        // TODO: custom parser
+        /*
         private Func<ArgumentResult, T?>? _customParser;
-*/
+        */
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
@@ -36,8 +36,8 @@ namespace System.CommandLine
         */
         internal Func<CliArgumentResultInternal, T>? DefaultValueFactory { get; set; }
 
-// TODO: custom parsers
-/*
+        // TODO: custom parsers
+        /*
         /// <summary>
         /// A custom argument parser.
         /// </summary>
@@ -74,7 +74,7 @@ namespace System.CommandLine
                 }
             }
         }
-*/
+        */
         /// <inheritdoc />
         public override Type ValueType => typeof(T);
 
@@ -90,8 +90,8 @@ namespace System.CommandLine
 
             return DefaultValueFactory.Invoke(argumentResult);
         }
-// TODO: completion, validators
-/*
+        // TODO: completion, validators
+        /*
         /// <summary>
         /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
@@ -170,7 +170,7 @@ namespace System.CommandLine
                 }
             });
         }
-*/
+        */
 
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2091", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]

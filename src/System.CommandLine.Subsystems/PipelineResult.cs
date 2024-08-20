@@ -5,16 +5,30 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine;
 
-public class PipelineResult(ParseResult? parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
+public class PipelineResult(ParseResult parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
 {
+    // TODO: Try to build workflow so it is illegal to create this without a ParseResult
     private readonly List<ParseError> errors = [];
-    public ParseResult? ParseResult { get; } = parseResult;
+    public ParseResult ParseResult { get; } = parseResult;
+    private ValueProvider valueProvider { get; } = new ValueProvider(parseResult);
     public string RawInput { get; } = rawInput;
+
+    // TODO: Consider behavior when pipeline is null - this is probably a core user accessing some subsystems
     public Pipeline Pipeline { get; } = pipeline ?? Pipeline.CreateEmpty();
     public ConsoleHack ConsoleHack { get; } = consoleHack ?? new ConsoleHack();
 
     public bool AlreadyHandled { get; set; }
     public int ExitCode { get; set; }
+
+    public T? GetValue<T>(CliValueSymbol dataSymbol)
+     => valueProvider.GetValue<T>(dataSymbol);
+
+    public object? GetValue(CliValueSymbol option)
+        => valueProvider.GetValue<object?>(option);
+
+    public CliValueResult? GetValueResult(CliValueSymbol dataSymbol)
+     => ParseResult.GetValueResult(dataSymbol);
+
 
     public void AddErrors(IEnumerable<ParseError> errors)
     {

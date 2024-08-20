@@ -6,36 +6,17 @@ using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine;
 
-public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
-    : CliSubsystem(ValueAnnotations.Prefix, SubsystemKind.Value, annotationProvider)
+internal class ValueProvider
 {
     private Dictionary<CliSymbol, object?> cachedValues = [];
     private ParseResult? parseResult = null;
 
-    // It is possible that another subsystems GetIsActivated method will access a value. 
-    // If this is called from a GetIsActivated method of a subsystem in the early termination group, 
-    // it will fail. That is not an expected scenario.
-    /// <inheritdoc cref="CliSubsystem.GetIsActivated"/>
-    /// <remarks>
-    /// Note to inheritors: Call base for all ValueSubsystem methods that you override to ensure correct behavior
-    /// </remarks>
-    protected internal override bool GetIsActivated(ParseResult? parseResult)
+    public ValueProvider(ParseResult parseResult)
     {
         this.parseResult = parseResult;
-        return true;
     }
 
-    /// <inheritdoc cref="CliSubsystem.Execute"/>
-    /// <remarks>
-    /// Note to inheritors: Call base for all ValueSubsystem methods that you override to ensure correct behavior
-    /// </remarks>
-    protected internal override void Execute(PipelineResult pipelineResult)
-    {
-        parseResult ??= pipelineResult.ParseResult;
-        base.Execute(pipelineResult);
-    }
-
-    private void SetValue<T>(CliSymbol symbol, object? value)
+    private void SetValue(CliSymbol symbol, object? value)
     {
         cachedValues[symbol] = value;
     }
@@ -53,10 +34,8 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
         return false;
     }
 
-    public T? GetValue<T>(CliOption option)
-        => GetValueInternal<T>(option);
-    public T? GetValue<T>(CliArgument argument)
-        => GetValueInternal<T>(argument);
+    public T? GetValue<T>(CliValueSymbol valueSymbol)
+        => GetValueInternal<T>(valueSymbol);
 
     private T? GetValueInternal<T>(CliSymbol? symbol)
     {
@@ -74,9 +53,9 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
             // configuration values go here in precedence
             //not null when GetDefaultFromEnvironmentVariable<T>(symbol, out var envName)
             //    => UseValue(symbol, GetEnvByName(envName)),
-            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValueCalculation, out Func<T?>? defaultValueCalculation)
+            not null when symbol.TryGetAnnotation(ValueAnnotations.DefaultValueCalculation, out Func<T?>? defaultValueCalculation)
                 => UseValue(symbol, CalculatedDefault<T>(symbol, (Func<T?>)defaultValueCalculation)),
-            not null when TryGetAnnotation(symbol, ValueAnnotations.DefaultValue, out T? explicitValue)
+            not null when symbol.TryGetAnnotation(ValueAnnotations.DefaultValue, out T? explicitValue)
                 => UseValue(symbol, explicitValue),
             null => throw new ArgumentNullException(nameof(symbol)),
             _ => UseValue(symbol, default(T))
@@ -84,7 +63,7 @@ public class ValueSubsystem(IAnnotationProvider? annotationProvider = null)
 
         TValue? UseValue<TValue>(CliSymbol symbol, TValue? value)
         {
-            SetValue<TValue>(symbol, value);
+            SetValue(symbol, value);
             return value;
         }
     }

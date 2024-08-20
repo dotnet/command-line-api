@@ -10,8 +10,8 @@ namespace System.CommandLine.Parsing;
 /// </summary>
 public class CliValueResult : CliSymbolResult
 {
-    private CliValueResult(
-        CliSymbol valueSymbol,
+    internal CliValueResult(
+        CliValueSymbol valueSymbol,
         object? value,
         IEnumerable<Location> locations,
         ValueResultOutcome outcome,
@@ -25,42 +25,6 @@ public class CliValueResult : CliSymbolResult
         // TODO: Probably a collection of errors here
         Error = error;
     }
-
-    /// <summary>
-    /// Creates a new ValueResult instance
-    /// </summary>
-    /// <param name="argument">The CliArgument the value is for.</param>
-    /// <param name="value">The entered value.</param>
-    /// <param name="locations">The locations list.</param>
-    /// <param name="outcome">True if parsing and converting the value was successful.</param>
-    /// <param name="error">The CliError if parsing or converting failed, otherwise null.</param>
-    internal CliValueResult(
-            CliArgument argument,
-            object? value,
-            IEnumerable<Location> locations,
-            ValueResultOutcome outcome,
-            // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
-            string? error = null)
-        : this((CliSymbol)argument, value, locations, outcome, error)
-    { }
-
-    /// <summary>
-    /// Creates a new ValueResult instance
-    /// </summary>
-    /// <param name="option">The CliOption the value is for.</param>
-    /// <param name="value">The entered value.</param>
-    /// <param name="locations">The locations list.</param>
-    /// <param name="outcome">True if parsing and converting the value was successful.</param>
-    /// <param name="error">The CliError if parsing or converting failed, otherwise null.</param>
-    internal CliValueResult(
-        CliOption option,
-        object? value,
-        IEnumerable<Location> locations,
-        ValueResultOutcome outcome,
-        // TODO: Error should be an Enumerable<Error> and perhaps should not be here at all, only on ParseResult
-        string? error = null)
-    : this((CliSymbol)option, value, locations, outcome, error)
-    { }
 
     /// <summary>
     /// The CliSymbol the value is for. This is always a CliOption or CliArgument.
@@ -78,6 +42,15 @@ public class CliValueResult : CliSymbolResult
         => Value is null
             ? default
             : (T?)Value;
+
+    /// <summary>
+    /// Returns the value, or the default for the type.
+    /// </summary>
+    /// <returns>The value, cast to the requested type.</returns>
+    public object? GetValue()
+        => Value is null
+            ? default
+            : Value;
 
     /// <summary>
     /// True when parsing and converting the value was successful

@@ -41,7 +41,7 @@ internal class PipelinePhase(SubsystemKind kind)
         return after;
     }
 
-    public IEnumerable<CliSubsystem> GetSubsystems() 
+    public IEnumerable<CliSubsystem> GetSubsystems()
         => [
             .. (before is null ? [] : before),
             .. (CliSubsystem is null ? new List<CliSubsystem> { } : [CliSubsystem]),
