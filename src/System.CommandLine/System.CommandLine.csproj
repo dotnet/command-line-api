@@ -23,7 +23,6 @@
   </PropertyGroup>
    
   <ItemGroup>
-    <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
     <Compile Include="AliasSet.cs" />
     <Compile Include="ArgumentArity.cs" />
     <Compile Include="Binding\ArgumentConversionResult.cs" />
@@ -66,7 +65,7 @@
     <Compile Include="Parsing\CliValueResult.cs" />
     <Compile Include="Properties\Resources.Designer.cs" />
     <Compile Include="SymbolNode.cs" />
-    <Compile Include="System.Diagnostics.CodeAnalysis\**\*.cs" />
+    <Compile Include="..\Common\Compat\**\*.cs" Link="Compat\%(RecursiveDir)%(Filename).%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
