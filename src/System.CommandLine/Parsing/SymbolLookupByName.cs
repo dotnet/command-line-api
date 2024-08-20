@@ -109,7 +109,7 @@ public class SymbolLookupByName
         {
             if (commandCache.SymbolsByName.TryGetValue(name, out symbol))
             {
-                if (symbol is not null && (!valuesOnly || (symbol is CliArgument or CliOption)))
+                if (symbol is not null && (!valuesOnly || (symbol is CliValueSymbol)))
                 {
                     parent = commandCache.Command;
                     errorMessage = null;

@@ -172,8 +172,8 @@ namespace System.CommandLine
         public T? GetValue<T>(CliOption<T> option)
             => GetValueInternal<T>(option);
 
-        private T? GetValueInternal<T>(CliSymbol symbol)
-            => valueResultDictionary.TryGetValue(symbol, out var result)
+        private T? GetValueInternal<T>(CliValueSymbol valueSymbol)
+            => valueResultDictionary.TryGetValue(valueSymbol, out var result)
                 ? (T?)result.Value
                 : default;
 
@@ -203,15 +203,15 @@ namespace System.CommandLine
         */
 
         /// <summary>
-        /// Gets the ValueResult, if any, for the specified option or argument
+        /// Gets the <see cref="CliValueResult"/> if any, for the specified option or argument
         /// </summary>
         /// <param name="valueSymbol">The option or argument for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not entered by the user.</returns>
         public CliValueResult? GetValueResult(CliValueSymbol valueSymbol)
             => GetValueResultInternal(valueSymbol);
 
-        private CliValueResult? GetValueResultInternal(CliSymbol symbol)
-            => valueResultDictionary.TryGetValue(symbol, out var result)
+        private CliValueResult? GetValueResultInternal(CliValueSymbol valueSymbol)
+            => valueResultDictionary.TryGetValue(valueSymbol, out var result)
                 ? result
                 : null;
 
