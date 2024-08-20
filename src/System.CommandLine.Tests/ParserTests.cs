@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -1624,6 +1624,21 @@ namespace System.CommandLine.Tests
                 .Select(e => e.Message)
                 .Should()
                 .Contain(LocalizationResources.UnrecognizedCommandOrArgument("4"));
+        }
+
+        [Fact]
+        public void When_the_number_of_option_arguments_are_greater_than_maximum_arity_then_an_error_is_returned()
+        {
+            var command = new CliCommand("the-command")
+            {
+                new CliOption<int[]>("-x") { Arity = new ArgumentArity(2, 3)}
+            };
+
+            CliParser.Parse(command, "-x 1 -x 2 -x 3 -x 4")
+                   .Errors
+                   .Select(e => e.Message)
+                   .Should()
+                   .Contain(LocalizationResources.OptionArgumentsMaximumExceeded("-x", 3, 4));
         }
 
         // TODO: Tests tokens which is no longer exposed, and should be replaced with equivalent test using ParseResult

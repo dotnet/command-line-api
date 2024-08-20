@@ -99,11 +99,20 @@ namespace System.CommandLine
                 {
                     if (!optionResult.Option.AllowMultipleArgumentsPerToken)
                     {
-                        error = ArgumentConversionResult.Failure(
-                            argumentResult,
-                            LocalizationResources.ExpectsOneArgument(optionResult),
-                            ArgumentConversionResultType.FailedTooManyArguments);
-
+                        if (argumentResult.Argument.Arity.MaximumNumberOfValues > 1)
+                        {
+                            error = ArgumentConversionResult.Failure(
+                                 argumentResult,
+                                 LocalizationResources.OptionArgumentsMaximumExceeded(optionResult, argumentResult.Argument.Arity.MaximumNumberOfValues),
+                                 ArgumentConversionResultType.FailedTooManyArguments);
+                        }
+                        else
+                        {
+                            error = ArgumentConversionResult.Failure(
+                                argumentResult,
+                                LocalizationResources.ExpectsOneArgument(optionResult),
+                                ArgumentConversionResultType.FailedTooManyArguments);
+                        }
                         return false;
                     }
                 }
