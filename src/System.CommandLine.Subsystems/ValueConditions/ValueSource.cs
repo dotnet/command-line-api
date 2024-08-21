@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace System.CommandLine.ValueConditions;
 
 public abstract class ValueSource
@@ -19,9 +21,13 @@ public abstract class ValueSource<T> : ValueSource
     {
         return GetTypedValue(pipelineResult);
     }
+
+    public static implicit operator ValueSource<T>(T value) => new SimpleValueSource<T>(value);
+    public static implicit operator ValueSource<T>(Func<T> calculated) => new CalculatedValueSource<T>(calculated);
+
 }
 
-public class SimpleValueSource<T>(T value, string description)
+public class SimpleValueSource<T>(T value, string? description = null)
     : ValueSource<T>
 {
     public override string Description { get; } = description;
@@ -31,7 +37,7 @@ public class SimpleValueSource<T>(T value, string description)
 }
 
 // Find an example of when this is useful beyond Random and Guid. Is a time lag between building the CLI and validating important (DateTime.Now())
-public class CalculatedValueSource<T>(Func<T> calculation, string description)
+public class CalculatedValueSource<T>(Func<T> calculation, string? description = null)
     : ValueSource<T>
 {
     public override string Description { get; } = description;
@@ -40,7 +46,7 @@ public class CalculatedValueSource<T>(Func<T> calculation, string description)
         => calculation();
 }
 
-public class RelativeToSymbolValueSource<T>(CliValueSymbol otherSymbol, Func<object?, T> calculation, string description)
+public class RelativeToSymbolValueSource<T>(CliValueSymbol otherSymbol, Func<object, T> calculation, string? description)
     : ValueSource<T>
 {
     public override string Description { get; } = description;
@@ -49,7 +55,7 @@ public class RelativeToSymbolValueSource<T>(CliValueSymbol otherSymbol, Func<obj
         => calculation(pipelineResult.GetValue(otherSymbol));
 }
 
-public class RelativeToEnvironmentVariableValueSource<T>(string environmentVariableName, Func<object?, T> calculation, string description)
+public class RelativeToEnvironmentVariableValueSource<T>(string environmentVariableName, Func<string, T> calculation, string? description)
     : ValueSource<T>
 {
     public override string Description { get; } = description;

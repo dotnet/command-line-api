@@ -14,6 +14,30 @@ public static class ValueConditionAnnotationExtensions
         symbol.SetValueCondition(range);
     }
 
+    public static void SetRange<T>(this CliValueSymbol symbol, RangeBound<T> lowerBound, T upperBound)
+    where T : IComparable<T>
+    {
+        var range = new Range<T>(lowerBound, upperBound);
+
+        symbol.SetValueCondition(range);
+    }
+
+    public static void SetRange<T>(this CliValueSymbol symbol, T lowerBound, RangeBound<T> upperBound)
+    where T : IComparable<T>
+    {
+        var range = new Range<T>(lowerBound, upperBound);
+
+        symbol.SetValueCondition(range);
+    }
+
+    public static void SetRange<T>(this CliValueSymbol symbol, RangeBound<T> lowerBound, RangeBound<T> upperBound)
+    where T : IComparable<T>
+    {
+        var range = new Range<T>(lowerBound, upperBound);
+
+        symbol.SetValueCondition(range);
+    }
+
     public static void SetInclusiveGroup(this CliCommand symbol, IEnumerable<CliValueSymbol> group)
         => symbol.SetValueCondition(new InclusiveGroup(group));
 
@@ -51,7 +75,7 @@ public static class ValueConditionAnnotationExtensions
             : null;
 
     public static TCondition? GetValueCondition<TCondition>(this CliValueSymbol symbol)
-        where TCondition : ValueCondition 
+        where TCondition : ValueCondition
         => !symbol.TryGetAnnotation(ValueConditionAnnotations.ValueConditions, out List<ValueCondition>? valueConditions)
             ? null
             : valueConditions.OfType<TCondition>().LastOrDefault();

@@ -16,7 +16,7 @@ public abstract class Range : ValueCondition
     public Type ValueType { get; }
 }
 
-public class Range<T>(T? lowerBound, T? upperBound)
+public class Range<T>(RangeBound<T>? lowerBound, RangeBound<T>? upperBound)
     : Range(typeof(T)), IValueValidator
     where T : IComparable<T>
 {
@@ -34,7 +34,8 @@ public class Range<T>(T? lowerBound, T? upperBound)
         // TODO: Replace the strings we are comparing with a diagnostic ID when we update ParseError
         if (LowerBound is not null)
         {
-            if (comparableValue.CompareTo(LowerBound) < 0)
+            var lowerValue = LowerBound.ValueSource.GetTypedValue(validationContext.PipelineResult);
+            if (comparableValue.CompareTo(lowerValue) < 0)
             {
                 validationContext.PipelineResult.AddError(new ParseError($"The value for '{valueSymbol.Name}' is below the lower bound of {LowerBound}"));
             }
@@ -42,13 +43,14 @@ public class Range<T>(T? lowerBound, T? upperBound)
 
         if (UpperBound is not null)
         {
-            if (comparableValue.CompareTo(UpperBound) > 0)
+            var upperValue = UpperBound.ValueSource.GetTypedValue(validationContext.PipelineResult);
+            if (comparableValue.CompareTo(upperValue) > 0)
             {
                 validationContext.PipelineResult.AddError(new ParseError($"The value for '{valueSymbol.Name}' is above the upper bound of {UpperBound}"));
             }
         }
     }
 
-    public T? LowerBound { get; init; } = lowerBound;
-    public T? UpperBound { get; init; } = upperBound;
+    public RangeBound<T>? LowerBound { get; init; } = lowerBound;
+    public RangeBound<T>? UpperBound { get; init; } = upperBound;
 }
