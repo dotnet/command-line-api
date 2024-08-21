@@ -11,12 +11,5 @@ public abstract class CommandValidator : Validator
         : base(name, valueConditionType, moreValueConditionTypes)
     {  }
 
-    // These methods provide consistent messages
-    protected TValueCondition GetTypedValueConditionOrThrow<TValueCondition>(ValueCondition valueCondition)
-        where TValueCondition : ValueCondition
-        => valueCondition is TValueCondition typedValueCondition
-            ? typedValueCondition
-            : throw new ArgumentException($"{Name} validation failed to find bounds");
-
-    public abstract void Validate(CliCommandResult commandResult, ValueCondition valueCondition, ValidationContext validationContext);
+    public abstract void Validate(CliCommandResult commandResult, CommandCondition commandCondition, ValidationContext validationContext);
 }

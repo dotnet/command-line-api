@@ -34,5 +34,19 @@ public abstract class Validator
         return parseErrors;
     }
 
+    // These methods provide consistent messages
+    protected TCommandCondition GetTypedValueConditionOrThrow<TCommandCondition>(CommandCondition commandCondition)
+        where TCommandCondition : CommandCondition
+        => commandCondition is TCommandCondition typedValueCondition
+            ? typedValueCondition
+            : throw new ArgumentException($"{Name} validation failed to validator");
+
+    // These methods provide consistent messages
+    protected TDataValueCondition GetTypedValueConditionOrThrow<TDataValueCondition>(ValueCondition valueCondition)
+        where TDataValueCondition : ValueCondition
+        => valueCondition is TDataValueCondition typedValueCondition
+            ? typedValueCondition
+            : throw new ArgumentException($"{Name} validation failed to find bounds");
+
 
 }

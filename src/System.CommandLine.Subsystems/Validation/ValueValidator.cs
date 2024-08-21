@@ -11,13 +11,6 @@ public abstract class ValueValidator : Validator
         : base(name, valueConditionType, moreValueConditionTypes)
     { }
 
-    // These methods provide consistent messages
-    protected TDataValueCondition GetTypedValueConditionOrThrow<TDataValueCondition>(ValueCondition valueCondition)
-        where TDataValueCondition : ValueCondition
-        => valueCondition is TDataValueCondition typedValueCondition
-            ? typedValueCondition
-            : throw new ArgumentException($"{Name} validation failed to find bounds");
-
     protected TValue GetValueAsTypeOrThrow<TValue>(object? value)
         => value is TValue typedValue
             ? typedValue

@@ -3,7 +3,7 @@
 
 namespace System.CommandLine;
 
-public abstract class ValueCondition(string name)
+public abstract class CommandCondition(string name)
 {
     public virtual bool MustHaveValidator { get; } = true;
     public string Name { get; } = name;

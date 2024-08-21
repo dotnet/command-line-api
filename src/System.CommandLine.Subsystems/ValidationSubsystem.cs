@@ -12,7 +12,8 @@ namespace System.CommandLine;
 public sealed class ValidationSubsystem : CliSubsystem
 {
     // The type here is the ValueCondition type
-    private Dictionary<Type, Validator> validators = [];
+    private Dictionary<Type, ValueValidator> valueValidators = [];
+    private Dictionary<Type, CommandValidator> commandValidators = [];
 
     private ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
         : base("", SubsystemKind.Validation, annotationProvider)
@@ -29,16 +30,19 @@ public sealed class ValidationSubsystem : CliSubsystem
     public static ValidationSubsystem CreateEmpty()
         => new ValidationSubsystem();
 
-    public Validator this[Type type]
-    {
-        get { return validators[type]; }
-    }
-
-    public void AddValidator(Validator validator)
+    public void AddValidator(ValueValidator validator)
     {
         foreach (var type in validator.ValueConditionTypes)
         {
-            validators[type] = validator;
+            valueValidators[type] = validator;
+        }
+    }
+
+    public void AddValidator(CommandValidator validator)
+    {
+        foreach (var type in validator.ValueConditionTypes)
+        {
+            commandValidators[type] = validator;
         }
     }
 
@@ -81,7 +85,7 @@ public sealed class ValidationSubsystem : CliSubsystem
 
     private void ValidateCommand(CliCommandResult commandResult, ValidationContext validationContext)
     {
-        var valueConditions = commandResult.Command.GetValueConditions();
+        var valueConditions = commandResult.Command.GetCommandConditions();
         if (valueConditions is null)
         {
             return; // nothing to do
@@ -102,27 +106,32 @@ public sealed class ValidationSubsystem : CliSubsystem
     // Consider moving to CliCommandResult
     private static IEnumerable<CliCommandResult> CommandAndAncestors(CliCommandResult commandResult)
         => commandResult.Parent is not null
-            ? [commandResult, .. global::System.CommandLine.ValidationSubsystem.CommandAndAncestors(commandResult.Parent)]
+            ? [commandResult, .. CommandAndAncestors(commandResult.Parent)]
             : [commandResult];
 
     private void ValidateValueCondition(object? value, CliValueSymbol valueSymbol, CliValueResult? valueResult, ValueCondition condition, ValidationContext validationContext)
     {
-        Validator? validator = GetValidator(condition);
-        switch (validator)
+        if (condition is IValueValidator conditionValidator)
         {
-            case null:
-                break; 
-            case ValueValidator valueValidator:
-                valueValidator.Validate(value, valueSymbol, valueResult, condition, validationContext); 
-                break;
-            default:
-                throw new InvalidOperationException("Validator must be derive from ValueValidator");
+            conditionValidator.Validate(value, valueSymbol, valueResult, condition, validationContext);
+            return;
         }
+        ValueValidator? validator = GetValidator(condition);
+        if (validator == null)
+        {
+            if (condition.MustHaveValidator)
+            {
+                validationContext.PipelineResult.AddError(new ParseError($"{valueSymbol.Name} must have {condition.Name} validator."));
+            }
+            return; 
+        }
+        validator.Validate(value, valueSymbol, valueResult, condition, validationContext);
+
     }
 
-    private Validator? GetValidator(ValueCondition condition)
+    private ValueValidator? GetValidator(ValueCondition condition)
     {
-        if (!validators.TryGetValue(condition.GetType(), out var validator) || validator is null)
+        if (!valueValidators.TryGetValue(condition.GetType(), out var validator) || validator is null)
         {
             if (condition.MustHaveValidator)
             {
@@ -133,128 +142,35 @@ public sealed class ValidationSubsystem : CliSubsystem
         return validator;
     }
 
-    private void ValidateCommandCondition(CliCommandResult commandResult, ValueCondition condition, ValidationContext validationContext)
+    private CommandValidator? GetValidator(CommandCondition condition)
     {
-        Validator? validator = GetValidator(condition);
-        switch (validator)
+        if (!commandValidators.TryGetValue(condition.GetType(), out var validator) || validator is null)
         {
-            case null:
-                break;
-            case CommandValidator commandValidator:
-                commandValidator.Validate(commandResult, condition, validationContext);
-                break;
-            default:
-                throw new InvalidOperationException("Validator must be derive from CommandValidator");
+            if (condition.MustHaveValidator)
+            {
+                // Output missing validator error
+            }
         }
+
+        return validator;
     }
 
-
-
-    /*   if (pipelineResult.ParseResult is null)
+    private void ValidateCommandCondition(CliCommandResult commandResult, CommandCondition condition, ValidationContext validationContext)
+    {
+        if (condition is ICommandValidator conditionValidator)
         {
-            // Nothing to do, validation is called prior to parsing. Is this an exception or error?
+            conditionValidator.Validate(commandResult, condition, validationContext);
             return;
         }
-        var validationContext = new ValidationContext(pipelineResult, this);
-        var errors = new List<ParseError>();
-        if (pipelineResult.ParseResult is null)
+        CommandValidator? validator = GetValidator(condition);
+        if (validator == null)
         {
-            return; // nothing to do
+            if (condition.MustHaveValidator)
+            {
+                validationContext.PipelineResult.AddError(new ParseError($"{commandResult.Command.Name} must have {condition.Name} validator."));
+            }
+            return;
         }
-        CliCommandResult commandResult = pipelineResult.ParseResult.CommandResult;
-        var commandResults = GetResultAndParents(commandResult);
-        // Not sure whether to do commands or values first
-        ValidateCommands(commandResults, errors, commandValidators, validationContext);
-        ValidateValues(commandResults, errors, dataValidators, validationContext);
-        pipelineResult.AddErrors(errors);
-
-        // TODO: Consider which of these local methods to make protected and possibly overridable
-        static void ValidateValues(IEnumerable<CliCommandResult> commandResults, List<ParseError> errors,
-            Dictionary<Type, DataValidator> validators, ValidationContext validationContext)
-        {
-            var dataSymbols = GetDataSymbols(commandResults);
-            foreach (var dataSymbol in dataSymbols)
-            {
-                ValidateValue(dataSymbol, errors, validators, validationContext);
-            }
-        }
-
-        static void ValidateValue(CliValueSymbol dataSymbol, List<ParseError> errors, Dictionary<Type, DataValidator> validators, ValidationContext validationContext)
-        {
-            // TODO: If this remains local, this test may not be needed
-            if (validationContext.ParseResult is null)
-            {
-                // Nothing to do, validation is called prior to parsing. Any error should be reported elsewhere
-                return;
-            }
-            var valueConditions = dataSymbol.GetValueConditions();
-            if (valueConditions is null)
-            {
-                return; // This is a common case, and nothing to do
-            }
-            var value = validationContext.PipelineResult.GetValue(dataSymbol);
-            var valueResult = validationContext.ParseResult.GetValueResult(dataSymbol);
-            foreach (var valueCondition in valueConditions)
-            {
-                if (!validators.TryGetValue(valueCondition.GetType(), out var validator))
-                {
-                    // TODO: This seems an issue - an exception or an error that a validator is missing
-                    continue;
-                }
-                var newErrors = validator.Validate(value, valueResult, valueCondition, validationContext);
-                if (newErrors is not null)
-                {
-                    errors.AddRange(newErrors);
-                }
-            }
-        }
-
-        static IEnumerable<CliValueSymbol> GetDataSymbols(IEnumerable<CliCommandResult> commandResults)
-            => commandResults
-                .SelectMany(cr => cr.ValueResults
-                .Select(c => c.ValueSymbol))
-                .Distinct()
-                .ToList();
-
-        static IEnumerable<CliCommandResult> GetResultAndParents(CliCommandResult commandResult)
-        {
-            var list = new List<CliCommandResult>();
-            var current = commandResult;
-            while (current is not null)
-            {
-                list.Add(current);
-                current = current.Parent;
-            }
-            return list;
-        }
-
-        static void ValidateCommands(IEnumerable<CliCommandResult> commandValueResults, List<ParseError> errors,
-        Dictionary<Type, CommandValidator> validators, ValidationContext validationContext)
-        {
-            // Walk up the results tree. Not needed for ValueResults because they are collapsed
-            foreach (var commandValueResult in commandValueResults)
-            {
-                var symbol = commandValueResult.Command;
-                var valueConditions = symbol.GetCommandValueConditions();
-                if (valueConditions is null)
-                {
-                    return;
-                }
-                foreach (var valueCondition in valueConditions)
-                {
-                    if (!validators.TryGetValue(valueCondition.GetType(), out var validator))
-                    {
-                        // TODO: This seems an issue - an exception or an error that a validator is missing
-                        continue;
-                    }
-                    var newErrors = validator.Validate(commandValueResult, valueCondition, validationContext);
-                    if (newErrors is not null)
-                    {
-                        errors.AddRange(newErrors);
-                    }
-                }
-            }
-        }
+        validator.Validate(commandResult, condition, validationContext);
     }
-    */
 }

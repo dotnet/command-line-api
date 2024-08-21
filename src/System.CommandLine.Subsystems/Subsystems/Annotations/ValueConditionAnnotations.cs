@@ -8,8 +8,7 @@ namespace System.CommandLine.Subsystems.Annotations;
 /// </summary>
 public static class ValueConditionAnnotations
 {
-    // TODO: @mhutch What do you want the prefix to be for AnnotationIds that are not bound to a subsystem?
-    internal static string Prefix { get; } = "";
+    internal static string Prefix { get; } = "General";
 
     /// <summary>
     /// Value conditions for a symbol

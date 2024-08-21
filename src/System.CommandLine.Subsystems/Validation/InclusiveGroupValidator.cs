@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
-using System.Text;
+using System.CommandLine.ValueConditions;
 
 namespace System.CommandLine.Validation;
 
@@ -12,7 +12,7 @@ public class InclusiveGroupValidator : CommandValidator
     { }
 
     public override void Validate(CliCommandResult commandResult,
-        ValueCondition valueCondition, ValidationContext validationContext)
+        CommandCondition valueCondition, ValidationContext validationContext)
     {
         var commandSymbol = commandResult.Command;
         // TODO: Write the SymbolsInUse method. I think this should allow for default values, so it requires some thought. Hopefully ValueResult already returns only those vaues that the user entered. 
