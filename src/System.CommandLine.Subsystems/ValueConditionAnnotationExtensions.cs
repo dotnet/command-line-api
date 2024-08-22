@@ -14,7 +14,7 @@ public static class ValueConditionAnnotationExtensions
         symbol.SetValueCondition(range);
     }
 
-    public static void SetRange<T>(this CliValueSymbol symbol, RangeBound<T> lowerBound, T upperBound)
+    public static void SetRange<T>(this CliValueSymbol symbol, ValueSource<T> lowerBound, T upperBound)
     where T : IComparable<T>
     {
         var range = new Range<T>(lowerBound, upperBound);
@@ -22,7 +22,7 @@ public static class ValueConditionAnnotationExtensions
         symbol.SetValueCondition(range);
     }
 
-    public static void SetRange<T>(this CliValueSymbol symbol, T lowerBound, RangeBound<T> upperBound)
+    public static void SetRange<T>(this CliValueSymbol symbol, T lowerBound, ValueSource<T> upperBound)
     where T : IComparable<T>
     {
         var range = new Range<T>(lowerBound, upperBound);
@@ -30,7 +30,7 @@ public static class ValueConditionAnnotationExtensions
         symbol.SetValueCondition(range);
     }
 
-    public static void SetRange<T>(this CliValueSymbol symbol, RangeBound<T> lowerBound, RangeBound<T> upperBound)
+    public static void SetRange<T>(this CliValueSymbol symbol, ValueSource<T> lowerBound, ValueSource<T> upperBound)
     where T : IComparable<T>
     {
         var range = new Range<T>(lowerBound, upperBound);

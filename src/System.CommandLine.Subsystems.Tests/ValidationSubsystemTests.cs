@@ -22,7 +22,7 @@ public class ValidationSubsystemTests
         return option;
     }
 
-    private CliOption GetOptionWithRangeBounds<T>(RangeBound<T> lowerBound, RangeBound<T> upperBound)
+    private CliOption GetOptionWithRangeBounds<T>(ValueSource<T> lowerBound, ValueSource<T> upperBound)
         where T : IComparable<T>
     {
         var option = new CliOption<int>("--intOpt");
@@ -107,7 +107,7 @@ public class ValidationSubsystemTests
     [Fact]
     public void Values_below_calculated_lower_bound_report_error()
     {
-        var option = GetOptionWithRangeBounds(RangeBound<int>.Create(() => 1), 50);
+        var option = GetOptionWithRangeBounds(ValueSource<int>.Create(() => 1), 50);
 
         var pipelineResult = ExecutedPipelineResultForRangeOption(option, "--intOpt 0");
 
@@ -121,7 +121,7 @@ public class ValidationSubsystemTests
     [Fact]
     public void Values_within_calculated_range_do_not_report_error()
     {
-        var option = GetOptionWithRangeBounds(RangeBound<int>.Create(() => 1), RangeBound<int>.Create(() => 50));
+        var option = GetOptionWithRangeBounds(ValueSource<int>.Create(() => 1), ValueSource<int>.Create(() => 50));
 
         var pipelineResult = ExecutedPipelineResultForRangeOption(option, "--intOpt 42");
 
@@ -132,7 +132,7 @@ public class ValidationSubsystemTests
     [Fact]
     public void Values_above_calculated_upper_bound_report_error()
     {
-        var option = GetOptionWithRangeBounds(0,RangeBound<int>.Create(() => 40));
+        var option = GetOptionWithRangeBounds(0, ValueSource<int>.Create(() => 40));
 
         var pipelineResult = ExecutedPipelineResultForRangeOption(option, "--intOpt 42");
 
@@ -146,7 +146,7 @@ public class ValidationSubsystemTests
     public void Values_below_relative_lower_bound_report_error()
     {
         var otherOption = new CliOption<int>("-a");
-        var option = GetOptionWithRangeBounds(RangeBound<int>.Create(otherOption, o => (int)o + 1), 50);
+        var option = GetOptionWithRangeBounds(ValueSource<int>.Create(otherOption, o => (int)o + 1), 50);
         var command = new CliCommand("cmd") { option, otherOption };
 
         var pipelineResult = ExecutedPipelineResultForCommand(command, "--intOpt 0 -a 0");
@@ -162,7 +162,7 @@ public class ValidationSubsystemTests
     public void Values_within_relative_range_do_not_report_error()
     {
         var otherOption = new CliOption<int>("-a");
-        var option = GetOptionWithRangeBounds(RangeBound<int>.Create(otherOption, o => (int)o + 1), RangeBound<int>.Create(otherOption, o => (int)o + 10));
+        var option = GetOptionWithRangeBounds(ValueSource<int>.Create(otherOption, o => (int)o + 1), ValueSource<int>.Create(otherOption, o => (int)o + 10));
         var command = new CliCommand("cmd") { option, otherOption };
 
         var pipelineResult = ExecutedPipelineResultForCommand(command, "--intOpt 11 -a 3");
@@ -175,7 +175,7 @@ public class ValidationSubsystemTests
     public void Values_above_relative_upper_bound_report_error()
     {
         var otherOption = new CliOption<int>("-a");
-        var option = GetOptionWithRangeBounds(0, RangeBound<int>.Create(otherOption, o => (int)o + 10));
+        var option = GetOptionWithRangeBounds(0, ValueSource<int>.Create(otherOption, o => (int)o + 10));
         var command = new CliCommand("cmd") { option, otherOption };
 
         var pipelineResult = ExecutedPipelineResultForCommand(command, "--intOpt 9 -a -2");
@@ -191,7 +191,7 @@ public class ValidationSubsystemTests
     {
         var envName = "SYSTEM_COMMANDLINE_LOWERBOUND";
         Environment.SetEnvironmentVariable(envName, "2");
-        var option = GetOptionWithRangeBounds(RangeBound<int>.Create(envName, s => int.Parse(s) + 1), 50);
+        var option = GetOptionWithRangeBounds(ValueSource<int>.Create(envName, s => int.Parse(s) + 1), 50);
 
         var pipelineResult = ExecutedPipelineResultForRangeOption(option, "--intOpt 2");
         Environment.SetEnvironmentVariable(envName, null);
@@ -208,7 +208,7 @@ public class ValidationSubsystemTests
     {
         var envName = "SYSTEM_COMMANDLINE_LOWERBOUND";
         Environment.SetEnvironmentVariable(envName, "2");
-        var option = GetOptionWithRangeBounds(RangeBound<int>.Create(envName, s => int.Parse(s) + 1), 50);
+        var option = GetOptionWithRangeBounds(ValueSource<int>.Create(envName, s => int.Parse(s) + 1), 50);
 
         var pipelineResult = ExecutedPipelineResultForRangeOption(option, "--intOpt 11");
         Environment.SetEnvironmentVariable(envName, null);
@@ -222,7 +222,7 @@ public class ValidationSubsystemTests
     {
         var envName = "SYSTEM_COMMANDLINE_LOWERBOUND";
         Environment.SetEnvironmentVariable(envName, "2");
-        var option = GetOptionWithRangeBounds(0,RangeBound<int>.Create(envName, s => int.Parse(s) + 1));
+        var option = GetOptionWithRangeBounds(0, ValueSource<int>.Create(envName, s => int.Parse(s) + 1));
 
         var pipelineResult = ExecutedPipelineResultForRangeOption(option, "--intOpt 4");
         Environment.SetEnvironmentVariable(envName, null);

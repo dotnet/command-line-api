@@ -25,6 +25,17 @@ public abstract class ValueSource<T> : ValueSource
     public static implicit operator ValueSource<T>(T value) => new SimpleValueSource<T>(value);
     public static implicit operator ValueSource<T>(Func<T> calculated) => new CalculatedValueSource<T>(calculated);
 
+    public static ValueSource<T> Create(T value, string? description = null)
+        => new SimpleValueSource<T>(value, description);
+
+    public static ValueSource<T> Create(Func<T> calculation, string? description = null)
+        => new CalculatedValueSource<T>(calculation);
+
+    public static ValueSource<T> Create(CliValueSymbol otherSymbol, Func<object, T> calculation, string? description = null)
+        => new RelativeToSymbolValueSource<T>(otherSymbol, calculation, description);
+
+    public static ValueSource<T> Create(string environmentVariableName, Func<string, T> calculation, string? description = null)
+        => new RelativeToEnvironmentVariableValueSource<T>(environmentVariableName, calculation, description);
 }
 
 public class SimpleValueSource<T>(T value, string? description = null)
