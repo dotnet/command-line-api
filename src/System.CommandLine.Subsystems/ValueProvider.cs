@@ -34,11 +34,13 @@ internal class ValueProvider
         return false;
     }
 
-    public T? GetValue<T>(CliValueSymbol valueSymbol)
+    public T GetValue<T>(CliValueSymbol valueSymbol)
         => GetValueInternal<T>(valueSymbol);
 
-    private T? GetValueInternal<T>(CliValueSymbol? valueSymbol)
+    private T GetValueInternal<T>(CliValueSymbol? valueSymbol)
     {
+        // TODO: This method is definitely WRONG. If there is a relative or env variable, it does not continue if it is not found
+        // TODO: Replace this method with an AggregateValueSource
         // NOTE: We use the subsystem's TryGetAnnotation here instead of the GetDefaultValue etc
         // extension methods, as the subsystem's TryGetAnnotation respects its annotation provider
         return valueSymbol switch
@@ -59,7 +61,7 @@ internal class ValueProvider
             _ => UseValue(valueSymbol, default(T))
         };
 
-        TValue? UseValue<TValue>(CliSymbol symbol, TValue? value)
+        TValue UseValue<TValue>(CliSymbol symbol, TValue value)
         {
             SetValue(symbol, value);
             return value;

@@ -20,11 +20,11 @@ public class PipelineResult(ParseResult parseResult, string rawInput, Pipeline? 
     public bool AlreadyHandled { get; set; }
     public int ExitCode { get; set; }
 
-    public T? GetValue<T>(CliValueSymbol dataSymbol)
+    public T GetValue<T>(CliValueSymbol dataSymbol)
      => valueProvider.GetValue<T>(dataSymbol);
 
-    public object? GetValue(CliValueSymbol option)
-        => valueProvider.GetValue<object?>(option);
+    public object GetValue(CliValueSymbol option)
+        => valueProvider.GetValue<object>(option);
 
     public CliValueResult? GetValueResult(CliValueSymbol dataSymbol)
      => ParseResult.GetValueResult(dataSymbol);

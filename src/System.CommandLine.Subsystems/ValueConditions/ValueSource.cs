@@ -11,6 +11,17 @@ public abstract class ValueSource
 
     // TODO: Should we use ToString() here?
     public abstract string Description { get; }
+    public static ValueSource<T> Create<T>(T value, string? description = null)
+        => new SimpleValueSource<T>(value, description);
+
+    public static ValueSource<T> Create<T>(Func<T> calculation, string? description = null)
+        => new CalculatedValueSource<T>(calculation);
+
+    public static ValueSource<T> Create<T>(CliValueSymbol otherSymbol, Func<object, T>? calculation = null, string? description = null)
+        => new RelativeToSymbolValueSource<T>(otherSymbol, calculation, description);
+
+    public static ValueSource<T> CreateFromEnvironmentVariable<T>(string environmentVariableName, Func<string?, T>? calculation = null, string? description = null)
+        => new RelativeToEnvironmentVariableValueSource<T>(environmentVariableName, calculation, description);
 }
 
 public abstract class ValueSource<T> : ValueSource
@@ -24,18 +35,8 @@ public abstract class ValueSource<T> : ValueSource
 
     public static implicit operator ValueSource<T>(T value) => new SimpleValueSource<T>(value);
     public static implicit operator ValueSource<T>(Func<T> calculated) => new CalculatedValueSource<T>(calculated);
-
-    public static ValueSource<T> Create(T value, string? description = null)
-        => new SimpleValueSource<T>(value, description);
-
-    public static ValueSource<T> Create(Func<T> calculation, string? description = null)
-        => new CalculatedValueSource<T>(calculation);
-
-    public static ValueSource<T> Create(CliValueSymbol otherSymbol, Func<object, T> calculation, string? description = null)
-        => new RelativeToSymbolValueSource<T>(otherSymbol, calculation, description);
-
-    public static ValueSource<T> Create(string environmentVariableName, Func<string, T> calculation, string? description = null)
-        => new RelativeToEnvironmentVariableValueSource<T>(environmentVariableName, calculation, description);
+    public static implicit operator ValueSource<T>(CliValueSymbol symbol) => new RelativeToSymbolValueSource<T>(symbol);
+    // Environment variable does not have an explicit operator, because converting to string was too broad
 }
 
 public class SimpleValueSource<T>(T value, string? description = null)
@@ -57,21 +58,45 @@ public class CalculatedValueSource<T>(Func<T> calculation, string? description =
         => calculation();
 }
 
-public class RelativeToSymbolValueSource<T>(CliValueSymbol otherSymbol, Func<object, T> calculation, string? description)
+public class RelativeToSymbolValueSource<T>(CliValueSymbol otherSymbol,
+                                            Func<object, T>? calculation = null,
+                                            string? description = null)
     : ValueSource<T>
 {
     public override string Description { get; } = description;
 
     public override T GetTypedValue(PipelineResult pipelineResult)
-        => calculation(pipelineResult.GetValue(otherSymbol));
+        => calculation is null
+                ? pipelineResult.GetValue<T>(otherSymbol)
+                : calculation(pipelineResult.GetValue(otherSymbol));
 }
 
-public class RelativeToEnvironmentVariableValueSource<T>(string environmentVariableName, Func<string, T> calculation, string? description)
+public class RelativeToEnvironmentVariableValueSource<T>(string environmentVariableName,
+                                                         Func<string?, T>? calculation = null,
+                                                         string? description = null)
     : ValueSource<T>
 {
     public override string Description { get; } = description;
 
     public override T GetTypedValue(PipelineResult pipelineResult)
-        => calculation(Environment.GetEnvironmentVariable(environmentVariableName));
+    {
+        string? stringValue = Environment.GetEnvironmentVariable(environmentVariableName);
+       
+        if (stringValue is null)
+        {
+            // This feels wrong. It isn't saying "Hey, you asked for a value that was not there"
+            return default;
+        }
+
+        // TODO: What is the best way to do this?
+        T value = default(T) switch
+        {
+            int i => (T)(object)Convert.ToInt32(stringValue),
+            _ => throw new NotImplementedException("Looking for a non-dumb way to do this")
+        };
+        return calculation is null
+            ? value
+            : calculation(Environment.GetEnvironmentVariable(environmentVariableName));
+    }
 }
 
