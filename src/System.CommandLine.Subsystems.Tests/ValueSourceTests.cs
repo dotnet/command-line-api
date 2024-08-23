@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.VisualBasic.FileIO;
 using System.CommandLine.Parsing;
 using System.CommandLine.ValueConditions;
+using System.CommandLine.ValueSources;
 using Xunit;
 
 namespace System.CommandLine.Subsystems.Tests;
@@ -27,8 +28,10 @@ public class ValueSourceTests
     {
         var valueSource = new SimpleValueSource<int>(42);
 
-        int value = valueSource.GetTypedValue(EmptyPipelineResult());
+        (bool success, int value) = valueSource.GetTypedValue(EmptyPipelineResult());
 
+        success.Should()
+            .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -38,8 +41,10 @@ public class ValueSourceTests
     {
         ValueSource<int> valueSource = 42;
 
-        int value = valueSource.GetTypedValue(EmptyPipelineResult());
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
 
+        success.Should()
+           .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -49,8 +54,10 @@ public class ValueSourceTests
     {
         var valueSource = ValueSource.Create(42);
 
-        int value = valueSource.GetTypedValue(EmptyPipelineResult());
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
 
+        success.Should()
+            .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -58,10 +65,12 @@ public class ValueSourceTests
     [Fact]
     public void CalculatedValueSource_produces_value()
     {
-        var valueSource = new CalculatedValueSource<int>(() => 42);
+        var valueSource = new CalculatedValueSource<int>(() => (true, 42));
 
-        int value = valueSource.GetTypedValue(EmptyPipelineResult());
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
 
+        success.Should()
+            .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -71,10 +80,12 @@ public class ValueSourceTests
     {
         // TODO: Figure out why this doesn't work, and remove implicit operator if it does not work
         // ValueSource<int> valueSource2 = (() => 42);
-        ValueSource<int> valueSource = (ValueSource<int>)(() => 42);
+        ValueSource<int> valueSource = (ValueSource<int>)(() => (true, 42)); ;
 
-        int value = valueSource.GetTypedValue(EmptyPipelineResult());
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
 
+        success.Should()
+           .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -82,9 +93,11 @@ public class ValueSourceTests
     [Fact]
     public void CalculatedValueSource_from_extension_produces_value()
     {
-        var valueSource = ValueSource.Create(() => 42);
-        int value = valueSource.GetTypedValue(EmptyPipelineResult());
+        var valueSource = ValueSource.Create(() => (true, 42));
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
 
+        success.Should()
+            .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -95,8 +108,10 @@ public class ValueSourceTests
         var option = new CliOption<int>("-a");
         var valueSource = new RelativeToSymbolValueSource<int>(option);
 
-        int value = valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
 
+        success.Should()
+           .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -107,8 +122,10 @@ public class ValueSourceTests
         var option = new CliOption<int>("-a");
         ValueSource<int> valueSource = option;
 
-        int value = valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
 
+        success.Should()
+           .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -119,8 +136,10 @@ public class ValueSourceTests
         var option = new CliOption<int>("-a");
         var valueSource = new RelativeToSymbolValueSource<int>(option);
 
-        int value = valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
 
+        success.Should()
+            .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -132,9 +151,11 @@ public class ValueSourceTests
         var valueSource = new RelativeToEnvironmentVariableValueSource<int>(envName);
         
         Environment.SetEnvironmentVariable(envName, "42");
-        int value = valueSource.GetTypedValue(EmptyPipelineResult(""));
-        Environment.SetEnvironmentVariable(envName, null); 
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult(""));
+        Environment.SetEnvironmentVariable(envName, null);
 
+        success.Should()
+           .BeTrue();
         value.Should()
             .Be(42);
     }
@@ -147,9 +168,11 @@ public class ValueSourceTests
         var valueSource = ValueSource.CreateFromEnvironmentVariable<int>(envName);
 
         Environment.SetEnvironmentVariable(envName, "42");
-        int value = valueSource.GetTypedValue(EmptyPipelineResult(""));
+        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult(""));
         Environment.SetEnvironmentVariable(envName, null);
 
+        success.Should()
+           .BeTrue();
         value.Should()
             .Be(42);
     }

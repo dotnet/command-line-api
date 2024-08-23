@@ -3,7 +3,6 @@
 
 using System.CommandLine.Subsystems;
 using System.Text;
-using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Directives;
 
