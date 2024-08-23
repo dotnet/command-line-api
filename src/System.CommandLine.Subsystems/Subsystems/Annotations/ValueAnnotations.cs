@@ -11,6 +11,11 @@ public static class ValueAnnotations
     internal static string Prefix { get; } = nameof(SubsystemKind.Value);
 
     /// <summary>
+    /// Default value source, which may be an aggregate source, for an option or argument
+    /// </summary>
+    public static AnnotationId DefaultValueSource { get; } = new(Prefix, nameof(DefaultValueSource));
+
+    /// <summary>
     /// Default value for an option or argument
     /// </summary>
     /// <remarks>
@@ -18,6 +23,7 @@ public static class ValueAnnotations
     /// the <see cref="CliArgument{T}"/> or <see cref="CliOption{T}"/>.
     /// </remarks>
     public static AnnotationId DefaultValue { get; } = new(Prefix, nameof(DefaultValue));
+
 
     /// <summary>
     /// Default value calculation for an option or argument

@@ -18,6 +18,11 @@ public abstract class ValueSource
     public static ValueSource<T> Create<T>(CliValueSymbol otherSymbol, Func<object, (bool success, T? value)>? calculation = null, string? description = null)
         => new RelativeToSymbolValueSource<T>(otherSymbol, calculation, description);
 
+    public static ValueSource<T> Create<T>(ValueSource<T> firstSource, ValueSource<T> secondSource, string? description = null, params ValueSource<T>[] otherSources)
+    {
+        return new AggregateValueSource<T>(firstSource, secondSource, description, otherSources);
+    }
+
     public static ValueSource<T> CreateFromEnvironmentVariable<T>(string environmentVariableName, Func<string?, (bool success, T? value)>? calculation = null, string? description = null)
         => new RelativeToEnvironmentVariableValueSource<T>(environmentVariableName, calculation, description);
 }
