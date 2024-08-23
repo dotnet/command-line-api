@@ -8,7 +8,7 @@ public class RelativeToSymbolValueSource<T>(CliValueSymbol otherSymbol,
                                             string? description = null)
     : ValueSource<T>
 {
-    public override string Description { get; } = description;
+    public override string? Description { get; } = description;
 
     public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult)
         => calculation is null

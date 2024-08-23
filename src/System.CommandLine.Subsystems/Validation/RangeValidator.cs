@@ -20,7 +20,7 @@ public class RangeValidator : ValueValidator, IValueValidator
         }
         if (valueCondition.MustHaveValidator)
         {
-            validationContext.PipelineResult.AddError(new ParseError($"Range validator missing for {valueResult.ValueSymbol.Name}"));
+            validationContext.PipelineResult.AddError(new ParseError($"Range validator missing for {valueSymbol.Name}"));
         }
     }
 

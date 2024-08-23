@@ -6,7 +6,7 @@ namespace System.CommandLine.ValueSources;
 public class SimpleValueSource<T>(T value, string? description = null)
     : ValueSource<T>
 {
-    public override string Description { get; } = description;
+    public override string? Description { get; } = description;
 
     public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult)
         => (true, value);

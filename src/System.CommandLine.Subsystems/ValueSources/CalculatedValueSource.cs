@@ -7,7 +7,7 @@ namespace System.CommandLine.ValueSources;
 public class CalculatedValueSource<T>(Func<(bool success, T? value)> calculation, string? description = null)
     : ValueSource<T>
 {
-    public override string Description { get; } = description;
+    public override string? Description { get; } = description;
 
     public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult)
         => calculation();

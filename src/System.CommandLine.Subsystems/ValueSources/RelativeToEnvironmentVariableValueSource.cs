@@ -8,7 +8,7 @@ public class RelativeToEnvironmentVariableValueSource<T>(string environmentVaria
                                                          string? description = null)
     : ValueSource<T>
 {
-    public override string Description { get; } = description;
+    public override string? Description { get; } = description;
 
     public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult)
     {

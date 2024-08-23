@@ -8,7 +8,7 @@ public abstract class ValueSource
     public abstract (bool success, object? value) GetValue(PipelineResult pipelineResult);
 
     // TODO: Should we use ToString() here?
-    public abstract string Description { get; }
+    public abstract string? Description { get; }
     public static ValueSource<T> Create<T>(T value, string? description = null)
         => new SimpleValueSource<T>(value, description);
 

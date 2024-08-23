@@ -7,7 +7,7 @@ public class AggregateValueSource : ValueSource
 {
     private List<ValueSource> valueSources = [];
 
-    public override string Description { get; }
+    public override string? Description { get; }
 
     public override (bool success, object? value) GetValue(PipelineResult pipelineResult)
     {
