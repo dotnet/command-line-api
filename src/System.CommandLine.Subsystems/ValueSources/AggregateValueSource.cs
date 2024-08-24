@@ -21,25 +21,25 @@ public class AggregateValueSource<T> : ValueSource<T>
 
     public bool PrecedenceAsEntered { get; set; }
 
-    public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult) 
-        => ValueFromSources(pipelineResult);
-
-    private (bool success, T? value) ValueFromSources(PipelineResult pipelineResult)
+    public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
     {
         var orderedSources = PrecedenceAsEntered
             ? valueSources
             : [.. valueSources.OrderBy(GetPrecedence)];
         foreach (var source in orderedSources)
         {
-            (var success, var value) = source.GetTypedValue(pipelineResult);
-            if (success)
+            if (source.TryGetTypedValue(pipelineResult, out var newValue))
             {
-                return (true, value);
+                value = newValue;
+                return true;
             }
         }
-        return (false, default);
+        value = default;
+        return false;
+
     }
 
+    // TODO: Discuss precedence vs order entered for aggregates
     internal static int GetPrecedence(ValueSource<T> source)
     {
         return source switch

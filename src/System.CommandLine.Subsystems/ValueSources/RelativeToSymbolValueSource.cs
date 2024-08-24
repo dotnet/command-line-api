@@ -4,15 +4,36 @@
 namespace System.CommandLine.ValueSources;
 
 public class RelativeToSymbolValueSource<T>(CliValueSymbol otherSymbol,
-                                            Func<object, (bool success, T? value)>? calculation = null,
+                                            bool onlyUserEnteredValues = false,
+                                            Func<object?, (bool success, T? value)>? calculation = null,
                                             string? description = null)
     : ValueSource<T>
 {
     public override string? Description { get; } = description;
 
-    public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult)
-        => calculation is null
-                ? (true, pipelineResult.GetValue<T>(otherSymbol))
-                : calculation(pipelineResult.GetValue(otherSymbol));
+    public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
+    {
+        if (onlyUserEnteredValues && pipelineResult.GetValueResult(otherSymbol) is null)
+        {
+            value = default;
+            return false;
+        }
+
+        var otherSymbolValue = pipelineResult.GetValue<T>(otherSymbol);
+
+        if (calculation is null)
+        {
+            value = otherSymbolValue;
+            return true;
+        }
+        (var success, var newValue) = calculation(otherSymbolValue);
+        if (success)
+        {
+            value = newValue;
+            return true;
+        }
+        value = default;
+        return false;
+    }
 }
 

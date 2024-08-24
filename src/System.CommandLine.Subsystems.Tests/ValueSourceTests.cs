@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using Microsoft.VisualBasic.FileIO;
 using System.CommandLine.Parsing;
-using System.CommandLine.ValueConditions;
 using System.CommandLine.ValueSources;
 using Xunit;
 
@@ -28,12 +26,13 @@ public class ValueSourceTests
     {
         var valueSource = new SimpleValueSource<int>(42);
 
-        (bool success, int value) = valueSource.GetTypedValue(EmptyPipelineResult());
-
-        success.Should()
-            .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
     }
 
     [Fact]
@@ -41,12 +40,13 @@ public class ValueSourceTests
     {
         ValueSource<int> valueSource = 42;
 
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
-
-        success.Should()
-           .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
     }
 
     [Fact]
@@ -54,12 +54,13 @@ public class ValueSourceTests
     {
         var valueSource = ValueSource.Create(42);
 
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
-
-        success.Should()
-            .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
     }
 
     [Fact]
@@ -67,12 +68,13 @@ public class ValueSourceTests
     {
         var valueSource = new CalculatedValueSource<int>(() => (true, 42));
 
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
-
-        success.Should()
-            .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
     }
 
     [Fact]
@@ -82,24 +84,27 @@ public class ValueSourceTests
         // ValueSource<int> valueSource2 = (() => 42);
         ValueSource<int> valueSource = (ValueSource<int>)(() => (true, 42)); ;
 
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
-
-        success.Should()
-           .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
     }
 
     [Fact]
     public void CalculatedValueSource_from_extension_produces_value()
     {
         var valueSource = ValueSource.Create(() => (true, 42));
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult());
 
-        success.Should()
-            .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
     }
 
     [Fact]
@@ -108,12 +113,14 @@ public class ValueSourceTests
         var option = new CliOption<int>("-a");
         var valueSource = new RelativeToSymbolValueSource<int>(option);
 
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
-
-        success.Should()
-           .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult("-a 42", option), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
+    
     }
 
     [Fact]
@@ -122,12 +129,13 @@ public class ValueSourceTests
         var option = new CliOption<int>("-a");
         ValueSource<int> valueSource = option;
 
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
-
-        success.Should()
-           .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult("-a 42", option), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
     }
 
     [Fact]
@@ -136,12 +144,13 @@ public class ValueSourceTests
         var option = new CliOption<int>("-a");
         var valueSource = new RelativeToSymbolValueSource<int>(option);
 
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult("-a 42", option));
-
-        success.Should()
-            .BeTrue();
-        value.Should()
-            .Be(42);
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult("-a 42", option), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Assert.Fail("Typed value not retrieved");
     }
 
     [Fact]
@@ -149,17 +158,18 @@ public class ValueSourceTests
     {
         var envName = "SYSTEM_COMMANDLINE_TESTING";
         var valueSource = new RelativeToEnvironmentVariableValueSource<int>(envName);
-        
-        Environment.SetEnvironmentVariable(envName, "42");
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult(""));
-        Environment.SetEnvironmentVariable(envName, null);
 
-        success.Should()
-           .BeTrue();
-        value.Should()
-            .Be(42);
+        Environment.SetEnvironmentVariable(envName, "42");
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
+        Environment.SetEnvironmentVariable(envName, null);
+        Assert.Fail("Typed value not retrieved");
     }
- 
+
 
     [Fact]
     public void RelativeToEnvironmentVariableValueSource_from_extension_produces_value_that_was_set()
@@ -168,12 +178,13 @@ public class ValueSourceTests
         var valueSource = ValueSource.CreateFromEnvironmentVariable<int>(envName);
 
         Environment.SetEnvironmentVariable(envName, "42");
-        (bool success, int value) =  valueSource.GetTypedValue(EmptyPipelineResult(""));
+        if (valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value))
+        {
+            value.Should()
+               .Be(42);
+            return;
+        }
         Environment.SetEnvironmentVariable(envName, null);
-
-        success.Should()
-           .BeTrue();
-        value.Should()
-            .Be(42);
+        Assert.Fail("Typed value not retrieved");
     }
 }

@@ -9,7 +9,16 @@ public class CalculatedValueSource<T>(Func<(bool success, T? value)> calculation
 {
     public override string? Description { get; } = description;
 
-    public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult)
-        => calculation();
+    public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
+    {
+        (bool success, T? newValue) = calculation();
+        if (success)
+        {
+            value = newValue;
+            return true;
+        }
+        value = default;
+        return false;
+    }
 }
 

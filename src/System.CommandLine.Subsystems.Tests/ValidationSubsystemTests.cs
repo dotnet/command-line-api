@@ -143,7 +143,7 @@ public class ValidationSubsystemTests
     public void Values_below_relative_lower_bound_report_error()
     {
         var otherOption = new CliOption<int>("-a");
-        var option = GetOptionWithRangeBounds(ValueSource<int>.Create(otherOption, o => (true, (int)o + 1)), 50);
+        var option = GetOptionWithRangeBounds(ValueSource.Create(otherOption, o => (true, (int)o + 1)), 50);
         var command = new CliCommand("cmd") { option, otherOption };
 
         var pipelineResult = ExecutedPipelineResultForCommand(command, "--intOpt 0 -a 0");

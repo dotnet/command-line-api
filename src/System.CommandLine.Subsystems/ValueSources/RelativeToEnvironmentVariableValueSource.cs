@@ -10,25 +10,41 @@ public class RelativeToEnvironmentVariableValueSource<T>(string environmentVaria
 {
     public override string? Description { get; } = description;
 
-    public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult)
+    public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
     {
         string? stringValue = Environment.GetEnvironmentVariable(environmentVariableName);
 
         if (stringValue is null)
         {
-            // This feels wrong. It isn't saying "Hey, you asked for a value that was not there"
-            return default;
+            value = default;
+            return false;
         }
 
-        // TODO: What is the best way to do this?
-        T value = default(T) switch
+        // TODO: Unify this with System.CommandLine.ArgumentConverter conversions, which will require changes to that code.
+        //       This will provide consistency, including support for nullable value types, and custom type conversions
+        try
         {
-            int i => (T)(object)Convert.ToInt32(stringValue),
-            _ => throw new NotImplementedException("Looking for a non-dumb way to do this")
-        };
-        return calculation is null
-            ? (true, value)
-            : calculation(Environment.GetEnvironmentVariable(environmentVariableName));
+            if (calculation is not null)
+            {
+                (var success, var calcValue) = calculation(stringValue);
+                if (success)
+                {
+                    value = calcValue;
+                    return true;
+                }
+                value = default;
+                return false;
+            }
+            var newValue = Convert.ChangeType(stringValue, typeof(T));
+            value = (T?)newValue;
+            return true;
+        }
+        catch
+        {
+            // TODO: This probably represents a failure converting from string, so in user's world to fix. How do we report this?
+            value = default;
+            return false;
+        }
     }
 }
 

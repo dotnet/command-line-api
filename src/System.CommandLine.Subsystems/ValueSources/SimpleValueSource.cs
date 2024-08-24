@@ -6,9 +6,13 @@ namespace System.CommandLine.ValueSources;
 public class SimpleValueSource<T>(T value, string? description = null)
     : ValueSource<T>
 {
+    public T Value { get; } = value;
     public override string? Description { get; } = description;
 
-    public override (bool success, T? value) GetTypedValue(PipelineResult pipelineResult)
-        => (true, value);
+    public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
+    {
+        value = Value;
+        return true;
+    }
 }
 

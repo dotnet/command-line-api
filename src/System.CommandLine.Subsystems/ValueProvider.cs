@@ -51,12 +51,11 @@ internal class ValueProvider
         }
         if (valueSymbol.TryGetDefaultValueSource(out ValueSource? defaultValueSource))
         {
-            if (defaultValueSource is not ValueSource<T> typedValueSource)
+            if (defaultValueSource is not ValueSource<T> typedDefaultValueSource)
             {
                 throw new InvalidOperationException("Unexpected ValueSource type");
             }
-            (var success, var defaultValue) = typedValueSource.GetTypedValue(pipelineResult);
-            if (success)
+            if( typedDefaultValueSource.TryGetTypedValue(pipelineResult, out T? defaultValue))
             {
                 return UseValue(valueSymbol, defaultValue);
             }

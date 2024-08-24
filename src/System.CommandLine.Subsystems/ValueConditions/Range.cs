@@ -33,22 +33,19 @@ public class Range<T>(ValueSource<T>? lowerBound, ValueSource<T>? upperBound, Ra
         if (comparableValue is null) return; // nothing to do
 
         // TODO: Replace the strings we are comparing with a diagnostic ID when we update ParseError
-        if (LowerBound is not null)
+        if (LowerBound is not null
+            && LowerBound.TryGetTypedValue(validationContext.PipelineResult, out var lowerValue)
+            && comparableValue.CompareTo(lowerValue) < 0)
         {
-            var lower = LowerBound.GetTypedValue(validationContext.PipelineResult);
-            if (lower.success && comparableValue.CompareTo(lower.value) < 0)
-            {
-                validationContext.PipelineResult.AddError(new ParseError($"The value for '{valueSymbol.Name}' is below the lower bound of {LowerBound}"));
-            }
+            validationContext.PipelineResult.AddError(new ParseError($"The value for '{valueSymbol.Name}' is below the lower bound of {LowerBound}"));
         }
 
-        if (UpperBound is not null)
+
+        if (UpperBound is not null
+           && UpperBound.TryGetTypedValue(validationContext.PipelineResult, out var upperValue)
+           && comparableValue.CompareTo(upperValue) > 0)
         {
-            var upper = UpperBound.GetTypedValue(validationContext.PipelineResult);
-            if (upper.success && comparableValue.CompareTo(upper.value) > 0)
-            {
-                validationContext.PipelineResult.AddError(new ParseError($"The value for '{valueSymbol.Name}' is above the upper bound of {UpperBound}"));
-            }
+            validationContext.PipelineResult.AddError(new ParseError($"The value for '{valueSymbol.Name}' is above the upper bound of {UpperBound}"));
         }
     }
 
