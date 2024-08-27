@@ -14,7 +14,7 @@ _dotnet_zsh_complete()
     full_line="$words"
 
     # Get the completion results, will be newline-delimited
-    completions=$(dotnet suggest get --executable "$full_path" -- "$full_line")
+    completions=$(dotnet-suggest get --executable "$full_path" -- "$full_line")
     # explode the completions by linefeed instead of by spaces into the descriptions for the
     # _values helper function.
     
