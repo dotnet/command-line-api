@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace System.CommandLine.ValueSources;
 
 public abstract class ValueSource
@@ -38,7 +40,7 @@ public abstract class ValueSource<T> : ValueSource
 {
     public abstract bool TryGetTypedValue(PipelineResult pipelineResult, out T? value);
 
-    public override bool TryGetValue(PipelineResult pipelineResult, out object? value)
+    public override bool TryGetValue(PipelineResult pipelineResult, [NotNullWhen(true)]out object? value)
     {
 
         if (TryGetTypedValue(pipelineResult, out T? newValue))
