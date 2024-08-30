@@ -7,6 +7,17 @@ namespace System.CommandLine.ValueSources;
 
 public abstract class ValueSource
 {
+    internal ValueSource()
+    {
+
+    }
+
+    /// <summary>
+    /// Supplies the requested value, with the calculation applied if it is not null.
+    /// </summary>
+    /// <param name="pipelineResult">The current pipeline result.</param>
+    /// <param name="value">An out parameter which contains the converted value, with the calculation applied, if it is found.</param>
+    /// <returns>True if a value was found, otherwise false.</returns>
     public abstract bool TryGetValue(PipelineResult pipelineResult, out object? value);
 
     // TODO: Should we use ToString() here?
@@ -36,11 +47,21 @@ public abstract class ValueSource
         => new RelativeToEnvironmentVariableValueSource<T>(environmentVariableName, calculation, description);
 }
 
+// TODO: Determine philosophy for custom value sources and whether tehy can buld on existing sources.
 public abstract class ValueSource<T> : ValueSource
 {
-    public abstract bool TryGetTypedValue(PipelineResult pipelineResult, out T? value);
+    /// <summary>
+    /// Supplies the requested value, with the calculation applied if it is not null.
+    /// </summary>
+    /// <param name="pipelineResult">The current pipeline result.</param>
+    /// <param name="value">An out parameter which contains the converted value, with the calculation applied, if it is found.</param>
+    /// <returns>True if a value was found, otherwise false.</returns>
+    public abstract bool TryGetTypedValue(PipelineResult pipelineResult, 
+                                          [NotNullWhen(true)] out T? value);
 
-    public override bool TryGetValue(PipelineResult pipelineResult, [NotNullWhen(true)]out object? value)
+    /// <inheritdoc/>
+    public override bool TryGetValue(PipelineResult pipelineResult, 
+                                     [NotNullWhen(true)] out object? value)
     {
 
         if (TryGetTypedValue(pipelineResult, out T? newValue))

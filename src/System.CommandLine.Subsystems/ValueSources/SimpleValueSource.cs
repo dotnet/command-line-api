@@ -3,11 +3,17 @@
 
 namespace System.CommandLine.ValueSources;
 
-public class SimpleValueSource<T>(T value, string? description = null)
+public sealed class SimpleValueSource<T>
     : ValueSource<T>
 {
-    public T Value { get; } = value;
-    public override string? Description { get; } = description;
+    internal SimpleValueSource(T value, string? description = null)
+    {
+        Value = value;
+        Description = description;
+    }
+
+    public T Value { get; }
+    public override string? Description { get; }
 
     public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
     {

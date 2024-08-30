@@ -4,10 +4,17 @@
 namespace System.CommandLine.ValueSources;
 
 // Find an example of when this is useful beyond Random and Guid. Is a time lag between building the CLI and validating important (DateTime.Now())
-public class CalculatedValueSource<T>(Func<(bool success, T? value)> calculation, string? description = null)
-    : ValueSource<T>
+public sealed class CalculatedValueSource<T> : ValueSource<T>
 {
-    public override string? Description { get; } = description;
+    private readonly Func<(bool success, T? value)> calculation;
+
+    internal CalculatedValueSource(Func<(bool success, T? value)> calculation, string? description = null)
+    {
+        this.calculation = calculation;
+        Description = description;
+    }
+
+    public override string? Description { get; }
 
     public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
     {

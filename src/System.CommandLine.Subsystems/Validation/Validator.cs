@@ -4,6 +4,10 @@
 
 namespace System.CommandLine.Validation;
 
+// TODO: This may be removed if we settle on ValueCondition validation only.
+/// <summary>
+/// Base class for CommandValidator and ValueValidator. 
+/// </summary>
 public abstract class Validator
 {
     public Validator(string name, Type valueConditionType, params Type[] moreValueConditionTypes)

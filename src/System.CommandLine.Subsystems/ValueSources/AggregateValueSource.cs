@@ -3,11 +3,11 @@
 
 namespace System.CommandLine.ValueSources;
 
-public class AggregateValueSource<T> : ValueSource<T>
+public sealed class AggregateValueSource<T> : ValueSource<T>
 {
     private List<ValueSource<T>> valueSources = [];
 
-    public AggregateValueSource(ValueSource<T> firstSource,
+    internal AggregateValueSource(ValueSource<T> firstSource,
                                  ValueSource<T> secondSource,
                                  string? description = null,
                                  params ValueSource<T>[] otherSources)
@@ -45,8 +45,8 @@ public class AggregateValueSource<T> : ValueSource<T>
         return source switch
         {
             SimpleValueSource<T> => 0,
-            CalculatedValueSource<T> => 1,
-            RelativeToSymbolValueSource<T> => 2,
+            RelativeToSymbolValueSource<T> => 1,
+            CalculatedValueSource<T> => 2,
             //RelativeToConfigurationValueSource<T> => 3,
             RelativeToEnvironmentVariableValueSource<T> => 4,
             _ => 5

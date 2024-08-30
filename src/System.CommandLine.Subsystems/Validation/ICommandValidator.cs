@@ -5,9 +5,18 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Validation;
 
+/// <summary>
+/// Interface that allows non-Validator derived methods to perform validation. Specifically, this supports
+/// <see cref="CommandCondition"/> instances that can validate.
+/// </summary>
 public interface ICommandValidator
 {
-
+    /// <summary>
+    /// Validation method specific to command results
+    /// </summary>
+    /// <param name="commandResult">The <see cref="CliCommandResult" that will be validated./></param>
+    /// <param name="commandCondition">The <see cref="CommandCondition" that defines the condition that may be validatable./></param>
+    /// <param name="validationContext">The <see cref="ValidationContext" containing information about the current context./></param>
     void Validate(CliCommandResult commandResult, CommandCondition commandCondition, ValidationContext validationContext);
 }
 

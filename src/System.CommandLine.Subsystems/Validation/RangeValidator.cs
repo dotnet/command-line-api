@@ -5,11 +5,15 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Validation;
 
+/// <summary>
+/// Validates that a value is within the specified bounds.
+/// </summary>
 public class RangeValidator : ValueValidator, IValueValidator
 {
     public RangeValidator() : base(nameof(ValueConditions.Range), typeof(ValueConditions.Range))
     { }
 
+    /// <inheritdoc/>
     public override void Validate(object? value, CliValueSymbol valueSymbol,
         CliValueResult? valueResult, ValueCondition valueCondition, ValidationContext validationContext)
     {

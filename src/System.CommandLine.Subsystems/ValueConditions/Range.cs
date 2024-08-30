@@ -7,6 +7,9 @@ using System.CommandLine.ValueSources;
 
 namespace System.CommandLine.ValueConditions;
 
+/// <summary>
+/// Declares the range for the option or argument. The non-generic version is used by the <see cref="RangeValidator/>.
+/// </summary>
 public abstract class Range : ValueCondition
 {
     protected Range(Type valueType)

@@ -108,6 +108,7 @@ public abstract class CliSubsystem
     /// </summary>
     /// <param name="pipelineResult">The context contains data like the ParseResult, and allows setting of values like whether execution was handled and the CLI should terminate </param>
     /// <returns>A PipelineResult object with information such as whether the CLI should terminate</returns>
+    // These methods are public to support use of subsystems without the pipeline
     public virtual void Execute(PipelineResult pipelineResult)
         => pipelineResult.NotRun(pipelineResult.ParseResult);
 

@@ -3,16 +3,38 @@
 
 namespace System.CommandLine.ValueSources;
 
-public class RelativeToEnvironmentVariableValueSource<T>(string environmentVariableName,
-                                                         Func<string?, (bool success, T? value)>? calculation = null,
-                                                         string? description = null)
+/// <summary>
+/// <see cref="ValueSource"/> that returns the converted value of the specified environment variable.
+/// If the calculation delegate is supplied, the returned value of the calculation is returned.
+/// </summary>
+/// <typeparam name="T">The type to be returned, which is almost always the type of the symbol the ValueSource will be used for.</typeparam>
+/// <param name="environmentVariableName">The name of then environment variable. Note that for some systems, this is case sensitive.</param>
+/// <param name="calculation">A delegate that returns the requested type. If it is not specified, standard type conversions are used.</param>
+/// <param name="description">The description of this value, used to clarify the intent of the values that appear in error messages.</param>
+public sealed class RelativeToEnvironmentVariableValueSource<T>
     : ValueSource<T>
 {
-    public override string? Description { get; } = description;
+    internal RelativeToEnvironmentVariableValueSource(
+        string environmentVariableName,
+        Func<string?, (bool success, T? value)>? calculation = null,
+        string? description = null)
+    {
+        EnvironmentVariableName = environmentVariableName;
+        Calculation = calculation;
+        Description = description;
+    }
+
+    public string EnvironmentVariableName { get; }
+    public Func<string?, (bool success, T? value)>? Calculation { get; }
+
+    /// <summary>
+    /// The description of this value, used to clarify the intent of the values that appear in error messages.
+    /// </summary>
+    public override string? Description { get; } 
 
     public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
     {
-        string? stringValue = Environment.GetEnvironmentVariable(environmentVariableName);
+        string? stringValue = Environment.GetEnvironmentVariable(EnvironmentVariableName);
 
         if (stringValue is null)
         {
@@ -24,9 +46,9 @@ public class RelativeToEnvironmentVariableValueSource<T>(string environmentVaria
         //       This will provide consistency, including support for nullable value types, and custom type conversions
         try
         {
-            if (calculation is not null)
+            if (Calculation is not null)
             {
-                (var success, var calcValue) = calculation(stringValue);
+                (var success, var calcValue) = Calculation(stringValue);
                 if (success)
                 {
                     value = calcValue;

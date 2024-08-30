@@ -6,11 +6,15 @@ using System.CommandLine.ValueConditions;
 
 namespace System.CommandLine.Validation;
 
+/// <summary>
+/// Validator that requires that if one member of the group is present, they are all present.
+/// </summary>
 public class InclusiveGroupValidator : CommandValidator
 {
     public InclusiveGroupValidator() : base(nameof(InclusiveGroup), typeof(InclusiveGroup))
     { }
 
+    /// <inheritdoc/>
     public override void Validate(CliCommandResult commandResult,
         CommandCondition valueCondition, ValidationContext validationContext)
     {

@@ -4,7 +4,7 @@
 namespace System.CommandLine.Subsystems.Annotations;
 
 /// <summary>
-/// IDs for well-known Version annotations.
+/// IDs for well-known Value Condition annotations.
 /// </summary>
 public static class ValueConditionAnnotations
 {

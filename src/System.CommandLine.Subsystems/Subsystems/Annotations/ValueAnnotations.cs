@@ -4,7 +4,7 @@
 namespace System.CommandLine.Subsystems.Annotations;
 
 /// <summary>
-/// IDs for well-known Version annotations.
+/// IDs for well-known Default Value annotations.
 /// </summary>
 public static class ValueAnnotations
 {
@@ -16,7 +16,7 @@ public static class ValueAnnotations
     public static AnnotationId DefaultValueSource { get; } = new(Prefix, nameof(DefaultValueSource));
 
     /// <summary>
-    /// Default value for an option or argument
+    /// Default default value for an option or argument
     /// </summary>
     /// <remarks>
     /// Should be the same type as the type parameter of
@@ -26,7 +26,7 @@ public static class ValueAnnotations
 
 
     /// <summary>
-    /// Default value calculation for an option or argument
+    /// Default default value calculation for an option or argument
     /// </summary>
     /// <remarks>
     /// Please use the extension methods and do not call this directly.

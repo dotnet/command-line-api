@@ -3,6 +3,8 @@
 
 namespace System.CommandLine.Validation;
 
+// TODO: Remove this class. All of the things it contains are in the PipelineResult, except the ValidationSubsystem currently
+//       running, if there are multiple. The scenario where that is needed seems unlikely.
 public class ValidationContext
 {
     public ValidationContext(PipelineResult pipelineResult, ValidationSubsystem validationSubsystem)
