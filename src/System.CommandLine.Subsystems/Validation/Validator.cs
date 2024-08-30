@@ -8,6 +8,7 @@ namespace System.CommandLine.Validation;
 /// <summary>
 /// Base class for CommandValidator and ValueValidator. 
 /// </summary>
+// TODO: Discuss visibility and custom validators
 public abstract class Validator
 {
     public Validator(string name, Type valueConditionType, params Type[] moreValueConditionTypes)

@@ -41,6 +41,7 @@ public class InclusiveGroupValidator : CommandValidator
         }
         if (missingMembers is not null && missingMembers.Any())
         {
+            // TODO: Rework to allow localization
             var pluralToBe = "are";
             var singularToBe = "is";
             validationContext.PipelineResult.AddError(new ParseError( $"The members {string.Join(", ", groupMembers.Select(m => m.Name))} " +
