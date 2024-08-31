@@ -11,7 +11,7 @@ namespace System.CommandLine.Validation;
 // TODO: Discuss visibility and custom validators
 public abstract class Validator
 {
-    public Validator(string name, Type valueConditionType, params Type[] moreValueConditionTypes)
+    internal Validator(string name, Type valueConditionType, params Type[] moreValueConditionTypes)
     {
         Name = name;
         ValueConditionTypes = [valueConditionType, .. moreValueConditionTypes];
