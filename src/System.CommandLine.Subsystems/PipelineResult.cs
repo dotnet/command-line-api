@@ -5,29 +5,39 @@ using System.CommandLine.Parsing;
 
 namespace System.CommandLine;
 
-public class PipelineResult(ParseResult parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
+public class PipelineResult
 {
     // TODO: Try to build workflow so it is illegal to create this without a ParseResult
     private readonly List<ParseError> errors = [];
-    public ParseResult ParseResult { get; } = parseResult;
-    private ValueProvider valueProvider { get; } = new ValueProvider(parseResult);
-    public string RawInput { get; } = rawInput;
+    private ValueProvider valueProvider { get; } 
+
+    public PipelineResult(ParseResult parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
+    {
+        ParseResult = parseResult;
+        RawInput = rawInput;
+        Pipeline = pipeline ?? Pipeline.CreateEmpty();
+        ConsoleHack = consoleHack ?? new ConsoleHack();
+        valueProvider = new ValueProvider(this);
+    }
+
+    public ParseResult ParseResult { get; }
+    public string RawInput { get; }
 
     // TODO: Consider behavior when pipeline is null - this is probably a core user accessing some subsystems
-    public Pipeline Pipeline { get; } = pipeline ?? Pipeline.CreateEmpty();
-    public ConsoleHack ConsoleHack { get; } = consoleHack ?? new ConsoleHack();
+    public Pipeline Pipeline { get; }
+    public ConsoleHack ConsoleHack { get; }
 
     public bool AlreadyHandled { get; set; }
     public int ExitCode { get; set; }
 
-    public T? GetValue<T>(CliValueSymbol dataSymbol)
-     => valueProvider.GetValue<T>(dataSymbol);
+    public T? GetValue<T>(CliValueSymbol valueSymbol)
+     => valueProvider.GetValue<T>(valueSymbol);
 
     public object? GetValue(CliValueSymbol option)
-        => valueProvider.GetValue<object?>(option);
+        => valueProvider.GetValue<object>(option);
 
-    public CliValueResult? GetValueResult(CliValueSymbol dataSymbol)
-     => ParseResult.GetValueResult(dataSymbol);
+    public CliValueResult? GetValueResult(CliValueSymbol valueSymbol)
+     => ParseResult.GetValueResult(valueSymbol);
 
 
     public void AddErrors(IEnumerable<ParseError> errors)

@@ -29,7 +29,7 @@ public class CliValueResult : CliSymbolResult
     /// <summary>
     /// The CliSymbol the value is for. This is always a CliOption or CliArgument.
     /// </summary>
-    public CliSymbol ValueSymbol { get; }
+    public CliValueSymbol ValueSymbol { get; }
 
     internal object? Value { get; }
 

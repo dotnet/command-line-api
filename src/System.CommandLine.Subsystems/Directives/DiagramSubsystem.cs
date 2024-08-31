@@ -3,7 +3,6 @@
 
 using System.CommandLine.Subsystems;
 using System.Text;
-using System.CommandLine.Parsing;
 
 namespace System.CommandLine.Directives;
 
@@ -13,7 +12,7 @@ public class DiagramSubsystem(IAnnotationProvider? annotationProvider = null)
     //protected internal override bool GetIsActivated(ParseResult? parseResult)
     //   => parseResult is not null && option is not null && parseResult.GetValue(option);
 
-    protected internal override void Execute(PipelineResult pipelineResult)
+    public override void Execute(PipelineResult pipelineResult)
     {
         // Gather locations
         //var locations = pipelineResult.ParseResult.LocationMap

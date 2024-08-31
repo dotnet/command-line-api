@@ -69,6 +69,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- This was added to allow tests of tokenization -->
     <InternalsVisibleTo Include="System.CommandLine.Tests" />
   </ItemGroup>
 

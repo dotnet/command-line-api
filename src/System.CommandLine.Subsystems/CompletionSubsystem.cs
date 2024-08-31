@@ -27,7 +27,7 @@ public class CompletionSubsystem : CliSubsystem
             ? false
             : false;
 
-    protected internal override void Execute(PipelineResult pipelineResult)
+    public override void Execute(PipelineResult pipelineResult)
     {
         pipelineResult.ConsoleHack.WriteLine("Not yet implemented");
         pipelineResult.SetSuccess();
