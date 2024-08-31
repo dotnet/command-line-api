@@ -43,7 +43,7 @@ namespace System.CommandLine.Subsystems.Tests
             internal bool ExecutionWasRun;
             internal bool TeardownWasRun;
 
-            protected override void Initialize(InitializationContext context)
+            protected internal override void Initialize(InitializationContext context)
             {
                 base.Initialize(context);
                 // marker hack needed because ConsoleHack not available in initialization
@@ -56,7 +56,7 @@ namespace System.CommandLine.Subsystems.Tests
                 base.Execute(pipelineResult);
             }
 
-            protected override void TearDown(PipelineResult pipelineResult)
+            protected internal override void TearDown(PipelineResult pipelineResult)
             {
                 TeardownWasRun = true;
                 base.TearDown(pipelineResult);

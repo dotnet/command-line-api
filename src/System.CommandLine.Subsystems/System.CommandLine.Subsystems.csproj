@@ -5,10 +5,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>System.CommandLine</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- This was added to allow testing of ValueSource -->
+    <InternalsVisibleTo Include="System.CommandLine.Subsystems.Tests" />
   </ItemGroup>
 
   <ItemGroup>

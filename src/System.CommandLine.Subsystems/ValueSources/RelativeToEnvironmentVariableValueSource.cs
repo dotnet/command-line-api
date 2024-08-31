@@ -30,7 +30,7 @@ public sealed class RelativeToEnvironmentVariableValueSource<T>
     /// <summary>
     /// The description of this value, used to clarify the intent of the values that appear in error messages.
     /// </summary>
-    public override string? Description { get; } 
+    public override string? Description { get; }
 
     public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)
     {

@@ -22,6 +22,7 @@ public abstract class ValueSource
 
     // TODO: Should we use ToString() here?
     public abstract string? Description { get; }
+
     public static ValueSource<T> Create<T>(T value, string? description = null)
         => new SimpleValueSource<T>(value, description);
 
@@ -47,7 +48,7 @@ public abstract class ValueSource
         => new RelativeToEnvironmentVariableValueSource<T>(environmentVariableName, calculation, description);
 }
 
-// TODO: Determine philosophy for custom value sources and whether tehy can buld on existing sources.
+// TODO: Determine philosophy for custom value sources and whether they can build on existing sources.
 public abstract class ValueSource<T> : ValueSource
 {
     /// <summary>
@@ -56,12 +57,13 @@ public abstract class ValueSource<T> : ValueSource
     /// <param name="pipelineResult">The current pipeline result.</param>
     /// <param name="value">An out parameter which contains the converted value, with the calculation applied, if it is found.</param>
     /// <returns>True if a value was found, otherwise false.</returns>
-    public abstract bool TryGetTypedValue(PipelineResult pipelineResult, 
-                                          [NotNullWhen(true)] out T? value);
+    // TODO: Determine whether this and `TryGetValue` should have NotNullWhen(true) attribute. Discussion in <reporoot>/OpenQuestions.md
+    public abstract bool TryGetTypedValue(PipelineResult pipelineResult,
+                                          out T? value);
 
     /// <inheritdoc/>
-    public override bool TryGetValue(PipelineResult pipelineResult, 
-                                     [NotNullWhen(true)] out object? value)
+    public override bool TryGetValue(PipelineResult pipelineResult,
+                                     out object? value)
     {
 
         if (TryGetTypedValue(pipelineResult, out T? newValue))
