@@ -54,3 +54,6 @@ However, the point of conditions is that they are a statement about the symbol a
 
 Suggestion: Use internal constructors and leave conditions public
 
+## Should `ValueCondition` be called `Condition`?
+
+They may apply to commands.

@@ -8,8 +8,11 @@ using System.CommandLine.ValueSources;
 namespace System.CommandLine.ValueConditions;
 
 /// <summary>
-/// Declares the range for the option or argument. The non-generic version is used by the <see cref="RangeValidator/>.
+/// Declares the range condition for the option or argument.
 /// </summary>
+/// <remarks>
+/// The non-generic version is used by the <see cref="RangeValidator/>.
+/// </remarks>
 public abstract class Range : ValueCondition
 {
     protected Range(Type valueType)
@@ -17,13 +20,29 @@ public abstract class Range : ValueCondition
     {
         ValueType = valueType;
     }
+
+    /// <summary>
+    /// The type of the symbol the range applies to.
+    /// </summary>
     public Type ValueType { get; }
 }
 
-public class Range<T>(ValueSource<T>? lowerBound, ValueSource<T>? upperBound, RangeBounds rangeBound = 0)
-    : Range(typeof(T)), IValueValidator
+/// <summary>
+/// Declares the range condition for the option or argument. Instances 
+/// of this method are created via extension methods on <see cref="ValueSymbol"/>
+/// </summary>
+/// <typeparam name="T">The type of the symbol the range applies to.</typeparam>
+public class Range<T> : Range, IValueValidator
     where T : IComparable<T>
 {
+    internal Range(ValueSource<T>? lowerBound, ValueSource<T>? upperBound, RangeBounds rangeBound = 0) : base(typeof(T))
+    {
+        LowerBound = lowerBound;
+        UpperBound = upperBound;
+        RangeBound = rangeBound;
+    }    
+    
+    /// <inheritdoc/>
     public void Validate(object? value,
                          CliValueSymbol valueSymbol,
                          CliValueResult? valueResult,
@@ -37,23 +56,35 @@ public class Range<T>(ValueSource<T>? lowerBound, ValueSource<T>? upperBound, Ra
 
         // TODO: Replace the strings we are comparing with a diagnostic ID when we update ParseError
         if (LowerBound is not null
-            && LowerBound.TryGetTypedValue(validationContext.PipelineResult, out var lowerValue)
+            && validationContext.TryGetTypedValue(LowerBound, out var lowerValue)
             && comparableValue.CompareTo(lowerValue) < 0)
         {
-            validationContext.PipelineResult.AddError(new ParseError($"The value for '{valueSymbol.Name}' is below the lower bound of {LowerBound}"));
+            validationContext.AddError(new ParseError($"The value for '{valueSymbol.Name}' is below the lower bound of {LowerBound}"));
         }
 
 
         if (UpperBound is not null
-           && UpperBound.TryGetTypedValue(validationContext.PipelineResult, out var upperValue)
+           && validationContext.TryGetTypedValue(UpperBound, out var upperValue)
            && comparableValue.CompareTo(upperValue) > 0)
         {
-            validationContext.PipelineResult.AddError(new ParseError($"The value for '{valueSymbol.Name}' is above the upper bound of {UpperBound}"));
+            validationContext.AddError(new ParseError($"The value for '{valueSymbol.Name}' is above the upper bound of {UpperBound}"));
         }
     }
 
-    public ValueSource<T>? LowerBound { get; init; } = lowerBound;
-    public ValueSource<T>? UpperBound { get; init; } = upperBound;
-    public RangeBounds RangeBound { get; } = rangeBound;
+    /// <summary>
+    /// The lower bound of the range.
+    /// </summary>
+    public ValueSource<T>? LowerBound { get; init; }
+
+    /// <summary>
+    /// The upper bound of the range.
+    /// </summary>
+    public ValueSource<T>? UpperBound { get; init; }
+
+    /// <summary>
+    /// Whether values of the range are considered part of the 
+    /// range (inclusive) or not (exclusive)
+    /// </summary>
+    public RangeBounds RangeBound { get; }
 
 }

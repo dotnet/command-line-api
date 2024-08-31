@@ -74,8 +74,8 @@ public sealed class ValidationSubsystem : CliSubsystem
             return; // nothing to do
         }
 
-        var value = validationContext.PipelineResult.GetValue(valueSymbol);
-        var valueResult = validationContext.ParseResult?.GetValueResult(valueSymbol);
+        var value = validationContext.GetValue(valueSymbol);
+        var valueResult = validationContext.GetValueResult(valueSymbol);
         foreach (var condition in valueConditions)
         {
             ValidateValueCondition(value, valueSymbol, valueResult, condition, validationContext);
@@ -120,7 +120,7 @@ public sealed class ValidationSubsystem : CliSubsystem
         {
             if (condition.MustHaveValidator)
             {
-                validationContext.PipelineResult.AddError(new ParseError($"{valueSymbol.Name} must have {condition.Name} validator."));
+                validationContext.AddError(new ParseError($"{valueSymbol.Name} must have {condition.Name} validator."));
             }
             return; 
         }
@@ -166,7 +166,7 @@ public sealed class ValidationSubsystem : CliSubsystem
         {
             if (condition.MustHaveValidator)
             {
-                validationContext.PipelineResult.AddError(new ParseError($"{commandResult.Command.Name} must have {condition.Name} validator."));
+                validationContext.AddError(new ParseError($"{commandResult.Command.Name} must have {condition.Name} validator."));
             }
             return;
         }

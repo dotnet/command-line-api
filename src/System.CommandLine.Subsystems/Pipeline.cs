@@ -28,7 +28,7 @@ public partial class Pipeline
     /// <param name="errorReporting">A help subsystem to replace the standard one. To add a subsystem, use <see cref="AddSubsystem"></param>
     /// <returns>A new pipeline.</returns>
     /// <remarks>
-    /// The <see cref="ValueProvider"/>, <see cref="Directives.ResponseSubystem"/>, <see cref="InvocationSubsystem"/>, and <see cref="ValidationSubsystem"/> cannot be replaced.
+    /// The <see cref="Directives.ResponseSubystem"/>, <see cref="InvocationSubsystem"/>, and <see cref="ValidationSubsystem"/> cannot be replaced.
     /// </remarks>
     public static Pipeline Create(HelpSubsystem? help = null,
                                   VersionSubsystem? version = null,

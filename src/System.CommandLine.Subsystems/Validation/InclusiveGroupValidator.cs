@@ -44,7 +44,7 @@ public class InclusiveGroupValidator : CommandValidator
             // TODO: Rework to allow localization
             var pluralToBe = "are";
             var singularToBe = "is";
-            validationContext.PipelineResult.AddError(new ParseError( $"The members {string.Join(", ", groupMembers.Select(m => m.Name))} " +
+            validationContext.AddError(new ParseError( $"The members {string.Join(", ", groupMembers.Select(m => m.Name))} " +
                 $"must all be used if one is used. {string.Join(", ", missingMembers.Select(m => m.Name))} " +
                 $"{(missingMembers.Skip(1).Any() ? pluralToBe : singularToBe)} missing."));
         }

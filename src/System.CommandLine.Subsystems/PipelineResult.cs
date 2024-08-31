@@ -30,14 +30,14 @@ public class PipelineResult
     public bool AlreadyHandled { get; set; }
     public int ExitCode { get; set; }
 
-    public T? GetValue<T>(CliValueSymbol dataSymbol)
-     => valueProvider.GetValue<T>(dataSymbol);
+    public T? GetValue<T>(CliValueSymbol valueSymbol)
+     => valueProvider.GetValue<T>(valueSymbol);
 
     public object? GetValue(CliValueSymbol option)
         => valueProvider.GetValue<object>(option);
 
-    public CliValueResult? GetValueResult(CliValueSymbol dataSymbol)
-     => ParseResult.GetValueResult(dataSymbol);
+    public CliValueResult? GetValueResult(CliValueSymbol valueSymbol)
+     => ParseResult.GetValueResult(valueSymbol);
 
 
     public void AddErrors(IEnumerable<ParseError> errors)
