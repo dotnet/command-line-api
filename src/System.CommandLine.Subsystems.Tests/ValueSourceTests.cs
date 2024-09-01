@@ -181,7 +181,7 @@ public class ValueSourceTests
 
 
     [Fact]
-    public void RelativeToSymbolValueSource_false_if_other_symbol_missing()
+    public void RelativeToSymbolValueSource_false_if_other_symbol_has_no_default_and_is_missing()
     {
         var option = new CliOption<int>("-a");
         var valueSource = new RelativeToSymbolValueSource<int>(option);

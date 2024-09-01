@@ -36,6 +36,14 @@ public class PipelineResult
     public object? GetValue(CliValueSymbol option)
         => valueProvider.GetValue<object>(option);
 
+    public bool TryGetValue<T>(CliValueSymbol valueSymbol, out T? value)
+        => valueProvider.TryGetValue(valueSymbol, out value);
+
+    public bool TryGetValue(CliValueSymbol option, out object? value)
+        => valueProvider.TryGetValue(option, out value);
+
+
+
     public CliValueResult? GetValueResult(CliValueSymbol valueSymbol)
      => ParseResult.GetValueResult(valueSymbol);
 

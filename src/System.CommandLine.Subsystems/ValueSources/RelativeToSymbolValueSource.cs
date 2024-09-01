@@ -40,19 +40,21 @@ public sealed class RelativeToSymbolValueSource<T>
             return false;
         }
 
-        var otherSymbolValue = pipelineResult.GetValue<T>(OtherSymbol);
+        if (pipelineResult.TryGetValue<T>(OtherSymbol, out var otherSymbolValue))
+        {
+            if (Calculation is null)
+            {
+                value = otherSymbolValue;
+                return true;
+            }
+            (var success, var newValue) = Calculation(otherSymbolValue);
+            if (success)
+            {
+                value = newValue;
+                return true;
+            }
+        }
 
-        if (Calculation is null)
-        {
-            value = otherSymbolValue;
-            return true;
-        }
-        (var success, var newValue) = Calculation(otherSymbolValue);
-        if (success)
-        {
-            value = newValue;
-            return true;
-        }
         value = default;
         return false;
     }
