@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <RootNamespace>System.CommandLine</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Enabling the following line identifies missing and malformed XML comments -->
+    <!--<DocumentationFile>path/to/file.xml</DocumentationFile>-->
   </PropertyGroup>
 
   <ItemGroup>

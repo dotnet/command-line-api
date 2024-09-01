@@ -36,4 +36,9 @@ public static class ValueAnnotations
     /// </para>
     /// </remarks>
     public static AnnotationId DefaultValueCalculation { get; } = new(Prefix, nameof(DefaultValueCalculation));
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static AnnotationId CalculatedValues { get; } = new (Prefix, nameof(CalculatedValues));
 }

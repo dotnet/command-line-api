@@ -27,8 +27,9 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private ChildSymbolList<CliArgument>? _arguments;
         private ChildSymbolList<CliOption>? _options;
+        private ChildSymbolList<CliValueSymbol>? _otherValueSymbols;
         private ChildSymbolList<CliCommand>? _subcommands;
-// TODO: validators
+        // TODO: validators
         /*
         private List<Action<CliCommandResult>>? _validators;
 
@@ -78,6 +79,8 @@ namespace System.CommandLine
         // TODO: Consider value of lazy here. It sets up a desire to use awkward approach (HasOptions) for a perf win. Applies to Options and Subcommands also.
         public IList<CliOption> Options => _options ??= new (this);
 
+        public IList<CliValueSymbol> OtherSymbols => _otherValueSymbols ??= new(this);
+
         internal bool HasOptions => _options?.Count > 0;
 
         /// <summary>
@@ -86,7 +89,7 @@ namespace System.CommandLine
         public IList<CliCommand> Subcommands => _subcommands ??= new(this);
 
         internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
-/*
+        /*
         /// <summary>
         /// Validators to the command. Validators can be used
         /// to create custom validation logic.
@@ -195,7 +198,7 @@ namespace System.CommandLine
 
         // Hide from IntelliSense as it's only to support initializing via C# collection expression
         // More specific efficient overloads are available for all supported symbol types.
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void Add(CliSymbol symbol)
         {
@@ -211,9 +214,13 @@ namespace System.CommandLine
             {
                 Add(command);
             }
-            else
+            else if (symbol is CliValueSymbol valueSymbol)
             {
-// TODO: add a localized message here
+                OtherSymbols.Add(valueSymbol);
+            }
+            else 
+            {
+                // TODO: add a localized message here
                 throw new ArgumentException(null, nameof(symbol));
             }
         }

@@ -34,7 +34,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="ValueSourceTests.cs" />
     <Compile Include="ValidationSubsystemTests.cs" />
-    <Compile Include="ValueSubsystemTests.cs" />
+    <Compile Include="ValueProviderTests.cs" />
     <Compile Include="ResponseSubsystemTests.cs" />
     <Compile Include="DirectiveSubsystemTests.cs" />
     <Compile Include="DiagramSubsystemTests.cs" />

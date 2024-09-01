@@ -42,7 +42,7 @@ The first probably means we pass around `PipelineResult`. The second means that 
 
 We started with `Validators` and then added the IValidator interface to allow conditions to do validation because they have the strong type. Checking for this first also avoids a dictionary lookup.
 
-Our default validations will be on the Condition for the shortcut. Users can offer alternatives by creaing custom validators. The dictionary for custom validators will be lazy, and lookups will be pay for play when the user has custom validators. (This is not yet implemented.)
+Our default validations will be on the Condition for the shortcut. Users can offer alternatives by creating custom validators. The dictionary for custom validators will be lazy, and lookups will be pay for play when the user has custom validators. (This is not yet implemented.)
 
 When present, custom validators have precedence. There is no cost when they are not present.
 
@@ -57,3 +57,28 @@ Suggestion: Use internal constructors and leave conditions public
 ## Should `ValueCondition` be called `Condition`?
 
 They may apply to commands.
+
+## Can we remove the "Annotations" in xxxxAnnotationExtensions
+
+We have other extensions, such as `AddCalculation`. Where should it go?
+
+They may shift to extension types in the future.
+
+It's a long in Solution Explorer
+
+## Calculated value design
+
+My first direction on the calculated value design was to derive from CliSymbol and treat them similarly to any other CliSymbol. This results in a technical challenge in the way the `Add` method works for CliSymbols - specifically it does not allow adding anything except options and arguments and the design results in infinite recursion if the exception is ignored. While we might be able to finesse this, it indicates just how thing the ice is if we try to "trick" things in the core parser layer. 
+
+Instead calculated values are a new thing. They can contribute symbols when asked - their internal components can be expressed as symbols for help, for example. However, they are not a CliSymbol and for all uses must be separately treated. 
+
+They are held on commands via annotations. Calculated values that should be are not logically located on a symbol should be on the root command.
+
+This will use collection annotations when they are available. For now they are List<CalculatedValue>.
+
+We have a naming challenge that may indicate an underlying need to refactor:
+
+- ValueSource: Knows how to get data from disparate sources - constants, other symbols, environment variables.
+- Calculation: Parameter/property on ValueSources allowing them to be relative to their source
+- CalculatedValue (possibly CliCalculatedValue): A new thing that can be declared by the CliAuthor for late interpretation and type conversions.
+- ValueCondition, ValueSymbol and other places where "Value" allows unification of Option and Argument (and is very, very helpful for that)

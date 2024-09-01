@@ -9,7 +9,7 @@ public class PipelineResult
 {
     // TODO: Try to build workflow so it is illegal to create this without a ParseResult
     private readonly List<ParseError> errors = [];
-    private ValueProvider valueProvider { get; } 
+    private readonly ValueProvider valueProvider;
 
     public PipelineResult(ParseResult parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
     {

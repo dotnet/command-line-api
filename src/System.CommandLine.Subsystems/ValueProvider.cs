@@ -40,15 +40,22 @@ internal class ValueProvider
     {
         // TODO: Add guard to prevent reentrancy for the same symbol via RelativeToSymbol of custom ValueSource
         var _ = valueSymbol ?? throw new ArgumentNullException(nameof(valueSymbol));
-        if (TryGetValue<T>(valueSymbol, out var value))
+
+        if (TryGetFromCache(valueSymbol, out var cachedValue))
         {
-            return value;
+            return cachedValue;
         }
-        if (pipelineResult.ParseResult?.GetValueResult(valueSymbol) is { } valueResult)
+        if (valueSymbol is CalculatedValue calculatedValueSymbol
+            && calculatedValueSymbol.TryGetValue<T>(pipelineResult, out T? calculatedValue))
+        {
+            return UseValue(valueSymbol, calculatedValue);
+        }
+        if (valueSymbol is not CalculatedValue
+            && pipelineResult.ParseResult?.GetValueResult(valueSymbol) is { } valueResult)
         {
             return UseValue(valueSymbol, valueResult.GetValue<T>());
         }
-        if (valueSymbol.TryGetDefaultValueSource(out ValueSource? defaultValueSource))
+        if (valueSymbol.TryGetDefault(out ValueSource? defaultValueSource))
         {
             if (defaultValueSource is not ValueSource<T> typedDefaultValueSource)
             {
@@ -61,19 +68,13 @@ internal class ValueProvider
         }
         return UseValue(valueSymbol, default(T));
 
+        bool TryGetFromCache(CliValueSymbol valueSymbol, out T? cachedValue)
+        => TryGetValue<T>(valueSymbol, out cachedValue);
+
         TValue UseValue<TValue>(CliSymbol symbol, TValue value)
         {
             SetValue(symbol, value);
             return value;
         }
-    }
-
-    private static T? CalculatedDefault<T>(CliValueSymbol valueSymbol, Func<T?> defaultValueCalculation)
-    {
-        var objectValue = defaultValueCalculation();
-        var value = objectValue is null
-            ? default
-            : (T)objectValue;
-        return value;
     }
 }

@@ -4,12 +4,13 @@
 using FluentAssertions;
 using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
+using System.Runtime.Serialization;
 using Xunit;
 using static System.CommandLine.Subsystems.Tests.TestData;
 
 namespace System.CommandLine.Subsystems.Tests;
 
-public class ValueSubsystemTests
+public class ValueProviderTests
 {
     [Fact]
     public void Values_that_are_entered_are_retrieved()
@@ -59,68 +60,42 @@ public class ValueSubsystemTests
         guidOptionValue.Should().Be(Guid.Empty);
     }
 
-    // TODO: Add various default value tests
-
-    /* Hold these tests until we determine if ValueSubsystem is replaceable
     [Fact]
-    public void ValueSubsystem_returns_values_that_are_entered()
+    public void Default_value_is_used_when_user_did_not_enter_it()
     {
-        var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-        CliOption<int> option = new CliOption<int>("--intValue");
-        CliRootCommand rootCommand = [
-            new CliCommand("x")
-            {
-                option
-            }];
+        var intOption = new CliOption<int>("--intOption");
+        intOption.SetDefault<int>(42);
+        var rootCommand = new CliRootCommand { intOption };
         var configuration = new CliConfiguration(rootCommand);
-        var pipeline = Pipeline.CreateEmpty();
-        pipeline.Value = new ValueSubsystem();
-        const int expected = 42;
-        var input = $"x --intValue {expected}";
-
-        var parseResult = pipeline.Parse(configuration, input); // assigned for debugging
-        pipeline.Execute(configuration, input, consoleHack);
-
-        pipeline.Value.GetValue<int>(option).Should().Be(expected);
-    }
-
-    [Fact]
-    public void ValueSubsystem_returns_default_value_when_no_value_is_entered()
-    {
-        var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-        CliOption<int> option = new CliOption<int>("--intValue");
-        CliRootCommand rootCommand = [option];
-        var configuration = new CliConfiguration(rootCommand);
-        var pipeline = Pipeline.CreateEmpty();
-        pipeline.Value = new ValueSubsystem();
-        option.SetDefaultValue(43);
-        const int expected = 43;
-        var input = $"";
-
-        pipeline.Execute(configuration, input, consoleHack);
-
-        pipeline.Value.GetValue<int>(option).Should().Be(expected);
-    }
-
-
-    [Fact]
-    public void ValueSubsystem_returns_calculated_default_value_when_no_value_is_entered()
-    {
-        var consoleHack = new ConsoleHack().RedirectToBuffer(true);
-        CliOption<int> option = new CliOption<int>("--intValue");
-        CliRootCommand rootCommand = [option];
-        var configuration = new CliConfiguration(rootCommand);
-        var pipeline = Pipeline.CreateEmpty();
-        pipeline.Value = new ValueSubsystem();
-        var x = 42;
-        option.SetDefaultValueCalculation(() => x + 2);
-        const int expected = 44;
+        var pipeline = Pipeline.Create();
         var input = "";
 
-        var parseResult = pipeline.Parse(configuration, input); // assigned for debugging
-        pipeline.Execute(configuration, input, consoleHack);
+        var parseResult = CliParser.Parse(rootCommand, input, configuration);
+        var pipelineResult = new PipelineResult(parseResult, input, pipeline);
 
-        pipeline.Value.GetValue<int>(option).Should().Be(expected);
+        pipelineResult.Should().NotBeNull();
+        var intOptionValue = pipelineResult.GetValue<int>(intOption);
+        intOptionValue.Should().Be(42);
     }
-    */
+
+    [Fact]
+    public void Can_retrieve_calculated_value_()
+    {
+        // TODO: This is problematic because we probably can't and don't want to add new types
+        // of ValueSymbols. We need a different way to add these, which means we need to work
+        // out where they live (probably as annotations on the root command or a special symbol
+        // type) and how we add them (probably an extension method).
+        var calcSymbol = new CalculatedValue<int>("calcValue", 42);
+        var rootCommand = new CliRootCommand { calcSymbol };
+        var configuration = new CliConfiguration(rootCommand);
+        var pipeline = Pipeline.Create();
+        var input = "";
+
+        var parseResult = CliParser.Parse(rootCommand, input, configuration);
+        var pipelineResult = new PipelineResult(parseResult, input, pipeline);
+
+        pipelineResult.Should().NotBeNull();
+        var intOptionValue = pipelineResult.GetValue<int>(calcSymbol);
+        intOptionValue.Should().Be(42);
+    }
 }
