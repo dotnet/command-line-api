@@ -27,9 +27,25 @@ public sealed class RelativeToSymbolsValueSource<T>
         Description = description;
     }
 
+    /// <summary>
+    /// The description that will be used in messages, such as value conditions
+    /// </summary>
     public override string? Description { get; }
+
+    /// <summary>
+    /// The other symbols that this ValueSource depends on.
+    /// </summary>
     public IEnumerable<CliValueSymbol> OtherSymbols { get; }
+
+    /// <summary>
+    /// If true, default values will not be used.
+    /// </summary>
+    // TODO: Find scenarios for good tests. This is based on intuition not a known scenario. Overall we are pretty aggressive about default values.
     public bool OnlyUserEnteredValues { get; }
+
+    /// <summary>
+    /// The calculation that determines a single value, which might an instance of a complex type, based on the values provided.
+    /// </summary>
     public Func<IEnumerable<object?>, (bool success, T? value)> Calculation { get; }
 
     /// <inheritdoc/>

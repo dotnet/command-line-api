@@ -42,11 +42,8 @@ public class PipelineResult
     public bool TryGetValue(CliValueSymbol option, out object? value)
         => valueProvider.TryGetValue(option, out value);
 
-
-
     public CliValueResult? GetValueResult(CliValueSymbol valueSymbol)
      => ParseResult.GetValueResult(valueSymbol);
-
 
     public void AddErrors(IEnumerable<ParseError> errors)
     {

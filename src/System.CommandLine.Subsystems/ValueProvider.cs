@@ -72,8 +72,6 @@ internal class ValueProvider
             }
         }
         // !!! CRITICAL: All returns from this method should set the cache value to clear this pseudo-lock (use CacheAndReturn)
-        // TODO: Using the cache would only work if we gave up the cache returns being strongly typed. 
-        // Consider instead a 
         SetIsCalculating(valueSymbol);
 
         if (valueSymbol is CalculatedValue calculatedValueSymbol

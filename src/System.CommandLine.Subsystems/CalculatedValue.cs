@@ -21,25 +21,27 @@ public abstract class CalculatedValue : CliValueSymbol
     protected CalculatedValue(string name, ValueSource valueSource)
         :base(name)
     {
-        //Name = name;
         ValueSource = valueSource;
     }
 
+    /// <summary>
+    /// Create a CalculatedValue.
+    /// </summary>
+    /// <typeparam name="T">The type of the value that can be retrieved via this calculated value.</typeparam>
+    // TODO: Provide name lookup of CalculatedValues
+    /// <param name="name">The name of the calculated value</param>
+    /// <param name="valueSource">The ValueSource used to retrieve the value. If there are defaults/fallbacks, this will be an aggregate value source.</param>
+    /// <returns></returns>
     public static CalculatedValue<T> CreateCalculatedValue<T>(string name, ValueSource<T> valueSource)
        => new(name, valueSource);
 
-    ///// <summary>
-    ///// Gets the name of the symbol.
-    ///// </summary>
-    //public string Name { get; }
-
-    ///// <summary>
-    ///// Gets or sets the <see cref="Type" /> that the argument's parsed tokens will be converted to.
-    ///// </summary>
-    //public abstract Type ValueType { get; }
-
+    // TODO: This feels backwards. Should probably appear on the string array used as the data source.
     public IEnumerable<CliValueSymbol>? AppearAs {  get; set; }
 
+    /// <summary>
+    /// The ValueSource used to retrieve the value. If there are defaults/fallbacks, this will be an
+    /// aggregate value source.
+    /// </summary>
     public ValueSource ValueSource { get; }
 
     internal bool TryGetValue<T>(PipelineResult pipelineResult, out T? calculatedValue)
@@ -65,5 +67,6 @@ public class CalculatedValue<T> : CalculatedValue
         : base(name, valueSource)
     { } 
     
+    /// <inheritdoc/>
     public override Type ValueType { get; } = typeof(T);
 }
