@@ -61,7 +61,7 @@ public class ValueProviderTests
     }
 
     [Fact]
-    public void Default_value_is_used_when_user_did_not_enter_it()
+    public void Default_value_is_used_when_user_did_not_enter_a_value()
     {
         var intOption = new CliOption<int>("--intOption");
         intOption.SetDefault<int>(42);
@@ -97,5 +97,26 @@ public class ValueProviderTests
         pipelineResult.Should().NotBeNull();
         var intOptionValue = pipelineResult.GetValue<int>(calcSymbol);
         intOptionValue.Should().Be(42);
+    }
+
+    [Fact]
+    public void Circular_default_value_dependency_throw()
+    {
+        var opt1 = new CliOption<int>("opt1");
+        var opt2 = new CliOption<int>("opt2");
+        var opt3 = new CliOption<int>("opt3");
+        opt1.SetDefault<int>(opt2);
+        opt2.SetDefault<int>(opt3);
+        opt3.SetDefault<int>(opt1);
+        var rootCommand = new CliRootCommand { opt1, opt2, opt3 };
+        var configuration = new CliConfiguration(rootCommand);
+        var pipeline = Pipeline.Create();
+        var input = "";
+
+        var parseResult = CliParser.Parse(rootCommand, input, configuration);
+        var pipelineResult = new PipelineResult(parseResult, input, pipeline);
+
+        pipelineResult.Should().NotBeNull();
+        Assert.Throws<InvalidOperationException>(() => _ = pipelineResult.GetValue<int>(opt1));
     }
 }

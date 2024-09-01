@@ -2,12 +2,18 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.ValueSources;
-using CacheItem = (bool found, object? value);
 
 namespace System.CommandLine;
 
 internal class ValueProvider
 {
+    private struct CacheItem
+    {
+        internal object? Value;
+        internal bool WasFound;
+        internal bool IsCalculating;
+    }
+
     private Dictionary<CliSymbol, CacheItem> cachedValues = [];
     private PipelineResult pipelineResult;
 
@@ -16,23 +22,23 @@ internal class ValueProvider
         this.pipelineResult = pipelineResult;
     }
 
-    private void SetValue(CliSymbol symbol, object? value, bool found)
+    private void SetCachedValue(CliSymbol symbol, object? value, bool found)
     {
-        cachedValues[symbol] = (found, value);
+        // TODO: MHutch: Feel free to optimize this and SetIsCalculating. We need the struct or a tuple here for "WasFound" which turns out we need.
+        cachedValues[symbol] = new CacheItem()
+        {
+            Value = value,
+            WasFound = found,
+            IsCalculating = false
+        };
     }
 
-    private bool TryGetFromCache<T>(CliSymbol symbol, out T? value)
+    private void SetIsCalculating(CliSymbol symbol)
     {
-        if (cachedValues.TryGetValue(symbol, out var t))
+        cachedValues[symbol] = new CacheItem()
         {
-            if (t.found)
-            {
-                value = (T?)t.value;
-                return true;
-            }
-        }
-        value = default;
-        return false;
+            IsCalculating = true
+        };
     }
 
     public T? GetValue<T>(CliValueSymbol valueSymbol)
@@ -49,23 +55,37 @@ internal class ValueProvider
 
     private bool TryGetValueInternal<T>(CliValueSymbol valueSymbol, out T? value)
     {
-        // TODO: Add guard to prevent reentrancy for the same symbol via RelativeToSymbol of custom ValueSource
         var _ = valueSymbol ?? throw new ArgumentNullException(nameof(valueSymbol));
 
-        if (TryGetFromCache(valueSymbol, out value))
+        if (cachedValues.TryGetValue(valueSymbol, out var cacheItem))
         {
-            return true;
+            if (cacheItem.IsCalculating)
+            {
+                value = default;
+                // Guard against reentrancy. Placed here so we catch if a CalculatedValue or calculation causes reentrancy
+                throw new InvalidOperationException("Circular value source dependency.");
+            }
+            if (cacheItem.WasFound)
+            {
+                value = (T?)cacheItem.Value;
+                return true;
+            }
         }
+        // !!! CRITICAL: All returns from this method should set the cache value to clear this pseudo-lock (use CacheAndReturn)
+        // TODO: Using the cache would only work if we gave up the cache returns being strongly typed. 
+        // Consider instead a 
+        SetIsCalculating(valueSymbol);
+
         if (valueSymbol is CalculatedValue calculatedValueSymbol
             && calculatedValueSymbol.TryGetValue(pipelineResult, out value))
         {
-            return CacheAndReturnSuccess(valueSymbol, value, true);
+            return CacheAndReturn(valueSymbol, value, true);
         }
         if (valueSymbol is not CalculatedValue
             && pipelineResult.ParseResult?.GetValueResult(valueSymbol) is { } valueResult)
         {
             value = valueResult.GetValue<T>();
-            return CacheAndReturnSuccess(valueSymbol, value, true);
+            return CacheAndReturn(valueSymbol, value, true);
         }
         if (valueSymbol.TryGetDefault(out ValueSource? defaultValueSource))
         {
@@ -75,15 +95,16 @@ internal class ValueProvider
             }
             if (typedDefaultValueSource.TryGetTypedValue(pipelineResult, out value))
             {
-                return CacheAndReturnSuccess(valueSymbol, value, true);
+                return CacheAndReturn(valueSymbol, value, true);
             }
         }
         // TODO: Determine if we should cache default. If so, additional design is needed to avoid first hit returning false, and remainder returning true
-        return CacheAndReturnSuccess(valueSymbol, default, false);
+        value = default;
+        return CacheAndReturn(valueSymbol, value, false);
 
-        bool CacheAndReturnSuccess(CliValueSymbol valueSymbol, T? valueToCache, bool valueFound)
+        bool CacheAndReturn(CliValueSymbol valueSymbol, T? valueToCache, bool valueFound)
         {
-            SetValue(valueSymbol, valueToCache, valueFound);
+            SetCachedValue(valueSymbol, valueToCache, valueFound);
             return valueFound;
         }
     }
