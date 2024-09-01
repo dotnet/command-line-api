@@ -14,10 +14,11 @@ namespace System.CommandLine.ValueSources;
 public sealed class RelativeToSymbolValueSource<T>
     : ValueSource<T>
 {
+    // TODO: API differences between this adn RelativeToSymbols are very annoying
     internal RelativeToSymbolValueSource(
        CliValueSymbol otherSymbol,
-       bool onlyUserEnteredValues = false,
        Func<object?, (bool success, T? value)>? calculation = null,
+       bool onlyUserEnteredValues = false,
        string? description = null)
     {
         OtherSymbol = otherSymbol;

@@ -34,7 +34,14 @@ public abstract class ValueSource
                                            Func<object?, (bool success, T? value)>? calculation = null,
                                            bool userEnteredValueOnly = false,
                                            string? description = null)
-        => new RelativeToSymbolValueSource<T>(otherSymbol, userEnteredValueOnly, calculation, description);
+        => new RelativeToSymbolValueSource<T>(otherSymbol, calculation, userEnteredValueOnly, description);
+
+    public static ValueSource<T> Create<T>(
+                                       Func<IEnumerable<object?>, (bool success, T? value)> calculation,
+                                       bool userEnteredValueOnly = false,
+                                       string? description = null,
+                                       params CliValueSymbol[] otherSymbols)
+        => new RelativeToSymbolsValueSource<T>(calculation, userEnteredValueOnly, description, otherSymbols);
 
     public static ValueSource<T> Create<T>(ValueSource<T> firstSource,
                                            ValueSource<T> secondSource,

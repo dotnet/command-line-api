@@ -199,4 +199,54 @@ public class ValueProviderTests
             .Should()
             .Be(packageName);
     }
+
+    private record struct Point2D(int X, int Y)
+    {
+       public static readonly Point2D Empty = new Point2D(0, 0);
+    }
+
+    private (CliRootCommand root, CliValueSymbol point) CreatePointCli()
+    {
+        var xOpt = new CliOption<int>("-x");
+        var yOpt = new CliOption<int>("-y");
+        var point = new CalculatedValue<Point2D>("point", ValueSource.Create(MakePoint, otherSymbols: [xOpt, yOpt]));
+        var dotnetCmd = new CliRootCommand() { xOpt, yOpt };
+        return (dotnetCmd, point);
+        
+        (bool success, Point2D point) MakePoint(IEnumerable<object?> input)
+        {
+            var inputInts = input.OfType<int>().ToArray();
+            if (inputInts.Length != 2)
+            {
+                return (false, Point2D.Empty); // since false is used, should return null, not empty point
+            }
+            return (true,
+                    new Point2D(inputInts[0], inputInts[1]));
+        }
+    }
+
+    [Theory]
+    [InlineData("-x 0 -y 0", "Point2D { X = 0, Y = 0 }")]
+    [InlineData("-x 1", "")]
+    [InlineData("-y 1", "")]
+    [InlineData("-x 1 -y 3", "Point2D { X = 1, Y = 3 }")]
+    [InlineData("-x -1 -y 2", "Point2D { X = -1, Y = 2 }")]
+    [InlineData("-x -2 -y -3", "Point2D { X = -2, Y = -3 }")]
+    public void Can_make_point_from_two_options(string input, string expected)
+    {
+        var (dotnetCmd, point) = CreatePointCli();
+        var configuration = new CliConfiguration(dotnetCmd);
+        var pipeline = Pipeline.Create();
+
+        var parseResult = CliParser.Parse(dotnetCmd, input, configuration);
+        var pipelineResult = new PipelineResult(parseResult, input, pipeline);
+
+        pipelineResult.Should().NotBeNull();
+        var pointValue = pipelineResult.GetValue(point);
+        var output = $"{pointValue}";
+        output
+            .Should()
+            .Be(expected);
+    }
+
 }
