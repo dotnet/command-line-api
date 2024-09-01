@@ -4,6 +4,7 @@
 using FluentAssertions;
 using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
+using System.CommandLine.ValueSources;
 using System.Runtime.Serialization;
 using Xunit;
 using static System.CommandLine.Subsystems.Tests.TestData;
@@ -118,5 +119,84 @@ public class ValueProviderTests
 
         pipelineResult.Should().NotBeNull();
         Assert.Throws<InvalidOperationException>(() => _ = pipelineResult.GetValue<int>(opt1));
+    }
+
+    [Fact]
+    public void dotnet_nuget_why_can_retrieve_project_and_package()
+    {
+        var opt1 = new CliOption<int>("opt1");
+        var opt2 = new CliOption<int>("opt2");
+        var opt3 = new CliOption<int>("opt3");
+        opt1.SetDefault<int>(opt2);
+        opt2.SetDefault<int>(opt3);
+        opt3.SetDefault<int>(opt1);
+        var rootCommand = new CliRootCommand { opt1, opt2, opt3 };
+        var configuration = new CliConfiguration(rootCommand);
+        var pipeline = Pipeline.Create();
+        var input = "";
+
+        var parseResult = CliParser.Parse(rootCommand, input, configuration);
+        var pipelineResult = new PipelineResult(parseResult, input, pipeline);
+
+        pipelineResult.Should().NotBeNull();
+        Assert.Throws<InvalidOperationException>(() => _ = pipelineResult.GetValue<int>(opt1));
+    }
+
+    private (CliRootCommand root, CalculatedValue project, CalculatedValue package) CreateDotnetNugetWhyCli()
+    {
+        var whyArg = new CliArgument<string[]>("whyArgs");
+        whyArg.Arity = new ArgumentArity(1, 2);
+        var project = new CalculatedValue<string>("project", ValueSource.Create(whyArg, ExtractProject));
+        var package = new CalculatedValue<string>("package", ValueSource.Create(whyArg, ExtractPackage));
+        var whyCmd = new CliCommand("why") { whyArg };
+        var nugetCmd = new CliCommand("nuget") { whyCmd };
+        var dotnetCmd = new CliRootCommand() { nugetCmd };
+        return (dotnetCmd, project, package);
+
+        (bool success, string value) ExtractProject(object? input)
+        {
+            if (input is not string[] inputArray)
+            {
+                return (false, string.Empty);
+            }
+            return (true,
+                    inputArray.Length == 1
+                        ? ""
+                        : inputArray[0]);
+        }
+
+        (bool success, string value) ExtractPackage(object? input)
+        {
+            if (input is not string[] inputArray)
+            {
+                return (false, string.Empty);
+            }
+            return (true,
+                    inputArray.Length == 1
+                        ? inputArray[0]
+                        : inputArray[1]);
+        }
+    }
+
+    [Theory]
+    [InlineData("myProject.csproj myPackage", "myProject.csproj", "myPackage")]
+    [InlineData("myPackage", "", "myPackage")]
+    public void dotnet_nuget_why_can_retrieve_package_without_project(string args, string projectName, string packageName)
+    {
+        var (dotnetCmd, project, package) = CreateDotnetNugetWhyCli();
+        var configuration = new CliConfiguration(dotnetCmd);
+        var pipeline = Pipeline.Create();
+        var input = $"nuget why {args}";
+
+        var parseResult = CliParser.Parse(dotnetCmd, input, configuration);
+        var pipelineResult = new PipelineResult(parseResult, input, pipeline);
+
+        pipelineResult.Should().NotBeNull();
+        pipelineResult.GetValue(project)
+            .Should()
+            .Be(projectName);
+        pipelineResult.GetValue(package)
+            .Should()
+            .Be(packageName);
     }
 }

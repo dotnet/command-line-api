@@ -40,11 +40,11 @@ public sealed class RelativeToSymbolValueSource<T>
             return false;
         }
 
-        if (pipelineResult.TryGetValue<T>(OtherSymbol, out var otherSymbolValue))
+        if (pipelineResult.TryGetValue(OtherSymbol, out var otherSymbolValue))
         {
             if (Calculation is null)
             {
-                value = otherSymbolValue;
+                value = (T?)otherSymbolValue;
                 return true;
             }
             (var success, var newValue) = Calculation(otherSymbolValue);

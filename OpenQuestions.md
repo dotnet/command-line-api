@@ -82,3 +82,15 @@ We have a naming challenge that may indicate an underlying need to refactor:
 - Calculation: Parameter/property on ValueSources allowing them to be relative to their source
 - CalculatedValue (possibly CliCalculatedValue): A new thing that can be declared by the CliAuthor for late interpretation and type conversions.
 - ValueCondition, ValueSymbol and other places where "Value" allows unification of Option and Argument (and is very, very helpful for that)
+
+## Tests that do not have `InternalsVisibleTo`
+
+Currently all the code we have is in the `internal` scope within the logical layer. As a result, we are not testing how the libary works from the outside. We could take either of these two approaches or do something else, but I think we need to do something soon to validate our design:
+
+- Isolate the very small amount of code that actually needs IVT into an additional test assembly for each logical layer. 
+  - This would result in two new projects and IVT would be removed from the current test project.
+  - The benefit of this approach is that the largest amount of code would be running without IVT.
+- Create "example" projects:
+  - This would result in one or two new projects, two if the dependencies are those that you would use when accessing either the raw parsing behavior or subsystems. Current tests would remain under IVT.
+  - The benefit of this approach is that we will be creating functional tests in the form of "how do I do xxx". Since they are tests, they would not get out of date with the code base.
+  - Another potential benefit would be a bounded space where we could focus on how our APIs work in practice.
