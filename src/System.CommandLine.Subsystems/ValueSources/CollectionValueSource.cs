@@ -8,10 +8,9 @@ namespace System.CommandLine.ValueSources;
 /// If the calculation delegate is supplied, the returned value of the calculation is returned.
 /// </summary>
 /// <typeparam name="T">The type to be returned, which is almost always the type of the symbol the ValueSource will be used for.</typeparam>
-/// <param name="otherSymbol">The option or argument to return, with the calculation supplied if it is not null.</param>
-/// <param name="calculation">A delegate that returns the requested type.</param>
+/// <param name="otherSymbols">The <see cref="CliOption">, <see cref="CliArgument"/>, or <see cref="CalculatedValue"/> to include as sources.</param>
+/// <param name="calculation">A delegate that returns a value of the type of the collection source, which can be either a single value or a collection of values.</param>
 /// <param name="description">The description of this value, used to clarify the intent of the values that appear in error messages.</param>
-    // TODO: Do we want this to be an aggregate, such that you could build a type from other symbols, calcs and env variables. Ooo aahh
 public sealed class CollectionValueSource<T>
     : ValueSource<T>
 {
