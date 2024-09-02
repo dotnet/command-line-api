@@ -12,10 +12,10 @@ namespace System.CommandLine.ValueSources;
 /// <param name="calculation">A delegate that returns the requested type.</param>
 /// <param name="description">The description of this value, used to clarify the intent of the values that appear in error messages.</param>
     // TODO: Do we want this to be an aggregate, such that you could build a type from other symbols, calcs and env variables. Ooo aahh
-public sealed class RelativeToSymbolsValueSource<T>
+public sealed class CollectionValueSource<T>
     : ValueSource<T>
 {
-    internal RelativeToSymbolsValueSource(
+    internal CollectionValueSource(
        Func<IEnumerable<object?>, (bool success, T? value)> calculation,
        bool onlyUserEnteredValues = false,
        string? description = null,

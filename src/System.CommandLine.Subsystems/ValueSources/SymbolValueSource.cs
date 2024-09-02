@@ -11,11 +11,11 @@ namespace System.CommandLine.ValueSources;
 /// <param name="otherSymbol">The option or argument to return, with the calculation supplied if it is not null.</param>
 /// <param name="calculation">A delegate that returns the requested type.</param>
 /// <param name="description">The description of this value, used to clarify the intent of the values that appear in error messages.</param>
-public sealed class RelativeToSymbolValueSource<T>
+public sealed class SymbolValueSource<T>
     : ValueSource<T>
 {
     // TODO: API differences between this adn RelativeToSymbols are very annoying
-    internal RelativeToSymbolValueSource(
+    internal SymbolValueSource(
        CliValueSymbol otherSymbol,
        Func<object?, (bool success, T? value)>? calculation = null,
        bool onlyUserEnteredValues = false,

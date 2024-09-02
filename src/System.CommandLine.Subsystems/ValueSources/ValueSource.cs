@@ -34,25 +34,25 @@ public abstract class ValueSource
                                            Func<object?, (bool success, T? value)>? calculation = null,
                                            bool userEnteredValueOnly = false,
                                            string? description = null)
-        => new RelativeToSymbolValueSource<T>(otherSymbol, calculation, userEnteredValueOnly, description);
+        => new SymbolValueSource<T>(otherSymbol, calculation, userEnteredValueOnly, description);
 
     public static ValueSource<T> Create<T>(
                                        Func<IEnumerable<object?>, (bool success, T? value)> calculation,
                                        bool userEnteredValueOnly = false,
                                        string? description = null,
                                        params CliValueSymbol[] otherSymbols)
-        => new RelativeToSymbolsValueSource<T>(calculation, userEnteredValueOnly, description, otherSymbols);
+        => new CollectionValueSource<T>(calculation, userEnteredValueOnly, description, otherSymbols);
 
     public static ValueSource<T> Create<T>(ValueSource<T> firstSource,
                                            ValueSource<T> secondSource,
                                            string? description = null,
                                            params ValueSource<T>[] otherSources)
-        => new AggregateValueSource<T>(firstSource, secondSource, description, otherSources);
+        => new FallbackValueSource<T>(firstSource, secondSource, description, otherSources);
 
     public static ValueSource<T> CreateFromEnvironmentVariable<T>(string environmentVariableName,
                                                                   Func<string?, (bool success, T? value)>? calculation = null,
                                                                   string? description = null)
-        => new RelativeToEnvironmentVariableValueSource<T>(environmentVariableName, calculation, description);
+        => new EnvironmentVariableValueSource<T>(environmentVariableName, calculation, description);
 }
 
 // TODO: Determine philosophy for custom value sources and whether they can build on existing sources.
@@ -84,7 +84,7 @@ public abstract class ValueSource<T> : ValueSource
 
     public static implicit operator ValueSource<T>(T value) => new SimpleValueSource<T>(value);
     public static implicit operator ValueSource<T>(Func<(bool success, T? value)> calculated) => new CalculatedValueSource<T>(calculated);
-    public static implicit operator ValueSource<T>(CliValueSymbol symbol) => new RelativeToSymbolValueSource<T>(symbol);
+    public static implicit operator ValueSource<T>(CliValueSymbol symbol) => new SymbolValueSource<T>(symbol);
     // Environment variable does not have an explicit operator, because converting to string was too broad
 }
 

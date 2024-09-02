@@ -108,7 +108,7 @@ public class ValueSourceTests
     public void RelativeToSymbolValueSource_produces_value_that_was_set()
     {
         var option = new CliOption<int>("-a");
-        var valueSource = new RelativeToSymbolValueSource<int>(option);
+        var valueSource = new SymbolValueSource<int>(option);
 
         var found = valueSource.TryGetTypedValue(EmptyPipelineResult("-a 42", option), out var value);
 
@@ -137,7 +137,7 @@ public class ValueSourceTests
     public void RelativeToSymbolValueSource_from_extension_produces_value_that_was_set()
     {
         var option = new CliOption<int>("-a");
-        var valueSource = new RelativeToSymbolValueSource<int>(option);
+        var valueSource = new SymbolValueSource<int>(option);
 
         var found = valueSource.TryGetTypedValue(EmptyPipelineResult("-a 42", option), out var value);
 
@@ -151,7 +151,7 @@ public class ValueSourceTests
     public void RelativeToEnvironmentVariableValueSource_produces_value_that_was_set()
     {
         var envName = "SYSTEM_COMMANDLINE_TESTING";
-        var valueSource = new RelativeToEnvironmentVariableValueSource<int>(envName);
+        var valueSource = new EnvironmentVariableValueSource<int>(envName);
 
         Environment.SetEnvironmentVariable(envName, "42");
         var found = valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value);
@@ -184,7 +184,7 @@ public class ValueSourceTests
     public void RelativeToSymbolValueSource_false_if_other_symbol_has_no_default_and_is_missing()
     {
         var option = new CliOption<int>("-a");
-        var valueSource = new RelativeToSymbolValueSource<int>(option);
+        var valueSource = new SymbolValueSource<int>(option);
 
         var found = valueSource.TryGetTypedValue(EmptyPipelineResult("", option), out var value);
         found.Should()
@@ -197,7 +197,7 @@ public class ValueSourceTests
     public void RelativeToEnvironmentVariable_false_if_environment_variable_missing()
     {
         var envName = "SYSTEM_COMMANDLINE_TESTING";
-        var valueSource = new RelativeToEnvironmentVariableValueSource<int>(envName);
+        var valueSource = new EnvironmentVariableValueSource<int>(envName);
 
         var found = valueSource.TryGetTypedValue(EmptyPipelineResult(), out var value);
 
