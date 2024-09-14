@@ -2,11 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using Microsoft.VisualBasic.FileIO;
 using System.CommandLine.Parsing;
 using System.CommandLine.ValueSources;
 using Xunit;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace System.CommandLine.Subsystems.Tests;
 

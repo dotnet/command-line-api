@@ -27,7 +27,6 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private ChildSymbolList<CliArgument>? _arguments;
         private ChildSymbolList<CliOption>? _options;
-        private ChildSymbolList<CliValueSymbol>? _otherValueSymbols;
         private ChildSymbolList<CliCommand>? _subcommands;
         // TODO: validators
         /*
@@ -42,11 +41,11 @@ namespace System.CommandLine
         /// <param name="description">The description of the command, shown in help.</param>
         */
         public CliCommand(string name)/*, string? description = null) */
-            : base(name) 
+            : base(name)
         {
         }
-// TODO: help
-            //=> Description = description;
+        // TODO: help
+        //=> Description = description;
 
         /// <summary>
         /// Gets the child symbols.
@@ -71,15 +70,13 @@ namespace System.CommandLine
         /// </summary>
         public IList<CliArgument> Arguments => _arguments ??= new(this);
 
-        internal bool HasArguments => _arguments?.Count > 0 ;
+        internal bool HasArguments => _arguments?.Count > 0;
 
         /// <summary>
         /// Represents all of the options for the command, inherited options that have been applied to any of the command's ancestors.
         /// </summary>
         // TODO: Consider value of lazy here. It sets up a desire to use awkward approach (HasOptions) for a perf win. Applies to Options and Subcommands also.
-        public IList<CliOption> Options => _options ??= new (this);
-
-        public IList<CliValueSymbol> OtherSymbols => _otherValueSymbols ??= new(this);
+        public IList<CliOption> Options => _options ??= new(this);
 
         internal bool HasOptions => _options?.Count > 0;
 
@@ -182,24 +179,24 @@ namespace System.CommandLine
         /// Adds a <see cref="CliArgument"/> to the command.
         /// </summary>
         /// <param name="argument">The option to add to the command.</param>
-        public void Add(CliArgument argument) =>  Arguments.Add(argument);
-        
+        public void Add(CliArgument argument) => Arguments.Add(argument);
+
         /// <summary>
         /// Adds a <see cref="CliOption"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
-        public void Add(CliOption option) =>  Options.Add(option);
+        public void Add(CliOption option) => Options.Add(option);
 
         /// <summary>
         /// Adds a <see cref="CliCommand"/> to the command.
         /// </summary>
         /// <param name="command">The Command to add to the command.</param>
-        public void Add(CliCommand command) =>  Subcommands.Add(command);
+        public void Add(CliCommand command) => Subcommands.Add(command);
 
         // Hide from IntelliSense as it's only to support initializing via C# collection expression
         // More specific efficient overloads are available for all supported symbol types.
         //[DebuggerStepThrough]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        //[EditorBrowsable(EditorBrowsableState.Never)]
         public void Add(CliSymbol symbol)
         {
             if (symbol is CliCommand cmd)
@@ -214,25 +211,21 @@ namespace System.CommandLine
             {
                 Add(command);
             }
-            else if (symbol is CliValueSymbol valueSymbol)
-            {
-                OtherSymbols.Add(valueSymbol);
-            }
-            else 
+            else
             {
                 // TODO: add a localized message here
                 throw new ArgumentException(null, nameof(symbol));
             }
         }
 
-// TODO: umatched tokens
- /*
+        // TODO: umatched tokens
+        /*
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
         /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
         /// </summary>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
-*/
+       */
         /// <inheritdoc />
         // Hide from IntelliSense as it's only to support C# collection initializer
         [DebuggerStepThrough]
@@ -244,7 +237,7 @@ namespace System.CommandLine
         [DebuggerStepThrough]
         [EditorBrowsable(EditorBrowsableState.Never)]
         IEnumerator<CliSymbol> IEnumerable<CliSymbol>.GetEnumerator() => Children.GetEnumerator();
-/*
+        /*
         /// <summary>
         /// Parses an array strings using the command.
         /// </summary>
@@ -334,8 +327,8 @@ namespace System.CommandLine
             }
 
             return completions
-                   .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
-                   .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
+                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
+                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
 
             void AddCompletionsFor(CliSymbol identifier, AliasSet? aliases)
             {
@@ -359,7 +352,7 @@ namespace System.CommandLine
                 }
             }
         }
-*/
+        */
         internal bool EqualsNameOrAlias(string name) => Name.Equals(name, StringComparison.Ordinal) || (_aliases is not null && _aliases.Contains(name));
     }
 }

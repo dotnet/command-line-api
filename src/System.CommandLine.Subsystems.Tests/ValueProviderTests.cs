@@ -2,12 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
 using System.CommandLine.ValueSources;
-using System.Runtime.Serialization;
 using Xunit;
-using static System.CommandLine.Subsystems.Tests.TestData;
 
 namespace System.CommandLine.Subsystems.Tests;
 
@@ -79,6 +76,7 @@ public class ValueProviderTests
         intOptionValue.Should().Be(42);
     }
 
+    /* Leaving calculated value tests in place, because they are examples of custom parser problems
     [Fact]
     public void Can_retrieve_calculated_value_()
     {
@@ -99,6 +97,7 @@ public class ValueProviderTests
         var intOptionValue = pipelineResult.GetValue<int>(calcSymbol);
         intOptionValue.Should().Be(42);
     }
+    */
 
     [Fact]
     public void Circular_default_value_dependency_throw()
@@ -122,7 +121,7 @@ public class ValueProviderTests
     }
 
     [Fact]
-    public void dotnet_nuget_why_can_retrieve_project_and_package()
+    public void Missing_value_throws_on_GetValue()
     {
         var opt1 = new CliOption<int>("opt1");
         var opt2 = new CliOption<int>("opt2");
@@ -142,6 +141,9 @@ public class ValueProviderTests
         Assert.Throws<InvalidOperationException>(() => _ = pipelineResult.GetValue<int>(opt1));
     }
 
+    /* Leaving calculated value tests in place, because they are examples of custom parser problems
+    // dotnet nuget why has two parameters, where the first is optional. This is historic, and we must support it
+    // We also believe folks are using the old custom parser to create compound types - the Point tests here
     private (CliRootCommand root, CalculatedValue project, CalculatedValue package) CreateDotnetNugetWhyCli()
     {
         var whyArg = new CliArgument<string[]>("whyArgs");
@@ -248,5 +250,5 @@ public class ValueProviderTests
             .Should()
             .Be(expected);
     }
-
+    */
 }

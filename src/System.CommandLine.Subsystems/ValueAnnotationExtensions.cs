@@ -33,12 +33,4 @@ public static class ValueAnnotationExtensions
     public static void SetDefault<T>(this CliValueSymbol valueSymbol, ValueSource<T> defaultValue)
         => valueSymbol.SetAnnotation(ValueAnnotations.DefaultValue, defaultValue);
 
-    public static void AddCalculatedValue<T>(this CliCommand command, CalculatedValue<T> calculatedValue)
-    {
-        if (!command.TryGetAnnotation<List<CalculatedValue>>(ValueAnnotations.CalculatedValues, out var currentList))
-        {
-            currentList = new List<CalculatedValue>();
-        }
-        currentList.Add(calculatedValue);
-    }
 }

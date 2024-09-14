@@ -5,13 +5,6 @@
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 */
-using System.IO;
-using FluentAssertions;
-using Xunit;
-using System.CommandLine.Tests.Utility;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace System.CommandLine.Tests;
 
 public class ErrorReportingFunctionalTests

@@ -74,13 +74,7 @@ internal class ValueProvider
         // !!! CRITICAL: All returns from this method should set the cache value to clear this pseudo-lock (use CacheAndReturn)
         SetIsCalculating(valueSymbol);
 
-        if (valueSymbol is CalculatedValue calculatedValueSymbol
-            && calculatedValueSymbol.TryGetValue(pipelineResult, out value))
-        {
-            return CacheAndReturn(valueSymbol, value, true);
-        }
-        if (valueSymbol is not CalculatedValue
-            && pipelineResult.ParseResult?.GetValueResult(valueSymbol) is { } valueResult)
+        if (pipelineResult.ParseResult?.GetValueResult(valueSymbol) is { } valueResult)
         {
             value = valueResult.GetValue<T>();
             return CacheAndReturn(valueSymbol, value, true);
