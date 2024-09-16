@@ -3,7 +3,6 @@
 
 using System.CommandLine.Parsing;
 using System.CommandLine.ValueSources;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace System.CommandLine.Validation;
 

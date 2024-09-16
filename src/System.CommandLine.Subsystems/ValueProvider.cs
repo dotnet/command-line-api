@@ -7,7 +7,14 @@ namespace System.CommandLine;
 
 internal class ValueProvider
 {
-    private Dictionary<CliSymbol, object?> cachedValues = [];
+    private struct CacheItem
+    {
+        internal object? Value;
+        internal bool WasFound;
+        internal bool IsCalculating;
+    }
+
+    private Dictionary<CliSymbol, CacheItem> cachedValues = [];
     private PipelineResult pipelineResult;
 
     public ValueProvider(PipelineResult pipelineResult)
@@ -15,65 +22,82 @@ internal class ValueProvider
         this.pipelineResult = pipelineResult;
     }
 
-    private void SetValue(CliSymbol symbol, object? value)
+    private void SetCachedValue(CliSymbol symbol, object? value, bool found)
     {
-        cachedValues[symbol] = value;
+        // TODO: MHutch: Feel free to optimize this and SetIsCalculating. We need the struct or a tuple here for "WasFound" which turns out we need.
+        cachedValues[symbol] = new CacheItem()
+        {
+            Value = value,
+            WasFound = found,
+            IsCalculating = false
+        };
     }
 
-    private bool TryGetValue<T>(CliSymbol symbol, out T? value)
+    private void SetIsCalculating(CliSymbol symbol)
     {
-        if (cachedValues.TryGetValue(symbol, out var objectValue))
+        cachedValues[symbol] = new CacheItem()
         {
-            value = objectValue is null
-                ? default
-                : (T)objectValue;
-            return true;
-        }
-        value = default;
-        return false;
+            IsCalculating = true
+        };
     }
 
     public T? GetValue<T>(CliValueSymbol valueSymbol)
-        => GetValueInternal<T>(valueSymbol);
-
-    private T? GetValueInternal<T>(CliValueSymbol valueSymbol)
     {
-        // TODO: Add guard to prevent reentrancy for the same symbol via RelativeToSymbol of custom ValueSource
-        var _ = valueSymbol ?? throw new ArgumentNullException(nameof(valueSymbol));
-        if (TryGetValue<T>(valueSymbol, out var value))
+        if (TryGetValueInternal<T>(valueSymbol, out var value))
         {
             return value;
         }
+        return default;
+    }
+
+    public bool TryGetValue<T>(CliValueSymbol valueSymbol, out T? value)
+        => TryGetValueInternal<T>(valueSymbol, out value);
+
+    private bool TryGetValueInternal<T>(CliValueSymbol valueSymbol, out T? value)
+    {
+        var _ = valueSymbol ?? throw new ArgumentNullException(nameof(valueSymbol));
+
+        if (cachedValues.TryGetValue(valueSymbol, out var cacheItem))
+        {
+            if (cacheItem.IsCalculating)
+            {
+                value = default;
+                // Guard against reentrancy. Placed here so we catch if a CalculatedValue or calculation causes reentrancy
+                throw new InvalidOperationException("Circular value source dependency.");
+            }
+            if (cacheItem.WasFound)
+            {
+                value = (T?)cacheItem.Value;
+                return true;
+            }
+        }
+        // !!! CRITICAL: All returns from this method should set the cache value to clear this pseudo-lock (use CacheAndReturn)
+        SetIsCalculating(valueSymbol);
+
         if (pipelineResult.ParseResult?.GetValueResult(valueSymbol) is { } valueResult)
         {
-            return UseValue(valueSymbol, valueResult.GetValue<T>());
+            value = valueResult.GetValue<T>();
+            return CacheAndReturn(valueSymbol, value, true);
         }
-        if (valueSymbol.TryGetDefaultValueSource(out ValueSource? defaultValueSource))
+        if (valueSymbol.TryGetDefault(out ValueSource? defaultValueSource))
         {
             if (defaultValueSource is not ValueSource<T> typedDefaultValueSource)
             {
-                throw new InvalidOperationException("Unexpected ValueSource type");
+                throw new InvalidOperationException("Unexpected ValueSource type for default value.");
             }
-            if (typedDefaultValueSource.TryGetTypedValue(pipelineResult, out T? defaultValue))
+            if (typedDefaultValueSource.TryGetTypedValue(pipelineResult, out value))
             {
-                return UseValue(valueSymbol, defaultValue);
+                return CacheAndReturn(valueSymbol, value, true);
             }
         }
-        return UseValue(valueSymbol, default(T));
+        // TODO: Determine if we should cache default. If so, additional design is needed to avoid first hit returning false, and remainder returning true
+        value = default;
+        return CacheAndReturn(valueSymbol, value, false);
 
-        TValue UseValue<TValue>(CliSymbol symbol, TValue value)
+        bool CacheAndReturn(CliValueSymbol valueSymbol, T? valueToCache, bool valueFound)
         {
-            SetValue(symbol, value);
-            return value;
+            SetCachedValue(valueSymbol, valueToCache, valueFound);
+            return valueFound;
         }
-    }
-
-    private static T? CalculatedDefault<T>(CliValueSymbol valueSymbol, Func<T?> defaultValueCalculation)
-    {
-        var objectValue = defaultValueCalculation();
-        var value = objectValue is null
-            ? default
-            : (T)objectValue;
-        return value;
     }
 }

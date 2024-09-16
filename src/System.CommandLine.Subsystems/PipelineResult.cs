@@ -9,7 +9,7 @@ public class PipelineResult
 {
     // TODO: Try to build workflow so it is illegal to create this without a ParseResult
     private readonly List<ParseError> errors = [];
-    private ValueProvider valueProvider { get; } 
+    private readonly ValueProvider valueProvider;
 
     public PipelineResult(ParseResult parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
     {
@@ -36,9 +36,14 @@ public class PipelineResult
     public object? GetValue(CliValueSymbol option)
         => valueProvider.GetValue<object>(option);
 
+    public bool TryGetValue<T>(CliValueSymbol valueSymbol, out T? value)
+        => valueProvider.TryGetValue(valueSymbol, out value);
+
+    public bool TryGetValue(CliValueSymbol option, out object? value)
+        => valueProvider.TryGetValue(option, out value);
+
     public CliValueResult? GetValueResult(CliValueSymbol valueSymbol)
      => ParseResult.GetValueResult(valueSymbol);
-
 
     public void AddErrors(IEnumerable<ParseError> errors)
     {

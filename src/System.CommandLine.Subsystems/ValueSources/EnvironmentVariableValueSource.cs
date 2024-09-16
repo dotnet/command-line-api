@@ -11,10 +11,10 @@ namespace System.CommandLine.ValueSources;
 /// <param name="environmentVariableName">The name of then environment variable. Note that for some systems, this is case sensitive.</param>
 /// <param name="calculation">A delegate that returns the requested type. If it is not specified, standard type conversions are used.</param>
 /// <param name="description">The description of this value, used to clarify the intent of the values that appear in error messages.</param>
-public sealed class RelativeToEnvironmentVariableValueSource<T>
+public sealed class EnvironmentVariableValueSource<T>
     : ValueSource<T>
 {
-    internal RelativeToEnvironmentVariableValueSource(
+    internal EnvironmentVariableValueSource(
         string environmentVariableName,
         Func<string?, (bool success, T? value)>? calculation = null,
         string? description = null)
