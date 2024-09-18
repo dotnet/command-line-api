@@ -84,10 +84,22 @@ public static class ValueConditionAnnotationExtensions
     /// </summary>
     /// <param name="command">The option or argument to get the conditions for.</param>
     /// <returns>The conditions that have been applied to the option or argument.</returns>
-    /// 
+    ///
     // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
     public static List<ValueCondition>? GetValueConditions(this CliValueSymbol symbol)
         => symbol.TryGetAnnotation<List<ValueCondition>>(ValueConditionAnnotations.ValueConditions, out var valueConditions)
+            ? valueConditions
+            : null;
+
+    /// <summary>
+    /// Gets a list of conditions on an option or argument.
+    /// </summary>
+    /// <param name="command">The option or argument to get the conditions for.</param>
+    /// <returns>The conditions that have been applied to the option or argument.</returns>
+    ///
+    // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
+    public static List<ValueCondition>? GetValueConditions(this AnnotationResolver resolver, CliValueSymbol symbol)
+        => resolver.TryGet<List<ValueCondition>>(symbol, ValueConditionAnnotations.ValueConditions, out var valueConditions)
             ? valueConditions
             : null;
 
@@ -96,10 +108,22 @@ public static class ValueConditionAnnotationExtensions
     /// </summary>
     /// <param name="command">The command to get the conditions for.</param>
     /// <returns>The conditions that have been applied to the command.</returns>
-    /// 
+    ///
     // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
     public static List<CommandCondition>? GetCommandConditions(this CliCommand command)
         => command.TryGetAnnotation<List<CommandCondition>>(ValueConditionAnnotations.ValueConditions, out var valueConditions)
+            ? valueConditions
+            : null;
+
+    /// <summary>
+    /// Gets a list of conditions on a command.
+    /// </summary>
+    /// <param name="command">The command to get the conditions for.</param>
+    /// <returns>The conditions that have been applied to the command.</returns>
+    ///
+    // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
+    public static List<CommandCondition>? GetCommandConditions(this AnnotationResolver resolver, CliCommand command)
+        => resolver.TryGet<List<CommandCondition>>(command, ValueConditionAnnotations.ValueConditions, out var valueConditions)
             ? valueConditions
             : null;
 

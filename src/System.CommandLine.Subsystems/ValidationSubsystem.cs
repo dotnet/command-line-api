@@ -14,8 +14,8 @@ public sealed class ValidationSubsystem : CliSubsystem
     private Dictionary<Type, ValueValidator> valueValidators = [];
     private Dictionary<Type, CommandValidator> commandValidators = [];
 
-    private ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base("", SubsystemKind.Validation, annotationProvider)
+    private ValidationSubsystem()
+        : base("", SubsystemKind.Validation)
     { }
 
     public static ValidationSubsystem Create()

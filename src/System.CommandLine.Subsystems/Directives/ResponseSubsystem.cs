@@ -7,7 +7,7 @@ using System.CommandLine.Subsystems;
 namespace System.CommandLine.Directives;
 
 public class ResponseSubsystem()
-    : CliSubsystem("Response", SubsystemKind.Response, null)
+    : CliSubsystem("Response", SubsystemKind.Response)
 {
     public bool Enabled { get; set; }
 

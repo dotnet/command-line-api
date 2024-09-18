@@ -13,8 +13,8 @@ public abstract class DirectiveSubsystem : CliSubsystem
     public string Id { get; }
     public Location? Location { get; private set; }
 
-    public DirectiveSubsystem(string name, SubsystemKind kind, IAnnotationProvider? annotationProvider = null, string? id = null)
-        : base(name, kind, annotationProvider: annotationProvider)
+    public DirectiveSubsystem(string name, SubsystemKind kind, string? id = null)
+        : base(name, kind)
     {
         Id = id ?? name;
     }

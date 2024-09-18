@@ -6,6 +6,6 @@ using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine;
 
-public class InvocationSubsystem(IAnnotationProvider? annotationProvider = null)
-    : CliSubsystem(InvocationAnnotations.Prefix, SubsystemKind.Invocation, annotationProvider)
+public class InvocationSubsystem()
+    : CliSubsystem(InvocationAnnotations.Prefix, SubsystemKind.Invocation)
 {}

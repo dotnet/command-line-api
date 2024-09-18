@@ -107,9 +107,10 @@ public static partial class AnnotationStorageExtensions
     /// This is intended to be called by the implementation of specialized ID-specific accessors for CLI authors such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)"/>.
     /// </para>
     /// <para>
-    /// Subsystems should not call it directly, as it does not account for values from the subsystem's <see cref="IAnnotationProvider"/>. They should instead call
-    /// <see cref="CliSubsystem.TryGetAnnotation{TValue}(CliSymbol, AnnotationId, out TValue?)"/> or an ID-specific accessor on the subsystem such
-    /// <see cref="HelpSubsystem.TryGetDescription(CliSymbol, out string?)"/>.
+    /// Subsystems should not call this directly, as it does not account for values from the pipeline's <see cref="IAnnotationProvider"/>.
+    /// They should instead access annotations from the see cref="Pipeline.Annotations"/> property using
+    /// <see cref="AnnotationResolver.TryGet{TValue}(CliSymbol, AnnotationId, out TValue?)"/> or an ID-specific
+    /// extension method such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)" />.
     /// </para>
     /// </remarks>
     public static bool TryGetAnnotation<TValue>(this CliSymbol symbol, AnnotationId annotationId, [NotNullWhen(true)] out TValue? value)
@@ -129,24 +130,29 @@ public static partial class AnnotationStorageExtensions
     }
 
     /// <summary>
-    /// Attempts to get the value for the annotation <paramref name="annotationId"/> associated with the <paramref name="symbol"/> in the internal annotation
-    /// storage used to store values set via <see cref="SetAnnotation(CliSymbol, AnnotationId, object?)"/>.
+    /// Attempts to get the value for the annotation <paramref name="annotationId"/> associated with the
+    /// <paramref name="symbol"/> in the internal annotation storage used to store values set via
+    /// <see cref="SetAnnotation(CliSymbol, AnnotationId, object?)"/>.
     /// </summary>
     /// <param name="symbol">The symbol that is annotated</param>
     /// <param name="annotationId">
-    /// The identifier for the annotation. For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
+    /// The identifier for the annotation. For example, the annotation identifier for the help
+    /// description is <see cref="HelpAnnotations.Description">.
     /// </param>
     /// <param name="value">The annotation value, if successful, otherwise <c>default</c></param>
     /// <returns>True if successful</returns>
     /// <remarks>
-    /// If the expected type of the annotation value is known, use the <see cref="TryGetAnnotation{TValue}(CliSymbol, AnnotationId, out TValue?)"/> overload instead.
+    /// If the expected type of the annotation value is known, use the
+    /// <see cref="TryGetAnnotation{TValue}(CliSymbol, AnnotationId, out TValue?)"/> overload instead.
     /// <para>
-    /// This is intended to be called by the implementation of specialized ID-specific accessors for CLI authors such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)"/>.
+    /// This is intended to be called by the implementation of specialized ID-specific accessors for
+    /// CLI authors such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)"/>.
     /// </para>
     /// <para>
-    /// Subsystems should not call it directly, as it does not account for values from the subsystem's <see cref="IAnnotationProvider"/>. They should instead call
-    /// <see cref="CliSubsystem.TryGetAnnotation(CliSymbol, AnnotationId, out object?)"/> or an ID-specific accessor on the subsystem such
-    /// <see cref="HelpSubsystem.TryGetDescription(CliSymbol, out string?)"/>.
+    /// Subsystems should not call this directly, as it does not account for values from the pipeline's <see cref="IAnnotationProvider"/>.
+    /// They should instead access annotations from the see cref="Pipeline.Annotations"/> property using
+    /// <see cref="AnnotationResolver.TryGet{TValue}(CliSymbol, AnnotationId, out TValue?)"/> or an ID-specific
+    /// extension method such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)" />.
     /// </para>
     /// </remarks>
     public static bool TryGetAnnotation(this CliSymbol symbol, AnnotationId annotationId, [NotNullWhen(true)] out object? value)
@@ -161,20 +167,22 @@ public static partial class AnnotationStorageExtensions
     }
 
     /// <summary>
-    /// Attempts to get the value for the annotation <paramref name="annotationId"/> associated with the <paramref name="symbol"/> in the internal annotation
-    /// storage used to store values set via <see cref="SetAnnotation{TValue}(CliSymbol, AnnotationId, TValue)"/>.
+    /// Attempts to get the value for the annotation <paramref name="annotationId"/> associated with the
+    /// <paramref name="symbol"/> in the internal annotation storage used to store values set via
+    /// <see cref="SetAnnotation{TValue}(CliSymbol, AnnotationId, TValue)"/>.
     /// </summary>
     /// <typeparam name="TValue">The type of the annotation value</typeparam>
     /// <param name="symbol">The symbol that is annotated</param>
     /// <param name="annotationId">
-    /// The identifier for the annotation. For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
+    /// The identifier for the annotation. For example, the annotation identifier for the help description
+    /// is <see cref="HelpAnnotations.Description">.
     /// </param>
     /// <returns>The annotation value, if successful, otherwise <c>default</c></returns>
     /// <remarks>
-    /// This is intended to be called by specialized ID-specific accessors for CLI authors such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)"/>.
-    /// Subsystems should not call it, as it does not account for values from the subsystem's <see cref="IAnnotationProvider"/>. They should instead call
-    /// <see cref="CliSubsystem.TryGetAnnotation{TValue}(CliSymbol, AnnotationId, out TValue?)"/> or an ID-specific accessor on the subsystem such
-    /// <see cref="HelpSubsystem.TryGetDescription(CliSymbol, out string?)"/>.
+    /// Subsystems should not call this directly, as it does not account for values from the pipeline's <see cref="IAnnotationProvider"/>.
+    /// They should instead access annotations from the see cref="Pipeline.Annotations"/> property using
+    /// <see cref="AnnotationResolver.TryGet{TValue}(CliSymbol, AnnotationId, out TValue?)"/> or an ID-specific
+    /// extension method such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)" />.
     /// </remarks>
     public static TValue? GetAnnotationOrDefault<TValue>(this CliSymbol symbol, AnnotationId annotationId)
     {

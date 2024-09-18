@@ -6,8 +6,8 @@ using System.Text;
 
 namespace System.CommandLine.Directives;
 
-public class DiagramSubsystem(IAnnotationProvider? annotationProvider = null)
-    : DirectiveSubsystem("diagram", SubsystemKind.Diagram, annotationProvider)
+public class DiagramSubsystem()
+    : DirectiveSubsystem("diagram", SubsystemKind.Diagram)
 {
     //protected internal override bool GetIsActivated(ParseResult? parseResult)
     //   => parseResult is not null && option is not null && parseResult.GetValue(option);

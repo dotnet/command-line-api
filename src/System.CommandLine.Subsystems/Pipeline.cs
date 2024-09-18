@@ -4,6 +4,7 @@
 using System.CommandLine.Directives;
 using System.CommandLine.Parsing;
 using System.CommandLine.Subsystems;
+using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine;
 
@@ -17,6 +18,7 @@ public partial class Pipeline
     private readonly PipelinePhase<InvocationSubsystem> invocationPhase = new(SubsystemKind.Invocation);
     private readonly PipelinePhase<ErrorReportingSubsystem> errorReportingPhase = new(SubsystemKind.ErrorReporting);
     private readonly IEnumerable<PipelinePhase> phases;
+    private readonly List<IAnnotationProvider> annotationProviders;
 
     /// <summary>
     /// Creates an instance of the pipeline using standard features.
@@ -34,14 +36,15 @@ public partial class Pipeline
                                   VersionSubsystem? version = null,
                                   CompletionSubsystem? completion = null,
                                   DiagramSubsystem? diagram = null,
-                                  ErrorReportingSubsystem? errorReporting = null)
-        => new()
+                                  ErrorReportingSubsystem? errorReporting = null,
+                                  IEnumerable<IAnnotationProvider>? annotationProviders = null)
+        => new(annotationProviders)
         {
             Help = help ?? new HelpSubsystem(),
             Version = version ?? new VersionSubsystem(),
             Completion = completion ?? new CompletionSubsystem(),
             Diagram = diagram ?? new DiagramSubsystem(),
-            ErrorReporting = errorReporting ?? new ErrorReportingSubsystem(),
+            ErrorReporting = errorReporting ?? new ErrorReportingSubsystem()
         };
 
     /// <summary>
@@ -54,7 +57,7 @@ public partial class Pipeline
     public static Pipeline CreateEmpty()
         => new();
 
-    private Pipeline()
+    private Pipeline(IEnumerable<IAnnotationProvider>? annotationProviders = null)
     {
         Response = new ResponseSubsystem();
         Invocation = new InvocationSubsystem();
@@ -68,6 +71,11 @@ public partial class Pipeline
             diagramPhase, completionPhase, helpPhase, versionPhase,
             validationPhase, invocationPhase, errorReportingPhase
         ];
+
+        this.annotationProviders = annotationProviders is not null
+            ? [..annotationProviders]
+            : [];
+        Annotations = new(this.annotationProviders);
     }
 
     /// <summary>
@@ -185,6 +193,21 @@ public partial class Pipeline
     /// Gets the response file subsystem
     /// </summary>
     public ResponseSubsystem Response { get; }
+
+    /// <summary>
+    /// Gets the annotation resolver
+    /// </summary>
+    public AnnotationResolver Annotations { get; }
+
+    /// <summary>
+    /// Gets the list of annotation providers registered with the pipeline
+    /// </summary>
+    public IReadOnlyList<IAnnotationProvider> AnnotationProviders => annotationProviders;
+
+    /// <summary>
+    /// Adds an annotation provider to the pipeline
+    /// </summary>
+    public void AddAnnotationProvider(IAnnotationProvider annotationProvider) => annotationProviders.Add(annotationProvider);
 
     public ParseResult Parse(CliConfiguration configuration, string rawInput)
         => Parse(configuration, CliParser.SplitCommandLine(rawInput).ToArray());
