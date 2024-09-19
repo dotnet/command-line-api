@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
+using System.CommandLine.Subsystems.Annotations;
 
 namespace System.CommandLine;
 
@@ -18,6 +19,7 @@ public class PipelineResult
         Pipeline = pipeline ?? Pipeline.CreateEmpty();
         ConsoleHack = consoleHack ?? new ConsoleHack();
         valueProvider = new ValueProvider(this);
+        Annotations = new AnnotationResolver(this);
     }
 
     public ParseResult ParseResult { get; }
@@ -26,6 +28,8 @@ public class PipelineResult
     // TODO: Consider behavior when pipeline is null - this is probably a core user accessing some subsystems
     public Pipeline Pipeline { get; }
     public ConsoleHack ConsoleHack { get; }
+
+    public AnnotationResolver Annotations { get; }
 
     public bool AlreadyHandled { get; set; }
     public int ExitCode { get; set; }

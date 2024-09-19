@@ -75,7 +75,6 @@ public partial class Pipeline
         this.annotationProviders = annotationProviders is not null
             ? [..annotationProviders]
             : [];
-        Annotations = new(this.annotationProviders);
     }
 
     /// <summary>
@@ -193,11 +192,6 @@ public partial class Pipeline
     /// Gets the response file subsystem
     /// </summary>
     public ResponseSubsystem Response { get; }
-
-    /// <summary>
-    /// Gets the annotation resolver
-    /// </summary>
-    public AnnotationResolver Annotations { get; }
 
     /// <summary>
     /// Gets the list of annotation providers registered with the pipeline

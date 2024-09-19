@@ -10,13 +10,18 @@ namespace System.CommandLine.Subsystems.Annotations;
 /// taking into account both the values stored directly on the symbol via extension methods
 /// and any values from <see cref="IAnnotationProvider"/> providers.
 /// </summary>
+/// <param name="providers">The providers from which annotation values will be resolved</param>
+/// <param name="context">The context for resolving annotation values</param>
 /// <remarks>
 /// The <paramref name="providers"/> will be enumerated each time an annotation value is requested.
 /// It may be modified after the resolver is created.
 /// </remarks>
-public class AnnotationResolver(ICollection<IAnnotationProvider> providers)
+public class AnnotationResolver(IEnumerable<IAnnotationProvider> providers, AnnotationResolveContext context)
 {
-    private readonly IEnumerable<IAnnotationProvider> providers = providers ?? throw new ArgumentNullException(nameof(providers));
+    public AnnotationResolver(PipelineResult pipelineResult)
+        : this(pipelineResult.Pipeline.AnnotationProviders, new AnnotationResolveContext(pipelineResult))
+    {
+    }
 
     /// <summary>
     /// Attempt to retrieve the <paramref name="symbol"/>'s value for the annotation <paramref name="id"/>. This will check any
@@ -48,7 +53,7 @@ public class AnnotationResolver(ICollection<IAnnotationProvider> providers)
     {
         foreach (var provider in providers)
         {
-            if (provider.TryGet(symbol, annotationId, out object? rawValue))
+            if (provider.TryGet(symbol, annotationId, context, out object? rawValue))
             {
                 if (rawValue is TValue expectedTypeValue)
                 {
@@ -87,7 +92,7 @@ public class AnnotationResolver(ICollection<IAnnotationProvider> providers)
     {
         foreach (var provider in providers)
         {
-            if (provider.TryGet(symbol, annotationId, out value))
+            if (provider.TryGet(symbol, annotationId, context, out value))
             {
                 return true;
             }

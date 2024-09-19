@@ -30,7 +30,7 @@ namespace System.CommandLine.Subsystems.Tests
 
             public override void Execute(PipelineResult pipelineResult)
             {
-                pipelineResult.Pipeline.Annotations.TryGet(Symbol, HelpAnnotations.Description, out string? description);
+                pipelineResult.Annotations.TryGet(Symbol, HelpAnnotations.Description, out string? description);
                 pipelineResult.ConsoleHack.WriteLine(description);
                 pipelineResult.AlreadyHandled = true;
                 pipelineResult.SetSuccess();
