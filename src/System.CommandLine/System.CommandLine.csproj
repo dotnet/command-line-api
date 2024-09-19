@@ -27,6 +27,7 @@
     <Compile Include="ArgumentArity.cs" />
     <Compile Include="Binding\ArgumentConversionResult.cs" />
     <Compile Include="CliValueSymbol.cs" />
+    <Compile Include="ICliValueSymbol.cs" />
     <Compile Include="Parsing\CliCommandResult.cs" />
     <Compile Include="Parsing\CliSymbolResult.cs" />
     <Compile Include="Parsing\SymbolLookupByName.cs" />

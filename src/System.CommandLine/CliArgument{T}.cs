@@ -4,12 +4,12 @@
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 
 namespace System.CommandLine
 {
+
     /// <inheritdoc cref="CliArgument" />
-    public class CliArgument<T> : CliArgument
+    public class CliArgument<T> : CliArgument, ICliValueSymbol<T>
     {
         // TODO: custom parser
         /*

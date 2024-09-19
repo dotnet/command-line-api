@@ -7,7 +7,7 @@ namespace System.CommandLine
 {
     /// <inheritdoc cref="CliOption" />
     /// <typeparam name="T">The <see cref="System.Type"/> that the option's arguments are expected to be parsed as.</typeparam>
-    public class CliOption<T> : CliOption
+    public class CliOption<T> : CliOption, ICliValueSymbol<T>
     {
 // TODO: do not expose private fields
         internal readonly CliArgument<T> _argument;

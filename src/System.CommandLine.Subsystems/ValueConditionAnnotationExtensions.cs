@@ -13,40 +13,51 @@ namespace System.CommandLine;
 public static class ValueConditionAnnotationExtensions
 {
     /// <summary>
-    /// Set the upper and/or lower bound values of the range.
+    /// Set upper and/or lower bounds on the range of values that the symbol value may have.
     /// </summary>
-    /// <typeparam name="T">The type of the bounds.</typeparam>
+    /// <typeparam name="TValueSymbol">The type of the symbol whose value is bounded by the range.</typeparam>
+    /// <typeparam name="TValue">The type of the value that is bounded by the range.</typeparam>
     /// <param name="symbol">The option or argument the range applies to.</param>
     /// <param name="lowerBound">The lower bound of the range.</param>
     /// <param name="upperBound">The upper bound of the range.</param>
     // TODO: Add RangeBounds
     // TODO: You should not have to set both...why not nullable?
-    public static void SetRange<T>(this CliValueSymbol symbol, T lowerBound, T upperBound)
-        where T : IComparable<T>
+    public static void SetRange<TValueSymbol, TValue>(this TValueSymbol symbol, TValue lowerBound, TValue upperBound)
+        where TValueSymbol : CliValueSymbol, ICliValueSymbol<TValue>
+        where TValue : IComparable<TValue>
     {
-        var range = new Range<T>(lowerBound, upperBound);
+        var range = new Range<TValue>(lowerBound, upperBound);
 
         symbol.SetValueCondition(range);
     }
 
     /// <summary>
-    /// Set the upper and/or lower bound via ValueSource. Implicit conversions means this 
-    /// generally just works with any <see cref="ValueSource">.
+    /// Set upper and/or lower <see cref="ValueSource"> bounds on the range of values that the symbol value may have.
+    /// Implicit conversions means this generally just works with any <see cref="ValueSource">.
     /// </summary>
-    /// <typeparam name="T">The type of the bounds.</typeparam>
+    /// <typeparam name="TValueSymbol">The type of the symbol whose value is bounded by the range.</typeparam>
+    /// <typeparam name="TValue">The type of the value that is bounded by the range.</typeparam>
     /// <param name="symbol">The option or argument the range applies to.</param>
     /// <param name="lowerBound">The <see cref="ValueSource"> that is the lower bound of the range.</param>
     /// <param name="upperBound">The <see cref="ValueSource"> that is the upper bound of the range.</param>
     // TODO: Add RangeBounds
     // TODO: You should not have to set both...why not nullable?
-    public static void SetRange<T>(this CliValueSymbol symbol, ValueSource<T> lowerBound, ValueSource<T> upperBound)
-        where T : IComparable<T>
+    public static void SetRange<TValueSymbol, TValue>(this TValueSymbol symbol, ValueSource<TValue> lowerBound, ValueSource<TValue> upperBound)
+        where TValueSymbol : CliValueSymbol, ICliValueSymbol<TValue>
+        where TValue : IComparable<TValue>
         // TODO: You should not have to set both...why not nullable?
     {
-        var range = new Range<T>(lowerBound, upperBound);
+        var range = new Range<TValue>(lowerBound, upperBound);
 
         symbol.SetValueCondition(range);
     }
+
+    /// <summary>
+    /// Get the upper and/or lower bound of the symbol's value.
+    /// </summary>
+    /// <param name="symbol">The option or argument the range applies to.</param>
+    public static ValueConditions.Range? GetRange(this CliValueSymbol symbol)
+        => symbol.GetValueCondition<ValueConditions.Range>();
 
     /// <summary>
     /// Indicates that there is an inclusive group of options and arguments for the command. All
