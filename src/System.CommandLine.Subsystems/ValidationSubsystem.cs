@@ -68,27 +68,26 @@ public sealed class ValidationSubsystem : CliSubsystem
 
     private void ValidateValue(CliValueSymbol valueSymbol, ValidationContext validationContext)
     {
-        var valueConditions = valueSymbol.GetValueConditions();
-        if (valueConditions is null)
+        var valueConditions = valueSymbol.EnumerateValueConditions();
+
+        var enumerator = valueConditions.GetEnumerator();
+        if (!enumerator.MoveNext())
         {
-            return; // nothing to do
+            // avoid getting the value if there are no conditions
+            return;
         }
 
         var value = validationContext.GetValue(valueSymbol);
         var valueResult = validationContext.GetValueResult(valueSymbol);
-        foreach (var condition in valueConditions)
-        {
-            ValidateValueCondition(value, valueSymbol, valueResult, condition, validationContext);
-        }
+
+        do {
+            ValidateValueCondition(value, valueSymbol, valueResult, enumerator.Current, validationContext);
+        } while (enumerator.MoveNext());
     }
 
     private void ValidateCommand(CliCommandResult commandResult, ValidationContext validationContext)
     {
-        var valueConditions = commandResult.Command.GetCommandConditions();
-        if (valueConditions is null)
-        {
-            return; // nothing to do
-        }
+        var valueConditions = commandResult.Command.EnumerateCommandConditions();
 
         foreach (var condition in valueConditions)
         {

@@ -25,14 +25,14 @@ public class AnnotationResolver(IEnumerable<IAnnotationProvider> providers, Anno
 
     /// <summary>
     /// Attempt to retrieve the <paramref name="symbol"/>'s value for the annotation <paramref name="id"/>. This will check any
-    /// annotation providers that were passed to the constructor, and the internal per-symbol annotation storage.
+    /// annotation providers that were passed to the resolver, and the internal per-symbol annotation storage.
     /// </summary>
     /// <typeparam name="TValue">
     /// The expected type of the annotation value. If the type does not match, a <see cref="AnnotationTypeException"/> will be thrown.
     /// If the annotation allows multiple types for its values, and a type parameter cannot be determined statically,
-    /// use <see cref="TryGetAnnotation(CliSymbol, AnnotationId, out object?)"/> to access the annotation value without checking its type.
+    /// use <see cref="TryGet(CliSymbol, AnnotationId, out object?)"/> to access the annotation value without checking its type.
     /// </typeparam>
-    /// <param name="symbol">The symbol the value is attached to</param>
+    /// <param name="symbol">The symbol that is annotated</param>
     /// <param name="id">
     /// The identifier for the annotation value to be retrieved.
     /// For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
@@ -69,9 +69,9 @@ public class AnnotationResolver(IEnumerable<IAnnotationProvider> providers, Anno
 
     /// <summary>
     /// Attempt to retrieve the <paramref name="symbol"/>'s value for the annotation <paramref name="id"/>. This will check any
-    /// annotation providers that were passed to the constructor, and the internal per-symbol annotation storage.
+    /// annotation providers that were passed to the resolver, and the internal per-symbol annotation storage.
     /// </summary>
-    /// <param name="symbol">The symbol the value is attached to</param>
+    /// <param name="symbol">The symbol that is annotated</param>
     /// <param name="id">
     /// The identifier for the annotation value to be retrieved.
     /// For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
@@ -90,6 +90,13 @@ public class AnnotationResolver(IEnumerable<IAnnotationProvider> providers, Anno
     /// </remarks>
     public bool TryGet(CliSymbol symbol, AnnotationId annotationId, [NotNullWhen(true)] out object? value)
     {
+        // a value set directly on the symbol takes precedence over values returned by providers.
+        if (symbol.TryGetAnnotation(annotationId, out value))
+        {
+            return true;
+        }
+
+        // Providers are given precedence in the order they were provided to the resolver.
         foreach (var provider in providers)
         {
             if (provider.TryGet(symbol, annotationId, context, out value))
@@ -98,7 +105,7 @@ public class AnnotationResolver(IEnumerable<IAnnotationProvider> providers, Anno
             }
         }
 
-        return symbol.TryGetAnnotation(annotationId, out value);
+        return false;
     }
 
     /// <summary>
@@ -127,5 +134,61 @@ public class AnnotationResolver(IEnumerable<IAnnotationProvider> providers, Anno
         }
 
         return default;
+    }
+
+    /// <summary>
+    /// For an annotation <paramref name="id"/> that permits multiple values, enumerate the values associated with
+    /// the <paramref name="symbol"/>. If the annotation is not set, an empty enumerable will be returned. This will
+    /// check any annotation providers that were passed to the resolver, and the internal per-symbol annotation storage.
+    /// </summary>
+    /// <typeparam name="TValue">
+    /// The expected type of the annotation value. If the type does not match, a <see cref="AnnotationCollectionTypeException"/>
+    /// will be thrown.
+    /// </typeparam>
+    /// <param name="symbol">The symbol that is annotated</param>
+    /// <param name="id">
+    /// The identifier for the annotation value to be retrieved.
+    /// For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
+    /// </param>
+    /// <param name="value">An out parameter to contain the result</param>
+    /// <returns>True if successful</returns>
+    /// <remarks>
+    /// This is intended for use by developers defining custom annotation IDs. Anyone defining an annotation
+    /// ID should also define an accessor extension method on <see cref="AnnotationResolver"/> extension method
+    /// on <see cref="CliSymbol"/> that subsystem authors can use to access the annotation value, such as
+    /// <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(AnnotationResolver, TSymbol)"/>.
+    /// </remarks>
+    public IEnumerable<TValue> Enumerate<TValue>(CliSymbol symbol, AnnotationId annotationId)
+    {
+        // Values added directly on the symbol take precedence over values returned by providers,
+        // so they are returned first.
+        // NOTE: EnumerateAnnotations returns these in the reverse order they were added, which means that
+        // callers that take the first value of a given subtype will get the most recently added value of
+        // that subtype that the CLI author added to the symbol.
+        foreach (var value in symbol.EnumerateAnnotations<TValue>(annotationId))
+        {
+            yield return value;
+        }
+
+        // Providers are given precedence in the order they were provided to the resolver.
+        foreach (var provider in providers)
+        {
+            if (!provider.TryGet(symbol, annotationId, context, out object? rawValue))
+            {
+                continue;
+            }
+
+            if (rawValue is IEnumerable<TValue> expectedTypeValue)
+            {
+                foreach (var value in expectedTypeValue)
+                {
+                    yield return value;
+                }
+            }
+            else
+            {
+                throw new AnnotationTypeException(annotationId, typeof(IEnumerable<TValue>), rawValue?.GetType(), provider);
+            }
+        }
     }
 }

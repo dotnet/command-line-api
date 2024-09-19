@@ -20,14 +20,18 @@ public class AnnotationTypeException(AnnotationId annotationId, Type expectedTyp
             if (Provider is not null)
             {
                 return
-                    $"Typed accessor for annotation '${AnnotationId}' expected type '{ExpectedType}' but the annotation provider returned an annotation of type '{ActualType?.ToString() ?? "[null]"}'. " +
-                    $"This may be an authoring error in in the annotation provider '{Provider.GetType()}' or in a typed annotation accessor.";
+                    $"Typed accessor for annotation '${AnnotationId}' expected value of type '{ExpectedType}' but the " +
+                    $"annotation provider returned an value of type '{ActualType?.ToString() ?? "[null]"}'. " +
+                    $"This may be an authoring error in in the annotation provider '{Provider.GetType()}' or in a " +
+                    "typed annotation accessor.";
 
             }
 
             return
-                $"Typed accessor for annotation '${AnnotationId}' expected type '{ExpectedType}' but the stored annotation is of type '{ActualType?.ToString() ?? "[null]"}'. " +
-                $"This may be an authoring error in a typed annotation accessor, or the annotation may have be stored directly with the incorrect type, bypassing the typed accessors.";
+                $"Typed accessor for annotation '${AnnotationId}' expected value of type '{ExpectedType}' but the stored " +
+                $"annotation value is of type '{ActualType?.ToString() ?? "[null]"}'. " +
+                $"This may be an authoring error in a typed annotation accessor, or the annotation may have be stored directly " +
+                $"with the incorrect type, bypassing the typed accessors.";
         }
     }
 }

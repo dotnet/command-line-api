@@ -1,4 +1,7 @@
-﻿using System.CommandLine.Subsystems.Annotations;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Subsystems.Annotations;
 using System.CommandLine.ValueConditions;
 using System.CommandLine.ValueSources;
 
@@ -58,26 +61,12 @@ public static class ValueConditionAnnotationExtensions
     public static void SetValueCondition<TValueSymbol, TValueCondition>(this TValueSymbol symbol, TValueCondition valueCondition)
         where TValueSymbol : CliValueSymbol
         where TValueCondition : ValueCondition
-    {
-        if (!symbol.TryGetAnnotation<List<ValueCondition>>(ValueConditionAnnotations.ValueConditions, out var valueConditions))
-        {
-            valueConditions = [];
-            symbol.SetAnnotation(ValueConditionAnnotations.ValueConditions, valueConditions);
-        }
-        valueConditions.Add(valueCondition);
-    }
+        => symbol.AddAnnotation(ValueConditionAnnotations.ValueConditions, valueCondition);
 
     // TODO: This should not be public if ValueConditions are not public
     public static void SetValueCondition<TCommandCondition>(this CliCommand symbol, TCommandCondition commandCondition)
         where TCommandCondition : CommandCondition
-    {
-        if (!symbol.TryGetAnnotation<List<CommandCondition>>(ValueConditionAnnotations.ValueConditions, out var valueConditions))
-        {
-            valueConditions = [];
-            symbol.SetAnnotation(ValueConditionAnnotations.ValueConditions, valueConditions);
-        }
-        valueConditions.Add(commandCondition);
-    }
+        => symbol.AddAnnotation(ValueConditionAnnotations.ValueConditions, commandCondition);
 
     /// <summary>
     /// Gets a list of conditions on an option or argument.
@@ -86,10 +75,8 @@ public static class ValueConditionAnnotationExtensions
     /// <returns>The conditions that have been applied to the option or argument.</returns>
     ///
     // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
-    public static List<ValueCondition>? GetValueConditions(this CliValueSymbol symbol)
-        => symbol.TryGetAnnotation<List<ValueCondition>>(ValueConditionAnnotations.ValueConditions, out var valueConditions)
-            ? valueConditions
-            : null;
+    public static IEnumerable<ValueCondition> EnumerateValueConditions(this CliValueSymbol symbol)
+        => symbol.EnumerateAnnotations<ValueCondition>(ValueConditionAnnotations.ValueConditions);
 
     /// <summary>
     /// Gets a list of conditions on an option or argument.
@@ -98,10 +85,8 @@ public static class ValueConditionAnnotationExtensions
     /// <returns>The conditions that have been applied to the option or argument.</returns>
     ///
     // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
-    public static List<ValueCondition>? GetValueConditions(this AnnotationResolver resolver, CliValueSymbol symbol)
-        => resolver.TryGet<List<ValueCondition>>(symbol, ValueConditionAnnotations.ValueConditions, out var valueConditions)
-            ? valueConditions
-            : null;
+    public static IEnumerable<ValueCondition> EnumerateValueConditions(this AnnotationResolver resolver, CliValueSymbol symbol)
+        => resolver.Enumerate<ValueCondition>(symbol, ValueConditionAnnotations.ValueConditions);
 
     /// <summary>
     /// Gets a list of conditions on a command.
@@ -110,10 +95,8 @@ public static class ValueConditionAnnotationExtensions
     /// <returns>The conditions that have been applied to the command.</returns>
     ///
     // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
-    public static List<CommandCondition>? GetCommandConditions(this CliCommand command)
-        => command.TryGetAnnotation<List<CommandCondition>>(ValueConditionAnnotations.ValueConditions, out var valueConditions)
-            ? valueConditions
-            : null;
+    public static IEnumerable<CommandCondition> EnumerateCommandConditions(this CliCommand command)
+        => command.EnumerateAnnotations<CommandCondition>(ValueConditionAnnotations.ValueConditions);
 
     /// <summary>
     /// Gets a list of conditions on a command.
@@ -122,10 +105,8 @@ public static class ValueConditionAnnotationExtensions
     /// <returns>The conditions that have been applied to the command.</returns>
     ///
     // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
-    public static List<CommandCondition>? GetCommandConditions(this AnnotationResolver resolver, CliCommand command)
-        => resolver.TryGet<List<CommandCondition>>(command, ValueConditionAnnotations.ValueConditions, out var valueConditions)
-            ? valueConditions
-            : null;
+    public static IEnumerable<CommandCondition> EnumerateCommandConditions(this AnnotationResolver resolver, CliCommand command)
+        => resolver.Enumerate<CommandCondition>(command, ValueConditionAnnotations.ValueConditions);
 
     /// <summary>
     /// Gets the condition that matches the type, if it exists on this option or argument.
@@ -137,9 +118,7 @@ public static class ValueConditionAnnotationExtensions
     // TODO: Consider removing user facing naming, other than the base type, that is Value or CommandCondition and just use Condition
     public static TCondition? GetValueCondition<TCondition>(this CliValueSymbol symbol)
         where TCondition : ValueCondition
-        => !symbol.TryGetAnnotation(ValueConditionAnnotations.ValueConditions, out List<ValueCondition>? valueConditions)
-            ? null
-            : valueConditions.OfType<TCondition>().LastOrDefault();
+        => symbol.EnumerateValueConditions().OfType<TCondition>().LastOrDefault();
 
     /// <summary>
     /// Gets the condition that matches the type, if it exists on this command.
@@ -150,9 +129,7 @@ public static class ValueConditionAnnotationExtensions
     // This method feels useful because it clarifies that last should win and returns one, when only one should be applied
     public static TCondition? GetCommandCondition<TCondition>(this CliCommand symbol)
         where TCondition : CommandCondition
-        => !symbol.TryGetAnnotation(ValueConditionAnnotations.ValueConditions, out List<CommandCondition>? valueConditions)
-            ? null
-            : valueConditions.OfType<TCondition>().LastOrDefault();
+        => symbol.EnumerateCommandConditions().OfType<TCondition>().FirstOrDefault();
 
 
 }
