@@ -4,7 +4,7 @@
 namespace System.CommandLine;
 
 /// <summary>
-/// This is applied to <see cref="CliArgument{T}"/> and <see cref="CliArgument{T}"/>, and allows
+/// This is implemented only by <see cref="CliOption{T}"/> and <see cref="CliArgument{T}"/>, and allows
 /// allows methods with a <see cref="CliValueSymbol"/> argument to apply constraints based on the
 /// value type.
 /// </summary>

@@ -17,7 +17,7 @@ public sealed class RelativeToSymbolValueSource<T>
     internal RelativeToSymbolValueSource(
        CliValueSymbol otherSymbol,
        bool onlyUserEnteredValues = false,
-       Func<object?, (bool success, T? value)>? calculation = null,
+       Func<T?, (bool success, T? value)>? calculation = null,
        string? description = null)
     {
         OtherSymbol = otherSymbol;
@@ -29,7 +29,7 @@ public sealed class RelativeToSymbolValueSource<T>
     public override string? Description { get; }
     public CliValueSymbol OtherSymbol { get; }
     public bool OnlyUserEnteredValues { get; }
-    public Func<object?, (bool success, T? value)>? Calculation { get; }
+    public Func<T?, (bool success, T? value)>? Calculation { get; }
 
     /// <inheritdoc/>
     public override bool TryGetTypedValue(PipelineResult pipelineResult, out T? value)

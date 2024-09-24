@@ -41,8 +41,8 @@ public class AnnotationResolver(IEnumerable<IAnnotationProvider> providers, Anno
     /// <returns>True if successful</returns>
     /// <remarks>
     /// This is intended for use by developers defining custom annotation IDs. Anyone defining an annotation
-    /// ID should also define an accessor extension method on <see cref="AnnotationResolver"/> extension method
-    /// on <see cref="CliSymbol"/> that subsystem authors can use to access the annotation value, such as
+    /// ID should also define an accessor extension method on <see cref="AnnotationResolver"/>
+    /// that subsystem authors can use to access the annotation value, such as
     /// <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(AnnotationResolver, TSymbol)"/> .
     /// <para>
     /// If the annotation value does not have a single expected type for this symbol, use the

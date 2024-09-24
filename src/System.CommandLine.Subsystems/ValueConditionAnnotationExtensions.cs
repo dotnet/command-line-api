@@ -20,8 +20,7 @@ public static class ValueConditionAnnotationExtensions
     /// <param name="symbol">The option or argument the range applies to.</param>
     /// <param name="lowerBound">The lower bound of the range.</param>
     /// <param name="upperBound">The upper bound of the range.</param>
-    // TODO: Add RangeBounds
-    // TODO: You should not have to set both...why not nullable?
+    // TODO: can we eliminate this overload and just reply on the implicit cast to ValueSource<TValue>?
     public static void SetRange<TValueSymbol, TValue>(this TValueSymbol symbol, TValue lowerBound, TValue upperBound)
         where TValueSymbol : CliValueSymbol, ICliValueSymbol<TValue>
         where TValue : IComparable<TValue>
@@ -40,12 +39,9 @@ public static class ValueConditionAnnotationExtensions
     /// <param name="symbol">The option or argument the range applies to.</param>
     /// <param name="lowerBound">The <see cref="ValueSource"> that is the lower bound of the range.</param>
     /// <param name="upperBound">The <see cref="ValueSource"> that is the upper bound of the range.</param>
-    // TODO: Add RangeBounds
-    // TODO: You should not have to set both...why not nullable?
-    public static void SetRange<TValueSymbol, TValue>(this TValueSymbol symbol, ValueSource<TValue> lowerBound, ValueSource<TValue> upperBound)
+    public static void SetRange<TValueSymbol, TValue>(this TValueSymbol symbol, ValueSource<TValue>? lowerBound, ValueSource<TValue>? upperBound)
         where TValueSymbol : CliValueSymbol, ICliValueSymbol<TValue>
         where TValue : IComparable<TValue>
-        // TODO: You should not have to set both...why not nullable?
     {
         var range = new Range<TValue>(lowerBound, upperBound);
 
@@ -68,13 +64,11 @@ public static class ValueConditionAnnotationExtensions
     public static void SetInclusiveGroup(this CliCommand command, IEnumerable<CliValueSymbol> group)
         => command.SetValueCondition(new InclusiveGroup(group));
 
-    // TODO: This should not be public if ValueConditions are not public
     public static void SetValueCondition<TValueSymbol, TValueCondition>(this TValueSymbol symbol, TValueCondition valueCondition)
         where TValueSymbol : CliValueSymbol
         where TValueCondition : ValueCondition
         => symbol.AddAnnotation(ValueConditionAnnotations.ValueConditions, valueCondition);
 
-    // TODO: This should not be public if ValueConditions are not public
     public static void SetValueCondition<TCommandCondition>(this CliCommand symbol, TCommandCondition commandCondition)
         where TCommandCondition : CommandCondition
         => symbol.AddAnnotation(ValueConditionAnnotations.ValueConditions, commandCondition);
@@ -84,8 +78,6 @@ public static class ValueConditionAnnotationExtensions
     /// </summary>
     /// <param name="command">The option or argument to get the conditions for.</param>
     /// <returns>The conditions that have been applied to the option or argument.</returns>
-    ///
-    // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
     public static IEnumerable<ValueCondition> EnumerateValueConditions(this CliValueSymbol symbol)
         => symbol.EnumerateAnnotations<ValueCondition>(ValueConditionAnnotations.ValueConditions);
 
@@ -94,8 +86,6 @@ public static class ValueConditionAnnotationExtensions
     /// </summary>
     /// <param name="command">The option or argument to get the conditions for.</param>
     /// <returns>The conditions that have been applied to the option or argument.</returns>
-    ///
-    // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
     public static IEnumerable<ValueCondition> EnumerateValueConditions(this AnnotationResolver resolver, CliValueSymbol symbol)
         => resolver.Enumerate<ValueCondition>(symbol, ValueConditionAnnotations.ValueConditions);
 
@@ -104,8 +94,6 @@ public static class ValueConditionAnnotationExtensions
     /// </summary>
     /// <param name="command">The command to get the conditions for.</param>
     /// <returns>The conditions that have been applied to the command.</returns>
-    ///
-    // TODO: This is public because it will be used by other subsystems we might not own. It could be an extension method the subsystem namespace
     public static IEnumerable<CommandCondition> EnumerateCommandConditions(this CliCommand command)
         => command.EnumerateAnnotations<CommandCondition>(ValueConditionAnnotations.ValueConditions);
 
@@ -125,11 +113,9 @@ public static class ValueConditionAnnotationExtensions
     /// <typeparam name="TCondition">The type of condition to return.</typeparam>
     /// <param name="symbol">The option or argument that may contain the condition.</param>
     /// <returns>The condition if it exists on the option or argument, otherwise null.</returns>
-    // This method feels useful because it clarifies that last should win and returns one, when only one should be applied
-    // TODO: Consider removing user facing naming, other than the base type, that is Value or CommandCondition and just use Condition
     public static TCondition? GetValueCondition<TCondition>(this CliValueSymbol symbol)
         where TCondition : ValueCondition
-        => symbol.EnumerateValueConditions().OfType<TCondition>().LastOrDefault();
+        => symbol.EnumerateValueConditions().OfType<TCondition>().FirstOrDefault();
 
     /// <summary>
     /// Gets the condition that matches the type, if it exists on this command.
@@ -137,7 +123,6 @@ public static class ValueConditionAnnotationExtensions
     /// <typeparam name="TCondition">The type of condition to return.</typeparam>
     /// <param name="symbol">The command that may contain the condition.</param>
     /// <returns>The condition if it exists on the command, otherwise null.</returns>
-    // This method feels useful because it clarifies that last should win and returns one, when only one should be applied
     public static TCondition? GetCommandCondition<TCondition>(this CliCommand symbol)
         where TCondition : CommandCondition
         => symbol.EnumerateCommandConditions().OfType<TCondition>().FirstOrDefault();

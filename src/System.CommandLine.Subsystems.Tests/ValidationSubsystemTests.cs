@@ -143,7 +143,7 @@ public class ValidationSubsystemTests
     public void Values_below_relative_lower_bound_report_error()
     {
         var otherOption = new CliOption<int>("-a");
-        var option = GetOptionWithRangeBounds("--intOpt", ValueSource.Create(otherOption, o => (true, (int)o + 1)), 50);
+        var option = GetOptionWithRangeBounds("--intOpt", ValueSource.Create<int>(otherOption, o => (true, o + 1)), 50);
         var command = new CliCommand("cmd") { option, otherOption };
 
         var pipelineResult = ExecutedPipelineResultForCommand(command, "--intOpt 0 -a 0");
@@ -159,7 +159,9 @@ public class ValidationSubsystemTests
     public void Values_within_relative_range_do_not_report_error()
     {
         var otherOption = new CliOption<int>("-a");
-        var option = GetOptionWithRangeBounds("--intOpt", ValueSource.Create(otherOption, o => (true, (int)o + 1)), ValueSource.Create(otherOption, o => (true, (int)o + 10)));
+        var option = GetOptionWithRangeBounds("--intOpt",
+            ValueSource.Create<int>(otherOption, o => (true, o + 1)),
+            ValueSource.Create<int>(otherOption, o => (true, o + 10)));
         var command = new CliCommand("cmd") { option, otherOption };
 
         var pipelineResult = ExecutedPipelineResultForCommand(command, "--intOpt 11 -a 3");
@@ -172,7 +174,7 @@ public class ValidationSubsystemTests
     public void Values_above_relative_upper_bound_report_error()
     {
         var otherOption = new CliOption<int>("-a");
-        var option = GetOptionWithRangeBounds("--intOpt", 0, ValueSource.Create(otherOption, o => (true, (int)o + 10)));
+        var option = GetOptionWithRangeBounds("--intOpt", 0, ValueSource.Create<int>(otherOption, o => (true, o + 10)));
         var command = new CliCommand("cmd") { option, otherOption };
 
         var pipelineResult = ExecutedPipelineResultForCommand(command, "--intOpt 9 -a -2");

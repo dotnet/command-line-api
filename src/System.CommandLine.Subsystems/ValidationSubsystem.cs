@@ -70,10 +70,11 @@ public sealed class ValidationSubsystem : CliSubsystem
     {
         var valueConditions = valueSymbol.EnumerateValueConditions();
 
+        // manually implement the foreach so we can efficiently skip getting the
+        // value if there are no conditions
         var enumerator = valueConditions.GetEnumerator();
         if (!enumerator.MoveNext())
         {
-            // avoid getting the value if there are no conditions
             return;
         }
 
@@ -89,6 +90,9 @@ public sealed class ValidationSubsystem : CliSubsystem
     {
         var valueConditions = commandResult.Command.EnumerateCommandConditions();
 
+        // unlike ValidateValue we do not need to manually implement the foreach
+        // to skip unnecessary work, as there is no additional work to be before
+        // calling command validators
         foreach (var condition in valueConditions)
         {
             ValidateCommandCondition(commandResult, condition, validationContext);

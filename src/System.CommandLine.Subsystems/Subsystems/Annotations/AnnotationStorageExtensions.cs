@@ -103,7 +103,7 @@ public static partial class AnnotationStorageExtensions
     /// This is intended to be called by the implementation of specialized ID-specific accessors for CLI authors such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)"/>.
     /// <para>
     /// Subsystems should not call this directly, as it does not account for values from the pipeline's <see cref="IAnnotationProvider"/>.
-    /// They should instead access annotations from the see cref="Pipeline.Annotations"/> property using
+    /// They should instead access annotations from the <see cref="Pipeline.Annotations"/> property using
     /// <see cref="AnnotationResolver.TryGet{TValue}(CliSymbol, AnnotationId, out TValue?)"/> or an ID-specific
     /// extension method such as <see cref="HelpAnnotationExtensions.GetDescription{TSymbol}(TSymbol)" />.
     /// </para>

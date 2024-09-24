@@ -31,7 +31,7 @@ public abstract class ValueSource
         => new CalculatedValueSource<T>(calculation, description);
 
     public static ValueSource<T> Create<T>(CliValueSymbol otherSymbol,
-                                           Func<object?, (bool success, T? value)>? calculation = null,
+                                           Func<T?, (bool success, T? value)>? calculation = null,
                                            bool userEnteredValueOnly = false,
                                            string? description = null)
         => new RelativeToSymbolValueSource<T>(otherSymbol, userEnteredValueOnly, calculation, description);
