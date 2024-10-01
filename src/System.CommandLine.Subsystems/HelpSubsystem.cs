@@ -15,8 +15,8 @@ namespace System.CommandLine;
 //        var command = new CliCommand("greet")
 //          .With(help.Description, "Greet the user");
 //
-public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
-    : CliSubsystem(HelpAnnotations.Prefix, SubsystemKind.Help, annotationProvider)
+public class HelpSubsystem()
+    : CliSubsystem(HelpAnnotations.Prefix, SubsystemKind.Help)
 {
     /// <summary>
     /// Gets the help option, which allows the user to customize
@@ -44,7 +44,4 @@ public class HelpSubsystem(IAnnotationProvider? annotationProvider = null)
         pipelineResult.ConsoleHack.WriteLine("Help me!");
         pipelineResult.SetSuccess();
     }
-
-    public bool TryGetDescription(CliSymbol symbol, out string? description)
-        => TryGetAnnotation(symbol, HelpAnnotations.Description, out description);
 }

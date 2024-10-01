@@ -30,7 +30,7 @@ namespace System.CommandLine.Subsystems.Tests
 
             public override void Execute(PipelineResult pipelineResult)
             {
-                TryGetAnnotation(Symbol, HelpAnnotations.Description, out string? description);
+                pipelineResult.Annotations.TryGet(Symbol, HelpAnnotations.Description, out string? description);
                 pipelineResult.ConsoleHack.WriteLine(description);
                 pipelineResult.AlreadyHandled = true;
                 pipelineResult.SetSuccess();
@@ -63,12 +63,12 @@ namespace System.CommandLine.Subsystems.Tests
             }
         }
 
-        internal class StringDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
-           : DirectiveSubsystem("other", SubsystemKind.Diagram, annotationProvider)
+        internal class StringDirectiveSubsystem()
+           : DirectiveSubsystem("other", SubsystemKind.Diagram)
         { }
 
-        internal class BooleanDirectiveSubsystem(IAnnotationProvider? annotationProvider = null)
-           : DirectiveSubsystem("diagram", SubsystemKind.Diagram, annotationProvider)
+        internal class BooleanDirectiveSubsystem()
+           : DirectiveSubsystem("diagram", SubsystemKind.Diagram)
         { }
 
     }

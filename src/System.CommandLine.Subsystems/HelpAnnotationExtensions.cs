@@ -40,11 +40,28 @@ public static class HelpAnnotationExtensions
     /// <param name="symbol">The symbol</param>
     /// <returns>The symbol description if any, otherwise <see langword="null"/></returns>
     /// <remarks>
-    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="HelpSubsystem.TryGetDescription(CliSymbol, out string?)"/>,
-    /// values from the subsystem's <see cref="IAnnotationProvider"/>.
+    /// This is intended to be called by CLI authors. Subsystem authors should instead call
+    /// <see cref="GetDescription{TSymbol}(AnnotationResolver, TSymbol)"/> to get values from
+    /// the pipeline's <see cref="Pipeline.Annotations"/>, which takes dynamic providers into account.
     /// </remarks>
     public static string? GetDescription<TSymbol>(this TSymbol symbol) where TSymbol : CliSymbol
     {
         return symbol.GetAnnotationOrDefault<string>(HelpAnnotations.Description);
+    }
+
+    /// <summary>
+    /// Get the help description for the <paramref name="symbol"/> from the <paramref name="resolver"/>,
+    /// which takes dynamic providers into account.
+    /// </summary>
+    /// <typeparam name="TSymbol">The type of the symbol</typeparam>
+    /// <param name="symbol">The symbol</param>
+    /// <returns>The symbol description if any, otherwise <see langword="null"/></returns>
+    /// <remarks>
+    /// This is intended to be called by subsystem authors. CLI authors should instead call
+    /// <see cref="GetDescription{TSymbol}(TSymbol)"/> to get the value associated directly with the symbol.
+    /// </remarks>
+    public static string? GetDescription<TSymbol>(this AnnotationResolver resolver, TSymbol symbol) where TSymbol : CliSymbol
+    {
+        return resolver.GetAnnotationOrDefault<string>(symbol, HelpAnnotations.Description);
     }
 }

@@ -12,10 +12,9 @@ namespace System.CommandLine.Subsystems;
 /// <param name="annotationProvider"></param>
 public abstract class CliSubsystem
 {
-    protected CliSubsystem(string name, SubsystemKind subsystemKind, IAnnotationProvider? annotationProvider)
+    protected CliSubsystem(string name, SubsystemKind subsystemKind)
     {
         Name = name;
-        _annotationProvider = annotationProvider;
         Kind = subsystemKind;
     }
 
@@ -29,74 +28,6 @@ public abstract class CliSubsystem
     /// </summary>
     public SubsystemKind Kind { get; }
     public AddToPhaseBehavior RecommendedAddToPhaseBehavior { get; }
-
-    private readonly IAnnotationProvider? _annotationProvider;
-
-    /// <summary>
-    /// Attempt to retrieve the <paramref name="symbol"/>'s value for the annotation <paramref name="id"/>. This will check the
-    /// annotation provider that was passed to the subsystem constructor, and the internal annotation storage.
-    /// </summary>
-    /// <typeparam name="TValue">
-    /// The expected type of the annotation value. If the type does not match, a <see cref="AnnotationTypeException"/> will be thrown.
-    /// If the annotation allows multiple types for its values, and a type parameter cannot be determined statically,
-    /// use <see cref="TryGetAnnotation(CliSymbol, AnnotationId, out object?)"/> to access the annotation value without checking its type.
-    /// </typeparam>
-    /// <param name="symbol">The symbol the value is attached to</param>
-    /// <param name="id">
-    /// The identifier for the annotation value to be retrieved.
-    /// For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
-    /// </param>
-    /// <param name="value">An out parameter to contain the result</param>
-    /// <returns>True if successful</returns>
-    /// <remarks>
-    /// If the annotation value does not have a single expected type for this symbol, use the <see cref="TryGetAnnotation(CliSymbol, AnnotationId, out object?)"/> overload instead.
-    /// <para>
-    /// Subsystem authors must use this to access annotation values, as it respects the subsystem's <see cref="IAnnotationProvider"/> if it has one.
-    /// This value is protected because it is intended for use only by subsystem authors. It calls <see cref="AnnotationStorageExtensions"/>
-    /// </para>
-    /// </remarks>
-    protected internal bool TryGetAnnotation<TValue>(CliSymbol symbol, AnnotationId annotationId, [NotNullWhen(true)] out TValue? value)
-    {
-        if (_annotationProvider is not null && _annotationProvider.TryGet(symbol, annotationId, out object? rawValue))
-        {
-            if (rawValue is TValue expectedTypeValue)
-            {
-                value = expectedTypeValue;
-                return true;
-            }
-            throw new AnnotationTypeException(annotationId, typeof(TValue), rawValue?.GetType(), _annotationProvider);
-        }
-
-        return symbol.TryGetAnnotation(annotationId, out value);
-    }
-
-    /// <summary>
-    /// Attempt to retrieve the <paramref name="symbol"/>'s value for the annotation <paramref name="id"/>. This will check the
-    /// annotation provider that was passed to the subsystem constructor, and the internal annotation storage.
-    /// </summary>
-    /// <param name="symbol">The symbol the value is attached to</param>
-    /// <param name="id">
-    /// The identifier for the annotation value to be retrieved.
-    /// For example, the annotation identifier for the help description is <see cref="HelpAnnotations.Description">.
-    /// </param>
-    /// <param name="value">An out parameter to contain the result</param>
-    /// <returns>True if successful</returns>
-    /// <remarks>
-    /// If the expected type of the annotation value is known, use the <see cref="TryGetAnnotation{TValue}(CliSymbol, AnnotationId, out TValue?)"/> overload instead.
-    /// <para>
-    /// Subsystem authors must use this to access annotation values, as it respects the subsystem's <see cref="IAnnotationProvider"/> if it has one.
-    /// This value is protected because it is intended for use only by subsystem authors. It calls <see cref="AnnotationStorageExtensions"/>
-    /// </para>
-    /// </remarks>
-    protected internal bool TryGetAnnotation(CliSymbol symbol, AnnotationId annotationId, [NotNullWhen(true)] out object? value)
-    {
-        if (_annotationProvider is not null && _annotationProvider.TryGet(symbol, annotationId, out value))
-        {
-            return true;
-        }
-
-        return symbol.TryGetAnnotation(annotationId, out value);
-    }
 
     /// <summary>
     /// The subystem executes, even if another subsystem has handled the operation. This is expected to be used in things like error reporting.

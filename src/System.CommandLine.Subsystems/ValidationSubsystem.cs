@@ -14,8 +14,8 @@ public sealed class ValidationSubsystem : CliSubsystem
     private Dictionary<Type, ValueValidator> valueValidators = [];
     private Dictionary<Type, CommandValidator> commandValidators = [];
 
-    private ValidationSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base("", SubsystemKind.Validation, annotationProvider)
+    private ValidationSubsystem()
+        : base("", SubsystemKind.Validation)
     { }
 
     public static ValidationSubsystem Create()
@@ -68,28 +68,31 @@ public sealed class ValidationSubsystem : CliSubsystem
 
     private void ValidateValue(CliValueSymbol valueSymbol, ValidationContext validationContext)
     {
-        var valueConditions = valueSymbol.GetValueConditions();
-        if (valueConditions is null)
+        var valueConditions = valueSymbol.EnumerateValueConditions();
+
+        // manually implement the foreach so we can efficiently skip getting the
+        // value if there are no conditions
+        var enumerator = valueConditions.GetEnumerator();
+        if (!enumerator.MoveNext())
         {
-            return; // nothing to do
+            return;
         }
 
         var value = validationContext.GetValue(valueSymbol);
         var valueResult = validationContext.GetValueResult(valueSymbol);
-        foreach (var condition in valueConditions)
-        {
-            ValidateValueCondition(value, valueSymbol, valueResult, condition, validationContext);
-        }
+
+        do {
+            ValidateValueCondition(value, valueSymbol, valueResult, enumerator.Current, validationContext);
+        } while (enumerator.MoveNext());
     }
 
     private void ValidateCommand(CliCommandResult commandResult, ValidationContext validationContext)
     {
-        var valueConditions = commandResult.Command.GetCommandConditions();
-        if (valueConditions is null)
-        {
-            return; // nothing to do
-        }
+        var valueConditions = commandResult.Command.EnumerateCommandConditions();
 
+        // unlike ValidateValue we do not need to manually implement the foreach
+        // to skip unnecessary work, as there is no additional work to be before
+        // calling command validators
         foreach (var condition in valueConditions)
         {
             ValidateCommandCondition(commandResult, condition, validationContext);

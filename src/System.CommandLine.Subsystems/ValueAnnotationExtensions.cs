@@ -17,9 +17,12 @@ public static class ValueAnnotationExtensions
     /// <param name="option">The option</param>
     /// <returns>The option's default value annotation if any, otherwise <see langword="null"/></returns>
     /// <remarks>
-    /// This is intended to be called by CLI authors. Subsystems should instead call <see cref="PipelineResult.GetValue{T}(CliOption)"/>,
-    /// which calculates the actual default value, based on the default value annotation and default value calculation,
-    /// whether directly stored on the symbol or from the subsystem's <see cref="IAnnotationProvider"/>.
+    /// This is intended to be called by CLI authors inspecting the default value source they have
+    /// associated directly with the <paramref name="valueSymbol"/>.
+    /// <para>
+    /// Subsystems should instead use <see cref="PipelineResult.GetValue(CliValueSymbol)"/>, which caches calculated
+    /// values and respects dynamic/lazy annotations from the <see cref="Pipeline.AnnotationProviders"/>.
+    /// </para>
     /// </remarks>
     public static bool TryGetDefaultValueSource(this CliValueSymbol valueSymbol, [NotNullWhen(true)] out ValueSource? defaultValueSource)
         => valueSymbol.TryGetAnnotation(ValueAnnotations.DefaultValueSource, out defaultValueSource);

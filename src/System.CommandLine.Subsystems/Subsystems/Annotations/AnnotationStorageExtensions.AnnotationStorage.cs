@@ -7,7 +7,7 @@ namespace System.CommandLine.Subsystems.Annotations;
 
 partial class AnnotationStorageExtensions
 {
-    class AnnotationStorage : IAnnotationProvider
+    class AnnotationStorage
     {
         record struct AnnotationKey(CliSymbol symbol, string prefix, string id)
         {

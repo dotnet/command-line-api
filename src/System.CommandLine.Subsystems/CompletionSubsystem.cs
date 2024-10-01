@@ -17,8 +17,8 @@ namespace System.CommandLine;
 
 public class CompletionSubsystem : CliSubsystem
 {
-    public CompletionSubsystem(IAnnotationProvider? annotationProvider = null)
-        : base(CompletionAnnotations.Prefix, SubsystemKind.Completion, annotationProvider)
+    public CompletionSubsystem()
+        : base(CompletionAnnotations.Prefix, SubsystemKind.Completion)
     { }
 
     // TODO: Figure out trigger for completions

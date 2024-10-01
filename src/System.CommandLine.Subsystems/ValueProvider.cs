@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Subsystems.Annotations;
 using System.CommandLine.ValueSources;
 
 namespace System.CommandLine;
@@ -48,7 +49,7 @@ internal class ValueProvider
         {
             return UseValue(valueSymbol, valueResult.GetValue<T>());
         }
-        if (valueSymbol.TryGetDefaultValueSource(out ValueSource? defaultValueSource))
+        if (pipelineResult.Annotations.TryGet(valueSymbol, ValueAnnotations.DefaultValueSource, out ValueSource? defaultValueSource))
         {
             if (defaultValueSource is not ValueSource<T> typedDefaultValueSource)
             {
