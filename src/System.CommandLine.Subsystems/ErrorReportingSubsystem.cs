@@ -33,7 +33,7 @@ public class ErrorReportingSubsystem : CliSubsystem
         pipelineResult.SetSuccess();
     }
 
-    public void Report(ConsoleHack consoleHack, IReadOnlyList<ParseError> errors)
+    public void Report(ConsoleHack consoleHack, IReadOnlyList<CliDiagnostic> errors)
     {
         ConsoleHelpers.ResetTerminalForegroundColor();
         ConsoleHelpers.SetTerminalForegroundRed();

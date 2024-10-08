@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Parsing;
@@ -9,8 +9,8 @@ namespace System.CommandLine;
 public class PipelineResult
 {
     // TODO: Try to build workflow so it is illegal to create this without a ParseResult
-    private readonly List<ParseError> errors = [];
-    private ValueProvider valueProvider { get; } 
+    private readonly List<CliDiagnostic> errors = [];
+    private ValueProvider valueProvider { get; }
 
     public PipelineResult(ParseResult parseResult, string rawInput, Pipeline? pipeline, ConsoleHack? consoleHack = null)
     {
@@ -44,7 +44,7 @@ public class PipelineResult
      => ParseResult.GetValueResult(valueSymbol);
 
 
-    public void AddErrors(IEnumerable<ParseError> errors)
+    public void AddErrors(IEnumerable<CliDiagnostic> errors)
     {
         if (errors is not null)
         {
@@ -52,10 +52,10 @@ public class PipelineResult
         }
     }
 
-    public void AddError(ParseError error)
+    public void AddError(CliDiagnostic error)
         => errors.Add(error);
 
-    public IEnumerable<ParseError> GetErrors(bool excludeParseErrors = false)
+    public IEnumerable<CliDiagnostic> GetErrors(bool excludeParseErrors = false)
         => excludeParseErrors || ParseResult is null
             ? errors
             : ParseResult.Errors.Concat(errors);

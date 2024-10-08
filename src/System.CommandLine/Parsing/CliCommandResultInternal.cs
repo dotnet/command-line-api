@@ -84,7 +84,7 @@ namespace System.CommandLine.Parsing
                 if (Command.HasSubcommands)
                 {
                     SymbolResultTree.InsertFirstError(
-                        new CliDiagnostic(new("validateSubCommandError", "Validation Error", LocalizationResources.RequiredCommandWasNotProvided(), CliDiagnosticSeverity.Warning, null), [], symbolResult: this));
+                        new CliDiagnostic(new("validateSubCommandError", "Validation Error", LocalizationResources.RequiredCommandWasNotProvided(), CliDiagnosticSeverity.Warning, null), [], valueResult: ));
                 }
 
                 // TODO: validators

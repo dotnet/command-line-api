@@ -40,8 +40,8 @@ public class Range<T> : Range, IValueValidator
         LowerBound = lowerBound;
         UpperBound = upperBound;
         RangeBound = rangeBound;
-    }    
-    
+    }
+
     /// <inheritdoc/>
     public void Validate(object? value,
                          CliValueSymbol valueSymbol,
@@ -59,7 +59,7 @@ public class Range<T> : Range, IValueValidator
             && validationContext.TryGetTypedValue(LowerBound, out var lowerValue)
             && comparableValue.CompareTo(lowerValue) < 0)
         {
-            validationContext.AddError(new ParseError($"The value for '{valueSymbol.Name}' is below the lower bound of {LowerBound}"));
+            validationContext.AddError(new CliDiagnostic(new("", "", "The value for '{valueSymbol}' is below the lower bound of {lowerBound}", severity: CliDiagnosticSeverity.Error, null), [valueSymbol.Name, LowerBound], cliSymbolResult: valueResult));
         }
 
 
@@ -67,7 +67,7 @@ public class Range<T> : Range, IValueValidator
            && validationContext.TryGetTypedValue(UpperBound, out var upperValue)
            && comparableValue.CompareTo(upperValue) > 0)
         {
-            validationContext.AddError(new ParseError($"The value for '{valueSymbol.Name}' is above the upper bound of {UpperBound}"));
+            validationContext.AddError(new CliDiagnostic(new("", "", "The value for '{valueSymbol}' is above the upper bound of {upperBound}", severity: CliDiagnosticSeverity.Error, null), [valueSymbol.Name, UpperBound], cliSymbolResult: valueResult));
         }
     }
 

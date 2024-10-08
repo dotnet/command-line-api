@@ -8,7 +8,7 @@ namespace System.CommandLine.Parsing
     internal sealed class SymbolResultTree : Dictionary<CliSymbol, CliSymbolResultInternal>
     {
         private readonly CliCommand _rootCommand;
-        internal List<ParseError>? Errors;
+        internal List<CliDiagnostic>? Errors;
         // TODO: unmatched tokens
         /*
         internal List<CliToken>? UnmatchedTokens;
@@ -29,7 +29,9 @@ namespace System.CommandLine.Parsing
 
                 for (var i = 0; i < tokenizeErrors.Count; i++)
                 {
-                    Errors.Add(new CliDiagnostic(new("", "", tokenizeErrors[i], CliDiagnosticSeverity.Warning, null), []));
+                    Errors.Add(new CliDiagnostic(new("", "",
+                        tokenizeErrors[i], CliDiagnosticSeverity.Warning, null), [],
+                        cliSymbolResult: null));
                 }
             }
         }
@@ -81,8 +83,8 @@ namespace System.CommandLine.Parsing
             return dict;
         }
 
-        internal void AddError(CliDiagnostic parseError) => (Errors ??= new()).Add(parseError);
-        internal void InsertFirstError(CliDiagnostic parseError) => (Errors ??= new()).Insert(0, parseError);
+        internal void AddError(CliDiagnostic CliDiagnostic) => (Errors ??= new()).Add(CliDiagnostic);
+        internal void InsertFirstError(CliDiagnostic CliDiagnostic) => (Errors ??= new()).Insert(0, CliDiagnostic);
 
         internal void AddUnmatchedToken(CliToken token, CliCommandResultInternal commandResult, CliCommandResultInternal rootCommandResult)
         {
@@ -98,75 +100,10 @@ namespace System.CommandLine.Parsing
                 }
 
             */
-            AddError(new CliDiagnostic(new("", "", LocalizationResources.UnrecognizedCommandOrArgument(token.Value), CliDiagnosticSeverity.Warning, null), [], symbolResult: commandResult));
+            AddError(new CliDiagnostic(new("", "", LocalizationResources.UnrecognizedCommandOrArgument(token.Value), CliDiagnosticSeverity.Warning, null), []));
             /*
-        }
-
-        public SymbolResult? GetResult(string name)
-        {
-            if (_symbolsByName is null)
-            {
-                _symbolsByName = new();
-                PopulateSymbolsByName(_rootCommand);
             }
             */
-        }
-
-// TODO: symbolsbyname - this is inefficient
-// results for some values may not be queried at all, dependent on other options
-// so we could avoid using their value factories and adding them to the dictionary
-// could we sort by name allowing us to do a binary search instead of allocating a dictionary?
-// could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
-        private void PopulateSymbolsByName(CliCommand command)
-        {
-            if (command.HasArguments)
-            {
-                for (var i = 0; i < command.Arguments.Count; i++)
-                {
-                    AddToSymbolsByName(command.Arguments[i]);
-                }
-            }
-
-            if (command.HasOptions)
-            {
-                for (var i = 0; i < command.Options.Count; i++)
-                {
-                    AddToSymbolsByName(command.Options[i]);
-                }
-            }
-
-            if (command.HasSubcommands)
-            {
-                for (var i = 0; i < command.Subcommands.Count; i++)
-                {
-                    var childCommand = command.Subcommands[i];
-                    AddToSymbolsByName(childCommand);
-                    PopulateSymbolsByName(childCommand);
-                }
-            }
-
-            // TODO: Explore removing closure here
-            void AddToSymbolsByName(CliSymbol symbol)
-            {
-                if (_symbolsByName!.TryGetValue(symbol.Name, out var node))
-                {
-                    if (symbol.Name == node.Symbol.Name &&
-                        symbol.FirstParent?.Symbol is { } parent &&
-                        parent == node.Symbol.FirstParent?.Symbol)
-                    {
-                        throw new InvalidOperationException($"Command {parent.Name} has more than one child named \"{symbol.Name}\".");
-                    }
-
-                    _symbolsByName[symbol.Name] = new(symbol)
-                    {
-                        Next = node
-                    };
-                }
-                else
-                {
-                    _symbolsByName[symbol.Name] = new(symbol);
-                }
-            }
         }
     }
 }

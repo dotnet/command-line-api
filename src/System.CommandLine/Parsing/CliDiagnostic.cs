@@ -1,7 +1,8 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.CommandLine.Parsing;
 
@@ -11,6 +12,7 @@ namespace System.CommandLine.Parsing;
  * https://github.com/mhutch/MonoDevelop.MSBuildEditor/blob/main/MonoDevelop.MSBuild/Analysis/MSBuildDiagnosticDescriptor.cs
  * https://github.com/dotnet/roslyn/blob/main/src/Compilers/Core/Portable/Diagnostic/DiagnosticDescriptor.cs
  * https://github.com/dotnet/roslyn/blob/main/src/Compilers/Core/Portable/Diagnostic/Diagnostic.cs
+ * https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/sarif-v2.1.0-errata01-os-complete.html#_Toc141791086
  */
 internal static class ParseDiagnostics
 {
@@ -27,7 +29,7 @@ internal static class ParseDiagnostics
 
 public sealed class CliDiagnosticDescriptor
 {
-    public CliDiagnosticDescriptor(string id, string title, string messageFormat, CliDiagnosticSeverity severity, string? helpUri)
+    public CliDiagnosticDescriptor(string id, string title, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string messageFormat, CliDiagnosticSeverity severity, string? helpUri)
     {
         Id = id;
         Title = title;
@@ -38,6 +40,7 @@ public sealed class CliDiagnosticDescriptor
 
     public string Id { get; }
     public string Title { get; }
+    [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
     public string MessageFormat { get; }
     public CliDiagnosticSeverity Severity { get; }
     public string? HelpUri { get; }
@@ -65,19 +68,18 @@ public sealed class CliDiagnostic
     /// <param name="descriptor">Contains information about the error.</param>
     /// <param name="messageArgs">The arguments to be passed to the <see cref="CliDiagnosticDescriptor.MessageFormat"/> in the <paramref name="descriptor"/>.</param>
     /// <param name="properties">Properties to be associated with the diagnostic.</param>
-    /// <param name="symbolResult">The symbol result detailing the symbol that failed to parse and the tokens involved.</param>
+    /// <param name="cliSymbolResult">Contains information about a single value entered.</param>
     /// <param name="location">The location of the error.</param>
     public CliDiagnostic(
         CliDiagnosticDescriptor descriptor,
         object?[]? messageArgs,
         ImmutableDictionary<string, object>? properties = null,
-        SymbolResult? symbolResult = null,
+        CliSymbolResult? cliSymbolResult = null,
         Location? location = null)
     {
         Descriptor = descriptor;
         MessageArgs = messageArgs;
         Properties = properties;
-        SymbolResult = symbolResult;
     }
 
     /// <summary>
@@ -101,10 +103,7 @@ public sealed class CliDiagnostic
 
     public object?[]? MessageArgs { get; }
 
-    /// <summary>
-    /// Gets the symbol result detailing the symbol that failed to parse and the tokens involved.
-    /// </summary>
-    public SymbolResult? SymbolResult { get; }
+    public CliSymbolResult? CliSymbolResult { get; }
 
     /// <inheritdoc />
     public override string ToString() => Message;

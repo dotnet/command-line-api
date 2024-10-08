@@ -64,7 +64,8 @@ namespace System.CommandLine.Parsing
         /// Adds an error message for this symbol result to it's parse tree.
         /// </summary>
         /// <remarks>Setting an error will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
-        internal virtual void AddError(string errorMessage) => SymbolResultTree.AddError(new CliDiagnostic(new("", "", errorMessage, severity: CliDiagnosticSeverity.Error, null), [], symbolResult: this));
+        internal virtual void AddError(string errorMessage, CliValueResult valueResult) =>
+            SymbolResultTree.AddError(new CliDiagnostic(new("", "", errorMessage, severity: CliDiagnosticSeverity.Error, null), [], cliSymbolResult: valueResult));
         /// <summary>
         /// Finds a result for the specific argument anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
