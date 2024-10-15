@@ -138,9 +138,9 @@ namespace System.CommandLine.Parsing
         public override string ToString() => $"{nameof(CliArgumentResultInternal)} {Argument.Name}: {string.Join(" ", Tokens.Select(t => $"<{t.Value}>"))}";
 
         /// <inheritdoc/>
-        internal override void AddError(string errorMessage)
+        internal override void AddError(string errorMessage, CliValueResult valueResult)
         {
-            SymbolResultTree.AddError(new ParseError(errorMessage, AppliesToPublicSymbolResult));
+            SymbolResultTree.AddError(new CliDiagnostic(new("", "", errorMessage, CliDiagnosticSeverity.Warning, null), [], cliSymbolResult: valueResult));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
         }
 
@@ -170,7 +170,6 @@ namespace System.CommandLine.Parsing
                 }
             }
 */
-
             // TODO: defaults
             /* 
             if (Parent!.UseDefaultValueFor(this))
@@ -222,7 +221,7 @@ namespace System.CommandLine.Parsing
             {
                 if (result.Result >= ArgumentConversionResultType.Failed)
                 {
-                    SymbolResultTree.AddError(new ParseError(result.ErrorMessage!, AppliesToPublicSymbolResult));
+                    SymbolResultTree.AddError(new CliDiagnostic(new("ArgumentConversionResultTypeFailed", "Type Conversion Failed", result.ErrorMessage!, CliDiagnosticSeverity.Warning, null), [], cliSymbolResult: ValueResult));
                 }
 
                 return result;

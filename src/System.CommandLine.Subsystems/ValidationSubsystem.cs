@@ -81,7 +81,8 @@ public sealed class ValidationSubsystem : CliSubsystem
         var value = validationContext.GetValue(valueSymbol);
         var valueResult = validationContext.GetValueResult(valueSymbol);
 
-        do {
+        do
+        {
             ValidateValueCondition(value, valueSymbol, valueResult, enumerator.Current, validationContext);
         } while (enumerator.MoveNext());
     }
@@ -123,9 +124,9 @@ public sealed class ValidationSubsystem : CliSubsystem
         {
             if (condition.MustHaveValidator)
             {
-                validationContext.AddError(new ParseError($"{valueSymbol.Name} must have {condition.Name} validator."));
+                validationContext.AddError(new CliDiagnostic(new("", "", "{valueSymbol} must have {condition} validator.", severity: CliDiagnosticSeverity.Error, null), [valueSymbol.Name, condition.Name], cliSymbolResult: valueResult));
             }
-            return; 
+            return;
         }
         validator.Validate(value, valueSymbol, valueResult, condition, validationContext);
 
@@ -169,7 +170,7 @@ public sealed class ValidationSubsystem : CliSubsystem
         {
             if (condition.MustHaveValidator)
             {
-                validationContext.AddError(new ParseError($"{commandResult.Command.Name} must have {condition.Name} validator."));
+                validationContext.AddError(new CliDiagnostic(new("", "", "{commandResult} must have {condition} validator.", severity: CliDiagnosticSeverity.Error, null), [commandResult.Command.Name, condition.Name]));
             }
             return;
         }

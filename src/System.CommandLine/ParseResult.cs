@@ -1,11 +1,8 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace System.CommandLine
 {
@@ -39,7 +36,7 @@ namespace System.CommandLine
             */
             // TODO: unmatched tokens
             // List<CliToken>? unmatchedTokens,
-            List<ParseError>? errors,
+            List<CliDiagnostic>? errors,
             // TODO: commandLineText should be string array
             string? commandLineText = null //,
             // TODO: invocation
@@ -82,12 +79,11 @@ namespace System.CommandLine
             // TODO: unmatched tokens
             // _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
 
-            Errors = errors is not null ? errors : Array.Empty<ParseError>();
+            Errors = errors is not null ? errors : Array.Empty<CliDiagnostic>();
         }
 
         public CliSymbol? GetSymbolByName(string name, bool valuesOnly = false)
         {
-
             symbolLookupByName ??= new SymbolLookupByName(this);
             return symbolLookupByName.TryGetSymbol(name, out var symbol, valuesOnly: valuesOnly)
                         ? symbol
@@ -121,7 +117,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the parse errors found while parsing command line input.
         /// </summary>
-        public IReadOnlyList<ParseError> Errors { get; }
+        public IReadOnlyList<CliDiagnostic> Errors { get; }
 
         /*
         // TODO: don't expose tokens

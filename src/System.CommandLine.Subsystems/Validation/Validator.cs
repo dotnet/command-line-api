@@ -31,11 +31,11 @@ public abstract class Validator
     /// <remarks>
     /// This method needs to be evolved as we replace ParseError with CliError
     /// </remarks>
-    protected static List<ParseError> AddValidationError(ref List<ParseError>? parseErrors, string message, IEnumerable<object?> errorValues)
+    protected static List<CliDiagnostic> AddValidationError(ref List<CliDiagnostic>? parseErrors, string message, IEnumerable<object?> errorValues)
     {
         // TODO: Review the handling of errors. They are currently transient and returned by the Validate method, and to avoid allocating in the case of no errors (the common case) this method is used. This adds complexity to creating a new validator.
-        parseErrors ??= new List<ParseError>();
-        parseErrors.Add(new ParseError(message));
+        parseErrors ??= new List<CliDiagnostic>();
+        parseErrors.Add(new CliDiagnostic(new("", "", message, severity: CliDiagnosticSeverity.Error, null), []));
         return parseErrors;
     }
 

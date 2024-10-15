@@ -44,9 +44,9 @@ public class InclusiveGroupValidator : CommandValidator
             // TODO: Rework to allow localization
             var pluralToBe = "are";
             var singularToBe = "is";
-            validationContext.AddError(new ParseError( $"The members {string.Join(", ", groupMembers.Select(m => m.Name))} " +
-                $"must all be used if one is used. {string.Join(", ", missingMembers.Select(m => m.Name))} " +
-                $"{(missingMembers.Skip(1).Any() ? pluralToBe : singularToBe)} missing."));
+            validationContext.AddError(new CliDiagnostic(new("", "", "The members {groupMembers} " +
+            "must all be used if one is used. {missingMembers} " +
+            "{toBe} missing.", severity: CliDiagnosticSeverity.Error, null), [string.Join(", ", groupMembers.Select(m => m.Name)), string.Join(", ", missingMembers.Select(m => m.Name)), (missingMembers.Skip(1).Any() ? pluralToBe : singularToBe)]));
         }
     }
 }

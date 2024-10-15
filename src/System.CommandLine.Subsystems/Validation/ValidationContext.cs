@@ -3,7 +3,6 @@
 
 using System.CommandLine.Parsing;
 using System.CommandLine.ValueSources;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace System.CommandLine.Validation;
 
@@ -24,7 +23,7 @@ public class ValidationContext
     /// Adds an error to the PipelineContext.
     /// </summary>
     /// <param name="error">The <see cref="ParseError"/> to add</param>
-    public void AddError(ParseError error)
+    public void AddError(CliDiagnostic error)
         => pipelineResult.AddError(error);
 
     /// <summary>

@@ -29,7 +29,10 @@
     <Compile Include="CliValueSymbol.cs" />
     <Compile Include="ICliValueSymbol.cs" />
     <Compile Include="Parsing\CliCommandResult.cs" />
+    <Compile Include="Parsing\CliDiagnosticDescriptor.cs" />
+    <Compile Include="Parsing\CliDiagnosticSeverity.cs" />
     <Compile Include="Parsing\CliSymbolResult.cs" />
+    <Compile Include="Parsing\ParseDiagnostics.cs" />
     <Compile Include="Parsing\SymbolLookupByName.cs" />
     <Compile Include="Parsing\ValueResultOutcome.cs" />
     <Compile Include="Binding\ArgumentConversionResultType.cs" />
@@ -58,7 +61,7 @@
     <Compile Include="Parsing\CliCommandResultInternal.cs" />
     <Compile Include="Parsing\Location.cs" />
     <Compile Include="Parsing\CliOptionResultInternal.cs" />
-    <Compile Include="Parsing\ParseError.cs" />
+    <Compile Include="Parsing\CliDiagnostic.cs" />
     <Compile Include="Parsing\ParseOperation.cs" />
     <Compile Include="Parsing\StringExtensions.cs" />
     <Compile Include="Parsing\CliSymbolResultInternal.cs" />
@@ -76,6 +79,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Memory" />
+    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 
   <ItemGroup>

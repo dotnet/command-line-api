@@ -56,9 +56,9 @@ public class ErrorReportingFunctionalTests
 
         var result = rootCommand.Parse("oops", config);
 
-        if (result.Action is ParseErrorAction parseError)
+        if (result.Action is CliDiagnosticAction CliDiagnostic)
         {
-            parseError.ShowHelp = false;
+            CliDiagnostic.ShowHelp = false;
         }
 
         result.Invoke();

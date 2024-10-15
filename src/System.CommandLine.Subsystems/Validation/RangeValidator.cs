@@ -24,9 +24,7 @@ public class RangeValidator : ValueValidator, IValueValidator
         }
         if (valueCondition.MustHaveValidator)
         {
-            validationContext.AddError(new ParseError($"Range validator missing for {valueSymbol.Name}"));
+            validationContext.AddError(new CliDiagnostic(new("", "", "Range validator missing for {valueSymbol}", severity: CliDiagnosticSeverity.Error, null), [valueSymbol.Name], cliSymbolResult: valueResult));
         }
     }
-
-
 }
