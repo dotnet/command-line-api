@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
@@ -29,7 +29,10 @@
     <Compile Include="CliValueSymbol.cs" />
     <Compile Include="ICliValueSymbol.cs" />
     <Compile Include="Parsing\CliCommandResult.cs" />
+    <Compile Include="Parsing\CliDiagnosticDescriptor.cs" />
+    <Compile Include="Parsing\CliDiagnosticSeverity.cs" />
     <Compile Include="Parsing\CliSymbolResult.cs" />
+    <Compile Include="Parsing\ParseDiagnostics.cs" />
     <Compile Include="Parsing\SymbolLookupByName.cs" />
     <Compile Include="Parsing\ValueResultOutcome.cs" />
     <Compile Include="Binding\ArgumentConversionResultType.cs" />
