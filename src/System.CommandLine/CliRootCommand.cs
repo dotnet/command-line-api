@@ -25,7 +25,8 @@ namespace System.CommandLine
         private static string? _executableVersion;
 
         /// <param name="description">The description of the command, shown in help.</param>
-        public CliRootCommand(string description = "") : base(ExecutableName, description)
+        /// <param name="caseSensitive">Whether the option is case sensitive.</param>
+        public CliRootCommand(string description = "", bool caseSensitive = true) : base(ExecutableName, description, caseSensitive)
         {
             Options.Add(new HelpOption());
             Options.Add(new VersionOption()); 
