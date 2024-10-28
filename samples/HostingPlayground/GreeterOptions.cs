@@ -1,12 +1,6 @@
-namespace HostingPlayground
-{
-    public class GreeterOptions
-    {
-        public string Name { get; }
+namespace HostingPlayground;
 
-        public GreeterOptions(string name)
-        {
-            Name = name;
-        }
-    }
+public class GreeterOptions
+{
+    public string Name { get; init; }
 }

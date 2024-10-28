@@ -1,48 +1,43 @@
-﻿using System.CommandLine;
+using System.CommandLine;
 using System.CommandLine.Hosting;
 using System.CommandLine.NamingConventionBinder;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+
 using Microsoft.Extensions.DependencyInjection;
-using static HostingPlayground.HostingPlaygroundLogEvents;
+using Microsoft.Extensions.Hosting;
 
-namespace HostingPlayground
+using HostingPlayground;
+
+CliOption<string> cliNameOption = new("--name", "-n")
 {
-    class Program
+    Required = true,
+};
+CliRootCommand cliRootCommand = new(@"$ dotnet run --name 'Joe'")
+{
+    Action = HostedServiceAction.Create<Greeter>(host =>
     {
-        static Task Main(string[] args) => BuildCommandLine()
-            .UseHost(_ => Host.CreateDefaultBuilder(),
-                host =>
-                {
-                    host.ConfigureServices(services =>
-                    {
-                        services.AddSingleton<IGreeter, Greeter>();
-                    });
-                })
-            .InvokeAsync(args);
-
-        private static CliConfiguration BuildCommandLine()
+        host.ConfigureServices(services => 
         {
-            var root = new CliRootCommand(@"$ dotnet run --name 'Joe'"){
-                new CliOption<string>("--name"){
-                    Required = true
-                }
-            };
-            root.Action = CommandHandler.Create<GreeterOptions, IHost>(Run);
-            return new CliConfiguration(root);
-        }
+            // Command-specific service registrations go here
+            services.AddSingleton(_ =>
+            {
+                var mb = new ModelBinder<GreeterOptions>
+                { EnforceExplicitBinding = true };
+                mb.BindMemberFromValue(o => o.Name, cliNameOption);
+                return mb;
+            });
+            services.AddOptions<GreeterOptions>().BindCommandLine();
+        });
+    }),
+};
+cliRootCommand.Add(cliNameOption);
 
-        private static void Run(GreeterOptions options, IHost host)
-        {
-            var serviceProvider = host.Services;
-            var greeter = serviceProvider.GetRequiredService<IGreeter>();
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger(typeof(Program));
-
-            var name = options.Name;
-            logger.LogInformation(GreetEvent, "Greeting was requested for: {name}", name);
-            greeter.Greet(name);
-        }
-    }
-}
+CliConfiguration cliConfig = new(cliRootCommand);
+cliConfig.UseHost(Host.CreateDefaultBuilder, host =>
+{
+    host.ConfigureServices(services =>
+    {
+        // Common service registrations go here
+    });
+});
+return await cliConfig.InvokeAsync(args)
+    .ConfigureAwait(continueOnCapturedContext: false);
