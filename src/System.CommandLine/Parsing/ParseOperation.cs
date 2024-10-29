@@ -76,7 +76,7 @@ namespace System.CommandLine.Parsing
             {
                 if (_symbolResultTree.ErrorCount > 0)
                 {
-                    _primaryAction = new ParseErrorAction();
+                    _primaryAction = new CliDiagnosticAction();
                 }
             }
 */

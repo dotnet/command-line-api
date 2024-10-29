@@ -1,15 +1,14 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
     internal sealed class SymbolResultTree : Dictionary<CliSymbol, CliSymbolResultInternal>
     {
         private readonly CliCommand _rootCommand;
-        internal List<ParseError>? Errors;
+        internal List<CliDiagnostic>? Errors;
         // TODO: unmatched tokens
         /*
         internal List<CliToken>? UnmatchedTokens;
@@ -26,11 +25,13 @@ namespace System.CommandLine.Parsing
 
             if (tokenizeErrors is not null)
             {
-                Errors = new List<ParseError>(tokenizeErrors.Count);
+                Errors = new List<CliDiagnostic>(tokenizeErrors.Count);
 
                 for (var i = 0; i < tokenizeErrors.Count; i++)
                 {
-                    Errors.Add(new ParseError(tokenizeErrors[i]));
+                    Errors.Add(new CliDiagnostic(new("", "",
+                        tokenizeErrors[i], CliDiagnosticSeverity.Warning, null), [],
+                        cliSymbolResult: null));
                 }
             }
         }
@@ -82,8 +83,8 @@ namespace System.CommandLine.Parsing
             return dict;
         }
 
-        internal void AddError(ParseError parseError) => (Errors ??= new()).Add(parseError);
-        internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
+        internal void AddError(CliDiagnostic CliDiagnostic) => (Errors ??= new()).Add(CliDiagnostic);
+        internal void InsertFirstError(CliDiagnostic CliDiagnostic) => (Errors ??= new()).Insert(0, CliDiagnostic);
 
         internal void AddUnmatchedToken(CliToken token, CliCommandResultInternal commandResult, CliCommandResultInternal rootCommandResult)
         {
@@ -99,7 +100,7 @@ namespace System.CommandLine.Parsing
                 }
 
             */
-            AddError(new ParseError(LocalizationResources.UnrecognizedCommandOrArgument(token.Value), commandResult));
+            AddError(new CliDiagnostic(new("", "", LocalizationResources.UnrecognizedCommandOrArgument(token.Value), CliDiagnosticSeverity.Warning, null), []));
             /*
             }
             */
