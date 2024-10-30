@@ -19,7 +19,7 @@ namespace System.CommandLine
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
-        private protected CliArgument(string name) : base(name, allowWhitespace: true)
+        private protected CliArgument(string name, bool caseSensitive = true) : base(name, allowWhitespace: true, caseSensitive: caseSensitive)
         {
         }
 

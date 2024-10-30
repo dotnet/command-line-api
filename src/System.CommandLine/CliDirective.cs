@@ -22,8 +22,9 @@ namespace System.CommandLine
         /// Initializes a new instance of the Directive class.
         /// </summary>
         /// <param name="name">The name of the directive. It can't contain whitespaces.</param>
-        public CliDirective(string name)
-            : base(name)
+        /// <param name="caseSensitive">Whether the directive is case sensitive.</param>
+        public CliDirective(string name, bool caseSensitive = true)
+            : base(name, caseSensitive: caseSensitive)
         {
         }
 
