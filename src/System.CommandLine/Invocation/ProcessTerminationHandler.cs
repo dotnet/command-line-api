@@ -16,7 +16,7 @@ internal sealed class ProcessTerminationHandler : IDisposable
     private readonly CancellationTokenSource _handlerCancellationTokenSource;
     private readonly Task<int> _startedHandler;
     private readonly TimeSpan _processTerminationTimeout;
-#if NET7_0_OR_GREATER
+#if NET
     private readonly IDisposable? _sigIntRegistration, _sigTermRegistration;
 #endif
         
@@ -30,7 +30,7 @@ internal sealed class ProcessTerminationHandler : IDisposable
         _startedHandler = startedHandler;
         _processTerminationTimeout = processTerminationTimeout;
 
-#if NET7_0_OR_GREATER // we prefer the new API as they allow for cancelling SIGTERM
+#if NET // we prefer the new API as they allow for cancelling SIGTERM
         if (!OperatingSystem.IsAndroid() 
             && !OperatingSystem.IsIOS() 
             && !OperatingSystem.IsTvOS()
@@ -48,7 +48,7 @@ internal sealed class ProcessTerminationHandler : IDisposable
 
     public void Dispose()
     {
-#if NET7_0_OR_GREATER
+#if NET
         if (_sigIntRegistration is not null)
         {
             _sigIntRegistration.Dispose();
@@ -61,7 +61,7 @@ internal sealed class ProcessTerminationHandler : IDisposable
         AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;    
     }
         
-#if NET7_0_OR_GREATER
+#if NET
     void OnPosixSignal(PosixSignalContext context)
     {
         context.Cancel = true;

@@ -1,13 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>$(NetMinimum);netstandard2.1;netstandard2.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;$(TargetFrameworkForNETSDK)</TargetFrameworks>
     <Description>This package provides support for using System.CommandLine with Microsoft.Extensions.Hosting.</Description>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup>

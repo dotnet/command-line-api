@@ -61,7 +61,7 @@ namespace System.CommandLine.Binding
 
             if (type.IsEnum)
             {
-#if NET7_0_OR_GREATER
+#if NET
                 if (Enum.TryParse(type, value, ignoreCase: true, out var converted))
                 {
                     return Success(argumentResult, converted);

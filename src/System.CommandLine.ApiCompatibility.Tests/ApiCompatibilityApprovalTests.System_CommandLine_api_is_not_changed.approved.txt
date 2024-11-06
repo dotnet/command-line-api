@@ -252,7 +252,7 @@ System.CommandLine.Parsing
     public System.Boolean Equals(CliToken other)
     public System.Int32 GetHashCode()
     public System.String ToString()
-  public enum CliTokenType : System.Enum, System.IComparable, System.IConvertible, System.IFormattable
+  public enum CliTokenType : System.Enum, System.IComparable, System.IConvertible, System.IFormattable, System.ISpanFormattable
     Argument=0
     Command=1
     Option=2

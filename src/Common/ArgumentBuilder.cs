@@ -16,7 +16,7 @@ internal static class ArgumentBuilder
     {
         var argumentType = typeof(CliArgument<>).MakeGenericType(valueType);
 
-#if NET6_0_OR_GREATER
+#if NET
         var ctor = (ConstructorInfo)argumentType.GetMemberWithSameMetadataDefinitionAs(_ctor);
 #else
         var ctor = argumentType.GetConstructor(new[] { typeof(string) });

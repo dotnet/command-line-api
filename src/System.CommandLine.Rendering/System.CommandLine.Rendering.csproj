@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <IsPackable>true</IsPackable>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
     <Description>This package provides support for structured command line output rendering. Write code once that renders correctly in multiple output modes, including System.Console, virtual terminal (using ANSI escape sequences), and plain text.
     </Description>
     <NoWarn>$(NoWarn);CS8632</NoWarn> <!-- some types provide nullable annotations -->
