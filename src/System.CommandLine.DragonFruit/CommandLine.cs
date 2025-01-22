@@ -80,7 +80,7 @@ namespace System.CommandLine.DragonFruit
             TextWriter standardOutput = null,
             TextWriter standardError = null)
         {
-            CliConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
+            CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
             configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
@@ -95,24 +95,24 @@ namespace System.CommandLine.DragonFruit
             TextWriter standardOutput = null,
             TextWriter standardError = null)
         {
-            CliConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
+            CommandLineConfiguration configuration = BuildConfiguration(method, xmlDocsFilePath, target);
             configuration.Output = standardOutput ?? Console.Out;
             configuration.Error = standardError ?? Console.Error;
 
             return configuration.Parse(args).Invoke();
         }
 
-        private static CliConfiguration BuildConfiguration(MethodInfo method,
+        private static CommandLineConfiguration BuildConfiguration(MethodInfo method,
             string xmlDocsFilePath,
             object target)
         {
-            return new CliConfiguration(new CliRootCommand())
+            return new CommandLineConfiguration(new RootCommand())
                 .ConfigureRootCommandFromMethod(method, target)
                 .ConfigureHelpFromXmlComments(method, xmlDocsFilePath);
         }
 
-        public static CliConfiguration ConfigureRootCommandFromMethod(
-            this CliConfiguration builder,
+        public static CommandLineConfiguration ConfigureRootCommandFromMethod(
+            this CommandLineConfiguration builder,
             MethodInfo method,
             object target = null)
         {
@@ -139,7 +139,7 @@ namespace System.CommandLine.DragonFruit
         };
 
         public static void ConfigureFromMethod(
-            this CliCommand command,
+            this Command command,
             MethodInfo method,
             object target = null)
         {
@@ -166,8 +166,8 @@ namespace System.CommandLine.DragonFruit
             command.Action = CommandHandler.Create(method, target);
         }
 
-        public static CliConfiguration ConfigureHelpFromXmlComments(
-            this CliConfiguration builder,
+        public static CommandLineConfiguration ConfigureHelpFromXmlComments(
+            this CommandLineConfiguration builder,
             MethodInfo method,
             string xmlDocsFilePath)
         {
@@ -243,7 +243,7 @@ namespace System.CommandLine.DragonFruit
                        : $"-{parameterName.ToLowerInvariant()}";
         }
 
-        public static IEnumerable<CliOption> BuildOptions(this MethodInfo method)
+        public static IEnumerable<Option> BuildOptions(this MethodInfo method)
         {
             var descriptor = HandlerDescriptor.FromMethodInfo(method);
 
@@ -251,7 +251,7 @@ namespace System.CommandLine.DragonFruit
                                {
                                    typeof(BindingContext),
                                    typeof(ParseResult),
-                                   typeof(CliConfiguration),
+                                   typeof(CommandLineConfiguration),
                                    typeof(CancellationToken),
                                };
 
@@ -264,7 +264,7 @@ namespace System.CommandLine.DragonFruit
             }
         }
 
-        public static CliOption BuildOption(this ParameterDescriptor parameter)
+        public static Option BuildOption(this ParameterDescriptor parameter)
             => OptionBuilder.CreateOption(
                 parameter.BuildAlias(),
                 parameter.ValueType,
@@ -300,7 +300,7 @@ namespace System.CommandLine.DragonFruit
         /// </summary>
         /// <param name="alias">The alias, which can include a prefix.</param>
         /// <returns><see langword="true"/> if the alias exists; otherwise, <see langword="false"/>.</returns>
-        private static bool HasAliasIgnoringPrefix(CliOption option, string alias)
+        private static bool HasAliasIgnoringPrefix(Option option, string alias)
         {
             ReadOnlySpan<char> rawAlias = alias.AsSpan(GetPrefixLength(alias));
 

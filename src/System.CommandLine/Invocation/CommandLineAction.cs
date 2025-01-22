@@ -6,9 +6,9 @@ namespace System.CommandLine.Invocation;
 /// <summary>
 /// Defines a behavior associated with a command line symbol.
 /// </summary>
-public abstract class CliAction
+public abstract class CommandLineAction
 {
-    private protected CliAction()
+    private protected CommandLineAction()
     {
     }
 

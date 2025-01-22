@@ -34,8 +34,8 @@ namespace System.CommandLine.Rendering.Tests
         public void A_row_is_written_for_each_item_and_a_header_for_each_column(OutputMode outputMode)
         {
             var options = new[] {
-                new CliOption<string>("-s") { Description = "a short option" },
-                new CliOption<string>("--very-long") { Description = "a long option" }
+                new Option<string>("-s") { Description = "a short option" },
+                new Option<string>("--very-long") { Description = "a long option" }
             };
 
             var view = new OptionsHelpView(options);
@@ -57,8 +57,8 @@ namespace System.CommandLine.Rendering.Tests
         {
             var options = new[]
             {
-                new CliOption<string>("-s") { Description = "a short option" },
-                new CliOption<string>("--very-long") { Description = "a long option" }
+                new Option<string>("-s") { Description = "a short option" },
+                new Option<string>("--very-long") { Description = "a long option" }
             };
 
             var view = new OptionsHelpView(options);
@@ -80,8 +80,8 @@ namespace System.CommandLine.Rendering.Tests
         public void Column_widths_are_aligned_to_the_longest_cell(OutputMode outputMode)
         {
             var options = new[] {
-                new CliOption<string>("-s") { Description = "an option" },
-                new CliOption<string>("--very-long") { Description = "an option" },
+                new Option<string>("-s") { Description = "an option" },
+                new Option<string>("--very-long") { Description = "an option" },
             };
 
             var view = new OptionsHelpView(options);
@@ -101,8 +101,8 @@ namespace System.CommandLine.Rendering.Tests
         public void Column_widths_are_aligned_to_the_longest_cell_in_file_mode()
         {
             var options = new[] {
-                new CliOption<string>("-s") { Description = "an option" },
-                new CliOption<string>("--very-long") { Description = "an option" },
+                new Option<string>("-s") { Description = "an option" },
+                new Option<string>("--very-long") { Description = "an option" },
             };
 
             var view = new OptionsHelpView(options);
@@ -121,9 +121,9 @@ namespace System.CommandLine.Rendering.Tests
         private TextRendered Cell(string text, int left, int top) => new(text, new Point(left, top));
     }
 
-    public class OptionsHelpView : TableView<CliOption>
+    public class OptionsHelpView : TableView<Option>
     {
-        public OptionsHelpView(IEnumerable<CliOption> options)
+        public OptionsHelpView(IEnumerable<Option> options)
         {
             Items = options.ToList();
 

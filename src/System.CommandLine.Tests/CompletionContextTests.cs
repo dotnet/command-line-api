@@ -12,11 +12,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void CommandLineText_preserves_command_line_prior_to_splitting_when_complete_command_line_is_parsed()
         {
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
-                new CliCommand("verb")
+                new Command("verb")
                 {
-                    new CliOption<int>("-x")
+                    new Option<int>("-x")
                 }
             };
 
@@ -36,11 +36,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void CommandLineText_is_preserved_when_adjusting_position()
         {
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
-                new CliCommand("verb")
+                new Command("verb")
                 {
-                    new CliOption<int>("-x")
+                    new Option<int>("-x")
                 }
             };
 
@@ -56,11 +56,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void CommandLineText_is_unavailable_when_string_array_is_parsed()
         {
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
-                new CliCommand("verb")
+                new Command("verb")
                 {
-                    new CliOption<int>("-x")
+                    new Option<int>("-x")
                 }
             };
 
@@ -74,10 +74,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_unspecified_in_string_command_line_not_ending_with_a_space_then_it_returns_final_token()
         {
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
-                new CliOption<string>("--option1"),
-                new CliOption<string>("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             string textToMatch = command.Parse("the-command t")
@@ -90,10 +90,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_unspecified_in_string_command_line_ending_with_a_space_then_it_returns_empty()
         {
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
-                new CliOption<string>("--option1"),
-                new CliOption<string>("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             var commandLine = "the-command t";
@@ -109,14 +109,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_greater_than_input_length_in_a_string_command_line_then_it_returns_empty()
         {
-            CliOption<string> option1 = new ("--option1");
+            Option<string> option1 = new ("--option1");
             option1.AcceptOnlyFromAmong("apple", "banana", "cherry", "durian");
 
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
-                new CliArgument<string>("arg"),
+                new Argument<string>("arg"),
                 option1,
-                new CliOption<string>("--option2")
+                new Option<string>("--option2")
             };
 
             var textToMatch = command.Parse("the-command --option1 a")
@@ -131,10 +131,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_unspecified_in_array_command_line_and_final_token_is_unmatched_then_it_returns_final_token()
         {
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
-                new CliOption<string>("--option1"),
-                new CliOption<string>("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             string textToMatch = command.Parse(new[] { "the-command", "opt" })
@@ -147,10 +147,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_command_then_it_returns_empty()
         {
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
-                new CliOption<string>("--option1"),
-                new CliOption<string>("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             string textToMatch = command.Parse(new[] { "the-command" })
@@ -163,10 +163,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_option_then_it_returns_empty()
         {
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
-                new CliOption<string>("--option1"),
-                new CliOption<string>("--option2")
+                new Option<string>("--option1"),
+                new Option<string>("--option2")
             };
 
             string textToMatch = command.Parse(new[] { "the-command", "--option1" })
@@ -179,14 +179,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_position_is_unspecified_in_array_command_line_and_final_token_matches_an_argument_then_it_returns_the_argument_value()
         {
-            CliOption<string> option1 = new("--option1");
+            Option<string> option1 = new("--option1");
             option1.AcceptOnlyFromAmong("apple", "banana", "cherry", "durian");
 
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
                 option1,
-                new CliOption<string>("--option2"),
-                new CliArgument<string>("arg")
+                new Option<string>("--option2"),
+                new Argument<string>("arg")
             };
 
             string textToMatch = command.Parse(new[] { "the-command", "--option1", "a" })
@@ -208,9 +208,9 @@ namespace System.CommandLine.Tests
             string expected)
         {
             var command =
-                new CliCommand("the-command")
+                new Command("the-command")
                 {
-                    new CliArgument<string[]>("arg")
+                    new Argument<string[]>("arg")
                 };
 
             var position = commandLine.IndexOf("$", StringComparison.Ordinal);

@@ -17,21 +17,21 @@ namespace System.CommandLine
     public sealed class ParseResult
     {
         private readonly CommandResult _rootCommandResult;
-        private readonly IReadOnlyList<CliToken> _unmatchedTokens;
+        private readonly IReadOnlyList<Token> _unmatchedTokens;
         private CompletionContext? _completionContext;
-        private readonly CliAction? _action;
-        private readonly List<CliAction>? _preActions;
+        private readonly CommandLineAction? _action;
+        private readonly List<CommandLineAction>? _preActions;
 
         internal ParseResult(
-            CliConfiguration configuration,
+            CommandLineConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
-            List<CliToken> tokens,
-            List<CliToken>? unmatchedTokens,
+            List<Token> tokens,
+            List<Token>? unmatchedTokens,
             List<ParseError>? errors,
             string? commandLineText = null,
-            CliAction? action = null,
-            List<CliAction>? preActions = null)
+            CommandLineAction? action = null,
+            List<CommandLineAction>? preActions = null)
         {
             Configuration = configuration;
             _rootCommandResult = rootCommandResult;
@@ -50,15 +50,15 @@ namespace System.CommandLine
             }
             else
             {
-                Tokens = Array.Empty<CliToken>();
+                Tokens = Array.Empty<Token>();
             }
 
             CommandLineText = commandLineText;
-            _unmatchedTokens = unmatchedTokens is null ? Array.Empty<CliToken>() : unmatchedTokens;
+            _unmatchedTokens = unmatchedTokens is null ? Array.Empty<Token>() : unmatchedTokens;
             Errors = errors is not null ? errors : Array.Empty<ParseError>();
         }
 
-        internal static ParseResult Empty() => new CliRootCommand().Parse(Array.Empty<string>());
+        internal static ParseResult Empty() => new RootCommand().Parse(Array.Empty<string>());
 
         /// <summary>
         /// A result indicating the command specified in the command line input.
@@ -68,7 +68,7 @@ namespace System.CommandLine
         /// <summary>
         /// The configuration used to produce the parse result.
         /// </summary>
-        public CliConfiguration Configuration { get; }
+        public CommandLineConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the root command result.
@@ -83,7 +83,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the tokens identified while parsing command line input.
         /// </summary>
-        public IReadOnlyList<CliToken> Tokens { get; }
+        public IReadOnlyList<Token> Tokens { get; }
 
         /// <summary>
         /// Holds the value of a complete command line input prior to splitting and tokenization, when provided.
@@ -111,7 +111,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public T? GetValue<T>(CliArgument<T> argument)
+        public T? GetValue<T>(Argument<T> argument)
             => RootCommandResult.GetValue(argument);
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
-        public T? GetValue<T>(CliOption<T> option)
+        public T? GetValue<T>(Option<T> option)
             => RootCommandResult.GetValue(option);
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>A result for the specified argument, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public ArgumentResult? GetResult(CliArgument argument) =>
+        public ArgumentResult? GetResult(Argument argument) =>
             _rootCommandResult.GetResult(argument);
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>A result for the specified command, or <see langword="null"/> if it was not provided.</returns>
-        public CommandResult? GetResult(CliCommand command) =>
+        public CommandResult? GetResult(Command command) =>
             _rootCommandResult.GetResult(command);
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>A result for the specified option, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public OptionResult? GetResult(CliOption option) =>
+        public OptionResult? GetResult(Option option) =>
             _rootCommandResult.GetResult(option);
 
         /// <summary>
@@ -165,14 +165,14 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="directive">The directive for which to find a result.</param>
         /// <returns>A result for the specified directive, or <see langword="null"/> if it was not provided.</returns>
-        public DirectiveResult? GetResult(CliDirective directive) => _rootCommandResult.GetResult(directive);
+        public DirectiveResult? GetResult(Directive directive) => _rootCommandResult.GetResult(directive);
 
         /// <summary>
         /// Gets the result, if any, for the specified symbol.
         /// </summary>
         /// <param name="symbol">The symbol for which to find a result.</param>
         /// <returns>A result for the specified symbol, or <see langword="null"/> if it was not provided and no default was configured.</returns>
-        public SymbolResult? GetResult(CliSymbol symbol)
+        public SymbolResult? GetResult(Symbol symbol)
             => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out SymbolResult? result) ? result : null;
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace System.CommandLine
         {
             SymbolResult currentSymbolResult = SymbolToComplete(position);
 
-            CliSymbol currentSymbol = currentSymbolResult switch
+            Symbol currentSymbol = currentSymbolResult switch
             {
                 ArgumentResult argumentResult => argumentResult.Argument,
                 OptionResult optionResult => optionResult.Option,
@@ -238,7 +238,7 @@ namespace System.CommandLine
         {
             var useAsync = false;
 
-            if (Action is AsynchronousCliAction)
+            if (Action is AsynchronousCommandLineAction)
             {
                 useAsync = true;
             }
@@ -247,7 +247,7 @@ namespace System.CommandLine
                 for (var i = 0; i < PreActions.Count; i++)
                 {
                     var action = PreActions[i];
-                    if (action is AsynchronousCliAction)
+                    if (action is AsynchronousCommandLineAction)
                     {
                         useAsync = true;
                         break;
@@ -266,12 +266,12 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the <see cref="CliAction"/> for parsed result. The handler represents the action
+        /// Gets the <see cref="CommandLineAction"/> for parsed result. The handler represents the action
         /// that will be performed when the parse result is invoked.
         /// </summary>
-        public CliAction? Action => _action ?? CommandResult.Command.Action;
+        public CommandLineAction? Action => _action ?? CommandResult.Command.Action;
 
-        internal IReadOnlyList<CliAction>? PreActions => _preActions;
+        internal IReadOnlyList<CommandLineAction>? PreActions => _preActions;
 
         private SymbolResult SymbolToComplete(int? position = null)
         {

@@ -33,7 +33,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var handler = CommandHandler.Create(captureMethod);
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
             OptionBuilder.CreateOption("-x", parameterType)
         };
@@ -88,7 +88,7 @@ public partial class ModelBindingCommandHandlerTests
     {
         var testCase = BindingCases[(type, variation)];
 
-        AsynchronousCliAction handler;
+        AsynchronousCommandLineAction handler;
         if (!useDelegate)
         {
             var captureMethod = GetType()
@@ -108,7 +108,7 @@ public partial class ModelBindingCommandHandlerTests
             handler = CommandHandler.Create((Delegate)@delegate);
         }
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
             OptionBuilder.CreateOption("--value", testCase.ParameterType)
         };
@@ -131,11 +131,11 @@ public partial class ModelBindingCommandHandlerTests
     {
         string[] received = { "this should get overwritten" };
 
-        var o = new CliOption<string[]>("-i") { Description = "Path to an image or directory of supported images" };
+        var o = new Option<string[]>("-i") { Description = "Path to an image or directory of supported images" };
 
-        var command = new CliCommand("command") { o };
+        var command = new Command("command") { o };
         command.Action = CommandHandler.Create<string[], ParseResult>((nameDoesNotMatch, c) => received = nameDoesNotMatch);
-        CliConfiguration config = new(command);
+        CommandLineConfiguration config = new(command);
         config.Error = new StringWriter();
 
         var commandLine = "command -i 1 -i 2 -i 3 ";
@@ -168,7 +168,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var handler = CommandHandler.Create(captureMethod);
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
             ArgumentBuilder.CreateArgument(type)
         };
@@ -213,7 +213,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var argument = ArgumentBuilder.CreateArgument(testCase.ParameterType, "value");
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
             argument
         };
@@ -264,7 +264,7 @@ public partial class ModelBindingCommandHandlerTests
 
         var option = OptionBuilder.CreateOption("--value", testCase.ParameterType);
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
             option
         };
@@ -298,7 +298,7 @@ public partial class ModelBindingCommandHandlerTests
             return true;
         };
 
-        var command = new CliCommand("wat")
+        var command = new Command("wat")
         {
             Action = CommandHandler.Create(@delegate)
         };

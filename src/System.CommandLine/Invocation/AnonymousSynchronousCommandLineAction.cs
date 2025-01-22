@@ -3,11 +3,11 @@
 
 namespace System.CommandLine.Invocation;
 
-internal sealed class AnonymousSynchronousCliAction : SynchronousCliAction
+internal sealed class AnonymousSynchronousCommandLineAction : SynchronousCommandLineAction
 {
     private readonly Func<ParseResult, int> _syncAction;
 
-    internal AnonymousSynchronousCliAction(Func<ParseResult, int> action)
+    internal AnonymousSynchronousCommandLineAction(Func<ParseResult, int> action)
         => _syncAction = action;
 
     /// <inheritdoc />

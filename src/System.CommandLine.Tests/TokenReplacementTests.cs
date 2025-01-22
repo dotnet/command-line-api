@@ -12,13 +12,13 @@ public class TokenReplacementTests
     [Fact]
     public void Token_replacer_receives_the_token_from_the_command_line_with_the_leading_at_symbol_removed()
     {
-        var argument = new CliArgument<int>("arg");
+        var argument = new Argument<int>("arg");
 
-        var command = new CliRootCommand { argument };
+        var command = new RootCommand { argument };
 
         string receivedToken = null;
 
-        CliConfiguration config = new (command)
+        CommandLineConfiguration config = new (command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -37,11 +37,11 @@ public class TokenReplacementTests
     [Fact]
     public void Token_replacer_can_expand_argument_values()
     {
-        var argument = new CliArgument<int>("arg");
+        var argument = new Argument<int>("arg");
 
-        var command = new CliRootCommand { argument };
+        var command = new RootCommand { argument };
 
-        CliConfiguration config = new(command)
+        CommandLineConfiguration config = new(command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -61,11 +61,11 @@ public class TokenReplacementTests
     [Fact]
     public void Custom_token_replacer_can_expand_option_argument_values()
     {
-        var option = new CliOption<int>("-x");
+        var option = new Option<int>("-x");
 
-        var command = new CliRootCommand { option };
+        var command = new RootCommand { option };
 
-        CliConfiguration config = new(command)
+        CommandLineConfiguration config = new(command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -85,11 +85,11 @@ public class TokenReplacementTests
     [Fact]
     public void Custom_token_replacer_can_expand_subcommands_and_options_and_argument()
     {
-        var option = new CliOption<int>("-x");
+        var option = new Option<int>("-x");
 
-        var command = new CliRootCommand { new CliCommand("subcommand") { option } };
+        var command = new RootCommand { new Command("subcommand") { option } };
 
-        CliConfiguration config = new(command)
+        CommandLineConfiguration config = new(command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -109,11 +109,11 @@ public class TokenReplacementTests
     [Fact]
     public void Expanded_tokens_containing_whitespace_are_parsed_as_single_tokens()
     {
-        var argument = new CliArgument<string>("arg");
+        var argument = new Argument<string>("arg");
 
-        var command = new CliRootCommand { argument };
+        var command = new RootCommand { argument };
 
-        CliConfiguration config = new(command)
+        CommandLineConfiguration config = new(command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -131,11 +131,11 @@ public class TokenReplacementTests
     [Fact]
     public void Token_replacer_can_set_a_custom_error_message()
     {
-        var argument = new CliArgument<string>("arg");
+        var argument = new Argument<string>("arg");
 
-        var command = new CliRootCommand { argument };
+        var command = new RootCommand { argument };
 
-        CliConfiguration config = new(command)
+        CommandLineConfiguration config = new(command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -155,11 +155,11 @@ public class TokenReplacementTests
     [Fact]
     public void When_token_replacer_returns_false_without_setting_an_error_message_then_the_command_line_is_unchanged_and_no_parse_error_is_produced()
     {
-        var argument = new CliArgument<string>("arg");
+        var argument = new Argument<string>("arg");
 
-        var command = new CliRootCommand { argument };
+        var command = new RootCommand { argument };
 
-        CliConfiguration config = new(command)
+        CommandLineConfiguration config = new(command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -179,11 +179,11 @@ public class TokenReplacementTests
     [Fact]
     public void Token_replacer_will_delete_token_when_delegate_returns_true_and_sets_tokens_to_null()
     {
-        var argument = new CliArgument<string[]>("arg");
+        var argument = new Argument<string[]>("arg");
 
-        var command = new CliRootCommand { argument };
+        var command = new RootCommand { argument };
 
-        CliConfiguration config = new(command)
+        CommandLineConfiguration config = new(command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -203,11 +203,11 @@ public class TokenReplacementTests
     [Fact]
     public void Token_replacer_will_delete_token_when_delegate_returns_true_and_sets_tokens_to_empty_array()
     {
-        var argument = new CliArgument<string[]>("arg");
+        var argument = new Argument<string[]>("arg");
 
-        var command = new CliRootCommand { argument };
+        var command = new RootCommand { argument };
 
-        CliConfiguration config = new(command)
+        CommandLineConfiguration config = new(command)
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {

@@ -46,7 +46,7 @@ internal static class CommandResultExtensions
 
         for (var i = 0; i < options.Count; i++)
         {
-            if (options[i] is CliOption option)
+            if (options[i] is Option option)
             {
                 var hasMatchingAlias =
                     HasMatchingAlias(valueDescriptor, option);
@@ -70,7 +70,7 @@ internal static class CommandResultExtensions
 
         static bool HasMatchingAlias(
             IValueDescriptor valueDescriptor,
-            CliOption option)
+            Option option)
         {
             string nameWithoutPrefix = RemovePrefix(option.Name);
             if (valueDescriptor.ValueName.Equals(nameWithoutPrefix, StringComparison.OrdinalIgnoreCase) || valueDescriptor.ValueName.IsMatch(nameWithoutPrefix))

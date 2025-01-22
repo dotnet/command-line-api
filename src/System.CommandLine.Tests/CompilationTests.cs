@@ -23,7 +23,7 @@ public class CompilationTests
     {
         _output = output;
 
-        _systemCommandLineDllPath = typeof(CliCommand).Assembly.Location;
+        _systemCommandLineDllPath = typeof(Command).Assembly.Location;
     }
 
     [ReleaseBuildOnlyTheory]

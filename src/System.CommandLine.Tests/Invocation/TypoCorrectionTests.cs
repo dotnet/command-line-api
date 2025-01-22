@@ -14,12 +14,12 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_option_is_mistyped_it_is_suggested()
         {
-            CliRootCommand rootCommand = new () 
+            RootCommand rootCommand = new () 
             {
-                new CliOption<string>("info")
+                new Option<string>("info")
             };
 
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -34,12 +34,12 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Typo_corrections_can_be_disabled()
         {
-            CliRootCommand rootCommand = new()
+            RootCommand rootCommand = new()
             {
-                new CliOption<string>("info")
+                new Option<string>("info")
             };
 
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -59,10 +59,10 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_there_are_no_matches_then_nothing_is_suggested()
         {
-            var option = new CliOption<bool>("info");
-            CliRootCommand rootCommand = new() { option };
+            var option = new Option<bool>("info");
+            RootCommand rootCommand = new() { option };
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -77,10 +77,10 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_command_is_mistyped_it_is_suggested()
         {
-            var command = new CliCommand("restore");
-            CliRootCommand rootCommand = new() { command };
+            var command = new Command("restore");
+            RootCommand rootCommand = new() { command };
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -95,18 +95,18 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_there_are_multiple_matches_it_picks_the_best_matches()
         {
-            var fromCommand = new CliCommand("from");
-            var seenCommand = new CliCommand("seen");
-            var aOption = new CliOption<bool>("a");
-            var beenOption = new CliOption<bool>("been");
-            CliRootCommand rootCommand = new ()
+            var fromCommand = new Command("from");
+            var seenCommand = new Command("seen");
+            var aOption = new Option<bool>("a");
+            var beenOption = new Option<bool>("been");
+            RootCommand rootCommand = new ()
             {
                 fromCommand,
                 seenCommand,
                 aOption,
                 beenOption
             };
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -121,17 +121,17 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Hidden_commands_are_not_suggested()
         {
-            var fromCommand = new CliCommand("from");
-            var seenCommand = new CliCommand("seen") { Hidden = true };
-            var beenCommand = new CliCommand("been");
-            CliRootCommand rootCommand = new CliRootCommand
+            var fromCommand = new Command("from");
+            var seenCommand = new Command("seen") { Hidden = true };
+            var beenCommand = new Command("been");
+            RootCommand rootCommand = new RootCommand
             {
                 fromCommand,
                 seenCommand,
                 beenCommand
             };
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -146,15 +146,15 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Arguments_are_not_suggested()
         {
-            var argument = new CliArgument<string>("the-argument");
-            var command = new CliCommand("been");
-            var rootCommand = new CliRootCommand
+            var argument = new Argument<string>("the-argument");
+            var command = new Command("been");
+            var rootCommand = new RootCommand
             {
                 argument,
                 command
             };
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -173,16 +173,16 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Hidden_options_are_not_suggested()
         {
-            var fromOption = new CliOption<string>("from");
-            var seenOption = new CliOption<string>("seen") { Hidden = true };
-            var beenOption = new CliOption<string>("been");
-            var rootCommand = new CliRootCommand
+            var fromOption = new Option<string>("from");
+            var seenOption = new Option<string>("seen") { Hidden = true };
+            var beenOption = new Option<string>("been");
+            var rootCommand = new RootCommand
             {
                 fromOption,
                 seenOption,
                 beenOption
             };
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -197,12 +197,12 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task Suggestions_favor_matches_with_prefix()
         {
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
-                new CliOption<string>("/call", "-call", "--call"),
-                new CliOption<string>("/email", "-email", "--email")
+                new Option<string>("/call", "-call", "--call"),
+                new Option<string>("/email", "-email", "--email")
             };
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };

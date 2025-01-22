@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Invocation;
 
-internal sealed class AnonymousAsynchronousCliAction : AsynchronousCliAction
+internal sealed class AnonymousAsynchronousCommandLineAction : AsynchronousCommandLineAction
 {
     private readonly Func<ParseResult, CancellationToken, Task<int>> _asyncAction;
 
-    internal AnonymousAsynchronousCliAction(Func<ParseResult, CancellationToken, Task<int>> action)
+    internal AnonymousAsynchronousCommandLineAction(Func<ParseResult, CancellationToken, Task<int>> action)
         => _asyncAction = action;
 
     /// <inheritdoc />

@@ -19,7 +19,7 @@ namespace System.CommandLine.Tests.Parsing
         [InlineData(" one\r\ntwo\r\nthree\r\nfour\r\n")]
         public void It_splits_strings_based_on_whitespace(string commandLine)
         {
-            CliParser.SplitCommandLine(commandLine)
+            CommandLineParser.SplitCommandLine(commandLine)
                      .Should()
                      .BeEquivalentSequenceTo("one", "two", "three", "four");
         }
@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests.Parsing
         {
             var commandLine = @"rm -r ""c:\temp files\""";
 
-            CliParser.SplitCommandLine(commandLine)
+            CommandLineParser.SplitCommandLine(commandLine)
                      .Should()
                      .BeEquivalentSequenceTo("rm", "-r", @"c:\temp files\");
         }
@@ -49,7 +49,7 @@ namespace System.CommandLine.Tests.Parsing
 
             var commandLine = $"the-command {optionAndArgument}";
 
-            CliParser.SplitCommandLine(commandLine)
+            CommandLineParser.SplitCommandLine(commandLine)
                      .Should()
                      .BeEquivalentSequenceTo("the-command", optionAndArgument.Replace("\"", ""));
         }
@@ -62,7 +62,7 @@ namespace System.CommandLine.Tests.Parsing
 
             var commandLine = $"move --from \"{source}\" --to \"{destination}\" --verbose";
 
-            var tokenized = CliParser.SplitCommandLine(commandLine);
+            var tokenized = CommandLineParser.SplitCommandLine(commandLine);
 
             tokenized.Should()
                      .BeEquivalentSequenceTo(
@@ -79,7 +79,7 @@ namespace System.CommandLine.Tests.Parsing
         {
             var commandLine = @"POST --raw='{""Id"":1,""Name"":""Alice""}'";
 
-            CliParser.SplitCommandLine(commandLine)
+            CommandLineParser.SplitCommandLine(commandLine)
                      .Should()
                      .BeEquivalentTo("POST", "--raw='{Id:1,Name:Alice}'");
         }
@@ -89,7 +89,7 @@ namespace System.CommandLine.Tests.Parsing
         {
             var commandLine = @"command --raw='{""Id"":1,""Movie Name"":""The Three Musketeers""}'";
 
-            CliParser.SplitCommandLine(commandLine)
+            CommandLineParser.SplitCommandLine(commandLine)
                      .Should()
                      .BeEquivalentTo("command", "--raw='{Id:1,Movie Name:The Three Musketeers}'");
         }

@@ -12,7 +12,7 @@ namespace System.CommandLine.Parsing
     /// <summary>
     /// Implements the <c>[diagram]</c> directive action, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
-    internal sealed class ParseDiagramAction : SynchronousCliAction
+    internal sealed class ParseDiagramAction : SynchronousCommandLineAction
     {
         private readonly int _parseErrorReturnValue;
 
@@ -69,7 +69,7 @@ namespace System.CommandLine.Parsing
                 case ArgumentResult argumentResult:
                 {
                     var includeArgumentName =
-                        argumentResult.Argument.FirstParent!.Symbol is CliCommand { HasArguments: true, Arguments.Count: > 1 };
+                        argumentResult.Argument.FirstParent!.Symbol is Command { HasArguments: true, Arguments.Count: > 1 };
 
                     if (includeArgumentName)
                     {

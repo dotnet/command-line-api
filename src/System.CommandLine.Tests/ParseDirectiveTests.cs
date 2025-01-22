@@ -23,14 +23,14 @@ namespace System.CommandLine.Tests
         [InlineData(false)]
         public async Task Diagram_directive_writes_parse_diagram(bool treatUnmatchedTokensAsErrors)
         {
-            var rootCommand = new CliRootCommand { new DiagramDirective() };
-            var subcommand = new CliCommand("subcommand");
+            var rootCommand = new RootCommand { new DiagramDirective() };
+            var subcommand = new Command("subcommand");
             rootCommand.Subcommands.Add(subcommand);
-            var option = new CliOption<int>("-c", "--count");
+            var option = new Option<int>("-c", "--count");
             subcommand.Options.Add(option);
             subcommand.TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -42,8 +42,8 @@ namespace System.CommandLine.Tests
             await result.InvokeAsync();
 
             string expected = treatUnmatchedTokensAsErrors
-                                  ? $"[ {CliRootCommand.ExecutableName} ![ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine
-                                  : $"[ {CliRootCommand.ExecutableName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine;
+                                  ? $"[ {RootCommand.ExecutableName} ![ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine
+                                  : $"[ {RootCommand.ExecutableName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine;
 
             config.Output
                   .ToString()
@@ -54,12 +54,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_diagram_directive_is_used_the_help_is_not_displayed()
         {
-            CliRootCommand rootCommand = new()
+            RootCommand rootCommand = new()
             {
                 new DiagramDirective()
             };
 
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter(),
             };
@@ -73,18 +73,18 @@ namespace System.CommandLine.Tests
             config.Output
                    .ToString()
                    .Should()
-                   .Be($"[ {CliRootCommand.ExecutableName} [ --help ] ]" + Environment.NewLine);
+                   .Be($"[ {RootCommand.ExecutableName} [ --help ] ]" + Environment.NewLine);
         }
 
         [Fact]
         public async Task When_diagram_directive_is_used_the_version_is_not_displayed()
         {
-            CliRootCommand rootCommand = new()
+            RootCommand rootCommand = new()
             {
                 new DiagramDirective()
             };
 
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -98,19 +98,19 @@ namespace System.CommandLine.Tests
             config.Output
                   .ToString()
                   .Should()
-                  .Be($"[ {CliRootCommand.ExecutableName} [ --version ] ]" + Environment.NewLine);
+                  .Be($"[ {RootCommand.ExecutableName} [ --version ] ]" + Environment.NewLine);
         }
 
         [Fact]
         public async Task When_there_are_no_errors_then_diagram_directive_sets_exit_code_0()
         {
-            CliRootCommand command = new ()
+            RootCommand command = new ()
             {
-                new CliOption<int>("-x"),
+                new Option<int>("-x"),
                 new DiagramDirective()
             };
 
-            CliConfiguration config = new(command)
+            CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter(),
             };
@@ -123,13 +123,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_there_are_errors_then_diagram_directive_sets_exit_code_1()
         {
-            CliRootCommand command = new()
+            RootCommand command = new()
             {
-                new CliOption<int>("-x"),
+                new Option<int>("-x"),
                 new DiagramDirective()
             };
 
-            CliConfiguration config = new(command)
+            CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter(),
             };
@@ -142,16 +142,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_there_are_errors_then_diagram_directive_sets_exit_code_to_custom_value()
         {
-            CliRootCommand command = new()
+            RootCommand command = new()
             {
-                new CliOption<int>("-x"),
+                new Option<int>("-x"),
                 new DiagramDirective
                 {
                     ParseErrorReturnValue = 42
                 }
             };
 
-            CliConfiguration config = new(command)
+            CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter()
             };

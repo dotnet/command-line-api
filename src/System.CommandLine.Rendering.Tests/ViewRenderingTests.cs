@@ -22,14 +22,14 @@ namespace System.CommandLine.Rendering.Tests
                 IsAnsiTerminal = false
             };
 
-            var command = new CliRootCommand();
+            var command = new RootCommand();
             command.SetAction(ctx =>
             {
                 parseResult = ctx;
                 terminal.Append(new ParseResultView(parseResult));
             });
 
-            var config = new CliConfiguration(command);
+            var config = new CommandLineConfiguration(command);
 
             config.Invoke("");
 

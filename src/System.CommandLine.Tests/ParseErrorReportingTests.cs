@@ -17,14 +17,14 @@ public class ParseErrorReportingTests
     [Fact] // https://github.com/dotnet/command-line-api/issues/817
     public void Parse_error_reporting_reports_error_when_help_is_used_and_required_subcommand_is_missing()
     {
-        var root = new CliRootCommand
+        var root = new RootCommand
         {
-            new CliCommand("inner"),
+            new Command("inner"),
             new HelpOption()
         };
 
         var output = new StringWriter();
-        var parseResult = root.Parse("", new CliConfiguration(root)
+        var parseResult = root.Parse("", new CommandLineConfiguration(root)
         {
             Output = output,
         });
@@ -40,12 +40,12 @@ public class ParseErrorReportingTests
     [Fact]
     public void Help_display_can_be_disabled()
     {
-        CliRootCommand rootCommand = new()
+        RootCommand rootCommand = new()
         {
-            new CliOption<bool>("--verbose")
+            new Option<bool>("--verbose")
         };
 
-        CliConfiguration config = new(rootCommand)
+        CommandLineConfiguration config = new(rootCommand)
         {
             Output = new StringWriter()
         };
@@ -70,9 +70,9 @@ public class ParseErrorReportingTests
     public void When_there_are_parse_errors_then_customized_help_action_is_used_if_present(bool useAsyncAction)
     {
         var wasCalled = false;
-        CliRootCommand rootCommand = new();
+        RootCommand rootCommand = new();
         rootCommand.Options.Clear();
-        CliAction customHelpAction = useAsyncAction
+        CommandLineAction customHelpAction = useAsyncAction
                                          ? new AsynchronousTestAction(_ => wasCalled = true)
                                          : new SynchronousTestAction(_ => wasCalled = true);
 
@@ -91,11 +91,11 @@ public class ParseErrorReportingTests
     {
         bool rootHelpWasCalled = false;
 
-        var rootCommand = new CliRootCommand
+        var rootCommand = new RootCommand
         {
-            new CliCommand("child")
+            new Command("child")
             {
-                new CliCommand("grandchild")
+                new Command("grandchild")
             }
         };
 
@@ -104,7 +104,7 @@ public class ParseErrorReportingTests
             rootHelpWasCalled = true;
         });
 
-        var config = new CliConfiguration(rootCommand);
+        var config = new CommandLineConfiguration(rootCommand);
 
         await config.Parse("child grandchild oops").InvokeAsync();
 
@@ -114,10 +114,10 @@ public class ParseErrorReportingTests
     [Fact]
     public void When_no_help_option_is_present_then_help_is_not_shown_for_parse_errors()
     {
-        CliRootCommand rootCommand = new();
+        RootCommand rootCommand = new();
         rootCommand.Options.Clear();
         var output = new StringWriter();
-        CliConfiguration config = new(rootCommand)
+        CommandLineConfiguration config = new(rootCommand)
         {
             Output = output
         };

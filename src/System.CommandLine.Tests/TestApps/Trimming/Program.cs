@@ -1,10 +1,10 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 
-CliArgument<FileInfo> fileArgument = new ("file");
+Argument<FileInfo> fileArgument = new ("file");
 fileArgument.AcceptLegalFileNamesOnly();
 
-CliRootCommand command = new ()
+RootCommand command = new ()
 {
     fileArgument
 };

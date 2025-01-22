@@ -14,9 +14,9 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1238
             public void Subsequent_tokens_are_parsed_as_arguments_even_if_they_match_option_identifiers()
             {
-                var option = new CliOption<string[]>("-o", "--one");
-                var argument = new CliArgument<string[]>("arg");
-                var rootCommand = new CliRootCommand
+                var option = new Option<string[]>("-o", "--one");
+                var argument = new Argument<string[]>("arg");
+                var rootCommand = new RootCommand
                 {
                     option,
                     argument
@@ -36,9 +36,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Unmatched_tokens_is_empty()
             {
-                var option = new CliOption<string[]>("-o", "--one");
-                var argument = new CliArgument<string[]>("arg");
-                var rootCommand = new CliRootCommand
+                var option = new Option<string[]>("-o", "--one");
+                var argument = new Argument<string[]>("arg");
+                var rootCommand = new RootCommand
                 {
                     option,
                     argument
@@ -52,9 +52,9 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1631
             public void No_errors_are_generated()
             {
-                var option = new CliOption<string[]>("-o", "--one");
-                var argument = new CliArgument<string[]>("arg");
-                var rootCommand = new CliRootCommand
+                var option = new Option<string[]>("-o", "--one");
+                var argument = new Argument<string[]>("arg");
+                var rootCommand = new RootCommand
                 {
                     option,
                     argument
@@ -68,8 +68,8 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_second_double_dash_is_parsed_as_an_argument()
             {
-                var argument = new CliArgument<string[]>("arg");
-                var rootCommand = new CliRootCommand
+                var argument = new Argument<string[]>("arg");
+                var rootCommand = new RootCommand
                 {
                     argument
                 };

@@ -4,26 +4,26 @@
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// Identifies the type of a <see cref="CliToken"/>.
+    /// Identifies the type of a <see cref="Token"/>.
     /// </summary>
-    public enum CliTokenType
+    public enum TokenType
     {
         /// <summary>
         /// An argument token.
         /// </summary>
-        /// <see cref="CliArgument"/>
+        /// <see cref="CommandLine.Argument"/>
         Argument,
 
         /// <summary>
         /// A command token.
         /// </summary>
-        /// <see cref="CliCommand"/>
+        /// <see cref="CommandLine.Command"/>
         Command,
-        
+
         /// <summary>
         /// An option token.
         /// </summary>
-        /// <see cref="CliOption"/>
+        /// <see cref="CommandLine.Option"/>
         Option,
         
         /// <summary>
@@ -34,7 +34,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// A directive token.
         /// </summary>
-        /// <see cref="CliDirective"/>
+        /// <see cref="CommandLine.Directive"/>
         Directive
     }
 }

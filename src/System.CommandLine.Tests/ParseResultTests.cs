@@ -14,9 +14,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_with_a_default_value_and_no_explicitly_provided_argument_has_an_empty_arguments_property()
         {
-            var option = new CliOption<string>("-x") { DefaultValueFactory = (_) => "default" };
+            var option = new Option<string>("-x") { DefaultValueFactory = (_) => "default" };
 
-            var result = new CliRootCommand
+            var result = new RootCommand
             {
                 option
             }.Parse("-x")
@@ -28,9 +28,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void FindResult_can_be_used_to_check_the_presence_of_an_option()
         {
-            var option = new CliOption<bool>("-h", "--help");
+            var option = new Option<bool>("-h", "--help");
 
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
                 option
             };
@@ -43,8 +43,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void GetResult_can_be_used_to_check_the_presence_of_an_implicit_option()
         {
-            var option = new CliOption<int>("-c", "--count") { DefaultValueFactory = (_) => 5 };
-            var command = new CliCommand("the-command")
+            var option = new Option<int>("-c", "--count") { DefaultValueFactory = (_) => 5 };
+            var command = new Command("the-command")
             {
                 option
             };
@@ -57,11 +57,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void GetResult_can_be_used_for_root_command_itself()
         {
-            CliRootCommand rootCommand = new()
+            RootCommand rootCommand = new()
             {
-                new CliCommand("the-command")
+                new Command("the-command")
                 {
-                    new CliOption<int>("-c")
+                    new Option<int>("-c")
                 }
             };
 
@@ -74,30 +74,30 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Command_will_not_accept_a_command_if_a_sibling_command_has_already_been_accepted()
         {
-            var command = new CliCommand("outer")
+            var command = new Command("outer")
             {
-                new CliCommand("inner-one")
+                new Command("inner-one")
                 {
-                    new CliArgument<bool>("arg1")
+                    new Argument<bool>("arg1")
                     {
                         Arity = ArgumentArity.Zero
                     }
                 },
-                new CliCommand("inner-two")
+                new Command("inner-two")
                 {
-                    new CliArgument<bool>("arg2")
+                    new Argument<bool>("arg2")
                     {
                         Arity = ArgumentArity.Zero
                     }
                 }
             };
 
-            var result = CliParser.Parse(command, "outer inner-one inner-two");
+            var result = CommandLineParser.Parse(command, "outer inner-one inner-two");
 
             result.CommandResult.Command.Name.Should().Be("inner-one");
             result.Errors.Count.Should().Be(1);
 
-            var result2 = CliParser.Parse(command, "outer inner-two inner-one");
+            var result2 = CommandLineParser.Parse(command, "outer inner-two inner-one");
 
             result2.CommandResult.Command.Name.Should().Be("inner-two");
             result2.Errors.Count.Should().Be(1);
@@ -106,31 +106,31 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/pull/2030#issuecomment-1400275332
         public void ParseResult_GetCompletions_returns_global_options_of_given_command_only()
         {
-            var leafCommand = new CliCommand("leafCommand")
+            var leafCommand = new Command("leafCommand")
             {
-                new CliOption<string>("--one") { Description = "option one" },
-                new CliOption<string>("--two") { Description = "option two" }
+                new Option<string>("--one") { Description = "option one" },
+                new Option<string>("--two") { Description = "option two" }
             };
 
-            var midCommand1 = new CliCommand("midCommand1")
-            {
-                leafCommand
-            };
-            midCommand1.Options.Add(new CliOption<string>("--three1") { Description = "option three 1", Recursive = true });
-
-            var midCommand2 = new CliCommand("midCommand2")
+            var midCommand1 = new Command("midCommand1")
             {
                 leafCommand
             };
-            midCommand2.Options.Add(new CliOption<string>("--three2") { Description = "option three 2", Recursive = true });
+            midCommand1.Options.Add(new Option<string>("--three1") { Description = "option three 1", Recursive = true });
 
-            var rootCommand = new CliCommand("root")
+            var midCommand2 = new Command("midCommand2")
+            {
+                leafCommand
+            };
+            midCommand2.Options.Add(new Option<string>("--three2") { Description = "option three 2", Recursive = true });
+
+            var rootCommand = new Command("root")
             {
                 midCommand1,
                 midCommand2
             };
 
-            var result = CliParser.Parse(rootCommand, "root midCommand2 leafCommand --");
+            var result = CommandLineParser.Parse(rootCommand, "root midCommand2 leafCommand --");
 
             var completions = result.GetCompletions();
 
@@ -142,14 +142,14 @@ namespace System.CommandLine.Tests
 
         [Fact]
         public void Handler_is_null_when_parsed_command_did_not_specify_handler()
-            => new CliRootCommand().Parse("").Action.Should().BeNull();
+            => new RootCommand().Parse("").Action.Should().BeNull();
 
         [Fact]
         public void Handler_is_not_null_when_parsed_command_specified_handler()
         {
             bool handlerWasCalled = false;
 
-            CliRootCommand command = new();
+            RootCommand command = new();
             command.SetAction((_) => handlerWasCalled = true);
 
             ParseResult parseResult = command.Parse("");
@@ -157,7 +157,7 @@ namespace System.CommandLine.Tests
             parseResult.Action.Should().NotBeNull();
             handlerWasCalled.Should().BeFalse();
 
-            ((SynchronousCliAction)parseResult.Action!).Invoke(null!).Should().Be(0);
+            ((SynchronousCommandLineAction)parseResult.Action!).Invoke(null!).Should().Be(0);
             handlerWasCalled.Should().BeTrue();
         }
     }

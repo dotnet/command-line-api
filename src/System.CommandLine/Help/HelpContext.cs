@@ -16,7 +16,7 @@ namespace System.CommandLine.Help
         /// <param name="parseResult">The result of the current parse operation.</param>
         public HelpContext(
             HelpBuilder helpBuilder,
-            CliCommand command,
+            Command command,
             TextWriter output,
             ParseResult? parseResult = null)
         {
@@ -39,7 +39,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// The command for which help is being formatted.
         /// </summary>
-        public CliCommand Command { get; }
+        public Command Command { get; }
 
         /// <summary>
         /// A text writer to write output to.

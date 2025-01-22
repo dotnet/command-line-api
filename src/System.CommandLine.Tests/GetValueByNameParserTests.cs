@@ -12,15 +12,15 @@ public class GetValueByNameTests
     [Fact]
     public void In_case_of_argument_name_conflict_the_value_which_belongs_to_the_last_parsed_command_is_returned()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliArgument<int>("arg"),
-            new CliCommand("inner1")
+            new Argument<int>("arg"),
+            new Command("inner1")
             {
-                new CliArgument<int>("arg"),
-                new CliCommand("inner2")
+                new Argument<int>("arg"),
+                new Command("inner2")
                 {
-                    new CliArgument<int>("arg"),
+                    new Argument<int>("arg"),
                 }
             }
         };
@@ -33,15 +33,15 @@ public class GetValueByNameTests
     [Fact]
     public void In_case_of_option_name_conflict_the_value_which_belongs_to_the_last_parsed_command_is_returned()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliOption<int>("--integer", "-i"),
-            new CliCommand("inner1")
+            new Option<int>("--integer", "-i"),
+            new Command("inner1")
             {
-                new CliOption<int>("--integer", "-i"),
-                new CliCommand("inner2")
+                new Option<int>("--integer", "-i"),
+                new Command("inner2")
                 {
-                    new CliOption<int>("--integer", "-i")
+                    new Option<int>("--integer", "-i")
                 }
             }
         };
@@ -54,9 +54,9 @@ public class GetValueByNameTests
     [Fact]
     public void When_option_is_not_provided_then_default_value_is_returned()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliOption<int>("--integer", "-i")
+            new Option<int>("--integer", "-i")
         };
 
         ParseResult parseResult = command.Parse("");
@@ -67,9 +67,9 @@ public class GetValueByNameTests
     [Fact]
     public void When_option_is_not_provided_then_configured_default_value_is_returned()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliOption<int>("--integer", "-i")
+            new Option<int>("--integer", "-i")
             {
                 DefaultValueFactory = _ => 123
             }
@@ -83,9 +83,9 @@ public class GetValueByNameTests
     [Fact]
     public void When_optional_argument_is_not_provided_then_default_value_is_returned()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliArgument<int>("arg")
+            new Argument<int>("arg")
             {
                 Arity = ArgumentArity.ZeroOrOne
             }
@@ -99,9 +99,9 @@ public class GetValueByNameTests
     [Fact]
     public void When_optional_argument_is_not_provided_then_configured_default_value_is_returned()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliArgument<int>("arg")
+            new Argument<int>("arg")
             {
                 Arity = ArgumentArity.ZeroOrOne,
                 DefaultValueFactory = _ => 123
@@ -116,9 +116,9 @@ public class GetValueByNameTests
     [Fact]
     public void When_required_option_value_is_not_provided_then_an_exception_is_thrown()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliOption<int>("--required")
+            new Option<int>("--required")
             {
                 Required = true
             }
@@ -137,9 +137,9 @@ public class GetValueByNameTests
     [Fact]
     public void When_required_argument_value_is_not_provided_then_an_exception_is_thrown()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliArgument<int>("required")
+            new Argument<int>("required")
             {
                 Arity = ArgumentArity.ExactlyOne
             }
@@ -159,7 +159,7 @@ public class GetValueByNameTests
     public void When_non_existing_name_is_used_then_exception_is_thrown()
     {
         const string nonExistingName = "nonExisting";
-        CliCommand command = new ("noSymbols");
+        Command command = new ("noSymbols");
         ParseResult parseResult = command.Parse("");
 
         Action getRequired = () => parseResult.GetValue<int>(nonExistingName);
@@ -175,13 +175,13 @@ public class GetValueByNameTests
     {
         const string sameName = "same";
 
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliArgument<int>(sameName)
+            new Argument<int>(sameName)
             {
                 Arity = ArgumentArity.ZeroOrOne
             },
-            new CliOption<int>(sameName)
+            new Option<int>(sameName)
         };
 
         ParseResult parseResult = command.Parse("");
@@ -199,12 +199,12 @@ public class GetValueByNameTests
     {
         const string sameName = "same";
 
-        CliCommand command = new("outer")
+        Command command = new("outer")
         {
-            new CliArgument<int>(sameName),
-            new CliCommand("inner")
+            new Argument<int>(sameName),
+            new Command("inner")
             {
-                new CliOption<int>(sameName)
+                new Option<int>(sameName)
             }
         };
 
@@ -220,15 +220,15 @@ public class GetValueByNameTests
     {
         const string sameName = "same";
 
-        CliCommand command = new("outer")
+        Command command = new("outer")
         {
-            new CliArgument<int>(sameName)
+            new Argument<int>(sameName)
             {
                 DefaultValueFactory = _ => 123
             },
-            new CliCommand("inner")
+            new Command("inner")
             {
-                new CliOption<int>(sameName)
+                new Option<int>(sameName)
                 {
                     DefaultValueFactory = _ => 456
                 }
@@ -245,9 +245,9 @@ public class GetValueByNameTests
     [Fact]
     public void T_can_be_cast_to_nullable_of_T()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliArgument<int>("name")
+            new Argument<int>("name")
         };
 
         ParseResult parseResult = command.Parse("123");
@@ -258,9 +258,9 @@ public class GetValueByNameTests
     [Fact]
     public void Array_of_T_can_be_cast_to_IEnumerable_of_T()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliArgument<int[]>("name")
+            new Argument<int[]>("name")
         };
 
         ParseResult parseResult = command.Parse("1 2 3");
@@ -273,9 +273,9 @@ public class GetValueByNameTests
     {
         const string Name = "name";
 
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliArgument<int>(Name)
+            new Argument<int>(Name)
         };
 
         ParseResult parseResult = command.Parse("123");
@@ -291,9 +291,9 @@ public class GetValueByNameTests
     [Fact]
     public void Parse_errors_have_precedence_over_type_mismatch()
     {
-        CliRootCommand command = new()
+        RootCommand command = new()
         {
-            new CliOption<int>("--required")
+            new Option<int>("--required")
             {
                 Required = true
             }
@@ -312,11 +312,11 @@ public class GetValueByNameTests
     [Fact]
     public void Recursive_option_on_parent_command_can_be_looked_up_when_subcommand_is_specified()
     {
-        var cmd = new CliRootCommand
+        var cmd = new RootCommand
         {
-            new CliCommand("subcommand"),
+            new Command("subcommand"),
 
-            new CliOption<string>("--opt")
+            new Option<string>("--opt")
             {
                 Recursive = true
             }

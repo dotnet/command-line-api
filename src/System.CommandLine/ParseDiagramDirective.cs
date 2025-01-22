@@ -7,9 +7,9 @@ namespace System.CommandLine
     /// Enables the use of the <c>[diagram]</c> directive, which when specified on the command line will short 
     /// circuit normal command handling and display a diagram explaining the parse result for the command line input.
     /// </summary>
-    public sealed class DiagramDirective : CliDirective
+    public sealed class DiagramDirective : Directive
     {
-        private CliAction? _action;
+        private CommandLineAction? _action;
 
         /// <summary>
         /// Writes a diagram of the parse result to the output.
@@ -19,7 +19,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override CliAction? Action
+        public override CommandLineAction? Action
         {
             get => _action ??= new ParseDiagramAction(ParseErrorReturnValue);
             set => _action = value ?? throw new ArgumentNullException(nameof(value));

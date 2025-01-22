@@ -92,22 +92,22 @@ public class ModelBindingCommandHandler : BindingHandler
     }
 
     /// <summary>
-    /// Binds a method or constructor parameter based on the specified <see cref="CliArgument"/>.
+    /// Binds a method or constructor parameter based on the specified <see cref="Argument"/>.
     /// </summary>
     /// <param name="param">The parameter to bind.</param>
     /// <param name="argument">The argument whose parsed result will be the source of the bound value.</param>
-    public void BindParameter(ParameterInfo param, CliArgument argument)
+    public void BindParameter(ParameterInfo param, Argument argument)
     {
         var _ = argument ?? throw new InvalidOperationException("You must specify an argument to bind");
         BindValueSource(param, new SpecificSymbolValueSource(argument));
     }
 
     /// <summary>
-    /// Binds a method or constructor parameter based on the specified <see cref="CliOption"/>.
+    /// Binds a method or constructor parameter based on the specified <see cref="Option"/>.
     /// </summary>
     /// <param name="param">The parameter to bind.</param>
     /// <param name="option">The option whose parsed result will be the source of the bound value.</param>
-    public void BindParameter(ParameterInfo param, CliOption option)
+    public void BindParameter(ParameterInfo param, Option option)
     {
         var _ = option ?? throw new InvalidOperationException("You must specify an option to bind");
         BindValueSource(param, new SpecificSymbolValueSource(option));

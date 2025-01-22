@@ -13,9 +13,9 @@ public partial class ParserTests
         [Fact]
         public void When_command_names_are_defined_more_than_once_on_the_same_parent_then_it_throws_on_parse()
         {
-            var rootCommand = new CliRootCommand();
-            rootCommand.Add(new CliCommand("one"));
-            rootCommand.Add(new CliCommand("one"));
+            var rootCommand = new RootCommand();
+            rootCommand.Add(new Command("one"));
+            rootCommand.Add(new Command("one"));
 
             rootCommand.Invoking(c => c.Parse("")).Should().Throw<ArgumentException>();
         }
@@ -23,9 +23,9 @@ public partial class ParserTests
         [Fact]
         public void When_command_names_collide_with_command_aliases_on_the_same_parent_then_it_throws_on_parse()
         {
-            var rootCommand = new CliRootCommand();
-            rootCommand.Add(new CliCommand("one"));
-            var commandTwo = new CliCommand("two");
+            var rootCommand = new RootCommand();
+            rootCommand.Add(new Command("one"));
+            var commandTwo = new Command("two");
             rootCommand.Add(commandTwo);
             commandTwo.Aliases.Add("one");
 
@@ -35,9 +35,9 @@ public partial class ParserTests
         [Fact(Skip = "https://github.com/dotnet/command-line-api/issues/2223")]
         public void When_command_names_collide_with_option_names_it_throws_on_parse()
         {
-            var rootCommand = new CliRootCommand();
-            rootCommand.Add(new CliCommand("one"));
-            rootCommand.Add(new CliOption<int>("one"));
+            var rootCommand = new RootCommand();
+            rootCommand.Add(new Command("one"));
+            rootCommand.Add(new Option<int>("one"));
 
             rootCommand.Invoking(c => c.Parse("")).Should().Throw<ArgumentException>();
         }
@@ -45,9 +45,9 @@ public partial class ParserTests
         [Fact(Skip = "https://github.com/dotnet/command-line-api/issues/2223")]
         public void When_command_names_collide_with_option_aliases_it_throws_on_parse()
         {
-            var rootCommand = new CliRootCommand();
-            rootCommand.Add(new CliCommand("one"));
-            var option = new CliOption<int>("two");
+            var rootCommand = new RootCommand();
+            rootCommand.Add(new Command("one"));
+            var option = new Option<int>("two");
             option.Aliases.Add("one");
             rootCommand.Add(option);
 
@@ -57,10 +57,10 @@ public partial class ParserTests
         [Fact]
         public void When_command_names_collide_with_directive_names_it_does_not_throw_on_parse()
         {
-            var rootCommand = new CliRootCommand();
-            rootCommand.Add(new CliCommand("one"));
-            rootCommand.Add(new CliDirective("one"));
-            var cliConfiguration = new CliConfiguration(rootCommand);
+            var rootCommand = new RootCommand();
+            rootCommand.Add(new Command("one"));
+            rootCommand.Add(new Directive("one"));
+            var cliConfiguration = new CommandLineConfiguration(rootCommand);
 
             rootCommand.Invoking(c => c.Parse("", cliConfiguration)).Should().NotThrow();
         }

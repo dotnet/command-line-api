@@ -15,7 +15,7 @@ namespace System.CommandLine.Help
     {
         private const string Indent = "  ";
 
-        private Dictionary<CliSymbol, Customization>? _customizationsBySymbol;
+        private Dictionary<Symbol, Customization>? _customizationsBySymbol;
         private Func<HelpContext, IEnumerable<Func<HelpContext, bool>>>? _getLayout;
 
         /// <param name="maxWidth">The maximum width in characters after which help output is wrapped.</param>
@@ -64,7 +64,7 @@ namespace System.CommandLine.Help
         /// <param name="firstColumnText">A delegate to display the first help column (typically name and usage information).</param>
         /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
         /// <param name="defaultValue">A delegate to display the default value for the symbol.</param>
-        public void CustomizeSymbol(CliSymbol symbol,
+        public void CustomizeSymbol(Symbol symbol,
             Func<HelpContext, string?>? firstColumnText = null,
             Func<HelpContext, string?>? secondColumnText = null,
             Func<HelpContext, string?>? defaultValue = null)
@@ -91,7 +91,7 @@ namespace System.CommandLine.Help
             _getLayout = getLayout ?? throw new ArgumentNullException(nameof(getLayout));
         }
 
-        private string GetUsage(CliCommand command)
+        private string GetUsage(Command command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -99,9 +99,9 @@ namespace System.CommandLine.Help
             {
                 bool displayOptionTitle = false;
 
-                IEnumerable<CliCommand> parentCommands =
+                IEnumerable<Command> parentCommands =
                     command
-                        .RecurseWhileNotNull(c => c.Parents.OfType<CliCommand>().FirstOrDefault())
+                        .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                         .Reverse();
 
                 foreach (var parentCommand in parentCommands)
@@ -140,9 +140,9 @@ namespace System.CommandLine.Help
             }
         }
 
-        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(CliCommand command, HelpContext context) =>
+        private IEnumerable<TwoColumnHelpRow> GetCommandArgumentRows(Command command, HelpContext context) =>
             command
-                .RecurseWhileNotNull(c => c.Parents.OfType<CliCommand>().FirstOrDefault())
+                .RecurseWhileNotNull(c => c.Parents.OfType<Command>().FirstOrDefault())
                 .Reverse()
                 .SelectMany(cmd => cmd.Arguments.Where(a => !a.Hidden))
                 .Select(a => GetTwoColumnRow(a, context))
@@ -253,7 +253,7 @@ namespace System.CommandLine.Help
             }
         }
 
-        private string FormatArgumentUsage(IList<CliArgument> arguments)
+        private string FormatArgumentUsage(IList<Argument> arguments)
         {
             var sb = new StringBuilder(arguments.Count * 100);
 
@@ -303,7 +303,7 @@ namespace System.CommandLine.Help
 
             return sb.ToString();
             
-            bool IsOptional(CliArgument argument) =>
+            bool IsOptional(Argument argument) =>
                 argument.Arity.MinimumNumberOfValues == 0;
         }
 
@@ -371,7 +371,7 @@ namespace System.CommandLine.Help
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <param name="context">The help context.</param>
         public TwoColumnHelpRow GetTwoColumnRow(
-            CliSymbol symbol,
+            Symbol symbol,
             HelpContext context)
         {
             if (symbol is null)
@@ -386,11 +386,11 @@ namespace System.CommandLine.Help
                 _customizationsBySymbol.TryGetValue(symbol, out customization);
             }
 
-            if (symbol is CliOption or CliCommand)
+            if (symbol is Option or Command)
             {
                 return GetOptionOrCommandRow();
             }
-            else if (symbol is CliArgument argument)
+            else if (symbol is Argument argument)
             {
                 return GetCommandArgumentRow(argument);
             }
@@ -402,9 +402,9 @@ namespace System.CommandLine.Help
             TwoColumnHelpRow GetOptionOrCommandRow()
             {
                 var firstColumnText = customization?.GetFirstColumn?.Invoke(context) 
-                    ?? (symbol is CliOption option
+                    ?? (symbol is Option option
                             ? Default.GetOptionUsageLabel(option)
-                            : Default.GetCommandUsageLabel((CliCommand)symbol));
+                            : Default.GetCommandUsageLabel((Command)symbol));
 
                 var customizedSymbolDescription = customization?.GetSecondColumn?.Invoke(context);
 
@@ -421,7 +421,7 @@ namespace System.CommandLine.Help
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
 
-            TwoColumnHelpRow GetCommandArgumentRow(CliArgument argument)
+            TwoColumnHelpRow GetCommandArgumentRow(Argument argument)
             {
                 var firstColumnText =
                     customization?.GetFirstColumn?.Invoke(context) ?? Default.GetArgumentUsageLabel(argument);
@@ -439,9 +439,9 @@ namespace System.CommandLine.Help
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
 
-            string GetSymbolDefaultValue(CliSymbol symbol)
+            string GetSymbolDefaultValue(Symbol symbol)
             {
-                IList<CliArgument> arguments = symbol.Arguments();
+                IList<Argument> arguments = symbol.Arguments();
                 var defaultArguments = arguments.Where(x => !x.Hidden && x.HasDefaultValue).ToArray();
 
                 if (defaultArguments.Length == 0) return "";
@@ -454,8 +454,8 @@ namespace System.CommandLine.Help
         }
 
         private string GetArgumentDefaultValue(
-            CliSymbol parent,
-            CliArgument argument,
+            Symbol parent,
+            Argument argument,
             bool displayArgumentName,
             HelpContext context)
         {

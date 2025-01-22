@@ -12,7 +12,7 @@ namespace System.CommandLine.Tests
             try
             {
                 parseResult.Configuration.Output = new StringWriter();
-                ((SynchronousCliAction)new DiagramDirective().Action!).Invoke(parseResult);
+                ((SynchronousCommandLineAction)new DiagramDirective().Action!).Invoke(parseResult);
                 return parseResult.Configuration.Output.ToString()
                     .TrimEnd(); // the directive adds a new line, tests that used to rely on Diagram extension method don't expect it
             }

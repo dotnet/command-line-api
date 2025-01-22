@@ -12,12 +12,12 @@ namespace System.CommandLine
     /// <summary>
     /// A symbol defining a named parameter and a value for that parameter. 
     /// </summary>
-    public abstract class CliOption : CliSymbol
+    public abstract class Option : Symbol
     {
         internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
 
-        private protected CliOption(string name, string[] aliases) : base(name)
+        private protected Option(string name, string[] aliases) : base(name)
         {
             if (aliases is { Length: > 0 }) 
             {
@@ -28,7 +28,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the <see cref="Argument">argument</see> for the option.
         /// </summary>
-        internal abstract CliArgument Argument { get; }
+        internal abstract Argument Argument { get; }
 
         /// <summary>
         /// Specifies if a default value is defined for the option.
@@ -101,14 +101,14 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the unique set of strings that can be used on the command line to specify the Option.
         /// </summary>
-        /// <remarks>The collection does not contain the <see cref="CliSymbol.Name"/> of the Option.</remarks>
+        /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Option.</remarks>
         public ICollection<string> Aliases => _aliases ??= new();
 
         /// <summary>
-        /// Gets or sets the <see cref="CliAction"/> for the Option. The handler represents the action
+        /// Gets or sets the <see cref="CommandLineAction"/> for the Option. The handler represents the action
         /// that will be performed when the Option is invoked.
         /// </summary>
-        public virtual CliAction? Action { get; set; }
+        public virtual CommandLineAction? Action { get; set; }
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

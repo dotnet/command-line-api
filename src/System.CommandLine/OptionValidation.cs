@@ -7,7 +7,7 @@ using System.IO;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Provides extension methods for <see cref="CliOption" />.
+    /// Provides extension methods for <see cref="Option" />.
     /// </summary>
     public static class OptionValidation
     {
@@ -16,7 +16,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        public static CliOption<FileInfo> AcceptExistingOnly(this CliOption<FileInfo> option)
+        public static Option<FileInfo> AcceptExistingOnly(this Option<FileInfo> option)
         {
             option._argument.AcceptExistingOnly();
 
@@ -28,7 +28,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        public static CliOption<DirectoryInfo> AcceptExistingOnly(this CliOption<DirectoryInfo> option)
+        public static Option<DirectoryInfo> AcceptExistingOnly(this Option<DirectoryInfo> option)
         {
             option._argument.AcceptExistingOnly();
             return option;
@@ -39,7 +39,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        public static CliOption<FileSystemInfo> AcceptExistingOnly(this CliOption<FileSystemInfo> option)
+        public static Option<FileSystemInfo> AcceptExistingOnly(this Option<FileSystemInfo> option)
         {
             option._argument.AcceptExistingOnly();
             return option;
@@ -50,7 +50,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>
-        public static CliOption<T> AcceptExistingOnly<T>(this CliOption<T> option)
+        public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
             where T : IEnumerable<FileSystemInfo>
         {
             option._argument.AcceptExistingOnly();
