@@ -6,7 +6,7 @@ namespace System.CommandLine.Invocation;
 /// <summary>
 /// Defines a synchronous behavior associated with a command line symbol.
 /// </summary>
-public abstract class SynchronousCliAction : CliAction
+public abstract class SynchronousCommandLineAction : CommandLineAction
 {
     /// <summary>
     /// Performs an action when the associated symbol is invoked on the command line.

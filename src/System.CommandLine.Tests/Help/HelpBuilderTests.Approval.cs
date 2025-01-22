@@ -14,60 +14,60 @@ namespace System.CommandLine.Tests.Help
         [UseReporter(typeof(DiffReporter))]
         public void Help_layout_has_not_changed()
         {
-            var command = new CliCommand("the-root-command", "Test description")
+            var command = new Command("the-root-command", "Test description")
             {
-                new CliArgument<string>("the-root-arg-no-description-no-default"),
-                new CliArgument<string>("the-root-arg-no-description-default")
+                new Argument<string>("the-root-arg-no-description-no-default"),
+                new Argument<string>("the-root-arg-no-description-default")
                 {
                     DefaultValueFactory = (_) => "the-root-arg-no-description-default-value",
                 },
-                new CliArgument<string>("the-root-arg-no-default")
+                new Argument<string>("the-root-arg-no-default")
                 {
                     Description = "the-root-arg-no-default-description",
                 },
-                new CliArgument<string>("the-root-arg")
+                new Argument<string>("the-root-arg")
                 {
                     DefaultValueFactory = (_) => "the-root-arg-one-value",
                     Description = "the-root-arg-description"
                 },
-                new CliArgument<FileAccess>("the-root-arg-enum-default")
+                new Argument<FileAccess>("the-root-arg-enum-default")
                 {
                     DefaultValueFactory = (_) => FileAccess.Read,
                     Description = "the-root-arg-enum-default-description"
                 },
-                new CliOption<bool>("--the-root-option-no-arg", "-trna") 
+                new Option<bool>("--the-root-option-no-arg", "-trna") 
                 {
                     Description = "the-root-option-no-arg-description",
                     Required = true
                 },
-                new CliOption<string>("--the-root-option-no-description-default-arg", "-trondda")
+                new Option<string>("--the-root-option-no-description-default-arg", "-trondda")
                 {
                     DefaultValueFactory = (_) => "the-root-option--no-description-default-arg-value",
                 },
-                new CliOption<string>("--the-root-option-no-default-arg", "-tronda")
+                new Option<string>("--the-root-option-no-default-arg", "-tronda")
                 {
                     Description = "the-root-option-no-default-description",
                     HelpName = "the-root-option-arg-no-default-arg",
                     Required = true
                 },
-                new CliOption<string>("--the-root-option-default-arg", "-troda")
+                new Option<string>("--the-root-option-default-arg", "-troda")
                 {
                     DefaultValueFactory = (_) => "the-root-option-arg-value",
                     Description = "the-root-option-default-arg-description",
                     HelpName = "the-root-option-arg",
                 },
-                new CliOption<FileAccess>("--the-root-option-enum-arg", "-troea")
+                new Option<FileAccess>("--the-root-option-enum-arg", "-troea")
                 {
                     DefaultValueFactory = (_) => FileAccess.Read,
                     Description = "the-root-option-description",
                 },
-                new CliOption<FileAccess>("--the-root-option-required-enum-arg", "-trorea")
+                new Option<FileAccess>("--the-root-option-required-enum-arg", "-trorea")
                 {
                     DefaultValueFactory = (_) => FileAccess.Read,
                     Description = "the-root-option-description",
                     Required = true
                 },
-                new CliOption<bool>("--the-root-option-multi-line-description", "-tromld")
+                new Option<bool>("--the-root-option-multi-line-description", "-tromld")
                 {
                     Description = "the-root-option\r\nmulti-line\ndescription"
                 },

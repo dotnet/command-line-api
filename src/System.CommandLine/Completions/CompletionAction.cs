@@ -10,7 +10,7 @@ namespace System.CommandLine.Completions;
 /// <summary>
 /// Implements the action for the <c>[suggest]</c> directive, which when specified on the command line will short circuit normal command handling and display a diagram explaining the parse result for the command line input.
 /// </summary>
-internal sealed class CompletionAction : SynchronousCliAction
+internal sealed class CompletionAction : SynchronousCommandLineAction
 {
     private readonly SuggestDirective _directive;
 
@@ -24,7 +24,7 @@ internal sealed class CompletionAction : SynchronousCliAction
 
         int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
 
-        var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != CliTokenType.Directive)?.Value ?? "";
+        var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
         var completionParseResult = parseResult.RootCommandResult.Command.Parse(commandLineToComplete, parseResult.Configuration);
 

@@ -8,7 +8,7 @@ using System.IO;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Provides extension methods for <see cref="CliArgument" />.
+    /// Provides extension methods for <see cref="Argument" />.
     /// </summary>
     public static class ArgumentValidation
     {
@@ -17,7 +17,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
-        public static CliArgument<FileInfo> AcceptExistingOnly(this CliArgument<FileInfo> argument)
+        public static Argument<FileInfo> AcceptExistingOnly(this Argument<FileInfo> argument)
         {
             argument.Validators.Add(FileOrDirectoryExists<FileInfo>);
             return argument;
@@ -28,7 +28,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
-        public static CliArgument<DirectoryInfo> AcceptExistingOnly(this CliArgument<DirectoryInfo> argument)
+        public static Argument<DirectoryInfo> AcceptExistingOnly(this Argument<DirectoryInfo> argument)
         {
             argument.Validators.Add(FileOrDirectoryExists<DirectoryInfo>);
             return argument;
@@ -39,7 +39,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
-        public static CliArgument<FileSystemInfo> AcceptExistingOnly(this CliArgument<FileSystemInfo> argument)
+        public static Argument<FileSystemInfo> AcceptExistingOnly(this Argument<FileSystemInfo> argument)
         {
             argument.Validators.Add(FileOrDirectoryExists<FileSystemInfo>);
             return argument;
@@ -50,7 +50,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The argument to configure.</param>
         /// <returns>The configured argument.</returns>
-        public static CliArgument<T> AcceptExistingOnly<T>(this CliArgument<T> argument)
+        public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
             where T : IEnumerable<FileSystemInfo>
         {
             if (typeof(IEnumerable<FileInfo>).IsAssignableFrom(typeof(T)))

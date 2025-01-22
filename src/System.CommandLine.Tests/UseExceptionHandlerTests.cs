@@ -13,10 +13,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_sets_result_code_to_1()
         {
-            var command = new CliCommand("the-command");
+            var command = new Command("the-command");
             command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
-            CliConfiguration config = new(command)
+            CommandLineConfiguration config = new(command)
             {
                 Error = new StringWriter(),
             };
@@ -29,10 +29,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task UseExceptionHandler_catches_command_handler_exceptions_and_writes_details_to_standard_error()
         {
-            var command = new CliCommand("the-command");
+            var command = new Command("the-command");
             command.SetAction((_, __) => Task.FromException<int>(new Exception("oops!")));
 
-            CliConfiguration config = new(command)
+            CommandLineConfiguration config = new(command)
             {
                 Error = new StringWriter(),
             };
@@ -45,10 +45,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_thrown_exception_is_from_cancelation_no_output_is_generated()
         {
-            CliCommand command = new("the-command");
+            Command command = new("the-command");
             command.SetAction((_, __) => throw new OperationCanceledException());
 
-            CliConfiguration config = new(command)
+            CommandLineConfiguration config = new(command)
             {
                 Output = new StringWriter(),
                 Error = new StringWriter()
@@ -67,10 +67,10 @@ namespace System.CommandLine.Tests
         public async Task Exception_output_can_be_customized(bool async)
         {
             Exception expectedException = new ("oops!");
-            CliCommand command = new("the-command");
+            Command command = new("the-command");
             command.SetAction((_, __) => throw expectedException);
 
-            CliConfiguration config = new(command)
+            CommandLineConfiguration config = new(command)
             {
                 Error = new StringWriter(),
                 EnableDefaultExceptionHandler = false

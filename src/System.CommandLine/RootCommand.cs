@@ -15,9 +15,9 @@ namespace System.CommandLine
     /// <remarks>
     /// Use the RootCommand object without any subcommands for applications that perform one action. Add subcommands 
     /// to the root for applications that require actions identified by specific strings. For example, `dir` does not 
-    /// use any subcommands. See <see cref="CliCommand"/> for applications with multiple actions.
+    /// use any subcommands. See <see cref="Command"/> for applications with multiple actions.
     /// </remarks>
-    public class CliRootCommand : CliCommand
+    public class RootCommand : Command
     {
         private static Assembly? _assembly;
         private static string? _executablePath;
@@ -25,11 +25,11 @@ namespace System.CommandLine
         private static string? _executableVersion;
 
         /// <param name="description">The description of the command, shown in help.</param>
-        public CliRootCommand(string description = "") : base(ExecutableName, description)
+        public RootCommand(string description = "") : base(ExecutableName, description)
         {
             Options.Add(new HelpOption());
             Options.Add(new VersionOption()); 
-            Directives = new ChildSymbolList<CliDirective>(this)
+            Directives = new ChildSymbolList<Directive>(this)
             {
                 new SuggestDirective()
             };
@@ -38,12 +38,12 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the directives that are valid under the root command.
         /// </summary>
-        public IList<CliDirective> Directives { get; }
+        public IList<Directive> Directives { get; }
 
         /// <summary>
-        /// Adds a <see cref="CliDirective"/> to the command.
+        /// Adds a <see cref="Directive"/> to the command.
         /// </summary>
-        public void Add(CliDirective directive) => Directives.Add(directive);
+        public void Add(Directive directive) => Directives.Add(directive);
 
         internal static Assembly GetAssembly()
             => _assembly ??= (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());

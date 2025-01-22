@@ -20,7 +20,7 @@ public partial class HelpBuilder
         /// Gets an argument's default value to be displayed in help.
         /// </summary>
         /// <param name="argument">The argument to get the default value for.</param>
-        public static string GetArgumentDefaultValue(CliArgument argument)
+        public static string GetArgumentDefaultValue(Argument argument)
         {
             if (argument.HasDefaultValue)
             {
@@ -43,12 +43,12 @@ public partial class HelpBuilder
         /// <summary>
         /// Gets the description for an argument (typically used in the second column text in the arguments section).
         /// </summary>
-        public static string GetArgumentDescription(CliArgument argument) => argument.Description ?? string.Empty;
+        public static string GetArgumentDescription(Argument argument) => argument.Description ?? string.Empty;
 
         /// <summary>
         /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
         /// </summary>
-        public static string GetArgumentUsageLabel(CliArgument argument)
+        public static string GetArgumentUsageLabel(Argument argument)
         {
             // Argument.HelpName is always first choice
             if (!string.IsNullOrWhiteSpace(argument.HelpName))
@@ -70,7 +70,7 @@ public partial class HelpBuilder
             }
 
             // By default Option.Name == Argument.Name, don't repeat it
-            return argument.FirstParent?.Symbol is not CliOption ? $"<{argument.Name}>" : "";
+            return argument.FirstParent?.Symbol is not Option ? $"<{argument.Name}>" : "";
         }
 
         /// <summary>
@@ -78,14 +78,14 @@ public partial class HelpBuilder
         /// </summary>
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <returns>Text to display.</returns>
-        public static string GetCommandUsageLabel(CliCommand symbol)
+        public static string GetCommandUsageLabel(Command symbol)
             => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
 
-        /// <inheritdoc cref="GetCommandUsageLabel(CliCommand)"/>
-        public static string GetOptionUsageLabel(CliOption symbol)
+        /// <inheritdoc cref="GetCommandUsageLabel(Command)"/>
+        public static string GetOptionUsageLabel(Option symbol)
             => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
 
-        private static string GetIdentifierSymbolUsageLabel(CliSymbol symbol, AliasSet? aliasSet)
+        private static string GetIdentifierSymbolUsageLabel(Symbol symbol, AliasSet? aliasSet)
         {
             var aliases =  aliasSet is null
                 ? new [] { symbol.Name }
@@ -112,7 +112,7 @@ public partial class HelpBuilder
                 }
             }
 
-            if (symbol is CliOption { Required: true })
+            if (symbol is Option { Required: true })
             {
                 firstColumnText += $" {LocalizationResources.HelpOptionsRequiredLabel()}";
             }
@@ -188,7 +188,7 @@ public partial class HelpBuilder
 
                 if (ctx.Command.HasOptions)
                 {
-                    foreach (CliOption option in ctx.Command.Options)
+                    foreach (Option option in ctx.Command.Options)
                     {
                         if (!option.Hidden)
                         {
@@ -201,14 +201,14 @@ public partial class HelpBuilder
                     }
                 }
 
-                CliCommand? current = ctx.Command;
+                Command? current = ctx.Command;
                 while (current is not null)
                 {
-                    CliCommand? parentCommand = null;
+                    Command? parentCommand = null;
                     SymbolNode? parent = current.FirstParent;
                     while (parent is not null)
                     {
-                        if ((parentCommand = parent.Symbol as CliCommand) is not null)
+                        if ((parentCommand = parent.Symbol as Command) is not null)
                         {
                             if (parentCommand.HasOptions)
                             {
@@ -243,7 +243,7 @@ public partial class HelpBuilder
             };
 
         ///  <summary>
-        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="CliCommand.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
+        /// Writes a help section describing a command's additional arguments, typically shown only when <see cref="Command.TreatUnmatchedTokensAsErrors"/> is set to <see langword="true"/>.
         ///  </summary>
         public static Func<HelpContext, bool> AdditionalArgumentsSection() =>
             ctx => ctx.HelpBuilder.WriteAdditionalArguments(ctx);

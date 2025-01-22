@@ -25,9 +25,9 @@ public class ParameterBindingTests
             boundAge = age;
         }
 
-        var command = new CliCommand("command");
-        command.Options.Add(new CliOption<string>("--name"));
-        command.Options.Add(new CliOption<int>("--age"));
+        var command = new Command("command");
+        command.Options.Add(new Option<string>("--name"));
+        command.Options.Add(new Option<int>("--age"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.Parse("command --age 425 --name Gandalf").InvokeAsync();
@@ -46,9 +46,9 @@ public class ParameterBindingTests
             boundFirstName = firstName;
         }
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<string>("--first-name")
+            new Option<string>("--first-name")
         };
         command.Action = CommandHandler.Create<string>(Execute);
 
@@ -69,9 +69,9 @@ public class ParameterBindingTests
             boundAge = AGE;
         }
 
-        var command = new CliCommand("command");
-        command.Options.Add(new CliOption<string>("--NAME"));
-        command.Options.Add(new CliOption<int>("--age"));
+        var command = new Command("command");
+        command.Options.Add(new Option<string>("--NAME"));
+        command.Options.Add(new Option<int>("--age"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.Parse("command --age 425 --NAME Gandalf").InvokeAsync();
@@ -92,10 +92,10 @@ public class ParameterBindingTests
             boundAge = age;
         }
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<string>("--name"),
-            new CliOption<int>("--age")
+            new Option<string>("--name"),
+            new Option<int>("--age")
         };
         command.Action = CommandHandler.Create<string, int>(Execute);
 
@@ -117,10 +117,10 @@ public class ParameterBindingTests
             boundAge = age;
         }
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<string>("--NAME", "-n"),
-            new CliOption<int>("--age", "-a")
+            new Option<string>("--NAME", "-n"),
+            new Option<int>("--age", "-a")
         };
         command.Action = CommandHandler.Create<string, int>(Execute);
 
@@ -136,10 +136,10 @@ public class ParameterBindingTests
         string boundName = default;
         int boundAge = default;
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<string>("--name"),
-            new CliOption<int>("--age")
+            new Option<string>("--name"),
+            new Option<int>("--age")
         };
         command.Action = CommandHandler.Create<string, int>((name, age) =>
         {
@@ -158,9 +158,9 @@ public class ParameterBindingTests
     {
         int? boundAge = default;
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<int?>("--age")
+            new Option<int?>("--age")
         };
         command.Action = CommandHandler.Create<int?>(age =>
         {
@@ -178,9 +178,9 @@ public class ParameterBindingTests
         var wasCalled = false;
         int? boundAge = default;
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<int?>("--age")
+            new Option<int?>("--age")
         };
         command.Action = CommandHandler.Create<int?>(age =>
         {
@@ -200,9 +200,9 @@ public class ParameterBindingTests
         DirectoryInfo boundDirectoryInfo = default;
         var tempPath = Path.GetTempPath();
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<DirectoryInfo>("--dir")
+            new Option<DirectoryInfo>("--dir")
         };
         command.Action = CommandHandler.Create<DirectoryInfo>(dir =>
         {
@@ -219,9 +219,9 @@ public class ParameterBindingTests
     {
         ParseResult boundParseResult = default;
 
-        var option = new CliOption<int>("-x");
+        var option = new Option<int>("-x");
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
             option
         };
@@ -237,8 +237,8 @@ public class ParameterBindingTests
     {
         BindingContext boundContext = default;
 
-        var option = new CliOption<int>("-x");
-        var command = new CliCommand("command")
+        var option = new Option<int>("-x");
+        var command = new Command("command")
         {
             option
         };
@@ -268,10 +268,10 @@ public class ParameterBindingTests
     {
         var testClass = new ExecuteTestClass();
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<string>("--name"),
-            new CliOption<int>("--age")
+            new Option<string>("--name"),
+            new Option<int>("--age")
         };
         command.Action = CommandHandler.Create((ExecuteTestDelegate)testClass.Execute);
 
@@ -286,10 +286,10 @@ public class ParameterBindingTests
     {
         var testClass = new ExecuteTestClass();
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliOption<string>("--name"),
-            new CliOption<int>("--age")
+            new Option<string>("--name"),
+            new Option<int>("--age")
         };
         command.Action = CommandHandler.Create(
             testClass.GetType().GetMethod(nameof(ExecuteTestClass.Execute)),
@@ -313,9 +313,9 @@ public class ParameterBindingTests
             boundAge = age;
         }
 
-        var command = new CliCommand("command");
-        command.Arguments.Add(new CliArgument<int>("age"));
-        command.Arguments.Add(new CliArgument<string>("name"));
+        var command = new Command("command");
+        command.Arguments.Add(new Argument<int>("age"));
+        command.Arguments.Add(new Argument<string>("name"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.Parse("command 425 Gandalf").InvokeAsync();
@@ -334,9 +334,9 @@ public class ParameterBindingTests
             boundFirstName = firstName;
         }
 
-        var command = new CliCommand("command")
+        var command = new Command("command")
         {
-            new CliArgument<string>("first-name")
+            new Argument<string>("first-name")
         };
         command.Action = CommandHandler.Create<string>(Execute);
 
@@ -357,9 +357,9 @@ public class ParameterBindingTests
             boundAge = AGE;
         }
 
-        var command = new CliCommand("command");
-        command.Arguments.Add(new CliArgument<int>("AGE"));
-        command.Arguments.Add(new CliArgument<string>("Name"));
+        var command = new Command("command");
+        command.Arguments.Add(new Argument<int>("AGE"));
+        command.Arguments.Add(new Argument<string>("Name"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.Parse("command 425 Gandalf").InvokeAsync();
@@ -380,9 +380,9 @@ public class ParameterBindingTests
             boundAge = age;
         }
 
-        var command = new CliCommand("command");
-        command.Arguments.Add(new CliArgument<int>("age"));
-        command.Arguments.Add(new CliArgument<string>("fullname|nickname"));
+        var command = new Command("command");
+        command.Arguments.Add(new Argument<int>("age"));
+        command.Arguments.Add(new Argument<string>("fullname|nickname"));
         command.Action = CommandHandler.Create<string, int>(Execute);
 
         await command.Parse("command 425 Gandalf").InvokeAsync();
@@ -397,15 +397,15 @@ public class ParameterBindingTests
     [InlineData(typeof(OverridenVirtualTestCommandHandler), 41)]
     public async Task Method_invoked_is_matching_to_the_interface_implementation(Type type, int expectedResult)
     {
-        var command = new CliCommand("command");
-        command.Action = CommandHandler.Create(type.GetMethod(nameof(AsynchronousCliAction.InvokeAsync)));
+        var command = new Command("command");
+        command.Action = CommandHandler.Create(type.GetMethod(nameof(AsynchronousCommandLineAction.InvokeAsync)));
 
         int result = await command.Parse("command").InvokeAsync();
 
         result.Should().Be(expectedResult);
     }
 
-    public abstract class AbstractTestCommandHandler : AsynchronousCliAction
+    public abstract class AbstractTestCommandHandler : AsynchronousCommandLineAction
     {
         public abstract Task<int> DoJobAsync();
         
@@ -419,7 +419,7 @@ public class ParameterBindingTests
             => Task.FromResult(42);
     }
 
-    public class VirtualTestCommandHandler : AsynchronousCliAction
+    public class VirtualTestCommandHandler : AsynchronousCommandLineAction
     {
         public override Task<int> InvokeAsync(ParseResult context, CancellationToken cancellationToken)
             => Task.FromResult(42);

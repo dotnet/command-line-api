@@ -18,7 +18,7 @@ namespace System.CommandLine.Tests
         {
             bool asserted = false;
             const string value = "hello";
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 new EnvironmentVariablesDirective()
             };
@@ -28,7 +28,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(_testVariableName).Should().Be(value);
             });
 
-            var config = new CliConfiguration(rootCommand)
+            var config = new CommandLineConfiguration(rootCommand)
             {
                 EnableDefaultExceptionHandler = false
             };
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests
         {
             bool asserted = false;
             const string value = "1=2";
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 new EnvironmentVariablesDirective()
             };
@@ -53,7 +53,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(_testVariableName).Should().Be(value);
             });
 
-            var config = new CliConfiguration(rootCommand)
+            var config = new CommandLineConfiguration(rootCommand)
             {
                 EnableDefaultExceptionHandler = false
             };
@@ -68,7 +68,7 @@ namespace System.CommandLine.Tests
         {
             bool asserted = false;
             string variable = _testVariableName;
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 new EnvironmentVariablesDirective()
             };
@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().BeNull();
             });
 
-            var config = new CliConfiguration(rootCommand)
+            var config = new CommandLineConfiguration(rootCommand)
             {
                 EnableDefaultExceptionHandler = false
             };
@@ -93,7 +93,7 @@ namespace System.CommandLine.Tests
         {
             bool asserted = false;
             string value = "value";
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 new EnvironmentVariablesDirective()
             };
@@ -104,7 +104,7 @@ namespace System.CommandLine.Tests
                 env.Values.Cast<string>().Should().NotContain(value);
             });
 
-            var config = new CliConfiguration(rootCommand)
+            var config = new CommandLineConfiguration(rootCommand)
             {
                 EnableDefaultExceptionHandler = false
             };
@@ -119,13 +119,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_does_not_prevent_help_from_being_invoked()
         {
-            var root = new CliRootCommand();
+            var root = new RootCommand();
             root.SetAction(_ => { });
 
             var customHelpAction = new CustomHelpAction();
             root.Options.OfType<HelpOption>().Single().Action = customHelpAction;
 
-            var config = new CliConfiguration(root);
+            var config = new CommandLineConfiguration(root);
             root.Directives.Add(new EnvironmentVariablesDirective());
 
             root.Parse($"[env:{_testVariableName}=1] -h", config).Invoke();
@@ -134,7 +134,7 @@ namespace System.CommandLine.Tests
             Environment.GetEnvironmentVariable(_testVariableName).Should().Be("1");
         }
 
-        private class CustomHelpAction : SynchronousCliAction
+        private class CustomHelpAction : SynchronousCommandLineAction
         {
             public bool WasCalled { get; private set; }
 

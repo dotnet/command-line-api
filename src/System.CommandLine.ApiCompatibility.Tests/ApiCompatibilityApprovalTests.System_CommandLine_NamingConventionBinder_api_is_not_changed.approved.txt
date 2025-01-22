@@ -21,7 +21,7 @@ System.CommandLine.NamingConventionBinder
     public static System.Void AddModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, ModelBinder binder)
     public static System.CommandLine.Binding.BindingContext GetBindingContext(this System.CommandLine.ParseResult parseResult)
     public static ModelBinder GetOrCreateModelBinder(this System.CommandLine.Binding.BindingContext bindingContext, System.CommandLine.Binding.IValueDescriptor valueDescriptor)
-  public abstract class BindingHandler : System.CommandLine.Invocation.AsynchronousCliAction
+  public abstract class BindingHandler : System.CommandLine.Invocation.AsynchronousCommandLineAction
     public System.CommandLine.Binding.BindingContext GetBindingContext(System.CommandLine.ParseResult parseResult)
   public static class CommandHandler
     public static BindingHandler Create(System.Delegate delegate)
@@ -109,16 +109,16 @@ System.CommandLine.NamingConventionBinder
     public System.Boolean EnforceExplicitBinding { get; set; }
     public ModelDescriptor ModelDescriptor { get; }
     public System.CommandLine.Binding.IValueDescriptor ValueDescriptor { get; }
-    public System.Void BindMemberFromValue(System.Reflection.PropertyInfo property, System.CommandLine.CliSymbol symbol)
+    public System.Void BindMemberFromValue(System.Reflection.PropertyInfo property, System.CommandLine.Symbol symbol)
     public System.Object CreateInstance(System.CommandLine.Binding.BindingContext bindingContext)
     public System.Void UpdateInstance<T>(T instance, System.CommandLine.Binding.BindingContext bindingContext)
   public class ModelBinder<TModel> : ModelBinder
     .ctor()
-    public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, System.CommandLine.CliSymbol symbol)
+    public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, System.CommandLine.Symbol symbol)
     public System.Void BindMemberFromValue<TValue>(Expression<Func<TModel,TValue>> property, Func<System.CommandLine.Binding.BindingContext,TValue> getValue)
   public class ModelBindingCommandHandler : BindingHandler
-    public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.CliArgument argument)
-    public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.CliOption option)
+    public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Argument argument)
+    public System.Void BindParameter(System.Reflection.ParameterInfo param, System.CommandLine.Option option)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)
   public class ModelDescriptor
     public static ModelDescriptor FromType<T>()

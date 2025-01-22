@@ -13,21 +13,21 @@ namespace System.CommandLine.Tests
 {
     public class SuggestDirectiveTests
     {
-        protected CliOption _fruitOption;
+        protected Option _fruitOption;
 
-        protected CliOption _vegetableOption;
+        protected Option _vegetableOption;
 
-        private readonly CliCommand _eatCommand;
+        private readonly Command _eatCommand;
 
         public SuggestDirectiveTests()
         {
-            _fruitOption = new CliOption<string>("--fruit");
+            _fruitOption = new Option<string>("--fruit");
             _fruitOption.CompletionSources.Add("apple", "banana", "cherry");
 
-            _vegetableOption = new CliOption<string>("--vegetable");
+            _vegetableOption = new Option<string>("--vegetable");
             _vegetableOption.CompletionSources.Add(_ => new[] { "asparagus", "broccoli", "carrot" });
 
-            _eatCommand = new CliCommand("eat")
+            _eatCommand = new Command("eat")
             {
                 _fruitOption,
                 _vegetableOption
@@ -37,12 +37,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_option_arguments_when_under_subcommand()
         {
-            CliRootCommand rootCommand = new()
+            RootCommand rootCommand = new()
             {
                 _eatCommand,
                 new SuggestDirective()
             };
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -60,12 +60,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_option_arguments_when_under_root_command()
         {
-            CliRootCommand rootCommand = new ()
+            RootCommand rootCommand = new ()
             {
                 _fruitOption,
                 _vegetableOption
             };
-            CliConfiguration config = new (rootCommand)
+            CommandLineConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -85,8 +85,8 @@ namespace System.CommandLine.Tests
         [InlineData("[suggest:6] \"eat --\"", new[] { "--fruit", "--help", "--vegetable" })]
         public async Task It_writes_suggestions_for_option_aliases_under_subcommand(string commandLine, string[] expectedCompletions)
         {
-            CliRootCommand rootCommand = new() { _eatCommand };
-            CliConfiguration config = new(rootCommand)
+            RootCommand rootCommand = new() { _eatCommand };
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -110,12 +110,12 @@ namespace System.CommandLine.Tests
         [InlineData("[suggest:0] ")]
         public async Task It_writes_suggestions_for_option_aliases_under_root_command(string input)
         {
-            CliRootCommand rootCommand = new()
+            RootCommand rootCommand = new()
             {
                 _vegetableOption,
                 _fruitOption
             };
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -132,11 +132,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_subcommand_aliases_under_root_command()
         {
-            CliRootCommand rootCommand = new()
+            RootCommand rootCommand = new()
             {
                 _eatCommand
             };
-            CliConfiguration config = new(rootCommand)
+            CommandLineConfiguration config = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -153,12 +153,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_option_aliases_under_root_command()
         {
-            CliRootCommand rootCommand = new()
+            RootCommand rootCommand = new()
             {
                 _fruitOption,
                 _vegetableOption
             };
-            CliConfiguration config = new (rootCommand)
+            CommandLineConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter(),
             };
@@ -176,12 +176,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_subcommand_aliases_under_root_command()
         {
-            CliRootCommand rootCommand = new ()
+            RootCommand rootCommand = new ()
             {
                 _eatCommand,
-                new CliCommand("wash-dishes")
+                new Command("wash-dishes")
             };
-            CliConfiguration config = new (rootCommand)
+            CommandLineConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -199,12 +199,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_option_and_subcommand_aliases_under_root_command()
         {
-            CliRootCommand rootCommand = new ()
+            RootCommand rootCommand = new ()
             {
                 _eatCommand,
-                new CliCommand("wash-dishes"),
+                new Command("wash-dishes"),
             };
-            CliConfiguration config = new (rootCommand)
+            CommandLineConfiguration config = new (rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -222,14 +222,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_partial_option_and_subcommand_aliases_under_root_command_with_an_argument()
         {
-            CliRootCommand command = new("parent")
+            RootCommand command = new("parent")
             {
-                new CliCommand("child"),
-                new CliOption<bool>("--option1"),
-                new CliOption<bool>("--option2"),
-                new CliArgument<string>("arg")
+                new Command("child"),
+                new Option<bool>("--option1"),
+                new Option<bool>("--option2"),
+                new Argument<string>("arg")
             };
-            CliConfiguration config = new (command)
+            CommandLineConfiguration config = new (command)
             {
                 Output = new StringWriter()
             };
@@ -245,11 +245,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_does_not_repeat_suggestion_for_already_specified_bool_option()
         {
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
-                new CliOption<bool>("--bool-option")
+                new Option<bool>("--bool-option")
             };
-            CliConfiguration config = new (command)
+            CommandLineConfiguration config = new (command)
             {
                 Output = new StringWriter()
             };

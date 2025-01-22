@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
-            CliConfiguration configuration = new(new CliRootCommand())
+            CommandLineConfiguration configuration = new(new RootCommand())
             {
                 Output = new StringWriter()
             };
@@ -35,10 +35,10 @@ namespace System.CommandLine.Tests
         public async Task When_the_version_option_is_specified_then_invocation_is_short_circuited()
         {
             var wasCalled = false;
-            var rootCommand = new CliRootCommand();
+            var rootCommand = new RootCommand();
             rootCommand.SetAction((_) => wasCalled = true);
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -51,7 +51,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_option_appears_in_help()
         {
-            CliConfiguration configuration = new(new CliRootCommand())
+            CommandLineConfiguration configuration = new(new RootCommand())
             {
                 Output = new StringWriter()
             };
@@ -67,16 +67,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_and_there_are_default_options_then_the_version_is_written_to_standard_out()
         {
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
-                new CliOption<bool>("-x")
+                new Option<bool>("-x")
                 {
                     DefaultValueFactory = (_) => true
                 },
             };
             rootCommand.SetAction((_) => { });
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -89,13 +89,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task When_the_version_option_is_specified_and_there_are_default_arguments_then_the_version_is_written_to_standard_out()
         {
-            CliRootCommand rootCommand = new ()
+            RootCommand rootCommand = new ()
             {
-                new CliArgument<bool>("x") { DefaultValueFactory =(_) => true },
+                new Argument<bool>("x") { DefaultValueFactory =(_) => true },
             };
             rootCommand.SetAction((_) => { });
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -110,16 +110,16 @@ namespace System.CommandLine.Tests
         [InlineData("--version subcommand")]
         public void Version_is_not_valid_with_other_tokens(string commandLine)
         {
-            var subcommand = new CliCommand("subcommand");
+            var subcommand = new Command("subcommand");
             subcommand.SetAction(_ => { });
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 subcommand,
-                new CliOption<bool>("-x")
+                new Option<bool>("-x")
             };
             rootCommand.SetAction(_ => { });
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -132,16 +132,16 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Version_option_is_not_added_to_subcommands()
         {
-            var childCommand = new CliCommand("subcommand");
+            var childCommand = new Command("subcommand");
             childCommand.SetAction(_ => { });
 
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 childCommand
             };
             rootCommand.SetAction(_ => { });
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -158,7 +158,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_can_specify_additional_alias()
         {
-            CliRootCommand rootCommand = new();
+            RootCommand rootCommand = new();
 
             for (int i = 0; i < rootCommand.Options.Count; i++)
             {
@@ -166,7 +166,7 @@ namespace System.CommandLine.Tests
                     rootCommand.Options[i] = new VersionOption("-v", "-version");
             }
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
@@ -182,9 +182,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
         {
-            var childCommand = new CliCommand("subcommand");
+            var childCommand = new Command("subcommand");
             childCommand.SetAction((_) => { });
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 childCommand
             };
@@ -193,7 +193,7 @@ namespace System.CommandLine.Tests
 
             rootCommand.SetAction((_) => { });
 
-            CliConfiguration configuration = new(rootCommand)
+            CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };

@@ -11,14 +11,14 @@ namespace System.CommandLine.Hosting
 {
     public static class HostingExtensions
     {
-        public static CliConfiguration UseHost(
-            this CliConfiguration config,
+        public static CommandLineConfiguration UseHost(
+            this CommandLineConfiguration config,
             Func<string[], IHostBuilder> hostBuilderFactory,
             Action<IHostBuilder> configureHost = null)
         {
-            if (config.RootCommand is CliRootCommand root)
+            if (config.RootCommand is RootCommand root)
             {
-                root.Add(new CliDirective(HostingAction.HostingDirectiveName));
+                root.Add(new Directive(HostingAction.HostingDirectiveName));
             }
 
             HostingAction.SetHandlers(config.RootCommand, hostBuilderFactory, configureHost);
@@ -26,8 +26,8 @@ namespace System.CommandLine.Hosting
             return config;
         }
 
-        public static CliConfiguration UseHost(
-            this CliConfiguration config,
+        public static CommandLineConfiguration UseHost(
+            this CommandLineConfiguration config,
             Action<IHostBuilder> configureHost = null
         ) => UseHost(config, null, configureHost);
 
@@ -57,10 +57,10 @@ namespace System.CommandLine.Hosting
             });
         }
 
-        public static CliCommand UseCommandHandler<THandler>(this CliCommand command)
-            where THandler : CliAction
+        public static Command UseCommandHandler<THandler>(this Command command)
+            where THandler : CommandLineAction
         {
-            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(AsynchronousCliAction.InvokeAsync)));
+            command.Action = CommandHandler.Create(typeof(THandler).GetMethod(nameof(AsynchronousCommandLineAction.InvokeAsync)));
 
             return command;
         }

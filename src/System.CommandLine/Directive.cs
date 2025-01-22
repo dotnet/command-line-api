@@ -16,22 +16,22 @@ namespace System.CommandLine
     /// * It's enclosed in square brackets.
     /// * It doesn't contain spaces.
     /// </summary>
-    public class CliDirective : CliSymbol
+    public class Directive : Symbol
     {
         /// <summary>
         /// Initializes a new instance of the Directive class.
         /// </summary>
         /// <param name="name">The name of the directive. It can't contain whitespaces.</param>
-        public CliDirective(string name)
+        public Directive(string name)
             : base(name)
         {
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="CliAction"/> for the Directive. The handler represents the action
+        /// Gets or sets the <see cref="CommandLineAction"/> for the Directive. The handler represents the action
         /// that will be performed when the Directive is invoked.
         /// </summary>
-        public virtual CliAction? Action { get; set; }
+        public virtual CommandLineAction? Action { get; set; }
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)

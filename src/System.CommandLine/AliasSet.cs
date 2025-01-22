@@ -14,7 +14,7 @@ namespace System.CommandLine
         {
             foreach (string alias in aliases)
             {
-                CliSymbol.ThrowIfEmptyOrWithWhitespaces(alias, nameof(alias));
+                Symbol.ThrowIfEmptyOrWithWhitespaces(alias, nameof(alias));
             }
 
             _aliases = new(aliases, StringComparer.Ordinal);
@@ -25,7 +25,7 @@ namespace System.CommandLine
         public bool IsReadOnly => false;
 
         public void Add(string item)
-            => _aliases.Add(CliSymbol.ThrowIfEmptyOrWithWhitespaces(item, nameof(item)));
+            => _aliases.Add(Symbol.ThrowIfEmptyOrWithWhitespaces(item, nameof(item)));
 
         internal bool Overlaps(AliasSet other) => _aliases.Overlaps(other._aliases);
 

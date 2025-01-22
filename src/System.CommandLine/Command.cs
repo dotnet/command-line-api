@@ -19,15 +19,15 @@ namespace System.CommandLine
     /// </summary>
     /// <remarks>
     /// Use the Command object for actions that correspond to a specific string (the command name). See
-    /// <see cref="CliRootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
+    /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
     /// uses <c>run</c> as the command.
     /// </remarks>
-    public class CliCommand : CliSymbol, IEnumerable
+    public class Command : Symbol, IEnumerable
     {
         internal AliasSet? _aliases;
-        private ChildSymbolList<CliArgument>? _arguments;
-        private ChildSymbolList<CliOption>? _options;
-        private ChildSymbolList<CliCommand>? _subcommands;
+        private ChildSymbolList<Argument>? _arguments;
+        private ChildSymbolList<Option>? _options;
+        private ChildSymbolList<Command>? _subcommands;
         private List<Action<CommandResult>>? _validators;
 
         /// <summary>
@@ -35,13 +35,13 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command, shown in help.</param>
-        public CliCommand(string name, string? description = null) : base(name)
+        public Command(string name, string? description = null) : base(name)
             => Description = description;
 
         /// <summary>
         /// Gets the child symbols.
         /// </summary>
-        public IEnumerable<CliSymbol> Children
+        public IEnumerable<Symbol> Children
         {
             get
             {
@@ -59,21 +59,21 @@ namespace System.CommandLine
         /// <summary>
         /// Represents all of the arguments for the command.
         /// </summary>
-        public IList<CliArgument> Arguments => _arguments ??= new(this);
+        public IList<Argument> Arguments => _arguments ??= new(this);
 
         internal bool HasArguments => _arguments?.Count > 0 ;
 
         /// <summary>
         /// Represents all of the options for the command, inherited options that have been applied to any of the command's ancestors.
         /// </summary>
-        public IList<CliOption> Options => _options ??= new (this);
+        public IList<Option> Options => _options ??= new (this);
 
         internal bool HasOptions => _options?.Count > 0;
 
         /// <summary>
         /// Represents all of the subcommands for the command.
         /// </summary>
-        public IList<CliCommand> Subcommands => _subcommands ??= new(this);
+        public IList<Command> Subcommands => _subcommands ??= new(this);
 
         internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
 
@@ -88,18 +88,18 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the unique set of strings that can be used on the command line to specify the command.
         /// </summary>
-        /// <remarks>The collection does not contain the <see cref="CliSymbol.Name"/> of the Command.</remarks>
+        /// <remarks>The collection does not contain the <see cref="Symbol.Name"/> of the Command.</remarks>
         public ICollection<string> Aliases => _aliases ??= new();
 
         /// <summary>
-        /// Gets or sets the <see cref="CliAction"/> for the Command. The handler represents the action
+        /// Gets or sets the <see cref="CommandLineAction"/> for the Command. The handler represents the action
         /// that will be performed when the Command is invoked.
         /// </summary>
         /// <remarks>
         /// <para>Use one of the <see cref="SetAction(Action{ParseResult})" /> overloads to construct a handler.</para>
         /// <para>If the handler is not specified, parser errors will be generated for command line input that
         /// invokes this Command.</para></remarks>
-        public CliAction? Action { get; set; }
+        public CommandLineAction? Action { get; set; }
 
         /// <summary>
         /// Sets a synchronous action to be run when the command is invoked.
@@ -111,7 +111,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousSynchronousCliAction(context =>
+            Action = new AnonymousSynchronousCommandLineAction(context =>
             {
                 action(context);
                 return 0;
@@ -129,7 +129,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousSynchronousCliAction(action);
+            Action = new AnonymousSynchronousCommandLineAction(action);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousAsynchronousCliAction(async (context, cancellationToken) =>
+            Action = new AnonymousAsynchronousCommandLineAction(async (context, cancellationToken) =>
             {
                 await action(context, cancellationToken);
                 return 0;
@@ -160,26 +160,26 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousAsynchronousCliAction(action);
+            Action = new AnonymousAsynchronousCommandLineAction(action);
         }
 
         /// <summary>
-        /// Adds a <see cref="CliArgument"/> to the command.
+        /// Adds a <see cref="Argument"/> to the command.
         /// </summary>
         /// <param name="argument">The option to add to the command.</param>
-        public void Add(CliArgument argument) =>  Arguments.Add(argument);
+        public void Add(Argument argument) =>  Arguments.Add(argument);
         
         /// <summary>
-        /// Adds a <see cref="CliOption"/> to the command.
+        /// Adds a <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
-        public void Add(CliOption option) =>  Options.Add(option);
+        public void Add(Option option) =>  Options.Add(option);
 
         /// <summary>
-        /// Adds a <see cref="CliCommand"/> to the command.
+        /// Adds a <see cref="Command"/> to the command.
         /// </summary>
         /// <param name="command">The Command to add to the command.</param>
-        public void Add(CliCommand command) =>  Subcommands.Add(command);
+        public void Add(Command command) =>  Subcommands.Add(command);
 
         /// <summary>
         /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
@@ -198,8 +198,8 @@ namespace System.CommandLine
         /// <param name="args">The string arguments to parse.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(IReadOnlyList<string> args, CliConfiguration? configuration = null)
-            => CliParser.Parse(this, args, configuration);
+        public ParseResult Parse(IReadOnlyList<string> args, CommandLineConfiguration? configuration = null)
+            => CommandLineParser.Parse(this, args, configuration);
 
         /// <summary>
         /// Parses a command line string value using the command.
@@ -208,8 +208,8 @@ namespace System.CommandLine
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(string commandLine, CliConfiguration? configuration = null)
-            => CliParser.Parse(this, commandLine, configuration);
+        public ParseResult Parse(string commandLine, CommandLineConfiguration? configuration = null)
+            => CommandLineParser.Parse(this, commandLine, configuration);
 
         /// <inheritdoc />
         public override IEnumerable<CompletionItem> GetCompletions(CompletionContext context)
@@ -255,7 +255,7 @@ namespace System.CommandLine
                 SymbolNode? parent = FirstParent;
                 while (parent is not null)
                 {
-                    CliCommand parentCommand = (CliCommand)parent.Symbol;
+                    Command parentCommand = (Command)parent.Symbol;
 
                     if (context.IsEmpty || context.ParseResult.GetResult(parentCommand) is not null)
                     {
@@ -284,7 +284,7 @@ namespace System.CommandLine
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
 
-            void AddCompletionsFor(CliSymbol identifier, AliasSet? aliases)
+            void AddCompletionsFor(Symbol identifier, AliasSet? aliases)
             {
                 if (!identifier.Hidden)
                 {

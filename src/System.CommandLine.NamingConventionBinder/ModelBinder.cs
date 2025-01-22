@@ -52,7 +52,7 @@ public class ModelBinder
     /// <param name="property">The property to bind.</param>
     /// <param name="symbol">A symbol to be used to set the property.</param>
     /// <exception cref="ArgumentException"></exception>
-    public void BindMemberFromValue(PropertyInfo property, CliSymbol symbol)
+    public void BindMemberFromValue(PropertyInfo property, Symbol symbol)
     {
         var propertyDescriptor = FindModelPropertyDescriptor(property.PropertyType, property.Name);
 

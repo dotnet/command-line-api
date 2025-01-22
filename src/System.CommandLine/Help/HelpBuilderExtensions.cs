@@ -15,7 +15,7 @@ namespace System.CommandLine.Help
         /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
         /// <param name="defaultValue">The displayed default value for the symbol.</param>
         public void CustomizeSymbol(
-            CliSymbol symbol,
+            Symbol symbol,
             string? firstColumnText = null,
             string? secondColumnText = null,
             string? defaultValue = null)
@@ -26,7 +26,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Writes help output for the specified command.
         /// </summary>
-        public void Write(CliCommand command, TextWriter writer)
+        public void Write(Command command, TextWriter writer)
         {
             Write(new HelpContext(this, command, writer));
         }

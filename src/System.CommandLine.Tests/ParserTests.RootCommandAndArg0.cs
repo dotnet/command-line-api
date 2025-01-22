@@ -15,11 +15,11 @@ public partial class ParserTests
         [Fact]
         public void When_parsing_a_string_array_a_root_command_can_be_omitted_from_the_parsed_args()
         {
-            var command = new CliCommand("outer")
+            var command = new Command("outer")
             {
-                new CliCommand("inner")
+                new Command("inner")
                 {
-                    new CliOption<string>("-x")
+                    new Option<string>("-x")
                 }
             };
 
@@ -32,31 +32,31 @@ public partial class ParserTests
         [Fact]
         public void When_parsing_a_string_array_input_then_a_full_path_to_an_executable_is_not_matched_by_the_root_command()
         {
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
-                new CliCommand("inner")
+                new Command("inner")
                 {
-                    new CliOption<string>("-x")
+                    new Option<string>("-x")
                 }
             };
 
             command.Parse(Split("inner -x hello")).Errors.Should().BeEmpty();
 
-            var parserResult = command.Parse(Split($"\"{CliRootCommand.ExecutablePath}\" inner -x hello"));
+            var parserResult = command.Parse(Split($"\"{RootCommand.ExecutablePath}\" inner -x hello"));
             parserResult
                .Errors
                .Should()
-               .ContainSingle(e => e.Message == LocalizationResources.UnrecognizedCommandOrArgument(CliRootCommand.ExecutablePath));
+               .ContainSingle(e => e.Message == LocalizationResources.UnrecognizedCommandOrArgument(RootCommand.ExecutablePath));
         }
 
         [Fact]
         public void When_parsing_an_unsplit_string_a_root_command_can_be_omitted_from_the_parsed_args()
         {
-            var command = new CliCommand("outer")
+            var command = new Command("outer")
             {
-                new CliCommand("inner")
+                new Command("inner")
                 {
-                    new CliOption<string>("-x")
+                    new Option<string>("-x")
                 }
             };
 
@@ -69,38 +69,38 @@ public partial class ParserTests
         [Fact]
         public void When_parsing_an_unsplit_string_then_input_a_full_path_to_an_executable_is_matched_by_the_root_command()
         {
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
-                new CliCommand("inner")
+                new Command("inner")
                 {
-                    new CliOption<string>("-x")
+                    new Option<string>("-x")
                 }
             };
 
-            var result2 = command.Parse($"\"{CliRootCommand.ExecutablePath}\" inner -x hello");
+            var result2 = command.Parse($"\"{RootCommand.ExecutablePath}\" inner -x hello");
 
-            result2.RootCommandResult.IdentifierToken.Value.Should().Be(CliRootCommand.ExecutablePath);
+            result2.RootCommandResult.IdentifierToken.Value.Should().Be(RootCommand.ExecutablePath);
         }
 
         [Fact]
         public void When_parsing_an_unsplit_string_then_a_renamed_RootCommand_can_be_omitted_from_the_parsed_args()
         {
-            var rootCommand = new CliCommand("outer")
+            var rootCommand = new Command("outer")
             {
-                new CliCommand("inner")
+                new Command("inner")
                 {
-                    new CliOption<string>("-x")
+                    new Option<string>("-x")
                 }
             };
 
             var result1 = rootCommand.Parse("inner -x hello");
             var result2 = rootCommand.Parse("outer inner -x hello");
-            var result3 = rootCommand.Parse($"{CliRootCommand.ExecutableName} inner -x hello");
+            var result3 = rootCommand.Parse($"{RootCommand.ExecutableName} inner -x hello");
 
             result2.RootCommandResult.Command.Should().BeSameAs(result1.RootCommandResult.Command);
             result3.RootCommandResult.Command.Should().BeSameAs(result1.RootCommandResult.Command);
         }
 
-        string[] Split(string value) => CliParser.SplitCommandLine(value).ToArray();
+        string[] Split(string value) => CommandLineParser.SplitCommandLine(value).ToArray();
     }
 }

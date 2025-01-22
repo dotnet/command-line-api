@@ -5,9 +5,9 @@ namespace System.CommandLine
 {
     internal sealed class SymbolNode
     {
-        internal SymbolNode(CliSymbol symbol) => Symbol = symbol;
+        internal SymbolNode(Symbol symbol) => Symbol = symbol;
 
-        internal CliSymbol Symbol { get; }
+        internal Symbol Symbol { get; }
 
         internal SymbolNode? Next { get; set; }
     }

@@ -26,13 +26,13 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void When_option_is_not_respecified_but_limit_is_not_reached_then_the_following_token_is_used_as_value()
                 {
-                    var animalsOption = new CliOption<string[]>("-a", "--animals")
+                    var animalsOption = new Option<string[]>("-a", "--animals")
                     {
                         AllowMultipleArgumentsPerToken = true,
                     };
-                    var vegetablesOption = new CliOption<string>("-v", "--vegetables");
+                    var vegetablesOption = new Option<string>("-v", "--vegetables");
 
-                    var command = new CliRootCommand
+                    var command = new RootCommand
                     {
                         animalsOption,
                         vegetablesOption
@@ -63,13 +63,13 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void When_option_is_not_respecified_and_limit_is_reached_then_the_following_token_is_unmatched()
                 {
-                    var animalsOption = new CliOption<string>("-a", "--animals")
+                    var animalsOption = new Option<string>("-a", "--animals")
                     {
                         AllowMultipleArgumentsPerToken = true
                     };
-                    var vegetablesOption = new CliOption<string[]>("-v", "--vegetables");
+                    var vegetablesOption = new Option<string[]>("-v", "--vegetables");
 
-                    var command = new CliRootCommand
+                    var command = new RootCommand
                     {
                         animalsOption,
                         vegetablesOption
@@ -102,14 +102,14 @@ namespace System.CommandLine.Tests
                 [InlineData("--option 1 --option 2 xyz")]
                 public void When_max_arity_is_1_then_subsequent_option_args_overwrite_previous_ones(string commandLine)
                 {
-                    var option = new CliOption<string>("--option")
+                    var option = new Option<string>("--option")
                     {
                         AllowMultipleArgumentsPerToken = true
                     };
-                    var command = new CliCommand("the-command")
+                    var command = new Command("the-command")
                     {
                         option,
-                        new CliArgument<string>("arg")
+                        new Argument<string>("arg")
                     };
 
                     var result = command.Parse(commandLine);
@@ -122,12 +122,12 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void All_consumed_tokens_are_present_in_option_result()
                 {
-                    var option = new CliOption<int>("-x")
+                    var option = new Option<int>("-x")
                     {
                         AllowMultipleArgumentsPerToken = true
                     };
 
-                    var result = new CliRootCommand { option }.Parse("-x 1 -x 2 -x 3 -x 4");
+                    var result = new RootCommand { option }.Parse("-x 1 -x 2 -x 3 -x 4");
 
                     _output.WriteLine(result.Diagram());
 
@@ -142,16 +142,16 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void Multiple_option_arguments_that_match_single_arity_option_aliases_are_parsed_correctly()
                 {
-                    var optionX = new CliOption<string>("-x")
+                    var optionX = new Option<string>("-x")
                     {
                         AllowMultipleArgumentsPerToken = true
                     };
-                    var optionY = new CliOption<string>("-y")
+                    var optionY = new Option<string>("-y")
                     {
                         AllowMultipleArgumentsPerToken = true
                     };
 
-                    var command = new CliRootCommand
+                    var command = new RootCommand
                     {
                         optionX,
                         optionY
@@ -172,8 +172,8 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void Single_option_arg_is_matched()
                 {
-                    var option = new CliOption<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
-                    var command = new CliCommand("the-command") { option };
+                    var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
+                    var command = new Command("the-command") { option };
 
                     var result = command.Parse("--option 1 2");
 
@@ -185,8 +185,8 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void Subsequent_matched_arguments_result_in_errors()
                 {
-                    var option = new CliOption<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
-                    var command = new CliCommand("the-command") { option };
+                    var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
+                    var command = new Command("the-command") { option };
 
                     var result = command.Parse("--option 1 2");
 
@@ -197,8 +197,8 @@ namespace System.CommandLine.Tests
                 [Fact]
                 public void When_max_arity_is_greater_than_1_then_multiple_option_args_are_matched()
                 {
-                    var option = new CliOption<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
-                    var command = new CliCommand("the-command") { option };
+                    var option = new Option<string[]>("--option") { AllowMultipleArgumentsPerToken = false };
+                    var command = new Command("the-command") { option };
 
                     var result = command.Parse("--option 1 --option 2");
 

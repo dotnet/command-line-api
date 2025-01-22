@@ -12,17 +12,17 @@ using System.CommandLine.Invocation;
 namespace System.CommandLine
 {
     /// <summary>
-    /// Represents the configuration used by the <see cref="CliParser"/>.
+    /// Represents the configuration used by the <see cref="CommandLineParser"/>.
     /// </summary>
-    public class CliConfiguration
+    public class CommandLineConfiguration
     {
         private TextWriter? _output, _error;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CliConfiguration"/> class.
+        /// Initializes a new instance of the <see cref="CommandLineConfiguration"/> class.
         /// </summary>
         /// <param name="rootCommand">The root command for the parser.</param>
-        public CliConfiguration(CliCommand rootCommand)
+        public CommandLineConfiguration(Command rootCommand)
         {
             RootCommand = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
         }
@@ -30,7 +30,7 @@ namespace System.CommandLine
         internal bool HasDirectives =>
             RootCommand switch
             {
-                CliRootCommand root => root.Directives.Count > 0,
+                RootCommand root => root.Directives.Count > 0,
                 _ => false
             };
 
@@ -63,7 +63,7 @@ namespace System.CommandLine
 
         /// <summary>
         /// Enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="CancellationToken"/> 
-        /// that can be passed to a <see cref="CliAction"/> during invocation.
+        /// that can be passed to a <see cref="CommandLineAction"/> during invocation.
         /// If not provided, a default timeout of 2 seconds is enforced.
         /// </summary>
         public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2);
@@ -80,7 +80,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the root command.
         /// </summary>
-        public CliCommand RootCommand { get; }
+        public Command RootCommand { get; }
 
         /// <summary>
         /// The standard output. Used by Help and other facilities that write non-error information.
@@ -111,7 +111,7 @@ namespace System.CommandLine
         /// <param name="args">The string arguments to parse.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public ParseResult Parse(IReadOnlyList<string> args)
-            => CliParser.Parse(RootCommand, args, this);
+            => CommandLineParser.Parse(RootCommand, args, this);
 
         /// <summary>
         /// Parses a command line string value using the configured <see cref="RootCommand"/>.
@@ -120,7 +120,7 @@ namespace System.CommandLine
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
         public ParseResult Parse(string commandLine)
-            => CliParser.Parse(RootCommand, commandLine, this);
+            => CommandLineParser.Parse(RootCommand, commandLine, this);
 
         /// <summary>
         /// Parses a command line string value and invokes the handler for the indicated command.
@@ -156,34 +156,34 @@ namespace System.CommandLine
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.
         /// </summary>
         /// <remarks>Due to the performance cost of this method, it is recommended to be used in unit testing or in scenarios where the parser is configured dynamically at runtime.</remarks>
-        /// <exception cref="CliConfigurationException">Thrown if the configuration is found to be invalid.</exception>
+        /// <exception cref="CommandLineConfigurationException">Thrown if the configuration is found to be invalid.</exception>
         public void ThrowIfInvalid()
         {
             ThrowIfInvalid(RootCommand);
 
-            static void ThrowIfInvalid(CliCommand command)
+            static void ThrowIfInvalid(Command command)
             {
                 if (command.Parents.FlattenBreadthFirst(c => c.Parents).Any(ancestor => ancestor == command))
                 {
-                    throw new CliConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
+                    throw new CommandLineConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
                 }
 
                 int count = command.Subcommands.Count + command.Options.Count;
                 for (var i = 0; i < count; i++)
                 {
-                    CliSymbol symbol1 = GetChild(i, command, out AliasSet? aliases1);
+                    Symbol symbol1 = GetChild(i, command, out AliasSet? aliases1);
                     for (var j = i + 1; j < count; j++)
                     {
-                        CliSymbol symbol2 = GetChild(j, command, out AliasSet? aliases2);
+                        Symbol symbol2 = GetChild(j, command, out AliasSet? aliases2);
 
                         if (symbol1.Name.Equals(symbol2.Name, StringComparison.Ordinal)
                             || (aliases1 is not null && aliases1.Contains(symbol2.Name)))
                         {
-                            throw new CliConfigurationException($"Duplicate alias '{symbol2.Name}' found on command '{command.Name}'.");
+                            throw new CommandLineConfigurationException($"Duplicate alias '{symbol2.Name}' found on command '{command.Name}'.");
                         }
                         else if (aliases2 is not null && aliases2.Contains(symbol1.Name))
                         {
-                            throw new CliConfigurationException($"Duplicate alias '{symbol1.Name}' found on command '{command.Name}'.");
+                            throw new CommandLineConfigurationException($"Duplicate alias '{symbol1.Name}' found on command '{command.Name}'.");
                         }
 
                         if (aliases1 is not null && aliases2 is not null)
@@ -195,21 +195,21 @@ namespace System.CommandLine
                                 {
                                     if (aliases1.Contains(symbol2Alias))
                                     {
-                                        throw new CliConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
+                                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
                                     }
                                 }
                             }
                         }
                     }
 
-                    if (symbol1 is CliCommand childCommand)
+                    if (symbol1 is Command childCommand)
                     {
                         ThrowIfInvalid(childCommand);
                     }
                 }
             }
 
-            static CliSymbol GetChild(int index, CliCommand command, out AliasSet? aliases)
+            static Symbol GetChild(int index, Command command, out AliasSet? aliases)
             {
                 if (index < command.Subcommands.Count)
                 {

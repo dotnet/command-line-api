@@ -43,9 +43,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_specified_it_loads_options_from_response_file()
         {
-            var option = new CliOption<bool>("--flag");
+            var option = new Option<bool>("--flag");
 
-            var result = new CliRootCommand { option }.Parse($"@{CreateResponseFile("--flag")}");
+            var result = new RootCommand { option }.Parse($"@{CreateResponseFile("--flag")}");
 
             result.GetResult(option).Should().NotBeNull();
         }
@@ -58,10 +58,10 @@ namespace System.CommandLine.Tests
                 "--flag2",
                 "123");
 
-            var optionOne = new CliOption<bool>("--flag");
+            var optionOne = new Option<bool>("--flag");
 
-            var optionTwo = new CliOption<int>("--flag2");
-            var result = new CliRootCommand
+            var optionTwo = new Option<int>("--flag2");
+            var result = new RootCommand
                          {
                              optionOne,
                              optionTwo
@@ -81,9 +81,9 @@ namespace System.CommandLine.Tests
                 "two",
                 "three");
 
-            var result = new CliRootCommand
+            var result = new RootCommand
             {
-                new CliArgument<string[]>("arg")
+                new Argument<string[]>("arg")
             }
             .Parse($"@{responseFile}");
 
@@ -102,11 +102,11 @@ namespace System.CommandLine.Tests
                 "two",
                 "three");
 
-            var result = new CliRootCommand
+            var result = new RootCommand
                          {
-                             new CliCommand("subcommand")
+                             new Command("subcommand")
                              {
-                                 new CliArgument<string[]>("arg")
+                                 new Argument<string[]>("arg")
                              }
                          }
                 .Parse($"subcommand @{responseFile}");
@@ -123,11 +123,11 @@ namespace System.CommandLine.Tests
         {
             var responseFile = CreateResponseFile("subcommand");
 
-            var result = new CliRootCommand
+            var result = new RootCommand
                          {
-                             new CliCommand("subcommand")
+                             new Command("subcommand")
                              {
-                                 new CliArgument<string[]>("arg")
+                                 new Argument<string[]>("arg")
                              }
                          }
                 .Parse($"@{responseFile} one two three");
@@ -147,11 +147,11 @@ namespace System.CommandLine.Tests
                 "two",
                 "three");
 
-            var result = new CliRootCommand
+            var result = new RootCommand
                          {
-                             new CliCommand("subcommand")
+                             new Command("subcommand")
                              {
-                                 new CliArgument<string[]>("arg")
+                                 new Argument<string[]>("arg")
                              }
                          }
                 .Parse($"subcommand @{responseFile}");
@@ -171,9 +171,9 @@ namespace System.CommandLine.Tests
                 "",
                 "123");
 
-            var option = new CliOption<int>("--flag");
+            var option = new Option<int>("--flag");
 
-            var result = new CliRootCommand
+            var result = new RootCommand
                 {
                     option
                 }
@@ -186,8 +186,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Response_file_can_contain_comments_which_are_ignored_when_loaded()
         {
-            var optionOne = new CliOption<bool>("--flag");
-            var optionTwo = new CliOption<bool>("--flag2");
+            var optionOne = new Option<bool>("--flag");
+            var optionTwo = new Option<bool>("--flag2");
 
             var responseFile = CreateResponseFile(
                 "# comment one",
@@ -197,7 +197,7 @@ namespace System.CommandLine.Tests
                 " # comment two",
                 "--flag2");
 
-            var result = new CliRootCommand
+            var result = new RootCommand
             {
                 optionOne,
                 optionTwo
@@ -211,10 +211,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_does_not_exist_then_error_is_returned()
         {
-            var optionOne = new CliOption<bool>("--flag");
-            var optionTwo = new CliOption<bool>("--flag2");
+            var optionOne = new Option<bool>("--flag");
+            var optionTwo = new Option<bool>("--flag2");
 
-            var result = new CliRootCommand
+            var result = new RootCommand
                          {
                              optionOne,
                              optionTwo
@@ -229,10 +229,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_filepath_is_not_specified_then_error_is_returned()
         {
-            var optionOne = new CliOption<bool>("--flag");
-            var optionTwo = new CliOption<bool>("--flag2");
+            var optionOne = new Option<bool>("--flag");
+            var optionTwo = new Option<bool>("--flag2");
 
-            var result = new CliRootCommand
+            var result = new RootCommand
                          {
                              optionOne,
                              optionTwo
@@ -253,12 +253,12 @@ namespace System.CommandLine.Tests
         public void When_response_file_cannot_be_read_then_specified_error_is_returned()
         {
             var nonexistent = Path.GetTempFileName();
-            var optionOne = new CliOption<bool>("--flag");
-            var optionTwo = new CliOption<bool>("--flag2");
+            var optionOne = new Option<bool>("--flag");
+            var optionTwo = new Option<bool>("--flag2");
 
             using (File.Open(nonexistent, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
             {
-                var result = new CliRootCommand
+                var result = new RootCommand
                              {
                                  optionOne,
                                  optionTwo
@@ -279,15 +279,15 @@ namespace System.CommandLine.Tests
         {
             var responseFile = CreateResponseFile(input);
 
-            var optionOne = new CliOption<string>("--flag");
-            var optionTwo = new CliOption<int>("--flag2");
+            var optionOne = new Option<string>("--flag");
+            var optionTwo = new Option<int>("--flag2");
 
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 optionOne,
                 optionTwo
             };
-            CliConfiguration config = new (rootCommand);
+            CommandLineConfiguration config = new (rootCommand);
 
             var result = rootCommand.Parse($"@{responseFile}", config);
 
@@ -298,21 +298,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_response_file_processing_is_disabled_then_it_returns_response_file_name_as_argument()
         {
-            CliRootCommand command = new ()
+            RootCommand command = new ()
             {
-                new CliArgument<List<string>>("arg")
+                new Argument<List<string>>("arg")
             };
-            CliConfiguration configuration = new(command)
+            CommandLineConfiguration configuration = new(command)
             {
                 ResponseFileTokenReplacer = null
             };
 
-            var result = CliParser.Parse(command, "@file.rsp", configuration);
+            var result = CommandLineParser.Parse(command, "@file.rsp", configuration);
 
             result.Tokens
                   .Should()
                   .Contain(t => t.Value == "@file.rsp" && 
-                                t.Type == CliTokenType.Argument);
+                                t.Type == TokenType.Argument);
             result.Errors.Should().HaveCount(0);
         }
 
@@ -323,11 +323,11 @@ namespace System.CommandLine.Tests
             var file2 = CreateResponseFile($"@{file3}", "--two", "2");
             var file1 = CreateResponseFile("--one", "1", $"@{file2}");
 
-            var option1 = new CliOption<int>("--one");
-            var option2 = new CliOption<int>("--two");
-            var option3 = new CliOption<int>("--three");
+            var option1 = new Option<int>("--one");
+            var option2 = new Option<int>("--two");
+            var option3 = new Option<int>("--three");
 
-            var command = new CliRootCommand
+            var command = new RootCommand
                           {
                               option1,
                               option2,
@@ -348,10 +348,10 @@ namespace System.CommandLine.Tests
         {
             var responseFile = CreateResponseFile("--option1 ", "value1 ", "--option2\t", "2\t");
 
-            var option1 = new CliOption<string>("--option1");
-            var option2 = new CliOption<int>("--option2");
+            var option1 = new Option<string>("--option1");
+            var option2 = new Option<int>("--option2");
 
-            var result = new CliRootCommand { option1, option2 }.Parse($"@{responseFile}");
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
             result.GetValue(option1).Should().Be("value1");
             result.GetValue(option2).Should().Be(2);
         }
@@ -361,10 +361,10 @@ namespace System.CommandLine.Tests
         {
             var responseFile = CreateResponseFile(" --option1", " value1", "\t--option2", "\t2");
 
-            var option1 = new CliOption<string>("--option1");
-            var option2 = new CliOption<int>("--option2");
+            var option1 = new Option<string>("--option1");
+            var option2 = new Option<int>("--option2");
 
-            var result = new CliRootCommand { option1, option2 }.Parse($"@{responseFile}");
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
             result.GetValue(option1).Should().Be("value1");
             result.GetValue(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();
@@ -375,10 +375,10 @@ namespace System.CommandLine.Tests
         {
             var responseFile = CreateResponseFile(" --option1 ", " value1 ", "\t--option2\t", "\t2\t");
 
-            var option1 = new CliOption<string>("--option1");
-            var option2 = new CliOption<int>("--option2");
+            var option1 = new Option<string>("--option1");
+            var option2 = new Option<int>("--option2");
 
-            var result = new CliRootCommand { option1, option2 }.Parse($"@{responseFile}");
+            var result = new RootCommand { option1, option2 }.Parse($"@{responseFile}");
             result.GetValue(option1).Should().Be("value1");
             result.GetValue(option2).Should().Be(2);
             result.Errors.Should().BeEmpty();

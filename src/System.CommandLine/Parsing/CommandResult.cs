@@ -12,8 +12,8 @@ namespace System.CommandLine.Parsing
     public sealed class CommandResult : SymbolResult
     {
         internal CommandResult(
-            CliCommand command,
-            CliToken token,
+            Command command,
+            Token token,
             SymbolResultTree symbolResultTree,
             CommandResult? parent = null) :
             base(symbolResultTree, parent)
@@ -25,12 +25,12 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The command to which the result applies.
         /// </summary>
-        public CliCommand Command { get; }
+        public Command Command { get; }
 
         /// <summary>
         /// The token that was parsed to specify the command.
         /// </summary>
-        public CliToken IdentifierToken { get; }
+        public Token IdentifierToken { get; }
 
         /// <summary>
         /// Child symbol results in the parse tree.
@@ -153,7 +153,7 @@ namespace System.CommandLine.Parsing
             var arguments = Command.Arguments;
             for (var i = 0; i < arguments.Count; i++)
             {
-                CliArgument argument = arguments[i];
+                Argument argument = arguments[i];
 
                 if (!completeValidation && !argument.HasDefaultValue)
                 {

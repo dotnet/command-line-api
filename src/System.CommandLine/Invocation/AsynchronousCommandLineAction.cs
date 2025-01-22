@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace System.CommandLine.Invocation;
 
 /// Defines an asynchronous behavior associated with a command line symbol.
-public abstract class AsynchronousCliAction : CliAction
+public abstract class AsynchronousCommandLineAction : CommandLineAction
 {
     /// <summary>
     /// Performs an action when the associated symbol is invoked on the command line.

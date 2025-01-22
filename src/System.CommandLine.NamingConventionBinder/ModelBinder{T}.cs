@@ -22,7 +22,7 @@ public class ModelBinder<TModel> : ModelBinder
     /// <typeparam name="TValue">The type of the value to be bound.</typeparam>
     public void BindMemberFromValue<TValue>(
         Expression<Func<TModel, TValue>> property,
-        CliSymbol symbol)
+        Symbol symbol)
     {
         var (propertyType, propertyName) = property.MemberTypeAndName();
         var propertyDescriptor = FindModelPropertyDescriptor(propertyType, propertyName);

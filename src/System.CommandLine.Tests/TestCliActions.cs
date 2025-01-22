@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace System.CommandLine.Tests;
 
-public class SynchronousTestAction : SynchronousCliAction
+public class SynchronousTestAction : SynchronousCommandLineAction
 {
     private readonly Action<ParseResult> _invoke;
 
@@ -24,7 +24,7 @@ public class SynchronousTestAction : SynchronousCliAction
     }
 }
 
-public class AsynchronousTestAction : AsynchronousCliAction
+public class AsynchronousTestAction : AsynchronousCommandLineAction
 {
     private readonly Action<ParseResult> _invoke;
 

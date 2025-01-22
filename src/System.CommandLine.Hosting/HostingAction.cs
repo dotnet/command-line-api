@@ -18,20 +18,20 @@ namespace System.CommandLine.Hosting
 
         private readonly Func<string[], IHostBuilder> _hostBuilderFactory;
         private readonly Action<IHostBuilder> _configureHost;
-        private readonly AsynchronousCliAction _actualAction;
+        private readonly AsynchronousCommandLineAction _actualAction;
 
-        internal static void SetHandlers(CliCommand command, Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost)
+        internal static void SetHandlers(Command command, Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost)
         {
-            command.Action = new HostingAction(hostBuilderFactory, configureHost, (AsynchronousCliAction)command.Action);
+            command.Action = new HostingAction(hostBuilderFactory, configureHost, (AsynchronousCommandLineAction)command.Action);
             command.TreatUnmatchedTokensAsErrors = false; // to pass unmatched Tokens to host builder factory
 
-            foreach (CliCommand subCommand in command.Subcommands)
+            foreach (Command subCommand in command.Subcommands)
             {
                 SetHandlers(subCommand, hostBuilderFactory, configureHost);
             }
         }
 
-        private HostingAction(Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost, AsynchronousCliAction actualAction)
+        private HostingAction(Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost, AsynchronousCommandLineAction actualAction)
         {
             _hostBuilderFactory = hostBuilderFactory;
             _configureHost = configureHost;
@@ -50,7 +50,7 @@ namespace System.CommandLine.Hosting
                               ?? new HostBuilder();
             hostBuilder.Properties[typeof(ParseResult)] = parseResult;
 
-            if (parseResult.Configuration.RootCommand is CliRootCommand root &&
+            if (parseResult.Configuration.RootCommand is RootCommand root &&
                 root.Directives.SingleOrDefault(d => d.Name == HostingDirectiveName) is { } directive)
             {
                 if (parseResult.GetResult(directive) is { } directiveResult)

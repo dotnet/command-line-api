@@ -11,7 +11,7 @@ namespace System.CommandLine.Parsing
     public abstract class SymbolResult
     {
         internal readonly SymbolResultTree SymbolResultTree;
-        private protected List<CliToken>? _tokens;
+        private protected List<Token>? _tokens;
 
         private protected SymbolResult(SymbolResultTree symbolResultTree, SymbolResult? parent)
         {
@@ -52,9 +52,9 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The list of tokens associated with this symbol result during parsing.
         /// </summary>
-        public IReadOnlyList<CliToken> Tokens => _tokens is not null ? _tokens : Array.Empty<CliToken>();
+        public IReadOnlyList<Token> Tokens => _tokens is not null ? _tokens : Array.Empty<Token>();
 
-        internal void AddToken(CliToken token) => (_tokens ??= new()).Add(token);
+        internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
 
         /// <summary>
         /// Adds an error message for this symbol result to it's parse tree.
@@ -67,28 +67,28 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <param name="argument">The argument for which to find a result.</param>
         /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public ArgumentResult? GetResult(CliArgument argument) => SymbolResultTree.GetResult(argument);
+        public ArgumentResult? GetResult(Argument argument) => SymbolResultTree.GetResult(argument);
 
         /// <summary>
         /// Finds a result for the specific command anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
         /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
-        public CommandResult? GetResult(CliCommand command) => SymbolResultTree.GetResult(command);
+        public CommandResult? GetResult(Command command) => SymbolResultTree.GetResult(command);
 
         /// <summary>
         /// Finds a result for the specific option anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="option">The option for which to find a result.</param>
         /// <returns>An option result if the option was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
-        public OptionResult? GetResult(CliOption option) => SymbolResultTree.GetResult(option);
+        public OptionResult? GetResult(Option option) => SymbolResultTree.GetResult(option);
 
         /// <summary>
         /// Finds a result for the specific directive anywhere in the parse tree.
         /// </summary>
         /// <param name="directive">The directive for which to find a result.</param>
         /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
-        public DirectiveResult? GetResult(CliDirective directive) => SymbolResultTree.GetResult(directive);
+        public DirectiveResult? GetResult(Directive directive) => SymbolResultTree.GetResult(directive);
 
         /// <summary>
         /// Finds a result for a symbol having the specified name anywhere in the parse tree.
@@ -98,8 +98,8 @@ namespace System.CommandLine.Parsing
         public SymbolResult? GetResult(string name) => 
             SymbolResultTree.GetResult(name);
 
-        /// <inheritdoc cref="ParseResult.GetValue{T}(CliArgument{T})"/>
-        public T? GetValue<T>(CliArgument<T> argument)
+        /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>
+        public T? GetValue<T>(Argument<T> argument)
         {
             if (GetResult(argument) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -107,11 +107,11 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return CliArgument<T>.CreateDefaultValue();
+            return Argument<T>.CreateDefaultValue();
         }
 
-        /// <inheritdoc cref="ParseResult.GetValue{T}(CliOption{T})"/>
-        public T? GetValue<T>(CliOption<T> option)
+        /// <inheritdoc cref="ParseResult.GetValue{T}(Option{T})"/>
+        public T? GetValue<T>(Option<T> option)
         {
             if (GetResult(option) is { } result &&
                 result.GetValueOrDefault<T>() is { } t)
@@ -119,7 +119,7 @@ namespace System.CommandLine.Parsing
                 return t;
             }
 
-            return CliArgument<T>.CreateDefaultValue();
+            return Argument<T>.CreateDefaultValue();
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            return CliArgument<T>.CreateDefaultValue();
+            return Argument<T>.CreateDefaultValue();
         }
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;

@@ -32,12 +32,12 @@ public partial class ModelBindingCommandHandlerTests
             var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
                                            .GetCommandHandler();
 
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
                 OptionBuilder.CreateOption("--value", type)
             };
             command.Action = handler;
-            CliConfiguration configuration = new(command)
+            CommandLineConfiguration configuration = new(command)
             {
                 Output = new StringWriter()
             };
@@ -66,12 +66,12 @@ public partial class ModelBindingCommandHandlerTests
             var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
                                            .GetCommandHandler();
 
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
                 OptionBuilder.CreateOption("--value", type)
             };
             command.Action = handler;
-            CliConfiguration configuration = new(command)
+            CommandLineConfiguration configuration = new(command)
             {
                 Output = new StringWriter()
             };
@@ -100,12 +100,12 @@ public partial class ModelBindingCommandHandlerTests
             var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
                                            .GetCommandHandler();
 
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
                 OptionBuilder.CreateOption("--value", type)
             };
             command.Action = handler;
-            CliConfiguration configuration = new(command)
+            CommandLineConfiguration configuration = new(command)
             {
                 Output = new StringWriter()
             };
@@ -130,12 +130,12 @@ public partial class ModelBindingCommandHandlerTests
             var handler = HandlerDescriptor.FromMethodInfo(handlerMethod)
                                            .GetCommandHandler();
 
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
                 ArgumentBuilder.CreateArgument(type)
             };
             command.Action = handler;
-            CliConfiguration configuration = new(command)
+            CommandLineConfiguration configuration = new(command)
             {
                 Output = new StringWriter()
             };
@@ -150,9 +150,9 @@ public partial class ModelBindingCommandHandlerTests
         {
             FileSystemInfo received = null;
 
-            var root = new CliRootCommand
+            var root = new RootCommand
             {
-                new CliOption<DirectoryInfo>("-f")
+                new Option<DirectoryInfo>("-f")
             };
             root.Action = CommandHandler.Create<FileSystemInfo>(f => received = f);
             var path = $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}";

@@ -9,12 +9,12 @@ namespace System.CommandLine
     /// <summary>
     /// a wrapper of List<typeparamref name="T"/> that sets parent for every added element
     /// </summary>
-    internal sealed class ChildSymbolList<T> : IList<T> where T : CliSymbol
+    internal sealed class ChildSymbolList<T> : IList<T> where T : Symbol
     {
         private readonly List<T> _children;
-        private readonly CliCommand _parent;
+        private readonly Command _parent;
 
-        public ChildSymbolList(CliCommand parent)
+        public ChildSymbolList(Command parent)
         {
             _parent = parent;
             _children = new();

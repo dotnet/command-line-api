@@ -9,7 +9,7 @@ namespace System.CommandLine.Parsing
     {
         private List<string>? _values;
 
-        internal DirectiveResult(CliDirective directive, CliToken token, SymbolResultTree symbolResultTree)
+        internal DirectiveResult(Directive directive, Token token, SymbolResultTree symbolResultTree)
             : base(symbolResultTree, null) // directives don't belong to any command
         {
             Directive = directive;
@@ -25,12 +25,12 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// The directive to which the result applies.
         /// </summary>
-        public CliDirective Directive { get; }
+        public Directive Directive { get; }
 
         /// <summary>
         /// The token that was parsed to specify the directive.
         /// </summary>
-        public CliToken Token { get; }
+        public Token Token { get; }
 
         internal void AddValue(string value) => (_values ??= new()).Add(value);
     }

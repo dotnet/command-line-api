@@ -21,12 +21,12 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task Generated_boolean_parameters_will_accept_zero_arguments()
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_taking_bool)), this);
             config.Output = TextWriter.Null;
 
-            await config.InvokeAsync($"{CliRootCommand.ExecutableName} --value");
+            await config.InvokeAsync($"{RootCommand.ExecutableName} --value");
 
             _receivedValues.Should().BeEquivalentTo(true);
         }
@@ -40,7 +40,7 @@ namespace System.CommandLine.DragonFruit.Tests
         [InlineData("--value=false", false)]
         public async Task Generated_boolean_parameters_will_accept_one_argument(string commandLine, bool expected)
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_taking_bool)), this);
             config.Output = TextWriter.Null;
@@ -53,7 +53,7 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task Single_character_parameters_generate_aliases_that_accept_a_single_dash_prefix()
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_with_single_letter_parameters)), this);
             config.Output = TextWriter.Null;
@@ -78,7 +78,7 @@ namespace System.CommandLine.DragonFruit.Tests
             int minNumberOfValues,
             int maxNumberOfValues)
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName));
 
             var rootCommandArgument = config.RootCommand.Arguments.Single();
@@ -98,7 +98,7 @@ namespace System.CommandLine.DragonFruit.Tests
         [InlineData(nameof(Method_having_FileInfo_array_args), "args")]
         public void Parameters_named_arguments_generate_command_arguments_having_the_correct_name(string methodName, string expectedArgName)
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName));
 
             var rootCommandArgument = config.RootCommand.Arguments.Single();
@@ -118,7 +118,7 @@ namespace System.CommandLine.DragonFruit.Tests
         [InlineData(nameof(Method_having_FileInfo_array_args))]
         public void Options_are_not_generated_for_command_argument_parameters(string methodName)
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName));
 
             var rootCommand = config.RootCommand;
@@ -147,7 +147,7 @@ namespace System.CommandLine.DragonFruit.Tests
             string methodName,
             Type expectedType)
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(GetMethodInfo(methodName));
 
             var rootCommandArgument = config.RootCommand.Arguments.Single();
@@ -160,7 +160,7 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task When_method_returns_void_then_return_code_is_0()
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_void)), this);
             config.Output = TextWriter.Null;
@@ -173,7 +173,7 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task When_method_returns_int_then_return_code_is_set_to_return_value()
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_int)), this);
             config.Output = TextWriter.Null;
@@ -186,7 +186,7 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task When_method_returns_Task_of_int_then_return_code_is_set_to_return_value()
         {
-            var config = new CliConfiguration(new CliRootCommand())
+            var config = new CommandLineConfiguration(new RootCommand())
                          .ConfigureRootCommandFromMethod(
                              GetMethodInfo(nameof(Method_returning_Task_of_int)), this);
             config.Output = TextWriter.Null;
@@ -209,13 +209,13 @@ namespace System.CommandLine.DragonFruit.Tests
             var options = handlerMethod.BuildOptions();
 
             options.Should()
-                   .NotContain(o => o.GetType().IsAssignableTo(typeof(CliOption<>).MakeGenericType(type)));
+                   .NotContain(o => o.GetType().IsAssignableTo(typeof(Option<>).MakeGenericType(type)));
         }
 
         [Fact]
         public async Task Method_parameters_on_the_invoked_member_method_are_bound_to_matching_option_names_by_MethodInfo_with_target()
         {
-            var command = new CliCommand("test");
+            var command = new Command("test");
             command.ConfigureFromMethod(GetMethodInfo(nameof(Method_taking_bool)), this);
 
             await command.Parse("--value").InvokeAsync();
@@ -226,7 +226,7 @@ namespace System.CommandLine.DragonFruit.Tests
         [Fact]
         public async Task Method_with_multiple_parameters_with_default_values_are_resolved_correctly()
         {
-            var command = new CliCommand("test");
+            var command = new Command("test");
             command.ConfigureFromMethod(GetMethodInfo(nameof(Method_with_multiple_default_values)), this);
 
             await command.Parse("").InvokeAsync();

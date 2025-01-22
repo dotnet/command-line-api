@@ -6,7 +6,7 @@ using System.CommandLine.Invocation;
 
 namespace System.CommandLine.NamingConventionBinder
 {
-    public abstract class BindingHandler : AsynchronousCliAction
+    public abstract class BindingHandler : AsynchronousCommandLineAction
     {
         private BindingContext? _bindingContext;
 

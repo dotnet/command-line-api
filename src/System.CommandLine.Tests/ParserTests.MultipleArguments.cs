@@ -17,17 +17,17 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Multiple_arguments_can_differ_by_arity()
             {
-                var multipleArityArg = new CliArgument<IEnumerable<string>>("several")
+                var multipleArityArg = new Argument<IEnumerable<string>>("several")
                 {
                     Arity = new ArgumentArity(3, 3),
                 };
 
-                var singleArityArg = new CliArgument<IEnumerable<string>>("one")
+                var singleArityArg = new Argument<IEnumerable<string>>("one")
                 {
                     Arity = ArgumentArity.ZeroOrMore,
                 };
 
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     multipleArityArg,
                     singleArityArg
@@ -46,10 +46,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Multiple_arguments_can_differ_by_type()
             {
-                var stringArg = new CliArgument<string>("the-string");
-                var intArg = new CliArgument<int>("the-int");
+                var stringArg = new Argument<string>("the-string");
+                var intArg = new Argument<int>("the-int");
 
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     stringArg,
                     intArg
@@ -76,12 +76,12 @@ namespace System.CommandLine.Tests
             [InlineData("one two three four five --verbose true")]
             public void When_multiple_arguments_are_present_then_their_order_relative_to_sibling_options_is_not_significant(string commandLine)
             {
-                var first = new CliArgument<string>("first");
-                var second = new CliArgument<string>("second");
-                var third = new CliArgument<string[]>("third");
-                var verbose = new CliOption<bool>("--verbose");
+                var first = new Argument<string>("first");
+                var second = new Argument<string>("second");
+                var third = new Argument<string[]>("third");
+                var verbose = new Option<bool>("--verbose");
 
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     first,
                     second,
@@ -115,9 +115,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Multiple_arguments_of_unspecified_type_are_parsed_correctly()
             {
-                var sourceArg = new CliArgument<string>("source");
-                var destinationArg = new CliArgument<string>("destination");
-                var root = new CliRootCommand
+                var sourceArg = new Argument<string>("source");
+                var destinationArg = new Argument<string>("destination");
+                var root = new RootCommand
                 {
                     sourceArg,
                     destinationArg
@@ -140,12 +140,12 @@ namespace System.CommandLine.Tests
             [Fact]
             public void When_multiple_arguments_are_defined_but_not_provided_then_option_parses_correctly()
             {
-                var option = new CliOption<string>("-e");
-                var command = new CliCommand("the-command")
+                var option = new Option<string>("-e");
+                var command = new Command("the-command")
                 {
                     option,
-                    new CliArgument<string>("arg1"),
-                    new CliArgument<string>("arg2")
+                    new Argument<string>("arg1"),
+                    new Argument<string>("arg2")
                 };
 
                 var result = command.Parse("-e foo");
@@ -158,10 +158,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
             {
-                var ints = new CliArgument<int[]>("ints");
-                var strings = new CliArgument<string[]>("strings");
+                var ints = new Argument<int[]>("ints");
+                var strings = new Argument<string[]>("strings");
 
-                var root = new CliRootCommand
+                var root = new RootCommand
                 {
                     ints,
                     strings
@@ -185,10 +185,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_single_arity_argument()
             {
-                var ints = new CliArgument<int[]>("arg1");
-                var strings = new CliArgument<string>("arg2");
+                var ints = new Argument<int[]>("arg1");
+                var strings = new Argument<string>("arg2");
 
-                var root = new CliRootCommand
+                var root = new RootCommand
                 {
                     ints,
                     strings
@@ -218,16 +218,16 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Unsatisfied_subsequent_argument_with_min_arity_0_parses_as_default_value()
             {
-                var arg1 = new CliArgument<string>("arg1")
+                var arg1 = new Argument<string>("arg1")
                 {
                     Arity = ArgumentArity.ExactlyOne
                 };
-                var arg2 = new CliArgument<string>("arg2")
+                var arg2 = new Argument<string>("arg2")
                 {
                     Arity = ArgumentArity.ZeroOrOne,
                     DefaultValueFactory = (_) => "the-default"
                 };
-                var rootCommand = new CliRootCommand
+                var rootCommand = new RootCommand
                 {
                     arg1,
                     arg2,
@@ -242,13 +242,13 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1403
             public void Unsatisfied_subsequent_argument_with_min_arity_1_parses_as_default_value()
             {
-                CliArgument<string> arg1 = new(name: "arg1");
-                CliArgument<string> arg2 = new(name: "arg2")
+                Argument<string> arg1 = new(name: "arg1");
+                Argument<string> arg2 = new(name: "arg2")
                 {
                     DefaultValueFactory = (_) => "the-default"
                 };
 
-                var rootCommand = new CliRootCommand
+                var rootCommand = new RootCommand
                 {
                     arg1,
                     arg2,
@@ -263,11 +263,11 @@ namespace System.CommandLine.Tests
             [Fact] // https://github.com/dotnet/command-line-api/issues/1395
             public void When_subsequent_argument_with_ZeroOrOne_arity_is_not_provided_then_parse_is_correct()
             {
-                var argument1 = new CliArgument<string>("arg1");
-                var rootCommand = new CliRootCommand
+                var argument1 = new Argument<string>("arg1");
+                var rootCommand = new RootCommand
                 {
                     argument1,
-                    new CliArgument<string>("arg2")
+                    new Argument<string>("arg2")
                     {
                         Arity = ArgumentArity.ZeroOrOne
                     },
@@ -288,15 +288,15 @@ namespace System.CommandLine.Tests
             public void When_there_are_not_enough_tokens_for_all_arguments_then_the_correct_number_of_errors_is_reported(
                 string providedArgs)
             {
-                var command = new CliCommand("command")
+                var command = new Command("command")
                 {
-                    new CliArgument<string>("arg1"),
-                    new CliArgument<string>("arg2"),
-                    new CliArgument<string>("arg3"),
-                    new CliArgument<string>("arg4")
+                    new Argument<string>("arg1"),
+                    new Argument<string>("arg2"),
+                    new Argument<string>("arg3"),
+                    new Argument<string>("arg4")
                 };
 
-                var result = CliParser.Parse(command, providedArgs);
+                var result = CommandLineParser.Parse(command, providedArgs);
 
                 result
                     .Errors

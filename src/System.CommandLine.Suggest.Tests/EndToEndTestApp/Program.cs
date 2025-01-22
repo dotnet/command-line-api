@@ -10,16 +10,16 @@ namespace EndToEndTestApp
     {
         static async Task Main(string[] args)
         {
-            CliOption<string> appleOption = new ("--apple" );
-            CliOption<string> bananaOption = new ("--banana");
-            CliOption<string> cherryOption = new ("--cherry");
-            CliOption<string> durianOption = new ("--durian");
+            Option<string> appleOption = new ("--apple" );
+            Option<string> bananaOption = new ("--banana");
+            Option<string> cherryOption = new ("--cherry");
+            Option<string> durianOption = new ("--durian");
 
-            CliRootCommand rootCommand = new ()
+            RootCommand rootCommand = new ()
             {
-                appleOption,          
-                bananaOption,          
-                cherryOption,          
+                appleOption,
+                bananaOption,
+                cherryOption,
                 durianOption,
             };
 
@@ -33,7 +33,7 @@ namespace EndToEndTestApp
                 return Task.CompletedTask;
             });
 
-            CliConfiguration commandLine = new (rootCommand);
+            CommandLineConfiguration commandLine = new (rootCommand);
 
             await commandLine.InvokeAsync(args);
         }

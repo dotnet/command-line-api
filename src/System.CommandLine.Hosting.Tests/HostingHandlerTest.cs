@@ -15,7 +15,7 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
 
-            var config = new CliConfiguration(
+            var config = new CommandLineConfiguration(
                 new MyRootCommand().UseCommandHandler<MyHandler>()
                 )
                 .UseHost(builder => {
@@ -33,7 +33,7 @@ namespace System.CommandLine.Hosting.Tests
         [Fact]
         public static async Task Parameter_is_available_in_property()
         {
-            var config = new CliConfiguration(new MyRootCommand().UseCommandHandler<MyHandler>())
+            var config = new CommandLineConfiguration(new MyRootCommand().UseCommandHandler<MyHandler>())
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -50,11 +50,11 @@ namespace System.CommandLine.Hosting.Tests
         [Fact]
         public static async Task Can_have_different_handlers_based_on_command()
         {
-            var root = new CliRootCommand();
+            var root = new RootCommand();
 
             root.Subcommands.Add(new MyCommand().UseCommandHandler<MyHandler>());
             root.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
-            var config = new CliConfiguration(root)
+            var config = new CommandLineConfiguration(root)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -79,9 +79,9 @@ namespace System.CommandLine.Hosting.Tests
         public static async Task Can_bind_to_arguments_via_injection()
         {
             var service = new MyService();
-            var cmd = new CliRootCommand();
+            var cmd = new RootCommand();
             cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyHandler>());
-            var config = new CliConfiguration(cmd)
+            var config = new CommandLineConfiguration(cmd)
                 .UseHost(host =>
                 {
                     host.ConfigureServices(services =>
@@ -100,10 +100,10 @@ namespace System.CommandLine.Hosting.Tests
         {
             var service = new MyService();
 
-            var cmd = new CliRootCommand();
+            var cmd = new RootCommand();
             cmd.Subcommands.Add(new MyCommand().UseCommandHandler<MyDerivedCliAction>());
             cmd.Subcommands.Add(new MyOtherCommand().UseCommandHandler<MyOtherCommand.MyDerivedCliAction>());
-            var config = new CliConfiguration(cmd)
+            var config = new CommandLineConfiguration(cmd)
                          .UseHost((builder) => {
                              builder.ConfigureServices(services =>
                              {
@@ -118,7 +118,7 @@ namespace System.CommandLine.Hosting.Tests
             service.StringValue.Should().Be("TEST");
         }
 
-        public abstract class MyBaseCliAction : AsynchronousCliAction
+        public abstract class MyBaseCliAction : AsynchronousCommandLineAction
         {
             public int IntOption { get; set; } // bound from option
 
@@ -130,19 +130,19 @@ namespace System.CommandLine.Hosting.Tests
             protected abstract int Act();
         }
 
-        public class MyRootCommand : CliRootCommand
+        public class MyRootCommand : RootCommand
         {
             public MyRootCommand()
             {
-                Options.Add(new CliOption<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+                Options.Add(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
         }
 
-        public class MyCommand : CliCommand
+        public class MyCommand : Command
         {
             public MyCommand() : base(name: "mycommand")
             {
-                Options.Add(new CliOption<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+                Options.Add(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
             }
         }
 
@@ -162,7 +162,7 @@ namespace System.CommandLine.Hosting.Tests
             }
         }
 
-        public class MyHandler : AsynchronousCliAction
+        public class MyHandler : AsynchronousCommandLineAction
         {
             private readonly MyService service;
 
@@ -180,15 +180,15 @@ namespace System.CommandLine.Hosting.Tests
             }
         }
 
-        public class MyOtherCommand : CliCommand
+        public class MyOtherCommand : Command
         {
             public MyOtherCommand() : base(name: "myothercommand")
             {
-                Options.Add(new CliOption<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
-                Arguments.Add(new CliArgument<string>("One") {  Arity = ArgumentArity.ZeroOrOne });
+                Options.Add(new Option<int>("--int-option")); // or nameof(Handler.IntOption).ToKebabCase() if you don't like the string literal
+                Arguments.Add(new Argument<string>("One") {  Arity = ArgumentArity.ZeroOrOne });
             }
 
-            public class MyHandler : AsynchronousCliAction
+            public class MyHandler : AsynchronousCommandLineAction
             {
                 private readonly MyService service;
 

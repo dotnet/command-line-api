@@ -14,7 +14,7 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class SuggestionDispatcherTests
     {
-        private static readonly string _currentExeName = CliRootCommand.ExecutableName;
+        private static readonly string _currentExeName = RootCommand.ExecutableName;
         
         private static readonly string _dotnetExeFullPath = 
             DotnetMuxer.Path.FullName;
@@ -38,7 +38,7 @@ namespace System.CommandLine.Suggest.Tests
         {
             string receivedTargetExeName = null;
 
-            string[] args = CliParser.SplitCommandLine($@"get -p 12 -e ""{CurrentExeFullPath()}"" -- ""{_currentExeName} add""").ToArray();
+            string[] args = CommandLineParser.SplitCommandLine($@"get -p 12 -e ""{CurrentExeFullPath()}"" -- ""{_currentExeName} add""").ToArray();
 
             await InvokeAsync(
                 args,
@@ -111,13 +111,13 @@ namespace System.CommandLine.Suggest.Tests
         private static string[] PrepareArgs(string args)
         {
             var formattableString = args.Replace("$", "");
-            return CliParser.SplitCommandLine(formattableString).ToArray();
+            return CommandLineParser.SplitCommandLine(formattableString).ToArray();
         }
 
         [Fact]
         public async Task InvokeAsync_with_unknown_suggestion_provider_returns_empty_string()
         {
-            string[] args = Enumerable.ToArray(CliParser.SplitCommandLine(@"get -p 10 -e ""testcli.exe"" -- command op"));
+            string[] args = Enumerable.ToArray(CommandLineParser.SplitCommandLine(@"get -p 10 -e ""testcli.exe"" -- command op"));
             (await InvokeAsync(args, new TestSuggestionRegistration()))
                 .Should()
                 .BeEmpty();
@@ -131,7 +131,7 @@ namespace System.CommandLine.Suggest.Tests
             dispatcher.Timeout = TimeSpan.FromMilliseconds(1);
             dispatcher.Configuration.Output = new StringWriter();
 
-            var args = CliParser.SplitCommandLine($@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add").ToArray();
+            var args = CommandLineParser.SplitCommandLine($@"get -p 0 -e ""{_currentExeName}"" -- {_currentExeName} add").ToArray();
 
             await dispatcher.InvokeAsync(args);
 
@@ -167,7 +167,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = CliParser.SplitCommandLine($"register --command-path \"{_netExeFullPath}\"").ToArray();
+            var args = CommandLineParser.SplitCommandLine($"register --command-path \"{_netExeFullPath}\"").ToArray();
 
             await dispatcher.InvokeAsync(args);
 
@@ -181,7 +181,7 @@ namespace System.CommandLine.Suggest.Tests
             var provider = new TestSuggestionRegistration();
             var dispatcher = new SuggestionDispatcher(provider);
 
-            var args = CliParser.SplitCommandLine($"register --command-path \"{_netExeFullPath}\"").ToArray();
+            var args = CommandLineParser.SplitCommandLine($"register --command-path \"{_netExeFullPath}\"").ToArray();
 
             await dispatcher.InvokeAsync(args);
             await dispatcher.InvokeAsync(args);

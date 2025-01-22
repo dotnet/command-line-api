@@ -49,12 +49,12 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets the minimum number of values required for an <see cref="CliArgument">argument</see>.
+        /// Gets the minimum number of values required for an <see cref="Argument">argument</see>.
         /// </summary>
         public int MinimumNumberOfValues { get; }
 
         /// <summary>
-        /// Gets the maximum number of values allowed for an <see cref="CliArgument">argument</see>.
+        /// Gets the maximum number of values allowed for an <see cref="Argument">argument</see>.
         /// </summary>
         public int MaximumNumberOfValues { get; }
 
@@ -137,7 +137,7 @@ namespace System.CommandLine
         /// </summary>
         public static ArgumentArity OneOrMore => new(1, MaximumArity);
 
-        internal static ArgumentArity Default(CliArgument argument, SymbolNode? firstParent)
+        internal static ArgumentArity Default(Argument argument, SymbolNode? firstParent)
         {
             if (argument.IsBoolean())
             {
@@ -149,12 +149,12 @@ namespace System.CommandLine
 
             if (type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type))
             {
-                return parent is CliCommand
+                return parent is Command
                            ? ZeroOrMore
                            : OneOrMore;
             }
 
-            if (parent is CliCommand &&
+            if (parent is Command &&
                 (argument.HasDefaultValue ||
                  type.IsNullable()))
             {

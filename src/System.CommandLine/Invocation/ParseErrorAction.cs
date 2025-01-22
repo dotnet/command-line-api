@@ -12,7 +12,7 @@ namespace System.CommandLine.Invocation;
 /// <summary>
 /// Provides command line output with error details in the case of a parsing error.
 /// </summary>
-public sealed class ParseErrorAction : SynchronousCliAction
+public sealed class ParseErrorAction : SynchronousCommandLineAction
 {
     /// <summary>
     /// Indicates whether to show help along with error details when an error is found during parsing.
@@ -72,11 +72,11 @@ public sealed class ParseErrorAction : SynchronousCliAction
         {
             switch (helpOption.Action)
             {
-                case SynchronousCliAction syncAction:
+                case SynchronousCommandLineAction syncAction:
                     syncAction.Invoke(parseResult);
                     break;
 
-                case AsynchronousCliAction asyncAction:
+                case AsynchronousCommandLineAction asyncAction:
                     asyncAction.InvokeAsync(parseResult, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
             }
@@ -109,7 +109,7 @@ public sealed class ParseErrorAction : SynchronousCliAction
             parseResult.Configuration.Output.WriteLine();
         }
 
-        static IEnumerable<string> GetPossibleTokens(CliCommand targetSymbol, string token)
+        static IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)
         {
             if (targetSymbol is { HasOptions: false, HasSubcommands: false })
             {
@@ -118,10 +118,10 @@ public sealed class ParseErrorAction : SynchronousCliAction
 
             IEnumerable<string> possibleMatches = targetSymbol
                                                   .Children
-                                                  .Where(x => !x.Hidden && x is CliOption or CliCommand)
+                                                  .Where(x => !x.Hidden && x is Option or Command)
                                                   .Select(symbol =>
                                                   {
-                                                      AliasSet? aliasSet = symbol is CliOption option ? option._aliases : ((CliCommand)symbol)._aliases;
+                                                      AliasSet? aliasSet = symbol is Option option ? option._aliases : ((Command)symbol)._aliases;
 
                                                       if (aliasSet is null)
                                                       {

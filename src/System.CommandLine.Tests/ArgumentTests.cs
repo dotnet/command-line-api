@@ -12,7 +12,7 @@ public class ArgumentTests
     [Fact]
     public void By_default_there_is_no_default_value()
     {
-        var argument = new CliArgument<string>("arg");
+        var argument = new Argument<string>("arg");
 
         argument.HasDefaultValue.Should().BeFalse();
     }
@@ -20,7 +20,7 @@ public class ArgumentTests
     [Fact]
     public void When_default_value_factory_is_set_then_HasDefaultValue_is_true()
     {
-        var argument = new CliArgument<string[]>("arg");
+        var argument = new Argument<string[]>("arg");
 
         argument.DefaultValueFactory = _ => null;
 
@@ -30,7 +30,7 @@ public class ArgumentTests
     [Fact]
     public void When_there_is_no_default_value_then_GetDefaultValue_throws()
     {
-        var argument = new CliArgument<string>("the-arg");
+        var argument = new Argument<string>("the-arg");
 
         argument.Invoking(a => a.GetDefaultValue())
                 .Should()
@@ -44,10 +44,10 @@ public class ArgumentTests
     [Fact]
     public void Argument_of_enum_can_limit_enum_members_as_valid_values()
     {
-        var argument = new CliArgument<ConsoleColor>("color");
+        var argument = new Argument<ConsoleColor>("color");
         argument.AcceptOnlyFromAmong(ConsoleColor.Red.ToString(), ConsoleColor.Green.ToString());
 
-        CliCommand command = new("set-color")
+        Command command = new("set-color")
         {
             argument
         };

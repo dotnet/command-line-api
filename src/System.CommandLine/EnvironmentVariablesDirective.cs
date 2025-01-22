@@ -9,9 +9,9 @@ namespace System.CommandLine
     /// <summary>
     /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
     /// </summary>
-    public sealed class EnvironmentVariablesDirective : CliDirective
+    public sealed class EnvironmentVariablesDirective : Directive
     {
-        private CliAction? _action;
+        private CommandLineAction? _action;
 
         /// <inheritdoc />
         public EnvironmentVariablesDirective() : base("env")
@@ -19,13 +19,13 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc />
-        public override CliAction? Action
+        public override CommandLineAction? Action
         {
             get => _action ??= new EnvironmentVariablesDirectiveAction(this);
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        private sealed class EnvironmentVariablesDirectiveAction : SynchronousCliAction
+        private sealed class EnvironmentVariablesDirectiveAction : SynchronousCommandLineAction
         {
             private readonly EnvironmentVariablesDirective _directive;
 

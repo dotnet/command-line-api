@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace System.CommandLine.Parsing
 {
-    internal sealed class SymbolResultTree : Dictionary<CliSymbol, SymbolResult>
+    internal sealed class SymbolResultTree : Dictionary<Symbol, SymbolResult>
     {
-        private readonly CliCommand _rootCommand;
+        private readonly Command _rootCommand;
         internal List<ParseError>? Errors;
-        internal List<CliToken>? UnmatchedTokens;
+        internal List<Token>? UnmatchedTokens;
         private Dictionary<string, SymbolNode>? _symbolsByName;
 
         internal SymbolResultTree(
-            CliCommand rootCommand, 
+            Command rootCommand, 
             List<string>? tokenizeErrors)
         {
             _rootCommand = rootCommand;
@@ -31,23 +31,23 @@ namespace System.CommandLine.Parsing
 
         internal int ErrorCount => Errors?.Count ?? 0;
 
-        internal ArgumentResult? GetResult(CliArgument argument)
+        internal ArgumentResult? GetResult(Argument argument)
             => TryGetValue(argument, out SymbolResult? result) ? (ArgumentResult)result : default;
 
-        internal CommandResult? GetResult(CliCommand command)
+        internal CommandResult? GetResult(Command command)
             => TryGetValue(command, out var result) ? (CommandResult)result : default;
 
-        internal OptionResult? GetResult(CliOption option)
+        internal OptionResult? GetResult(Option option)
             => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
-        internal DirectiveResult? GetResult(CliDirective directive)
+        internal DirectiveResult? GetResult(Directive directive)
             => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
 
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
             if (parent is not ArgumentResult)
             {
-                foreach (KeyValuePair<CliSymbol, SymbolResult> pair in this)
+                foreach (KeyValuePair<Symbol, SymbolResult> pair in this)
                 {
                     if (ReferenceEquals(parent, pair.Value.Parent))
                     {
@@ -61,7 +61,7 @@ namespace System.CommandLine.Parsing
 
         internal void InsertFirstError(ParseError parseError) => (Errors ??= new()).Insert(0, parseError);
 
-        internal void AddUnmatchedToken(CliToken token, CommandResult commandResult, CommandResult rootCommandResult)
+        internal void AddUnmatchedToken(Token token, CommandResult commandResult, CommandResult rootCommandResult)
         {
             (UnmatchedTokens ??= new()).Add(token);
 
@@ -102,7 +102,7 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-        private void PopulateSymbolsByName(CliCommand command)
+        private void PopulateSymbolsByName(Command command)
         {
             if (command.HasArguments)
             {
@@ -130,7 +130,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            void AddToSymbolsByName(CliSymbol symbol)
+            void AddToSymbolsByName(Symbol symbol)
             {
                 if (_symbolsByName!.TryGetValue(symbol.Name, out var node))
                 {

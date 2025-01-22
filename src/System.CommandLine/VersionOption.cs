@@ -10,29 +10,29 @@ namespace System.CommandLine
     /// <summary>
     /// A standard option that indicates that version information should be displayed for the app.
     /// </summary>
-    public sealed class VersionOption : CliOption<bool>
+    public sealed class VersionOption : Option<bool>
     {
-        private CliAction? _action;
+        private CommandLineAction? _action;
 
         /// <summary>
-        /// When added to a <see cref="CliCommand"/>, it enables the use of a <c>--version</c> option, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// When added to a <see cref="Command"/>, it enables the use of a <c>--version</c> option, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
         public VersionOption() : this("--version", Array.Empty<string>())
         {
         }
 
         /// <summary>
-        /// When added to a <see cref="CliCommand"/>, it enables the use of a provided option name and aliases, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// When added to a <see cref="Command"/>, it enables the use of a provided option name and aliases, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
         /// </summary>
         public VersionOption(string name, params string[] aliases)
-            : base(name, aliases, new CliArgument<bool>("--version") { Arity = ArgumentArity.Zero })
+            : base(name, aliases, new Argument<bool>("--version") { Arity = ArgumentArity.Zero })
         {
             Description = LocalizationResources.VersionOptionDescription();
             AddValidators();
         }
 
         /// <inheritdoc />
-        public override CliAction? Action
+        public override CommandLineAction? Action
         {
             get => _action ??= new VersionOptionAction();
             set => _action = value ?? throw new ArgumentNullException(nameof(value));
@@ -52,11 +52,11 @@ namespace System.CommandLine
 
         internal override bool Greedy => false;
 
-        private sealed class VersionOptionAction : SynchronousCliAction
+        private sealed class VersionOptionAction : SynchronousCommandLineAction
         {
             public override int Invoke(ParseResult parseResult)
             {
-                parseResult.Configuration.Output.WriteLine(CliRootCommand.ExecutableVersion);
+                parseResult.Configuration.Output.WriteLine(RootCommand.ExecutableVersion);
                 return 0;
             }
         }

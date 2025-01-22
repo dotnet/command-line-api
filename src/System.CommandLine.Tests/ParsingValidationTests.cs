@@ -24,10 +24,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var option = new CliOption<string>("-x");
+            var option = new Option<string>("-x");
             option.AcceptOnlyFromAmong("this", "that", "the-other-thing");
 
-            var result = new CliRootCommand { option }.Parse("-x none-of-those");
+            var result = new RootCommand { option }.Parse("-x none-of-those");
 
             result.Errors
                   .Select(e => e.Message)
@@ -40,10 +40,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var option = new CliOption<string>("-x");
+            var option = new Option<string>("-x");
             option.AcceptOnlyFromAmong("this", "that");
 
-            var result = new CliRootCommand { option }.Parse("-x something_else");
+            var result = new RootCommand { option }.Parse("-x something_else");
 
             result.Errors
                   .Where(e => e.SymbolResult != null)
@@ -54,9 +54,9 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_OptionResult_ErrorMessage_is_set()
         {
-            var option = new CliOption<string>("--opt");
+            var option = new Option<string>("--opt");
             option.AcceptOnlyFromAmong("a", "b");
-            var command = new CliCommand("test") { option };
+            var command = new Command("test") { option };
 
             var parseResult = command.Parse("test --opt c");
 
@@ -76,10 +76,10 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
         public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
         {
-            var argument = new CliArgument<string>("arg");
+            var argument = new Argument<string>("arg");
             argument.AcceptOnlyFromAmong("a", "b");
 
-            var command = new CliCommand("test") { argument };
+            var command = new Command("test") { argument };
 
             var parseResult = command.Parse("test c");
 
@@ -98,7 +98,7 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1556
         public void When_FromAmong_is_used_for_multiple_arguments_and_valid_input_is_provided_then_there_are_no_errors()
         {
-            var command = new CliCommand("set")
+            var command = new Command("set")
             {
                 CreateArgumentWithAcceptOnlyFromAmong(name: "key", "key1", "key2"),
                 CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
@@ -112,7 +112,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_first_one_then_the_error_is_informative()
         {
-            var command = new CliCommand("set")
+            var command = new Command("set")
             {
                 CreateArgumentWithAcceptOnlyFromAmong(name : "key", "key1", "key2"),
                 CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
@@ -132,10 +132,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_FromAmong_is_used_multiple_times_only_the_most_recently_provided_values_are_taken_into_account()
         {
-            CliArgument<string> argument = new("key");
+            Argument<string> argument = new("key");
             argument.AcceptOnlyFromAmong("key1");
 
-            var command = new CliCommand("set")
+            var command = new Command("set")
             {
                 argument
             };
@@ -160,7 +160,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_second_one_then_the_error_is_informative()
         {
-            var command = new CliCommand("set")
+            var command = new Command("set")
             {
                 CreateArgumentWithAcceptOnlyFromAmong(name : "key", "key1", "key2"),
                 CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
@@ -180,12 +180,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_FromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_errors_mention_all_invalid_arguments()
         {
-            CliOption<string[]> option = new("--columns");
+            Option<string[]> option = new("--columns");
             option.AcceptOnlyFromAmong("author", "language", "tags", "type");
             option.Arity = new ArgumentArity(1, 4);
             option.AllowMultipleArgumentsPerToken = true;
 
-            var command = new CliCommand("list")
+            var command = new Command("list")
             {
                 option
             };
@@ -208,9 +208,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_required_argument_is_not_supplied_then_an_error_is_returned()
         {
-            var option = new CliOption<string>("-x");
+            var option = new Option<string>("-x");
 
-            var result = new CliRootCommand { option }.Parse("-x");
+            var result = new RootCommand { option }.Parse("-x");
 
             result.Errors
                   .Should()
@@ -222,9 +222,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_required_option_is_not_supplied_then_an_error_is_returned()
         {
-            var command = new CliCommand("command")
+            var command = new Command("command")
             {
-                new CliOption<string>("-x")
+                new Option<string>("-x")
                 {
                     Required = true
                 }
@@ -246,9 +246,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_a_required_option_has_multiple_aliases_the_error_message_uses_the_name()
         {
-            var command = new CliCommand("command")
+            var command = new Command("command")
             {
-                new CliOption<string>("--xray", "-x")
+                new Option<string>("--xray", "-x")
                 {
                     Required = true
                 }
@@ -272,15 +272,15 @@ namespace System.CommandLine.Tests
         [InlineData("-x arg subcommand")]
         public void When_a_required_option_is_allowed_at_more_than_one_position_it_only_needs_to_be_satisfied_in_one(string commandLine)
         {
-            var option = new CliOption<string>("-x")
+            var option = new Option<string>("-x")
             {
                 Required = true
             };
 
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
                 option,
-                new CliCommand("subcommand")
+                new Command("subcommand")
                 {
                     option
                 }
@@ -294,11 +294,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Required_options_on_parent_commands_do_not_create_parse_errors_when_an_inner_command_is_specified()
         {
-            var child = new CliCommand("child");
+            var child = new Command("child");
 
-            var parent = new CliCommand("parent")
+            var parent = new Command("parent")
             {
-                new CliOption<string>("-x") { Required = true },
+                new Option<string>("-x") { Required = true },
                 child
             };
 
@@ -311,9 +311,9 @@ namespace System.CommandLine.Tests
         public void When_no_option_accepts_arguments_but_one_is_supplied_then_an_error_is_returned()
         {
             var command =
-                new CliCommand("the-command")
+                new Command("the-command")
                 {
-                    new CliOption<bool>("-x")
+                    new Option<bool>("-x")
                     {
                         Arity = ArgumentArity.Zero
                     }
@@ -334,10 +334,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_custom_validator_can_be_added_to_a_command()
         {
-            var command = new CliCommand("the-command")
+            var command = new Command("the-command")
             {
-                new CliOption<bool>("--one"),
-                new CliOption<bool>("--two")
+                new Option<bool>("--one"),
+                new Option<bool>("--two")
             };
 
             command.Validators.Add(commandResult =>
@@ -363,7 +363,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_custom_validator_can_be_added_to_an_option()
         {
-            var option = new CliOption<int>("-x");
+            var option = new Option<int>("-x");
 
             option.Validators.Add(r =>
             {
@@ -372,7 +372,7 @@ namespace System.CommandLine.Tests
                 r.AddError($"Option {r.IdentifierToken.Value} cannot be set to {value}");
             });
 
-            var command = new CliRootCommand { option };
+            var command = new RootCommand { option };
 
             var result = command.Parse("-x 123");
 
@@ -390,7 +390,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_custom_validator_can_be_added_to_an_argument()
         {
-            var argument = new CliArgument<int>("x");
+            var argument = new Argument<int>("x");
 
             argument.Validators.Add(r =>
             {
@@ -399,7 +399,7 @@ namespace System.CommandLine.Tests
                 r.AddError($"Argument {r.Argument.Name} cannot be set to {value}");
             });
 
-            var command = new CliRootCommand { argument };
+            var command = new RootCommand { argument };
 
             var result = command.Parse("123");
 
@@ -423,19 +423,19 @@ namespace System.CommandLine.Tests
             var optionValidatorWasCalled = false;
             var argumentValidatorWasCalled = false;
 
-            var option = new CliOption<string>("-o");
+            var option = new Option<string>("-o");
             option.Validators.Add(_ =>
             {
                 optionValidatorWasCalled = true;
             });
 
-            var argument = new CliArgument<string>("the-arg");
+            var argument = new Argument<string>("the-arg");
             argument.Validators.Add(_ =>
             {
                 argumentValidatorWasCalled = true;
             });
 
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 option,
                 argument
@@ -457,14 +457,14 @@ namespace System.CommandLine.Tests
         [InlineData("subcommand --file \"Foo\"")]
         public void Validators_on_global_options_are_executed_when_invoking_a_subcommand(string commandLine)
         {
-            var option = new CliOption<FileInfo>("--file") { Recursive = true };
+            var option = new Option<FileInfo>("--file") { Recursive = true };
             option.Validators.Add(r =>
             {
                 r.AddError("Invoked validator");
             });
 
-            var subCommand = new CliCommand("subcommand");
-            var rootCommand = new CliRootCommand 
+            var subCommand = new Command("subcommand");
+            var rootCommand = new RootCommand 
             {
                 subCommand
             };
@@ -494,20 +494,20 @@ namespace System.CommandLine.Tests
         {
             var handlerWasCalled = false;
 
-            var globalOption = new CliOption<int>("--value")
+            var globalOption = new Option<int>("--value")
             { 
                 Recursive = true
             };
 
             globalOption.Validators.Add(r => r.AddError("oops!"));
 
-            var grandchildCommand = new CliCommand("grandchild");
+            var grandchildCommand = new Command("grandchild");
 
-            var childCommand = new CliCommand("child")
+            var childCommand = new Command("child")
             {
                 grandchildCommand
             };
-            var rootCommand = new CliRootCommand
+            var rootCommand = new RootCommand
             {
                 childCommand
             };
@@ -528,10 +528,10 @@ namespace System.CommandLine.Tests
         public void Custom_validator_error_messages_are_not_repeated()
         {
             var errorMessage = "that's not right...";
-            var argument = new CliArgument<string>("arg");
+            var argument = new Argument<string>("arg");
             argument.Validators.Add(r => r.AddError(errorMessage));
 
-            var cmd = new CliCommand("get")
+            var cmd = new Command("get")
             {
                 argument
             };
@@ -548,7 +548,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void The_parsed_value_of_an_argument_is_available_within_a_validator()
         {
-            var argument = new CliArgument<int>("arg");
+            var argument = new Argument<int>("arg");
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
             argument.Validators.Add(result =>
             {
@@ -560,7 +560,7 @@ namespace System.CommandLine.Tests
                 }
             });
 
-            var result = new CliRootCommand() { argument }.Parse("-1");
+            var result = new RootCommand() { argument }.Parse("-1");
 
             result.Errors
                   .Should()
@@ -572,7 +572,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void The_parsed_value_of_an_option_is_available_within_a_validator()
         {
-            var option = new CliOption<int>("-x");
+            var option = new Option<int>("-x");
             var errorMessage = "The value of option '-x' must be between 1 and 100.";
             option.Validators.Add(result =>
             {
@@ -584,7 +584,7 @@ namespace System.CommandLine.Tests
                 }
             });
 
-            var result = new CliRootCommand { option }.Parse("-x -1");
+            var result = new RootCommand { option }.Parse("-x -1");
 
             result.Errors
                   .Should()
@@ -598,9 +598,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFilePathsOnly_rejects_command_arguments_containing_invalid_path_characters()
             {
-                CliArgument<string> argument = new("arg");
+                Argument<string> argument = new("arg");
                 argument.AcceptLegalFilePathsOnly();
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     argument
                 };
@@ -620,9 +620,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFilePathsOnly_rejects_option_arguments_containing_invalid_path_characters()
             {
-                CliOption<string> option = new ("-x");
+                Option<string> option = new ("-x");
                 option.AcceptLegalFilePathsOnly();
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     option
                 };
@@ -642,9 +642,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFilePathsOnly_accepts_command_arguments_containing_valid_path_characters()
             {
-                CliArgument<string[]> argument = new ("arg");
+                Argument<string[]> argument = new ("arg");
                 argument.AcceptLegalFilePathsOnly();
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     argument
                 };
@@ -660,10 +660,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFilePathsOnly_accepts_option_arguments_containing_valid_path_characters()
             {
-                CliOption<string[]> option = new ("-x");
+                Option<string[]> option = new ("-x");
                 option.AcceptLegalFilePathsOnly();
 
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     option
                 };
@@ -682,10 +682,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_rejects_command_arguments_containing_invalid_file_name_characters()
             {
-                CliArgument<string> argument = new("arg");
+                Argument<string> argument = new("arg");
                 argument.AcceptLegalFileNamesOnly();
 
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     argument
                 };
@@ -705,10 +705,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_rejects_option_arguments_containing_invalid_file_name_characters()
             {
-                CliOption<string> option = new("-x");
+                Option<string> option = new("-x");
                 option.AcceptLegalFileNamesOnly();
 
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     option
                 };
@@ -728,10 +728,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_accepts_command_arguments_containing_valid_file_name_characters()
             {
-                CliArgument<string[]> argument = new ("arg");
+                Argument<string[]> argument = new ("arg");
                 argument.AcceptLegalFileNamesOnly();
 
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     argument
                 };
@@ -747,10 +747,10 @@ namespace System.CommandLine.Tests
             [Fact]
             public void LegalFileNamesOnly_accepts_option_arguments_containing_valid_file_name_characters()
             {
-                CliOption<string[]> option = new("-x");
+                Option<string[]> option = new("-x");
                 option.AcceptLegalFileNamesOnly();
 
-                var command = new CliCommand("the-command")
+                var command = new Command("the-command")
                 {
                     option
                 };
@@ -769,9 +769,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_command_argument_can_be_invalid_based_on_file_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<FileInfo>("to").AcceptExistingOnly()
+                    new Argument<FileInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -788,9 +788,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void An_option_argument_can_be_invalid_based_on_file_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<FileInfo>("--to").AcceptExistingOnly()
+                    new Option<FileInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -807,9 +807,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_command_argument_can_be_invalid_based_on_directory_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<DirectoryInfo>("to").AcceptExistingOnly()
+                    new Argument<DirectoryInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -826,9 +826,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void An_option_argument_can_be_invalid_based_on_directory_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<DirectoryInfo>("--to").AcceptExistingOnly()
+                    new Option<DirectoryInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -845,9 +845,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_command_argument_can_be_invalid_based_on_file_or_directory_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<FileSystemInfo>("arg").AcceptExistingOnly()
+                    new Argument<FileSystemInfo>("arg").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -864,9 +864,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void An_option_argument_can_be_invalid_based_on_file_or_directory_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<FileSystemInfo>("--to").AcceptExistingOnly()
+                    new Option<FileSystemInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -883,9 +883,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_command_argument_with_multiple_files_can_be_invalid_based_on_file_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<IEnumerable<FileInfo>>("to").AcceptExistingOnly()
+                    new Argument<IEnumerable<FileInfo>>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -902,9 +902,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void An_option_argument_with_multiple_files_can_be_invalid_based_on_file_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<IEnumerable<FileInfo>>("--to").AcceptExistingOnly()
+                    new Option<IEnumerable<FileInfo>>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -921,9 +921,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_command_argument_with_multiple_directories_can_be_invalid_based_on_directory_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<List<DirectoryInfo>>("to").AcceptExistingOnly()
+                    new Argument<List<DirectoryInfo>>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -940,9 +940,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void An_option_argument_with_multiple_directories_can_be_invalid_based_on_directory_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<DirectoryInfo[]>("--to").AcceptExistingOnly()
+                    new Option<DirectoryInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -959,13 +959,13 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_command_argument_with_multiple_FileSystemInfos_can_be_invalid_based_on_file_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<FileSystemInfo[]>("to")
+                    new Argument<FileSystemInfo[]>("to")
                     {
                         Arity = ArgumentArity.ZeroOrMore
                     }.AcceptExistingOnly(),
-                    new CliOption<string>("--to")
+                    new Option<string>("--to")
                 };
 
                 var path = NonexistentPath();
@@ -980,9 +980,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void An_option_argument_with_multiple_FileSystemInfos_can_be_invalid_based_on_file_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<FileSystemInfo[]>("--to").AcceptExistingOnly()
+                    new Option<FileSystemInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -999,9 +999,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void A_command_argument_with_multiple_FileSystemInfos_can_be_invalid_based_on_directory_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<FileSystemInfo>("to").AcceptExistingOnly()
+                    new Argument<FileSystemInfo>("to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -1018,9 +1018,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void An_option_argument_with_multiple_FileSystemInfos_can_be_invalid_based_on_directory_existence()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<FileSystemInfo[]>("--to").AcceptExistingOnly()
+                    new Option<FileSystemInfo[]>("--to").AcceptExistingOnly()
                 };
 
                 var path = NonexistentPath();
@@ -1037,9 +1037,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Command_argument_does_not_return_errors_when_file_exists()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<FileInfo>("arg").AcceptExistingOnly()
+                    new Argument<FileInfo>("arg").AcceptExistingOnly()
                 };
 
                 var path = ExistingFile();
@@ -1051,9 +1051,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Option_argument_does_not_return_errors_when_file_exists()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<FileInfo>("--to").AcceptExistingOnly()
+                    new Option<FileInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = ExistingFile();
@@ -1065,9 +1065,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Command_argument_does_not_return_errors_when_Directory_exists()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliArgument<DirectoryInfo>("arg").AcceptExistingOnly()
+                    new Argument<DirectoryInfo>("arg").AcceptExistingOnly()
                 };
 
                 var path = ExistingDirectory();
@@ -1079,9 +1079,9 @@ namespace System.CommandLine.Tests
             [Fact]
             public void Option_argument_does_not_return_errors_when_Directory_exists()
             {
-                var command = new CliCommand("move")
+                var command = new Command("move")
                 {
-                    new CliOption<DirectoryInfo>("--to").AcceptExistingOnly()
+                    new Option<DirectoryInfo>("--to").AcceptExistingOnly()
                 };
 
                 var path = ExistingDirectory();
@@ -1109,11 +1109,11 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_command_with_subcommands_is_invalid_to_invoke_if_it_has_no_handler()
         {
-            var outer = new CliCommand("outer")
+            var outer = new Command("outer")
             {
-                new CliCommand("inner")
+                new Command("inner")
                 {
-                    new CliCommand("inner-er")
+                    new Command("inner-er")
                 }
             };
 
@@ -1129,8 +1129,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_root_command_with_subcommands_is_invalid_to_invoke_if_it_has_no_handler()
         {
-            var rootCommand = new CliRootCommand();
-            var inner = new CliCommand("inner");
+            var rootCommand = new RootCommand();
+            var inner = new Command("inner");
             rootCommand.Add(inner);
 
             var result = rootCommand.Parse("");
@@ -1145,10 +1145,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void A_command_with_subcommands_is_valid_to_invoke_if_it_has_a_handler()
         {
-            var outer = new CliCommand("outer");
-            var inner = new CliCommand("inner");
+            var outer = new Command("outer");
+            var inner = new Command("inner");
             inner.SetAction((_) => { });
-            var innerer = new CliCommand("inner-er");
+            var innerer = new Command("inner-er");
             outer.Subcommands.Add(inner);
             inner.Subcommands.Add(innerer);
 
@@ -1161,9 +1161,9 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_it_is_not_valid_to_specify_the_option_without_an_argument()
         {
-            var option = new CliOption<int>("-x") { DefaultValueFactory = (_) => 123 };
+            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
 
-            var result = new CliRootCommand { option }.Parse("-x");
+            var result = new RootCommand { option }.Parse("-x");
 
             result.Errors
                   .Select(e => e.Message)
@@ -1174,10 +1174,10 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_a_default_value_then_the_default_should_apply_if_not_specified()
         {
-            var optionX = new CliOption<int>("-x") { DefaultValueFactory = (_) => 123 };
-            var optionY = new CliOption<int>("-y") { DefaultValueFactory = (_) => 456 };
+            var optionX = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
+            var optionY = new Option<int>("-y") { DefaultValueFactory = (_) => 456 };
 
-            var parser = new CliRootCommand
+            var parser = new RootCommand
             {
                 optionX,
                 optionY
@@ -1193,9 +1193,9 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1505
         public void Arity_failures_are_not_reported_for_both_an_argument_and_its_parent_option()
         {
-            var newCommand = new CliCommand("test")
+            var newCommand = new Command("test")
             {
-                new CliOption<string>("--opt")
+                new Option<string>("--opt")
             };
 
             var parseResult = newCommand.Parse("test --opt");
@@ -1212,7 +1212,7 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1573
         public void Multiple_validators_on_the_same_command_do_not_report_duplicate_errors()
         {
-            var command = new CliRootCommand();
+            var command = new RootCommand();
             command.Validators.Add(result => result.AddError("Wrong"));
             command.Validators.Add(_ => { });
 
@@ -1230,11 +1230,11 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1573
         public void Multiple_validators_on_the_same_option_do_not_report_duplicate_errors()
         {
-            var option = new CliOption<string>("-x");
+            var option = new Option<string>("-x");
             option.Validators.Add(result => result.AddError("Wrong"));
             option.Validators.Add(_ => { });
 
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
                 option
             };
@@ -1253,11 +1253,11 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1573
         public void Multiple_validators_on_the_same_argument_do_not_report_duplicate_errors()
         {
-            var argument = new CliArgument<string>("arg");
+            var argument = new Argument<string>("arg");
             argument.Validators.Add(result => result.AddError("Wrong"));
             argument.Validators.Add(_ => { });
 
-            var command = new CliRootCommand
+            var command = new RootCommand
             {
                 argument
             };
@@ -1276,13 +1276,13 @@ namespace System.CommandLine.Tests
         [Fact] // https://github.com/dotnet/command-line-api/issues/1609
         internal void When_there_is_an_arity_error_then_further_errors_are_not_reported()
         {
-            var option = new CliOption<string>("-o");
+            var option = new Option<string>("-o");
             option.Validators.Add(result =>
             {
                 result.AddError("OOPS");
             }); //all good;
 
-            var command = new CliCommand("comm")
+            var command = new Command("comm")
             {
                 option
             };
@@ -1298,9 +1298,9 @@ namespace System.CommandLine.Tests
                        .Be("Required argument missing for option: '-o'.");
         }
         
-        private CliArgument<string> CreateArgumentWithAcceptOnlyFromAmong(string name, params string[] values)
+        private Argument<string> CreateArgumentWithAcceptOnlyFromAmong(string name, params string[] values)
         {
-            CliArgument<string> argument = new(name);
+            Argument<string> argument = new(name);
             argument.AcceptOnlyFromAmong(values);
             return argument;
         }
