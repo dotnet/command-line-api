@@ -9,7 +9,7 @@
 
   <Target Name="ConfigureInnerBuildArg"
           BeforeTargets="GetSourceBuildCommandConfiguration"
-          Condition="'$(ArcadeBuildFromSource)' == 'true' or '$(DotNetBuild)' == 'true'">
+          Condition="'$(ArcadeBuildFromSource)' == 'true' or '$(DotNetBuildSourceOnly)' == 'true'">
     <PropertyGroup>
       <InnerBuildArgs>$(InnerBuildArgs) /p:Projects="$(InnerSourceBuildRepoRoot)sourcebuild.slnf"</InnerBuildArgs>
     </PropertyGroup>
