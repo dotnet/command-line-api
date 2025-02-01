@@ -63,3 +63,38 @@ This program is equivalent to the one demonstrated in [Your first app with Syste
 
 To explore its features, take a look at [Features: overview](Features-overview.md)
 
+
+## Advanced options
+
+### Async support
+
+`System.CommandLine.DragonFruit` also makes it easy to wire in support for [Process termination handling](Process-termination-handling.md).
+
+Async `Main()` methods are support it and take a `CancellationToken` this cancellation token. Termination of the app triggers the cancellation of that token allowing you to handle interops.
+
+### Untyped arguments
+
+Further more `System.CommandLine.DragonFruit` still allows your `Main()` to accept args for any untyped arguments you wish to (not) handle or pass along.
+
+
+```csharp
+/// <summary>
+/// A main function can also take <see cref="CancellationToken"/> which is hooked up to support termination (e.g CTRL+C)
+/// </summary>
+/// <param name="boolArg"></param>
+/// <param name="token"></param>
+/// <param name="args"></param>
+/// <returns></returns>
+private static async Task<int> Main(bool boolArg = false, CancellationToken token = default, string[] args = null)
+{
+	try
+	{
+		await Task.Delay(TimeSpan.FromSeconds(20), token);
+	}
+	catch (OperationCanceledException)
+	{
+		return 1;
+	}
+	return 0;
+}
+```
