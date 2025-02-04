@@ -45,6 +45,8 @@ namespace System.CommandLine.Rendering
 
         public bool IsInputRedirected => Console.IsInputRedirected;
 
+        public abstract int Width { get; }
+
         protected virtual void Dispose(bool disposing)
         {
         }
