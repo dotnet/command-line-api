@@ -23,7 +23,8 @@ namespace System.CommandLine.DragonFruit
         {
             try
             {
-                return TryLoad(File.OpenText(filePath), out xmlDocReader);
+                using var fileStreamReader = File.OpenText(filePath);
+                return TryLoad(fileStreamReader, out xmlDocReader);
             }
             catch
             {
