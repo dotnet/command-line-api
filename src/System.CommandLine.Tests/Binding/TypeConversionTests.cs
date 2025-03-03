@@ -270,6 +270,23 @@ namespace System.CommandLine.Tests.Binding
                 .Be(null);
         }
 
+        [Theory]
+        [InlineData("-x", true)]
+        [InlineData("-x:true", true)]
+        [InlineData("-x:false", false)]
+        public void Nullable_bool_option_result_casts_to_nullable_bool(string command, bool expectedValue)
+        {
+            var option = new Option<bool?>("-x");
+
+            var value = new RootCommand { option }
+                .Parse(command)
+                .GetResult(option)
+                .GetValueOrDefault<object>();
+
+            value.Should().BeAssignableTo<bool?>();
+            value.Should().Be(expectedValue);
+        }
+
         [Fact]
         public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
         {
