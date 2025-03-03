@@ -172,6 +172,12 @@ namespace System.CommandLine.Binding
                     continue;
                 }
 
+                if (type.TryGetNullableType(out Type? nullableType))
+                {
+                    type = nullableType;
+                    continue;
+                }
+
                 return false;
             }
         }
@@ -189,7 +195,7 @@ namespace System.CommandLine.Binding
 
                 ArgumentConversionResultType.NoArgument when conversionResult.ArgumentResult.Argument.IsBoolean() =>
                     Success(conversionResult.ArgumentResult, true),
-                        
+
                 _ => conversionResult
             };
         }
