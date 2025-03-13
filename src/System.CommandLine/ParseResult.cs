@@ -236,6 +236,7 @@ namespace System.CommandLine
         /// <returns>A value that can be used as a process exit code.</returns>
         public int Invoke()
         {
+
             var useAsync = false;
 
             if (Action is AsynchronousCommandLineAction)
