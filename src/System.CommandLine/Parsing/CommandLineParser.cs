@@ -146,6 +146,8 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(arguments));
             }
 
+            using var parseActivity = Activities.ActivitySource.StartActivity(DiagnosticsStrings.ParseMethod);
+
             configuration ??= new CommandLineConfiguration(command);
 
             arguments.Tokenize(
@@ -160,7 +162,15 @@ namespace System.CommandLine.Parsing
                 tokenizationErrors,
                 rawInput);
 
-            return operation.Parse();
+            var result = operation.Parse();
+            parseActivity?.AddBaggage(DiagnosticsStrings.Command, result.CommandResult?.Command.Name);
+            if (result.Errors.Count > 0)
+            {
+                parseActivity?.SetStatus(Diagnostics.ActivityStatusCode.Error);
+                parseActivity?.AddBaggage("Errors", string.Join("\n", result.Errors.Select(e => e.Message)));
+
+            }
+            return result;
         }
 
         private enum Boundary
