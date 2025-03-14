@@ -44,6 +44,9 @@ namespace System.CommandLine
         
         internal sealed override Argument Argument => _argument;
 
+        /// <inheritdoc />
+        public override Type ValueType => _argument.ValueType;
+
         /// <summary>
         /// Configures the option to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
