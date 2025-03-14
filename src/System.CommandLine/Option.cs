@@ -63,6 +63,11 @@ namespace System.CommandLine
         public bool Recursive { get; set; }
 
         /// <summary>
+        /// Gets the <see cref="Type" /> that the option's parsed tokens will be converted to.
+        /// </summary>
+        public abstract Type ValueType { get; }
+
+        /// <summary>
         /// Validators that will be called when the option is matched by the parser.
         /// </summary>
         public List<Action<OptionResult>> Validators => _validators ??= new();
