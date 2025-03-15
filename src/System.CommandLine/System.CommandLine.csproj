@@ -5,7 +5,6 @@
     <PackageId>System.CommandLine</PackageId>
     <TargetFrameworks>$(TargetFrameworkForNETSDK);netstandard2.0</TargetFrameworks>
     <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Description>Support for parsing command lines, supporting both POSIX and Windows conventions and shell-agnostic command line completions.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

@@ -225,44 +225,38 @@ namespace System.CommandLine.Parsing
             {
                 int tokensBefore = tokenList.Count;
 
-                string candidate = new('-', 2); // mutable string used to avoid allocations
-                unsafe
+                Span<char> candidate = ['-', '-'];
+                for (int i = 0; i < alias.Length; i++)
                 {
-                    fixed (char* pCandidate = candidate)
+                    if (alias[i] == ':' || alias[i] == '=')
                     {
-                        for (int i = 0; i < alias.Length; i++)
+                        tokenList.Add(new Token(alias.Slice(i + 1).ToString(), TokenType.Argument, default, argumentIndex));
+                        return true;
+                    }
+
+                    candidate[1] = alias[i];
+                    if (!knownTokens.TryGetValue(candidate.ToString(), out Token? found))
+                    {
+                        if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == TokenType.Option)
                         {
-                            if (alias[i] == ':' || alias[i] == '=')
-                            {
-                                tokenList.Add(new Token(alias.Slice(i + 1).ToString(), TokenType.Argument, default, argumentIndex));
-                                return true;
-                            }
-
-                            pCandidate[1] = alias[i];
-                            if (!knownTokens.TryGetValue(candidate, out Token? found))
-                            {
-                                if (tokensBefore != tokenList.Count && tokenList[tokenList.Count - 1].Type == TokenType.Option)
-                                {
-                                    // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
-                                    tokenList.Add(new Token(alias.Slice(i).ToString(), TokenType.Argument, default, argumentIndex));
-                                    return true;
-                                }
-
-                                return false;
-                            }
-
-                            tokenList.Add(new Token(found.Value, found.Type, found.Symbol, argumentIndex));
-                            if (i != alias.Length - 1 && ((Option)found.Symbol!).Greedy)
-                            {
-                                int index = i + 1;
-                                if (alias[index] == ':' || alias[index] == '=')
-                                {
-                                    index++; // Last_bundled_option_can_accept_argument_with_colon_separator
-                                }
-                                tokenList.Add(new Token(alias.Slice(index).ToString(), TokenType.Argument, default, argumentIndex));
-                                return true;
-                            }
+                            // Invalid_char_in_bundle_causes_rest_to_be_interpreted_as_value
+                            tokenList.Add(new Token(alias.Slice(i).ToString(), TokenType.Argument, default, argumentIndex));
+                            return true;
                         }
+
+                        return false;
+                    }
+
+                    tokenList.Add(new Token(found.Value, found.Type, found.Symbol, argumentIndex));
+                    if (i != alias.Length - 1 && ((Option)found.Symbol!).Greedy)
+                    {
+                        int index = i + 1;
+                        if (alias[index] == ':' || alias[index] == '=')
+                        {
+                            index++; // Last_bundled_option_can_accept_argument_with_colon_separator
+                        }
+                        tokenList.Add(new Token(alias.Slice(index).ToString(), TokenType.Argument, default, argumentIndex));
+                        return true;
                     }
                 }
 
