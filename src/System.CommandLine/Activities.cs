@@ -7,12 +7,13 @@ internal static class DiagnosticsStrings
     internal const string LibraryNamespace = "System.CommandLine";
     internal const string ParseMethod = LibraryNamespace + ".Parse";
     internal const string InvokeMethod = LibraryNamespace + ".Invoke";
-    internal const string InvokeType = nameof(InvokeType);
-    internal const string Async = nameof(Async);
-    internal const string Sync = nameof(Sync);
-    internal const string ExitCode = nameof(ExitCode);
-    internal const string Exception = nameof(Exception);
-    internal const string Command = nameof(Command);
+    internal const string InvokeType = "invoke.type";
+    internal const string Async = "async";
+    internal const string Sync = "sync";
+    internal const string ExitCode = "exitcode";
+    internal const string Exception = "exception";
+    internal const string Errors = "errors";
+    internal const string Command = "command";
 }
 
 internal static class Activities

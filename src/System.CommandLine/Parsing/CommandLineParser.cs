@@ -163,12 +163,15 @@ namespace System.CommandLine.Parsing
                 rawInput);
 
             var result = operation.Parse();
-            parseActivity?.AddBaggage(DiagnosticsStrings.Command, result.CommandResult?.Command.Name);
+            parseActivity?.SetTag(DiagnosticsStrings.Command, result.CommandResult?.Command.Name);
             if (result.Errors.Count > 0)
             {
                 parseActivity?.SetStatus(Diagnostics.ActivityStatusCode.Error);
-                parseActivity?.AddBaggage("Errors", string.Join("\n", result.Errors.Select(e => e.Message)));
-
+                parseActivity?.AddBaggage(DiagnosticsStrings.Errors, string.Join("\n", result.Errors.Select(e => e.Message)));
+            }
+            else
+            {
+                parseActivity?.SetStatus(Diagnostics.ActivityStatusCode.Ok);
             }
             return result;
         }
