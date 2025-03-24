@@ -5,11 +5,18 @@ using Xunit;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
     public class ObservabilityTests
     {
+        private readonly ITestOutputHelper log;
+
+        public ObservabilityTests(ITestOutputHelper output)
+        {
+            log = output;
+        }
 
         [Fact]
         public void It_creates_activity_spans_for_parsing()
@@ -64,7 +71,6 @@ namespace System.CommandLine.Tests
             command.SetAction(async (pr, ctok) => await Task.FromResult(0));
 
             var result = await command.Parse(Array.Empty<string>()).InvokeAsync();
-
             activities
                     .Should()
                     .ContainSingle(
@@ -90,7 +96,10 @@ namespace System.CommandLine.Tests
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
             var result = await command.Parse(Array.Empty<string>()).InvokeAsync();
-
+            foreach (var x in activities)
+            {
+                log.WriteLine($"{x.DisplayName}({x.OperationName})/{x.Status}({x.Duration}) - {x.TagObjects} - {string.Join(",", x.Events.Select((k) => $"{k.Name},{k.Tags}"))}");
+            }
             activities
                     .Should()
                     .ContainSingle(
@@ -100,7 +109,7 @@ namespace System.CommandLine.Tests
                              && a.Tags.Any(t => t.Key == "command" && t.Value == "the-command")
                              && a.Tags.Any(t => t.Key == "invoke.type" && t.Value == "async")
                              && a.TagObjects.Any(t => t.Key == "exitcode" && (int)t.Value == 1)
-                             && a.Baggage.Any(t => t.Key == "exception"));
+                             && a.Events.Any(t => t.Name == "exception"));
         }
 
         private static List<Activity> SetupListener()

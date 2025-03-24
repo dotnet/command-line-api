@@ -201,7 +201,12 @@ namespace System.CommandLine.Invocation
             activity.AddTag(DiagnosticsStrings.ExitCode, 1);
             if (exception is not null)
             {
-                activity.AddBaggage(DiagnosticsStrings.Exception, exception.ToString());
+                var tagCollection = new Diagnostics.ActivityTagsCollection
+                {
+                    { DiagnosticsStrings.Exception, exception.ToString() }
+                };
+                var evt = new Diagnostics.ActivityEvent(DiagnosticsStrings.Exception, tags: tagCollection);
+                activity.AddEvent(evt);
             }
         }
 
