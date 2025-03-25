@@ -21,7 +21,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_creates_activity_spans_for_parsing()
         {
-            List<Activity> activities = SetupListener();
+            var (listener, activities) = SetupListener();
 
             var command = new Command("the-command")
             {
@@ -31,7 +31,7 @@ namespace System.CommandLine.Tests
             var args = new[] { "--option", "the-argument" };
 
             var result = command.Parse(args);
-
+            listener.Dispose();
             activities
                     .Should()
                     .ContainSingle(
@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void It_creates_activity_spans_for_parsing_errors()
         {
-            List<Activity> activities = SetupListener();
+            var (listener, activities) = SetupListener();
 
             var command = new Command("the-command")
             {
@@ -52,7 +52,7 @@ namespace System.CommandLine.Tests
 
             var args = new[] { "--opt", "the-argument" };
             var result = command.Parse(args);
-
+            listener.Dispose();
             activities
                     .Should()
                     .ContainSingle(
@@ -65,12 +65,14 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_creates_activity_spans_for_invocations()
         {
-            List<Activity> activities = SetupListener();
+            var (listener, activities) = SetupListener();
 
             var command = new Command("the-command");
             command.SetAction(async (pr, ctok) => await Task.FromResult(0));
 
             var result = await command.Parse(Array.Empty<string>()).InvokeAsync();
+            listener.Dispose();
+
             activities
                     .Should()
                     .ContainSingle(
@@ -85,7 +87,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_creates_activity_spans_for_invocation_errors()
         {
-            List<Activity> activities = SetupListener();
+            var (listener, activities) = SetupListener();
 
             var command = new Command("the-command");
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -96,10 +98,13 @@ namespace System.CommandLine.Tests
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
             var result = await command.Parse(Array.Empty<string>()).InvokeAsync();
+            listener.Dispose();
+
             foreach (var x in activities)
             {
                 log.WriteLine($"{x.DisplayName}({x.OperationName})/{x.Status}({x.Duration}) - {x.TagObjects} - {string.Join(",", x.Events.Select((k) => $"{k.Name},{k.Tags}"))}");
             }
+
             activities
                     .Should()
                     .ContainSingle(
@@ -112,7 +117,7 @@ namespace System.CommandLine.Tests
                              && a.Events.Any(t => t.Name == "exception"));
         }
 
-        private static List<Activity> SetupListener()
+        private static (ActivityListener, List<Activity>) SetupListener()
         {
             List<Activity> activities = new();
             var listener = new ActivityListener();
@@ -120,7 +125,7 @@ namespace System.CommandLine.Tests
             listener.Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllData;
             listener.ActivityStopped = a => activities.Add(a);
             ActivitySource.AddActivityListener(listener);
-            return activities;
+            return new(listener, activities);
         }
     }
 }
