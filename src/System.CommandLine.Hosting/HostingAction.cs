@@ -50,6 +50,12 @@ namespace System.CommandLine.Hosting
                               ?? new HostBuilder();
             hostBuilder.Properties[typeof(ParseResult)] = parseResult;
 
+            // As long as done before first await,
+            // we can set the process termination timeout to null
+            // and let the .NET Host ConsoleLifetime deal with termination
+            parseResult.Configuration.ProcessTerminationTimeout = null;
+            hostBuilder.UseConsoleLifetime();
+
             if (parseResult.Configuration.RootCommand is RootCommand root &&
                 root.Directives.SingleOrDefault(d => d.Name == HostingDirectiveName) is { } directive)
             {
@@ -72,7 +78,6 @@ namespace System.CommandLine.Hosting
 
             var bindingContext = GetBindingContext(parseResult);
             int registeredBefore = 0;
-            hostBuilder.UseInvocationLifetime();
             hostBuilder.ConfigureServices(services =>
             {
                 services.AddSingleton(parseResult);

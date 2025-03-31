@@ -31,16 +31,6 @@ namespace System.CommandLine.Hosting
             Action<IHostBuilder> configureHost = null
         ) => UseHost(config, null, configureHost);
 
-        public static IHostBuilder UseInvocationLifetime(this IHostBuilder host, Action<InvocationLifetimeOptions> configureOptions = null)
-        {
-            return host.ConfigureServices(services =>
-            {
-                services.AddSingleton<IHostLifetime, InvocationLifetime>();
-                if (configureOptions is Action<InvocationLifetimeOptions>)
-                    services.Configure(configureOptions);
-            });
-        }
-
         public static OptionsBuilder<TOptions> BindCommandLine<TOptions>(
             this OptionsBuilder<TOptions> optionsBuilder)
             where TOptions : class
