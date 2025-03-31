@@ -63,7 +63,7 @@ namespace System.CommandLine.Hosting
                 ctxObj is ParseResult invocationContext)
                 return invocationContext;
 
-            throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
+            throw new InvalidOperationException("Host builder has no command-line parse result registered to it.");
         }
 
         public static ParseResult GetParseResult(this HostBuilderContext context)
@@ -74,7 +74,7 @@ namespace System.CommandLine.Hosting
                 ctxObj is ParseResult invocationContext)
                 return invocationContext;
 
-            throw new InvalidOperationException("Host builder has no Invocation Context registered to it.");
+            throw new InvalidOperationException("Host builder context has no command-line parse result registered to it.");
         }
 
         public static IHost GetHost(this ParseResult parseResult)
