@@ -1,0 +1,7 @@
+<Project>
+
+  <ItemGroup Condition="'$(DotNetBuildSourceOnly)' == 'true'">
+    <ProjectToBuild Include="$(RepoRoot)sourcebuild.slnf" />
+  </ItemGroup>
+
+</Project>
