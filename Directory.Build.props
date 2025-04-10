@@ -10,12 +10,9 @@
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(DotNetBuildFromSource)' == 'true' or '$(DotNetBuildSourceOnly)' == 'true'">
-    <TargetFrameworkForNETSDK>$(NetCurrent)</TargetFrameworkForNETSDK>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(DotNetBuildFromSource)' != 'true' and '$(DotNetBuildSourceOnly)' != 'true'">
-    <TargetFrameworkForNETSDK>net8.0</TargetFrameworkForNETSDK>
+  <PropertyGroup>
+    <TargetFrameworkForNETSDK Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(NetCurrent)</TargetFrameworkForNETSDK>
+    <TargetFrameworkForNETSDK Condition="'$(DotNetBuildSourceOnly)' != 'true'">net8.0</TargetFrameworkForNETSDK>
   </PropertyGroup>
 
 </Project>
