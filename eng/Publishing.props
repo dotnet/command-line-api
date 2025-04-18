@@ -1,0 +1,10 @@
+<Project>
+
+   <!-- Update all Artifacts with Kind=Package to have additional metadata item Category="LibraryPackage".
+        This will mean that in VMR builds, command line api packages can get published to a different feed depending on
+        the channel configuration -->
+   <ItemGroup>
+     <Artifact Update="@(Artifact->WithMetadataValue('Kind', 'Package'))" Category="LibraryPackage" />
+   </ItemGroup>
+
+</Project>
