@@ -311,6 +311,7 @@ namespace System.CommandLine.Tests
             var result = rootCommand.Parse("cherry ", simpleConfig);
 
             result.GetCompletions()
+                  .Select(item => item.Label)
                   .Should()
                   .NotContain(new[]{"apple", "banana", "cherry"});
         }
@@ -381,6 +382,7 @@ namespace System.CommandLine.Tests
 
             parseResult
                 .GetCompletions(commandLine.Length + 1)
+                .Select(item => item.Label)
                 .Should()
                 .NotContain("--parent-option");
         }

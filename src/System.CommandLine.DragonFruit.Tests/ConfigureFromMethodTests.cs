@@ -28,7 +28,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             await config.InvokeAsync($"{RootCommand.ExecutableName} --value");
 
-            _receivedValues.Should().BeEquivalentTo(true);
+            _receivedValues.Should().BeEquivalentTo(new object[] { true });
         }
 
         [Theory]
@@ -47,7 +47,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             await config.InvokeAsync(commandLine);
 
-            _receivedValues.Should().BeEquivalentTo(expected);
+            _receivedValues.Should().BeEquivalentTo(new [] { expected });
         }
 
         [Fact]
@@ -220,7 +220,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             await command.Parse("--value").InvokeAsync();
 
-            _receivedValues.Should().BeEquivalentTo(true);
+            _receivedValues.Should().BeEquivalentTo(new [] { true });
         }
 
         [Fact]
@@ -231,7 +231,7 @@ namespace System.CommandLine.DragonFruit.Tests
 
             await command.Parse("").InvokeAsync();
 
-            _receivedValues.Should().BeEquivalentTo(1, 2);
+            _receivedValues.Should().BeEquivalentTo(new [] { 1, 2 });
         }
 
         internal void Method_taking_bool(bool value = false)

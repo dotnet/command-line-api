@@ -12,7 +12,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
   

@@ -1030,12 +1030,12 @@ namespace System.CommandLine.Tests
                   .Children
                   .Select(s => ((OptionResult)s).Option)
                   .Should()
-                  .BeEquivalentTo(option1);
+                  .BeEquivalentTo(new[] { option1 });
             parser.Parse("--a").CommandResult
                   .Children
                   .Select(s => ((OptionResult)s).Option)
                   .Should()
-                  .BeEquivalentTo(option2);
+                  .BeEquivalentTo(new[] { option2 });
         }
 
         [Theory]
@@ -1398,10 +1398,10 @@ namespace System.CommandLine.Tests
                    .CommandResult
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(
+                   .BeEquivalentTo(new [] {
                        new Token("1", TokenType.Argument, argument),
                        new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument));
+                       new Token("3", TokenType.Argument, argument)});
         }
 
         [Fact]
@@ -1420,20 +1420,20 @@ namespace System.CommandLine.Tests
                    .CommandResult
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(
+                   .BeEquivalentTo(new [] {
                        new Token("1", TokenType.Argument, argument),
                        new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument));
+                       new Token("3", TokenType.Argument, argument)});
             command.Parse("1 2 3 4 5")
                    .CommandResult
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(
+                   .BeEquivalentTo(new [] {
                        new Token("1", TokenType.Argument, argument),
                        new Token("2", TokenType.Argument, argument),
                        new Token("3", TokenType.Argument, argument),
                        new Token("4", TokenType.Argument, argument),
-                       new Token("5", TokenType.Argument, argument));
+                       new Token("5", TokenType.Argument, argument)});
         }
 
         [Fact]
@@ -1489,10 +1489,10 @@ namespace System.CommandLine.Tests
                    .GetResult(option)
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(
+                   .BeEquivalentTo(new [] {
                        new Token("1", TokenType.Argument, default),
                        new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default));
+                       new Token("3", TokenType.Argument, default)});
         }
 
         [Fact]
@@ -1509,20 +1509,20 @@ namespace System.CommandLine.Tests
                    .GetResult(option)
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(
+                   .BeEquivalentTo(new [] {
                        new Token("1", TokenType.Argument, default),
                        new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default));
+                       new Token("3", TokenType.Argument, default)});
             command.Parse("-x 1 -x 2 -x 3 -x 4 -x 5")
                    .GetResult(option)
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(
+                   .BeEquivalentTo(new [] {
                        new Token("1", TokenType.Argument, default),
                        new Token("2", TokenType.Argument, default),
                        new Token("3", TokenType.Argument, default),
                        new Token("4", TokenType.Argument, default),
-                       new Token("5", TokenType.Argument, default));
+                       new Token("5", TokenType.Argument, default)});
         }
 
         [Fact]

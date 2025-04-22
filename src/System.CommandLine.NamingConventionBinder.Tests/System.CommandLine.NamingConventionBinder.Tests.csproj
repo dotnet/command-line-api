@@ -19,7 +19,7 @@
   
   <ItemGroup>
     <PackageReference Include="ApprovalTests" />
-    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
   </ItemGroup>
