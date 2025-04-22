@@ -50,11 +50,11 @@ namespace System.CommandLine.Suggest.Tests
 
             registrationPairs
                 .Should()
-                .BeEquivalentTo(
+                .BeEquivalentTo( new [] {
                     new Registration(
                         Path.Combine(dotnetProfileDirectory, "tools", "dotnet-suggest")),
                     new Registration(
-                        Path.Combine(dotnetProfileDirectory, "tools", "t-rex")));
+                        Path.Combine(dotnetProfileDirectory, "tools", "t-rex"))});
         }
     }
 }

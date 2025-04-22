@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Collections;
@@ -38,7 +39,7 @@ public static class AssertionExtensions
         return new AndConstraint<GenericCollectionAssertions<T>>(assertions);
     }
 
-    public static AndConstraint<StringCollectionAssertions> BeEquivalentSequenceTo(
+    public static AndConstraint<StringCollectionAssertions<IEnumerable<string>>> BeEquivalentSequenceTo(
         this StringCollectionAssertions assertions,
         params string[] expectedValues)
     {

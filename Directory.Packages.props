@@ -20,7 +20,7 @@
     <!-- external dependencies -->
     <PackageVersion Include="ApprovalTests" Version="7.0.0-beta.3" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
-    <PackageVersion Include="FluentAssertions" Version="5.10.3" />
+    <PackageVersion Include="AwesomeAssertions" Version="8.0.2" />
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageVersion Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.2" />
