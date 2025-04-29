@@ -5,6 +5,11 @@ variables:
     value: .NETCore
   - name: Codeql.Enabled
     value: true
+  # CodeQL3000 needs this plumbed along as a variable to enable TSA.
+  - name: Codeql.TSAEnabled
+    value: true
+  - name: Codeql.TSAOptionsPath
+    value: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
 
 # CI and PR triggers
 trigger:
@@ -12,6 +17,8 @@ trigger:
   branches:
     include:
     - main
+    - internal/release/*
+    - validation/*
 
 pr:
   autoCancel: false
@@ -35,6 +42,14 @@ extends:
       os: windows
     customBuildTags:
     - ES365AIMigrationTooling
+    sdl:
+      binskim:
+        scanOutputDirectoryOnly: true
+        preReleaseVersion: '4.3.1'
+      policheck:
+        enabled: true
+      tsa:
+        enabled: true
     stages:
     - stage: build
       displayName: Build and Test
