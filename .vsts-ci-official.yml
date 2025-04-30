@@ -43,9 +43,6 @@ extends:
     customBuildTags:
     - ES365AIMigrationTooling
     sdl:
-      binskim:
-        scanOutputDirectoryOnly: true
-        preReleaseVersion: '4.3.1'
       policheck:
         enabled: true
       tsa:
@@ -67,6 +64,9 @@ extends:
           timeoutInMinutes: 180 # increase timeout since BAR publishing might wait a long time
           jobs:
           - job: Windows
+            sdl:
+              binskim:
+                analyzeTargetGlob: +:f|artifacts\bin\**\*.dll;+:f|artifacts\bin\**\*.exe;
             pool:
               name: NetCore1ESPool-Internal
               demands: ImageOverride -equals windows.vs2022.amd64
