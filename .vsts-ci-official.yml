@@ -62,14 +62,6 @@ extends:
           enableSourceBuild: true
           helixRepo: dotnet/command-line-api
           timeoutInMinutes: 180 # increase timeout since BAR publishing might wait a long time
-          templateContext:
-            sdl:
-              binskim:
-                analyzeTargetGlob: +:f|artifacts\bin\**\*.dll;+:f|artifacts\bin\**\*.exe;-:f|artifacts\bin\**\xunit*.dll;-:f|artifacts\bin\**\verify*.dll;
-          # WORKAROUND: BinSkim requires the folder exist prior to scanning.
-          preSteps:
-          - powershell: New-Item -ItemType Directory -Path $(Build.SourcesDirectory)/artifacts/bin -Force
-            displayName: Create artifacts/bin directory
           jobs:
           - job: Windows
             pool:
@@ -111,8 +103,10 @@ extends:
                   ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
                     _SignType: real
                     _BuildArgs: $(_OfficialBuildArgs)
-
             templateContext:
+              sdl:
+                binskim:
+                  analyzeTargetGlob: +:f|artifacts\bin\**\*.dll;+:f|artifacts\bin\**\*.exe;-:f|artifacts\bin\**\xunit*.dll;-:f|artifacts\bin\**\verify*.dll;
               outputs:
               - output: pipelineArtifact
                 displayName: Upload package artifacts
@@ -124,7 +118,10 @@ extends:
                 condition: and(eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
                 targetPath: '$(Build.SourcesDirectory)\artifacts\SymStore\$(_BuildConfig)'
                 artifactName: 'NativeSymbols'
-
+            # WORKAROUND: BinSkim requires the folder exist prior to scanning.
+            preSteps:
+            - powershell: New-Item -ItemType Directory -Path $(Build.SourcesDirectory)/artifacts/bin -Force
+              displayName: Create artifacts/bin directory
             steps:
             - checkout: self
               clean: true
