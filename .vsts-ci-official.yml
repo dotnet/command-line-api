@@ -62,11 +62,16 @@ extends:
           enableSourceBuild: true
           helixRepo: dotnet/command-line-api
           timeoutInMinutes: 180 # increase timeout since BAR publishing might wait a long time
-          jobs:
-          - job: Windows
+          templateContext:
             sdl:
               binskim:
-                analyzeTargetGlob: +:f|artifacts\bin\**\*.dll;+:f|artifacts\bin\**\*.exe;
+                analyzeTargetGlob: +:f|artifacts\bin\**\*.dll;+:f|artifacts\bin\**\*.exe;-:f|artifacts\bin\**\xunit*.dll;-:f|artifacts\bin\**\verify*.dll;
+          # WORKAROUND: BinSkim requires the folder exist prior to scanning.
+          preSteps:
+          - powershell: New-Item -ItemType Directory -Path $(Build.SourcesDirectory)/artifacts/bin -Force
+            displayName: Create artifacts/bin directory
+          jobs:
+          - job: Windows
             pool:
               name: NetCore1ESPool-Internal
               demands: ImageOverride -equals windows.vs2022.amd64
