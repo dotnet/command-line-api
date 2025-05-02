@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,8 +11,17 @@ namespace System.CommandLine.Invocation
     {
         internal static async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken)
         {
+            using var invokeActivity = Activities.ActivitySource.StartActivity(DiagnosticsStrings.InvokeMethod);
+            if (invokeActivity is not null)
+            {
+                invokeActivity.DisplayName = parseResult.CommandResult.FullCommandName();
+                invokeActivity.AddTag(DiagnosticsStrings.Command, parseResult.CommandResult.Command.Name);
+                invokeActivity.AddTag(DiagnosticsStrings.InvokeType, DiagnosticsStrings.Async);
+            }
+
             if (parseResult.Action is null)
             {
+                invokeActivity?.SetStatus(Diagnostics.ActivityStatusCode.Error);
                 return ReturnCodeForMissingAction(parseResult);
             }
 
@@ -41,7 +51,9 @@ namespace System.CommandLine.Invocation
                 switch (parseResult.Action)
                 {
                     case SynchronousCommandLineAction syncAction:
-                        return syncAction.Invoke(parseResult);
+                        var syncResult = syncAction.Invoke(parseResult);
+                        invokeActivity?.SetExitCode(syncResult);
+                        return syncResult;
 
                     case AsynchronousCommandLineAction asyncAction:
                         var startedInvocation = asyncAction.InvokeAsync(parseResult, cts.Token);
@@ -52,7 +64,9 @@ namespace System.CommandLine.Invocation
 
                         if (terminationHandler is null)
                         {
-                            return await startedInvocation;
+                            var asyncResult = await startedInvocation;
+                            invokeActivity?.SetExitCode(asyncResult);
+                            return asyncResult;
                         }
                         else
                         {
@@ -60,15 +74,20 @@ namespace System.CommandLine.Invocation
                             // In such cases, when CancelOnProcessTermination is configured and user presses Ctrl+C,
                             // ProcessTerminationCompletionSource completes first, with the result equal to native exit code for given signal.
                             Task<int> firstCompletedTask = await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task);
-                            return await firstCompletedTask; // return the result or propagate the exception
+                            var asyncResult = await firstCompletedTask;  // return the result or propagate the exception
+                            invokeActivity?.SetExitCode(asyncResult);
+                            return asyncResult;
                         }
 
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(parseResult.Action));
+                        var error = new ArgumentOutOfRangeException(nameof(parseResult.Action));
+                        invokeActivity?.Error(error);
+                        throw error;
                 }
             }
             catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
             {
+                invokeActivity?.Error(ex);
                 return DefaultExceptionHandler(ex, parseResult.Configuration);
             }
             finally
@@ -79,9 +98,18 @@ namespace System.CommandLine.Invocation
 
         internal static int Invoke(ParseResult parseResult)
         {
+            using var invokeActivity = Activities.ActivitySource.StartActivity(DiagnosticsStrings.InvokeMethod);
+            if (invokeActivity is not null)
+            {
+                invokeActivity.DisplayName = parseResult.CommandResult.FullCommandName();
+                invokeActivity.AddTag(DiagnosticsStrings.Command, parseResult.CommandResult.Command.Name);
+                invokeActivity.AddTag(DiagnosticsStrings.InvokeType, DiagnosticsStrings.Sync);
+            }
+
             switch (parseResult.Action)
             {
                 case null:
+                    invokeActivity?.Error();
                     return ReturnCodeForMissingAction(parseResult);
 
                 case SynchronousCommandLineAction syncAction:
@@ -112,15 +140,20 @@ namespace System.CommandLine.Invocation
                             }
                         }
 
-                        return syncAction.Invoke(parseResult);
+                        var result = syncAction.Invoke(parseResult);
+                        invokeActivity?.SetExitCode(result);
+                        return result;
                     }
                     catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
                     {
+                        invokeActivity?.Error(ex);
                         return DefaultExceptionHandler(ex, parseResult.Configuration);
                     }
 
                 default:
-                    throw new InvalidOperationException($"{nameof(AsynchronousCommandLineAction)} called within non-async invocation.");
+                    var error = new InvalidOperationException($"{nameof(AsynchronousCommandLineAction)} called within non-async invocation.");
+                    invokeActivity?.Error(error);
+                    throw error;
             }
         }
 
@@ -148,6 +181,44 @@ namespace System.CommandLine.Invocation
             else
             {
                 return 0;
+            }
+        }
+
+        private static void Succeed(this Diagnostics.Activity activity)
+        {
+            activity.SetStatus(Diagnostics.ActivityStatusCode.Ok);
+            activity.AddTag(DiagnosticsStrings.ExitCode, 0);
+        }
+        private static void Error(this Diagnostics.Activity activity, int statusCode)
+        {
+            activity.SetStatus(Diagnostics.ActivityStatusCode.Error);
+            activity.AddTag(DiagnosticsStrings.ExitCode, statusCode);
+        }
+
+        private static void Error(this Diagnostics.Activity activity, Exception? exception = null)
+        {
+            activity.SetStatus(Diagnostics.ActivityStatusCode.Error);
+            activity.AddTag(DiagnosticsStrings.ExitCode, 1);
+            if (exception is not null)
+            {
+                var tagCollection = new Diagnostics.ActivityTagsCollection
+                {
+                    { DiagnosticsStrings.Exception, exception.ToString() }
+                };
+                var evt = new Diagnostics.ActivityEvent(DiagnosticsStrings.Exception, tags: tagCollection);
+                activity.AddEvent(evt);
+            }
+        }
+
+        private static void SetExitCode(this Diagnostics.Activity activity, int exitCode)
+        {
+            if (exitCode == 0)
+            {
+                activity.Succeed();
+            }
+            else
+            {
+                activity.Error(exitCode);
             }
         }
     }
