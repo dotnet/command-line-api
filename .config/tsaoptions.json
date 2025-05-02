@@ -4,7 +4,7 @@
     "projectName": "DEVDIV",
     "areaPath": "DevDiv\\NET Libraries",
     "iterationPath": "DevDiv",
-    "notificationAliases": [ "dotnetlib@microsoft.com" ],
+    "notificationAliases": [ "system-commandline@microsoft.com" ],
     "repositoryName":"command-line-api",
     "codebaseName": "command-line-api",
     "serviceTreeId": "7a9b52f6-7805-416c-9390-343168c0cdb3"
