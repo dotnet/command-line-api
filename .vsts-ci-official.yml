@@ -5,6 +5,11 @@ variables:
     value: .NETCore
   - name: Codeql.Enabled
     value: true
+  # CodeQL3000 needs this plumbed along as a variable to enable TSA.
+  - name: Codeql.TSAEnabled
+    value: true
+  - name: Codeql.TSAOptionsPath
+    value: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
 
 # CI and PR triggers
 trigger:
@@ -12,6 +17,8 @@ trigger:
   branches:
     include:
     - main
+    - internal/release/*
+    - validation/*
 
 pr:
   autoCancel: false
@@ -35,6 +42,11 @@ extends:
       os: windows
     customBuildTags:
     - ES365AIMigrationTooling
+    sdl:
+      policheck:
+        enabled: true
+      tsa:
+        enabled: true
     stages:
     - stage: build
       displayName: Build and Test
@@ -91,8 +103,10 @@ extends:
                   ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
                     _SignType: real
                     _BuildArgs: $(_OfficialBuildArgs)
-
             templateContext:
+              sdl:
+                binskim:
+                  analyzeTargetGlob: +:f|artifacts\bin\**\*.dll;+:f|artifacts\bin\**\*.exe;-:f|artifacts\bin\**\xunit*.dll;-:f|artifacts\bin\**\verify*.dll;
               outputs:
               - output: pipelineArtifact
                 displayName: Upload package artifacts
@@ -104,7 +118,10 @@ extends:
                 condition: and(eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
                 targetPath: '$(Build.SourcesDirectory)\artifacts\SymStore\$(_BuildConfig)'
                 artifactName: 'NativeSymbols'
-
+            # WORKAROUND: BinSkim requires the folder exist prior to scanning.
+            preSteps:
+            - powershell: New-Item -ItemType Directory -Path $(Build.SourcesDirectory)/artifacts/bin -Force
+              displayName: Create artifacts/bin directory
             steps:
             - checkout: self
               clean: true
