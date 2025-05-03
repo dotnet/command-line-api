@@ -14,9 +14,9 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.0.1" />
     <!-- Runtime dependencies -->
-    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
     <!-- external dependencies -->
     <PackageVersion Include="ApprovalTests" Version="7.0.0-beta.3" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
