@@ -4,10 +4,7 @@
     <!-- Default version number to global tool. -->
     <VersionPrefix>0.1.0</VersionPrefix>
     <AutoGenerateAssemblyVersion>true</AutoGenerateAssemblyVersion>
-    <PreReleaseVersionLabel>
-    </PreReleaseVersionLabel>
-    <UsingToolSymbolUploader>true</UsingToolSymbolUploader>
-    <PublishWindowsPdb>true</PublishWindowsPdb>
+    <PreReleaseVersionLabel></PreReleaseVersionLabel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(UseGlobalToolVersion)' == 'true'">
     <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
