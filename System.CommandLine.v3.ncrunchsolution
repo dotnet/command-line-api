@@ -2,9 +2,11 @@
   <Settings>
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
     <CustomBuildProperties>
-      <Value>TargetFrameworks = net7.0</Value>
-      <Value>TargetFramework = net7.0</Value>
+      <Value>TargetFrameworks = net8.0</Value>
+      <Value>TargetFramework = net8.0</Value>
     </CustomBuildProperties>
+    <EnableRDI>False</EnableRDI>
+    <RdiConfigured>True</RdiConfigured>
     <SolutionConfigured>True</SolutionConfigured>
   </Settings>
 </SolutionConfiguration>

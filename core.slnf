@@ -1,0 +1,13 @@
+{
+  "solution": {
+    "path": "System.CommandLine.sln",
+    "projects": [
+      "src\\System.CommandLine.ApiCompatibility.Tests\\System.CommandLine.ApiCompatibility.Tests.csproj",
+      "src\\System.CommandLine.DragonFruit\\System.CommandLine.DragonFruit.csproj",
+      "src\\System.CommandLine.NamingConventionBinder.Tests\\System.CommandLine.NamingConventionBinder.Tests.csproj",
+      "src\\System.CommandLine.NamingConventionBinder\\System.CommandLine.NamingConventionBinder.csproj",
+      "src\\System.CommandLine.Tests\\System.CommandLine.Tests.csproj",
+      "src\\System.CommandLine\\System.CommandLine.csproj"
+    ]
+  }
+}
