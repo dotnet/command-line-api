@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-
 namespace System.CommandLine
 {
     /// <inheritdoc cref="Argument" />
@@ -82,85 +80,6 @@ namespace System.CommandLine
             }
 
             return DefaultValueFactory.Invoke(argumentResult);
-        }
-
-        /// <summary>
-        /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
-        /// </summary>
-        /// <param name="values">The values that are allowed for the argument.</param>
-        public void AcceptOnlyFromAmong(params string[] values)
-        {
-            if (values is not null && values.Length > 0)
-            {
-                Validators.Clear();
-                Validators.Add(UnrecognizedArgumentError);
-                CompletionSources.Clear();
-                CompletionSources.Add(values);
-            }
-
-            void UnrecognizedArgumentError(ArgumentResult argumentResult)
-            {
-                for (var i = 0; i < argumentResult.Tokens.Count; i++)
-                {
-                    var token = argumentResult.Tokens[i];
-
-                    if (token.Symbol is null || token.Symbol == this)
-                    {
-                        if (Array.IndexOf(values, token.Value) < 0)
-                        {
-                            argumentResult.AddError(LocalizationResources.UnrecognizedArgument(token.Value, values));
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Configures the argument to accept only values representing legal file paths.
-        /// </summary>
-        public void AcceptLegalFilePathsOnly()
-        {
-            Validators.Add(static result =>
-            {
-                var invalidPathChars = Path.GetInvalidPathChars();
-
-                for (var i = 0; i < result.Tokens.Count; i++)
-                {
-                    var token = result.Tokens[i];
-
-                    // File class no longer check invalid character
-                    // https://blogs.msdn.microsoft.com/jeremykuhne/2018/03/09/custom-directory-enumeration-in-net-core-2-1/
-                    var invalidCharactersIndex = token.Value.IndexOfAny(invalidPathChars);
-
-                    if (invalidCharactersIndex >= 0)
-                    {
-                        result.AddError(LocalizationResources.InvalidCharactersInPath(token.Value[invalidCharactersIndex]));
-                    }
-                }
-            });
-        }
-
-        /// <summary>
-        /// Configures the argument to accept only values representing legal file names.
-        /// </summary>
-        /// <remarks>A parse error will result, for example, if file path separators are found in the parsed value.</remarks>
-        public void AcceptLegalFileNamesOnly()
-        {
-            Validators.Add(static result =>
-            {
-                var invalidFileNameChars = Path.GetInvalidFileNameChars();
-
-                for (var i = 0; i < result.Tokens.Count; i++)
-                {
-                    var token = result.Tokens[i];
-                    var invalidCharactersIndex = token.Value.IndexOfAny(invalidFileNameChars);
-
-                    if (invalidCharactersIndex >= 0)
-                    {
-                        result.AddError(LocalizationResources.InvalidCharactersInFileName(token.Value[invalidCharactersIndex]));
-                    }
-                }
-            });
         }
 
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]
