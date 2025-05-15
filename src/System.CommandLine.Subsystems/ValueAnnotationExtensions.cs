@@ -21,8 +21,10 @@ public static class ValueAnnotationExtensions
     /// which calculates the actual default value, based on the default value annotation and default value calculation,
     /// whether directly stored on the symbol or from the subsystem's <see cref="IAnnotationProvider"/>.
     /// </remarks>
-    public static bool TryGetDefault(this CliValueSymbol valueSymbol, out ValueSource? defaultValueSource)
-        => valueSymbol.TryGetAnnotation(ValueAnnotations.DefaultValue, out defaultValueSource);
+    public static ValueSource? GetDefault(this CliValueSymbol valueSymbol)
+        => valueSymbol.TryGetAnnotation(ValueAnnotations.DefaultValue, out var defaultValueSource)
+            ? (ValueSource)defaultValueSource 
+            : null;
 
     /// <summary>
     /// Sets the default value annotation on the <paramref name="option"/>

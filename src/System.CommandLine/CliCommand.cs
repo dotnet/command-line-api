@@ -195,8 +195,7 @@ namespace System.CommandLine
 
         // Hide from IntelliSense as it's only to support initializing via C# collection expression
         // More specific efficient overloads are available for all supported symbol types.
-        //[DebuggerStepThrough]
-        //[EditorBrowsable(EditorBrowsableState.Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void Add(CliSymbol symbol)
         {
             if (symbol is CliCommand cmd)
@@ -228,13 +227,11 @@ namespace System.CommandLine
        */
         /// <inheritdoc />
         // Hide from IntelliSense as it's only to support C# collection initializer
-        [DebuggerStepThrough]
         [EditorBrowsable(EditorBrowsableState.Never)]
         IEnumerator IEnumerable.GetEnumerator() => Children.GetEnumerator();
 
         /// <inheritdoc />
         // Hide from IntelliSense as it's only to support initializing via C# collection expression
-        [DebuggerStepThrough]
         [EditorBrowsable(EditorBrowsableState.Never)]
         IEnumerator<CliSymbol> IEnumerable<CliSymbol>.GetEnumerator() => Children.GetEnumerator();
         /*

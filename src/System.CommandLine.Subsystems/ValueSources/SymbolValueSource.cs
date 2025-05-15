@@ -14,7 +14,7 @@ namespace System.CommandLine.ValueSources;
 public sealed class SymbolValueSource<T>
     : ValueSource<T>
 {
-    // TODO: API differences between this adn RelativeToSymbols are very annoying
+    // TODO: API differences between this and RelativeToSymbols are very annoying
     internal SymbolValueSource(
        CliValueSymbol otherSymbol,
        Func<object?, (bool success, T? value)>? calculation = null,

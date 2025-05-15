@@ -56,15 +56,14 @@ Suggestion: Use internal constructors and leave conditions public
 
 ## Should `ValueCondition` be called `Condition`?
 
-They may apply to commands.
+They may apply to comm
+
 
 ## Can we remove the "Annotations" in xxxxAnnotationExtensions
 
 We have other extensions, such as `AddCalculation`. Where should it go?
 
 They may shift to extension types in the future.
-
-It's a long in Solution Explorer
 
 ## Calculated value design
 

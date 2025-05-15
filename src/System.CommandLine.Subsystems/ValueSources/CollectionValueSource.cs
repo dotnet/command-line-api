@@ -3,9 +3,11 @@
 
 namespace System.CommandLine.ValueSources;
 
+// TODO: Consider creating a set of classes with different arity: T1 and T1, T2 and T1, T2, T3, etc.
+
 /// <summary>
-/// <see cref="ValueSource"/> that returns the value of the specified other symbol.
-/// If the calculation delegate is supplied, the returned value of the calculation is returned.
+/// <see cref="ValueSource"/> that returns the value value calculated from a set of other symbols.
+/// The calculation must be supplied. the returned value of the calculation is returned.
 /// </summary>
 /// <typeparam name="T">The type to be returned, which is almost always the type of the symbol the ValueSource will be used for.</typeparam>
 /// <param name="otherSymbols">The <see cref="CliOption">, <see cref="CliArgument"/>, or <see cref="CalculatedValue"/> to include as sources.</param>
