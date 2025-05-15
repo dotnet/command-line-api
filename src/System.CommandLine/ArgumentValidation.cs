@@ -122,10 +122,10 @@ namespace System.CommandLine
             return argument;
         }
 
-
         /// <summary>
         /// Configures the argument to accept only the specified values, and to suggest them as command line completions.
         /// </summary>
+        /// <param name="argument">The argument to configure.</param>
         /// <param name="values">The values that are allowed for the argument.</param>
         public static Argument<T> AcceptOnlyFromAmong<T>(
             this Argument<T> argument, 
