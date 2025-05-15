@@ -15,9 +15,6 @@
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
     public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; }
-    public System.Void AcceptLegalFileNamesOnly()
-    public System.Void AcceptLegalFilePathsOnly()
-    public System.Void AcceptOnlyFromAmong(System.String[] values)
   public struct ArgumentArity : System.ValueType, System.IEquatable<ArgumentArity>
     public static ArgumentArity ExactlyOne { get; }
     public static ArgumentArity OneOrMore { get; }
@@ -35,6 +32,9 @@
     public static Argument<System.IO.DirectoryInfo> AcceptExistingOnly(this Argument<System.IO.DirectoryInfo> argument)
     public static Argument<System.IO.FileSystemInfo> AcceptExistingOnly(this Argument<System.IO.FileSystemInfo> argument)
     public static Argument<T> AcceptExistingOnly<T>(this Argument<T> argument)
+    public static Argument<T> AcceptLegalFileNamesOnly<T>(this Argument<T> argument)
+    public static Argument<T> AcceptLegalFilePathsOnly<T>(this Argument<T> argument)
+    public static Argument<T> AcceptOnlyFromAmong<T>(this Argument<T> argument, System.String[] values)
   public class Command : Symbol, System.Collections.IEnumerable
     .ctor(System.String name, System.String description = null)
     public System.CommandLine.Invocation.CommandLineAction Action { get; set; }
@@ -105,9 +105,9 @@
     public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
     public System.Type ValueType { get; }
-    public System.Void AcceptLegalFileNamesOnly()
-    public System.Void AcceptLegalFilePathsOnly()
-    public System.Void AcceptOnlyFromAmong(System.String[] values)
+    public Option<T> AcceptLegalFileNamesOnly()
+    public Option<T> AcceptLegalFilePathsOnly()
+    public Option<T> AcceptOnlyFromAmong(System.String[] values)
   public static class OptionValidation
     public static Option<System.IO.FileInfo> AcceptExistingOnly(this Option<System.IO.FileInfo> option)
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
