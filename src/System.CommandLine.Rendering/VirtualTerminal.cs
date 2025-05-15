@@ -26,6 +26,8 @@ namespace System.CommandLine.Rendering
                 Ansi.Color.Foreground.Default.EscapeSequence);
         }
 
+        public override int Width => int.MaxValue;
+
         public override void Clear()
         {
             Console.Out.Write(
