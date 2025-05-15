@@ -7,7 +7,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU5125;CS0618</NoWarn>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>13.0</LangVersion>
     <PackageProjectUrl>https://github.com/dotnet/command-line-api</PackageProjectUrl>
   </PropertyGroup>
 

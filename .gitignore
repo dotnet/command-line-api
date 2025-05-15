@@ -147,6 +147,7 @@ _NCrunch_*/
 _ReSharper.*/
 buildlog.txt
 nCrunchTemp*
+.NCrunch_System.CommandLine/
 TestResults/
 
 .fake

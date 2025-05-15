@@ -54,7 +54,6 @@ namespace System.CommandLine
             where T : IEnumerable<FileSystemInfo>
         {
             option._argument.AcceptExistingOnly();
-
             return option;
         }
     }
