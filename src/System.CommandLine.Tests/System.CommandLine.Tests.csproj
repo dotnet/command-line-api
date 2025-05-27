@@ -4,7 +4,7 @@
     <TargetFrameworks>$(TargetFrameworkForNETSDK);$(NetFrameworkCurrent)</TargetFrameworks>
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
-    <NoWarn>$(NoWar);CS8632</NoWarn> <!-- Suppress nullable warning for files included as links -->
+    <NoWarn>$(NoWarn);CS8632</NoWarn> <!-- Suppress nullable warning for files included as links -->
   </PropertyGroup>
   
   <ItemGroup>   
