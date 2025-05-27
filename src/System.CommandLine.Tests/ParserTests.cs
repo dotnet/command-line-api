@@ -826,6 +826,33 @@ namespace System.CommandLine.Tests
             GetValue(result, argument)
                   .Should()
                   .Be("default");
+
+            result.GetRequiredValue(argument)
+                  .Should()
+                  .Be("default");
+        }
+
+        [Fact]
+        public void GetRequiredValue_throws_when_argument_without_default_value_was_not_provided()
+        {
+            Argument<int> argument = new("the-arg");
+            Option<bool> option = new("--option");
+
+            Command command = new("command")
+            {
+                argument,
+                option
+            };
+
+            ParseResult result = command.Parse("command --option");
+
+            result.Invoking(result => result.GetRequiredValue(argument))
+                  .Should()
+                  .Throw<InvalidOperationException>();
+
+            result.Invoking(result => result.GetRequiredValue<int>(argument.Name))
+                  .Should()
+                  .Throw<InvalidOperationException>();
         }
 
         [Fact]
@@ -922,6 +949,11 @@ namespace System.CommandLine.Tests
             var result = command.Parse("the-directory");
 
             GetValue(result, argument)
+                  .Name
+                  .Should()
+                  .Be("the-directory");
+
+            result.GetRequiredValue(argument)
                   .Name
                   .Should()
                   .Be("the-directory");
@@ -1158,6 +1190,10 @@ namespace System.CommandLine.Tests
             result.CommandResult.Command.Should().BeSameAs(subcommand);
 
             GetValue(result, argument)
+                  .Should()
+                  .BeEquivalentSequenceTo("one", "two", "three", "subcommand", "four");
+
+            result.GetRequiredValue(argument)
                   .Should()
                   .BeEquivalentSequenceTo("one", "two", "three", "subcommand", "four");
         }

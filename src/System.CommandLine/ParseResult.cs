@@ -133,6 +133,35 @@ namespace System.CommandLine
         public T? GetValue<T>(string name)
             => RootCommandResult.GetValue<T>(name);
 
+        /// <summary>
+        /// Gets the parsed or default value for the specified required argument or throws.
+        /// </summary>
+        /// <param name="argument">The argument for which to get a value.</param>
+        /// <returns>The parsed value or a configured default.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when required argument was not parsed or has no default value configured.</exception>
+        public T GetRequiredValue<T>(Argument<T> argument)
+            => RootCommandResult.GetRequiredValue(argument);
+
+        /// <summary>
+        /// Gets the parsed or default value for the specified required option or throws.
+        /// </summary>
+        /// <param name="option">The option for which to get a value.</param>
+        /// <returns>The parsed value or a configured default.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when required option was not parsed or has no default value configured.</exception>
+        public T GetRequiredValue<T>(Option<T> option)
+            => RootCommandResult.GetRequiredValue(option);
+
+        /// <summary>
+        /// Gets the parsed or default value for the specified required symbol name, in the context of parsed command (not entire symbol tree).
+        /// </summary>
+        /// <param name="name">The name of the required Symbol for which to get a value.</param>
+        /// <returns>The parsed value or a configured default.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when parsing resulted in parse error(s) or required symbol was not parsed or has no default value configured.</exception>
+        /// <exception cref="ArgumentException">Thrown when there was no symbol defined for given name for the parsed command.</exception>
+        /// <exception cref="InvalidCastException">Thrown when parsed result can not be cast to <typeparamref name="T"/>.</exception>
+        public T GetRequiredValue<T>(string name)
+            => RootCommandResult.GetRequiredValue<T>(name);
+
         /// <inheritdoc />
         public override string ToString() => ParseDiagramAction.Diagram(this).ToString();
 

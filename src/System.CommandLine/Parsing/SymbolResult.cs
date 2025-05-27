@@ -122,6 +122,22 @@ namespace System.CommandLine.Parsing
             return Argument<T>.CreateDefaultValue();
         }
 
+        /// <inheritdoc cref="ParseResult.GetRequiredValue{T}(Argument{T})"/>
+        public T GetRequiredValue<T>(Argument<T> argument)
+            => GetResult(argument) switch
+            {
+                ArgumentResult argumentResult => argumentResult.GetValueOrDefault<T>(),
+                null => throw new InvalidOperationException($"{argument.Name} is required but was not provided."),
+            };
+
+        /// <inheritdoc cref="ParseResult.GetRequiredValue{T}(Option{T})"/>
+        public T GetRequiredValue<T>(Option<T> option)
+            => GetResult(option) switch
+            {
+                OptionResult optionResult => optionResult.GetValueOrDefault<T>(),
+                null => throw new InvalidOperationException($"{option.Name} is required but was not provided."),
+            };
+
         /// <summary>
         /// Gets the value for a symbol having the specified name anywhere in the parse tree.
         /// </summary>
@@ -146,6 +162,20 @@ namespace System.CommandLine.Parsing
 
             return Argument<T>.CreateDefaultValue();
         }
+
+        /// <summary>
+        /// Gets the value for a symbol having the specified name anywhere in the parse tree.
+        /// </summary>
+        /// <param name="name">The name of the symbol for which to find a result.</param>
+        /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
+        public T GetRequiredValue<T>(string name)
+            => GetResult(name) switch
+            {
+                OptionResult optionResult => optionResult.GetValueOrDefault<T>(),
+                ArgumentResult argumentResult => argumentResult.GetValueOrDefault<T>(),
+                SymbolResult _ => throw new InvalidOperationException($"{name} is not an option or argument."),
+                _ => throw new InvalidOperationException($"{name} is required but was not provided."),
+            };
 
         internal virtual bool UseDefaultValueFor(ArgumentResult argumentResult) => false;
     }
