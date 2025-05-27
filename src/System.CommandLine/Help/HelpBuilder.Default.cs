@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace System.CommandLine.Help;
 
-public partial class HelpBuilder
+internal partial class HelpBuilder
 {
     /// <summary>
     /// Provides default formatting for help output.

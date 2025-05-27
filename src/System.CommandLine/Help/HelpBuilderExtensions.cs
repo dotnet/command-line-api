@@ -5,7 +5,7 @@ using System.IO;
 
 namespace System.CommandLine.Help
 {
-    public partial class HelpBuilder
+    internal partial class HelpBuilder
     {
         /// <summary>
         /// Specifies custom help details for a specific symbol.

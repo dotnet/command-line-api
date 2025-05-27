@@ -44,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="System.CommandLine.Tests" />
     <InternalsVisibleTo Include="System.CommandLine.NamingConventionBinder" />
   </ItemGroup>
 

@@ -11,7 +11,7 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Formats output to be shown to users to describe how to use a command line tool.
     /// </summary>
-    public partial class HelpBuilder 
+    internal partial class HelpBuilder 
     {
         private const string Indent = "  ";
 

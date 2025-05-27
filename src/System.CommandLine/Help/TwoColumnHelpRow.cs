@@ -8,7 +8,7 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Provides details about an item to be formatted to output in order to display two-column command line help.
     /// </summary>
-    public class TwoColumnHelpRow : IEquatable<TwoColumnHelpRow?>
+    internal class TwoColumnHelpRow : IEquatable<TwoColumnHelpRow?>
     {
         /// <param name="firstColumnText">The name and invocation details, typically displayed in the first help column.</param>
         /// <param name="secondColumnText">The description of a symbol, typically displayed in the second help column.</param>

@@ -8,7 +8,7 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Supports formatting command line help.
     /// </summary>
-    public class HelpContext
+    internal class HelpContext
     {
         /// <param name="helpBuilder">The current help builder.</param>
         /// <param name="command">The command for which help is being formatted.</param>
