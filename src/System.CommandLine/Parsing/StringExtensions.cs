@@ -24,25 +24,6 @@ namespace System.CommandLine.Parsing
                                 value,
                                 CompareOptions.OrdinalIgnoreCase);
 
-        internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
-        {
-            if (rawAlias[0] == '/')
-            {
-                return ("/", rawAlias.Substring(1));
-            }
-            else if (rawAlias[0] == '-')
-            {
-                if (rawAlias.Length > 1 && rawAlias[1] == '-')
-                {
-                    return ("--", rawAlias.Substring(2));
-                }
-
-                return ("-", rawAlias.Substring(1));
-            }
-
-            return (null, rawAlias);
-        }
-
         // this method is not returning a Value Tuple or a dedicated type to avoid JITting
         internal static void Tokenize(
             this IReadOnlyList<string> args,

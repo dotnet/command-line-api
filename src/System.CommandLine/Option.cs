@@ -137,5 +137,11 @@ namespace System.CommandLine
                    .OrderBy(item => item.SortText.IndexOfCaseInsensitive(context.WordToComplete))
                    .ThenBy(symbol => symbol.Label, StringComparer.OrdinalIgnoreCase);
         }
+
+        /// <summary>
+        /// Gets the default value for the option.
+        /// </summary>
+        /// <returns>Returns the default value for the option, if defined. Null otherwise.</returns>
+        public object? GetDefaultValue() => Argument.GetDefaultValue();
     }
 }

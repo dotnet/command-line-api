@@ -5,7 +5,7 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Provides command line help.
     /// </summary>
-    public sealed class HelpAction : SynchronousCommandLineAction
+    public sealed class CustomHelpAction : SynchronousCommandLineAction
     {
         private HelpBuilder? _builder;
 
