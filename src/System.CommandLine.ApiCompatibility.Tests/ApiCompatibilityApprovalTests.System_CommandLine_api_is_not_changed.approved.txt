@@ -129,6 +129,7 @@
     public System.CommandLine.Parsing.OptionResult GetResult(Option option)
     public System.CommandLine.Parsing.DirectiveResult GetResult(Directive directive)
     public System.CommandLine.Parsing.SymbolResult GetResult(Symbol symbol)
+    public System.CommandLine.Parsing.SymbolResult GetResult(System.String name)
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(System.String name)
