@@ -215,8 +215,14 @@ namespace System.CommandLine.Tests
             var result = rootCommand.Parse(prefix + "c value-for-c " + prefix + "a value-for-a");
 
             result.GetValue(optionA).Should().Be("value-for-a");
+            result.GetRequiredValue(optionA).Should().Be("value-for-a");
+            result.GetRequiredValue<string>(optionA.Name).Should().Be("value-for-a");
             result.GetResult(optionB).Should().BeNull();
+            result.Invoking(result => result.GetRequiredValue(optionB)).Should().Throw<InvalidOperationException>();
+            result.Invoking(result => result.GetRequiredValue<string>(optionB.Name)).Should().Throw<InvalidOperationException>();
             result.GetValue(optionC).Should().Be("value-for-c");
+            result.GetRequiredValue(optionC).Should().Be("value-for-c");
+            result.GetRequiredValue<string>(optionC.Name).Should().Be("value-for-c");
         }
 
         [Fact]
@@ -243,10 +249,20 @@ namespace System.CommandLine.Tests
                 DefaultValueFactory = (_) => 123
             };
 
-            new RootCommand { option }
+            var result = new RootCommand { option }
                 .Parse("")
-                .GetResult(option)
+                .GetResult(option);
+
+            result
                 .GetValueOrDefault<int>()
+                .Should()
+                .Be(123);
+
+            result.GetRequiredValue(option)
+                .Should()
+                .Be(123);
+
+            result.GetRequiredValue<int>(option.Name)
                 .Should()
                 .Be(123);
         }
@@ -390,6 +406,8 @@ namespace System.CommandLine.Tests
             var result = root.Parse("-v -v -v");
 
             result.GetValue(option).Should().BeTrue();
+            result.GetRequiredValue(option).Should().BeTrue();
+            result.GetRequiredValue<bool>(option.Name).Should().BeTrue();
         }
 
         [Fact] 
