@@ -1,120 +1,81 @@
-﻿using System.Collections.Generic;
-using System.CommandLine.Binding;
-using System.CommandLine.Invocation;
-using System.CommandLine.NamingConventionBinder;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace System.CommandLine.Hosting
+using System.CommandLine.Invocation;
+
+namespace System.CommandLine.Hosting;
+
+public class HostingAction() : AsynchronousCommandLineAction()
 {
-    // It's a wrapper, that configures the host, starts it and then runs the actual action.
-    internal sealed class HostingAction : BindingHandler
+    protected readonly Func<string[], IHostBuilder>? _createHostBuilder;
+    internal Action<IHostBuilder>? ConfigureHost { get; set; }
+    public Action<HostBuilderContext, IServiceCollection>? ConfigureServices { get; set; }
+
+    protected virtual IHostBuilder CreateHostBuiderCore(string[] args)
     {
-        internal const string HostingDirectiveName = "config";
-
-        private readonly Func<string[], IHostBuilder> _hostBuilderFactory;
-        private readonly Action<IHostBuilder> _configureHost;
-        private readonly AsynchronousCommandLineAction _actualAction;
-
-        internal static void SetHandlers(Command command, Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost)
+        var hostBuilder = _createHostBuilder?.Invoke(args) ??
+            new HostBuilder();
+        return hostBuilder;
+    }
+    
+    protected virtual void ConfigureHostBuilder(IHostBuilder hostBuilder)
+    {
+        ConfigureHost?.Invoke(hostBuilder);
+        if (ConfigureServices is not null)
         {
-            command.Action = new HostingAction(hostBuilderFactory, configureHost, (AsynchronousCommandLineAction)command.Action);
-            command.TreatUnmatchedTokensAsErrors = false; // to pass unmatched Tokens to host builder factory
-
-            foreach (Command subCommand in command.Subcommands)
-            {
-                SetHandlers(subCommand, hostBuilderFactory, configureHost);
-            }
+            hostBuilder.ConfigureServices(ConfigureServices);
         }
+    }
 
-        private HostingAction(Func<string[], IHostBuilder> hostBuilderFactory, Action<IHostBuilder> configureHost, AsynchronousCommandLineAction actualAction)
+    public override async Task<int> InvokeAsync(
+        ParseResult parseResult, 
+        CancellationToken cancellationToken = default
+        )
+    {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(parseResult);
+#else
+        _ = parseResult ?? throw new ArgumentNullException(nameof(parseResult));
+#endif
+
+        string[] unmatchedTokens = parseResult.UnmatchedTokens?.ToArray() ?? [];
+        IHostBuilder hostBuilder = CreateHostBuiderCore(unmatchedTokens);
+        hostBuilder.Properties[typeof(ParseResult)] = parseResult;
+
+        // As long as done before first await
+        // ProcessTerminationTimeout can be set to null
+        // so that .NET Generic Host can control console lifetime instead.
+        parseResult.Configuration.ProcessTerminationTimeout = null;
+        hostBuilder.UseConsoleLifetime();
+
+        hostBuilder.ConfigureServices(static (context, services) =>
         {
-            _hostBuilderFactory = hostBuilderFactory;
-            _configureHost = configureHost;
-            _actualAction = actualAction;
-        }
+            var parseResult = context.GetParseResult();
+            var hostingAction = parseResult.GetHostingAction();
+            services.AddSingleton(parseResult);
+            services.AddSingleton(parseResult.Configuration);
+            services.AddHostedService<HostingActionService>();
+            // TODO: add IHostingActionInvocation singleton
+        });
 
-        public override BindingContext GetBindingContext(ParseResult parseResult)
-            => _actualAction is BindingHandler bindingHandler
-                   ? bindingHandler.GetBindingContext(parseResult)
-                   : base.GetBindingContext(parseResult);
+        ConfigureHostBuilder(hostBuilder);
 
-        public override async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
-        {
-            var argsRemaining = parseResult.UnmatchedTokens;
-            var hostBuilder = _hostBuilderFactory?.Invoke(argsRemaining.ToArray())
-                              ?? new HostBuilder();
-            hostBuilder.Properties[typeof(ParseResult)] = parseResult;
+        using var host = hostBuilder.Build();
+        await host.StartAsync(cancellationToken)
+            .ConfigureAwait(continueOnCapturedContext: false);
 
-            if (parseResult.Configuration.RootCommand is RootCommand root &&
-                root.Directives.SingleOrDefault(d => d.Name == HostingDirectiveName) is { } directive)
-            {
-                if (parseResult.GetResult(directive) is { } directiveResult)
-                {
-                    hostBuilder.ConfigureHostConfiguration(config =>
-                    {
-                        var kvpSeparator = new[] { '=' };
+        var appRunningTask = host.WaitForShutdownAsync(cancellationToken);
 
-                        config.AddInMemoryCollection(directiveResult.Values.Select(s =>
-                        {
-                            var parts = s.Split(kvpSeparator, count: 2);
-                            var key = parts[0];
-                            var value = parts.Length > 1 ? parts[1] : null;
-                            return new KeyValuePair<string, string>(key, value);
-                        }).ToList());
-                    });
-                }
-            }
+        // TODO: Retrieve ExecuteTask from HostingActionService to get result
+        Task<int> invocationTask = Task.FromResult(0);
 
-            var bindingContext = GetBindingContext(parseResult);
-            int registeredBefore = 0;
-            hostBuilder.UseInvocationLifetime();
-            hostBuilder.ConfigureServices(services =>
-            {
-                services.AddSingleton(parseResult);
-                services.AddSingleton(bindingContext);
+        await appRunningTask.ConfigureAwait(continueOnCapturedContext: false);
 
-                registeredBefore = services.Count;
-            });
-
-            if (_configureHost is not null)
-            {
-                _configureHost.Invoke(hostBuilder);
-
-                hostBuilder.ConfigureServices(services =>
-                {
-                    // "_configureHost" just registered types that might be needed in BindingContext
-                    for (int i = registeredBefore; i < services.Count; i++)
-                    {
-                        Type captured = services[i].ServiceType;
-                        bindingContext.AddService(captured, c => c.GetService<IHost>().Services.GetService(captured));
-                    }
-                });
-            }
-
-            using var host = hostBuilder.Build();
-
-            bindingContext.AddService(typeof(IHost), _ => host);
-
-            await host.StartAsync(cancellationToken);
-
-            try
-            {
-                if (_actualAction is not null)
-                {
-                    return await _actualAction.InvokeAsync(parseResult, cancellationToken);
-                }
-
-                return 0;
-            }
-            finally
-            {
-                await host.StopAsync(cancellationToken);
-            }
-        }
+        return await invocationTask
+            .ConfigureAwait(continueOnCapturedContext: false);
     }
 }
