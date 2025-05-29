@@ -108,7 +108,7 @@ namespace System.CommandLine.Parsing
             {
                 for (var i = 0; i < command.Arguments.Count; i++)
                 {
-                    AddToSymbolsByName(command.Arguments[i]);
+                    AddToSymbolsByName(command.Arguments[i], command);
                 }
             }
 
@@ -116,7 +116,7 @@ namespace System.CommandLine.Parsing
             {
                 for (var i = 0; i < command.Options.Count; i++)
                 {
-                    AddToSymbolsByName(command.Options[i]);
+                    AddToSymbolsByName(command.Options[i], command);
                 }
             }
 
@@ -125,30 +125,35 @@ namespace System.CommandLine.Parsing
                 for (var i = 0; i < command.Subcommands.Count; i++)
                 {
                     var childCommand = command.Subcommands[i];
-                    AddToSymbolsByName(childCommand);
+                    AddToSymbolsByName(childCommand, command);
                     PopulateSymbolsByName(childCommand);
                 }
             }
 
-            void AddToSymbolsByName(Symbol symbol)
+            void AddToSymbolsByName(Symbol symbol, Command parent)
             {
                 if (_symbolsByName!.TryGetValue(symbol.Name, out var node))
                 {
-                    if (symbol.Name == node.Symbol.Name &&
-                        symbol.FirstParent?.Symbol is { } parent &&
-                        parent == node.Symbol.FirstParent?.Symbol)
+                    var current = node;
+                    do
                     {
-                        throw new InvalidOperationException($"Command {parent.Name} has more than one child named \"{symbol.Name}\".");
-                    }
+                        // The same symbol can be added to multiple commands and have multiple parents.
+                        // We can't allow for name duplicates within the same command.
+                        if (ReferenceEquals(current.Parent, parent))
+                        {
+                            throw new InvalidOperationException($"Command {parent.Name} has more than one child named \"{symbol.Name}\".");
+                        }
+                        current = current.Next;
+                    } while (current is not null);
 
-                    _symbolsByName[symbol.Name] = new(symbol)
+                    _symbolsByName[symbol.Name] = new(symbol, parent)
                     {
                         Next = node
                     };
                 }
                 else
                 {
-                    _symbolsByName[symbol.Name] = new(symbol);
+                    _symbolsByName[symbol.Name] = new(symbol, parent);
                 }
             }
         }
