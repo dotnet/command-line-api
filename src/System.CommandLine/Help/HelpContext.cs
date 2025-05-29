@@ -8,33 +8,25 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Supports formatting command line help.
     /// </summary>
-    public class HelpContext
+    internal class HelpContext
     {
         /// <param name="helpBuilder">The current help builder.</param>
         /// <param name="command">The command for which help is being formatted.</param>
         /// <param name="output">A text writer to write output to.</param>
-        /// <param name="parseResult">The result of the current parse operation.</param>
         public HelpContext(
             HelpBuilder helpBuilder,
             Command command,
-            TextWriter output,
-            ParseResult? parseResult = null)
+            TextWriter output)
         {
             HelpBuilder = helpBuilder ?? throw new ArgumentNullException(nameof(helpBuilder));
             Command = command ?? throw new ArgumentNullException(nameof(command));
             Output = output ?? throw new ArgumentNullException(nameof(output));
-            ParseResult = parseResult ?? ParseResult.Empty();
         }
 
         /// <summary>
         /// The help builder for the current operation.
         /// </summary>
         public HelpBuilder HelpBuilder { get; }
-
-        /// <summary>
-        /// The result of the current parse operation.
-        /// </summary>
-        public ParseResult ParseResult { get; }
 
         /// <summary>
         /// The command for which help is being formatted.

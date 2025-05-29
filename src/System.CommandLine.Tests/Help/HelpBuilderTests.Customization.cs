@@ -94,7 +94,7 @@ public partial class HelpBuilderTests
                                                 : optionBFirstColumnText);
             command.Options.Add(new HelpOption()
             {
-                Action = new HelpAction()
+                Action = new CustomHelpAction()
                 {
                     Builder = helpBuilder
                 }
@@ -140,7 +140,7 @@ public partial class HelpBuilderTests
                                                 : optionBDescription);
             command.Options.Add(new HelpOption
             {
-                Action = new HelpAction
+                Action = new CustomHelpAction
                 { 
                     Builder = helpBuilder
                 }
@@ -269,7 +269,7 @@ public partial class HelpBuilderTests
 
             command.Options.Add(new HelpOption
             {
-                Action = new HelpAction
+                Action = new CustomHelpAction
                 {
                     Builder = helpBuilder
                 }
@@ -317,7 +317,7 @@ public partial class HelpBuilderTests
 
             command.Options.Add(new HelpOption
             {
-                Action = new HelpAction
+                Action = new CustomHelpAction
                 {
                     Builder = helpBuilder
                 }
@@ -336,11 +336,20 @@ public partial class HelpBuilderTests
             var option = new Option<int>("-x") { Description = "The default option description" };
             var argument = new Argument<int>("int-value") { Description = "The default argument description" };
 
-            var rootCommand = new RootCommand
+            CustomHelpAction helpAction = new();
+            helpAction.Builder.CustomizeSymbol(subcommand, secondColumnText: "The custom command description");
+            helpAction.Builder.CustomizeSymbol(option, secondColumnText: "The custom option description");
+            helpAction.Builder.CustomizeSymbol(argument, secondColumnText: "The custom argument description");
+            
+            var rootCommand = new Command("name")
             {
                 subcommand,
                 option,
                 argument,
+                new HelpOption()
+                {
+                    Action = helpAction
+                }
             };
 
             CommandLineConfiguration config = new(rootCommand)
@@ -349,13 +358,6 @@ public partial class HelpBuilderTests
             };
 
             ParseResult parseResult = rootCommand.Parse("-h", config);
-
-            if (parseResult.Action is HelpAction helpAction)
-            {
-                helpAction.Builder.CustomizeSymbol(subcommand, secondColumnText: "The custom command description");
-                helpAction.Builder.CustomizeSymbol(option, secondColumnText: "The custom option description");
-                helpAction.Builder.CustomizeSymbol(argument, secondColumnText: "The custom argument description");
-            }
 
             parseResult.Invoke();
 
@@ -370,17 +372,15 @@ public partial class HelpBuilderTests
         [Fact]
         public void Help_sections_can_be_replaced()
         {
-            CommandLineConfiguration config = new(new RootCommand())
+            CustomHelpAction helpAction = new();
+            helpAction.Builder.CustomizeLayout(CustomLayout);
+
+            CommandLineConfiguration config = new(new Command("name") { new HelpOption() {  Action = helpAction} })
             {
                 Output = new StringWriter()
             };
 
             ParseResult parseResult = config.Parse("-h");
-
-            if (parseResult.Action is HelpAction helpAction)
-            {
-                helpAction.Builder.CustomizeLayout(CustomLayout);
-            }
 
             parseResult.Invoke();
 
@@ -397,19 +397,17 @@ public partial class HelpBuilderTests
         [Fact]
         public void Help_sections_can_be_supplemented()
         {
-            CommandLineConfiguration config = new(new RootCommand("hello"))
+            CustomHelpAction helpAction = new();
+            helpAction.Builder.CustomizeLayout(CustomLayout);
+
+            CommandLineConfiguration config = new(new Command("hello") { new HelpOption() { Action = helpAction } })
             {
                 Output = new StringWriter(),
             };
 
-            var defaultHelp = GetDefaultHelp(config.RootCommand);
+            var defaultHelp = GetDefaultHelp(new Command("hello"));
 
             ParseResult parseResult = config.Parse("-h");
-
-            if (parseResult.Action is HelpAction helpAction)
-            {
-                helpAction.Builder.CustomizeLayout(CustomLayout);
-            }
 
             parseResult.Invoke();
 
@@ -444,7 +442,7 @@ public partial class HelpBuilderTests
                 commandWithCustomHelp
             };
 
-            command.Options.OfType<HelpOption>().Single().Action = new HelpAction
+            command.Options.OfType<HelpOption>().Single().Action = new CustomHelpAction
             {
                 Builder = helpBuilder
             };
@@ -480,7 +478,7 @@ public partial class HelpBuilderTests
                 },
                 new HelpOption
                 {
-                    Action = new HelpAction
+                    Action = new CustomHelpAction
                     {
                         Builder = new HelpBuilder(30)
                     }
@@ -509,18 +507,16 @@ public partial class HelpBuilderTests
         [Fact]
         public void Help_customized_sections_can_be_wrapped()
         {
-            CommandLineConfiguration config = new(new RootCommand())
+            CustomHelpAction helpAction = new();
+            helpAction.Builder = new HelpBuilder(10);
+            helpAction.Builder.CustomizeLayout(CustomLayout);
+
+            CommandLineConfiguration config = new(new Command("name") { new HelpOption() { Action = helpAction } })
             {
                 Output = new StringWriter()
             };
 
             ParseResult parseResult = config.Parse("-h");
-
-            if (parseResult.Action is HelpAction helpAction)
-            {
-                helpAction.Builder = new HelpBuilder(10);
-                helpAction.Builder.CustomizeLayout(CustomLayout);
-            }
 
             parseResult.Invoke();
 

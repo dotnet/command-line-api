@@ -100,6 +100,7 @@
     public System.Collections.Generic.List<System.Action<System.CommandLine.Parsing.OptionResult>> Validators { get; }
     public System.Type ValueType { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
+    public System.Object GetDefaultValue()
   public class Option<T> : Option
     .ctor(System.String name, System.String[] aliases)
     public Func<System.CommandLine.Parsing.ArgumentResult,T> CustomParser { get; set; }
@@ -128,6 +129,7 @@
     public System.CommandLine.Parsing.OptionResult GetResult(Option option)
     public System.CommandLine.Parsing.DirectiveResult GetResult(Directive directive)
     public System.CommandLine.Parsing.SymbolResult GetResult(Symbol symbol)
+    public System.CommandLine.Parsing.SymbolResult GetResult(System.String name)
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(System.String name)
@@ -178,48 +180,11 @@ System.CommandLine.Completions
 System.CommandLine.Help
   public class HelpAction : System.CommandLine.Invocation.SynchronousCommandLineAction
     .ctor()
-    public HelpBuilder Builder { get; set; }
     public System.Int32 Invoke(System.CommandLine.ParseResult parseResult)
-  public class HelpBuilder
-    .ctor(System.Int32 maxWidth = 2147483647)
-    public System.Int32 MaxWidth { get; }
-    public System.Void CustomizeLayout(System.Func<HelpContext,System.Collections.Generic.IEnumerable<System.Func<HelpContext,System.Boolean>>> getLayout)
-    public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.Func<HelpContext,System.String> firstColumnText = null, System.Func<HelpContext,System.String> secondColumnText = null, System.Func<HelpContext,System.String> defaultValue = null)
-    public System.Void CustomizeSymbol(System.CommandLine.Symbol symbol, System.String firstColumnText = null, System.String secondColumnText = null, System.String defaultValue = null)
-    public TwoColumnHelpRow GetTwoColumnRow(System.CommandLine.Symbol symbol, HelpContext context)
-    public System.Void Write(HelpContext context)
-    public System.Void Write(System.CommandLine.Command command, System.IO.TextWriter writer)
-    public System.Void WriteColumns(System.Collections.Generic.IReadOnlyList<TwoColumnHelpRow> items, HelpContext context)
-   static class Default
-    public static System.Func<HelpContext,System.Boolean> AdditionalArgumentsSection()
-    public static System.Func<HelpContext,System.Boolean> CommandArgumentsSection()
-    public static System.Func<HelpContext,System.Boolean> CommandUsageSection()
-    public static System.String GetArgumentDefaultValue(System.CommandLine.Argument argument)
-    public static System.String GetArgumentDescription(System.CommandLine.Argument argument)
-    public static System.String GetArgumentUsageLabel(System.CommandLine.Argument argument)
-    public static System.String GetCommandUsageLabel(System.CommandLine.Command symbol)
-    public static System.Collections.Generic.IEnumerable<System.Func<HelpContext,System.Boolean>> GetLayout()
-    public static System.String GetOptionUsageLabel(System.CommandLine.Option symbol)
-    public static System.Func<HelpContext,System.Boolean> OptionsSection()
-    public static System.Func<HelpContext,System.Boolean> SubcommandsSection()
-    public static System.Func<HelpContext,System.Boolean> SynopsisSection()
-  public class HelpContext
-    .ctor(HelpBuilder helpBuilder, System.CommandLine.Command command, System.IO.TextWriter output, System.CommandLine.ParseResult parseResult = null)
-    public System.CommandLine.Command Command { get; }
-    public HelpBuilder HelpBuilder { get; }
-    public System.IO.TextWriter Output { get; }
-    public System.CommandLine.ParseResult ParseResult { get; }
   public class HelpOption : System.CommandLine.Option<System.Boolean>
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public System.CommandLine.Invocation.CommandLineAction Action { get; set; }
-  public class TwoColumnHelpRow, System.IEquatable<TwoColumnHelpRow>
-    .ctor(System.String firstColumnText, System.String secondColumnText)
-    public System.String FirstColumnText { get; }
-    public System.String SecondColumnText { get; }
-    public System.Boolean Equals(System.Object obj)
-    public System.Boolean Equals(TwoColumnHelpRow other)
-    public System.Int32 GetHashCode()
 System.CommandLine.Invocation
   public abstract class AsynchronousCommandLineAction : CommandLineAction
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)

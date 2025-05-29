@@ -1,34 +1,60 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.IO;
+using System.Collections.Generic;
 
 namespace System.CommandLine.Help
 {
-    public partial class HelpBuilder
+    internal static class HelpBuilderExtensions
     {
-        /// <summary>
-        /// Specifies custom help details for a specific symbol.
-        /// </summary>
-        /// <param name="symbol">The symbol to customize the help details for.</param>
-        /// <param name="firstColumnText">A delegate to display the first help column (typically name and usage information).</param>
-        /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
-        /// <param name="defaultValue">The displayed default value for the symbol.</param>
-        public void CustomizeSymbol(
-            Symbol symbol,
-            string? firstColumnText = null,
-            string? secondColumnText = null,
-            string? defaultValue = null)
+        internal static IEnumerable<Symbol> GetParameters(this Symbol symbol)
         {
-            CustomizeSymbol(symbol, _ => firstColumnText, _ => secondColumnText, _ => defaultValue);
+            switch (symbol)
+            {
+                case Option option:
+                    yield return option;
+                    yield break;
+                case Command command:
+                    foreach (var argument in command.Arguments)
+                    {
+                        yield return argument;
+                    }
+                    yield break;
+                case Argument argument:
+                    yield return argument;
+                    yield break;
+                default:
+                    throw new NotSupportedException();
+            }
         }
 
-        /// <summary>
-        /// Writes help output for the specified command.
-        /// </summary>
-        public void Write(Command command, TextWriter writer)
+        internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
         {
-            Write(new HelpContext(this, command, writer));
+            if (rawAlias[0] == '/')
+            {
+                return ("/", rawAlias.Substring(1));
+            }
+            else if (rawAlias[0] == '-')
+            {
+                if (rawAlias.Length > 1 && rawAlias[1] == '-')
+                {
+                    return ("--", rawAlias.Substring(2));
+                }
+
+                return ("-", rawAlias.Substring(1));
+            }
+
+            return (null, rawAlias);
+        }
+
+        internal static IEnumerable<T> RecurseWhileNotNull<T>(this T? source, Func<T, T?> next) where T : class
+        {
+            while (source is not null)
+            {
+                yield return source;
+
+                source = next(source);
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ namespace System.CommandLine.Help
     /// <summary>
     /// Formats output to be shown to users to describe how to use a command line tool.
     /// </summary>
-    public partial class HelpBuilder 
+    internal partial class HelpBuilder 
     {
         private const string Indent = "  ";
 
@@ -91,6 +91,30 @@ namespace System.CommandLine.Help
             _getLayout = getLayout ?? throw new ArgumentNullException(nameof(getLayout));
         }
 
+        /// <summary>
+        /// Specifies custom help details for a specific symbol.
+        /// </summary>
+        /// <param name="symbol">The symbol to customize the help details for.</param>
+        /// <param name="firstColumnText">A delegate to display the first help column (typically name and usage information).</param>
+        /// <param name="secondColumnText">A delegate to display second help column (typically the description).</param>
+        /// <param name="defaultValue">The displayed default value for the symbol.</param>
+        public void CustomizeSymbol(
+            Symbol symbol,
+            string? firstColumnText = null,
+            string? secondColumnText = null,
+            string? defaultValue = null)
+        {
+            CustomizeSymbol(symbol, _ => firstColumnText, _ => secondColumnText, _ => defaultValue);
+        }
+
+        /// <summary>
+        /// Writes help output for the specified command.
+        /// </summary>
+        public void Write(Command command, TextWriter writer)
+        {
+            Write(new HelpContext(this, command, writer));
+        }
+
         private string GetUsage(Command command)
         {
             return string.Join(" ", GetUsageParts().Where(x => !string.IsNullOrWhiteSpace(x)));
@@ -108,25 +132,25 @@ namespace System.CommandLine.Help
                 {
                     if (!displayOptionTitle)
                     {
-                        displayOptionTitle = parentCommand.HasOptions && parentCommand.Options.Any(x => x.Recursive && !x.Hidden);
+                        displayOptionTitle = parentCommand.Options.Any(x => x.Recursive && !x.Hidden);
                     }
 
                     yield return parentCommand.Name;
 
-                    if (parentCommand.HasArguments)
+                    if (parentCommand.Arguments.Any())
                     {
                         yield return FormatArgumentUsage(parentCommand.Arguments);
                     }
                 }
 
-                var hasCommandWithHelp = command.HasSubcommands && command.Subcommands.Any(x => !x.Hidden);
+                var hasCommandWithHelp = command.Subcommands.Any(x => !x.Hidden);
 
                 if (hasCommandWithHelp)
                 {
                     yield return LocalizationResources.HelpUsageCommand();
                 }
 
-                displayOptionTitle = displayOptionTitle || (command.HasOptions && command.Options.Any(x => !x.Hidden));
+                displayOptionTitle = displayOptionTitle || (command.Options.Any(x => !x.Hidden));
                 
                 if (displayOptionTitle)
                 {
@@ -441,8 +465,8 @@ namespace System.CommandLine.Help
 
             string GetSymbolDefaultValue(Symbol symbol)
             {
-                IList<Argument> arguments = symbol.Arguments();
-                var defaultArguments = arguments.Where(x => !x.Hidden && x.HasDefaultValue).ToArray();
+                var arguments = symbol.GetParameters();
+                var defaultArguments = arguments.Where(x => !x.Hidden && (x is Argument { HasDefaultValue: true } || x is Option { HasDefaultValue: true })).ToArray();
 
                 if (defaultArguments.Length == 0) return "";
 
@@ -455,13 +479,13 @@ namespace System.CommandLine.Help
 
         private string GetArgumentDefaultValue(
             Symbol parent,
-            Argument argument,
+            Symbol parameter,
             bool displayArgumentName,
             HelpContext context)
         {
             string label = displayArgumentName 
                               ? LocalizationResources.HelpArgumentDefaultValueLabel() 
-                              : argument.Name;
+                              : parameter.Name;
 
             string? displayedDefaultValue = null;
 
@@ -472,14 +496,14 @@ namespace System.CommandLine.Help
                 {
                     displayedDefaultValue = parentDefaultValue;
                 }
-                else if (_customizationsBySymbol.TryGetValue(argument, out customization) &&
+                else if (_customizationsBySymbol.TryGetValue(parameter, out customization) &&
                          customization.GetDefaultValue?.Invoke(context) is { } ownDefaultValue)
                 {
                     displayedDefaultValue = ownDefaultValue;
                 }
             }
 
-            displayedDefaultValue ??= Default.GetArgumentDefaultValue(argument);
+            displayedDefaultValue ??= Default.GetArgumentDefaultValue(parameter);
 
             if (string.IsNullOrWhiteSpace(displayedDefaultValue))
             {

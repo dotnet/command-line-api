@@ -4,12 +4,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine.Completions;
-using System.CommandLine.Parsing;
 using System.Linq;
 
 namespace System.CommandLine.Help;
 
-public partial class HelpBuilder
+internal partial class HelpBuilder
 {
     /// <summary>
     /// Provides default formatting for help output.
@@ -19,25 +18,23 @@ public partial class HelpBuilder
         /// <summary>
         /// Gets an argument's default value to be displayed in help.
         /// </summary>
-        /// <param name="argument">The argument to get the default value for.</param>
-        public static string GetArgumentDefaultValue(Argument argument)
+        /// <param name="parameter">The argument or option to get the default value for.</param>
+        public static string GetArgumentDefaultValue(Symbol parameter)
         {
-            if (argument.HasDefaultValue)
+            return parameter switch
             {
-                if (argument.GetDefaultValue() is { } defaultValue)
-                {
-                    if (defaultValue is IEnumerable enumerable and not string)
-                    {
-                        return string.Join("|", enumerable.OfType<object>().ToArray());
-                    }
-                    else
-                    {
-                        return defaultValue.ToString() ?? "";
-                    }
-                }
-            }
+                Argument argument => argument.HasDefaultValue ? ToString(argument.GetDefaultValue()) : "",
+                Option option => option.HasDefaultValue ? ToString(option.GetDefaultValue()) : "",
+                _ => throw new InvalidOperationException("Symbol must be an Argument or Option.")
+            };
 
-            return string.Empty;
+            static string ToString(object? value) => value switch
+            {
+                null => string.Empty,
+                string str => str,
+                IEnumerable enumerable => string.Join("|", enumerable.Cast<object>()),
+                _ => value.ToString() ?? string.Empty
+            };
         }
 
         /// <summary>
@@ -48,29 +45,39 @@ public partial class HelpBuilder
         /// <summary>
         /// Gets the usage title for an argument (for example: <c>&lt;value&gt;</c>, typically used in the first column text in the arguments usage section, or within the synopsis.
         /// </summary>
-        public static string GetArgumentUsageLabel(Argument argument)
+        public static string GetArgumentUsageLabel(Symbol parameter)
         {
-            // Argument.HelpName is always first choice
-            if (!string.IsNullOrWhiteSpace(argument.HelpName))
-            {
-                return $"<{argument.HelpName}>";
-            }
-            else if (!argument.IsBoolean() && argument.CompletionSources.Count > 0)
-            {
-                IEnumerable<string> completions = argument
-                    .GetCompletions(CompletionContext.Empty)
-                    .Select(item => item.Label);
-
-                string joined = string.Join("|", completions);
-
-                if (!string.IsNullOrEmpty(joined))
-                {
-                    return $"<{joined}>";
-                }
-            }
-
             // By default Option.Name == Argument.Name, don't repeat it
-            return argument.FirstParent?.Symbol is not Option ? $"<{argument.Name}>" : "";
+            return parameter switch
+            {
+                Argument argument => GetUsageLabel(argument.HelpName, argument.ValueType, argument.CompletionSources, argument) ?? $"<{argument.Name}>",
+                Option option => GetUsageLabel(option.HelpName, option.ValueType, option.CompletionSources, option) ?? "",
+                _ => throw new InvalidOperationException()
+            };
+
+            static string? GetUsageLabel(string? helpName, Type valueType, List<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources, Symbol symbol)
+            {
+                // Argument.HelpName is always first choice
+                if (!string.IsNullOrWhiteSpace(helpName))
+                {
+                    return $"<{helpName}>";
+                }
+                else if (!(valueType == typeof(bool) || valueType == typeof(bool?)) && completionSources.Count > 0)
+                {
+                    IEnumerable<string> completions = symbol
+                        .GetCompletions(CompletionContext.Empty)
+                        .Select(item => item.Label);
+
+                    string joined = string.Join("|", completions);
+
+                    if (!string.IsNullOrEmpty(joined))
+                    {
+                        return $"<{joined}>";
+                    }
+                }
+
+                return null;
+            }
         }
 
         /// <summary>
@@ -79,13 +86,13 @@ public partial class HelpBuilder
         /// <param name="symbol">The symbol to get a help item for.</param>
         /// <returns>Text to display.</returns>
         public static string GetCommandUsageLabel(Command symbol)
-            => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
+            => GetIdentifierSymbolUsageLabel(symbol, symbol.Aliases);
 
         /// <inheritdoc cref="GetCommandUsageLabel(Command)"/>
         public static string GetOptionUsageLabel(Option symbol)
-            => GetIdentifierSymbolUsageLabel(symbol, symbol._aliases);
+            => GetIdentifierSymbolUsageLabel(symbol, symbol.Aliases);
 
-        private static string GetIdentifierSymbolUsageLabel(Symbol symbol, AliasSet? aliasSet)
+        private static string GetIdentifierSymbolUsageLabel(Symbol symbol, ICollection<string>? aliasSet)
         {
             var aliases =  aliasSet is null
                 ? new [] { symbol.Name }
@@ -99,7 +106,7 @@ public partial class HelpBuilder
 
             var firstColumnText = string.Join(", ", aliases);
 
-            foreach (var argument in symbol.Arguments())
+            foreach (var argument in symbol.GetParameters())
             {
                 if (!argument.Hidden)
                 {
@@ -185,18 +192,14 @@ public partial class HelpBuilder
             {
                 List<TwoColumnHelpRow> optionRows = new();
                 bool addedHelpOption = false;
-
-                if (ctx.Command.HasOptions)
+                foreach (Option option in ctx.Command.Options)
                 {
-                    foreach (Option option in ctx.Command.Options)
+                    if (!option.Hidden)
                     {
-                        if (!option.Hidden)
+                        optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
+                        if (option is HelpOption)
                         {
-                            optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
-                            if (option is HelpOption)
-                            {
-                                addedHelpOption = true;
-                            }
+                            addedHelpOption = true;
                         }
                     }
                 }
@@ -205,12 +208,11 @@ public partial class HelpBuilder
                 while (current is not null)
                 {
                     Command? parentCommand = null;
-                    SymbolNode? parent = current.FirstParent;
-                    while (parent is not null)
+                    foreach (Symbol parent in current.Parents)
                     {
-                        if ((parentCommand = parent.Symbol as Command) is not null)
+                        if ((parentCommand = parent as Command) is not null)
                         {
-                            if (parentCommand.HasOptions)
+                            if (parentCommand.Options.Any())
                             {
                                 foreach (var option in parentCommand.Options)
                                 {
@@ -227,7 +229,6 @@ public partial class HelpBuilder
 
                             break;
                         }
-                        parent = parent.Next;
                     }
                     current = parentCommand;
                 }

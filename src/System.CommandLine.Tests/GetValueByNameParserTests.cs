@@ -195,6 +195,48 @@ public class GetValueByNameTests
     }
 
     [Fact]
+    public void When_options_use_same_name_on_different_levels_of_the_tree_no_exception_is_thrown()
+    {
+        const string sameName = "same";
+
+        RootCommand command = new()
+        {
+            new Command("left")
+            {
+                new Option<int>(sameName)
+            },
+            new Command("right")
+            {
+                new Option<int>(sameName)
+            },
+        };
+
+        command.Parse($"left {sameName} 1").GetValue<int>(sameName).Should().Be(1);
+        command.Parse($"right {sameName} 2").GetValue<int>(sameName).Should().Be(2);
+    }
+
+    [Fact]
+    public void When_the_same_option_used_in_different_levels_of_the_tree_no_exception_is_thrown()
+    {
+        Option<int> multipleParents = new("--int");
+
+        RootCommand command = new()
+        {
+            new Command("left")
+            {
+                multipleParents
+            },
+            new Command("right")
+            {
+                multipleParents
+            },
+        };
+
+        command.Parse($"left {multipleParents.Name} 1").GetValue<int>(multipleParents.Name).Should().Be(1);
+        command.Parse($"right {multipleParents.Name} 2").GetValue<int>(multipleParents.Name).Should().Be(2);
+    }
+
+    [Fact]
     public void When_an_option_and_argument_use_same_name_on_different_levels_of_the_tree_the_value_which_belongs_to_parsed_command_is_returned()
     {
         const string sameName = "same";

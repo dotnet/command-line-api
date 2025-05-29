@@ -4,6 +4,7 @@
     <TargetFrameworks>$(TargetFrameworkForNETSDK);$(NetFrameworkCurrent)</TargetFrameworks>
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
+    <NoWarn>$(NoWarn);CS8632</NoWarn> <!-- Suppress nullable warning for files included as links -->
   </PropertyGroup>
   
   <ItemGroup>   
@@ -17,6 +18,11 @@
     <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\LocalizationResources.cs" Link="LocalizationResources.cs" />
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />
+    <Compile Include="..\System.CommandLine\Help\HelpBuilder.cs" Link="Help\HelpBuilder.cs" />
+    <Compile Include="..\System.CommandLine\Help\HelpBuilder.Default.cs" Link="Help\HelpBuilder.Default.cs" />
+    <Compile Include="..\System.CommandLine\Help\HelpBuilderExtensions.cs" Link="Help\HelpBuilderExtensions" />
+    <Compile Include="..\System.CommandLine\Help\HelpContext.cs" Link="Help\HelpContext.cs" />
+    <Compile Include="..\System.CommandLine\Help\TwoColumnHelpRow.cs" Link="Help\TwoColumnHelpRow.cs" />
   </ItemGroup>
   
   <ItemGroup>

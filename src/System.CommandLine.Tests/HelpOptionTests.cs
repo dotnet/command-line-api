@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
 using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Threading.Tasks;
@@ -185,5 +186,96 @@ public class HelpOptionTests
         await config.InvokeAsync(helpAlias);
 
         config.Output.ToString().Should().NotContain(helpAlias);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void The_users_can_provide_usage_examples(bool subcommand)
+    {
+        HelpOption helpOption = new();
+        helpOption.Action = new CustomizedHelpAction(helpOption);
+
+        RootCommand rootCommand = new();
+        rootCommand.Options.Clear();
+        rootCommand.Options.Add(helpOption);
+        rootCommand.Subcommands.Add(new Command("subcommand")
+        {
+            new Option<string>("-x")
+            {
+                Description = "An example option."
+            }
+        });
+
+        TextWriter output = new StringWriter();
+        CommandLineConfiguration config = new(rootCommand)
+        {
+            Output = output
+        };
+
+        var result = subcommand ? config.Parse("subcommand -h") : config.Parse("-h");
+
+        result.Invoke();
+
+        if (subcommand)
+        {
+            output.ToString().Should().Contain(CustomizedHelpAction.CustomUsageText);
+        }
+        else
+        {
+            output.ToString().Should().NotContain(CustomizedHelpAction.CustomUsageText);
+        }
+    }
+
+    [Fact]
+    public void The_users_can_print_help_output_of_a_subcommand()
+    {
+        const string RootDescription = "This is a custom root description.";
+        const string SubcommandDescription = "This is a custom subcommand description.";
+        RootCommand rootCommand = new(RootDescription);
+        Command subcommand = new("subcommand", SubcommandDescription)
+        {
+            new Option<string>("-x")
+            {
+                Description = "An example option."
+            }
+        };
+        rootCommand.Subcommands.Add(subcommand);
+
+        TextWriter output = new StringWriter();
+        CommandLineConfiguration config = new(subcommand)
+        {
+            Output = output
+        };
+
+        subcommand.Parse("--help", config).Invoke();
+
+        output.ToString().Should().Contain(SubcommandDescription);
+        output.ToString().Should().NotContain(RootDescription);
+    }
+
+    private sealed class CustomizedHelpAction : SynchronousCommandLineAction
+    {
+        internal const string CustomUsageText = "This is custom command usage example.";
+
+        private readonly HelpAction _helpAction;
+
+        public CustomizedHelpAction(HelpOption helpOption)
+        {
+            _helpAction = (HelpAction)helpOption.Action;
+        }
+
+        public override int Invoke(ParseResult parseResult)
+        {
+            _helpAction.Invoke(parseResult);
+
+            if (parseResult.CommandResult.Command.Name == "subcommand")
+            {
+                var output = parseResult.Configuration.Output;
+                output.WriteLine(CustomUsageText);
+            }
+            
+            return 0;
+        }
     }
 }

@@ -176,6 +176,14 @@ namespace System.CommandLine
             => _rootCommandResult.SymbolResultTree.TryGetValue(symbol, out SymbolResult? result) ? result : null;
 
         /// <summary>
+        /// Finds a result for a symbol having the specified name anywhere in the parse tree.
+        /// </summary>
+        /// <param name="name">The name of the symbol for which to find a result.</param>
+        /// <returns>An symbol result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
+        public SymbolResult? GetResult(string name) =>
+            _rootCommandResult.SymbolResultTree.GetResult(name);
+
+        /// <summary>
         /// Gets completions based on a given parse result.
         /// </summary>
         /// <param name="position">The position at which completions are requested.</param>

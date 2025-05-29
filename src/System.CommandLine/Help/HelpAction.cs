@@ -12,7 +12,7 @@ namespace System.CommandLine.Help
         /// <summary>
         /// Specifies an <see cref="Builder"/> to be used to format help output when help is requested.
         /// </summary>
-        public HelpBuilder Builder
+        internal HelpBuilder Builder
         {
             get => _builder ??= new HelpBuilder(Console.IsOutputRedirected ? int.MaxValue : Console.WindowWidth);
             set => _builder = value ?? throw new ArgumentNullException(nameof(value));
@@ -25,8 +25,7 @@ namespace System.CommandLine.Help
 
             var helpContext = new HelpContext(Builder,
                                               parseResult.CommandResult.Command,
-                                              output,
-                                              parseResult);
+                                              output);
 
             Builder.Write(helpContext);
 
