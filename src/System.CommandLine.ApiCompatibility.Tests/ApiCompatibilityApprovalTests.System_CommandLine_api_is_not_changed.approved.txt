@@ -54,6 +54,7 @@
     public System.Void SetAction(System.Action<ParseResult> action)
     public System.Void SetAction(System.Func<ParseResult,System.Int32> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
+    public System.Void SetAction(System.Func<ParseResult,System.Threading.Tasks.Task> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
   public class CommandLineConfiguration
     .ctor(Command rootCommand)
