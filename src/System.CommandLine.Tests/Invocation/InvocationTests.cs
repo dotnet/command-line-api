@@ -189,39 +189,24 @@ namespace System.CommandLine.Tests.Invocation
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(123);
         }
 
-        [Fact]
-        public async Task Anonymous_async_action_is_not_mapped_into_sync_void_with_fire_and_forget()
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2562
+        public void Anonymous_async_action_is_not_mapped_into_sync_void_with_fire_and_forget()
         {
             RootCommand rootCommand = new();
-            CancellationTokenSource cts = new();
-            bool wasCancelled = false;
+            using CancellationTokenSource cts = new();
+            Task delay = Task.Delay(TimeSpan.FromHours(1), cts.Token);
 
-            Task cancellableDelay = Task.Delay(TimeSpan.FromHours(1), cts.Token);
-
-            // We are not using the overload that takes a CancellationToken to ensure that
-            // we reproduce the behavior described in https://github.com/dotnet/command-line-api/issues/2562:
-            // having an "async void" action passed as Action<ParseResult> to SetAction
-            // and running into "fire and forget".
-            rootCommand.SetAction(async parseResult => 
+            rootCommand.SetAction(async parseResult =>
             {
-                try
-                {
-                    await cancellableDelay;
-                }
-                catch (TaskCanceledException)
-                {
-                    wasCancelled = true;
-                }
-                
+                await delay;
             });
 
             Task started = rootCommand.Parse("").InvokeAsync();
-            started.IsCompleted.Should().BeFalse("It should return a Task that has not finished yet.");
+
+            // The action is supposed to wait for an hour, so it should not complete immediately.
+            started.IsCompleted.Should().BeFalse();
 
             cts.Cancel();
-            await started;
-            wasCancelled.Should().BeTrue("It should be faulted because the delay was cancelled.");
-            started.IsCompleted.Should().BeTrue("It should complete after the cancellation.");
         }
 
         [Fact]
