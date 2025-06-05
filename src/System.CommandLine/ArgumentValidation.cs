@@ -171,7 +171,7 @@ namespace System.CommandLine
 
                 if (checkFile && checkDirectory)
                 {
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
                     if (!Path.Exists(token.Value))
 #else
                     if (!Directory.Exists(token.Value) && !File.Exists(token.Value))
