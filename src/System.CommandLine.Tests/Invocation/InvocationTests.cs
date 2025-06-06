@@ -188,7 +188,27 @@ namespace System.CommandLine.Tests.Invocation
 
             (await rootCommand.Parse("").InvokeAsync()).Should().Be(123);
         }
-        
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2562
+        public void Anonymous_async_action_is_not_mapped_into_sync_void_with_fire_and_forget()
+        {
+            RootCommand rootCommand = new();
+            using CancellationTokenSource cts = new();
+            Task delay = Task.Delay(TimeSpan.FromHours(1), cts.Token);
+
+            rootCommand.SetAction(async parseResult =>
+            {
+                await delay;
+            });
+
+            Task started = rootCommand.Parse("").InvokeAsync();
+
+            // The action is supposed to wait for an hour, so it should not complete immediately.
+            started.IsCompleted.Should().BeFalse();
+
+            cts.Cancel();
+        }
+
         [Fact]
         public void Terminating_option_action_short_circuits_command_action()
         {
