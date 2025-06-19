@@ -784,12 +784,12 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                CreateOptionWithAcceptOnlyFromAmong(name: "--framework", "net7.0"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "--framework", "net8.0"),
                 CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
             var configuration = new CommandLineConfiguration(command);
-            var completions = command.Parse("--framework net7.0 --l", configuration).GetCompletions();
+            var completions = command.Parse("--framework net8.0 --l", configuration).GetCompletions();
 
             completions.Select(item => item.Label)
                        .Should()
@@ -801,12 +801,12 @@ namespace System.CommandLine.Tests
         {
             var command = new RootCommand
             {
-                CreateOptionWithAcceptOnlyFromAmong(name: "--framework", "net7.0"),
+                CreateOptionWithAcceptOnlyFromAmong(name: "--framework", "net8.0"),
                 CreateOptionWithAcceptOnlyFromAmong(name: "--language", "C#"),
                 new Option<string>("--langVersion")
             };
             var configuration = new CommandLineConfiguration(command);
-            var completions = command.Parse(new[]{"--framework","net7.0","--l"}, configuration).GetCompletions();
+            var completions = command.Parse(new[]{"--framework","net8.0","--l"}, configuration).GetCompletions();
 
             completions.Select(item => item.Label)
                        .Should()

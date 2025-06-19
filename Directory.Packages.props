@@ -20,12 +20,12 @@
     <!-- external dependencies -->
     <PackageVersion Include="ApprovalTests" Version="7.0.0-beta.3" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
-    <PackageVersion Include="AwesomeAssertions" Version="8.0.2" />
+    <PackageVersion Include="AwesomeAssertions" Version="8.1.0" />
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageVersion Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageVersion Include="System.Memory" Version="4.5.4" />
-    <PackageVersion Include="system.reactive.core" Version="5.0.0" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="System.Memory" Version="4.6.3" />
+    <PackageVersion Include="system.reactive.core" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(DisableArcade)' == '1'">
@@ -33,5 +33,5 @@
     <PackageVersion Include="xunit" Version="2.4.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.3" />
   </ItemGroup>
-  
+
 </Project>
