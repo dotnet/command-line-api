@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
-    <IsPackable>false</IsPackable>
     <NoWarn>$(NoWarn);IDE1006</NoWarn>
   </PropertyGroup>
 
