@@ -6,6 +6,7 @@
     <ExcludeFromSourceBuild>true</ExcludeFromSourceBuild>
     <ExcludeFromSourceOnlyBuild>true</ExcludeFromSourceOnlyBuild>
     <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);IDE1006</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

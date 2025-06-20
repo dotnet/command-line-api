@@ -1,23 +1,8 @@
 <Project>
   <!-- Repo Version Information -->
   <PropertyGroup>
-    <!-- Default version number to global tool. -->
-    <VersionPrefix>0.1.0</VersionPrefix>
-    <AutoGenerateAssemblyVersion>true</AutoGenerateAssemblyVersion>
-    <PreReleaseVersionLabel>
-    </PreReleaseVersionLabel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(UseGlobalToolVersion)' == 'true'">
-    <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(UseBetaVersion)' == 'true'">
     <VersionPrefix>2.0.0</VersionPrefix>
     <PreReleaseVersionLabel>beta6</PreReleaseVersionLabel>
-    <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(UseAlphaVersion)' == 'true'">
-    <VersionPrefix>0.4.0</VersionPrefix>
-    <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
     <AutoGenerateAssemblyVersion>false</AutoGenerateAssemblyVersion>
   </PropertyGroup>
 </Project>

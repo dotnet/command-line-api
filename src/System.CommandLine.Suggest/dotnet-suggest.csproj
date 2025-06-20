@@ -13,6 +13,7 @@
     <DotnetSuggestBuildNumber>.1</DotnetSuggestBuildNumber>
     <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
     <VersionPrefix>1.1$(DotnetSuggestBuildNumber)</VersionPrefix>
+    <PreReleaseVersionLabel />
     <!-- Don't stabilize the version when building from the VMR as the package doesn't ship from there. -->
     <VersionSuffix Condition="'$(DotNetBuild)' != 'true'" />
   </PropertyGroup>

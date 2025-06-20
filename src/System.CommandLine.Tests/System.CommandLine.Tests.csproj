@@ -5,6 +5,7 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
     <NoWarn>$(NoWarn);CS8632</NoWarn> <!-- Suppress nullable warning for files included as links -->
+    <NoWarn>$(NoWarn);IDE1006</NoWarn>
   </PropertyGroup>
   
   <ItemGroup>   
