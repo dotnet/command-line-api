@@ -7,19 +7,14 @@
     <PackAsTool>true</PackAsTool>
     <PackageId>dotnet-suggest</PackageId>
     <ToolCommandName>dotnet-suggest</ToolCommandName>
-    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;osx-x64;osx-arm64;linux-x64</PackAsToolShimRuntimeIdentifiers>
+    <PackAsToolShimRuntimeIdentifiers Condition="'$(DotNetBuildSourceOnly)' != 'true'">win-x64;win-x86;osx-x64;osx-arm64;linux-x64</PackAsToolShimRuntimeIdentifiers>
     <PackagedShimOutputRootDirectory>$(OutputPath)</PackagedShimOutputRootDirectory>
 
     <DotnetSuggestBuildNumber>.1</DotnetSuggestBuildNumber>
     <DotnetSuggestBuildNumber Condition="'$(VersionSuffixDateStamp)' != ''">.$(VersionSuffixDateStamp).$(VersionSuffixBuildOfTheDay)</DotnetSuggestBuildNumber>
     <VersionPrefix>1.1$(DotnetSuggestBuildNumber)</VersionPrefix>
     <PreReleaseVersionLabel />
-    <!-- Don't stabilize the version when building from the VMR as the package doesn't ship from there. -->
-    <VersionSuffix Condition="'$(DotNetBuild)' != 'true'" />
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <!--No warning for the scripts, it is part of the content, not to execuate-->
+    <!-- No warning for the scripts, it is part of the content, not to execute -->
     <NoWarn>$(NoWarn);NU5110;NU5111</NoWarn>
   </PropertyGroup>
 
