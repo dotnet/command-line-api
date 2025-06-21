@@ -50,19 +50,22 @@ internal partial class HelpBuilder
             // By default Option.Name == Argument.Name, don't repeat it
             return parameter switch
             {
-                Argument argument => GetUsageLabel(argument.HelpName, argument.ValueType, argument.CompletionSources, argument) ?? $"<{argument.Name}>",
-                Option option => GetUsageLabel(option.HelpName, option.ValueType, option.CompletionSources, option) ?? "",
+                Argument argument => GetUsageLabel(argument.HelpName, argument.ValueType, argument.CompletionSources, argument, argument.Arity) ?? $"<{argument.Name}>",
+                Option option => GetUsageLabel(option.HelpName, option.ValueType, option.CompletionSources, option, option.Arity) ?? "",
                 _ => throw new InvalidOperationException()
             };
 
-            static string? GetUsageLabel(string? helpName, Type valueType, List<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources, Symbol symbol)
+            static string? GetUsageLabel(string? helpName, Type valueType, List<Func<CompletionContext, IEnumerable<CompletionItem>>> completionSources, Symbol symbol, ArgumentArity arity)
             {
                 // Argument.HelpName is always first choice
                 if (!string.IsNullOrWhiteSpace(helpName))
                 {
                     return $"<{helpName}>";
                 }
-                else if (!(valueType == typeof(bool) || valueType == typeof(bool?)) && completionSources.Count > 0)
+                else if (
+                    !(valueType == typeof(bool) || valueType == typeof(bool?))
+                    && arity.MaximumNumberOfValues > 0 // allowing zero arguments means we don't need to show usage
+                    && completionSources.Count > 0)
                 {
                     IEnumerable<string> completions = symbol
                         .GetCompletions(CompletionContext.Empty)
@@ -94,9 +97,9 @@ internal partial class HelpBuilder
 
         private static string GetIdentifierSymbolUsageLabel(Symbol symbol, ICollection<string>? aliasSet)
         {
-            var aliases =  aliasSet is null
-                ? new [] { symbol.Name }
-                : new [] {symbol.Name}.Concat(aliasSet)
+            var aliases = aliasSet is null
+                ? new[] { symbol.Name }
+                : new[] { symbol.Name }.Concat(aliasSet)
                                 .Select(r => r.SplitPrefix())
                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
                                 .ThenBy(r => r.Alias, StringComparer.OrdinalIgnoreCase)
