@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
     <OutputType>Exe</OutputType>
-    <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
     <!-- producing more detailed log output -->
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
     <PublishAot>true</PublishAot>

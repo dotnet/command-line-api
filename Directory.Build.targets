@@ -1,8 +1,6 @@
 <Project>
 
-  <Import Project="Sdk.targets"
-          Sdk="Microsoft.DotNet.Arcade.Sdk"
-          Condition="'$(DisableArcade)' != '1'" />
+  <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" Condition="'$(DisableArcade)' != '1'" />
   
   <PropertyGroup Condition="'$(DisableArcade)' == '1' and $(MSBuildProjectName.EndsWith('.Tests'))">
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestResults\**</DefaultExcludesInProjectFolder>

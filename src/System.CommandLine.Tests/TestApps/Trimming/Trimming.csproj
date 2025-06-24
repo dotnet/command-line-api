@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
     <OutputType>Exe</OutputType>
-    <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PublishTrimmed>true</PublishTrimmed>

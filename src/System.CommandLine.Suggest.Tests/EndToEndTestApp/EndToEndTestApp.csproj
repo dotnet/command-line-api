@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
     <OutputType>Exe</OutputType>
-    <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
     <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
     <IsTestUtilityProject>true</IsTestUtilityProject>
   </PropertyGroup>
