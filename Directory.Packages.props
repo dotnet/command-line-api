@@ -1,12 +1,10 @@
 <Project>
-
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <!-- Using multiple feeds isn't supported by Maestro: https://github.com/dotnet/arcade/issues/14155. -->
     <NoWarn>$(NoWarn);NU1507</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
     <!-- Roslyn dependencies -->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.0.1" />
@@ -18,11 +16,10 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
-
   <ItemGroup Condition="'$(DisableArcade)' == '1'">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <!-- The xunit version should be kept in sync with the one that Arcade promotes -->
     <PackageVersion Include="xunit" Version="2.9.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
   </ItemGroup>
-
 </Project>
