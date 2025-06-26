@@ -37,13 +37,16 @@
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(DisableArcade)' == '1'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx"
-                      LogicalName="System.CommandLine.Properties.Resources.resources" />
+    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx" LogicalName="System.CommandLine.Properties.Resources.resources" />
   </ItemGroup>
 
 </Project>
