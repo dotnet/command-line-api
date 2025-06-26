@@ -1,19 +1,17 @@
 <Project>
 
-  <Import Project="Sdk.props"
-          Sdk="Microsoft.DotNet.Arcade.Sdk"
-          Condition="'$(DisableArcade)' != '1'" />
+  <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" Condition="'$(DisableArcade)' != '1'" />
 
   <PropertyGroup>
-    <NoWarn>$(NoWarn);NU5125;CS0618</NoWarn>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <LangVersion>13.0</LangVersion>
     <PackageProjectUrl>https://github.com/dotnet/command-line-api</PackageProjectUrl>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)' == '' and '$(ContinuousIntegrationBuild)' == 'true'">true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworkForNETSDK Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(NetCurrent)</TargetFrameworkForNETSDK>
-    <TargetFrameworkForNETSDK Condition="'$(DotNetBuildSourceOnly)' != 'true'">net8.0</TargetFrameworkForNETSDK>
+    <NetMinimum Condition="'$(DotNetBuildSourceOnly)' == 'true'">$(NetCurrent)</NetMinimum>
+    <NetFrameworkMinimum>net472</NetFrameworkMinimum>
   </PropertyGroup>
 
 </Project>

@@ -1,23 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>$(NetMinimum);netstandard2.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
-    <PackageId>System.CommandLine</PackageId>
-    <TargetFrameworks>$(TargetFrameworkForNETSDK);netstandard2.0</TargetFrameworks>
     <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
     <Description>Support for parsing command lines, supporting both POSIX and Windows conventions and shell-agnostic command line completions.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DebugType Condition="'$(Configuration)' == 'Debug'">portable</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(TargetFrameworkForNETSDK)'">
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(NetMinimum)'">
     <IsTrimmable>true</IsTrimmable>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
-  </PropertyGroup>
-   
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugType>portable</DebugType>
   </PropertyGroup>
    
   <ItemGroup>
