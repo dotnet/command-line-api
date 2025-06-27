@@ -58,9 +58,11 @@ namespace System.CommandLine.Parsing
 
             ParseCommandChildren();
 
-            if (!_isHelpRequested)
+            ValidateAndAddDefaultResults();
+
+            if (_isHelpRequested)
             {
-                Validate();
+                _symbolResultTree.Errors?.Clear();
             }
 
             if (_primaryAction is null)
@@ -366,7 +368,7 @@ namespace System.CommandLine.Parsing
             _symbolResultTree.AddUnmatchedToken(CurrentToken, _innermostCommandResult, _rootCommandResult);
         }
 
-        private void Validate()
+        private void ValidateAndAddDefaultResults()
         {
             // Only the inner most command goes through complete validation,
             // for other commands only a subset of options is checked.

@@ -8,6 +8,7 @@ using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Net;
+using FluentAssertions.Execution;
 using Xunit;
 
 namespace System.CommandLine.Tests.Binding
@@ -585,6 +586,7 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
         {
+            using var _ = new AssertionScope();
             GetValue(new Option<bool>("-x"), "-x false").Should().BeFalse();
             GetValue(new Option<bool>("-x"), "-x true").Should().BeTrue();
         }

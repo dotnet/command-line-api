@@ -10,7 +10,6 @@ using FluentAssertions.Equivalency;
 using System.Linq;
 using FluentAssertions.Common;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace System.CommandLine.Tests
 {
@@ -25,12 +24,12 @@ namespace System.CommandLine.Tests
         [Fact]
         public void An_option_can_be_checked_by_object_instance()
         {
-            var option = new Option<bool>("--flag");
-            var option2 = new Option<bool>("--flag2");
-            var result = new RootCommand { option, option2 }
-                .Parse("--flag");
+            var option1 = new Option<string>("--option1");
+            var option2 = new Option<string>("--option2");
 
-            result.GetResult(option).Should().NotBeNull();
+            var result = new RootCommand { option1, option2 }.Parse("--option1");
+
+            result.GetResult(option1).Should().NotBeNull();
             result.GetResult(option2).Should().BeNull();
         }
 
@@ -166,7 +165,9 @@ namespace System.CommandLine.Tests
 
             result.CommandResult
                   .Children
-                  .Select(o => ((OptionResult)o).Option.Name)
+                  .OfType<OptionResult>()
+                  .Where(r => !r.Implicit)
+                  .Select(o => o.Option.Name)
                   .Should()
                   .BeEquivalentTo("--xyz");
         }
@@ -660,9 +661,9 @@ namespace System.CommandLine.Tests
                   .Should()
                   .BeOfType<CommandResult>()
                   .Which
-                  .Children
+                  .Command
                   .Should()
-                  .AllBeAssignableTo<CommandResult>();
+                  .Be(outer);
             result.CommandResult
                   .Children
                   .Should()
@@ -673,25 +674,17 @@ namespace System.CommandLine.Tests
         public void When_options_with_the_same_name_are_defined_on_parent_and_child_commands_and_specified_in_between_then_it_attaches_to_the_outer_command()
         {
             var outer = new Command("outer");
-            outer.Options.Add(new Option<bool>("-x"));
+            var outerOption = new Option<bool>("-x");
+            outer.Options.Add(outerOption);
             var inner = new Command("inner");
-            inner.Options.Add(new Option<bool>("-x"));
+            var innerOption = new Option<bool>("-x");
+            inner.Options.Add(innerOption);
             outer.Subcommands.Add(inner);
 
             var result = outer.Parse("outer -x inner");
 
-            result.CommandResult
-                  .Children
-                  .Should()
-                  .BeEmpty();
-            result.CommandResult
-                  .Parent
-                  .Should()
-                  .BeOfType<CommandResult>()
-                  .Which
-                  .Children
-                  .Should()
-                  .ContainSingle(o => o is OptionResult && ((OptionResult)o).Option.Name == "-x");
+            result.GetValue(outerOption).Should().BeTrue();
+            result.GetValue(innerOption).Should().BeFalse();
         }
 
         [Fact]
@@ -1049,8 +1042,8 @@ namespace System.CommandLine.Tests
         [Fact]
         public void Options_can_have_the_same_alias_differentiated_only_by_prefix()
         {
-            var option1 = new Option<bool>("-a");
-            var option2 = new Option<bool>("--a");
+            var option1 = new Option<string>("-a");
+            var option2 = new Option<string>("--a");
 
             var parser = new RootCommand
             {
@@ -1058,16 +1051,16 @@ namespace System.CommandLine.Tests
                 option2
             };
 
-            parser.Parse("-a").CommandResult
+            parser.Parse("-a value").CommandResult
                   .Children
                   .Select(s => ((OptionResult)s).Option)
                   .Should()
-                  .BeEquivalentTo(new[] { option1 });
-            parser.Parse("--a").CommandResult
+                  .BeEquivalentTo([option1]);
+            parser.Parse("--a value").CommandResult
                   .Children
                   .Select(s => ((OptionResult)s).Option)
                   .Should()
-                  .BeEquivalentTo(new[] { option2 });
+                  .BeEquivalentTo([option2]);
         }
 
         [Theory]

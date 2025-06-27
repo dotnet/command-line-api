@@ -1,12 +1,12 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.CommandLine.Help;
+using FluentAssertions;
+using FluentAssertions.Execution;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 using static System.Environment;
 
@@ -160,16 +160,15 @@ namespace System.CommandLine.Tests
         {
             RootCommand rootCommand = new();
 
-            for (int i = 0; i < rootCommand.Options.Count; i++)
-            {
-                if (rootCommand.Options[i] is VersionOption)
-                    rootCommand.Options[i] = new VersionOption("-v", "-version");
-            }
+            rootCommand.Options.Clear();
+            rootCommand.Add(new VersionOption("-v", "-version"));
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
                 Output = new StringWriter()
             };
+
+            using var _ = new AssertionScope();
 
             await configuration.InvokeAsync("-v");
             configuration.Output.ToString().Should().Be($"{version}{NewLine}");
@@ -180,18 +179,19 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Version_is_not_valid_with_other_tokens_uses_custom_alias()
+        public void Version_is_not_valid_with_other_tokens_when_it_uses_custom_alias()
         {
             var childCommand = new Command("subcommand");
-            childCommand.SetAction((_) => { });
+            childCommand.SetAction(_ => { });
             var rootCommand = new RootCommand
             {
                 childCommand
             };
 
-            rootCommand.Options[1] = new VersionOption("-v");
+            rootCommand.Options.Clear();
+            rootCommand.Add(new VersionOption("-v"));
 
-            rootCommand.SetAction((_) => { });
+            rootCommand.SetAction(_ => { });
 
             CommandLineConfiguration configuration = new(rootCommand)
             {
