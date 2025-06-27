@@ -778,13 +778,15 @@ namespace System.CommandLine.Tests.Help
             help.Should().Contain("[default: the-arg-value]");
         }
 
-        [Fact]
-        public void Help_does_not_show_default_value_for_argument_when_default_value_is_empty()
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public void Help_does_not_show_default_value_for_argument_when_default_value_is_null_or_empty(string defaultValue)
         {
             var argument = new Argument<string>("the-arg")
             {
                 Description = "The argument description",
-                DefaultValueFactory = (_) => ""
+                DefaultValueFactory = _ => defaultValue
             };
 
             var command = new Command("the-command", "The command description")
@@ -798,7 +800,32 @@ namespace System.CommandLine.Tests.Help
 
             var help = _console.ToString();
 
-            help.Should().NotContain("[default");
+            help.Should().NotContain("[]");
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public void Help_does_not_show_default_value_for_option_when_default_value_is_null_or_empty(string defaultValue)
+        {
+            var argument = new Option<string>("--opt")
+            {
+                Description = "The option description",
+                DefaultValueFactory = _ => defaultValue
+            };
+
+            var command = new Command("the-command", "The command description")
+            {
+                argument
+            };
+
+            var helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command, _console);
+
+            var help = _console.ToString();
+
+            help.Should().NotContain("[]");
         }
 
         [Fact]

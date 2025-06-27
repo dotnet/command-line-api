@@ -328,7 +328,6 @@ public partial class HelpBuilderTests
             config.Output.ToString().Should().MatchRegex(expected);
         }
 
-
         [Fact]
         public void Individual_symbols_can_be_customized()
         {

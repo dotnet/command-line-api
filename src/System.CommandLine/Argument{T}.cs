@@ -10,6 +10,7 @@ namespace System.CommandLine
     public class Argument<T> : Argument
     {
         private Func<ArgumentResult, T?>? _customParser;
+        private Func<ArgumentResult, T>? _defaultValueFactory;
 
         /// <summary>
         /// Initializes a new instance of the Argument class.
@@ -27,7 +28,23 @@ namespace System.CommandLine
         /// The same instance can be set as <see cref="CustomParser"/>, in such case
         /// the delegate is also invoked when an input was provided.
         /// </remarks>
-        public Func<ArgumentResult, T>? DefaultValueFactory { get; set; }
+        public Func<ArgumentResult, T>? DefaultValueFactory
+        {
+            get
+            {
+                if (_defaultValueFactory is null)
+                {
+                    switch (this)
+                    {
+                        case Argument<bool> boolArgument:
+                            boolArgument.DefaultValueFactory = _ => false;
+                            break;
+                    }
+                }
+                return _defaultValueFactory;
+            }
+            set => _defaultValueFactory = value;
+        }
 
         /// <summary>
         /// A custom argument parser.
@@ -76,6 +93,11 @@ namespace System.CommandLine
         {
             if (DefaultValueFactory is null)
             {
+                if (IsBoolean())
+                {
+                    return false;
+                }
+
                 throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
             }
 

@@ -25,8 +25,8 @@ namespace System.CommandLine.Tests
         {
             var command = new Command("child");
             var rootCommand = new RootCommand { command };
-            command.SetAction((_) => { });
-            var requiredOption = new Option<bool>("--i-must-be-set")
+            command.SetAction(_ => { });
+            var requiredOption = new Option<string>("--i-must-be-set")
             {
                 Required = true,
                 Recursive = true
@@ -45,7 +45,7 @@ namespace System.CommandLine.Tests
         public void When_a_required_global_option_has_multiple_aliases_the_error_message_uses_the_name()
         {
             var rootCommand = new RootCommand();
-            var requiredOption = new Option<bool>("-i", "--i-must-be-set")
+            var requiredOption = new Option<string>("-i", "--i-must-be-set")
             {
                 Required = true,
                 Recursive = true
