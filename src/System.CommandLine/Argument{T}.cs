@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -93,11 +93,6 @@ namespace System.CommandLine
         {
             if (DefaultValueFactory is null)
             {
-                if (IsBoolean())
-                {
-                    return false;
-                }
-
                 throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
             }
 
