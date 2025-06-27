@@ -368,4 +368,30 @@ public class GetValueByNameTests
 
         result.GetValue<string>("--opt").Should().Be("hello");
     }
+
+    [Fact]
+    public void When_argument_type_is_unknown_then_named_lookup_can_be_used_to_get_value_as_supertype()
+    {
+        var command = new RootCommand
+        {
+            new Argument<string>("arg")
+        };
+
+        var result = command.Parse("value");
+
+        result.GetValue<object>("arg").Should().Be("value");
+    }
+
+    [Fact]
+    public void When_option_type_is_unknown_then_named_lookup_can_be_used_to_get_value_as_supertype()
+    {
+        var command = new RootCommand
+        {
+            new Option<string>("-x")
+        };
+
+        var result = command.Parse("-x value");
+
+        result.GetValue<object>("-x").Should().Be("value");
+    }
 }

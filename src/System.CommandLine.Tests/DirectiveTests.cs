@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -22,14 +23,14 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void Raw_tokens_still_hold_directives()
+        public void Tokens_still_hold_directives()
         {
             Directive directive = new ("parse");
 
             ParseResult result = Parse(new Option<bool>("-y"), directive, "[parse] -y");
 
             result.GetResult(directive).Should().NotBeNull();
-            result.Tokens.Should().Contain(t => t.Value == "[parse]");
+            result.Tokens.Should().Contain(t => t.Value == "[parse]" && t.Type == TokenType.Directive);
         }
 
         [Fact]

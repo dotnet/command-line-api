@@ -30,21 +30,13 @@ namespace System.CommandLine.Help
 
         internal static (string? Prefix, string Alias) SplitPrefix(this string rawAlias)
         {
-            if (rawAlias[0] == '/')
+            return rawAlias[0] switch
             {
-                return ("/", rawAlias.Substring(1));
-            }
-            else if (rawAlias[0] == '-')
-            {
-                if (rawAlias.Length > 1 && rawAlias[1] == '-')
-                {
-                    return ("--", rawAlias.Substring(2));
-                }
-
-                return ("-", rawAlias.Substring(1));
-            }
-
-            return (null, rawAlias);
+                '/' => ("/", rawAlias[1..]),
+                '-' when rawAlias.Length > 1 && rawAlias[1] is '-' => ("--", rawAlias[2..]),
+                '-' => ("-", rawAlias[1..]),
+                _ => (null, rawAlias)
+            };
         }
 
         internal static IEnumerable<T> RecurseWhileNotNull<T>(this T? source, Func<T, T?> next) where T : class

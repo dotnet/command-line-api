@@ -8,7 +8,7 @@ namespace System.CommandLine.Help
     /// <summary>
     /// A standard option that indicates that command line help should be displayed.
     /// </summary>
-    public sealed class HelpOption : Option<bool>
+    public sealed class HelpOption : Option<bool?>
     {
         private CommandLineAction? _action;
 
@@ -22,7 +22,7 @@ namespace System.CommandLine.Help
         ///    /?
         /// </code>
         /// </summary>
-        public HelpOption() : this("--help", new[] { "-h", "/h", "-?", "/?" })
+        public HelpOption() : this("--help", ["-h", "/h", "-?", "/?"])
         {
         }
 
@@ -30,7 +30,7 @@ namespace System.CommandLine.Help
         /// When added to a <see cref="Command"/>, it configures the application to show help when given name or one of the aliases are specified on the command line.
         /// </summary>
         public HelpOption(string name, params string[] aliases)
-            : base(name, aliases, new Argument<bool>(name) { Arity = ArgumentArity.Zero })
+            : base(name, aliases, new Argument<bool?>(name) { Arity = ArgumentArity.Zero })
         {
             Recursive = true;
             Description = LocalizationResources.HelpOptionDescription();

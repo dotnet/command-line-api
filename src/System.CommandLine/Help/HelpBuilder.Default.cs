@@ -18,13 +18,17 @@ internal partial class HelpBuilder
         /// <summary>
         /// Gets an argument's default value to be displayed in help.
         /// </summary>
-        /// <param name="parameter">The argument or option to get the default value for.</param>
-        public static string GetArgumentDefaultValue(Symbol parameter)
+        /// <param name="symbol">The argument or option to get the default value for.</param>
+        public static string GetArgumentDefaultValue(Symbol symbol)
         {
-            return parameter switch
+            return symbol switch
             {
-                Argument argument => argument.HasDefaultValue ? ToString(argument.GetDefaultValue()) : "",
-                Option option => option.HasDefaultValue ? ToString(option.GetDefaultValue()) : "",
+                Argument argument => ShouldShowDefaultValue(argument) 
+                                         ? ToString(argument.GetDefaultValue()) 
+                                         : "",
+                Option option => ShouldShowDefaultValue(option) 
+                                     ? ToString(option.GetDefaultValue()) 
+                                     : "",
                 _ => throw new InvalidOperationException("Symbol must be an Argument or Option.")
             };
 
@@ -36,6 +40,22 @@ internal partial class HelpBuilder
                 _ => value.ToString() ?? string.Empty
             };
         }
+
+        public static bool ShouldShowDefaultValue(Symbol symbol) =>
+            symbol switch
+            {
+                Option option => ShouldShowDefaultValue(option),
+                Argument argument => ShouldShowDefaultValue(argument),
+                _ => false
+            };
+
+        public static bool ShouldShowDefaultValue(Option option) =>
+            option.HasDefaultValue && 
+            !(option.ValueType == typeof(bool) || option.ValueType == typeof(bool?));
+
+        public static bool ShouldShowDefaultValue(Argument argument) =>
+            argument.HasDefaultValue && 
+            !(argument.ValueType == typeof(bool) || argument.ValueType == typeof(bool?));
 
         /// <summary>
         /// Gets the description for an argument (typically used in the second column text in the arguments section).

@@ -71,16 +71,16 @@ namespace System.CommandLine.Parsing
 
             if (Command.HasOptions)
             {
-                ValidateOptions(completeValidation);
+                ValidateOptionsAndAddDefaultResults(completeValidation);
             }
 
             if (Command.HasArguments)
             {
-                ValidateArguments(completeValidation);
+                ValidateArgumentsAndAddDefaultResults(completeValidation);
             }
         }
 
-        private void ValidateOptions(bool completeValidation)
+        private void ValidateOptionsAndAddDefaultResults(bool completeValidation)
         {
             var options = Command.Options;
             for (var i = 0; i < options.Count; i++)
@@ -105,7 +105,7 @@ namespace System.CommandLine.Parsing
                         argumentResult = new(optionResult.Option.Argument, SymbolResultTree, optionResult);
                         SymbolResultTree.Add(optionResult.Option.Argument, argumentResult);
 
-                        if (option.Required && !option.Argument.HasDefaultValue)
+                        if (option is { Required: true, Argument.HasDefaultValue: false })
                         {
                             argumentResult.AddError(LocalizationResources.RequiredOptionWasNotProvided(option.Name));
                             continue;
@@ -148,7 +148,7 @@ namespace System.CommandLine.Parsing
             }
         }
 
-        private void ValidateArguments(bool completeValidation)
+        private void ValidateArgumentsAndAddDefaultResults(bool completeValidation)
         {
             var arguments = Command.Arguments;
             for (var i = 0; i < arguments.Count; i++)
