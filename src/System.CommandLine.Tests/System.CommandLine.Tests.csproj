@@ -6,12 +6,12 @@
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
     <NoWarn>$(NoWarn);CS8632</NoWarn> <!-- Suppress nullable warning for files included as links -->
   </PropertyGroup>
-  
-  <ItemGroup>   
+
+  <ItemGroup>
     <Content Include="TestApps/**/*.csproj" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="TestApps/**/*.cs" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Include="..\Common\ArgumentBuilder.cs" Link="Utility\ArgumentBuilder.cs" />
     <Compile Include="..\Common\OptionBuilder.cs" Link="Utility\OptionBuilder.cs" />
@@ -24,11 +24,11 @@
     <Compile Include="..\System.CommandLine\Help\HelpContext.cs" Link="Help\HelpContext.cs" />
     <Compile Include="..\System.CommandLine\Help\TwoColumnHelpRow.cs" Link="Help\TwoColumnHelpRow.cs" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="ApprovalTests" />
     <PackageReference Include="AwesomeAssertions" />
