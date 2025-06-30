@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>$(TargetFrameworkForNETSDK)</TargetFramework>
-    <NoWarn>$(NoWarn);IDE1006</NoWarn>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
