@@ -134,7 +134,7 @@ namespace System.CommandLine
 
         internal static Argument None { get; } = new NoArgument();
 
-        internal class NoArgument : Argument
+        private sealed class NoArgument : Argument
         {
             internal NoArgument() : base("@none")
             {

@@ -34,11 +34,9 @@ namespace System.CommandLine
             {
                 if (_defaultValueFactory is null)
                 {
-                    switch (this)
+                    if (this is Argument<bool> boolArgument)
                     {
-                        case Argument<bool> boolArgument:
-                            boolArgument.DefaultValueFactory = _ => false;
-                            break;
+                        boolArgument.DefaultValueFactory = _ => false;
                     }
                 }
                 return _defaultValueFactory;
