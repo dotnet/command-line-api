@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(TargetFrameworkForNETSDK)</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworkForNETSDK);$(NetFrameworkCurrent)</TargetFrameworks>
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
     <NoWarn>$(NoWarn);CS8632</NoWarn> <!-- Suppress nullable warning for files included as links -->
@@ -42,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <PackageReference Include="Microsoft.Bcl.Memory" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
