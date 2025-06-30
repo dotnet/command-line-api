@@ -153,10 +153,11 @@
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
-  public class VersionOption : Option<System.Boolean>
+  public class VersionOption : Option
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public System.CommandLine.Invocation.CommandLineAction Action { get; set; }
+    public System.Type ValueType { get; }
 System.CommandLine.Completions
   public class CompletionContext
     public static CompletionContext Empty { get; }
@@ -185,10 +186,11 @@ System.CommandLine.Help
   public class HelpAction : System.CommandLine.Invocation.SynchronousCommandLineAction
     .ctor()
     public System.Int32 Invoke(System.CommandLine.ParseResult parseResult)
-  public class HelpOption : System.CommandLine.Option<System.Boolean>
+  public class HelpOption : System.CommandLine.Option
     .ctor()
     .ctor(System.String name, System.String[] aliases)
     public System.CommandLine.Invocation.CommandLineAction Action { get; set; }
+    public System.Type ValueType { get; }
 System.CommandLine.Invocation
   public abstract class AsynchronousCommandLineAction : CommandLineAction
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.CommandLine.ParseResult parseResult, System.Threading.CancellationToken cancellationToken = null)

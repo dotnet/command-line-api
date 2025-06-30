@@ -131,5 +131,20 @@ namespace System.CommandLine
         public override string ToString() => $"{nameof(Argument)}: {Name}";
 
         internal bool IsBoolean() => ValueType == typeof(bool) || ValueType == typeof(bool?);
+
+        internal static Argument None { get; } = new NoArgument();
+
+        private sealed class NoArgument : Argument
+        {
+            internal NoArgument() : base("@none")
+            {
+            }
+
+            public override Type ValueType { get; } = typeof(void);
+
+            internal override object? GetDefaultValue(ArgumentResult argumentResult) => null;
+
+            public override bool HasDefaultValue => false;
+        }
     }
 }

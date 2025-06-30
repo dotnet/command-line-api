@@ -10,6 +10,8 @@
   <ItemGroup>
     <!-- Roslyn dependencies -->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.0.1" />
+    <!-- Runtime dependencies -->
+    <PackageVersion Include="Microsoft.Bcl.Memory" Version="9.0.6" />
     <!-- external dependencies -->
     <PackageVersion Include="ApprovalTests" Version="7.0.0-beta.3" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
@@ -20,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(DisableArcade)' == '1'">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <!-- The xunit version should be kept in sync with the one that Arcade promotes -->
     <PackageVersion Include="xunit" Version="2.9.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />

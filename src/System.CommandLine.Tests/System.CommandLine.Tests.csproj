@@ -6,12 +6,12 @@
     <DefaultExcludesInProjectFolder>$(DefaultExcludesInProjectFolder);TestApps\**</DefaultExcludesInProjectFolder>
     <NoWarn>$(NoWarn);CS8632</NoWarn> <!-- Suppress nullable warning for files included as links -->
   </PropertyGroup>
-  
-  <ItemGroup>   
+
+  <ItemGroup>
     <Content Include="TestApps/**/*.csproj" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="TestApps/**/*.cs" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Include="..\Common\ArgumentBuilder.cs" Link="Utility\ArgumentBuilder.cs" />
     <Compile Include="..\Common\OptionBuilder.cs" Link="Utility\OptionBuilder.cs" />
@@ -24,25 +24,30 @@
     <Compile Include="..\System.CommandLine\Help\HelpContext.cs" Link="Help\HelpContext.cs" />
     <Compile Include="..\System.CommandLine\Help\TwoColumnHelpRow.cs" Link="Help\TwoColumnHelpRow.cs" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="ApprovalTests" />
+    <!-- Alias workaround for https://github.com/approvals/ApprovalTests.Net/issues/768 -->
+    <PackageReference Include="ApprovalTests" Aliases="ApprovalTests" />
     <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(DisableArcade)' == '1'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <PackageReference Include="Microsoft.Bcl.Memory" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx"
-                      LogicalName="System.CommandLine.Properties.Resources.resources" />
+    <EmbeddedResource Include="..\System.CommandLine\Properties\Resources.resx" LogicalName="System.CommandLine.Properties.Resources.resources" />
   </ItemGroup>
 
 </Project>

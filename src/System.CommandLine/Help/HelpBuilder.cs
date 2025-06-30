@@ -301,7 +301,7 @@ namespace System.CommandLine.Help
                 if (isOptional)
                 {
                     sb.Append($"[<{argument.Name}>{arityIndicator}");
-                    (end ??= new ()).Add(']');
+                    (end ??= []).Add(']');
                 }
                 else
                 {
@@ -315,11 +315,11 @@ namespace System.CommandLine.Help
             {
                 sb.Length--;
 
-                if (end is { })
+                if (end is not null)
                 {
                     while (end.Count > 0)
                     {
-                        sb.Append(end[end.Count - 1]);
+                        sb.Append(end[^1]);
                         end.RemoveAt(end.Count - 1);
                     }
                 }
@@ -348,7 +348,7 @@ namespace System.CommandLine.Help
             }
 
             //First handle existing new lines
-            var parts = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            var parts = text.Split(["\r\n", "\n"], StringSplitOptions.None);
 
             foreach (string part in parts)
             {
@@ -405,7 +405,7 @@ namespace System.CommandLine.Help
 
             Customization? customization = null;
 
-            if (_customizationsBySymbol is { })
+            if (_customizationsBySymbol is not null)
             {
                 _customizationsBySymbol.TryGetValue(symbol, out customization);
             }
@@ -436,8 +436,8 @@ namespace System.CommandLine.Help
 
                 //in case symbol description is customized, do not output default value
                 //default value output is not customizable for identifier symbols
-                var defaultValueDescription = customizedSymbolDescription == null
-                    ? GetSymbolDefaultValue(symbol)
+                var defaultValueDescription = customizedSymbolDescription is null
+                    ? GetOptionOrCommandDefaultValue()
                     : string.Empty;
 
                 var secondColumnText = $"{symbolDescription} {defaultValueDescription}".Trim();
@@ -454,7 +454,8 @@ namespace System.CommandLine.Help
                     customization?.GetSecondColumn?.Invoke(context) ?? Default.GetArgumentDescription(argument);
 
                 var defaultValueDescription =
-                    argument.HasDefaultValue
+                    Default.ShouldShowDefaultValue(argument) &&
+                    !string.IsNullOrEmpty(GetArgumentDefaultValue(context.Command, argument, true, context))
                         ? $"[{GetArgumentDefaultValue(context.Command, argument, true, context)}]"
                         : "";
 
@@ -463,17 +464,25 @@ namespace System.CommandLine.Help
                 return new TwoColumnHelpRow(firstColumnText, secondColumnText);
             }
 
-            string GetSymbolDefaultValue(Symbol symbol)
+            string GetOptionOrCommandDefaultValue()
             {
                 var arguments = symbol.GetParameters();
-                var defaultArguments = arguments.Where(x => !x.Hidden && (x is Argument { HasDefaultValue: true } || x is Option { HasDefaultValue: true })).ToArray();
+                var defaultArguments = arguments.Where(x => !x.Hidden && Default.ShouldShowDefaultValue(x)).ToArray();
 
-                if (defaultArguments.Length == 0) return "";
+                if (defaultArguments.Length == 0)
+                {
+                    return "";
+                }
 
                 var isSingleArgument = defaultArguments.Length == 1;
-                var argumentDefaultValues = defaultArguments
-                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument, context));
-                return $"[{string.Join(", ", argumentDefaultValues)}]";
+                var argumentDefaultValues = string.Join(
+                    ", ",
+                    defaultArguments
+                        .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument, context)));
+
+                return string.IsNullOrEmpty(argumentDefaultValues)
+                           ? ""
+                           : $"[{argumentDefaultValues}]";
             }
         }
 
@@ -483,10 +492,6 @@ namespace System.CommandLine.Help
             bool displayArgumentName,
             HelpContext context)
         {
-            string label = displayArgumentName 
-                              ? LocalizationResources.HelpArgumentDefaultValueLabel() 
-                              : parameter.Name;
-
             string? displayedDefaultValue = null;
 
             if (_customizationsBySymbol is not null)
@@ -510,6 +515,9 @@ namespace System.CommandLine.Help
                 return "";
             }
 
+            string label = displayArgumentName 
+                               ? LocalizationResources.HelpArgumentDefaultValueLabel() 
+                               : parameter.Name;
             return $"{label}: {displayedDefaultValue}";
         }
 

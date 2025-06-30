@@ -4,6 +4,7 @@
 using System.CommandLine.Parsing;
 using FluentAssertions;
 using System.Linq;
+using FluentAssertions.Execution;
 using Xunit;
 
 namespace System.CommandLine.Tests
@@ -272,14 +273,80 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<int>("-x");
 
-            option.DefaultValueFactory = (_) => 123;
+            option.DefaultValueFactory = _ => 123;
 
-            new RootCommand { option }
-                .Parse("")
+            var parseResult = new RootCommand { option }.Parse("");
+
+            parseResult
                 .GetResult(option)
                 .GetValueOrDefault<int>()
                 .Should()
                 .Be(123);
+        }
+
+        [Fact]
+        public void When_there_is_no_default_value_then_GetRequiredValue_does_not_throw_for_bool()
+        {
+            var option = new Option<bool>("-x");
+
+            var result = new RootCommand { option }.Parse("");
+
+            using var _ = new AssertionScope();
+
+            result.Invoking(r => r.GetRequiredValue(option)).Should().NotThrow();
+            result.GetRequiredValue(option).Should().BeFalse();
+            
+            result.Invoking(r => r.GetRequiredValue<bool>("-x")).Should().NotThrow();
+            result.GetRequiredValue<bool>("-x").Should().BeFalse();
+            
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void GetRequiredValue_does_not_throw_when_help_is_requested_and_DefaultValueFactory_is_set()
+        {
+            var option = new Option<string>("-x")
+            {
+                DefaultValueFactory = _ => "default"
+            };
+
+            var result = new RootCommand { option }.Parse("-h");
+
+            using var _ = new AssertionScope();
+
+            result.Invoking(r => r.GetRequiredValue(option)).Should().NotThrow();
+            result.GetRequiredValue(option).Should().Be("default");
+            
+            result.Invoking(r => r.GetRequiredValue<string>("-x")).Should().NotThrow();
+            result.GetRequiredValue<string>("-x").Should().Be("default");
+            
+            result.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void When_there_is_no_default_value_then_GetDefaultValue_does_not_throw_for_bool()
+        {
+            var option = new Option<bool>("-x");
+
+            option.GetDefaultValue().Should().Be(false);
+        }
+
+        [Fact]
+        public void When_there_is_a_default_value_then_GetRequiredValue_does_not_throw()
+        {
+            var option = new Option<string>("-x")
+            {
+                Required = true,
+                DefaultValueFactory = _ => "default"
+            };
+
+            var result = new RootCommand { option }.Parse("");
+
+            using var _ = new AssertionScope();
+
+            result.Invoking(r => r.GetRequiredValue(option)).Should().NotThrow();
+            result.Invoking(r => r.GetRequiredValue<string>("-x")).Should().NotThrow();
+            result.GetRequiredValue(option).Should().Be("default");
         }
 
         [Fact]
@@ -322,9 +389,6 @@ namespace System.CommandLine.Tests
 
             var result = new RootCommand { option }.Parse("");
 
-            result.GetResult(option)
-                .Should()
-                .BeNull();
             result.GetValue(option)
                 .Should()
                 .BeFalse();
@@ -404,6 +468,8 @@ namespace System.CommandLine.Tests
             };
 
             var result = root.Parse("-v -v -v");
+
+            using var _ = new AssertionScope();
 
             result.GetValue(option).Should().BeTrue();
             result.GetRequiredValue(option).Should().BeTrue();
