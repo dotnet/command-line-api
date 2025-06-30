@@ -1,7 +1,7 @@
 Contributing
 ============
 
-Please read [.NET Guidelines](https://github.com/dotnet/runtime/blob/master/CONTRIBUTING.md) for more general information about coding styles, source structure, making pull requests, and more.
+Please read [.NET Guidelines](https://github.com/dotnet/runtime/blob/main/CONTRIBUTING.md) for more general information about coding styles, source structure, making pull requests, and more.
 
 ## Developer guide
 
@@ -9,7 +9,7 @@ This project can be developed on any platform. To get started, follow instructio
 
 ### Prerequisites
 
-This project depends on .NET 7. Before working on the project, check that the [.NET SDK](https://dotnet.microsoft.com/en-us/download) is installed.
+This project depends on the .NET 9 SDK. Before working on the project, check that the [.NET SDK](https://dotnet.microsoft.com/en-us/download) is installed.
 
 ### Visual Studio
 
