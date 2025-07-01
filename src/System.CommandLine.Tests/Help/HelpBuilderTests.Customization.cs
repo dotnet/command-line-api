@@ -517,7 +517,7 @@ public partial class HelpBuilderTests
                 command.Options.Add(defaultHelp);
             }
 
-            CommandLineInvocationConfiguration config = new()
+            InvocationConfiguration config = new()
             {
                 Output = new StringWriter()
             };

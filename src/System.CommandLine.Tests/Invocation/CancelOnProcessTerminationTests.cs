@@ -56,7 +56,7 @@ namespace System.CommandLine.Tests.Invocation
             };
             command.Action = new CustomCliAction();
 
-            var config = new CommandLineInvocationConfiguration
+            var config = new InvocationConfiguration
             {
                 ProcessTerminationTimeout = TimeSpan.FromSeconds(2)
             };

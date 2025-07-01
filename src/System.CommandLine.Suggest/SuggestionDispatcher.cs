@@ -13,7 +13,7 @@ namespace System.CommandLine.Suggest
     {
         private readonly ISuggestionRegistration _suggestionRegistration;
         private readonly ISuggestionStore _suggestionStore;
-        private readonly CommandLineInvocationConfiguration _invocationConfig;
+        private readonly InvocationConfiguration _invocationConfig;
 
         public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration, ISuggestionStore suggestionStore = null)
         {
@@ -71,7 +71,7 @@ namespace System.CommandLine.Suggest
                 CompleteScriptCommand,
             };
             RootCommand.TreatUnmatchedTokensAsErrors = false;
-            Configuration = new CommandLineInvocationConfiguration();
+            Configuration = new InvocationConfiguration();
         }
 
         private Command CompleteScriptCommand { get; }
@@ -100,7 +100,7 @@ namespace System.CommandLine.Suggest
 
         private Command RegisterCommand { get; }
 
-        public CommandLineInvocationConfiguration Configuration { get; }
+        public InvocationConfiguration Configuration { get; }
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 

@@ -12,7 +12,7 @@ namespace System.CommandLine.Suggest.Tests
     public class SuggestionShellScriptHandlerTest
     {
         private readonly RootCommand _rootCommand;
-        private readonly CommandLineInvocationConfiguration _configuration;
+        private readonly InvocationConfiguration _configuration;
 
         public SuggestionShellScriptHandlerTest()
         {

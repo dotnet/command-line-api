@@ -29,7 +29,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(_testVariableName).Should().Be(value);
             });
 
-            var config = new CommandLineInvocationConfiguration
+            var config = new InvocationConfiguration
             {
                 EnableDefaultExceptionHandler = false
             };
@@ -54,7 +54,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(_testVariableName).Should().Be(value);
             });
 
-            var config = new CommandLineInvocationConfiguration
+            var config = new InvocationConfiguration
             {
                 EnableDefaultExceptionHandler = false
             };
@@ -79,7 +79,7 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().BeNull();
             });
 
-            var config = new CommandLineInvocationConfiguration
+            var config = new InvocationConfiguration
             {
                 EnableDefaultExceptionHandler = false
             };

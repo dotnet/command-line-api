@@ -3,7 +3,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests;
 
-public class CommandLineInvocationConfigurationTests
+public class InvocationConfigurationTests
 {
     [Fact]
     public void It_can_be_subclassed_to_provide_additional_context()
@@ -28,7 +28,7 @@ public class CommandLineInvocationConfigurationTests
         commandWasInvoked.Should().BeTrue();
     }
 
-    public class CustomAppConfiguration : CommandLineInvocationConfiguration
+    public class CustomAppConfiguration : InvocationConfiguration
     {
         public CustomAppConfiguration()
         {
