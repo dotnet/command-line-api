@@ -1,12 +1,13 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using FluentAssertions;
-using FluentAssertions.Execution;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
+using FluentAssertions.Execution;
 using Xunit;
 using static System.Environment;
 
@@ -14,21 +15,21 @@ namespace System.CommandLine.Tests
 {
     public class VersionOptionTests
     {
-        private static readonly string version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                                                         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                                                         .InformationalVersion;
+        private static readonly string version = (Assembly.GetEntryAssembly() ??
+                                                  Assembly.GetExecutingAssembly())
+                                                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                                 .InformationalVersion;
 
         [Fact]
         public async Task When_the_version_option_is_specified_then_the_version_is_written_to_standard_out()
         {
-            CommandLineConfiguration configuration = new(new RootCommand())
-            {
-                Output = new StringWriter()
-            };
+            var rootCommand = new RootCommand();
 
-            await configuration.InvokeAsync("--version");
+            var output = new StringWriter();
 
-            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
+            await rootCommand.Parse("--version").InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -38,12 +39,9 @@ namespace System.CommandLine.Tests
             var rootCommand = new RootCommand();
             rootCommand.SetAction((_) => wasCalled = true);
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            await configuration.InvokeAsync("--version");
+            await rootCommand.Parse("--version").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             wasCalled.Should().BeFalse();
         }
@@ -51,17 +49,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task Version_option_appears_in_help()
         {
-            CommandLineConfiguration configuration = new(new RootCommand())
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
+            await new RootCommand().Parse("--help").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            await configuration.InvokeAsync("--help");
-
-            configuration.Output
-                   .ToString()
-                   .Should()
-                   .Match("*Options:*--version*Show version information*");
+            output
+                .ToString()
+                .Should()
+                .Match("*Options:*--version*Show version information*");
         }
 
         [Fact]
@@ -76,33 +70,27 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetAction((_) => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            await configuration.InvokeAsync("--version");
+            await rootCommand.Parse("--version").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
+            output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
         public async Task When_the_version_option_is_specified_and_there_are_default_arguments_then_the_version_is_written_to_standard_out()
         {
-            RootCommand rootCommand = new ()
+            RootCommand rootCommand = new()
             {
-                new Argument<bool>("x") { DefaultValueFactory =(_) => true },
+                new Argument<bool>("x") { DefaultValueFactory = (_) => true },
             };
             rootCommand.SetAction((_) => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            await configuration.InvokeAsync("--version");
+            await rootCommand.Parse("--version").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
+            output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Theory]
@@ -119,40 +107,27 @@ namespace System.CommandLine.Tests
             };
             rootCommand.SetAction(_ => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse(commandLine, configuration);
+            var result = rootCommand.Parse(commandLine);
 
             result.Errors.Should().Contain(e => e.Message == "--version option cannot be combined with other arguments.");
         }
-        
+
         [Fact]
         public void Version_option_is_not_added_to_subcommands()
         {
-            var childCommand = new Command("subcommand");
-            childCommand.SetAction(_ => { });
-
             var rootCommand = new RootCommand
             {
-                childCommand
-            };
-            rootCommand.SetAction(_ => { });
-
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
+                new Command("subcommand")
             };
 
-            configuration
-                  .RootCommand
-                  .Subcommands
-                  .Single(c => c.Name == "subcommand")
-                  .Options
-                  .Should()
-                  .BeEmpty();
+            rootCommand
+                .Subcommands
+                .Single(c => c.Name == "subcommand")
+                .Options
+                .Should()
+                .BeEmpty();
         }
 
         [Fact]
@@ -163,19 +138,16 @@ namespace System.CommandLine.Tests
             rootCommand.Options.Clear();
             rootCommand.Add(new VersionOption("-v", "-version"));
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
             using var _ = new AssertionScope();
 
-            await configuration.InvokeAsync("-v");
-            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
+            await rootCommand.Parse("-v").InvokeAsync(new() { Output = output }, CancellationToken.None);
+            output.ToString().Should().Be($"{version}{NewLine}");
 
-            configuration.Output = new StringWriter();
-            await configuration.InvokeAsync("-version");
-            configuration.Output.ToString().Should().Be($"{version}{NewLine}");
+            output = new StringWriter();
+            await rootCommand.Parse("-version").InvokeAsync(new() { Output = output }, CancellationToken.None);
+            output.ToString().Should().Be($"{version}{NewLine}");
         }
 
         [Fact]
@@ -193,12 +165,7 @@ namespace System.CommandLine.Tests
 
             rootCommand.SetAction(_ => { });
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
-
-            var result = rootCommand.Parse("-v subcommand", configuration);
+            var result = rootCommand.Parse("-v subcommand");
 
             result.Errors.Should().ContainSingle(e => e.Message == "-v option cannot be combined with other arguments.");
         }

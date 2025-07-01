@@ -851,13 +851,13 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_current_symbol_is_an_option_that_requires_arguments_then_parent_symbol_completions_are_omitted()
         {
-            var configuration = new CommandLineConfiguration(new RootCommand
-                         {
-                             new Option<string>("--allows-one"),
-                             new Option<string[]>("--allows-many")
-                         });
+            var rootCommand = new RootCommand
+            {
+                new Option<string>("--allows-one"),
+                new Option<string[]>("--allows-many")
+            };
 
-            var completions = configuration.Parse("--allows-one ").GetCompletions();
+            var completions = rootCommand.Parse("--allows-one ").GetCompletions();
 
             completions.Should().BeEmpty();
         }

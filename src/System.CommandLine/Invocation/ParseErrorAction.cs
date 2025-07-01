@@ -49,12 +49,15 @@ public sealed class ParseErrorAction : SynchronousCommandLineAction
         ConsoleHelpers.ResetTerminalForegroundColor();
         ConsoleHelpers.SetTerminalForegroundRed();
 
+        var stdErr = parseResult.InvocationConfiguration.Error ??
+                     parseResult.Configuration.Error;
+
         foreach (var error in parseResult.Errors)
         {
-            parseResult.Configuration.Error.WriteLine(error.Message);
+            stdErr.WriteLine(error.Message);
         }
 
-        parseResult.Configuration.Error.WriteLine();
+        stdErr.WriteLine();
 
         ConsoleHelpers.ResetTerminalForegroundColor();
     }

@@ -57,18 +57,6 @@ namespace System.CommandLine
         public bool EnablePosixBundling { get; set; } = true;
 
         /// <summary>
-        /// Enables a default exception handler to catch any unhandled exceptions thrown during invocation. Enabled by default.
-        /// </summary>
-        public bool EnableDefaultExceptionHandler { get; set; } = true;
-
-        /// <summary>
-        /// Enables signaling and handling of process termination (Ctrl+C, SIGINT, SIGTERM) via a <see cref="CancellationToken"/> 
-        /// that can be passed to a <see cref="CommandLineAction"/> during invocation.
-        /// If not provided, a default timeout of 2 seconds is enforced.
-        /// </summary>
-        public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2);
-
-        /// <summary>
         /// Response file token replacer, enabled by default.
         /// To disable response files support, this property needs to be set to null.
         /// </summary>
@@ -89,7 +77,8 @@ namespace System.CommandLine
         /// If you want to disable the output, please set it to <see cref="TextWriter.Null"/>.
         /// </summary>
         public TextWriter Output
-        { 
+        {
+            // FIX: (Output) remove
             get => _output ??= Console.Out;
             set => _output = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
         }
@@ -101,56 +90,10 @@ namespace System.CommandLine
         /// </summary>
         public TextWriter Error
         {
+            // FIX: (Error) remove
             get => _error ??= Console.Error;
             set => _error = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
         }
-
-        /// <summary>
-        /// Parses an array strings using the configured <see cref="RootCommand"/>.
-        /// </summary>
-        /// <param name="args">The string arguments to parse.</param>
-        /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(IReadOnlyList<string> args)
-            => CommandLineParser.Parse(RootCommand, args, this);
-
-        /// <summary>
-        /// Parses a command line string value using the configured <see cref="RootCommand"/>.
-        /// </summary>
-        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
-        /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
-        /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(string commandLine)
-            => CommandLineParser.Parse(RootCommand, commandLine, this);
-
-        /// <summary>
-        /// Parses a command line string value and invokes the handler for the indicated command.
-        /// </summary>
-        /// <returns>The exit code for the invocation.</returns>
-        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
-        public int Invoke(string commandLine)
-            => RootCommand.Parse(commandLine, this).Invoke();
-
-        /// <summary>
-        /// Parses a command line string array and invokes the handler for the indicated command.
-        /// </summary>
-        /// <returns>The exit code for the invocation.</returns>
-        public int Invoke(string[] args)
-            => RootCommand.Parse(args, this).Invoke();
-
-        /// <summary>
-        /// Parses a command line string value and invokes the handler for the indicated command.
-        /// </summary>
-        /// <returns>The exit code for the invocation.</returns>
-        /// <remarks>The command line string input will be split into tokens as if it had been passed on the command line.</remarks>
-        public Task<int> InvokeAsync(string commandLine, CancellationToken cancellationToken = default)
-            => RootCommand.Parse(commandLine, this).InvokeAsync(cancellationToken);
-
-        /// <summary>
-        /// Parses a command line string array and invokes the handler for the indicated command.
-        /// </summary>
-        /// <returns>The exit code for the invocation.</returns>
-        public Task<int> InvokeAsync(string[] args, CancellationToken cancellationToken = default)
-            => RootCommand.Parse(args, this).InvokeAsync(cancellationToken);
 
         /// <summary>
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.

@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -151,12 +152,10 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            CommandLineConfiguration config = new(command)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            int exitCode = await config.InvokeAsync("[diagram] -x not-an-int");
+            int exitCode = await command.Parse("[diagram] -x not-an-int")
+                                        .InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             exitCode.Should().Be(42);
         }
