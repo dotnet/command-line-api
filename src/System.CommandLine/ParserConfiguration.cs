@@ -46,12 +46,12 @@ namespace System.CommandLine
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.
         /// </summary>
         /// <remarks>Due to the performance cost of this method, it is recommended to be used in unit testing or in scenarios where the parser is configured dynamically at runtime.</remarks>
-        /// <exception cref="CommandLineConfigurationException">Thrown if the configuration is found to be invalid.</exception>
+        /// <exception cref="ParserConfigurationException">Thrown if the configuration is found to be invalid.</exception>
         public void ThrowIfInvalid(Command command)
         {
             if (command.Parents.FlattenBreadthFirst(c => c.Parents).Any(ancestor => ancestor == command))
             {
-                throw new CommandLineConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
+                throw new ParserConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
             }
 
             int count = command.Subcommands.Count + command.Options.Count;
@@ -65,11 +65,11 @@ namespace System.CommandLine
                     if (symbol1.Name.Equals(symbol2.Name, StringComparison.Ordinal)
                         || (aliases1 is not null && aliases1.Contains(symbol2.Name)))
                     {
-                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol2.Name}' found on command '{command.Name}'.");
+                        throw new ParserConfigurationException($"Duplicate alias '{symbol2.Name}' found on command '{command.Name}'.");
                     }
                     else if (aliases2 is not null && aliases2.Contains(symbol1.Name))
                     {
-                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol1.Name}' found on command '{command.Name}'.");
+                        throw new ParserConfigurationException($"Duplicate alias '{symbol1.Name}' found on command '{command.Name}'.");
                     }
 
                     if (aliases1 is not null && aliases2 is not null)
@@ -81,7 +81,7 @@ namespace System.CommandLine
                             {
                                 if (aliases1.Contains(symbol2Alias))
                                 {
-                                    throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
+                                    throw new ParserConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
                                 }
                             }
                         }
