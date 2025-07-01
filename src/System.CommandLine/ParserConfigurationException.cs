@@ -6,11 +6,10 @@ namespace System.CommandLine;
 /// <summary>
 /// Indicates that a command line configuration is invalid.
 /// </summary>
-public class CommandLineConfigurationException : Exception
+public class ParserConfigurationException : Exception
 {
-    // FIX: (CommandLineConfigurationException) rename
     /// <inheritdoc />
-    public CommandLineConfigurationException(string message) : base(message)
+    public ParserConfigurationException(string message) : base(message)
     {
     }
 }

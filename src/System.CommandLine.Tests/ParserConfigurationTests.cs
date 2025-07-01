@@ -26,7 +26,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -54,7 +54,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -79,7 +79,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -103,7 +103,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -128,7 +128,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -156,7 +156,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -179,7 +179,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -235,7 +235,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -254,7 +254,7 @@ public class ParserConfigurationTests
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
