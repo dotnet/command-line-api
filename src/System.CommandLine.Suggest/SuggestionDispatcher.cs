@@ -13,7 +13,6 @@ namespace System.CommandLine.Suggest
     {
         private readonly ISuggestionRegistration _suggestionRegistration;
         private readonly ISuggestionStore _suggestionStore;
-        private readonly RootCommand _rootCommand;
         private readonly CommandLineInvocationConfiguration _invocationConfig;
 
         public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration, ISuggestionStore suggestionStore = null)
@@ -30,7 +29,7 @@ namespace System.CommandLine.Suggest
             };
             CompleteScriptCommand.SetAction(context =>
             {
-                SuggestionShellScriptHandler.Handle(context.Configuration.Output, context.GetValue(shellTypeArgument));
+                SuggestionShellScriptHandler.Handle(context.InvocationConfiguration.Output, context.GetValue(shellTypeArgument));
             });
 
             ListCommand = new Command("list")
@@ -39,7 +38,7 @@ namespace System.CommandLine.Suggest
             };
             ListCommand.SetAction((ctx, cancellationToken) =>
             {
-                ctx.Configuration.Output.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
+                ctx.InvocationConfiguration.Output.WriteLine(ShellPrefixesToMatch(_suggestionRegistration));
                 return Task.CompletedTask;
             });
 
@@ -60,24 +59,26 @@ namespace System.CommandLine.Suggest
 
             RegisterCommand.SetAction((context, cancellationToken) =>
             {
-                Register(context.GetValue(commandPathOption), context.Configuration.Output);
+                Register(context.GetValue(commandPathOption), context.InvocationConfiguration.Output);
                 return Task.CompletedTask;
             });
 
-            _rootCommand = new RootCommand
+            RootCommand = new RootCommand
             {
                 ListCommand,
                 GetCommand,
                 RegisterCommand,
                 CompleteScriptCommand,
             };
-            _rootCommand.TreatUnmatchedTokensAsErrors = false;
-            Configuration = new CommandLineConfiguration(_rootCommand);
+            RootCommand.TreatUnmatchedTokensAsErrors = false;
+            Configuration = new CommandLineInvocationConfiguration();
         }
 
         private Command CompleteScriptCommand { get; }
 
         private Command GetCommand { get; }
+
+        public RootCommand RootCommand { get; }
 
         private Option<FileInfo> ExecutableOption { get; } = GetExecutableOption();
 
@@ -99,11 +100,11 @@ namespace System.CommandLine.Suggest
 
         private Command RegisterCommand { get; }
 
-        public CommandLineConfiguration Configuration { get; }
+        public CommandLineInvocationConfiguration Configuration { get; }
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
-        public Task<int> InvokeAsync(string[] args) => Configuration.RootCommand.Parse(args, Configuration).InvokeAsync(_invocationConfig);
+        public Task<int> InvokeAsync(string[] args) => RootCommand.Parse(args).InvokeAsync(Configuration);
 
         private void Register(
             string commandPath,
@@ -169,7 +170,7 @@ namespace System.CommandLine.Suggest
             Program.LogDebug($"dotnet-suggest returning: \"{completions.Replace("\r", "\\r").Replace("\n", "\\n")}\"");
 #endif
 
-            parseResult.Configuration.Output.Write(completions);
+            parseResult.InvocationConfiguration.Output.Write(completions);
 
             return Task.FromResult(0);
         }

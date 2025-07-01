@@ -1,14 +1,15 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using FluentAssertions;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.IO;
-using FluentAssertions;
-using Xunit;
 using System.CommandLine.Tests.Utility;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace System.CommandLine.Tests;
 
@@ -42,23 +43,18 @@ public class ParseErrorReportingTests
             new Option<bool>("--verbose")
         };
 
-        CommandLineConfiguration config = new(rootCommand)
-        {
-            Output = new StringWriter()
-        };
+        var output = new StringWriter();
 
-        var result = rootCommand.Parse("oops", config);
+        var result = rootCommand.Parse("oops");
 
         if (result.Action is ParseErrorAction parseError)
         {
             parseError.ShowHelp = false;
         }
 
-        result.Invoke();
+        result.Invoke(new() { Output = output });
 
-        var output = config.Output.ToString();
-
-        output.Should().NotShowHelp();
+        output.ToString().Should().NotShowHelp();
     }
 
     [Theory] // https://github.com/dotnet/command-line-api/issues/2226
