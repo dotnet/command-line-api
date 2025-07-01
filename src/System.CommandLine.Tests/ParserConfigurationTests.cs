@@ -6,7 +6,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests;
 
-public class CommandLineConfigurationTests
+public class ParserConfigurationTests
 {
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_option_aliases_on_the_root_command()
@@ -21,7 +21,7 @@ public class CommandLineConfigurationTests
             option2
         };
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(command);
 
@@ -49,7 +49,7 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(command);
 
@@ -74,7 +74,7 @@ public class CommandLineConfigurationTests
             command2
         };
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
@@ -98,7 +98,7 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(command);
 
@@ -123,7 +123,7 @@ public class CommandLineConfigurationTests
             command
         };
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
@@ -151,7 +151,7 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
@@ -174,7 +174,7 @@ public class CommandLineConfigurationTests
         command.Options.Add(option1);
         command.Options.Add(option2);
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(command);
 
@@ -198,7 +198,7 @@ public class CommandLineConfigurationTests
         };
         rootCommand.Options.Add(new Option<string>("--dupe") { Recursive = true });
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
@@ -217,7 +217,7 @@ public class CommandLineConfigurationTests
         };
         rootCommand.Options.Add(new Option<string>("--dupe") { Recursive = true });
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(rootCommand);
 
@@ -230,7 +230,7 @@ public class CommandLineConfigurationTests
         var command = new RootCommand();
         command.Add(command);
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(command);
 
@@ -249,7 +249,7 @@ public class CommandLineConfigurationTests
         var rootCommand = new RootCommand { command };
         command.Add(rootCommand);
 
-        var config = new CommandLineConfiguration();
+        var config = new ParserConfiguration();
 
         var validate = () => config.ThrowIfInvalid(rootCommand);
 

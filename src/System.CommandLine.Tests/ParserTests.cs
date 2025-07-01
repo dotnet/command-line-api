@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            CommandLineConfiguration configuration = new()
+            ParserConfiguration configuration = new()
             {
                 EnablePosixBundling = false
             };

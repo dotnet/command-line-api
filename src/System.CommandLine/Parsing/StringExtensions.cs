@@ -28,7 +28,7 @@ namespace System.CommandLine.Parsing
         internal static void Tokenize(
             this IReadOnlyList<string> args,
             Command rootCommand,
-            CommandLineConfiguration configuration,
+            ParserConfiguration configuration,
             bool inferRootCommand,
             out List<Token> tokens,
             out List<string>? errors)
