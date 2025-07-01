@@ -21,7 +21,7 @@ namespace System.CommandLine
         private CompletionContext? _completionContext;
         private readonly CommandLineAction? _action;
         private readonly List<CommandLineAction>? _preActions;
-        private CommandLineInvocationConfiguration? _invocationConfiguration;
+        private InvocationConfiguration? _invocationConfiguration;
 
         internal ParseResult(
             ParserConfiguration configuration,
@@ -74,7 +74,7 @@ namespace System.CommandLine
         /// <summary>
         /// The configuration used to specify command line runtime behavior.
         /// </summary>
-        public CommandLineInvocationConfiguration InvocationConfiguration
+        public InvocationConfiguration InvocationConfiguration
         {
             get => _invocationConfiguration ??= new();
             set => _invocationConfiguration = value;
@@ -282,7 +282,7 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
         /// <returns>A task whose result can be used as a process exit code.</returns>
-        public Task<int> InvokeAsync(CommandLineInvocationConfiguration configuration, CancellationToken cancellationToken = default)
+        public Task<int> InvokeAsync(InvocationConfiguration configuration, CancellationToken cancellationToken = default)
         {
             InvocationConfiguration = configuration;
 
@@ -328,7 +328,7 @@ namespace System.CommandLine
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
         /// <returns>A value that can be used as a process exit code.</returns>
-        public int Invoke(CommandLineInvocationConfiguration configuration)
+        public int Invoke(InvocationConfiguration configuration)
         {
             InvocationConfiguration = configuration;
 

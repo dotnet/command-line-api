@@ -59,7 +59,7 @@ namespace System.CommandLine.Tests
             Command command = new("the-command");
             command.SetAction((_, __) => throw expectedException);
 
-            CommandLineInvocationConfiguration config = new()
+            InvocationConfiguration config = new()
             {
                 Error = new StringWriter(),
                 EnableDefaultExceptionHandler = false

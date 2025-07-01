@@ -4,9 +4,8 @@ using System.Threading;
 
 namespace System.CommandLine;
 
-public class CommandLineInvocationConfiguration
+public class InvocationConfiguration
 {
-    // FIX: (CommandLineInvocationConfiguration) rename
     private TextWriter? _output, _error;
 
     /// <summary>
