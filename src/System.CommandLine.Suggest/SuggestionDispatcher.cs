@@ -13,7 +13,6 @@ namespace System.CommandLine.Suggest
     {
         private readonly ISuggestionRegistration _suggestionRegistration;
         private readonly ISuggestionStore _suggestionStore;
-        private readonly InvocationConfiguration _invocationConfig;
 
         public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration, ISuggestionStore suggestionStore = null)
         {
