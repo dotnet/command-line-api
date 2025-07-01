@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.CommandLine.Completions;
 
 namespace System.CommandLine.Suggest
 {
@@ -14,6 +13,8 @@ namespace System.CommandLine.Suggest
     {
         private readonly ISuggestionRegistration _suggestionRegistration;
         private readonly ISuggestionStore _suggestionStore;
+        private readonly RootCommand _rootCommand;
+        private readonly CommandLineInvocationConfiguration _invocationConfig;
 
         public SuggestionDispatcher(ISuggestionRegistration suggestionRegistration, ISuggestionStore suggestionStore = null)
         {
@@ -63,15 +64,15 @@ namespace System.CommandLine.Suggest
                 return Task.CompletedTask;
             });
 
-            var root = new RootCommand
+            _rootCommand = new RootCommand
             {
                 ListCommand,
                 GetCommand,
                 RegisterCommand,
                 CompleteScriptCommand,
             };
-            root.TreatUnmatchedTokensAsErrors = false;
-            Configuration = new CommandLineConfiguration(root);
+            _rootCommand.TreatUnmatchedTokensAsErrors = false;
+            Configuration = new CommandLineConfiguration(_rootCommand);
         }
 
         private Command CompleteScriptCommand { get; }
@@ -102,7 +103,7 @@ namespace System.CommandLine.Suggest
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMilliseconds(5000);
 
-        public Task<int> InvokeAsync(string[] args) => Configuration.InvokeAsync(args);
+        public Task<int> InvokeAsync(string[] args) => Configuration.RootCommand.Parse(args, Configuration).InvokeAsync(_invocationConfig);
 
         private void Register(
             string commandPath,

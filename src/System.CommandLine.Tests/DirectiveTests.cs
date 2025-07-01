@@ -77,21 +77,21 @@ namespace System.CommandLine.Tests
                              : new SynchronousTestAction(incrementCallCount, terminating: false)
             };
 
-            var config = new CommandLineConfiguration(new RootCommand
+            var rootCommand = new RootCommand
             {
                 Action = invokeAsync
                              ? new AsynchronousTestAction(verifyActionWasCalled, terminating: false)
                              : new SynchronousTestAction(verifyActionWasCalled, terminating: false),
                 Directives = { testDirective }
-            });
+            };
 
             if (invokeAsync)
             {
-                await config.InvokeAsync("[test:1] [test:2]");
+                await rootCommand.Parse("[test:1] [test:2]").InvokeAsync();
             }
             else
             {
-                config.Invoke("[test:1] [test:2]");
+                rootCommand.Parse("[test:1] [test:2]").Invoke();
             }
 
             using var _ = new AssertionScope();
@@ -117,18 +117,19 @@ namespace System.CommandLine.Tests
             {
                 Action = new SynchronousTestAction(_ => directiveTwoActionWasCalled = true, terminating: false)
             };
-            var config = new CommandLineConfiguration(new RootCommand
+
+            var rootCommand = new RootCommand
             {
                 Action = new SynchronousTestAction(_ => commandActionWasCalled = true, terminating: false), Directives = { directiveOne, directiveTwo }
-            });
+            };
 
             if (invokeAsync)
             {
-                await config.InvokeAsync("[one] [two]");
+                await rootCommand.Parse("[one] [two]").InvokeAsync();
             }
             else
             {
-                config.Invoke("[one] [two]");
+                rootCommand.Parse("[one] [two]").Invoke();
             }
 
             using var _ = new AssertionScope();

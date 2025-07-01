@@ -24,14 +24,11 @@ public class ParseErrorReportingTests
         };
 
         var output = new StringWriter();
-        var parseResult = root.Parse("", new CommandLineConfiguration(root)
-        {
-            Output = output,
-        });
+        var parseResult = root.Parse("");
 
         parseResult.Errors.Should().NotBeEmpty();
 
-        var result = parseResult.Invoke();
+        var result = parseResult.Invoke(new() { Output = output });
 
         result.Should().Be(1);
         output.ToString().Should().ShowHelp();
@@ -104,9 +101,7 @@ public class ParseErrorReportingTests
             rootHelpWasCalled = true;
         });
 
-        var config = new CommandLineConfiguration(rootCommand);
-
-        await config.Parse("child grandchild oops").InvokeAsync();
+        await rootCommand.Parse("child grandchild oops").InvokeAsync();
 
         rootHelpWasCalled.Should().BeTrue();
     }
@@ -117,12 +112,8 @@ public class ParseErrorReportingTests
         RootCommand rootCommand = new();
         rootCommand.Options.Clear();
         var output = new StringWriter();
-        CommandLineConfiguration config = new(rootCommand)
-        {
-            Output = output
-        };
-
-        config.Parse("oops").Invoke();
+        
+        rootCommand.Parse("oops").Invoke(new() { Output = output } );
 
         output.ToString().Should().NotShowHelp();
     }
