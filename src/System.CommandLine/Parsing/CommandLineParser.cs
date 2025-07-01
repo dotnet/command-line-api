@@ -146,9 +146,10 @@ namespace System.CommandLine.Parsing
                 throw new ArgumentNullException(nameof(arguments));
             }
 
-            configuration ??= new CommandLineConfiguration(command);
+            configuration ??= new CommandLineConfiguration();
 
             arguments.Tokenize(
+                command,
                 configuration,
                 inferRootCommand: rawInput is not null,
                 out List<Token> tokens,
@@ -156,6 +157,7 @@ namespace System.CommandLine.Parsing
 
             var operation = new ParseOperation(
                 tokens,
+                command,
                 configuration,
                 tokenizationErrors,
                 rawInput);

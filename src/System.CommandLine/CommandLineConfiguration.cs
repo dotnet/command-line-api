@@ -11,22 +11,7 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandLineConfiguration"/> class.
-        /// </summary>
-        /// <param name="rootCommand">The root command for the parser.</param>
-        public CommandLineConfiguration(Command rootCommand)
-        {
-            RootCommand = rootCommand ?? throw new ArgumentNullException(nameof(rootCommand));
-        }
-
-        internal bool HasDirectives =>
-            RootCommand switch
-            {
-                RootCommand root => root.Directives.Count > 0,
-                _ => false
-            };
-
+        // FIX: (CommandLineConfiguration) rename
         /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.
         /// </summary>
@@ -59,64 +44,54 @@ namespace System.CommandLine
         public TryReplaceToken? ResponseFileTokenReplacer { get; set; } = StringExtensions.TryReadResponseFile;
 
         /// <summary>
-        /// Gets the root command.
-        /// </summary>
-        public Command RootCommand { get; }
-
-        /// <summary>
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.
         /// </summary>
         /// <remarks>Due to the performance cost of this method, it is recommended to be used in unit testing or in scenarios where the parser is configured dynamically at runtime.</remarks>
         /// <exception cref="CommandLineConfigurationException">Thrown if the configuration is found to be invalid.</exception>
-        public void ThrowIfInvalid()
+        public void ThrowIfInvalid(Command command)
         {
-            ThrowIfInvalid(RootCommand);
-
-            static void ThrowIfInvalid(Command command)
+            if (command.Parents.FlattenBreadthFirst(c => c.Parents).Any(ancestor => ancestor == command))
             {
-                if (command.Parents.FlattenBreadthFirst(c => c.Parents).Any(ancestor => ancestor == command))
-                {
-                    throw new CommandLineConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
-                }
+                throw new CommandLineConfigurationException($"Cycle detected in command tree. Command '{command.Name}' is its own ancestor.");
+            }
 
-                int count = command.Subcommands.Count + command.Options.Count;
-                for (var i = 0; i < count; i++)
+            int count = command.Subcommands.Count + command.Options.Count;
+            for (var i = 0; i < count; i++)
+            {
+                Symbol symbol1 = GetChild(i, command, out AliasSet? aliases1);
+                for (var j = i + 1; j < count; j++)
                 {
-                    Symbol symbol1 = GetChild(i, command, out AliasSet? aliases1);
-                    for (var j = i + 1; j < count; j++)
+                    Symbol symbol2 = GetChild(j, command, out AliasSet? aliases2);
+
+                    if (symbol1.Name.Equals(symbol2.Name, StringComparison.Ordinal)
+                        || (aliases1 is not null && aliases1.Contains(symbol2.Name)))
                     {
-                        Symbol symbol2 = GetChild(j, command, out AliasSet? aliases2);
+                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol2.Name}' found on command '{command.Name}'.");
+                    }
+                    else if (aliases2 is not null && aliases2.Contains(symbol1.Name))
+                    {
+                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol1.Name}' found on command '{command.Name}'.");
+                    }
 
-                        if (symbol1.Name.Equals(symbol2.Name, StringComparison.Ordinal)
-                            || (aliases1 is not null && aliases1.Contains(symbol2.Name)))
+                    if (aliases1 is not null && aliases2 is not null)
+                    {
+                        // take advantage of the fact that we are dealing with two hash sets
+                        if (aliases1.Overlaps(aliases2))
                         {
-                            throw new CommandLineConfigurationException($"Duplicate alias '{symbol2.Name}' found on command '{command.Name}'.");
-                        }
-                        else if (aliases2 is not null && aliases2.Contains(symbol1.Name))
-                        {
-                            throw new CommandLineConfigurationException($"Duplicate alias '{symbol1.Name}' found on command '{command.Name}'.");
-                        }
-
-                        if (aliases1 is not null && aliases2 is not null)
-                        {
-                            // take advantage of the fact that we are dealing with two hash sets
-                            if (aliases1.Overlaps(aliases2))
+                            foreach (string symbol2Alias in aliases2)
                             {
-                                foreach (string symbol2Alias in aliases2)
+                                if (aliases1.Contains(symbol2Alias))
                                 {
-                                    if (aliases1.Contains(symbol2Alias))
-                                    {
-                                        throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
-                                    }
+                                    throw new CommandLineConfigurationException($"Duplicate alias '{symbol2Alias}' found on command '{command.Name}'.");
                                 }
                             }
                         }
                     }
+                }
 
-                    if (symbol1 is Command childCommand)
-                    {
-                        ThrowIfInvalid(childCommand);
-                    }
+                if (symbol1 is Command childCommand)
+                {
+                    ThrowIfInvalid(childCommand);
                 }
             }
 

@@ -21,9 +21,9 @@ public class CommandLineConfigurationTests
             option2
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -49,9 +49,9 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -74,9 +74,9 @@ public class CommandLineConfigurationTests
             command2
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -98,9 +98,9 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -123,9 +123,9 @@ public class CommandLineConfigurationTests
             command
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -151,9 +151,9 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -174,9 +174,9 @@ public class CommandLineConfigurationTests
         command.Options.Add(option1);
         command.Options.Add(option2);
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -198,9 +198,9 @@ public class CommandLineConfigurationTests
         };
         rootCommand.Options.Add(new Option<string>("--dupe") { Recursive = true });
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should().NotThrow();
     }
@@ -217,9 +217,9 @@ public class CommandLineConfigurationTests
         };
         rootCommand.Options.Add(new Option<string>("--dupe") { Recursive = true });
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should().NotThrow();
     }
@@ -230,9 +230,9 @@ public class CommandLineConfigurationTests
         var command = new RootCommand();
         command.Add(command);
 
-        var config = new CommandLineConfiguration(command);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()
@@ -249,9 +249,9 @@ public class CommandLineConfigurationTests
         var rootCommand = new RootCommand { command };
         command.Add(rootCommand);
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new CommandLineConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
                 .Throw<CommandLineConfigurationException>()

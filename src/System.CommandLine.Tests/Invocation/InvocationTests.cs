@@ -304,7 +304,7 @@ namespace System.CommandLine.Tests.Invocation
                 directive
             };
 
-            ParseResult parseResult = command.Parse("[directive] cmd -x", new CommandLineConfiguration(command));
+            ParseResult parseResult = command.Parse("[directive] cmd -x");
 
             using var _ = new AssertionScope();
 

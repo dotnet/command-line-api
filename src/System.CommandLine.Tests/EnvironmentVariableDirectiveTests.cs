@@ -123,10 +123,9 @@ namespace System.CommandLine.Tests
             var customHelpAction = new CustomHelpAction();
             root.Options.OfType<HelpOption>().Single().Action = customHelpAction;
 
-            var config = new CommandLineConfiguration(root);
             root.Directives.Add(new EnvironmentVariablesDirective());
 
-            root.Parse($"[env:{_testVariableName}=1] -h", config).Invoke();
+            root.Parse($"[env:{_testVariableName}=1] -h").Invoke();
 
             customHelpAction.WasCalled.Should().BeTrue();
             Environment.GetEnvironmentVariable(_testVariableName).Should().Be("1");
