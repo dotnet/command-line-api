@@ -9,9 +9,8 @@ namespace System.CommandLine
     /// <summary>
     /// Represents the configuration used by the <see cref="CommandLineParser"/>.
     /// </summary>
-    public class CommandLineConfiguration
+    public class ParserConfiguration
     {
-        // FIX: (CommandLineConfiguration) rename
         /// <summary>
         /// Enables the parser to recognize and expand POSIX-style bundled options.
         /// </summary>

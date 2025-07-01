@@ -301,7 +301,7 @@ namespace System.CommandLine.Tests
             {
                 new Argument<List<string>>("arg")
             };
-            CommandLineConfiguration configuration = new()
+            ParserConfiguration configuration = new()
             {
                 ResponseFileTokenReplacer = null
             };

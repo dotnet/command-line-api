@@ -24,7 +24,7 @@ namespace System.CommandLine
         private CommandLineInvocationConfiguration? _invocationConfiguration;
 
         internal ParseResult(
-            CommandLineConfiguration configuration,
+            ParserConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<Token> tokens,
@@ -69,7 +69,7 @@ namespace System.CommandLine
         /// <summary>
         /// The configuration used to produce the parse result.
         /// </summary>
-        public CommandLineConfiguration Configuration { get; private set; }
+        public ParserConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// The configuration used to specify command line runtime behavior.
