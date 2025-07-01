@@ -57,23 +57,18 @@
     public System.Void SetAction(System.Func<ParseResult,System.Threading.Tasks.Task> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
   public class CommandLineConfiguration
-    .ctor(Command rootCommand)
-    public System.Boolean EnableDefaultExceptionHandler { get; set; }
+    .ctor()
     public System.Boolean EnablePosixBundling { get; set; }
+    public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
+    public System.Void ThrowIfInvalid(Command command)
+  public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
+    .ctor(System.String message)
+  public class CommandLineInvocationConfiguration
+    .ctor()
+    public System.Boolean EnableDefaultExceptionHandler { get; set; }
     public System.IO.TextWriter Error { get; set; }
     public System.IO.TextWriter Output { get; set; }
     public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
-    public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
-    public Command RootCommand { get; }
-    public System.Int32 Invoke(System.String commandLine)
-    public System.Int32 Invoke(System.String[] args)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, System.Threading.CancellationToken cancellationToken = null)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, System.Threading.CancellationToken cancellationToken = null)
-    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args)
-    public ParseResult Parse(System.String commandLine)
-    public System.Void ThrowIfInvalid()
-  public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
-    .ctor(System.String message)
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
@@ -120,6 +115,7 @@
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
     public CommandLineConfiguration Configuration { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
+    public CommandLineInvocationConfiguration InvocationConfiguration { get; set; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
@@ -138,7 +134,9 @@
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(System.String name)
     public System.Int32 Invoke()
+    public System.Int32 Invoke(CommandLineInvocationConfiguration configuration)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.Threading.CancellationToken cancellationToken = null)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(CommandLineInvocationConfiguration configuration, System.Threading.CancellationToken cancellationToken = null)
     public System.String ToString()
   public class RootCommand : Command, System.Collections.IEnumerable
     public static System.String ExecutableName { get; }
