@@ -134,8 +134,7 @@ namespace System.CommandLine.Invocation
                 ConsoleHelpers.ResetTerminalForegroundColor();
                 ConsoleHelpers.SetTerminalForegroundRed();
 
-                var error = parseResult.InvocationConfiguration?.Error ??
-                            parseResult.Configuration.Error;
+                var error = parseResult.InvocationConfiguration.Error;
 
                 error.Write(LocalizationResources.ExceptionHandlerHeader());
                 error.WriteLine(exception.ToString());

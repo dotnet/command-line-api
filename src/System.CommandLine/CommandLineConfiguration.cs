@@ -1,13 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-using System.IO;
-using System.CommandLine.Invocation;
 
 namespace System.CommandLine
 {
@@ -16,8 +11,6 @@ namespace System.CommandLine
     /// </summary>
     public class CommandLineConfiguration
     {
-        private TextWriter? _output, _error;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandLineConfiguration"/> class.
         /// </summary>
@@ -69,31 +62,6 @@ namespace System.CommandLine
         /// Gets the root command.
         /// </summary>
         public Command RootCommand { get; }
-
-        /// <summary>
-        /// The standard output. Used by Help and other facilities that write non-error information.
-        /// By default it's set to <see cref="Console.Out"/>.
-        /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
-        /// If you want to disable the output, please set it to <see cref="TextWriter.Null"/>.
-        /// </summary>
-        public TextWriter Output
-        {
-            // FIX: (Output) remove
-            get => _output ??= Console.Out;
-            set => _output = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
-        }
-
-        /// <summary>
-        /// The standard error. Used for printing error information like parse errors.
-        /// By default it's set to <see cref="Console.Error"/>.
-        /// For testing purposes, it can be set to a new instance of <see cref="StringWriter"/>.
-        /// </summary>
-        public TextWriter Error
-        {
-            // FIX: (Error) remove
-            get => _error ??= Console.Error;
-            set => _error = value ?? throw new ArgumentNullException(nameof(value), "Use TextWriter.Null to disable the output");
-        }
 
         /// <summary>
         /// Throws an exception if the parser configuration is ambiguous or otherwise not valid.

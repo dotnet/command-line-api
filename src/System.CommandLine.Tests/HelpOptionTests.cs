@@ -43,12 +43,9 @@ public class HelpOptionTests
         subcommand.SetAction(_ => wasCalled = true);
         command.Subcommands.Add(subcommand);
 
-        CommandLineConfiguration config = new(command)
-        {
-            Output = new StringWriter()
-        };
+        var output = new StringWriter();
 
-        await command.Parse("command subcommand --help", config).InvokeAsync();
+        await command.Parse("command subcommand --help").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
         wasCalled.Should().BeFalse();
     }
@@ -77,15 +74,12 @@ public class HelpOptionTests
     {
         var command = new Command("command");
         command.Options.Add(new Option<bool>("-h"));
+        
+        var output = new StringWriter();
 
-        CommandLineConfiguration config = new(command)
-        {
-            Output = new StringWriter()
-        };
+        await command.Parse("command -h").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        await command.Parse("command -h", config).InvokeAsync();
-
-        config.Output.ToString().Should().NotShowHelp();
+        output.ToString().Should().NotShowHelp();
     }
 
     [Fact]
@@ -201,7 +195,7 @@ public class HelpOptionTests
         TextWriter output = new StringWriter();
        
         var result = subcommand ? rootCommand.Parse("subcommand -h") : rootCommand.Parse("-h");
-        result.Configuration.Output = output;
+        result.InvocationConfiguration.Output = output;
         result.Invoke();
 
         if (subcommand)
@@ -254,7 +248,7 @@ public class HelpOptionTests
 
             if (parseResult.CommandResult.Command.Name == "subcommand")
             {
-                var output = parseResult.Configuration.Output;
+                var output = parseResult.InvocationConfiguration.Output;
                 output.WriteLine(CustomUsageText);
             }
             

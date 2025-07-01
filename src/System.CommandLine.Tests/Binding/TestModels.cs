@@ -71,7 +71,7 @@ namespace System.CommandLine.Tests.Binding
 
         public ClassWithMethodHavingParameter(ParseResult parseResult)
         {
-            _output = parseResult.Configuration.Output;
+            _output = parseResult.InvocationConfiguration.Output;
         }
 
         public int Handle(T value)
