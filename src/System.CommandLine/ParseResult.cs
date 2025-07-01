@@ -280,6 +280,7 @@ namespace System.CommandLine
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
+        /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
         /// <returns>A task whose result can be used as a process exit code.</returns>
         public Task<int> InvokeAsync(InvocationConfiguration configuration, CancellationToken cancellationToken = default)
