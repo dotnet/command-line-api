@@ -8,6 +8,7 @@ namespace System.CommandLine;
 /// </summary>
 public class CommandLineConfigurationException : Exception
 {
+    // FIX: (CommandLineConfigurationException) rename
     /// <inheritdoc />
     public CommandLineConfigurationException(string message) : base(message)
     {

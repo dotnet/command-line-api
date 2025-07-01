@@ -60,7 +60,7 @@ public partial class ParserTests
             var rootCommand = new RootCommand();
             rootCommand.Add(new Command("one"));
             rootCommand.Add(new Directive("one"));
-            var cliConfiguration = new CommandLineConfiguration(rootCommand);
+            var cliConfiguration = new CommandLineConfiguration();
 
             rootCommand.Invoking(c => c.Parse("", cliConfiguration)).Should().NotThrow();
         }

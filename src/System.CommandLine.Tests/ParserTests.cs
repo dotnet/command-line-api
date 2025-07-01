@@ -137,7 +137,7 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            CommandLineConfiguration configuration = new (rootCommand)
+            CommandLineConfiguration configuration = new()
             {
                 EnablePosixBundling = false
             };

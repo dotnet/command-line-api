@@ -6,6 +6,7 @@ namespace System.CommandLine;
 
 public class CommandLineInvocationConfiguration
 {
+    // FIX: (CommandLineInvocationConfiguration) rename
     private TextWriter? _output, _error;
 
     /// <summary>
