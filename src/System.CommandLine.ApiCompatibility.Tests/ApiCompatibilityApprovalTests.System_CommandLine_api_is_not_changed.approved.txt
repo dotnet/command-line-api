@@ -115,7 +115,7 @@
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
     public ParserConfiguration Configuration { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
-    public InvocationConfiguration InvocationConfiguration { get; set; }
+    public InvocationConfiguration InvocationConfiguration { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
