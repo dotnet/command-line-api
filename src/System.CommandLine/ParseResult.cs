@@ -69,7 +69,7 @@ namespace System.CommandLine
         /// <summary>
         /// The configuration used to produce the parse result.
         /// </summary>
-        public ParserConfiguration Configuration { get; private set; }
+        public ParserConfiguration Configuration { get; }
 
         /// <summary>
         /// The configuration used to specify command line runtime behavior.
