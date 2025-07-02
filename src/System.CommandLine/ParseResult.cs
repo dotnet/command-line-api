@@ -77,7 +77,7 @@ namespace System.CommandLine
         public InvocationConfiguration InvocationConfiguration
         {
             get => _invocationConfiguration ??= new();
-            set => _invocationConfiguration = value;
+            private set => _invocationConfiguration = value;
         }
 
         /// <summary>
