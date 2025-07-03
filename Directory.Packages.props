@@ -13,7 +13,7 @@
     <!-- Runtime dependencies -->
     <PackageVersion Include="Microsoft.Bcl.Memory" Version="9.0.6" />
     <!-- external dependencies -->
-    <PackageVersion Include="ApprovalTests" Version="7.0.0-beta.3" />
+    <PackageVersion Include="ApprovalTests" Version="7.0.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageVersion Include="AwesomeAssertions" Version="8.1.0" />
     <PackageVersion Include="Microsoft.DotNet.PlatformAbstractions" Version="3.1.6" />

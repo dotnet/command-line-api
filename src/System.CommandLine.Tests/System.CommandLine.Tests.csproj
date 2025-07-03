@@ -30,8 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Alias workaround for https://github.com/approvals/ApprovalTests.Net/issues/768 -->
-    <PackageReference Include="ApprovalTests" Aliases="ApprovalTests" />
+    <PackageReference Include="ApprovalTests" />
     <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
