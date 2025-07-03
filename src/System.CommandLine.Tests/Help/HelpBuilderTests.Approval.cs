@@ -1,10 +1,13 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+// Alias workaround for https://github.com/approvals/ApprovalTests.Net/issues/768
+extern alias ApprovalTests;
+
 using Xunit;
 using System.IO;
-using ApprovalTests;
-using ApprovalTests.Reporters;
+using ApprovalTests.ApprovalTests;
+using ApprovalTests.ApprovalTests.Reporters;
 
 namespace System.CommandLine.Tests.Help
 {
