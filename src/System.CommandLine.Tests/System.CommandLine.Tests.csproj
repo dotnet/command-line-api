@@ -30,8 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Alias workaround for https://github.com/approvals/ApprovalTests.Net/issues/768 -->
-    <PackageReference Include="ApprovalTests" Aliases="ApprovalTests" />
+    <PackageReference Include="ApprovalTests" />
     <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" />
@@ -42,6 +41,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <!-- TODO: Remove System.Memory explicit package reference when the repo's version got updated to 4.6.3. -->
+    <PackageReference Include="System.Memory" VersionOverride="4.6.3" />
     <PackageReference Include="Microsoft.Bcl.Memory" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
