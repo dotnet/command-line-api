@@ -2,10 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Tests.Utility;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -24,18 +26,14 @@ public class HelpOptionTests
             }
         };
 
-        CommandLineConfiguration config = new(command)
-        {
-            Output = new StringWriter()
-        };
+        var result = command.Parse("command subcommand --help");
 
-        var result = command.Parse("command subcommand --help", config);
+        var output = new StringWriter();
+        await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        await result.InvokeAsync();
-
-        config.Output.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand [options]");
+        output.ToString().Should().Contain($"{RootCommand.ExecutableName} command subcommand [options]");
     }
-         
+
     [Fact]
     public async Task Help_option_interrupts_execution_of_the_specified_command()
     {
@@ -45,12 +43,9 @@ public class HelpOptionTests
         subcommand.SetAction(_ => wasCalled = true);
         command.Subcommands.Add(subcommand);
 
-        CommandLineConfiguration config = new(command)
-        {
-            Output = new StringWriter()
-        };
+        var output = new StringWriter();
 
-        await command.Parse("command subcommand --help", config).InvokeAsync();
+        await command.Parse("command subcommand --help").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
         wasCalled.Should().BeFalse();
     }
@@ -62,17 +57,16 @@ public class HelpOptionTests
     [InlineData("/?")]
     public async Task Help_option_accepts_default_values(string value)
     {
-        CommandLineConfiguration config = new(new Command("command") { new HelpOption() })
+        var command = new Command("command")
         {
-            Output = new StringWriter()
+            new HelpOption()
         };
 
-        StringWriter console = new();
-        config.Output = console;
+        StringWriter output = new();
 
-        await config.InvokeAsync($"command {value}");
+        await command.Parse($"command {value}").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        console.ToString().Should().ShowHelp();
+        output.ToString().Should().ShowHelp();
     }
 
     [Fact]
@@ -80,15 +74,12 @@ public class HelpOptionTests
     {
         var command = new Command("command");
         command.Options.Add(new Option<bool>("-h"));
+        
+        var output = new StringWriter();
 
-        CommandLineConfiguration config = new(command)
-        {
-            Output = new StringWriter()
-        };
+        await command.Parse("command -h").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        await command.Parse("command -h", config).InvokeAsync();
-
-        config.Output.ToString().Should().NotShowHelp();
+        output.ToString().Should().NotShowHelp();
     }
 
     [Fact]
@@ -156,14 +147,11 @@ public class HelpOptionTests
         {
             new HelpOption("/lost", "--confused")
         };
-        CommandLineConfiguration config = new(command)
-        {
-            Output = new StringWriter()
-        };
+        var output = new StringWriter();
 
-        await config.InvokeAsync(helpAlias);
+        await command.Parse(helpAlias).InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        config.Output.ToString().Should().ShowHelp();
+        output.ToString().Should().ShowHelp();
     }
 
     [Theory]
@@ -178,14 +166,11 @@ public class HelpOptionTests
         command.Options.Clear();
         command.Options.Add(new HelpOption("--confused"));
 
-        CommandLineConfiguration config = new(command)
-        {
-            Output = new StringWriter(),
-        };
+        var output = new StringWriter();
 
-        await config.InvokeAsync(helpAlias);
+        await command.Parse(helpAlias).InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        config.Output.ToString().Should().NotContain(helpAlias);
+        output.ToString().Should().NotContain(helpAlias);
     }
 
     [Theory]
@@ -208,13 +193,9 @@ public class HelpOptionTests
         });
 
         TextWriter output = new StringWriter();
-        CommandLineConfiguration config = new(rootCommand)
-        {
-            Output = output
-        };
-
-        var result = subcommand ? config.Parse("subcommand -h") : config.Parse("-h");
-
+       
+        var result = subcommand ? rootCommand.Parse("subcommand -h") : rootCommand.Parse("-h");
+        result.InvocationConfiguration.Output = output;
         result.Invoke();
 
         if (subcommand)
@@ -242,13 +223,9 @@ public class HelpOptionTests
         };
         rootCommand.Subcommands.Add(subcommand);
 
-        TextWriter output = new StringWriter();
-        CommandLineConfiguration config = new(subcommand)
-        {
-            Output = output
-        };
+        var output = new StringWriter();
 
-        subcommand.Parse("--help", config).Invoke();
+        subcommand.Parse("--help").Invoke(new() { Output = output });
 
         output.ToString().Should().Contain(SubcommandDescription);
         output.ToString().Should().NotContain(RootDescription);
@@ -271,7 +248,7 @@ public class HelpOptionTests
 
             if (parseResult.CommandResult.Command.Name == "subcommand")
             {
-                var output = parseResult.Configuration.Output;
+                var output = parseResult.InvocationConfiguration.Output;
                 output.WriteLine(CustomUsageText);
             }
             

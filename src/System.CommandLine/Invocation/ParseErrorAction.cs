@@ -49,12 +49,14 @@ public sealed class ParseErrorAction : SynchronousCommandLineAction
         ConsoleHelpers.ResetTerminalForegroundColor();
         ConsoleHelpers.SetTerminalForegroundRed();
 
+        var stdErr = parseResult.InvocationConfiguration.Error;
+
         foreach (var error in parseResult.Errors)
         {
-            parseResult.Configuration.Error.WriteLine(error.Message);
+            stdErr.WriteLine(error.Message);
         }
 
-        parseResult.Configuration.Error.WriteLine();
+        stdErr.WriteLine();
 
         ConsoleHelpers.ResetTerminalForegroundColor();
     }
@@ -96,17 +98,17 @@ public sealed class ParseErrorAction : SynchronousCommandLineAction
             {
                 if (first)
                 {
-                    parseResult.Configuration.Output.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
+                    parseResult.InvocationConfiguration.Output.WriteLine(LocalizationResources.SuggestionsTokenNotMatched(token));
                     first = false;
                 }
 
-                parseResult.Configuration.Output.WriteLine(suggestion);
+                parseResult.InvocationConfiguration.Output.WriteLine(suggestion);
             }
         }
 
         if (unmatchedTokens.Count != 0)
         {
-            parseResult.Configuration.Output.WriteLine();
+            parseResult.InvocationConfiguration.Output.WriteLine();
         }
 
         static IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)

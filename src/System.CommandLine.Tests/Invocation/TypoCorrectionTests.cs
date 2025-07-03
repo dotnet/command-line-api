@@ -1,9 +1,12 @@
-using System.CommandLine.Help;
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using System.CommandLine.Invocation;
 using System.IO;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 using static System.Environment;
 
@@ -14,21 +17,18 @@ namespace System.CommandLine.Tests.Invocation
         [Fact]
         public async Task When_option_is_mistyped_it_is_suggested()
         {
-            RootCommand rootCommand = new () 
+            RootCommand rootCommand = new()
             {
                 new Option<string>("info")
             };
 
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("niof", config);
+            var result = rootCommand.Parse("niof");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output.ToString().Should().Contain($"'niof' was not matched. Did you mean one of the following?{NewLine}info");
+            output.ToString().Should().Contain($"'niof' was not matched. Did you mean one of the following?{NewLine}info");
         }
 
         [Fact]
@@ -39,39 +39,18 @@ namespace System.CommandLine.Tests.Invocation
                 new Option<string>("info")
             };
 
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("niof", config);
+            var result = rootCommand.Parse("niof");
 
             if (result.Action is ParseErrorAction parseError)
             {
                 parseError.ShowTypoCorrections = false;
             }
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output.ToString().Should().NotContain("Did you mean");
-        }
-
-        [Fact]
-        public async Task When_there_are_no_matches_then_nothing_is_suggested()
-        {
-            var option = new Option<bool>("info");
-            RootCommand rootCommand = new() { option };
-
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
-
-            var result = rootCommand.Parse("zzzzzzz", configuration);
-
-            await result.InvokeAsync();
-
-            configuration.Output.ToString().Should().NotContain("was not matched");
+            output.ToString().Should().NotContain("Did you mean");
         }
 
         [Fact]
@@ -80,16 +59,13 @@ namespace System.CommandLine.Tests.Invocation
             var command = new Command("restore");
             RootCommand rootCommand = new() { command };
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("sertor", configuration);
+            var result = rootCommand.Parse("sertor");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            configuration.Output.ToString().Should().Contain($"'sertor' was not matched. Did you mean one of the following?{NewLine}restore");
+            output.ToString().Should().Contain($"'sertor' was not matched. Did you mean one of the following?{NewLine}restore");
         }
 
         [Fact]
@@ -99,23 +75,35 @@ namespace System.CommandLine.Tests.Invocation
             var seenCommand = new Command("seen");
             var aOption = new Option<bool>("a");
             var beenOption = new Option<bool>("been");
-            RootCommand rootCommand = new ()
+            RootCommand rootCommand = new()
             {
                 fromCommand,
                 seenCommand,
                 aOption,
                 beenOption
             };
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
 
-            var result = rootCommand.Parse("een", configuration);
+            var output = new StringWriter();
 
-            await result.InvokeAsync();
+            var result = rootCommand.Parse("een");
 
-            configuration.Output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}seen{NewLine}been");
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}seen{NewLine}been");
+        }
+
+        [Fact]
+        public async Task When_there_are_no_matches_then_nothing_is_suggested()
+        {
+            var option = new Option<bool>("info");
+            RootCommand rootCommand = new() { option };
+
+            var output = new StringWriter();
+            var result = rootCommand.Parse("zzzzzzz");
+
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().NotContain("was not matched");
         }
 
         [Fact]
@@ -131,16 +119,13 @@ namespace System.CommandLine.Tests.Invocation
                 beenCommand
             };
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("een", configuration);
+            var result = rootCommand.Parse("een");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            configuration.Output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
+            output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
 
         [Fact]
@@ -154,20 +139,17 @@ namespace System.CommandLine.Tests.Invocation
                 command
             };
 
-            CommandLineConfiguration configuration = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("een", configuration);
+            var result = rootCommand.Parse("een");
 
             var parseErrorAction = (ParseErrorAction)result.Action;
             parseErrorAction.ShowHelp = false;
             parseErrorAction.ShowTypoCorrections = true;
-            
-            await result.InvokeAsync();
 
-            configuration.Output.ToString().Should().NotContain("the-argument");
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().NotContain("the-argument");
         }
 
         [Fact]
@@ -182,16 +164,13 @@ namespace System.CommandLine.Tests.Invocation
                 seenOption,
                 beenOption
             };
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("een", config);
+            var result = rootCommand.Parse("een");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
+            output.ToString().Should().Contain($"'een' was not matched. Did you mean one of the following?{NewLine}been");
         }
 
         [Fact]
@@ -202,15 +181,12 @@ namespace System.CommandLine.Tests.Invocation
                 new Option<string>("/call", "-call", "--call"),
                 new Option<string>("/email", "-email", "--email")
             };
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
-            var result = rootCommand.Parse("-all", config);
+            var output = new StringWriter();
+            var result = rootCommand.Parse("-all");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
+            output.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
         }
     }
 }

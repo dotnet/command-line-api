@@ -222,7 +222,7 @@ namespace System.CommandLine
         /// <param name="args">The string arguments to parse.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(IReadOnlyList<string> args, CommandLineConfiguration? configuration = null)
+        public ParseResult Parse(IReadOnlyList<string> args, ParserConfiguration? configuration = null)
             => CommandLineParser.Parse(this, args, configuration);
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace System.CommandLine
         /// <param name="commandLine">A command line string to parse, which can include spaces and quotes equivalent to what can be entered into a terminal.</param>
         /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
         /// <returns>A parse result describing the outcome of the parse operation.</returns>
-        public ParseResult Parse(string commandLine, CommandLineConfiguration? configuration = null)
+        public ParseResult Parse(string commandLine, ParserConfiguration? configuration = null)
             => CommandLineParser.Parse(this, commandLine, configuration);
 
         /// <inheritdoc />

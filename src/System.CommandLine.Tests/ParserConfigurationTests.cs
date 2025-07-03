@@ -6,7 +6,7 @@ using Xunit;
 
 namespace System.CommandLine.Tests;
 
-public class CommandLineConfigurationTests
+public class ParserConfigurationTests
 {
     [Fact]
     public void ThrowIfInvalid_throws_if_there_are_duplicate_sibling_option_aliases_on_the_root_command()
@@ -21,12 +21,12 @@ public class CommandLineConfigurationTests
             option2
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -49,12 +49,12 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -74,12 +74,12 @@ public class CommandLineConfigurationTests
             command2
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -98,12 +98,12 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(command);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -123,12 +123,12 @@ public class CommandLineConfigurationTests
             command
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -151,12 +151,12 @@ public class CommandLineConfigurationTests
             }
         };
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -174,12 +174,12 @@ public class CommandLineConfigurationTests
         command.Options.Add(option1);
         command.Options.Add(option2);
 
-        var config = new CommandLineConfiguration(command);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -198,9 +198,9 @@ public class CommandLineConfigurationTests
         };
         rootCommand.Options.Add(new Option<string>("--dupe") { Recursive = true });
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should().NotThrow();
     }
@@ -217,9 +217,9 @@ public class CommandLineConfigurationTests
         };
         rootCommand.Options.Add(new Option<string>("--dupe") { Recursive = true });
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should().NotThrow();
     }
@@ -230,12 +230,12 @@ public class CommandLineConfigurationTests
         var command = new RootCommand();
         command.Add(command);
 
-        var config = new CommandLineConfiguration(command);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(command);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
@@ -249,48 +249,15 @@ public class CommandLineConfigurationTests
         var rootCommand = new RootCommand { command };
         command.Add(rootCommand);
 
-        var config = new CommandLineConfiguration(rootCommand);
+        var config = new ParserConfiguration();
 
-        var validate = () => config.ThrowIfInvalid();
+        var validate = () => config.ThrowIfInvalid(rootCommand);
 
         validate.Should()
-                .Throw<CommandLineConfigurationException>()
+                .Throw<ParserConfigurationException>()
                 .Which
                 .Message
                 .Should()
                 .Be($"Cycle detected in command tree. Command '{rootCommand.Name}' is its own ancestor.");
     }
-
-    [Fact]
-    public void It_can_be_subclassed_to_provide_additional_context()
-    {
-        var command = new RootCommand();
-        var commandWasInvoked = false;
-        command.SetAction(parseResult =>
-        {
-            var appConfig = (CustomAppConfiguration)parseResult.Configuration;
-
-            // access custom config
-
-            commandWasInvoked = true;
-
-            return 0;
-        });
-
-        var config = new CustomAppConfiguration(command);
-
-        config.Invoke("");
-
-        commandWasInvoked.Should().BeTrue();
-    }
-}
-
-public class CustomAppConfiguration : CommandLineConfiguration
-{
-    public CustomAppConfiguration(RootCommand command) : base(command)
-    {
-        EnableDefaultExceptionHandler = false;
-    }
-
-    public IServiceProvider ServiceProvider { get; }
 }

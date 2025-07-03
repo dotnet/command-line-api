@@ -10,7 +10,7 @@ namespace System.CommandLine.Parsing
     internal sealed class ParseOperation
     {
         private readonly List<Token> _tokens;
-        private readonly CommandLineConfiguration _configuration;
+        private readonly ParserConfiguration _configuration;
         private readonly string? _rawInput;
         private readonly SymbolResultTree _symbolResultTree;
         private readonly CommandResult _rootCommandResult;
@@ -21,22 +21,25 @@ namespace System.CommandLine.Parsing
         private bool _isTerminatingDirectiveSpecified;
         private CommandLineAction? _primaryAction;
         private List<CommandLineAction>? _preActions;
+        private readonly Command _rootCommand;
 
         public ParseOperation(
             List<Token> tokens,
-            CommandLineConfiguration configuration,
+            Command rootCommand,
+            ParserConfiguration configuration,
             List<string>? tokenizeErrors,
             string? rawInput)
         {
             _tokens = tokens;
             _configuration = configuration;
+            _rootCommand = rootCommand;
             _rawInput = rawInput;
-            _symbolResultTree = new(_configuration.RootCommand, tokenizeErrors);
+            _symbolResultTree = new(_rootCommand, tokenizeErrors);
             _innermostCommandResult = _rootCommandResult = new CommandResult(
-                _configuration.RootCommand,
+                _rootCommand,
                 CurrentToken,
                 _symbolResultTree);
-            _symbolResultTree.Add(_configuration.RootCommand, _rootCommandResult);
+            _symbolResultTree.Add(_rootCommand, _rootCommandResult);
 
             Advance();
         }
@@ -296,7 +299,7 @@ namespace System.CommandLine.Parsing
         {
             while (More(out TokenType currentTokenType) && currentTokenType == TokenType.Directive)
             {
-                if (_configuration.HasDirectives)
+                if (_rootCommand is RootCommand { Directives.Count: > 0 })
                 {
                     ParseDirective(); // kept in separate method to avoid JIT
                 }

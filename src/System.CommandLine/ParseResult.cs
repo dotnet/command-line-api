@@ -21,9 +21,10 @@ namespace System.CommandLine
         private CompletionContext? _completionContext;
         private readonly CommandLineAction? _action;
         private readonly List<CommandLineAction>? _preActions;
+        private InvocationConfiguration? _invocationConfiguration;
 
         internal ParseResult(
-            CommandLineConfiguration configuration,
+            ParserConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<Token> tokens,
@@ -68,7 +69,16 @@ namespace System.CommandLine
         /// <summary>
         /// The configuration used to produce the parse result.
         /// </summary>
-        public CommandLineConfiguration Configuration { get; }
+        public ParserConfiguration Configuration { get; }
+
+        /// <summary>
+        /// The configuration used to specify command line runtime behavior.
+        /// </summary>
+        public InvocationConfiguration InvocationConfiguration
+        {
+            get => _invocationConfiguration ??= new();
+            private set => _invocationConfiguration = value;
+        }
 
         /// <summary>
         /// Gets the root command result.
@@ -270,6 +280,19 @@ namespace System.CommandLine
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
+        /// <param name="configuration">The configuration on which the parser's grammar and behaviors are based.</param>
+        /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
+        /// <returns>A task whose result can be used as a process exit code.</returns>
+        public Task<int> InvokeAsync(InvocationConfiguration configuration, CancellationToken cancellationToken = default)
+        {
+            InvocationConfiguration = configuration;
+
+            return InvokeAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// Invokes the appropriate command handler for a parsed command line input.
+        /// </summary>
         /// <returns>A value that can be used as a process exit code.</returns>
         public int Invoke()
         {
@@ -300,6 +323,17 @@ namespace System.CommandLine
             {
                 return InvocationPipeline.Invoke(this);
             }
+        }
+
+        /// <summary>
+        /// Invokes the appropriate command handler for a parsed command line input.
+        /// </summary>
+        /// <returns>A value that can be used as a process exit code.</returns>
+        public int Invoke(InvocationConfiguration configuration)
+        {
+            InvocationConfiguration = configuration;
+
+            return Invoke();
         }
 
         /// <summary>

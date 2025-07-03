@@ -20,7 +20,7 @@ namespace System.CommandLine.Parsing
 
         public override int Invoke(ParseResult parseResult)
         {
-            parseResult.Configuration.Output.WriteLine(Diagram(parseResult));
+            parseResult.InvocationConfiguration.Output.WriteLine(Diagram(parseResult));
             return parseResult.Errors.Count == 0 ? 0 : _parseErrorReturnValue;
         }
         

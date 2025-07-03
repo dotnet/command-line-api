@@ -45,9 +45,12 @@ namespace System.CommandLine.Invocation
 
                     case AsynchronousCommandLineAction asyncAction:
                         var startedInvocation = asyncAction.InvokeAsync(parseResult, cts.Token);
-                        if (parseResult.Configuration.ProcessTerminationTimeout.HasValue)
+
+                        var timeout = parseResult.InvocationConfiguration.ProcessTerminationTimeout;
+
+                        if (timeout.HasValue)
                         {
-                            terminationHandler = new(cts, startedInvocation, parseResult.Configuration.ProcessTerminationTimeout.Value);
+                            terminationHandler = new(cts, startedInvocation, timeout.Value);
                         }
 
                         if (terminationHandler is null)
@@ -67,9 +70,9 @@ namespace System.CommandLine.Invocation
                         throw new ArgumentOutOfRangeException(nameof(parseResult.Action));
                 }
             }
-            catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+            catch (Exception ex) when (parseResult.InvocationConfiguration.EnableDefaultExceptionHandler)
             {
-                return DefaultExceptionHandler(ex, parseResult.Configuration);
+                return DefaultExceptionHandler(ex, parseResult);
             }
             finally
             {
@@ -96,7 +99,7 @@ namespace System.CommandLine.Invocation
 
                                 if (action is not SynchronousCommandLineAction)
                                 {
-                                    parseResult.Configuration.EnableDefaultExceptionHandler = false;
+                                    parseResult.InvocationConfiguration.EnableDefaultExceptionHandler = false;
                                     throw new Exception(
                                         $"This should not happen. An instance of {nameof(AsynchronousCommandLineAction)} ({action}) was called within {nameof(InvocationPipeline)}.{nameof(Invoke)}. This is supposed to be detected earlier resulting in a call to {nameof(InvocationPipeline)}{nameof(InvokeAsync)}");
                                 }
@@ -114,9 +117,9 @@ namespace System.CommandLine.Invocation
 
                         return syncAction.Invoke(parseResult);
                     }
-                    catch (Exception ex) when (parseResult.Configuration.EnableDefaultExceptionHandler)
+                    catch (Exception ex) when (parseResult.InvocationConfiguration.EnableDefaultExceptionHandler)
                     {
-                        return DefaultExceptionHandler(ex, parseResult.Configuration);
+                        return DefaultExceptionHandler(ex, parseResult);
                     }
 
                 default:
@@ -124,15 +127,17 @@ namespace System.CommandLine.Invocation
             }
         }
 
-        private static int DefaultExceptionHandler(Exception exception, CommandLineConfiguration config)
+        private static int DefaultExceptionHandler(Exception exception, ParseResult parseResult)
         {
             if (exception is not OperationCanceledException)
             {
                 ConsoleHelpers.ResetTerminalForegroundColor();
                 ConsoleHelpers.SetTerminalForegroundRed();
 
-                config.Error.Write(LocalizationResources.ExceptionHandlerHeader());
-                config.Error.WriteLine(exception.ToString());
+                var error = parseResult.InvocationConfiguration.Error;
+
+                error.Write(LocalizationResources.ExceptionHandlerHeader());
+                error.WriteLine(exception.ToString());
 
                 ConsoleHelpers.ResetTerminalForegroundColor();
             }

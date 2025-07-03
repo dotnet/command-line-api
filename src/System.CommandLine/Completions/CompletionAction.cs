@@ -30,7 +30,9 @@ internal sealed class CompletionAction : SynchronousCommandLineAction
 
         var completions = completionParseResult.GetCompletions(position);
 
-        parseResult.Configuration.Output.WriteLine(
+        var output = parseResult.InvocationConfiguration.Output;
+
+        output.WriteLine(
             string.Join(
                 Environment.NewLine,
                 completions));

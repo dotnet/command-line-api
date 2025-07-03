@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Help;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading;
@@ -16,7 +15,7 @@ namespace System.CommandLine.Tests.Invocation
     public class InvocationTests
     {
         [Fact]
-        public async Task Command_InvokeAsync_enables_help_by_default()
+        public async Task Command_InvokeAsync_displays_help_when_HelpOption_is_present()
         {
             var command = new Command("the-command")
             {
@@ -26,12 +25,8 @@ namespace System.CommandLine.Tests.Invocation
             command.Description = theHelpText;
 
             StringWriter output = new();
-            CommandLineConfiguration config = new(command)
-            {
-                Output = output
-            };
-
-            await command.Parse("-h", config).InvokeAsync();
+          
+            await command.Parse("-h").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             output.ToString()
                   .Should()
@@ -39,7 +34,7 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public void Command_Invoke_enables_help_by_default()
+        public void Command_Invoke_displays_help_when_HelpOption_is_present()
         {
             var command = new Command("the-command")
             {
@@ -49,12 +44,8 @@ namespace System.CommandLine.Tests.Invocation
             command.Description = theHelpText;
 
             StringWriter output = new ();
-            CommandLineConfiguration config = new(command)
-            {
-                Output = output
-            };
-
-            command.Parse("-h", config).Invoke();
+         
+            command.Parse("-h").Invoke(new() { Output = output });
 
             output.ToString()
                   .Should()
@@ -313,7 +304,7 @@ namespace System.CommandLine.Tests.Invocation
                 directive
             };
 
-            ParseResult parseResult = command.Parse("[directive] cmd -x", new CommandLineConfiguration(command));
+            ParseResult parseResult = command.Parse("[directive] cmd -x");
 
             using var _ = new AssertionScope();
 
