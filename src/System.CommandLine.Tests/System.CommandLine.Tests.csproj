@@ -41,6 +41,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <!-- TODO: Remove System.Memory explicit package reference when the repo's version got updated to 4.6.3. -->
+    <PackageReference Include="System.Memory" VersionOverride="4.6.3" />
     <PackageReference Include="Microsoft.Bcl.Memory" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
