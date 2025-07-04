@@ -1,8 +1,4 @@
-using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 using static System.Environment;

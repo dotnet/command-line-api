@@ -6,6 +6,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/dotnet/command-line-api</PackageProjectUrl>
     <LangVersion>latest</LangVersion>
+    <ImplicitUsings>true</ImplicitUsings>
     <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)' == '' and '$(ContinuousIntegrationBuild)' == 'true'">true</TreatWarningsAsErrors>
   </PropertyGroup>
 

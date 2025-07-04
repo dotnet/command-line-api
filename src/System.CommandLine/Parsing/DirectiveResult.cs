@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace System.CommandLine.Parsing
+﻿namespace System.CommandLine.Parsing
 {
     /// <summary>
     /// A result produced when parsing an <see cref="Directive"/>.

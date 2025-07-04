@@ -5,7 +5,6 @@
 
 using System.CommandLine.Suggest;
 using System.CommandLine.Tests.Utility;
-using System.IO;
 using System.Text;
 using FluentAssertions;
 using Microsoft.DotNet.PlatformAbstractions;

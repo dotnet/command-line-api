@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-namespace System.CommandLine.Suggest
+﻿namespace System.CommandLine.Suggest
 {
     public interface ISuggestionRegistration
     {

@@ -3,7 +3,6 @@
 
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using System.Linq;
 
 namespace System.CommandLine.Completions;
 

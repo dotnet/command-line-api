@@ -1,9 +1,6 @@
 ﻿using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using FluentAssertions;
-using System.Linq;
-using System.Threading.Tasks;
-
 using Xunit;
 
 namespace System.CommandLine.Tests

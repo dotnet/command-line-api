@@ -5,8 +5,6 @@ using FluentAssertions;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Tests.Utility;
-using System.IO;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace System.CommandLine.Tests;

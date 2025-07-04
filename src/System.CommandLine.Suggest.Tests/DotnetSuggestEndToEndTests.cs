@@ -3,8 +3,6 @@
 
 using FluentAssertions;
 using System.CommandLine.Tests.Utility;
-using System.IO;
-using System.Linq;
 using System.Text;
 using Xunit.Abstractions;
 using static System.Environment;

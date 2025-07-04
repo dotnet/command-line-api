@@ -4,7 +4,6 @@
 using System.Collections;
 using System.CommandLine.Binding;
 using System.CommandLine.Invocation;
-using System.Linq;
 using System.Text;
 
 namespace System.CommandLine.Parsing

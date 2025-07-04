@@ -3,7 +3,6 @@
 
 using FluentAssertions;
 using System.CommandLine.Parsing;
-using System.Linq;
 using Xunit;
 
 namespace System.CommandLine.Tests
