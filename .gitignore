@@ -153,5 +153,5 @@ TestResults/
 .fake
 .ionide
 
-# ApprovalTests
-*.received.txt
+# Verify
+*.verified.txt

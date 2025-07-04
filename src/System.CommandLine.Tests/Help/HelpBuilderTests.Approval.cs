@@ -3,16 +3,15 @@
 
 using Xunit;
 using System.IO;
-using ApprovalTests;
-using ApprovalTests.Reporters;
+using System.Threading.Tasks;
+using VerifyXunit;
 
 namespace System.CommandLine.Tests.Help
 {
     public partial class HelpBuilderTests
     {
         [Fact]
-        [UseReporter(typeof(DiffReporter))]
-        public void Help_layout_has_not_changed()
+        public Task Help_layout_has_not_changed()
         {
             var command = new Command("the-root-command", "Test description")
             {
@@ -75,7 +74,7 @@ namespace System.CommandLine.Tests.Help
 
             StringWriter writer = new();
             GetHelpBuilder(LargeMaxWidth).Write(command, writer);
-            Approvals.Verify(writer.ToString());
+            return Verifier.Verify(writer.ToString());
         }
     }
 }

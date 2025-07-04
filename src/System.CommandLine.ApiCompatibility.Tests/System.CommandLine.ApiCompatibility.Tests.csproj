@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ApprovalTests" />
+    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\System.CommandLine\System.CommandLine.csproj" />
+    <PackageReference Include="Verify.Xunit" />
   </ItemGroup>
 
 </Project>
