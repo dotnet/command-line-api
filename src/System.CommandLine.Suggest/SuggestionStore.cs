@@ -3,8 +3,6 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace System.CommandLine.Suggest
 {

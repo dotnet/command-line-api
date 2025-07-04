@@ -1,5 +1,4 @@
 ﻿using System.CommandLine.Invocation;
-using System.IO;
 
 namespace System.CommandLine.Tests
 {

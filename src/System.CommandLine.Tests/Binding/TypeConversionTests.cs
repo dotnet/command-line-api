@@ -3,10 +3,7 @@
 
 using FluentAssertions;
 using System.Collections;
-using System.Collections.Generic;
 using System.CommandLine.Utility;
-using System.IO;
-using System.Linq;
 using System.Net;
 using FluentAssertions.Execution;
 using Xunit;
