@@ -21,7 +21,7 @@
   <ItemGroup Condition="'$(DisableArcade)' == '1'">
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <!-- The xunit version should be kept in sync with the one that Arcade promotes -->
-    <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.1" />
+    <PackageVersion Include="xunit" Version="$(XUnitVersion)" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="$(XUnitRunnerVisualStudioVersion)" />
   </ItemGroup>
 </Project>
