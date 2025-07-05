@@ -29,3 +29,13 @@ dotnet_style_qualification_for_field=false:warning
 dotnet_style_qualification_for_method=false:warning
 dotnet_style_qualification_for_property=false:warning
 dotnet_style_require_accessibility_modifiers=for_non_interface_members:hint
+
+# Verify
+[*.{received,verified}.{txt}]
+charset = utf-8-bom
+end_of_line = lf
+indent_size = unset
+indent_style = unset
+insert_final_newline = false
+tab_width = unset
+trim_trailing_whitespace = false
