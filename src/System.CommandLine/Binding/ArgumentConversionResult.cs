@@ -5,79 +5,78 @@ using System.CommandLine.Completions;
 using System.CommandLine.Parsing;
 using System.Linq;
 
-namespace System.CommandLine.Binding
+namespace System.CommandLine.Binding;
+
+internal sealed class ArgumentConversionResult
 {
-    internal sealed class ArgumentConversionResult
+    internal readonly ArgumentResult ArgumentResult;
+    internal readonly object? Value;
+    internal readonly string? ErrorMessage;
+    internal ArgumentConversionResultType Result;
+
+    private ArgumentConversionResult(ArgumentResult argumentResult, string error, ArgumentConversionResultType failure)
     {
-        internal readonly ArgumentResult ArgumentResult;
-        internal readonly object? Value;
-        internal readonly string? ErrorMessage;
-        internal ArgumentConversionResultType Result;
+        ArgumentResult = argumentResult;
+        ErrorMessage = error;
+        Result = failure;
+    }
 
-        private ArgumentConversionResult(ArgumentResult argumentResult, string error, ArgumentConversionResultType failure)
+    private ArgumentConversionResult(ArgumentResult argumentResult, object? value, ArgumentConversionResultType result)
+    {
+        ArgumentResult = argumentResult;
+        Value = value;
+        Result = result;
+    }
+
+    internal static ArgumentConversionResult Failure(ArgumentResult argumentResult, string error, ArgumentConversionResultType reason)
+        => new(argumentResult, error, reason);
+
+    internal static ArgumentConversionResult ArgumentConversionCannotParse(ArgumentResult argumentResult, Type expectedType, string value)
+        => new(argumentResult, FormatErrorMessage(argumentResult, expectedType, value), ArgumentConversionResultType.FailedType);
+
+    public static ArgumentConversionResult Success(ArgumentResult argumentResult, object? value)
+        => new(argumentResult, value, ArgumentConversionResultType.Successful);
+
+    internal static ArgumentConversionResult None(ArgumentResult argumentResult)
+        => new(argumentResult, value: null, ArgumentConversionResultType.NoArgument);
+
+    private static string FormatErrorMessage(
+        ArgumentResult argumentResult,
+        Type expectedType,
+        string value)
+    {
+        if (argumentResult.Parent is CommandResult commandResult)
         {
-            ArgumentResult = argumentResult;
-            ErrorMessage = error;
-            Result = failure;
-        }
+            string alias = commandResult.Command.Name;
+            CompletionItem[] completionItems = argumentResult.Argument.GetCompletions(CompletionContext.Empty).ToArray();
 
-        private ArgumentConversionResult(ArgumentResult argumentResult, object? value, ArgumentConversionResultType result)
-        {
-            ArgumentResult = argumentResult;
-            Value = value;
-            Result = result;
-        }
-
-        internal static ArgumentConversionResult Failure(ArgumentResult argumentResult, string error, ArgumentConversionResultType reason)
-            => new(argumentResult, error, reason);
-
-        internal static ArgumentConversionResult ArgumentConversionCannotParse(ArgumentResult argumentResult, Type expectedType, string value)
-            => new(argumentResult, FormatErrorMessage(argumentResult, expectedType, value), ArgumentConversionResultType.FailedType);
-
-        public static ArgumentConversionResult Success(ArgumentResult argumentResult, object? value)
-            => new(argumentResult, value, ArgumentConversionResultType.Successful);
-
-        internal static ArgumentConversionResult None(ArgumentResult argumentResult)
-            => new(argumentResult, value: null, ArgumentConversionResultType.NoArgument);
-
-        private static string FormatErrorMessage(
-            ArgumentResult argumentResult,
-            Type expectedType,
-            string value)
-        {
-            if (argumentResult.Parent is CommandResult commandResult)
+            if (completionItems.Length > 0)
             {
-                string alias = commandResult.Command.Name;
-                CompletionItem[] completionItems = argumentResult.Argument.GetCompletions(CompletionContext.Empty).ToArray();
-
-                if (completionItems.Length > 0)
-                {
-                    return LocalizationResources.ArgumentConversionCannotParseForCommand(
-                        value, alias, expectedType, completionItems.Select(ci => ci.Label));
-                }
-                else
-                {
-                    return LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
-                }
+                return LocalizationResources.ArgumentConversionCannotParseForCommand(
+                    value, alias, expectedType, completionItems.Select(ci => ci.Label));
             }
-            else if (argumentResult.Parent is OptionResult optionResult)
+            else
             {
-                string alias = optionResult.Option.Name;
-                CompletionItem[] completionItems = optionResult.Option.GetCompletions(CompletionContext.Empty).ToArray();
-
-                if (completionItems.Length > 0)
-                {
-                    return LocalizationResources.ArgumentConversionCannotParseForOption(
-                        value, alias, expectedType, completionItems.Select(ci => ci.Label));
-                }
-                else
-                {
-                    return LocalizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
-                }
+                return LocalizationResources.ArgumentConversionCannotParseForCommand(value, alias, expectedType);
             }
-
-            // fake ArgumentResults with no Parent
-            return LocalizationResources.ArgumentConversionCannotParse(value, expectedType);
         }
+        else if (argumentResult.Parent is OptionResult optionResult)
+        {
+            string alias = optionResult.Option.Name;
+            CompletionItem[] completionItems = optionResult.Option.GetCompletions(CompletionContext.Empty).ToArray();
+
+            if (completionItems.Length > 0)
+            {
+                return LocalizationResources.ArgumentConversionCannotParseForOption(
+                    value, alias, expectedType, completionItems.Select(ci => ci.Label));
+            }
+            else
+            {
+                return LocalizationResources.ArgumentConversionCannotParseForOption(value, alias, expectedType);
+            }
+        }
+
+        // fake ArgumentResults with no Parent
+        return LocalizationResources.ArgumentConversionCannotParse(value, expectedType);
     }
 }

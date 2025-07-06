@@ -1,24 +1,23 @@
 ﻿using System.IO;
 
-namespace System.CommandLine.Suggest.Tests
+namespace System.CommandLine.Suggest.Tests;
+
+public class FileSuggestionProviderTests : SuggestionRegistrationTest, IDisposable
 {
-    public class FileSuggestionProviderTests : SuggestionRegistrationTest, IDisposable
+    protected override ISuggestionRegistration GetSuggestionRegistration() => new FileSuggestionRegistration(_filePath);
+
+    private readonly string _filePath;
+
+    public FileSuggestionProviderTests()
     {
-        protected override ISuggestionRegistration GetSuggestionRegistration() => new FileSuggestionRegistration(_filePath);
+        _filePath = Path.GetFullPath(Path.GetRandomFileName());
+    }
 
-        private readonly string _filePath;
-
-        public FileSuggestionProviderTests()
+    public void Dispose()
+    {
+        if (File.Exists(_filePath))
         {
-            _filePath = Path.GetFullPath(Path.GetRandomFileName());
-        }
-
-        public void Dispose()
-        {
-            if (File.Exists(_filePath))
-            {
-                File.Delete(_filePath);
-            }
+            File.Delete(_filePath);
         }
     }
 }

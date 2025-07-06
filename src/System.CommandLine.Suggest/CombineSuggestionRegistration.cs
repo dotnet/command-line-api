@@ -5,37 +5,36 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace System.CommandLine.Suggest
+namespace System.CommandLine.Suggest;
+
+public class CombineSuggestionRegistration : ISuggestionRegistration
 {
-    public class CombineSuggestionRegistration : ISuggestionRegistration
+    private readonly ISuggestionRegistration[] _suggestionRegistrations;
+
+    public CombineSuggestionRegistration(params ISuggestionRegistration[] suggestionRegistration)
     {
-        private readonly ISuggestionRegistration[] _suggestionRegistrations;
+        _suggestionRegistrations =
+            suggestionRegistration ?? throw new ArgumentNullException(nameof(suggestionRegistration));
+    }
 
-        public CombineSuggestionRegistration(params ISuggestionRegistration[] suggestionRegistration)
+    public void AddSuggestionRegistration(Registration registration)
+    {
+        foreach (var suggestionRegistration in _suggestionRegistrations)
         {
-            _suggestionRegistrations =
-                suggestionRegistration ?? throw new ArgumentNullException(nameof(suggestionRegistration));
+            suggestionRegistration.AddSuggestionRegistration(registration);
         }
+    }
 
-        public void AddSuggestionRegistration(Registration registration)
-        {
-            foreach (var suggestionRegistration in _suggestionRegistrations)
-            {
-                suggestionRegistration.AddSuggestionRegistration(registration);
-            }
-        }
+    public Registration FindRegistration(FileInfo soughtExecutable)
+    {
+        return _suggestionRegistrations
+            .Select(s => s.FindRegistration(soughtExecutable))
+            .FirstOrDefault(s => s != null);
+    }
 
-        public Registration FindRegistration(FileInfo soughtExecutable)
-        {
-            return _suggestionRegistrations
-                   .Select(s => s.FindRegistration(soughtExecutable))
-                   .FirstOrDefault(s => s != null);
-        }
-
-        public IEnumerable<Registration> FindAllRegistrations()
-        {
-            return _suggestionRegistrations
-                .SelectMany(s => s.FindAllRegistrations());
-        }
+    public IEnumerable<Registration> FindAllRegistrations()
+    {
+        return _suggestionRegistrations
+            .SelectMany(s => s.FindAllRegistrations());
     }
 }

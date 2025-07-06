@@ -4,16 +4,15 @@
 using Microsoft.DotNet.PlatformAbstractions;
 using Xunit;
 
-namespace System.CommandLine.Tests.Utility
+namespace System.CommandLine.Tests.Utility;
+
+public class NonWindowsOnlyFactAttribute : FactAttribute
 {
-    public class NonWindowsOnlyFactAttribute : FactAttribute
+    public NonWindowsOnlyFactAttribute()
     {
-        public NonWindowsOnlyFactAttribute()
+        if (RuntimeEnvironment.OperatingSystemPlatform == Platform.Windows)
         {
-            if (RuntimeEnvironment.OperatingSystemPlatform == Platform.Windows)
-            {
-                Skip = "This test requires non-Windows to run";
-            }
+            Skip = "This test requires non-Windows to run";
         }
     }
 }

@@ -1,7 +1,6 @@
-namespace System.CommandLine.Suggest.Tests
+namespace System.CommandLine.Suggest.Tests;
+
+public class TestSuggestionRegistrationTests : SuggestionRegistrationTest
 {
-    public class TestSuggestionRegistrationTests : SuggestionRegistrationTest
-    {
-        protected override ISuggestionRegistration GetSuggestionRegistration() => new TestSuggestionRegistration();
-    }
+    protected override ISuggestionRegistration GetSuggestionRegistration() => new TestSuggestionRegistration();
 }

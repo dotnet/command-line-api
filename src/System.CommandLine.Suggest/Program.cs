@@ -5,39 +5,38 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace System.CommandLine.Suggest
+namespace System.CommandLine.Suggest;
+
+public class Program
 {
-    public class Program
+    internal static string DOTNET_SUGGEST_LOGGING = nameof(DOTNET_SUGGEST_LOGGING);
+
+    public static async Task<int> Main(string[] args)
     {
-        internal static string DOTNET_SUGGEST_LOGGING = nameof(DOTNET_SUGGEST_LOGGING);
-
-        public static async Task<int> Main(string[] args)
-        {
 #if DEBUG
-            LogDebug(new[] { "dotnet-suggest received: " }.Concat(args).ToArray());
+        LogDebug(new[] { "dotnet-suggest received: " }.Concat(args).ToArray());
 #endif
 
-            var provider = new CombineSuggestionRegistration(
-                new GlobalToolsSuggestionRegistration(),
-                new FileSuggestionRegistration());
-            var dispatcher = new SuggestionDispatcher(provider);
-            return await dispatcher.InvokeAsync(args);
-        }
-
-#if DEBUG
-        internal static void LogDebug(params string[] args)
-        {
-            if (Environment.GetEnvironmentVariable(DOTNET_SUGGEST_LOGGING) == "1")
-            {
-                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                var dotnetSuggestFolder = Path.Combine(appData, "dotnet-suggest");
-
-                Directory.CreateDirectory(dotnetSuggestFolder);
-
-                var logFile = Path.Combine(dotnetSuggestFolder, "debug.log");
-                File.AppendAllText(logFile, string.Join("|", args) + Environment.NewLine);
-            }
-        }
-#endif
+        var provider = new CombineSuggestionRegistration(
+            new GlobalToolsSuggestionRegistration(),
+            new FileSuggestionRegistration());
+        var dispatcher = new SuggestionDispatcher(provider);
+        return await dispatcher.InvokeAsync(args);
     }
+
+#if DEBUG
+    internal static void LogDebug(params string[] args)
+    {
+        if (Environment.GetEnvironmentVariable(DOTNET_SUGGEST_LOGGING) == "1")
+        {
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dotnetSuggestFolder = Path.Combine(appData, "dotnet-suggest");
+
+            Directory.CreateDirectory(dotnetSuggestFolder);
+
+            var logFile = Path.Combine(dotnetSuggestFolder, "debug.log");
+            File.AppendAllText(logFile, string.Join("|", args) + Environment.NewLine);
+        }
+    }
+#endif
 }

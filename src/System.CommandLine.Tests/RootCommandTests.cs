@@ -4,16 +4,15 @@
 using FluentAssertions;
 using Xunit;
 
-namespace System.CommandLine.Tests
-{
-    public class RootCommandTests
-    {
-        [Fact]
-        public void Root_command_name_defaults_to_executable_name()
-        {
-            var rootCommand = new RootCommand();
+namespace System.CommandLine.Tests;
 
-            rootCommand.Name.Should().Be(RootCommand.ExecutableName);
-        }
+public class RootCommandTests
+{
+    [Fact]
+    public void Root_command_name_defaults_to_executable_name()
+    {
+        var rootCommand = new RootCommand();
+
+        rootCommand.Name.Should().Be(RootCommand.ExecutableName);
     }
 }

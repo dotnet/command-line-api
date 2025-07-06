@@ -11,823 +11,822 @@ using System.Net;
 using FluentAssertions.Execution;
 using Xunit;
 
-namespace System.CommandLine.Tests.Binding
+namespace System.CommandLine.Tests.Binding;
+
+public class TypeConversionTests
 {
-    public class TypeConversionTests
+    protected T GetValue<T>(Option<T> option, string commandLine)
     {
-        protected T GetValue<T>(Option<T> option, string commandLine)
+        var result = new RootCommand { option }.Parse(commandLine);
+        return result.GetValue(option);
+    }
+
+    protected T GetValue<T>(Argument<T> argument, string commandLine)
+    {
+        var result = new RootCommand { argument }.Parse(commandLine);
+        return result.GetValue(argument);
+    }
+
+    [Fact]
+    public void Option_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
+    {
+        var option = new Option<FileInfo>("--file");
+
+        var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
+
+        GetValue(option, $"--file {file.FullName}")
+            .Name
+            .Should()
+            .Be("the-file.txt");
+    }
+
+    [Fact]
+    public void Command_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
+    {
+        var argument = new Argument<FileInfo>("the-arg");
+
+        var command = new Command("the-command")
         {
-            var result = new RootCommand { option }.Parse(commandLine);
-            return result.GetValue(option);
-        }
+            argument
+        };
 
-        protected T GetValue<T>(Argument<T> argument, string commandLine)
+        var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
+        var result = command.Parse($"{file.FullName}");
+
+        result.GetValue(argument)
+            .Name
+            .Should()
+            .Be("the-file.txt");
+    }
+
+    [Fact]
+    public void Command_argument_of_FileInfo_returns_null_when_argument_is_not_provided()
+    {
+        var argument = new Argument<FileInfo>("the-arg")
         {
-            var result = new RootCommand { argument }.Parse(commandLine);
-            return result.GetValue(argument);
-        }
-
-        [Fact]
-        public void Option_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
+            Arity = ArgumentArity.ZeroOrOne
+        };
+        var command = new Command("the-command")
         {
-            var option = new Option<FileInfo>("--file");
+            argument
+        };
 
-            var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
+        var result = command.Parse("");
 
-            GetValue(option, $"--file {file.FullName}")
-                  .Name
-                  .Should()
-                  .Be("the-file.txt");
-        }
+        result.GetValue(argument)
+            .Should()
+            .BeNull();
+    }
 
-        [Fact]
-        public void Command_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
+    [Fact]
+    public void Argument_of_FileInfo_that_is_empty_results_in_an_informative_error()
+    {
+        var option = new Option<FileInfo>("--file");
+        var result = new RootCommand { option }.Parse(new string[] { "--file", "" });
+
+        result.Errors
+            .Should()
+            .ContainSingle()
+            .Which
+            .Message
+            .Should()
+            .Contain("Cannot parse argument '' for option '--file'");
+    }
+
+    [Fact]
+    public void Argument_of_array_of_FileInfo_can_be_called_without_custom_conversion_logic()
+    {
+        var option = new Option<FileInfo[]>("--file");
+
+        var file1 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file1.txt"));
+        var file2 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file2.txt"));
+
+        GetValue(option, $"--file {file1.FullName} --file {file2.FullName}")
+            .Select(fi => fi.Name)
+            .Should()
+            .BeEquivalentTo("file1.txt", "file2.txt");
+    }
+
+    [Fact]
+    public void Argument_defaults_arity_to_One_for_non_IEnumerable_types()
+    {
+        var argument = new Argument<int>("arg");
+
+        argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
+    }
+
+    [Fact]
+    public void Argument_defaults_arity_to_ExactlyOne_for_string()
+    {
+        var argument = new Argument<string>("arg");
+
+        argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
+    }
+
+    [Fact]
+    public void Command_Argument_defaults_arity_to_ZeroOrOne_for_nullable_types()
+    {
+        var command = new Command("the-command")
         {
-            var argument = new Argument<FileInfo>("the-arg");
+            new Argument<int?>("arg")
+        };
 
-            var command = new Command("the-command")
-            {
-                argument
-            };
+        command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
+    }
 
-            var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
-            var result = command.Parse($"{file.FullName}");
+    [Theory]
+    [InlineData(typeof(int[]))]
+    [InlineData(typeof(IEnumerable<int>))]
+    [InlineData(typeof(List<int>))]
+    public void Argument_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
+    {
+        var argument = ArgumentBuilder.CreateArgument(type);
 
-            result.GetValue(argument)
-                  .Name
-                  .Should()
-                  .Be("the-file.txt");
-        }
+        argument.Arity.Should().BeEquivalentTo(ArgumentArity.OneOrMore);
+    }
 
-        [Fact]
-        public void Command_argument_of_FileInfo_returns_null_when_argument_is_not_provided()
+    [Fact]
+    public void Argument_parses_as_the_default_value_when_the_option_has_not_been_applied()
+    {
+        var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
+
+        var command = new Command("something")
         {
-            var argument = new Argument<FileInfo>("the-arg")
-            {
-                Arity = ArgumentArity.ZeroOrOne
-            };
-            var command = new Command("the-command")
-            {
-                argument
-            };
+            option
+        };
 
-            var result = command.Parse("");
+        var result = command.Parse("something");
 
-            result.GetValue(argument)
-                  .Should()
-                  .BeNull();
-        }
+        result.GetValue(option).Should().Be(123);
+    }
 
-        [Fact]
-        public void Argument_of_FileInfo_that_is_empty_results_in_an_informative_error()
+    [Fact]
+    public void Option_does_not_parse_as_the_default_value_when_the_option_has_been_applied()
+    {
+        var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
+
+        var command = new Command("something")
         {
-            var option = new Option<FileInfo>("--file");
-            var result = new RootCommand { option }.Parse(new string[] { "--file", "" });
+            option
+        };
 
-            result.Errors
-                  .Should()
-                  .ContainSingle()
-                  .Which
-                  .Message
-                  .Should()
-                  .Contain("Cannot parse argument '' for option '--file'");
-        }
+        var result = command.Parse("something -x 456");
 
-        [Fact]
-        public void Argument_of_array_of_FileInfo_can_be_called_without_custom_conversion_logic()
+        result.GetValue(option).Should().Be(456);
+    }
+
+    [Theory]
+    [InlineData("the-command -x")]
+    [InlineData("the-command -x true")]
+    [InlineData("the-command -x:true")]
+    [InlineData("the-command -x=true")]
+    public void Bool_parses_as_true_when_the_option_has_been_applied(string commandLine)
+    {
+        var option = new Option<bool>("-x");
+
+        var command = new Command("the-command")
         {
-            var option = new Option<FileInfo[]>("--file");
+            option
+        };
 
-            var file1 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file1.txt"));
-            var file2 = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "file2.txt"));
+        command
+            .Parse(commandLine)
+            .GetValue(option)
+            .Should()
+            .BeTrue();
+    }
 
-            GetValue(option, $"--file {file1.FullName} --file {file2.FullName}")
-                .Select(fi => fi.Name)
-                .Should()
-                .BeEquivalentTo("file1.txt", "file2.txt");
-        }
+    [Fact] // https://github.com/dotnet/command-line-api/issues/2210
+    public void Nullable_bool_with_unparseable_argument_does_not_throw()
+    {
+        RootCommand rootCommand = new();
+        Option<bool?> option = new("--test");
+        rootCommand.Options.Add(option);
+        var result = rootCommand.Parse("--test ouch");
 
-        [Fact]
-        public void Argument_defaults_arity_to_One_for_non_IEnumerable_types()
+        result.Invoking(r =>  r.GetValue(option))
+            .Should().NotThrow();
+    }
+
+    [Fact] // https://github.com/dotnet/command-line-api/issues/2210
+    public void Bool_with_unparseable_argument_does_not_throw()
+    {
+        RootCommand rootCommand = new();
+        Option<bool> option = new("--test");
+        rootCommand.Options.Add(option);
+        var result = rootCommand.Parse("--test ouch");
+
+        result.Invoking(r => r.GetValue(option))
+            .Should().NotThrow();
+    }
+
+    [Theory]
+    [InlineData("the-command -x")]
+    [InlineData("the-command -x true")]
+    [InlineData("the-command -x:true")]
+    [InlineData("the-command -x=true")]
+    public void Nullable_bool_parses_as_true_when_the_option_has_been_applied(string commandLine)
+    {
+        var option = new Option<bool?>("-x");
+
+        var command = new Command("the-command")
         {
-            var argument = new Argument<int>("arg");
+            option
+        };
 
-            argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
-        }
+        command
+            .Parse(commandLine)
+            .GetValue(option)
+            .Should()
+            .BeTrue();
+    }
 
-        [Fact]
-        public void Argument_defaults_arity_to_ExactlyOne_for_string()
+    [Theory]
+    [InlineData("the-command -x false")]
+    [InlineData("the-command -x:false")]
+    [InlineData("the-command -x=false")]
+    public void Nullable_bool_parses_as_false_when_the_option_has_been_applied(string commandLine)
+    {
+        var option = new Option<bool?>("-x");
+
+        var command = new Command("the-command")
         {
-            var argument = new Argument<string>("arg");
+            option
+        };
 
-            argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
-        }
+        command
+            .Parse(commandLine)
+            .GetValue(option)
+            .Should()
+            .BeFalse();
+    }
 
-        [Fact]
-        public void Command_Argument_defaults_arity_to_ZeroOrOne_for_nullable_types()
+    [Fact]
+    public void Nullable_bool_parses_as_null_when_the_option_has_not_been_applied()
+    {
+        var option = new Option<bool?>("-x");
+
+        GetValue(option, "")
+            .Should()
+            .Be(null);
+    }
+
+    [Theory]
+    [InlineData("-x", true)]
+    [InlineData("-x:true", true)]
+    [InlineData("-x:false", false)]
+    public void Nullable_bool_option_result_casts_to_nullable_bool(string command, bool expectedValue)
+    {
+        var option = new Option<bool?>("-x");
+
+        var value = new RootCommand { option }
+            .Parse(command)
+            .GetResult(option)
+            .GetValueOrDefault<object>();
+
+        value.Should().BeAssignableTo<bool?>();
+        value.Should().Be(expectedValue);
+    }
+
+    [Fact]
+    public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
+    {
+        var option = new Option<string>("-x");
+
+        var command = new Command("the-command")
         {
-            var command = new Command("the-command")
-            {
-                new Argument<int?>("arg")
-            };
+            option
+        };
 
-            command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
-        }
+        var result = command.Parse("the-command -x");
 
-        [Theory]
-        [InlineData(typeof(int[]))]
-        [InlineData(typeof(IEnumerable<int>))]
-        [InlineData(typeof(List<int>))]
-        public void Argument_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
+        Action getValue = () => result.GetValue(option);
+
+        getValue.Should()
+            .Throw<InvalidOperationException>()
+            .Which
+            .Message
+            .Should()
+            .Be("Required argument missing for option: '-x'.");
+    }
+
+    [Theory]
+    [InlineData("c -a o c c")]
+    [InlineData("c c -a o c")]
+    [InlineData("c c c")]
+    public void When_command_argument_has_arity_greater_than_one_it_captures_arguments_before_and_after_option(string commandLine)
+    {
+        var argument = new Argument<string[]>("the-arg")
         {
-            var argument = ArgumentBuilder.CreateArgument(type);
+            Arity = ArgumentArity.ZeroOrMore
+        };
 
-            argument.Arity.Should().BeEquivalentTo(ArgumentArity.OneOrMore);
-        }
-
-        [Fact]
-        public void Argument_parses_as_the_default_value_when_the_option_has_not_been_applied()
+        var command = new Command("the-command")
         {
-            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
+            new Option<string>("-a"),
+            argument
+        };
 
-            var command = new Command("something")
-            {
-                option
-            };
+        var result = command.Parse(commandLine);
 
-            var result = command.Parse("something");
+        result.GetValue(argument)
+            .Should()
+            .BeEquivalentTo(new[] { "c", "c", "c" });
+    }
 
-            result.GetValue(option).Should().Be(123);
-        }
+    [Fact]
+    public void The_default_value_of_a_bool_option_with_no_arguments_is_true()
+    {
+        var option = new Option<bool>("-x");
 
-        [Fact]
-        public void Option_does_not_parse_as_the_default_value_when_the_option_has_been_applied()
-        {
-            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
-
-            var command = new Command("something")
-            {
-                option
-            };
-
-            var result = command.Parse("something -x 456");
-
-            result.GetValue(option).Should().Be(456);
-        }
-
-        [Theory]
-        [InlineData("the-command -x")]
-        [InlineData("the-command -x true")]
-        [InlineData("the-command -x:true")]
-        [InlineData("the-command -x=true")]
-        public void Bool_parses_as_true_when_the_option_has_been_applied(string commandLine)
-        {
-            var option = new Option<bool>("-x");
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            command
-                .Parse(commandLine)
-                .GetValue(option)
-                .Should()
-                .BeTrue();
-        }
-
-        [Fact] // https://github.com/dotnet/command-line-api/issues/2210
-        public void Nullable_bool_with_unparseable_argument_does_not_throw()
-        {
-            RootCommand rootCommand = new();
-            Option<bool?> option = new("--test");
-            rootCommand.Options.Add(option);
-            var result = rootCommand.Parse("--test ouch");
-
-            result.Invoking(r =>  r.GetValue(option))
-                  .Should().NotThrow();
-        }
-
-        [Fact] // https://github.com/dotnet/command-line-api/issues/2210
-        public void Bool_with_unparseable_argument_does_not_throw()
-        {
-            RootCommand rootCommand = new();
-            Option<bool> option = new("--test");
-            rootCommand.Options.Add(option);
-            var result = rootCommand.Parse("--test ouch");
-
-            result.Invoking(r => r.GetValue(option))
-                  .Should().NotThrow();
-        }
-
-        [Theory]
-        [InlineData("the-command -x")]
-        [InlineData("the-command -x true")]
-        [InlineData("the-command -x:true")]
-        [InlineData("the-command -x=true")]
-        public void Nullable_bool_parses_as_true_when_the_option_has_been_applied(string commandLine)
-        {
-            var option = new Option<bool?>("-x");
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            command
-                .Parse(commandLine)
-                .GetValue(option)
-                .Should()
-                .BeTrue();
-        }
-
-        [Theory]
-        [InlineData("the-command -x false")]
-        [InlineData("the-command -x:false")]
-        [InlineData("the-command -x=false")]
-        public void Nullable_bool_parses_as_false_when_the_option_has_been_applied(string commandLine)
-        {
-            var option = new Option<bool?>("-x");
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            command
-                .Parse(commandLine)
-                .GetValue(option)
-                .Should()
-                .BeFalse();
-        }
-
-        [Fact]
-        public void Nullable_bool_parses_as_null_when_the_option_has_not_been_applied()
-        {
-            var option = new Option<bool?>("-x");
-
-            GetValue(option, "")
-                .Should()
-                .Be(null);
-        }
-
-        [Theory]
-        [InlineData("-x", true)]
-        [InlineData("-x:true", true)]
-        [InlineData("-x:false", false)]
-        public void Nullable_bool_option_result_casts_to_nullable_bool(string command, bool expectedValue)
-        {
-            var option = new Option<bool?>("-x");
-
-            var value = new RootCommand { option }
-                .Parse(command)
-                .GetResult(option)
-                .GetValueOrDefault<object>();
-
-            value.Should().BeAssignableTo<bool?>();
-            value.Should().Be(expectedValue);
-        }
-
-        [Fact]
-        public void When_exactly_one_argument_is_expected_and_none_are_provided_then_getting_value_throws()
-        {
-            var option = new Option<string>("-x");
-
-            var command = new Command("the-command")
-            {
-                option
-            };
-
-            var result = command.Parse("the-command -x");
-
-            Action getValue = () => result.GetValue(option);
-
-            getValue.Should()
-                    .Throw<InvalidOperationException>()
-                    .Which
-                    .Message
-                    .Should()
-                    .Be("Required argument missing for option: '-x'.");
-        }
-
-        [Theory]
-        [InlineData("c -a o c c")]
-        [InlineData("c c -a o c")]
-        [InlineData("c c c")]
-        public void When_command_argument_has_arity_greater_than_one_it_captures_arguments_before_and_after_option(string commandLine)
-        {
-            var argument = new Argument<string[]>("the-arg")
-            {
-                Arity = ArgumentArity.ZeroOrMore
-            };
-
-            var command = new Command("the-command")
-            {
-                new Option<string>("-a"),
-                argument
-            };
-
-            var result = command.Parse(commandLine);
-
-            result.GetValue(argument)
-                  .Should()
-                  .BeEquivalentTo(new[] { "c", "c", "c" });
-        }
-
-        [Fact]
-        public void The_default_value_of_a_bool_option_with_no_arguments_is_true()
-        {
-            var option = new Option<bool>("-x");
-
-            var command =
-                new Command("the-command")
-                {
-                    option
-                };
-
-            var result = command.Parse("-x");
-
-            result.GetValue(option)
-                  .Should()
-                  .Be(true);
-        }
-
-        [Fact]
-        public void By_default_a_bool_option_without_arguments_parses_as_false_when_it_is_not_applied()
-        {
-            var option = new Option<bool>("-x");
-
-            var command = new Command("something")
+        var command =
+            new Command("the-command")
             {
                 option
             };
 
-            var result = command.Parse("something");
+        var result = command.Parse("-x");
 
-            result.GetValue(option)
-                  .Should()
-                  .Be(false);
-        }
+        result.GetValue(option)
+            .Should()
+            .Be(true);
+    }
 
-        [Fact]
-        public void An_option_with_a_default_value_parses_as_the_default_value_when_the_option_has_not_been_applied()
+    [Fact]
+    public void By_default_a_bool_option_without_arguments_parses_as_false_when_it_is_not_applied()
+    {
+        var option = new Option<bool>("-x");
+
+        var command = new Command("something")
         {
-            var option = new Option<string>("-x") { DefaultValueFactory = (_) => "123" };
+            option
+        };
 
-            var command = new Command("something")
-            {
-                option
-            };
+        var result = command.Parse("something");
 
-            var result = command.Parse("something");
+        result.GetValue(option)
+            .Should()
+            .Be(false);
+    }
 
-            result.GetValue(option)
-                  .Should()
-                  .Be("123");
-        }
+    [Fact]
+    public void An_option_with_a_default_value_parses_as_the_default_value_when_the_option_has_not_been_applied()
+    {
+        var option = new Option<string>("-x") { DefaultValueFactory = (_) => "123" };
 
-        [Fact]
-        public void An_option_with_a_default_value_of_null_parses_as_null_when_the_option_has_not_been_applied()
+        var command = new Command("something")
         {
-            var option = new Option<string>("-x") { DefaultValueFactory = (_) => null };
+            option
+        };
 
-            var command = new Command("something")
-            {
-                option
-            };
+        var result = command.Parse("something");
 
-            var result = command.Parse("something");
+        result.GetValue(option)
+            .Should()
+            .Be("123");
+    }
 
-            result.GetValue(option)
-                  .Should()
-                  .Be(null);
-        }
+    [Fact]
+    public void An_option_with_a_default_value_of_null_parses_as_null_when_the_option_has_not_been_applied()
+    {
+        var option = new Option<string>("-x") { DefaultValueFactory = (_) => null };
 
-        [Fact]
-        public void A_default_value_of_a_non_string_type_can_be_specified()
+        var command = new Command("something")
         {
-            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
+            option
+        };
 
-            var command = new Command("something")
-            {
-                option
-            };
+        var result = command.Parse("something");
 
-            command.Parse("something")
-                   .GetValue(option)
-                   .Should()
-                   .Be(123);
-        }
+        result.GetValue(option)
+            .Should()
+            .Be(null);
+    }
 
-        [Fact]
-        public void A_default_value_with_a_custom_constructor_can_be_specified_for_an_option_argument()
+    [Fact]
+    public void A_default_value_of_a_non_string_type_can_be_specified()
+    {
+        var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
+
+        var command = new Command("something")
         {
-            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+            option
+        };
 
-            var option = new Option<DirectoryInfo>("-x") { DefaultValueFactory = (_) => directoryInfo };
+        command.Parse("something")
+            .GetValue(option)
+            .Should()
+            .Be(123);
+    }
 
-            var command = new Command("something")
-            {
-                option
-            };
+    [Fact]
+    public void A_default_value_with_a_custom_constructor_can_be_specified_for_an_option_argument()
+    {
+        var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            var result = command.Parse("something");
+        var option = new Option<DirectoryInfo>("-x") { DefaultValueFactory = (_) => directoryInfo };
 
-            result.GetValue(option).Should().Be(directoryInfo);
-        }
-
-        [Fact]
-        public void A_default_value_with_a_custom_constructor_can_be_specified_for_a_command_argument()
+        var command = new Command("something")
         {
-            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+            option
+        };
 
-            var argument = new Argument<DirectoryInfo>("the-arg") { DefaultValueFactory = (_) => directoryInfo };
+        var result = command.Parse("something");
 
-            var command = new Command("something")
-            {
-                argument
-            };
+        result.GetValue(option).Should().Be(directoryInfo);
+    }
 
-            var result = command.Parse("something");
+    [Fact]
+    public void A_default_value_with_a_custom_constructor_can_be_specified_for_a_command_argument()
+    {
+        var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            result.Errors.Should().BeEmpty();
+        var argument = new Argument<DirectoryInfo>("the-arg") { DefaultValueFactory = (_) => directoryInfo };
 
-            var value = result.GetValue(argument);
-
-            value.Should().Be(directoryInfo);
-        }
-
-        [Fact]
-        public void Specifying_an_option_argument_overrides_the_default_value()
+        var command = new Command("something")
         {
-            var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
+            argument
+        };
 
-            var command = new Command("something")
-            {
-                option
-            };
+        var result = command.Parse("something");
 
-            var result = command.Parse("something -x 456");
+        result.Errors.Should().BeEmpty();
 
-            var value = result.GetValue(option);
+        var value = result.GetValue(argument);
 
-            value.Should().Be(456);
-        }
+        value.Should().Be(directoryInfo);
+    }
 
+    [Fact]
+    public void Specifying_an_option_argument_overrides_the_default_value()
+    {
+        var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_DateTime_without_the_parser_specifying_a_custom_converter()
+        var command = new Command("something")
         {
-            var option = new Option<DateTime>("-x");
+            option
+        };
 
-            var dateString = "2022-02-06T01:46:03.0000000-08:00";
+        var result = command.Parse("something -x 456");
 
-            GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
-        }
+        var value = result.GetValue(option);
+
+        value.Should().Be(456);
+    }
 
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_DateTime_without_the_parser_specifying_a_custom_converter()
+    [Fact]
+    public void Values_can_be_correctly_converted_to_DateTime_without_the_parser_specifying_a_custom_converter()
+    {
+        var option = new Option<DateTime>("-x");
+
+        var dateString = "2022-02-06T01:46:03.0000000-08:00";
+
+        GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
+    }
+
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_DateTime_without_the_parser_specifying_a_custom_converter()
+    {
+        var option = new Option<DateTime?>("-x");
+
+        var dateString = "2022-02-06T01:46:03.0000000-08:00";
+
+        GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
+    }
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_DateTimeOffset_without_the_parser_specifying_a_custom_converter()
+    {
+        var option = new Option<DateTimeOffset>("-x");
+
+        var dateString = "2022-02-06T09:52:54.5275055-08:00";
+
+        GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
+    }
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_DateTimeOffset_without_the_parser_specifying_a_custom_converter()
+    {
+        var option = new Option<DateTimeOffset?>("-x");
+
+        var dateString = "2022-02-06T09:52:54.5275055-08:00";
+
+        GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
+    }
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<decimal>("-x"), "-x 123.456").Should().Be(123.456m);
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_decimal_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<decimal?>("-x"), "-x 123.456").Should().Be(123.456m);
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<double>("-x"), "-x 123.456").Should().Be(123.456d);
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_double_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<double?>("-x"), "-x 123.456").Should().Be(123.456d);
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<float>("-x"), "-x 123.456").Should().Be(123.456f);
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_float_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<float?>("-x"), "-x 123.456").Should().Be(123.456f);
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_Guid_without_the_parser_specifying_a_custom_converter()
+    {
+        const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
+
+        GetValue(new Option<Guid>("-x"), $"-x {guidString}").Should().Be(Guid.Parse(guidString));
+    }
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_Guid_without_the_parser_specifying_a_custom_converter()
+    {
+        const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
+
+        GetValue(new Option<Guid?>("-x"), $"-x {guidString}").Should().Be(Guid.Parse(guidString));
+    }
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_TimeSpan_without_the_parser_specifying_a_custom_converter()
+    {
+        const string timeSpanString = "30";
+
+        GetValue(new Option<TimeSpan>("-x"), $"-x {timeSpanString}").Should().Be(TimeSpan.Parse(timeSpanString));
+    }
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_TimeSpan_without_the_parser_specifying_a_custom_converter()
+    {
+        const string timeSpanString = "30";
+
+        GetValue(new Option<TimeSpan?>("-x"), $"-x {timeSpanString}").Should().Be(TimeSpan.Parse(timeSpanString));
+    }
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_Uri_when_custom_parser_is_provided()
+    {
+        Option<Uri> option = new ("-x")
         {
-            var option = new Option<DateTime?>("-x");
+            CustomParser = (argumentResult) => Uri.TryCreate(argumentResult.Tokens.Last().Value, UriKind.RelativeOrAbsolute, out var uri) ? uri : null
+        };
 
-            var dateString = "2022-02-06T01:46:03.0000000-08:00";
+        GetValue(option, "-x http://example.com").Should().BeEquivalentTo(new Uri("http://example.com"));
+    }
 
-            GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
-        }
+    [Fact]
+    public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
+    {
+        using var _ = new AssertionScope();
+        GetValue(new Option<bool>("-x"), "-x false").Should().BeFalse();
+        GetValue(new Option<bool>("-x"), "-x true").Should().BeTrue();
+    }
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_DateTimeOffset_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<DateTimeOffset>("-x");
+    [Fact]
+    public void Values_can_be_correctly_converted_to_long_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<long>("-x"), "-x 123456790").Should().Be(123456790L);
 
-            var dateString = "2022-02-06T09:52:54.5275055-08:00";
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_long_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<long?>("-x"), "-x 123456790").Should().Be(123456790L);
 
-            GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
-        }
+    [Fact]
+    public void Values_can_be_correctly_converted_to_short_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<short>("-s"), "-s 1234").Should().Be(1234);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_DateTimeOffset_without_the_parser_specifying_a_custom_converter()
-        {
-            var option = new Option<DateTimeOffset?>("-x");
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_short_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<short?>("-s"), "-s 1234").Should().Be(1234);
 
-            var dateString = "2022-02-06T09:52:54.5275055-08:00";
+    [Fact]
+    public void Values_can_be_correctly_converted_to_ulong_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<ulong>("-x"), "-x 1234").Should().Be(1234);
 
-            GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
-        }
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_ulong_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<ulong?>("-x"), "-x 1234").Should().Be(1234);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<decimal>("-x"), "-x 123.456").Should().Be(123.456m);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_ushort_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<ushort>("-s"), "-s 1234").Should().Be(1234);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_decimal_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<decimal?>("-x"), "-x 123.456").Should().Be(123.456m);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_ushort_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<ushort?>("-s"), "-s 1234").Should().Be(1234);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<double>("-x"), "-x 123.456").Should().Be(123.456d);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_sbyte_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<sbyte>("-us"), "-us 123").Should().Be(123);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_double_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<double?>("-x"), "-x 123.456").Should().Be(123.456d);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_sbyte_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<sbyte?>("-us"), "-us 123").Should().Be(123);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<float>("-x"), "-x 123.456").Should().Be(123.456f);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_ipaddress_when_custom_parser_is_provided()
+    {
+        Option<IPAddress> option = new ("-us")
+        { 
+            CustomParser = (argumentResult) => IPAddress.Parse(argumentResult.Tokens.Last().Value)
+        };
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_float_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<float?>("-x"), "-x 123.456").Should().Be(123.456f);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_Guid_without_the_parser_specifying_a_custom_converter()
-        {
-            const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
-
-            GetValue(new Option<Guid>("-x"), $"-x {guidString}").Should().Be(Guid.Parse(guidString));
-        }
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_Guid_without_the_parser_specifying_a_custom_converter()
-        {
-            const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
-
-            GetValue(new Option<Guid?>("-x"), $"-x {guidString}").Should().Be(Guid.Parse(guidString));
-        }
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_TimeSpan_without_the_parser_specifying_a_custom_converter()
-        {
-            const string timeSpanString = "30";
-
-            GetValue(new Option<TimeSpan>("-x"), $"-x {timeSpanString}").Should().Be(TimeSpan.Parse(timeSpanString));
-        }
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_TimeSpan_without_the_parser_specifying_a_custom_converter()
-        {
-            const string timeSpanString = "30";
-
-            GetValue(new Option<TimeSpan?>("-x"), $"-x {timeSpanString}").Should().Be(TimeSpan.Parse(timeSpanString));
-        }
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_Uri_when_custom_parser_is_provided()
-        {
-            Option<Uri> option = new ("-x")
-            {
-                CustomParser = (argumentResult) => Uri.TryCreate(argumentResult.Tokens.Last().Value, UriKind.RelativeOrAbsolute, out var uri) ? uri : null
-            };
-
-            GetValue(option, "-x http://example.com").Should().BeEquivalentTo(new Uri("http://example.com"));
-        }
-
-        [Fact]
-        public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
-        {
-            using var _ = new AssertionScope();
-            GetValue(new Option<bool>("-x"), "-x false").Should().BeFalse();
-            GetValue(new Option<bool>("-x"), "-x true").Should().BeTrue();
-        }
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_long_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<long>("-x"), "-x 123456790").Should().Be(123456790L);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_long_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<long?>("-x"), "-x 123456790").Should().Be(123456790L);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_short_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<short>("-s"), "-s 1234").Should().Be(1234);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_short_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<short?>("-s"), "-s 1234").Should().Be(1234);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_ulong_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<ulong>("-x"), "-x 1234").Should().Be(1234);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_ulong_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<ulong?>("-x"), "-x 1234").Should().Be(1234);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_ushort_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<ushort>("-s"), "-s 1234").Should().Be(1234);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_ushort_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<ushort?>("-s"), "-s 1234").Should().Be(1234);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_sbyte_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<sbyte>("-us"), "-us 123").Should().Be(123);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_sbyte_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<sbyte?>("-us"), "-us 123").Should().Be(123);
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_ipaddress_when_custom_parser_is_provided()
-        {
-            Option<IPAddress> option = new ("-us")
-            { 
-                CustomParser = (argumentResult) => IPAddress.Parse(argumentResult.Tokens.Last().Value)
-            };
-
-            GetValue(option, "-us 1.2.3.4").Should().Be(IPAddress.Parse("1.2.3.4"));
-        }
+        GetValue(option, "-us 1.2.3.4").Should().Be(IPAddress.Parse("1.2.3.4"));
+    }
 
 #if NETCOREAPP3_0_OR_GREATER
-        [Fact]
-        public void Values_can_be_correctly_converted_to_ipendpoint_when_custom_parser_is_provided()
+    [Fact]
+    public void Values_can_be_correctly_converted_to_ipendpoint_when_custom_parser_is_provided()
+    {
+        Option<IPEndPoint> option = new("-us")
         {
-            Option<IPEndPoint> option = new("-us")
-            {
-                CustomParser = (argumentResult) => IPEndPoint.Parse(argumentResult.Tokens.Last().Value)
-            };
+            CustomParser = (argumentResult) => IPEndPoint.Parse(argumentResult.Tokens.Last().Value)
+        };
 
-            GetValue(option, "-us 1.2.3.4:56").Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
-        }
+        GetValue(option, "-us 1.2.3.4:56").Should().Be(IPEndPoint.Parse("1.2.3.4:56"));
+    }
 #endif
 
 #if NET6_0_OR_GREATER
-        [Fact]
-        public void Values_can_be_correctly_converted_to_dateonly_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<DateOnly>("-us"), "-us 2022-03-02").Should().Be(DateOnly.Parse("2022-03-02"));
+    [Fact]
+    public void Values_can_be_correctly_converted_to_dateonly_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<DateOnly>("-us"), "-us 2022-03-02").Should().Be(DateOnly.Parse("2022-03-02"));
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_dateonly_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<DateOnly?>("-x"), "-x 2022-03-02").Should().Be(DateOnly.Parse("2022-03-02"));
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_dateonly_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<DateOnly?>("-x"), "-x 2022-03-02").Should().Be(DateOnly.Parse("2022-03-02"));
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_timeonly_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<TimeOnly>("-us"), "-us 12:34:56").Should().Be(TimeOnly.Parse("12:34:56"));
+    [Fact]
+    public void Values_can_be_correctly_converted_to_timeonly_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<TimeOnly>("-us"), "-us 12:34:56").Should().Be(TimeOnly.Parse("12:34:56"));
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_timeonly_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<TimeOnly?>("-x"), "-x 12:34:56").Should().Be(TimeOnly.Parse("12:34:56"));
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_timeonly_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<TimeOnly?>("-x"), "-x 12:34:56").Should().Be(TimeOnly.Parse("12:34:56"));
 #endif
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_byte_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<byte>("-us"), "-us 123").Should().Be(123);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_byte_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<byte>("-us"), "-us 123").Should().Be(123);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_byte_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<byte?>("-us"), "-us 123").Should().Be(123);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_byte_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<byte?>("-us"), "-us 123").Should().Be(123);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_uint_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<uint>("-us"), "-us 1234").Should().Be(1234);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_uint_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<uint>("-us"), "-us 1234").Should().Be(1234);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_nullable_uint_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<uint?>("-us"), "-us 1234").Should().Be(1234);
+    [Fact]
+    public void Values_can_be_correctly_converted_to_nullable_uint_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<uint?>("-us"), "-us 1234").Should().Be(1234);
 
-        [Fact]
-        public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<int[]>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] { 1, 2, 3 });
+    [Fact]
+    public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<int[]>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] { 1, 2, 3 });
 
-        [Theory]
-        [InlineData(0, 100_000, typeof(string[]))]
-        [InlineData(0, 3, typeof(string[]))]
-        [InlineData(0, 100_000, typeof(IEnumerable<string>))]
-        [InlineData(0, 3, typeof(IEnumerable<string>))]
-        [InlineData(0, 100_000, typeof(List<string>))]
-        [InlineData(0, 3, typeof(List<string>))]
-        [InlineData(0, 100_000, typeof(IList<string>))]
-        [InlineData(0, 3, typeof(IList<string>))]
-        [InlineData(0, 100_000, typeof(ICollection<string>))]
-        [InlineData(0, 3, typeof(ICollection<string>))]
+    [Theory]
+    [InlineData(0, 100_000, typeof(string[]))]
+    [InlineData(0, 3, typeof(string[]))]
+    [InlineData(0, 100_000, typeof(IEnumerable<string>))]
+    [InlineData(0, 3, typeof(IEnumerable<string>))]
+    [InlineData(0, 100_000, typeof(List<string>))]
+    [InlineData(0, 3, typeof(List<string>))]
+    [InlineData(0, 100_000, typeof(IList<string>))]
+    [InlineData(0, 3, typeof(IList<string>))]
+    [InlineData(0, 100_000, typeof(ICollection<string>))]
+    [InlineData(0, 3, typeof(ICollection<string>))]
 
-        [InlineData(1, 100_000, typeof(string[]))]
-        [InlineData(1, 3, typeof(string[]))]
-        [InlineData(1, 100_000, typeof(IEnumerable<string>))]
-        [InlineData(1, 3, typeof(IEnumerable<string>))]
-        [InlineData(1, 100_000, typeof(List<string>))]
-        [InlineData(1, 3, typeof(List<string>))]
-        [InlineData(1, 100_000, typeof(IList<string>))]
-        [InlineData(1, 3, typeof(IList<string>))]
-        [InlineData(1, 100_000, typeof(ICollection<string>))]
-        [InlineData(1, 3, typeof(ICollection<string>))]
-        public void Max_arity_greater_than_1_converts_to_enumerable_types(
-            int minArity,
-            int maxArity,
-            Type argumentType)
+    [InlineData(1, 100_000, typeof(string[]))]
+    [InlineData(1, 3, typeof(string[]))]
+    [InlineData(1, 100_000, typeof(IEnumerable<string>))]
+    [InlineData(1, 3, typeof(IEnumerable<string>))]
+    [InlineData(1, 100_000, typeof(List<string>))]
+    [InlineData(1, 3, typeof(List<string>))]
+    [InlineData(1, 100_000, typeof(IList<string>))]
+    [InlineData(1, 3, typeof(IList<string>))]
+    [InlineData(1, 100_000, typeof(ICollection<string>))]
+    [InlineData(1, 3, typeof(ICollection<string>))]
+    public void Max_arity_greater_than_1_converts_to_enumerable_types(
+        int minArity,
+        int maxArity,
+        Type argumentType)
+    {
+        var option = OptionBuilder.CreateOption("--items", valueType: argumentType);
+        option.Arity = new ArgumentArity(minArity, maxArity);
+
+        var command = new RootCommand
         {
-            var option = OptionBuilder.CreateOption("--items", valueType: argumentType);
-            option.Arity = new ArgumentArity(minArity, maxArity);
+            option
+        };
 
-            var command = new RootCommand
-            {
-                option
-            };
+        var result = command.Parse("--items one --items two --items three");
 
-            var result = command.Parse("--items one --items two --items three");
-
-            result.Errors.Should().BeEmpty();
-            result.GetResult(option).GetValueOrDefault<object>().Should().BeAssignableTo(argumentType);
-        }
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<List<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] {1, 2, 3});
-
-        [Fact]
-        public void Values_can_be_correctly_converted_to_IEnumerable_of_int_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<IEnumerable<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] { 1, 2, 3 });
-
-        [Fact]
-        public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<DayOfWeek>("-x"), "-x Monday").Should().Be(DayOfWeek.Monday);
-
-        [Fact]
-        public void Nullable_enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<DayOfWeek?>("-x"), "-x Monday").Should().Be(DayOfWeek.Monday);
-
-        [Fact]
-        public void Enum_values_that_cannot_be_parsed_result_in_an_informative_error()
-        {
-            var option = new Option<DayOfWeek>("-x");
-
-            var value = new RootCommand { option }.Parse("-x Notaday");
-
-            value.Errors
-                 .Should()
-                 .ContainSingle()
-                 .Which
-                 .Message
-                 .Should()
-                 .Contain("Cannot parse argument 'Notaday' for option '-x' as expected type 'System.DayOfWeek'.");
-        }
-
-        [Fact]
-        public void When_getting_a_single_value_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
-        {
-            var option = new Option<int>("-x");
-
-            var result = new RootCommand { option }.Parse("-x not-an-int");
-
-            Action getValue = () => result.GetValue(option);
-
-            getValue.Should()
-                    .Throw<InvalidOperationException>()
-                    .Which
-                    .Message
-                    .Should()
-                    .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type 'System.Int32'.");
-        }
-
-        [Fact]
-        public void When_getting_an_array_of_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
-        {
-            Action getValue = () => GetValue(new Option<int[]>("-x"), "-x not-an-int -x 2");
-
-            getValue.Should()
-                    .Throw<InvalidOperationException>()
-                    .Which
-                    .Message
-                    .Should()
-                    .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type 'System.Int32'.");
-        }
-
-        [Fact]
-        public void String_defaults_to_null_when_not_specified_only_for_not_required_arguments()
-            => GetValue(
-                new Argument<string>("arg")
-                { 
-                    Arity = ArgumentArity.ZeroOrMore
-                }, "").Should().BeNull();
-
-        [Theory]
-        [InlineData(typeof(List<string>))]
-        [InlineData(typeof(List<int>))]
-        [InlineData(typeof(List<FileAccess>))]
-        [InlineData(typeof(IEnumerable<string>))]
-        [InlineData(typeof(IEnumerable<int>))]
-        [InlineData(typeof(IEnumerable<FileAccess>))]
-        [InlineData(typeof(ICollection<string>))]
-        [InlineData(typeof(ICollection<int>))]
-        [InlineData(typeof(ICollection<FileAccess>))]
-        [InlineData(typeof(IList<string>))]
-        [InlineData(typeof(IList<int>))]
-        [InlineData(typeof(IList<FileAccess>))]
-        [InlineData(typeof(string[]))]
-        [InlineData(typeof(int[]))]
-        [InlineData(typeof(FileAccess[]))]
-        public void Sequence_type_defaults_to_empty_when_not_specified(Type sequenceType)
-        {
-            var argument = Activator.CreateInstance(typeof(Argument<>).MakeGenericType(sequenceType), new object[] { "argName" });
-
-            AssertParsedValueIsEmpty((dynamic)argument);
-        }
-
-        private void AssertParsedValueIsEmpty<T>(Argument<T> argument) where T : IEnumerable
-            => GetValue(argument, "").Should().BeEquivalentTo(Enumerable.Empty<T>());
+        result.Errors.Should().BeEmpty();
+        result.GetResult(option).GetValueOrDefault<object>().Should().BeAssignableTo(argumentType);
     }
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<List<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] {1, 2, 3});
+
+    [Fact]
+    public void Values_can_be_correctly_converted_to_IEnumerable_of_int_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<IEnumerable<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] { 1, 2, 3 });
+
+    [Fact]
+    public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<DayOfWeek>("-x"), "-x Monday").Should().Be(DayOfWeek.Monday);
+
+    [Fact]
+    public void Nullable_enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
+        => GetValue(new Option<DayOfWeek?>("-x"), "-x Monday").Should().Be(DayOfWeek.Monday);
+
+    [Fact]
+    public void Enum_values_that_cannot_be_parsed_result_in_an_informative_error()
+    {
+        var option = new Option<DayOfWeek>("-x");
+
+        var value = new RootCommand { option }.Parse("-x Notaday");
+
+        value.Errors
+            .Should()
+            .ContainSingle()
+            .Which
+            .Message
+            .Should()
+            .Contain("Cannot parse argument 'Notaday' for option '-x' as expected type 'System.DayOfWeek'.");
+    }
+
+    [Fact]
+    public void When_getting_a_single_value_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
+    {
+        var option = new Option<int>("-x");
+
+        var result = new RootCommand { option }.Parse("-x not-an-int");
+
+        Action getValue = () => result.GetValue(option);
+
+        getValue.Should()
+            .Throw<InvalidOperationException>()
+            .Which
+            .Message
+            .Should()
+            .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type 'System.Int32'.");
+    }
+
+    [Fact]
+    public void When_getting_an_array_of_values_and_specifying_a_conversion_type_that_is_not_supported_then_it_throws()
+    {
+        Action getValue = () => GetValue(new Option<int[]>("-x"), "-x not-an-int -x 2");
+
+        getValue.Should()
+            .Throw<InvalidOperationException>()
+            .Which
+            .Message
+            .Should()
+            .Be("Cannot parse argument 'not-an-int' for option '-x' as expected type 'System.Int32'.");
+    }
+
+    [Fact]
+    public void String_defaults_to_null_when_not_specified_only_for_not_required_arguments()
+        => GetValue(
+            new Argument<string>("arg")
+            { 
+                Arity = ArgumentArity.ZeroOrMore
+            }, "").Should().BeNull();
+
+    [Theory]
+    [InlineData(typeof(List<string>))]
+    [InlineData(typeof(List<int>))]
+    [InlineData(typeof(List<FileAccess>))]
+    [InlineData(typeof(IEnumerable<string>))]
+    [InlineData(typeof(IEnumerable<int>))]
+    [InlineData(typeof(IEnumerable<FileAccess>))]
+    [InlineData(typeof(ICollection<string>))]
+    [InlineData(typeof(ICollection<int>))]
+    [InlineData(typeof(ICollection<FileAccess>))]
+    [InlineData(typeof(IList<string>))]
+    [InlineData(typeof(IList<int>))]
+    [InlineData(typeof(IList<FileAccess>))]
+    [InlineData(typeof(string[]))]
+    [InlineData(typeof(int[]))]
+    [InlineData(typeof(FileAccess[]))]
+    public void Sequence_type_defaults_to_empty_when_not_specified(Type sequenceType)
+    {
+        var argument = Activator.CreateInstance(typeof(Argument<>).MakeGenericType(sequenceType), new object[] { "argName" });
+
+        AssertParsedValueIsEmpty((dynamic)argument);
+    }
+
+    private void AssertParsedValueIsEmpty<T>(Argument<T> argument) where T : IEnumerable
+        => GetValue(argument, "").Should().BeEquivalentTo(Enumerable.Empty<T>());
 }

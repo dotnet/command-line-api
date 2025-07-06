@@ -4,35 +4,34 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace System.CommandLine
+namespace System.CommandLine;
+
+/// <summary>
+/// Provides a set of <see langword="static"/> methods for querying objects that implement <see cref="IEnumerable"/>.
+/// </summary>
+internal static class EnumerableExtensions
 {
-    /// <summary>
-    /// Provides a set of <see langword="static"/> methods for querying objects that implement <see cref="IEnumerable"/>.
-    /// </summary>
-    internal static class EnumerableExtensions
+    internal static IEnumerable<T> FlattenBreadthFirst<T>(
+        this IEnumerable<T> source,
+        Func<T, IEnumerable<T>> children)
     {
-        internal static IEnumerable<T> FlattenBreadthFirst<T>(
-            this IEnumerable<T> source,
-            Func<T, IEnumerable<T>> children)
+        var queue = new Queue<T>();
+
+        foreach (var item in source)
         {
-            var queue = new Queue<T>();
+            queue.Enqueue(item);
+        }
 
-            foreach (var item in source)
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            foreach (var option in children(current))
             {
-                queue.Enqueue(item);
+                queue.Enqueue(option);
             }
 
-            while (queue.Count > 0)
-            {
-                var current = queue.Dequeue();
-
-                foreach (var option in children(current))
-                {
-                    queue.Enqueue(option);
-                }
-
-                yield return current;
-            }
+            yield return current;
         }
     }
 }

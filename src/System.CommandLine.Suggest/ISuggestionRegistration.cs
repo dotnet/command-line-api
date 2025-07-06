@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace System.CommandLine.Suggest
+namespace System.CommandLine.Suggest;
+
+public interface ISuggestionRegistration
 {
-    public interface ISuggestionRegistration
-    {
-        void AddSuggestionRegistration(Registration registration);
-        Registration FindRegistration(FileInfo soughtExecutable);
-        IEnumerable<Registration> FindAllRegistrations();
-    }
+    void AddSuggestionRegistration(Registration registration);
+    Registration FindRegistration(FileInfo soughtExecutable);
+    IEnumerable<Registration> FindAllRegistrations();
 }

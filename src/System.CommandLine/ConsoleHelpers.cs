@@ -3,37 +3,36 @@
 
 using System.Runtime.InteropServices;
 
-namespace System.CommandLine
-{
-    internal static class ConsoleHelpers
-    {
-        private static readonly bool ColorsAreSupported = GetColorsAreSupported();
+namespace System.CommandLine;
 
-        private static bool GetColorsAreSupported()
+internal static class ConsoleHelpers
+{
+    private static readonly bool ColorsAreSupported = GetColorsAreSupported();
+
+    private static bool GetColorsAreSupported()
 #if NET7_0_OR_GREATER
-            => !(OperatingSystem.IsBrowser() || OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || OperatingSystem.IsTvOS())
+        => !(OperatingSystem.IsBrowser() || OperatingSystem.IsAndroid() || OperatingSystem.IsIOS() || OperatingSystem.IsTvOS())
 #else
             => !(RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER"))
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID"))
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS"))
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Create("TVOS")))
 #endif
-            && !Console.IsOutputRedirected;
+           && !Console.IsOutputRedirected;
 
-        internal static void SetTerminalForegroundRed()
+    internal static void SetTerminalForegroundRed()
+    {
+        if (ColorsAreSupported)
         {
-            if (ColorsAreSupported)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-            }
+            Console.ForegroundColor = ConsoleColor.Red;
         }
+    }
 
-        internal static void ResetTerminalForegroundColor()
+    internal static void ResetTerminalForegroundColor()
+    {
+        if (ColorsAreSupported)
         {
-            if (ColorsAreSupported)
-            {
-                Console.ResetColor();
-            }
+            Console.ResetColor();
         }
     }
 }
