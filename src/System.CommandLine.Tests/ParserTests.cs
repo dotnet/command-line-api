@@ -751,11 +751,13 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            ParseResult result = command.Parse(new[] { "the-command",
-                                               "complete",
-                                               "--position",
-                                               "7",
-                                               "the-command" });
+            ParseResult result = command.Parse([
+                "the-command",
+                "complete",
+                "--position",
+                "7",
+                "the-command"
+            ]);
 
             CommandResult completeResult = result.CommandResult;
 
@@ -1076,7 +1078,7 @@ namespace System.CommandLine.Tests
         {
             var option = new Option<string[]>("-x");
 
-            var parseResult = new RootCommand { option }.Parse(new[] { arg1, arg2 });
+            var parseResult = new RootCommand { option }.Parse([arg1, arg2]);
 
             parseResult
                 .GetResult(option)
@@ -1427,10 +1429,11 @@ namespace System.CommandLine.Tests
                    .CommandResult
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(new [] {
+                   .BeEquivalentTo([
                        new Token("1", TokenType.Argument, argument),
                        new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument)});
+                       new Token("3", TokenType.Argument, argument)
+                   ]);
         }
 
         [Fact]
@@ -1449,20 +1452,22 @@ namespace System.CommandLine.Tests
                    .CommandResult
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(new [] {
+                   .BeEquivalentTo([
                        new Token("1", TokenType.Argument, argument),
                        new Token("2", TokenType.Argument, argument),
-                       new Token("3", TokenType.Argument, argument)});
+                       new Token("3", TokenType.Argument, argument)
+                   ]);
             command.Parse("1 2 3 4 5")
                    .CommandResult
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(new [] {
+                   .BeEquivalentTo([
                        new Token("1", TokenType.Argument, argument),
                        new Token("2", TokenType.Argument, argument),
                        new Token("3", TokenType.Argument, argument),
                        new Token("4", TokenType.Argument, argument),
-                       new Token("5", TokenType.Argument, argument)});
+                       new Token("5", TokenType.Argument, argument)
+                   ]);
         }
 
         [Fact]
@@ -1518,10 +1523,11 @@ namespace System.CommandLine.Tests
                    .GetResult(option)
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(new [] {
+                   .BeEquivalentTo([
                        new Token("1", TokenType.Argument, default),
                        new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default)});
+                       new Token("3", TokenType.Argument, default)
+                   ]);
         }
 
         [Fact]
@@ -1538,27 +1544,29 @@ namespace System.CommandLine.Tests
                    .GetResult(option)
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(new [] {
+                   .BeEquivalentTo([
                        new Token("1", TokenType.Argument, default),
                        new Token("2", TokenType.Argument, default),
-                       new Token("3", TokenType.Argument, default)});
+                       new Token("3", TokenType.Argument, default)
+                   ]);
             command.Parse("-x 1 -x 2 -x 3 -x 4 -x 5")
                    .GetResult(option)
                    .Tokens
                    .Should()
-                   .BeEquivalentTo(new [] {
+                   .BeEquivalentTo([
                        new Token("1", TokenType.Argument, default),
                        new Token("2", TokenType.Argument, default),
                        new Token("3", TokenType.Argument, default),
                        new Token("4", TokenType.Argument, default),
-                       new Token("5", TokenType.Argument, default)});
+                       new Token("5", TokenType.Argument, default)
+                   ]);
         }
 
         [Fact]
         public void When_option_arguments_are_fewer_than_minimum_arity_then_an_error_is_returned()
         {
-            var option = new Option<int[]>("-x") 
-            { 
+            var option = new Option<int[]>("-x")
+            {
                 Arity = new ArgumentArity(2, 3)
             };
 
@@ -1646,7 +1654,7 @@ namespace System.CommandLine.Tests
                 option
             };
 
-            var result = rootCommand.Parse(new[] { arg1, arg2 });
+            var result = rootCommand.Parse([arg1, arg2]);
 
             GetValue(result, option).Should().BeEmpty();
         }

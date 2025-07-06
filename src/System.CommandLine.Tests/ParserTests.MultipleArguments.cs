@@ -173,12 +173,12 @@ namespace System.CommandLine.Tests
 
                 result.GetValue(ints)
                       .Should()
-                      .BeEquivalentTo(new[] { 1, 2, 3 },
+                      .BeEquivalentTo([1, 2, 3],
                                       options => options.WithStrictOrdering());
 
                 result.GetValue(strings)
                       .Should()
-                      .BeEquivalentTo(new[] { "one", "two" },
+                      .BeEquivalentTo(["one", "two"],
                                       options => options.WithStrictOrdering());
             }
 
@@ -200,7 +200,7 @@ namespace System.CommandLine.Tests
 
                 result.GetValue(ints)
                       .Should()
-                      .BeEquivalentTo(new[] { 1, 2, 3 },
+                      .BeEquivalentTo([1, 2, 3],
                                       options => options.WithStrictOrdering());
 
                 result.GetValue(strings)
@@ -302,7 +302,7 @@ namespace System.CommandLine.Tests
                     .Errors
                     .Count
                     .Should()
-                    .Be(4 - providedArgs.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length);
+                    .Be(4 - providedArgs.Split([' '], StringSplitOptions.RemoveEmptyEntries).Length);
             }
         }
     }

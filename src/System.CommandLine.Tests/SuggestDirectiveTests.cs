@@ -25,7 +25,7 @@ namespace System.CommandLine.Tests
             _fruitOption.CompletionSources.Add("apple", "banana", "cherry");
 
             _vegetableOption = new Option<string>("--vegetable");
-            _vegetableOption.CompletionSources.Add(_ => new[] { "asparagus", "broccoli", "carrot" });
+            _vegetableOption.CompletionSources.Add(_ => ["asparagus", "broccoli", "carrot"]);
 
             _eatCommand = new Command("eat")
             {

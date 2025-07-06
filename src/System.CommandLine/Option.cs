@@ -124,7 +124,7 @@ namespace System.CommandLine
             {
                 if (completion.Label.ContainsCaseInsensitive(context.WordToComplete))
                 {
-                    (completions ??= new List<CompletionItem>()).Add(completion);
+                    (completions ??= []).Add(completion);
                 }
             }
 

@@ -922,7 +922,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Argument<List<int>>("filter-size")
                 {
-                    DefaultValueFactory = (_) => new List<int>() { 0, 2, 4 }
+                    DefaultValueFactory = (_) => [0, 2, 4]
                 }
             };
 
@@ -1053,7 +1053,7 @@ namespace System.CommandLine.Tests.Help
             _helpBuilder.Write(command, _console);
 
             var help = _console.ToString();
-            var lines = help.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = help.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
 
             var optionA = lines.Last(line => line.Contains("-a"));
             var optionB = lines.Last(line => line.Contains("-b"));
@@ -1290,7 +1290,7 @@ namespace System.CommandLine.Tests.Help
             _helpBuilder.Write(command, _console);
             var help = _console
                        .ToString()
-                       .Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                       .Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries)
                        .Select(l => l.Trim());
 
             help.Should().ContainInOrder(
@@ -1341,7 +1341,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option<List<int>>("--filter-size")
                 {
-                    DefaultValueFactory = (_) => new List<int> { 0, 2, 4 }
+                    DefaultValueFactory = (_) => [0, 2, 4]
                 }
             };
 
@@ -1360,7 +1360,7 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option<string[]>("--prefixes")
                 {
-                    DefaultValueFactory = (_) => new[]{ "^(TODO|BUG)", "^HACK" }
+                    DefaultValueFactory = (_) => ["^(TODO|BUG)", "^HACK"]
                 }
             };
 

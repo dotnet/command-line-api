@@ -118,7 +118,7 @@ internal partial class HelpBuilder
         private static string GetIdentifierSymbolUsageLabel(Symbol symbol, ICollection<string>? aliasSet)
         {
             var aliases = aliasSet is null
-                ? new[] { symbol.Name }
+                ? [symbol.Name]
                 : new[] { symbol.Name }.Concat(aliasSet)
                                 .Select(r => r.SplitPrefix())
                                 .OrderBy(r => r.Prefix, StringComparer.OrdinalIgnoreCase)
@@ -213,7 +213,7 @@ internal partial class HelpBuilder
         public static Func<HelpContext, bool> OptionsSection() =>
             ctx =>
             {
-                List<TwoColumnHelpRow> optionRows = new();
+                List<TwoColumnHelpRow> optionRows = [];
                 bool addedHelpOption = false;
                 foreach (Option option in ctx.Command.Options)
                 {

@@ -65,11 +65,11 @@ namespace System.CommandLine
                     {
                         _completionSources = new ()
                         {
-                            static _ => new CompletionItem[]
-                            {
+                            static _ =>
+                            [
                                 new(bool.TrueString),
                                 new(bool.FalseString)
-                            }
+                            ]
                         };
                     }
                     else if (!valueType.IsPrimitive && (valueType.IsEnum || (valueType.TryGetNullableType(out valueType) && valueType.IsEnum)))

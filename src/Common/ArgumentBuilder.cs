@@ -9,7 +9,7 @@ internal static class ArgumentBuilder
 
     static ArgumentBuilder()
     {
-        _ctor = typeof(Argument<string>).GetConstructor(new[] { typeof(string) });
+        _ctor = typeof(Argument<string>).GetConstructor([typeof(string)]);
     }
 
     public static Argument CreateArgument(Type valueType, string name = "value")
@@ -34,9 +34,9 @@ internal static class ArgumentBuilder
 
         var argumentType = typeof(Bridge<>).MakeGenericType(argsParam.ParameterType);
 
-        var ctor = argumentType.GetConstructor(new[] { typeof(string), argsParam.ParameterType });
+        var ctor = argumentType.GetConstructor([typeof(string), argsParam.ParameterType]);
 
-        return (Argument)ctor.Invoke(new object[] { argsParam.Name, argsParam.DefaultValue });
+        return (Argument)ctor.Invoke([argsParam.Name, argsParam.DefaultValue]);
     }
 
     private sealed class Bridge<T> : Argument<T>

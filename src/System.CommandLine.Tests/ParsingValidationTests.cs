@@ -65,7 +65,7 @@ namespace System.CommandLine.Tests
             error
                .Message
                .Should()
-               .Be(LocalizationResources.UnrecognizedArgument("c", new []{ "a", "b"}));
+               .Be(LocalizationResources.UnrecognizedArgument("c", ["a", "b"]));
             error
                 .SymbolResult
                 .Should()
@@ -88,7 +88,7 @@ namespace System.CommandLine.Tests
             error
                 .Message
                 .Should()
-                .Be(LocalizationResources.UnrecognizedArgument("c", new []{ "a", "b"}));
+                .Be(LocalizationResources.UnrecognizedArgument("c", ["a", "b"]));
             error
                 .SymbolResult
                 .Should()
@@ -148,7 +148,7 @@ namespace System.CommandLine.Tests
               .Which
               .Message
               .Should()
-              .Be(LocalizationResources.UnrecognizedArgument("key2", new[] { "key1" }));
+              .Be(LocalizationResources.UnrecognizedArgument("key2", ["key1"]));
 
             argument.AcceptOnlyFromAmong("key2");
 
@@ -174,7 +174,7 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be(LocalizationResources.UnrecognizedArgument("not-value1", new[] { "value1", "value2" }));
+                  .Be(LocalizationResources.UnrecognizedArgument("not-value1", ["value1", "value2"]));
         }
 
         [Fact]
@@ -197,12 +197,12 @@ namespace System.CommandLine.Tests
             result.Errors[0]
                 .Message
                 .Should()
-                .Be(LocalizationResources.UnrecognizedArgument("c1", new[] { "author", "language", "tags", "type" }));
+                .Be(LocalizationResources.UnrecognizedArgument("c1", ["author", "language", "tags", "type"]));
 
             result.Errors[1]
                 .Message
                 .Should()
-                .Be(LocalizationResources.UnrecognizedArgument("c2", new[] { "author", "language", "tags", "type" }));
+                .Be(LocalizationResources.UnrecognizedArgument("c2", ["author", "language", "tags", "type"]));
         }
 
         [Fact]

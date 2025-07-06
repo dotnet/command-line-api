@@ -307,7 +307,7 @@ public class GetValueByNameTests
 
         ParseResult parseResult = command.Parse("1 2 3");
 
-        parseResult.GetValue<IEnumerable<int>>("name").Should().BeEquivalentTo(new int[] { 1, 2, 3 });
+        parseResult.GetValue<IEnumerable<int>>("name").Should().BeEquivalentTo([1, 2, 3]);
     }
 
     [Fact]

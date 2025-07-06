@@ -11,7 +11,7 @@ internal static class OptionBuilder
 
     static OptionBuilder()
     {
-        _ctor = typeof(Option<string>).GetConstructor(new[] { typeof(string), typeof(string[]) });
+        _ctor = typeof(Option<string>).GetConstructor([typeof(string), typeof(string[])]);
     }
 
     internal static Option CreateOption(string name, Type valueType, string description = null)
@@ -24,7 +24,7 @@ internal static class OptionBuilder
         var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(string[]) });
 #endif
 
-        var option = (Option)ctor.Invoke(new object[] { name, Array.Empty<string>() });
+        var option = (Option)ctor.Invoke([name, Array.Empty<string>()]);
 
         option.Description = description;
 
@@ -40,9 +40,9 @@ internal static class OptionBuilder
 
         var optionType = typeof(Bridge<>).MakeGenericType(valueType);
 
-        var ctor = optionType.GetConstructor(new[] { typeof(string), typeof(Func<object>), typeof(string) });
+        var ctor = optionType.GetConstructor([typeof(string), typeof(Func<object>), typeof(string)]);
 
-        var option = (Option)ctor.Invoke(new object[] { name, defaultValueFactory, description });
+        var option = (Option)ctor.Invoke([name, defaultValueFactory, description]);
 
         return option;
     }

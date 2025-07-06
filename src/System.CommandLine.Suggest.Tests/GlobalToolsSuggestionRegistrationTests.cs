@@ -10,7 +10,7 @@ namespace System.CommandLine.Suggest.Tests
 {
     public class GlobalToolsSuggestionRegistrationTests
     {
-        public static IEnumerable<string> FilesNameWithoutExtensionUnderDotnetProfileToolsExample = new[] { "dotnet-suggest", "t-rex" };
+        public static IEnumerable<string> FilesNameWithoutExtensionUnderDotnetProfileToolsExample = ["dotnet-suggest", "t-rex"];
         [Fact]
         public void Path_is_in_global_tools()
         {
@@ -50,11 +50,12 @@ namespace System.CommandLine.Suggest.Tests
 
             registrationPairs
                 .Should()
-                .BeEquivalentTo( new [] {
+                .BeEquivalentTo([
                     new Registration(
                         Path.Combine(dotnetProfileDirectory, "tools", "dotnet-suggest")),
                     new Registration(
-                        Path.Combine(dotnetProfileDirectory, "tools", "t-rex"))});
+                        Path.Combine(dotnetProfileDirectory, "tools", "t-rex"))
+                ]);
         }
     }
 }
