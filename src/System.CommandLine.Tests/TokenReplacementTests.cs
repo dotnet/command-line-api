@@ -45,7 +45,7 @@ public class TokenReplacementTests
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
-                tokens = new[] { "123" };
+                tokens = ["123"];
                 message = null;
                 return true;
             }
@@ -69,7 +69,7 @@ public class TokenReplacementTests
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
-                tokens = new[] { "123" };
+                tokens = ["123"];
                 message = null;
                 return true;
             }
@@ -93,7 +93,7 @@ public class TokenReplacementTests
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
-                tokens = new[] { "subcommand", "-x", "123" };
+                tokens = ["subcommand", "-x", "123"];
                 message = null;
                 return true;
             }
@@ -117,7 +117,7 @@ public class TokenReplacementTests
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
-                tokens = new[] { "one two three" };
+                tokens = ["one two three"];
                 message = null;
                 return true;
             }

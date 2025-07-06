@@ -313,7 +313,7 @@ namespace System.CommandLine.Tests
             result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
-                  .NotContain(new[]{"apple", "banana", "cherry"});
+                  .NotContain(["apple", "banana", "cherry"]);
         }
 
         [Fact]
@@ -343,7 +343,7 @@ namespace System.CommandLine.Tests
             result.GetCompletions()
                   .Select(item => item.Label)
                   .Should()
-                  .NotContain(new[] { "apl", "bnn" });
+                  .NotContain(["apl", "bnn"]);
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1494
@@ -671,7 +671,7 @@ namespace System.CommandLine.Tests
         public void Option_argument_completions_can_be_provided_using_a_delegate()
         {
             var option = new Option<string>("-x");
-            option.CompletionSources.Add(_ => new[] { "vegetable", "mineral", "animal" });
+            option.CompletionSources.Add(_ => ["vegetable", "mineral", "animal"]);
 
             var command = new Command("the-command")
             {
@@ -806,7 +806,7 @@ namespace System.CommandLine.Tests
                 new Option<string>("--langVersion")
             };
             var configuration = new CommandLineConfiguration(command);
-            var completions = command.Parse(new[]{"--framework","net8.0","--l"}, configuration).GetCompletions();
+            var completions = command.Parse(["--framework","net8.0","--l"], configuration).GetCompletions();
 
             completions.Select(item => item.Label)
                        .Should()

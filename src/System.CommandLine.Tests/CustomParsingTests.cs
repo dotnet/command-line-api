@@ -171,7 +171,7 @@ public class CustomParsingTests
         new RootCommand { argument }.Parse("1,2,3")
                                        .GetValue(argument)
                                        .Should()
-                                       .BeEquivalentTo(new[] { 1, 2, 3 });
+                                       .BeEquivalentTo([1, 2, 3]);
     }
 
     [Fact]
@@ -185,7 +185,7 @@ public class CustomParsingTests
         new RootCommand { argument }.Parse("1 2 3")
                                        .GetValue(argument)
                                        .Should()
-                                       .BeEquivalentTo(new[] { 1, 2, 3 });
+                                       .BeEquivalentTo([1, 2, 3]);
     }
 
     [Fact]
@@ -631,12 +631,12 @@ public class CustomParsingTests
             {
                 result.OnlyTake(3);
 
-                return new[]
-                {
+                return
+                [
                     int.Parse(result.Tokens[0].Value),
                     int.Parse(result.Tokens[1].Value),
                     int.Parse(result.Tokens[2].Value)
-                };
+                ];
             }
         };
         var argument2 = new Argument<int[]>("two")
@@ -655,13 +655,13 @@ public class CustomParsingTests
         parseResult.GetResult(argument1)
                    .GetValueOrDefault<int[]>()
                    .Should()
-                   .BeEquivalentTo(new[] { 1, 2, 3 },
+                   .BeEquivalentTo([1, 2, 3],
                                    options => options.WithStrictOrdering());
 
         parseResult.GetResult(argument2)
                    .GetValueOrDefault<int[]>()
                    .Should()
-                   .BeEquivalentTo(new[] { 4, 5, 6, 7, 8 },
+                   .BeEquivalentTo([4, 5, 6, 7, 8],
                                    options => options.WithStrictOrdering());
     }
 
@@ -698,15 +698,15 @@ public class CustomParsingTests
             {
                 result.OnlyTake(3);
 
-                return new[]
-                {
+                return
+                [
                     int.Parse(result.Tokens[0].Value),
                     int.Parse(result.Tokens[1].Value),
                     int.Parse(result.Tokens[2].Value)
-                };
+                ];
             }
         };
-             
+
         var command = new RootCommand
         {
             argument1
@@ -716,7 +716,7 @@ public class CustomParsingTests
 
         parseResult.UnmatchedTokens
                    .Should()
-                   .BeEquivalentTo(new[] { "4", "5", "6", "7", "8" },
+                   .BeEquivalentTo(["4", "5", "6", "7", "8"],
                                    options => options.WithStrictOrdering());
     }
 
@@ -729,12 +729,12 @@ public class CustomParsingTests
             {
                 result.OnlyTake(3);
 
-                return new[]
-                {
+                return
+                [
                     int.Parse(result.Tokens[0].Value),
                     int.Parse(result.Tokens[1].Value),
                     int.Parse(result.Tokens[2].Value)
-                };
+                ];
             }
         };
         var argument2 = new Argument<int[]>("two")
@@ -753,14 +753,14 @@ public class CustomParsingTests
                    .Tokens
                    .Select(t => t.Value)
                    .Should()
-                   .BeEquivalentTo(new[] { "1", "2", "3" },
+                   .BeEquivalentTo(["1", "2", "3"],
                                    options => options.WithStrictOrdering());
 
         parseResult.GetResult(argument2)
                    .Tokens
                    .Select(t => t.Value)
                    .Should()
-                   .BeEquivalentTo(new[] { "4", "5", "6", "7", "8" },
+                   .BeEquivalentTo(["4", "5", "6", "7", "8"],
                                    options => options.WithStrictOrdering());
     }
 
@@ -889,7 +889,7 @@ public class CustomParsingTests
             CustomParser = ctx =>
             {
                 ctx.OnlyTake(3);
-                return new[] { "1", "2", "3" };
+                return ["1", "2", "3"];
             },
             Arity = ArgumentArity.ZeroOrMore
         };

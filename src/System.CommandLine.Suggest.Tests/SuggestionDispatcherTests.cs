@@ -153,7 +153,7 @@ namespace System.CommandLine.Suggest.Tests
             var dispatcher = new SuggestionDispatcher(testSuggestionProvider);
             dispatcher.Configuration.Output = new StringWriter();
 
-            await dispatcher.InvokeAsync(new[] { "list" });
+            await dispatcher.InvokeAsync(["list"]);
 
             dispatcher.Configuration.Output
                        .ToString()

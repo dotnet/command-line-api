@@ -524,7 +524,7 @@ public partial class HelpBuilderTests
 
             IEnumerable<Func<HelpContext, bool>> CustomLayout(HelpContext _)
             {
-                yield return ctx => { ctx.HelpBuilder.WriteColumns(new[] { new TwoColumnHelpRow("12345678", "1234567890") }, ctx); return true; };
+                yield return ctx => { ctx.HelpBuilder.WriteColumns([new TwoColumnHelpRow("12345678", "1234567890")], ctx); return true; };
             }
         }
 

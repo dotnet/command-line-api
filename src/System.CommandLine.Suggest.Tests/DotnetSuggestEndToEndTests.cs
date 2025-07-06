@@ -52,9 +52,11 @@ namespace System.CommandLine.Suggest.Tests
 
             PrepareTestHomeDirectoryToAvoidPolluteBuildMachineHome();
 
-            _environmentVariables = new[] {
+            _environmentVariables =
+            [
                 ("DOTNET_ROOT", _dotnetHostDir.FullName),
-                ("INTERNAL_TEST_DOTNET_SUGGEST_HOME", _testRoot)};
+                ("INTERNAL_TEST_DOTNET_SUGGEST_HOME", _testRoot)
+            ];
         }
 
         public void Dispose()

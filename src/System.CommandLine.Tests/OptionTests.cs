@@ -41,7 +41,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_several_aliases_then_they_do_not_affect_its_name()
         {
-            var option = new Option<string>(name: "m", aliases: new[] { "longer" });
+            var option = new Option<string>(name: "m", aliases: ["longer"]);
 
             option.Name.Should().Be("m");
         }

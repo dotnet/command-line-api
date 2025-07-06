@@ -37,7 +37,7 @@ namespace System.CommandLine.Tests.Binding
         public string StringOption { get; set; }
         public bool BoolOption { get; set; }
         public List<ClassWithMultiLetterSetters> ListOptionDefaultNull { get; set; }
-        public List<ClassWithCtorParameter<string>> ListOptionDefaultEmpty { get; set; } = new ();
+        public List<ClassWithCtorParameter<string>> ListOptionDefaultEmpty { get; set; } = [];
     }
 
     public class ClassWithListTypePropertiesAndDefaultCtor

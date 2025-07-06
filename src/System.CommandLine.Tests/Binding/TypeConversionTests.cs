@@ -82,7 +82,7 @@ namespace System.CommandLine.Tests.Binding
         public void Argument_of_FileInfo_that_is_empty_results_in_an_informative_error()
         {
             var option = new Option<FileInfo>("--file");
-            var result = new RootCommand { option }.Parse(new string[] { "--file", "" });
+            var result = new RootCommand { option }.Parse(["--file", ""]);
 
             result.Errors
                   .Should()
@@ -691,7 +691,7 @@ namespace System.CommandLine.Tests.Binding
 
         [Fact]
         public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<int[]>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] { 1, 2, 3 });
+            => GetValue(new Option<int[]>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo([1, 2, 3]);
 
         [Theory]
         [InlineData(0, 100_000, typeof(string[]))]
@@ -736,11 +736,11 @@ namespace System.CommandLine.Tests.Binding
 
         [Fact]
         public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<List<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] {1, 2, 3});
+            => GetValue(new Option<List<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo([1, 2, 3]);
 
         [Fact]
         public void Values_can_be_correctly_converted_to_IEnumerable_of_int_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<IEnumerable<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] { 1, 2, 3 });
+            => GetValue(new Option<IEnumerable<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo([1, 2, 3]);
 
         [Fact]
         public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()

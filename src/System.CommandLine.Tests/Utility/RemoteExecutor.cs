@@ -43,7 +43,7 @@ namespace System.CommandLine.Tests.Utility
                     instance = Activator.CreateInstance(type);
                 }
 
-                object result = methodInfo.Invoke(instance, new object[] { methodArguments });
+                object result = methodInfo.Invoke(instance, [methodArguments]);
                 if (result is Task<int> task)
                 {
                     exitCode = task.GetAwaiter().GetResult();
@@ -119,8 +119,10 @@ namespace System.CommandLine.Tests.Utility
             psi.FileName = dotnetExecutable;
 
             var argumentList = new List<string>();
-            argumentList.AddRange(new[] { "exec", "--runtimeconfig", runtimeConfig, "--depsfile", depsFile, thisAssembly,
-                                               className, methodName, exceptionFile });
+            argumentList.AddRange([
+                "exec", "--runtimeconfig", runtimeConfig, "--depsfile", depsFile, thisAssembly,
+                                               className, methodName, exceptionFile
+            ]);
             if (args != null)
             {
                 argumentList.AddRange(args);
@@ -159,7 +161,7 @@ namespace System.CommandLine.Tests.Utility
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                s_arguments = File.ReadAllText($"/proc/{Diagnostics.Process.GetCurrentProcess().Id}/cmdline").Split(new[] { '\0' });
+                s_arguments = File.ReadAllText($"/proc/{Diagnostics.Process.GetCurrentProcess().Id}/cmdline").Split(['\0']);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

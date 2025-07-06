@@ -13,7 +13,7 @@ namespace System.CommandLine.Tests
 {
     public class ResponseFileTests : IDisposable
     {
-        private readonly List<FileInfo> _responseFiles = new();
+        private readonly List<FileInfo> _responseFiles = [];
 
         public void Dispose()
         {

@@ -35,7 +35,7 @@ namespace System.CommandLine.Tests.Invocation
             // Same for macOS, where RemoteExecutor does not support getting application arguments.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                await StartKillAndVerify(new[] { "--infiniteDelay", "false" }, Signals.SIGINT, GracefulExitCode);
+                await StartKillAndVerify(["--infiniteDelay", "false"], Signals.SIGINT, GracefulExitCode);
             }
         }
 
@@ -44,7 +44,7 @@ namespace System.CommandLine.Tests.Invocation
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                await StartKillAndVerify(new[] { "--infiniteDelay", "true" }, Signals.SIGTERM, SIGTERM_EXIT_CODE);
+                await StartKillAndVerify(["--infiniteDelay", "true"], Signals.SIGTERM, SIGTERM_EXIT_CODE);
             }
         }
 
