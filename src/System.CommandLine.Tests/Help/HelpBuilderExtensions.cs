@@ -4,14 +4,13 @@
 using System.CommandLine.Help;
 using System.IO;
 
-namespace System.CommandLine.Tests.Help
+namespace System.CommandLine.Tests.Help;
+
+public static class HelpBuilderExtensions
 {
-    public static class HelpBuilderExtensions
-    {
-        internal static void Write(
-            this HelpBuilder builder,
-            Command command,
-            TextWriter writer) =>
-            builder.Write(new HelpContext(builder, command, writer));
-    }
+    internal static void Write(
+        this HelpBuilder builder,
+        Command command,
+        TextWriter writer) =>
+        builder.Write(new HelpContext(builder, command, writer));
 }

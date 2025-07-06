@@ -6,72 +6,70 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace System.CommandLine.Suggest
+namespace System.CommandLine.Suggest;
+
+public class SuggestionStore : ISuggestionStore
 {
-    public class SuggestionStore : ISuggestionStore
+    public string GetCompletions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
     {
-        public string GetCompletions(string exeFileName, string suggestionTargetArguments, TimeSpan timeout)
+        if (string.IsNullOrWhiteSpace(exeFileName))
         {
-            if (string.IsNullOrWhiteSpace(exeFileName))
+            throw new ArgumentException("Value cannot be null, empty, or consist entirely of whitespace.", nameof(exeFileName));
+        }
+
+        if (string.IsNullOrWhiteSpace(suggestionTargetArguments))
+        {
+            throw new ArgumentException("Value cannot be null, empty, or consist entirely of whitespace.", nameof(suggestionTargetArguments));
+        }
+
+        string result = "";
+
+        try
+        {
+            // Invoke target with args
+            var processStartInfo = new ProcessStartInfo(
+                exeFileName, 
+                suggestionTargetArguments)
             {
-                throw new ArgumentException("Value cannot be null, empty, or consist entirely of whitespace.", nameof(exeFileName));
-            }
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
 
-            if (string.IsNullOrWhiteSpace(suggestionTargetArguments))
+            using (var process = new Process
+                   {
+                       StartInfo = processStartInfo
+                   })
             {
-                throw new ArgumentException("Value cannot be null, empty, or consist entirely of whitespace.", nameof(suggestionTargetArguments));
-            }
+                process.Start();
 
-            string result = "";
+                Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
 
-            try
-            {
-                // Invoke target with args
-                var processStartInfo = new ProcessStartInfo(
-                                           exeFileName, 
-                                           suggestionTargetArguments)
-                                       {
-                                           UseShellExecute = false,
-                                           RedirectStandardOutput = true
-                                       };
-
-                using (var process = new Process
-                                     {
-                                         StartInfo = processStartInfo
-                                     })
+                if (readToEndTask.Wait(timeout))
                 {
-                    process.Start();
-
-                    Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
-
-                    if (readToEndTask.Wait(timeout))
-                    {
-                        result = readToEndTask.Result;
-                    }
-                    else
-                    {
-                        process.Kill();
-                    }
+                    result = readToEndTask.Result;
+                }
+                else
+                {
+                    process.Kill();
                 }
             }
-            catch (Win32Exception exception)
+        }
+        catch (Win32Exception exception)
+        {
+            // We don't check for the existence of exeFileName until the exception in case
+            // it is a command that start process can resolve to a file name.
+            if (!File.Exists(exeFileName))
             {
-                // We don't check for the existence of exeFileName until the exception in case
-                // it is a command that start process can resolve to a file name.
-                if (!File.Exists(exeFileName))
-                {
-                    var message = $"Unable to find the file '{exeFileName}'";
+                var message = $"Unable to find the file '{exeFileName}'";
 
 #if DEBUG
-                    Program.LogDebug($"exception: {message}");
+                Program.LogDebug($"exception: {message}");
 #endif
 
-                    throw new ArgumentException(
-                        message, nameof(exeFileName), exception);
-                }
+                throw new ArgumentException(
+                    message, nameof(exeFileName), exception);
             }
-            return result;
         }
+        return result;
     }
 }
-

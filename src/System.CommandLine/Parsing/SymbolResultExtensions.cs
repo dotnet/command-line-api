@@ -3,21 +3,20 @@
 
 using System.Collections.Generic;
 
-namespace System.CommandLine.Parsing
+namespace System.CommandLine.Parsing;
+
+internal static class SymbolResultExtensions
 {
-    internal static class SymbolResultExtensions
+    internal static IEnumerable<SymbolResult> AllSymbolResults(this CommandResult commandResult)
     {
-        internal static IEnumerable<SymbolResult> AllSymbolResults(this CommandResult commandResult)
+        yield return commandResult;
+
+        foreach (var item in commandResult
+                     .Children
+                     .FlattenBreadthFirst(o => o.SymbolResultTree.GetChildren(o)))
         {
-            yield return commandResult;
-
-            foreach (var item in commandResult
-                                 .Children
-                                 .FlattenBreadthFirst(o => o.SymbolResultTree.GetChildren(o)))
-            {
-                yield return item;
-            }
+            yield return item;
         }
-
     }
+
 }

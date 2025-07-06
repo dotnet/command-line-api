@@ -4,94 +4,93 @@
 using System.CommandLine.Parsing;
 using System.Linq;
 
-namespace System.CommandLine.Completions
+namespace System.CommandLine.Completions;
+
+/// <summary>
+/// Supports command line completion operations.
+/// </summary>
+public class CompletionContext
 {
-    /// <summary>
-    /// Supports command line completion operations.
-    /// </summary>
-    public class CompletionContext
+    private static CompletionContext? _empty;
+
+    internal CompletionContext(ParseResult parseResult) : this(parseResult, GetWordToComplete(parseResult))
     {
-        private static CompletionContext? _empty;
+    }
 
-        internal CompletionContext(ParseResult parseResult) : this(parseResult, GetWordToComplete(parseResult))
+    internal CompletionContext(ParseResult parseResult, string wordToComplete)
+    {
+        ParseResult = parseResult;
+        WordToComplete = wordToComplete;
+    }
+
+    /// The text of the word to be completed, if any.
+    public string WordToComplete { get; }
+
+    /// The parse result for which completions are being requested.
+    public ParseResult ParseResult { get; }
+
+    /// <summary>
+    /// Gets an empty CompletionContext.
+    /// </summary>
+    /// <remarks>Can be used for testing purposes.</remarks>
+    public static CompletionContext Empty => _empty ??= new CompletionContext(ParseResult.Empty());
+
+    internal bool IsEmpty => ReferenceEquals(this, _empty);
+
+    /// <summary>
+    /// Gets the text to be matched for completion, which can be used to filter a list of completions.
+    /// </summary>
+    /// <param name="parseResult">A parse result.</param>
+    /// <param name="position">The position within the raw input, if available, at which to provide completions.</param>
+    /// <returns>A string containing the user-entered text to be matched for completions.</returns>
+    protected static string GetWordToComplete(
+        ParseResult parseResult,
+        int? position = null)
+    {
+        Token? lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
+
+        string? textToMatch = null;
+        string? rawInput = parseResult.CommandLineText;
+
+        if (rawInput is not null)
         {
-        }
-
-        internal CompletionContext(ParseResult parseResult, string wordToComplete)
-        {
-            ParseResult = parseResult;
-            WordToComplete = wordToComplete;
-        }
-
-        /// The text of the word to be completed, if any.
-        public string WordToComplete { get; }
-
-        /// The parse result for which completions are being requested.
-        public ParseResult ParseResult { get; }
-
-        /// <summary>
-        /// Gets an empty CompletionContext.
-        /// </summary>
-        /// <remarks>Can be used for testing purposes.</remarks>
-        public static CompletionContext Empty => _empty ??= new CompletionContext(ParseResult.Empty());
-
-        internal bool IsEmpty => ReferenceEquals(this, _empty);
-
-        /// <summary>
-        /// Gets the text to be matched for completion, which can be used to filter a list of completions.
-        /// </summary>
-        /// <param name="parseResult">A parse result.</param>
-        /// <param name="position">The position within the raw input, if available, at which to provide completions.</param>
-        /// <returns>A string containing the user-entered text to be matched for completions.</returns>
-        protected static string GetWordToComplete(
-            ParseResult parseResult,
-            int? position = null)
-        {
-            Token? lastToken = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive);
-
-            string? textToMatch = null;
-            string? rawInput = parseResult.CommandLineText;
-
-            if (rawInput is not null)
+            if (position is not null)
             {
-                if (position is not null)
+                if (position > rawInput.Length)
                 {
-                    if (position > rawInput.Length)
-                    {
-                        rawInput += ' ';
-                        position = Math.Min(rawInput.Length, position.Value);
-                    }
-                }
-                else
-                {
-                    position = rawInput.Length;
-                }
-            }
-            else if (lastToken is not null)
-            {
-                position = null;
-                textToMatch = lastToken.Value;
-            }
-
-            if (string.IsNullOrWhiteSpace(rawInput))
-            {
-                if (parseResult.UnmatchedTokens.Count > 0 ||
-                    lastToken?.Type == TokenType.Argument)
-                {
-                    return textToMatch ?? "";
+                    rawInput += ' ';
+                    position = Math.Min(rawInput.Length, position.Value);
                 }
             }
             else
             {
-                var textBeforeCursor = rawInput!.Substring(0, position!.Value);
-
-                var textAfterCursor = rawInput.Substring(position.Value);
-
-                return textBeforeCursor.Split(' ').LastOrDefault() +
-                       textAfterCursor.Split(' ').FirstOrDefault();
+                position = rawInput.Length;
             }
-
-            return "";
         }
+        else if (lastToken is not null)
+        {
+            position = null;
+            textToMatch = lastToken.Value;
+        }
+
+        if (string.IsNullOrWhiteSpace(rawInput))
+        {
+            if (parseResult.UnmatchedTokens.Count > 0 ||
+                lastToken?.Type == TokenType.Argument)
+            {
+                return textToMatch ?? "";
+            }
+        }
+        else
+        {
+            var textBeforeCursor = rawInput!.Substring(0, position!.Value);
+
+            var textAfterCursor = rawInput.Substring(position.Value);
+
+            return textBeforeCursor.Split(' ').LastOrDefault() +
+                   textAfterCursor.Split(' ').FirstOrDefault();
+        }
+
+        return "";
     }
 }

@@ -4,120 +4,119 @@
 using FluentAssertions;
 using Xunit;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests;
+
+public class GlobalOptionTests
 {
-    public class GlobalOptionTests
+    [Fact]
+    public void Global_options_appear_in_options_list_of_symbols_they_are_directly_added_to()
     {
-        [Fact]
-        public void Global_options_appear_in_options_list_of_symbols_they_are_directly_added_to()
+        var root = new Command("parent");
+
+        var option = new Option<int>("--global") { Recursive = true };
+
+        root.Options.Add(option);
+
+        root.Options.Should().Contain(option);
+    }
+
+    [Fact] // https://github.com/dotnet/command-line-api/issues/1540
+    public void When_a_required_global_option_is_omitted_it_results_in_an_error()
+    {
+        var command = new Command("child");
+        var rootCommand = new RootCommand { command };
+        command.SetAction(_ => { });
+        var requiredOption = new Option<string>("--i-must-be-set")
         {
-            var root = new Command("parent");
+            Required = true,
+            Recursive = true
+        };
+        rootCommand.Options.Add(requiredOption);
 
-            var option = new Option<int>("--global") { Recursive = true };
+        var result = rootCommand.Parse("child");
 
-            root.Options.Add(option);
+        result.Errors
+            .Should()
+            .ContainSingle()
+            .Which.Message.Should().Be("Option '--i-must-be-set' is required.");
+    }
 
-            root.Options.Should().Contain(option);
-        }
-
-        [Fact] // https://github.com/dotnet/command-line-api/issues/1540
-        public void When_a_required_global_option_is_omitted_it_results_in_an_error()
+    [Fact] 
+    public void When_a_required_global_option_has_multiple_aliases_the_error_message_uses_the_name()
+    {
+        var rootCommand = new RootCommand();
+        var requiredOption = new Option<string>("-i", "--i-must-be-set")
         {
-            var command = new Command("child");
-            var rootCommand = new RootCommand { command };
-            command.SetAction(_ => { });
-            var requiredOption = new Option<string>("--i-must-be-set")
-            {
-                Required = true,
-                Recursive = true
-            };
-            rootCommand.Options.Add(requiredOption);
+            Required = true,
+            Recursive = true
+        };
+        rootCommand.Options.Add(requiredOption);
 
-            var result = rootCommand.Parse("child");
+        var result = rootCommand.Parse("");
 
-            result.Errors
-                  .Should()
-                  .ContainSingle()
-                  .Which.Message.Should().Be("Option '--i-must-be-set' is required.");
-        }
+        result.Errors
+            .Should()
+            .ContainSingle()
+            .Which.Message.Should().Be("Option '-i' is required.");
+    }
 
-        [Fact] 
-        public void When_a_required_global_option_has_multiple_aliases_the_error_message_uses_the_name()
+    [Fact]
+    public void When_a_required_global_option_is_present_on_child_of_command_it_was_added_to_it_does_not_result_in_an_error()
+    {
+        var command = new Command("child");
+        var rootCommand = new RootCommand { command };
+        command.SetAction((_) => { });
+        var requiredOption = new Option<bool>("--i-must-be-set")
         {
-            var rootCommand = new RootCommand();
-            var requiredOption = new Option<string>("-i", "--i-must-be-set")
-            {
-                Required = true,
-                Recursive = true
-            };
-            rootCommand.Options.Add(requiredOption);
+            Required = true,
+            Recursive = true
+        };
+        rootCommand.Options.Add(requiredOption);
 
-            var result = rootCommand.Parse("");
+        var result = rootCommand.Parse("child --i-must-be-set");
 
-            result.Errors
-                  .Should()
-                  .ContainSingle()
-                  .Which.Message.Should().Be("Option '-i' is required.");
-        }
+        result.Errors.Should().BeEmpty();
+    }
 
-        [Fact]
-        public void When_a_required_global_option_is_present_on_child_of_command_it_was_added_to_it_does_not_result_in_an_error()
-        {
-            var command = new Command("child");
-            var rootCommand = new RootCommand { command };
-            command.SetAction((_) => { });
-            var requiredOption = new Option<bool>("--i-must-be-set")
-            {
-                Required = true,
-                Recursive = true
-            };
-            rootCommand.Options.Add(requiredOption);
+    [Fact]
+    public void Subcommands_added_after_a_global_option_is_added_to_parent_will_recognize_the_global_option()
+    {
+        var root = new Command("parent");
 
-            var result = rootCommand.Parse("child --i-must-be-set");
+        var option = new Option<int>("--global") { Recursive = true };
 
-            result.Errors.Should().BeEmpty();
-        }
+        root.Options.Add(option);
 
-        [Fact]
-        public void Subcommands_added_after_a_global_option_is_added_to_parent_will_recognize_the_global_option()
-        {
-            var root = new Command("parent");
+        var child = new Command("child");
 
-            var option = new Option<int>("--global") { Recursive = true };
+        root.Subcommands.Add(child);
 
-            root.Options.Add(option);
+        root.Parse("child --global 123").GetValue(option).Should().Be(123);
 
-            var child = new Command("child");
+        child.Parse("--global 123").GetValue(option).Should().Be(123);
+    }
 
-            root.Subcommands.Add(child);
-
-            root.Parse("child --global 123").GetValue(option).Should().Be(123);
-
-            child.Parse("--global 123").GetValue(option).Should().Be(123);
-        }
-
-        [Fact]
-        public void Subcommands_with_global_option_should_propagate_option_to_children()
-        {
-            var root = new Command("parent");
+    [Fact]
+    public void Subcommands_with_global_option_should_propagate_option_to_children()
+    {
+        var root = new Command("parent");
             
-            var firstChild = new Command("first");
+        var firstChild = new Command("first");
             
-            root.Subcommands.Add(firstChild);
+        root.Subcommands.Add(firstChild);
             
-            var option = new Option<int>("--global") { Recursive = true };
+        var option = new Option<int>("--global") { Recursive = true };
             
-            firstChild.Options.Add(option);
+        firstChild.Options.Add(option);
             
-            var secondChild = new Command("second");
+        var secondChild = new Command("second");
             
-            firstChild.Subcommands.Add(secondChild);
+        firstChild.Subcommands.Add(secondChild);
             
-            root.Parse("first second --global 123").GetValue(option).Should().Be(123);
+        root.Parse("first second --global 123").GetValue(option).Should().Be(123);
             
-            firstChild.Parse("second --global 123").GetValue(option).Should().Be(123);
+        firstChild.Parse("second --global 123").GetValue(option).Should().Be(123);
             
-            secondChild.Parse("--global 123").GetValue(option).Should().Be(123);
-        }
+        secondChild.Parse("--global 123").GetValue(option).Should().Be(123);
     }
 }

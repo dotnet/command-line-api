@@ -4,64 +4,63 @@
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 
-namespace System.CommandLine
+namespace System.CommandLine;
+
+/// <summary>
+/// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
+/// </summary>
+public sealed class EnvironmentVariablesDirective : Directive
 {
-    /// <summary>
-    /// Enables the use of the <c>[env:key=value]</c> directive, allowing environment variables to be set from the command line during invocation.
-    /// </summary>
-    public sealed class EnvironmentVariablesDirective : Directive
+    private CommandLineAction? _action;
+
+    /// <inheritdoc />
+    public EnvironmentVariablesDirective() : base("env")
     {
-        private CommandLineAction? _action;
+    }
 
-        /// <inheritdoc />
-        public EnvironmentVariablesDirective() : base("env")
+    /// <inheritdoc />
+    public override CommandLineAction? Action
+    {
+        get => _action ??= new EnvironmentVariablesDirectiveAction(this);
+        set => _action = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    private sealed class EnvironmentVariablesDirectiveAction : SynchronousCommandLineAction
+    {
+        private readonly EnvironmentVariablesDirective _directive;
+
+        internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive)
         {
+            _directive = directive;
+            Terminating = false;
         }
 
-        /// <inheritdoc />
-        public override CommandLineAction? Action
+        public override int Invoke(ParseResult parseResult)
         {
-            get => _action ??= new EnvironmentVariablesDirectiveAction(this);
-            set => _action = value ?? throw new ArgumentNullException(nameof(value));
+            SetEnvVars(parseResult);
+
+            return 0;
         }
 
-        private sealed class EnvironmentVariablesDirectiveAction : SynchronousCommandLineAction
+        private void SetEnvVars(ParseResult parseResult)
         {
-            private readonly EnvironmentVariablesDirective _directive;
+            DirectiveResult directiveResult = parseResult.GetResult(_directive)!;
 
-            internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive)
+            for (int i = 0; i < directiveResult.Values.Count; i++)
             {
-                _directive = directive;
-                Terminating = false;
-            }
+                string parsedValue = directiveResult.Values[i];
 
-            public override int Invoke(ParseResult parseResult)
-            {
-                SetEnvVars(parseResult);
+                int indexOfSeparator = parsedValue.AsSpan().IndexOf('=');
 
-                return 0;
-            }
-
-            private void SetEnvVars(ParseResult parseResult)
-            {
-                DirectiveResult directiveResult = parseResult.GetResult(_directive)!;
-
-                for (int i = 0; i < directiveResult.Values.Count; i++)
+                if (indexOfSeparator > 0)
                 {
-                    string parsedValue = directiveResult.Values[i];
+                    ReadOnlySpan<char> variable = parsedValue.AsSpan(0, indexOfSeparator).Trim();
 
-                    int indexOfSeparator = parsedValue.AsSpan().IndexOf('=');
-
-                    if (indexOfSeparator > 0)
+                    if (!variable.IsEmpty)
                     {
-                        ReadOnlySpan<char> variable = parsedValue.AsSpan(0, indexOfSeparator).Trim();
+                        string value = parsedValue.AsSpan(indexOfSeparator + 1).Trim().ToString();
 
-                        if (!variable.IsEmpty)
-                        {
-                            string value = parsedValue.AsSpan(indexOfSeparator + 1).Trim().ToString();
-
-                            Environment.SetEnvironmentVariable(variable.ToString(), value);
-                        }
+                        Environment.SetEnvironmentVariable(variable.ToString(), value);
                     }
                 }
             }

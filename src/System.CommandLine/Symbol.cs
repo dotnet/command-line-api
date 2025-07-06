@@ -5,99 +5,98 @@ using System.Collections.Generic;
 using System.CommandLine.Completions;
 using System.Diagnostics;
 
-namespace System.CommandLine
+namespace System.CommandLine;
+
+/// <summary>
+/// Defines a named symbol that resides in a hierarchy with parent and child symbols.
+/// </summary>
+public abstract class Symbol
 {
-    /// <summary>
-    /// Defines a named symbol that resides in a hierarchy with parent and child symbols.
-    /// </summary>
-    public abstract class Symbol
+    private protected Symbol(string name, bool allowWhitespace = false)
     {
-        private protected Symbol(string name, bool allowWhitespace = false)
+        Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
+    }
+
+    /// <summary>
+    /// Gets or sets the description of the symbol.
+    /// </summary>
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// Gets the name of the symbol.
+    /// </summary>
+    public string Name { get; }
+
+    /// <summary>
+    /// Represents the first parent node.
+    /// </summary>
+    internal SymbolNode? FirstParent { get; private set; }
+
+    internal void AddParent(Symbol symbol)
+    {
+        if (FirstParent == null)
         {
-            Name = ThrowIfEmptyOrWithWhitespaces(name, nameof(name), allowWhitespace);
+            FirstParent = new SymbolNode(symbol);
         }
-
-        /// <summary>
-        /// Gets or sets the description of the symbol.
-        /// </summary>
-        public string? Description { get; set; }
-
-        /// <summary>
-        /// Gets the name of the symbol.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        /// Represents the first parent node.
-        /// </summary>
-        internal SymbolNode? FirstParent { get; private set; }
-
-        internal void AddParent(Symbol symbol)
+        else
         {
-            if (FirstParent == null)
+            SymbolNode current = FirstParent;
+            while (current.Next is not null)
             {
-                FirstParent = new SymbolNode(symbol);
+                current = current.Next;
             }
-            else
-            {
-                SymbolNode current = FirstParent;
-                while (current.Next is not null)
-                {
-                    current = current.Next;
-                }
-                current.Next = new SymbolNode(symbol);
-            }
+            current.Next = new SymbolNode(symbol);
         }
+    }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the symbol is hidden.
-        /// </summary>
-        public bool Hidden { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether the symbol is hidden.
+    /// </summary>
+    public bool Hidden { get; set; }
 
-        /// <summary>
-        /// Gets the parent symbols.
-        /// </summary>
-        public IEnumerable<Symbol> Parents
+    /// <summary>
+    /// Gets the parent symbols.
+    /// </summary>
+    public IEnumerable<Symbol> Parents
+    {
+        get
         {
-            get
+            SymbolNode? parent = FirstParent;
+            while (parent is not null)
             {
-                SymbolNode? parent = FirstParent;
-                while (parent is not null)
-                {
-                    yield return parent.Symbol;
-                    parent = parent.Next;
-                }
+                yield return parent.Symbol;
+                parent = parent.Next;
             }
         }
+    }
 
-        /// <summary>
-        /// Gets completions for the symbol.
-        /// </summary>
-        public abstract IEnumerable<CompletionItem> GetCompletions(CompletionContext context);
+    /// <summary>
+    /// Gets completions for the symbol.
+    /// </summary>
+    public abstract IEnumerable<CompletionItem> GetCompletions(CompletionContext context);
 
-        /// <inheritdoc/>
-        public override string ToString() => $"{GetType().Name}: {Name}";
+    /// <inheritdoc/>
+    public override string ToString() => $"{GetType().Name}: {Name}";
 
-        [DebuggerStepThrough]
-        internal static string ThrowIfEmptyOrWithWhitespaces(string value, string paramName, bool canContainWhitespaces = false)
+    [DebuggerStepThrough]
+    internal static string ThrowIfEmptyOrWithWhitespaces(string value, string paramName, bool canContainWhitespaces = false)
+    {
+        if (string.IsNullOrWhiteSpace(value))
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("Names and aliases cannot be null, empty, or consist entirely of whitespace.");
-            }
+            throw new ArgumentException("Names and aliases cannot be null, empty, or consist entirely of whitespace.");
+        }
 
-            if (!canContainWhitespaces)
+        if (!canContainWhitespaces)
+        {
+            for (var i = 0; i < value.Length; i++)
             {
-                for (var i = 0; i < value.Length; i++)
+                if (char.IsWhiteSpace(value[i]))
                 {
-                    if (char.IsWhiteSpace(value[i]))
-                    {
-                        throw new ArgumentException($"Names and aliases cannot contain whitespace: \"{value}\"", paramName);
-                    }
+                    throw new ArgumentException($"Names and aliases cannot contain whitespace: \"{value}\"", paramName);
                 }
             }
-
-            return value;
         }
+
+        return value;
     }
 }

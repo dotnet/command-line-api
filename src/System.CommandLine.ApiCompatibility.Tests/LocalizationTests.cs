@@ -2,36 +2,35 @@
 using System.Linq;
 using Xunit;
 
-namespace System.CommandLine.ApiCompatibility.Tests
+namespace System.CommandLine.ApiCompatibility.Tests;
+
+public class LocalizationTests
 {
-    public class LocalizationTests
+    private const string CommandName = "the-command";
+
+    [Theory]
+    [InlineData("es", $"Falta el argumento requerido para el comando: '{CommandName}'.")]
+    [InlineData("en-US", $"Required argument missing for command: '{CommandName}'.")]
+    public void ErrorMessages_AreLocalized(string cultureName, string expectedMessage)
     {
-        private const string CommandName = "the-command";
+        CultureInfo uiCultureBefore = CultureInfo.CurrentUICulture;
 
-        [Theory]
-        [InlineData("es", $"Falta el argumento requerido para el comando: '{CommandName}'.")]
-        [InlineData("en-US", $"Required argument missing for command: '{CommandName}'.")]
-        public void ErrorMessages_AreLocalized(string cultureName, string expectedMessage)
+        try
         {
-            CultureInfo uiCultureBefore = CultureInfo.CurrentUICulture;
+            CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
 
-            try
+            Command command = new(CommandName)
             {
-                CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
+                new Argument<string>("arg")
+            };
 
-                Command command = new(CommandName)
-                {
-                    new Argument<string>("arg")
-                };
+            ParseResult parseResult = command.Parse(CommandName);
 
-                ParseResult parseResult = command.Parse(CommandName);
-
-                Assert.Equal(expectedMessage, parseResult.Errors.Single().Message);
-            }
-            finally
-            {
-                CultureInfo.CurrentUICulture = uiCultureBefore;
-            }
+            Assert.Equal(expectedMessage, parseResult.Errors.Single().Message);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = uiCultureBefore;
         }
     }
 }

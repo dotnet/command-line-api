@@ -4,16 +4,15 @@
 using System.Runtime.InteropServices;
 using Xunit;
 
-namespace System.CommandLine.Tests.Utility
+namespace System.CommandLine.Tests.Utility;
+
+public class LinuxOnlyTheory : TheoryAttribute
 {
-    public class LinuxOnlyTheory : TheoryAttribute
+    public LinuxOnlyTheory()
     {
-        public LinuxOnlyTheory()
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Skip = "This test requires Linux to run";
-            }
+            Skip = "This test requires Linux to run";
         }
     }
 }

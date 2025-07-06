@@ -3,9 +3,8 @@
 
 using System.CommandLine.Parsing;
 
-namespace System.CommandLine.Binding
-{
-    internal delegate bool TryConvertArgument(
-        ArgumentResult argumentResult,
-        out object? value);
-}
+namespace System.CommandLine.Binding;
+
+internal delegate bool TryConvertArgument(
+    ArgumentResult argumentResult,
+    out object? value);

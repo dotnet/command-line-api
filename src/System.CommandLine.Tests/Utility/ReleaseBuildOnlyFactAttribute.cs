@@ -3,15 +3,14 @@
 
 using Xunit;
 
-namespace System.CommandLine.Tests.Utility
+namespace System.CommandLine.Tests.Utility;
+
+public class ReleaseBuildOnlyFactAttribute : FactAttribute
 {
-    public class ReleaseBuildOnlyFactAttribute : FactAttribute
+    public ReleaseBuildOnlyFactAttribute()
     {
-        public ReleaseBuildOnlyFactAttribute()
-        {
 #if DEBUG
-            Skip = "This test runs only on Release builds.";
+        Skip = "This test runs only on Release builds.";
 #endif
-        }
     }
 }

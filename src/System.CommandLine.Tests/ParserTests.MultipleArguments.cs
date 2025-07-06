@@ -8,302 +8,301 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Xunit;
 
-namespace System.CommandLine.Tests
+namespace System.CommandLine.Tests;
+
+public partial class ParserTests
 {
-    public partial class ParserTests
+    public class MultipleArguments
     {
-        public class MultipleArguments
+        [Fact]
+        public void Multiple_arguments_can_differ_by_arity()
         {
-            [Fact]
-            public void Multiple_arguments_can_differ_by_arity()
+            var multipleArityArg = new Argument<IEnumerable<string>>("several")
             {
-                var multipleArityArg = new Argument<IEnumerable<string>>("several")
-                {
-                    Arity = new ArgumentArity(3, 3),
-                };
+                Arity = new ArgumentArity(3, 3),
+            };
 
-                var singleArityArg = new Argument<IEnumerable<string>>("one")
-                {
-                    Arity = ArgumentArity.ZeroOrMore,
-                };
-
-                var command = new Command("the-command")
-                {
-                    multipleArityArg,
-                    singleArityArg
-                };
-
-                var result = command.Parse("1 2 3 4");
-
-                result.GetValue(multipleArityArg)
-                      .Should()
-                      .BeEquivalentSequenceTo("1", "2", "3");
-                result.GetValue(singleArityArg)
-                      .Should()
-                      .BeEquivalentSequenceTo("4");
-            }
-
-            [Fact]
-            public void Multiple_arguments_can_differ_by_type()
+            var singleArityArg = new Argument<IEnumerable<string>>("one")
             {
-                var stringArg = new Argument<string>("the-string");
-                var intArg = new Argument<int>("the-int");
+                Arity = ArgumentArity.ZeroOrMore,
+            };
 
-                var command = new Command("the-command")
-                {
-                    stringArg,
-                    intArg
-                };
-
-                var result = command.Parse("1 2");
-
-                result.GetValue(stringArg).Should().Be("1");
-                result.GetValue(intArg).Should().Be(2);
-            }
-
-            [Theory]
-            [InlineData("--verbose one two three four five")]
-            [InlineData("one --verbose two three four five")]
-            [InlineData("one two --verbose three four five")]
-            [InlineData("one two three --verbose four five")]
-            [InlineData("one two three four --verbose five")]
-            [InlineData("one two three four five --verbose")]
-            [InlineData("--verbose true one two three four five")]
-            [InlineData("one --verbose true two three four five")]
-            [InlineData("one two --verbose true three four five")]
-            [InlineData("one two three --verbose true four five")]
-            [InlineData("one two three four --verbose true five")]
-            [InlineData("one two three four five --verbose true")]
-            public void When_multiple_arguments_are_present_then_their_order_relative_to_sibling_options_is_not_significant(string commandLine)
+            var command = new Command("the-command")
             {
-                var first = new Argument<string>("first");
-                var second = new Argument<string>("second");
-                var third = new Argument<string[]>("third");
-                var verbose = new Option<bool>("--verbose");
+                multipleArityArg,
+                singleArityArg
+            };
 
-                var command = new Command("the-command")
-                {
-                    first,
-                    second,
-                    third,
-                    verbose
-                };
+            var result = command.Parse("1 2 3 4");
 
-                var parseResult = command.Parse(commandLine);
+            result.GetValue(multipleArityArg)
+                .Should()
+                .BeEquivalentSequenceTo("1", "2", "3");
+            result.GetValue(singleArityArg)
+                .Should()
+                .BeEquivalentSequenceTo("4");
+        }
 
-                parseResult
-                    .GetValue(first)
-                    .Should()
-                    .Be("one");
+        [Fact]
+        public void Multiple_arguments_can_differ_by_type()
+        {
+            var stringArg = new Argument<string>("the-string");
+            var intArg = new Argument<int>("the-int");
 
-                parseResult
-                    .GetValue(second)
-                    .Should()
-                    .Be("two");
-
-                parseResult
-                    .GetValue(third)
-                    .Should()
-                    .BeEquivalentSequenceTo("three", "four", "five");
-
-                parseResult
-                    .GetValue(verbose)
-                    .Should()
-                    .BeTrue();
-            }
-
-            [Fact]
-            public void Multiple_arguments_of_unspecified_type_are_parsed_correctly()
+            var command = new Command("the-command")
             {
-                var sourceArg = new Argument<string>("source");
-                var destinationArg = new Argument<string>("destination");
-                var root = new RootCommand
-                {
-                    sourceArg,
-                    destinationArg
-                };
+                stringArg,
+                intArg
+            };
 
-                var result = root.Parse("src.txt dest.txt");
+            var result = command.Parse("1 2");
 
-                result.GetResult(sourceArg)
-                      .GetValueOrDefault<string>()
-                      .Should()
-                      .Be("src.txt");
+            result.GetValue(stringArg).Should().Be("1");
+            result.GetValue(intArg).Should().Be(2);
+        }
+
+        [Theory]
+        [InlineData("--verbose one two three four five")]
+        [InlineData("one --verbose two three four five")]
+        [InlineData("one two --verbose three four five")]
+        [InlineData("one two three --verbose four five")]
+        [InlineData("one two three four --verbose five")]
+        [InlineData("one two three four five --verbose")]
+        [InlineData("--verbose true one two three four five")]
+        [InlineData("one --verbose true two three four five")]
+        [InlineData("one two --verbose true three four five")]
+        [InlineData("one two three --verbose true four five")]
+        [InlineData("one two three four --verbose true five")]
+        [InlineData("one two three four five --verbose true")]
+        public void When_multiple_arguments_are_present_then_their_order_relative_to_sibling_options_is_not_significant(string commandLine)
+        {
+            var first = new Argument<string>("first");
+            var second = new Argument<string>("second");
+            var third = new Argument<string[]>("third");
+            var verbose = new Option<bool>("--verbose");
+
+            var command = new Command("the-command")
+            {
+                first,
+                second,
+                third,
+                verbose
+            };
+
+            var parseResult = command.Parse(commandLine);
+
+            parseResult
+                .GetValue(first)
+                .Should()
+                .Be("one");
+
+            parseResult
+                .GetValue(second)
+                .Should()
+                .Be("two");
+
+            parseResult
+                .GetValue(third)
+                .Should()
+                .BeEquivalentSequenceTo("three", "four", "five");
+
+            parseResult
+                .GetValue(verbose)
+                .Should()
+                .BeTrue();
+        }
+
+        [Fact]
+        public void Multiple_arguments_of_unspecified_type_are_parsed_correctly()
+        {
+            var sourceArg = new Argument<string>("source");
+            var destinationArg = new Argument<string>("destination");
+            var root = new RootCommand
+            {
+                sourceArg,
+                destinationArg
+            };
+
+            var result = root.Parse("src.txt dest.txt");
+
+            result.GetResult(sourceArg)
+                .GetValueOrDefault<string>()
+                .Should()
+                .Be("src.txt");
                 
-                result.GetResult(destinationArg)
-                      .GetValueOrDefault<string>()
-                      .Should()
-                      .Be("dest.txt");
-            }
+            result.GetResult(destinationArg)
+                .GetValueOrDefault<string>()
+                .Should()
+                .Be("dest.txt");
+        }
 
 
-            [Fact]
-            public void When_multiple_arguments_are_defined_but_not_provided_then_option_parses_correctly()
+        [Fact]
+        public void When_multiple_arguments_are_defined_but_not_provided_then_option_parses_correctly()
+        {
+            var option = new Option<string>("-e");
+            var command = new Command("the-command")
             {
-                var option = new Option<string>("-e");
-                var command = new Command("the-command")
-                {
-                    option,
-                    new Argument<string>("arg1"),
-                    new Argument<string>("arg2")
-                };
+                option,
+                new Argument<string>("arg1"),
+                new Argument<string>("arg2")
+            };
 
-                var result = command.Parse("-e foo");
+            var result = command.Parse("-e foo");
 
-                var optionResult = result.GetValue(option);
+            var optionResult = result.GetValue(option);
 
-                optionResult.Should().Be("foo");
-            }
+            optionResult.Should().Be("foo");
+        }
 
-            [Fact]
-            public void Tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
+        [Fact]
+        public void Tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_multiple_arity_argument()
+        {
+            var ints = new Argument<int[]>("ints");
+            var strings = new Argument<string[]>("strings");
+
+            var root = new RootCommand
             {
-                var ints = new Argument<int[]>("ints");
-                var strings = new Argument<string[]>("strings");
+                ints,
+                strings
+            };
 
-                var root = new RootCommand
-                {
-                    ints,
-                    strings
-                };
+            var result = root.Parse("1 2 3 one two");
 
-                var result = root.Parse("1 2 3 one two");
+            var _ = new AssertionScope();
 
-                var _ = new AssertionScope();
+            result.GetValue(ints)
+                .Should()
+                .BeEquivalentTo(new[] { 1, 2, 3 },
+                    options => options.WithStrictOrdering());
 
-                result.GetValue(ints)
-                      .Should()
-                      .BeEquivalentTo(new[] { 1, 2, 3 },
-                                      options => options.WithStrictOrdering());
+            result.GetValue(strings)
+                .Should()
+                .BeEquivalentTo(new[] { "one", "two" },
+                    options => options.WithStrictOrdering());
+        }
 
-                result.GetValue(strings)
-                      .Should()
-                      .BeEquivalentTo(new[] { "one", "two" },
-                                      options => options.WithStrictOrdering());
-            }
+        [Fact]
+        public void Tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_single_arity_argument()
+        {
+            var ints = new Argument<int[]>("arg1");
+            var strings = new Argument<string>("arg2");
 
-            [Fact]
-            public void Tokens_that_cannot_be_converted_by_multiple_arity_argument_flow_to_next_single_arity_argument()
+            var root = new RootCommand
             {
-                var ints = new Argument<int[]>("arg1");
-                var strings = new Argument<string>("arg2");
+                ints,
+                strings
+            };
 
-                var root = new RootCommand
-                {
-                    ints,
-                    strings
-                };
+            var result = root.Parse("1 2 3 four five");
 
-                var result = root.Parse("1 2 3 four five");
+            var _ = new AssertionScope();
 
-                var _ = new AssertionScope();
+            result.GetValue(ints)
+                .Should()
+                .BeEquivalentTo(new[] { 1, 2, 3 },
+                    options => options.WithStrictOrdering());
 
-                result.GetValue(ints)
-                      .Should()
-                      .BeEquivalentTo(new[] { 1, 2, 3 },
-                                      options => options.WithStrictOrdering());
+            result.GetValue(strings)
+                .Should()
+                .Be("four");
 
-                result.GetValue(strings)
-                      .Should()
-                      .Be("four");
+            result.UnmatchedTokens
+                .Should()
+                .ContainSingle()
+                .Which
+                .Should()
+                .Be("five");
+        }
 
-                result.UnmatchedTokens
-                      .Should()
-                      .ContainSingle()
-                      .Which
-                      .Should()
-                      .Be("five");
-            }
-
-            [Fact]
-            public void Unsatisfied_subsequent_argument_with_min_arity_0_parses_as_default_value()
+        [Fact]
+        public void Unsatisfied_subsequent_argument_with_min_arity_0_parses_as_default_value()
+        {
+            var arg1 = new Argument<string>("arg1")
             {
-                var arg1 = new Argument<string>("arg1")
-                {
-                    Arity = ArgumentArity.ExactlyOne
-                };
-                var arg2 = new Argument<string>("arg2")
-                {
-                    Arity = ArgumentArity.ZeroOrOne,
-                    DefaultValueFactory = (_) => "the-default"
-                };
-                var rootCommand = new RootCommand
-                {
-                    arg1,
-                    arg2,
-                };
-
-                var result = rootCommand.Parse("value-1");
-
-                result.GetValue(arg1).Should().Be("value-1");
-                result.GetValue(arg2).Should().Be("the-default");
-            }
-
-            [Fact] // https://github.com/dotnet/command-line-api/issues/1403
-            public void Unsatisfied_subsequent_argument_with_min_arity_1_parses_as_default_value()
+                Arity = ArgumentArity.ExactlyOne
+            };
+            var arg2 = new Argument<string>("arg2")
             {
-                Argument<string> arg1 = new(name: "arg1");
-                Argument<string> arg2 = new(name: "arg2")
-                {
-                    DefaultValueFactory = (_) => "the-default"
-                };
-
-                var rootCommand = new RootCommand
-                {
-                    arg1,
-                    arg2,
-                };
-
-                var result = rootCommand.Parse("");
-
-                result.GetResult(arg1).Should().NotBeNull();
-                result.GetValue(arg2).Should().Be("the-default");
-            }
-
-            [Fact] // https://github.com/dotnet/command-line-api/issues/1395
-            public void When_subsequent_argument_with_ZeroOrOne_arity_is_not_provided_then_parse_is_correct()
+                Arity = ArgumentArity.ZeroOrOne,
+                DefaultValueFactory = (_) => "the-default"
+            };
+            var rootCommand = new RootCommand
             {
-                var argument1 = new Argument<string>("arg1");
-                var rootCommand = new RootCommand
-                {
-                    argument1,
-                    new Argument<string>("arg2")
-                    {
-                        Arity = ArgumentArity.ZeroOrOne
-                    },
-                };
+                arg1,
+                arg2,
+            };
 
-                var result = rootCommand.Parse("one");
+            var result = rootCommand.Parse("value-1");
 
-                result.Errors.Should().BeEmpty();
+            result.GetValue(arg1).Should().Be("value-1");
+            result.GetValue(arg2).Should().Be("the-default");
+        }
 
-                result.GetValue(argument1).Should().Be("one");
-            }
-
-            [Theory] // https://github.com/dotnet/command-line-api/issues/1711
-            [InlineData("")]
-            [InlineData("a")]
-            [InlineData("a b")]
-            [InlineData("a b c")]
-            public void When_there_are_not_enough_tokens_for_all_arguments_then_the_correct_number_of_errors_is_reported(
-                string providedArgs)
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1403
+        public void Unsatisfied_subsequent_argument_with_min_arity_1_parses_as_default_value()
+        {
+            Argument<string> arg1 = new(name: "arg1");
+            Argument<string> arg2 = new(name: "arg2")
             {
-                var command = new Command("command")
+                DefaultValueFactory = (_) => "the-default"
+            };
+
+            var rootCommand = new RootCommand
+            {
+                arg1,
+                arg2,
+            };
+
+            var result = rootCommand.Parse("");
+
+            result.GetResult(arg1).Should().NotBeNull();
+            result.GetValue(arg2).Should().Be("the-default");
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/1395
+        public void When_subsequent_argument_with_ZeroOrOne_arity_is_not_provided_then_parse_is_correct()
+        {
+            var argument1 = new Argument<string>("arg1");
+            var rootCommand = new RootCommand
+            {
+                argument1,
+                new Argument<string>("arg2")
                 {
-                    new Argument<string>("arg1"),
-                    new Argument<string>("arg2"),
-                    new Argument<string>("arg3"),
-                    new Argument<string>("arg4")
-                };
+                    Arity = ArgumentArity.ZeroOrOne
+                },
+            };
 
-                var result = CommandLineParser.Parse(command, providedArgs);
+            var result = rootCommand.Parse("one");
 
-                result
-                    .Errors
-                    .Count
-                    .Should()
-                    .Be(4 - providedArgs.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length);
-            }
+            result.Errors.Should().BeEmpty();
+
+            result.GetValue(argument1).Should().Be("one");
+        }
+
+        [Theory] // https://github.com/dotnet/command-line-api/issues/1711
+        [InlineData("")]
+        [InlineData("a")]
+        [InlineData("a b")]
+        [InlineData("a b c")]
+        public void When_there_are_not_enough_tokens_for_all_arguments_then_the_correct_number_of_errors_is_reported(
+            string providedArgs)
+        {
+            var command = new Command("command")
+            {
+                new Argument<string>("arg1"),
+                new Argument<string>("arg2"),
+                new Argument<string>("arg3"),
+                new Argument<string>("arg4")
+            };
+
+            var result = CommandLineParser.Parse(command, providedArgs);
+
+            result
+                .Errors
+                .Count
+                .Should()
+                .Be(4 - providedArgs.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length);
         }
     }
 }

@@ -4,31 +4,30 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace System.CommandLine.Suggest
+namespace System.CommandLine.Suggest;
+
+public static class DotnetProfileDirectory
 {
-    public static class DotnetProfileDirectory
+    private const string DotnetHomeVariableName = "DOTNET_CLI_HOME";
+    private const string DotnetProfileDirectoryName = ".dotnet";
+
+    private static string PlatformHomeVariableName =>
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "USERPROFILE" : "HOME";
+
+    public static bool TryGet(out string dotnetProfileDirectory)
     {
-        private const string DotnetHomeVariableName = "DOTNET_CLI_HOME";
-        private const string DotnetProfileDirectoryName = ".dotnet";
-
-        private static string PlatformHomeVariableName =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "USERPROFILE" : "HOME";
-
-        public static bool TryGet(out string dotnetProfileDirectory)
+        dotnetProfileDirectory = null;
+        var home = Environment.GetEnvironmentVariable(DotnetHomeVariableName);
+        if (string.IsNullOrEmpty(home))
         {
-            dotnetProfileDirectory = null;
-            var home = Environment.GetEnvironmentVariable(DotnetHomeVariableName);
+            home = Environment.GetEnvironmentVariable(PlatformHomeVariableName);
             if (string.IsNullOrEmpty(home))
             {
-                home = Environment.GetEnvironmentVariable(PlatformHomeVariableName);
-                if (string.IsNullOrEmpty(home))
-                {
-                    return false;
-                }
+                return false;
             }
-
-            dotnetProfileDirectory = Path.Combine(home, DotnetProfileDirectoryName);
-            return true;
         }
+
+        dotnetProfileDirectory = Path.Combine(home, DotnetProfileDirectoryName);
+        return true;
     }
 }
