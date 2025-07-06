@@ -3,10 +3,7 @@
 
 using FluentAssertions;
 using FluentAssertions.Execution;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Xunit;
 using static System.Environment;
 
