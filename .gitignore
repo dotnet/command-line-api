@@ -154,4 +154,4 @@ TestResults/
 .ionide
 
 # Verify
-*.verified.txt
+*.received.txt

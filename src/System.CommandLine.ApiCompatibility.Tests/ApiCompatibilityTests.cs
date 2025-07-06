@@ -13,7 +13,6 @@ public class ApiCompatibilityTests
     public Task System_CommandLine_api_is_not_changed()
     {
         var contract = ApiContract.GenerateContractForAssembly(typeof(ParseResult).Assembly);
-        return Verifier.Verify(contract)
-            .UniqueForTargetFrameworkAndVersion();
+        return Verifier.Verify(contract);
     }
 }
