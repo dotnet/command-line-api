@@ -107,7 +107,6 @@
     .ctor()
     public System.Boolean EnablePosixBundling { get; set; }
     public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
-    public System.Void ThrowIfInvalid(Command command)
   public class ParserConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
     .ctor(System.String message)
   public class ParseResult
@@ -135,8 +134,7 @@
     public T GetValue<T>(System.String name)
     public System.Int32 Invoke()
     public System.Int32 Invoke(InvocationConfiguration configuration)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.Threading.CancellationToken cancellationToken = null)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(InvocationConfiguration configuration, System.Threading.CancellationToken cancellationToken = null)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(InvocationConfiguration configuration = null, System.Threading.CancellationToken cancellationToken = null)
     public System.String ToString()
   public class RootCommand : Command, System.Collections.IEnumerable
     public static System.String ExecutableName { get; }
