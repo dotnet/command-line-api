@@ -107,8 +107,6 @@
     .ctor()
     public System.Boolean EnablePosixBundling { get; set; }
     public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
-  public class ParserConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
-    .ctor(System.String message)
   public class ParseResult
     public System.CommandLine.Invocation.CommandLineAction Action { get; }
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
