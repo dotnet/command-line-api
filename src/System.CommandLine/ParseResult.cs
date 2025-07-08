@@ -290,10 +290,16 @@ namespace System.CommandLine
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
+        /// <param name="configuration">The configuration used to define invocation behaviors.</param>
         /// <returns>A value that can be used as a process exit code.</returns>
-        public int Invoke()
+        public int Invoke(InvocationConfiguration? configuration = null)
         {
             var useAsync = false;
+
+            if (configuration is not null)
+            {
+                InvocationConfiguration = configuration;
+            }
 
             if (Action is AsynchronousCommandLineAction)
             {
@@ -320,17 +326,6 @@ namespace System.CommandLine
             {
                 return InvocationPipeline.Invoke(this);
             }
-        }
-
-        /// <summary>
-        /// Invokes the appropriate command handler for a parsed command line input.
-        /// </summary>
-        /// <returns>A value that can be used as a process exit code.</returns>
-        public int Invoke(InvocationConfiguration configuration)
-        {
-            InvocationConfiguration = configuration;
-
-            return Invoke();
         }
 
         /// <summary>

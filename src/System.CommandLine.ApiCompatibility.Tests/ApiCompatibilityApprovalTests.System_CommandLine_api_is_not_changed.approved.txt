@@ -130,8 +130,7 @@
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(System.String name)
-    public System.Int32 Invoke()
-    public System.Int32 Invoke(InvocationConfiguration configuration)
+    public System.Int32 Invoke(InvocationConfiguration configuration = null)
     public System.Threading.Tasks.Task<System.Int32> InvokeAsync(InvocationConfiguration configuration = null, System.Threading.CancellationToken cancellationToken = null)
     public System.String ToString()
   public class RootCommand : Command, System.Collections.IEnumerable
