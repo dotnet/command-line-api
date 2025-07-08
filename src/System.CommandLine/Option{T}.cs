@@ -14,8 +14,8 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the <see cref="Option"/> class.
         /// </summary>
-        /// <param name="name">The name of the option. It's used for parsing, displaying Help and creating parse errors.</param>>
-        /// <param name="aliases">Optional aliases. Used for parsing, suggestions and displayed in Help.</param>
+        /// <param name="name">The name of the option. This is used during parsing and is displayed in help.</param>
+        /// <param name="aliases">Optional aliases by which the option can be specified on the command line.</param>
         public Option(string name, params string[] aliases) 
             : this(name, aliases, new Argument<T>(name))
         {
