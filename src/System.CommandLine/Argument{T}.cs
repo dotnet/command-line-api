@@ -15,7 +15,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        /// <param name="name">The name of the argument. It's not used for parsing, only when displaying Help or creating parse errors.</param>>
+        /// <param name="name">The name of the argument. This can be used to look up the parsed value and is displayed in help</param>
         public Argument(string name) : base(name)
         {
         }

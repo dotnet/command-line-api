@@ -19,7 +19,11 @@ namespace System.CommandLine
         private List<Func<CompletionContext, IEnumerable<CompletionItem>>>? _completionSources = null;
         private List<Action<ArgumentResult>>? _validators = null;
 
-        private protected Argument(string name) : base(name, allowWhitespace: true)
+        /// <summary>
+        /// Initializes a new instance of the Argument class.
+        /// </summary>
+        /// <param name="name">The name of the argument. This can be used to look up the parsed value and is displayed in help</param>
+        protected Argument(string name) : base(name, allowWhitespace: true)
         {
         }
 

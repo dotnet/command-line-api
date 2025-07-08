@@ -17,7 +17,12 @@ namespace System.CommandLine
         internal AliasSet? _aliases;
         private List<Action<OptionResult>>? _validators;
 
-        private protected Option(string name, string[] aliases) : base(name)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Option"/> class.
+        /// </summary>
+        /// <param name="name">The name of the option. This is used during parsing and is displayed in help.</param>
+        /// <param name="aliases">Optional aliases by which the option can be specified on the command line.</param>
+        protected Option(string name, string[] aliases) : base(name)
         {
             if (aliases is { Length: > 0 }) 
             {
