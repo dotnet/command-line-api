@@ -27,7 +27,8 @@ namespace System.CommandLine.Parsing
         // this method is not returning a Value Tuple or a dedicated type to avoid JITting
         internal static void Tokenize(
             this IReadOnlyList<string> args,
-            CommandLineConfiguration configuration,
+            Command rootCommand,
+            ParserConfiguration configuration,
             bool inferRootCommand,
             out List<Token> tokens,
             out List<string>? errors)
@@ -36,22 +37,22 @@ namespace System.CommandLine.Parsing
 
             List<string>? errorList = null;
 
-            var currentCommand = configuration.RootCommand;
+            var currentCommand = rootCommand;
             var foundDoubleDash = false;
             var foundEndOfDirectives = false;
 
             var tokenList = new List<Token>(args.Count);
 
-            var knownTokens = configuration.RootCommand.ValidTokens();
+            var knownTokens = rootCommand.ValidTokens();
 
-            int i = FirstArgumentIsRootCommand(args, configuration.RootCommand, inferRootCommand)
+            int i = FirstArgumentIsRootCommand(args, rootCommand, inferRootCommand)
                 ? 0
                 : FirstArgIsNotRootCommand;
 
             for (; i < args.Count; i++)
             {
                 var arg = i == FirstArgIsNotRootCommand
-                    ? configuration.RootCommand.Name
+                    ? rootCommand.Name
                     : args[i];
 
                 if (foundDoubleDash)
@@ -96,7 +97,7 @@ namespace System.CommandLine.Parsing
                         continue;
                     }
 
-                    if (!configuration.RootCommand.EqualsNameOrAlias(arg))
+                    if (!rootCommand.EqualsNameOrAlias(arg))
                     {
                         foundEndOfDirectives = true;
                     }
@@ -143,7 +144,7 @@ namespace System.CommandLine.Parsing
                                 Command cmd = (Command)token.Symbol!;
                                 if (cmd != currentCommand)
                                 {
-                                    if (cmd != configuration.RootCommand)
+                                    if (cmd != rootCommand)
                                     {
                                         knownTokens = cmd.ValidTokens(); // config contains Directives, they are allowed only for RootCommand
                                     }

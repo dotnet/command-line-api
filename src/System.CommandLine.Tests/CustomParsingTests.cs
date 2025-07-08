@@ -220,8 +220,7 @@ public class CustomParsingTests
             }
         };
 
-        CommandLineConfiguration simpleConfig = new (command);
-        command.Parse("", simpleConfig);
+        command.Parse("");
 
         argumentResult
             .Parent

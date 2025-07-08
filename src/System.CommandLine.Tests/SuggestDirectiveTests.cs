@@ -1,11 +1,13 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 using static System.Environment;
 
@@ -42,16 +44,13 @@ namespace System.CommandLine.Tests
                 _eatCommand,
                 new SuggestDirective()
             };
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output= new StringWriter();
 
-            var result = rootCommand.Parse("[suggest:13] \"eat --fruit\"", config);
+            var result = rootCommand.Parse("[suggest:13] \"eat --fruit\"");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output
+            output
                    .ToString()
                    .Should()
                    .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
@@ -60,24 +59,21 @@ namespace System.CommandLine.Tests
         [Fact]
         public async Task It_writes_suggestions_for_option_arguments_when_under_root_command()
         {
-            RootCommand rootCommand = new ()
+            RootCommand rootCommand = new()
             {
                 _fruitOption,
                 _vegetableOption
             };
-            CommandLineConfiguration config = new (rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse($"[suggest:8] \"--fruit\"", config);
+            var result = rootCommand.Parse($"[suggest:8] \"--fruit\"");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
+            output
+                .ToString()
+                .Should()
+                .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
         }
 
         [Theory]
@@ -86,21 +82,18 @@ namespace System.CommandLine.Tests
         public async Task It_writes_suggestions_for_option_aliases_under_subcommand(string commandLine, string[] expectedCompletions)
         {
             RootCommand rootCommand = new() { _eatCommand };
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse(commandLine, config);
+            var result = rootCommand.Parse(commandLine);
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             string expected = string.Join(NewLine, expectedCompletions) + NewLine;
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be(expected);
+            output.ToString()
+                  .Should()
+                  .Be(expected);
         }
 
         [Theory]
@@ -115,18 +108,14 @@ namespace System.CommandLine.Tests
                 _vegetableOption,
                 _fruitOption
             };
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse(input, config);
-            await result.InvokeAsync();
+            await rootCommand.Parse(input).InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be($"--fruit{NewLine}--help{NewLine}--vegetable{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
+            output
+                .ToString()
+                .Should()
+                .Be($"--fruit{NewLine}--help{NewLine}--vegetable{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}");
         }
 
         [Fact]
@@ -136,18 +125,15 @@ namespace System.CommandLine.Tests
             {
                 _eatCommand
             };
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("[suggest]", config);
-            await result.InvokeAsync();
+            var result = rootCommand.Parse("[suggest]");
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be($"--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}eat{NewLine}");
+            output
+                .ToString()
+                .Should()
+                .Be($"--help{NewLine}--version{NewLine}-?{NewLine}-h{NewLine}/?{NewLine}/h{NewLine}eat{NewLine}");
         }
 
         [Fact]
@@ -158,19 +144,17 @@ namespace System.CommandLine.Tests
                 _fruitOption,
                 _vegetableOption
             };
-            CommandLineConfiguration config = new (rootCommand)
-            {
-                Output = new StringWriter(),
-            };
+            
+             var output = new StringWriter();
 
-            var result = rootCommand.Parse("[suggest:1] \"f\"", config);
+            var result = rootCommand.Parse("[suggest:1] \"f\"");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be($"--fruit{NewLine}");
+            output
+                .ToString()
+                .Should()
+                .Be($"--fruit{NewLine}");
         }
 
         [Fact]
@@ -181,19 +165,16 @@ namespace System.CommandLine.Tests
                 _eatCommand,
                 new Command("wash-dishes")
             };
-            CommandLineConfiguration config = new (rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("[suggest:1] \"d\"", config);
+            var result = rootCommand.Parse("[suggest:1] \"d\"");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be($"wash-dishes{NewLine}");
+            output
+                .ToString()
+                .Should()
+                .Be($"wash-dishes{NewLine}");
         }
 
         [Fact]
@@ -204,19 +185,16 @@ namespace System.CommandLine.Tests
                 _eatCommand,
                 new Command("wash-dishes"),
             };
-            CommandLineConfiguration config = new (rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("[suggest:5] \"--ver\"", config);
+            var result = rootCommand.Parse("[suggest:5] \"--ver\"");
 
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be($"--version{NewLine}");
+            output
+                .ToString()
+                .Should()
+                .Be($"--version{NewLine}");
         }
 
         [Fact]
@@ -229,17 +207,14 @@ namespace System.CommandLine.Tests
                 new Option<bool>("--option2"),
                 new Argument<string>("arg")
             };
-            CommandLineConfiguration config = new (command)
-            {
-                Output = new StringWriter()
-            };
 
-            await config.InvokeAsync("[suggest:3] \"opt\"");
+            var output = new StringWriter();
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be($"--option1{NewLine}--option2{NewLine}");
+            await command.Parse("[suggest:3] \"opt\"").InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString()
+                  .Should()
+                  .Be($"--option1{NewLine}--option2{NewLine}");
         }
 
         [Fact]
@@ -249,19 +224,17 @@ namespace System.CommandLine.Tests
             {
                 new Option<bool>("--bool-option")
             };
-            CommandLineConfiguration config = new (command)
-            {
-                Output = new StringWriter()
-            };
+
+            var output = new StringWriter();
 
             var commandLine = "--bool-option false";
 
-            await command.Parse($"[suggest:{commandLine.Length + 1}] \"{commandLine}\"", config).InvokeAsync();
+            await command.Parse($"[suggest:{commandLine.Length + 1}] \"{commandLine}\"").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            config.Output
-                   .ToString()
-                   .Should()
-                   .NotContain("--bool-option");
+            output
+                .ToString()
+                .Should()
+                .NotContain("--bool-option");
         }
     }
 }

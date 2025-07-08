@@ -56,10 +56,12 @@ namespace System.CommandLine.Tests.Invocation
             };
             command.Action = new CustomCliAction();
 
-            return new CommandLineConfiguration(command)
+            var config = new InvocationConfiguration
             {
                 ProcessTerminationTimeout = TimeSpan.FromSeconds(2)
-            }.InvokeAsync(args);
+            };
+
+            return command.Parse(args).InvokeAsync(config);
         }
 
         private sealed class CustomCliAction : AsynchronousCommandLineAction

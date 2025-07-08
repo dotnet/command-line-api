@@ -21,9 +21,10 @@ namespace System.CommandLine
         private CompletionContext? _completionContext;
         private readonly CommandLineAction? _action;
         private readonly List<CommandLineAction>? _preActions;
+        private InvocationConfiguration? _invocationConfiguration;
 
         internal ParseResult(
-            CommandLineConfiguration configuration,
+            ParserConfiguration configuration,
             CommandResult rootCommandResult,
             CommandResult commandResult,
             List<Token> tokens,
@@ -68,7 +69,16 @@ namespace System.CommandLine
         /// <summary>
         /// The configuration used to produce the parse result.
         /// </summary>
-        public CommandLineConfiguration Configuration { get; }
+        public ParserConfiguration Configuration { get; }
+
+        /// <summary>
+        /// The configuration used to specify command line runtime behavior.
+        /// </summary>
+        public InvocationConfiguration InvocationConfiguration
+        {
+            get => _invocationConfiguration ??= new();
+            private set => _invocationConfiguration = value;
+        }
 
         /// <summary>
         /// Gets the root command result.
@@ -262,18 +272,34 @@ namespace System.CommandLine
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
+        /// <param name="configuration">The configuration used to define invocation behaviors.</param>
         /// <param name="cancellationToken">A token that can be used to cancel an invocation.</param>
         /// <returns>A task whose result can be used as a process exit code.</returns>
-        public Task<int> InvokeAsync(CancellationToken cancellationToken = default)
-            => InvocationPipeline.InvokeAsync(this, cancellationToken);
+        public Task<int> InvokeAsync(
+            InvocationConfiguration? configuration = null, 
+            CancellationToken cancellationToken = default)
+        {
+            if (configuration is not null)
+            {
+                InvocationConfiguration = configuration;
+            }
+
+            return InvocationPipeline.InvokeAsync(this, cancellationToken);
+        }
 
         /// <summary>
         /// Invokes the appropriate command handler for a parsed command line input.
         /// </summary>
+        /// <param name="configuration">The configuration used to define invocation behaviors.</param>
         /// <returns>A value that can be used as a process exit code.</returns>
-        public int Invoke()
+        public int Invoke(InvocationConfiguration? configuration = null)
         {
             var useAsync = false;
+
+            if (configuration is not null)
+            {
+                InvocationConfiguration = configuration;
+            }
 
             if (Action is AsynchronousCommandLineAction)
             {

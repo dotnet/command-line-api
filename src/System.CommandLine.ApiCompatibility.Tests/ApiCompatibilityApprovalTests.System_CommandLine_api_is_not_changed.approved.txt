@@ -49,31 +49,13 @@
     public System.Void Add(Option option)
     public System.Void Add(Command command)
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
-    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, CommandLineConfiguration configuration = null)
-    public ParseResult Parse(System.String commandLine, CommandLineConfiguration configuration = null)
+    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args, ParserConfiguration configuration = null)
+    public ParseResult Parse(System.String commandLine, ParserConfiguration configuration = null)
     public System.Void SetAction(System.Action<ParseResult> action)
     public System.Void SetAction(System.Func<ParseResult,System.Int32> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.Tasks.Task> action)
     public System.Void SetAction(System.Func<ParseResult,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Int32>> action)
-  public class CommandLineConfiguration
-    .ctor(Command rootCommand)
-    public System.Boolean EnableDefaultExceptionHandler { get; set; }
-    public System.Boolean EnablePosixBundling { get; set; }
-    public System.IO.TextWriter Error { get; set; }
-    public System.IO.TextWriter Output { get; set; }
-    public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
-    public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
-    public Command RootCommand { get; }
-    public System.Int32 Invoke(System.String commandLine)
-    public System.Int32 Invoke(System.String[] args)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String commandLine, System.Threading.CancellationToken cancellationToken = null)
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.String[] args, System.Threading.CancellationToken cancellationToken = null)
-    public ParseResult Parse(System.Collections.Generic.IReadOnlyList<System.String> args)
-    public ParseResult Parse(System.String commandLine)
-    public System.Void ThrowIfInvalid()
-  public class CommandLineConfigurationException : System.Exception, System.Runtime.Serialization.ISerializable
-    .ctor(System.String message)
   public static class CompletionSourceExtensions
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.String>> completionsDelegate)
     public static System.Void Add(this System.Collections.Generic.List<System.Func<System.CommandLine.Completions.CompletionContext,System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem>>> completionSources, System.String[] completions)
@@ -88,6 +70,12 @@
   public class EnvironmentVariablesDirective : Directive
     .ctor()
     public System.CommandLine.Invocation.CommandLineAction Action { get; set; }
+  public class InvocationConfiguration
+    .ctor()
+    public System.Boolean EnableDefaultExceptionHandler { get; set; }
+    public System.IO.TextWriter Error { get; set; }
+    public System.IO.TextWriter Output { get; set; }
+    public System.Nullable<System.TimeSpan> ProcessTerminationTimeout { get; set; }
   public abstract class Option : Symbol
     public System.CommandLine.Invocation.CommandLineAction Action { get; set; }
     public System.Collections.Generic.ICollection<System.String> Aliases { get; }
@@ -115,11 +103,16 @@
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
     public static Option<System.IO.FileSystemInfo> AcceptExistingOnly(this Option<System.IO.FileSystemInfo> option)
     public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
+  public class ParserConfiguration
+    .ctor()
+    public System.Boolean EnablePosixBundling { get; set; }
+    public System.CommandLine.Parsing.TryReplaceToken ResponseFileTokenReplacer { get; set; }
   public class ParseResult
     public System.CommandLine.Invocation.CommandLineAction Action { get; }
     public System.CommandLine.Parsing.CommandResult CommandResult { get; }
-    public CommandLineConfiguration Configuration { get; }
+    public ParserConfiguration Configuration { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.ParseError> Errors { get; }
+    public InvocationConfiguration InvocationConfiguration { get; }
     public System.CommandLine.Parsing.CommandResult RootCommandResult { get; }
     public System.Collections.Generic.IReadOnlyList<System.CommandLine.Parsing.Token> Tokens { get; }
     public System.Collections.Generic.IReadOnlyList<System.String> UnmatchedTokens { get; }
@@ -137,8 +130,8 @@
     public T GetValue<T>(Argument<T> argument)
     public T GetValue<T>(Option<T> option)
     public T GetValue<T>(System.String name)
-    public System.Int32 Invoke()
-    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(System.Threading.CancellationToken cancellationToken = null)
+    public System.Int32 Invoke(InvocationConfiguration configuration = null)
+    public System.Threading.Tasks.Task<System.Int32> InvokeAsync(InvocationConfiguration configuration = null, System.Threading.CancellationToken cancellationToken = null)
     public System.String ToString()
   public class RootCommand : Command, System.Collections.IEnumerable
     public static System.String ExecutableName { get; }
@@ -212,8 +205,8 @@ System.CommandLine.Parsing
     public System.Void OnlyTake(System.Int32 numberOfTokens)
     public System.String ToString()
   public static class CommandLineParser
-    public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.Collections.Generic.IReadOnlyList<System.String> args, System.CommandLine.CommandLineConfiguration configuration = null)
-    public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.String commandLine, System.CommandLine.CommandLineConfiguration configuration = null)
+    public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.Collections.Generic.IReadOnlyList<System.String> args, System.CommandLine.ParserConfiguration configuration = null)
+    public static System.CommandLine.ParseResult Parse(System.CommandLine.Command command, System.String commandLine, System.CommandLine.ParserConfiguration configuration = null)
     public static System.Collections.Generic.IEnumerable<System.String> SplitCommandLine(System.String commandLine)
   public class CommandResult : SymbolResult
     public System.Collections.Generic.IEnumerable<SymbolResult> Children { get; }

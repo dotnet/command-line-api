@@ -1,14 +1,15 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using FluentAssertions;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.IO;
-using FluentAssertions;
-using Xunit;
 using System.CommandLine.Tests.Utility;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace System.CommandLine.Tests;
 
@@ -24,14 +25,11 @@ public class ParseErrorReportingTests
         };
 
         var output = new StringWriter();
-        var parseResult = root.Parse("", new CommandLineConfiguration(root)
-        {
-            Output = output,
-        });
+        var parseResult = root.Parse("");
 
         parseResult.Errors.Should().NotBeEmpty();
 
-        var result = parseResult.Invoke();
+        var result = parseResult.Invoke(new() { Output = output });
 
         result.Should().Be(1);
         output.ToString().Should().ShowHelp();
@@ -45,23 +43,18 @@ public class ParseErrorReportingTests
             new Option<bool>("--verbose")
         };
 
-        CommandLineConfiguration config = new(rootCommand)
-        {
-            Output = new StringWriter()
-        };
+        var output = new StringWriter();
 
-        var result = rootCommand.Parse("oops", config);
+        var result = rootCommand.Parse("oops");
 
         if (result.Action is ParseErrorAction parseError)
         {
             parseError.ShowHelp = false;
         }
 
-        result.Invoke();
+        result.Invoke(new() { Output = output });
 
-        var output = config.Output.ToString();
-
-        output.Should().NotShowHelp();
+        output.ToString().Should().NotShowHelp();
     }
 
     [Theory] // https://github.com/dotnet/command-line-api/issues/2226
@@ -104,9 +97,7 @@ public class ParseErrorReportingTests
             rootHelpWasCalled = true;
         });
 
-        var config = new CommandLineConfiguration(rootCommand);
-
-        await config.Parse("child grandchild oops").InvokeAsync();
+        await rootCommand.Parse("child grandchild oops").InvokeAsync();
 
         rootHelpWasCalled.Should().BeTrue();
     }
@@ -117,12 +108,8 @@ public class ParseErrorReportingTests
         RootCommand rootCommand = new();
         rootCommand.Options.Clear();
         var output = new StringWriter();
-        CommandLineConfiguration config = new(rootCommand)
-        {
-            Output = output
-        };
-
-        config.Parse("oops").Invoke();
+        
+        rootCommand.Parse("oops").Invoke(new() { Output = output } );
 
         output.ToString().Should().NotShowHelp();
     }

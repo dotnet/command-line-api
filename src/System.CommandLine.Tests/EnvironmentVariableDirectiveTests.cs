@@ -1,4 +1,5 @@
-﻿using System.CommandLine.Help;
+﻿using System.Collections;
+using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using FluentAssertions;
 using System.Linq;
@@ -28,12 +29,12 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(_testVariableName).Should().Be(value);
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new InvocationConfiguration
             {
                 EnableDefaultExceptionHandler = false
             };
 
-            await config.InvokeAsync($"[env:{_testVariableName}={value}]");
+            await rootCommand.Parse($"[env:{_testVariableName}={value}]").InvokeAsync(config);
 
             asserted.Should().BeTrue();
         }
@@ -53,12 +54,12 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(_testVariableName).Should().Be(value);
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new InvocationConfiguration
             {
                 EnableDefaultExceptionHandler = false
             };
 
-            await config.InvokeAsync($"[env:{_testVariableName}={value}]" );
+            await rootCommand.Parse($"[env:{_testVariableName}={value}]" ).InvokeAsync(config);
 
             asserted.Should().BeTrue();
         }
@@ -78,12 +79,12 @@ namespace System.CommandLine.Tests
                 Environment.GetEnvironmentVariable(variable).Should().BeNull();
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
+            var config = new InvocationConfiguration
             {
                 EnableDefaultExceptionHandler = false
             };
 
-            await config.InvokeAsync( $"[env:{variable}]" );
+            await rootCommand.Parse( $"[env:{variable}]" ).InvokeAsync(config);
 
             asserted.Should().BeTrue();
         }
@@ -97,23 +98,20 @@ namespace System.CommandLine.Tests
             {
                 new EnvironmentVariablesDirective()
             };
+
+            IDictionary env = null;
             rootCommand.SetAction(_ =>
             {
                 asserted = true;
-                var env = Environment.GetEnvironmentVariables();
-                env.Values.Cast<string>().Should().NotContain(value);
+                env = Environment.GetEnvironmentVariables();
             });
 
-            var config = new CommandLineConfiguration(rootCommand)
-            {
-                EnableDefaultExceptionHandler = false
-            };
-
-            var result = config.Parse($"[env:={value}]");
+            var result = rootCommand.Parse($"[env:={value}]");
 
             await result.InvokeAsync();
 
             asserted.Should().BeTrue();
+            env.Values.Cast<string>().Should().NotContain(value);
         }
 
         [Fact]
@@ -125,10 +123,9 @@ namespace System.CommandLine.Tests
             var customHelpAction = new CustomHelpAction();
             root.Options.OfType<HelpOption>().Single().Action = customHelpAction;
 
-            var config = new CommandLineConfiguration(root);
             root.Directives.Add(new EnvironmentVariablesDirective());
 
-            root.Parse($"[env:{_testVariableName}=1] -h", config).Invoke();
+            root.Parse($"[env:{_testVariableName}=1] -h").Invoke();
 
             customHelpAction.WasCalled.Should().BeTrue();
             Environment.GetEnvironmentVariable(_testVariableName).Should().Be("1");

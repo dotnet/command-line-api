@@ -3,6 +3,7 @@
 
 using FluentAssertions;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -30,73 +31,55 @@ namespace System.CommandLine.Tests
             subcommand.Options.Add(option);
             subcommand.TreatUnmatchedTokensAsErrors = treatUnmatchedTokensAsErrors;
 
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("[diagram] subcommand -c 34 --nonexistent wat", config);
+            var result = rootCommand.Parse("[diagram] subcommand -c 34 --nonexistent wat");
 
-            output.WriteLine(result.Diagram());
-
-            await result.InvokeAsync();
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             string expected = treatUnmatchedTokensAsErrors
                                   ? $"[ {RootCommand.ExecutableName} ![ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine
                                   : $"[ {RootCommand.ExecutableName} [ subcommand [ -c <34> ] ] ]   ???--> --nonexistent wat" + Environment.NewLine;
 
-            config.Output
-                  .ToString()
+            output.ToString()
                   .Should()
                   .Be(expected);
         }
 
         [Fact]
-        public async Task When_diagram_directive_is_used_the_help_is_not_displayed()
+        public async Task When_diagram_directive_is_used_then_help_is_not_displayed()
         {
             RootCommand rootCommand = new()
             {
                 new DiagramDirective()
             };
 
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter(),
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("[diagram] --help", config);
+            var result = rootCommand.Parse("[diagram] --help");
 
-            output.WriteLine(result.Diagram());
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            await result.InvokeAsync();
-
-            config.Output
-                   .ToString()
-                   .Should()
-                   .Be($"[ {RootCommand.ExecutableName} [ --help ] ]" + Environment.NewLine);
+            output.ToString()
+                  .Should()
+                  .Be($"[ {RootCommand.ExecutableName} [ --help ] ]" + Environment.NewLine);
         }
 
         [Fact]
-        public async Task When_diagram_directive_is_used_the_version_is_not_displayed()
+        public async Task When_diagram_directive_is_used_then_version_is_not_displayed()
         {
             RootCommand rootCommand = new()
             {
                 new DiagramDirective()
             };
 
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            var result = rootCommand.Parse("[diagram] --version", config);
+            var result = rootCommand.Parse("[diagram] --version");
 
-            output.WriteLine(result.Diagram());
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-            await result.InvokeAsync();
-
-            config.Output
-                  .ToString()
+            output.ToString()
                   .Should()
                   .Be($"[ {RootCommand.ExecutableName} [ --version ] ]" + Environment.NewLine);
         }
@@ -110,12 +93,9 @@ namespace System.CommandLine.Tests
                 new DiagramDirective()
             };
 
-            CommandLineConfiguration config = new(command)
-            {
-                Output = new StringWriter(),
-            };
+            var output = new StringWriter();
 
-            var exitCode = await command.Parse("[diagram] -x 123", config).InvokeAsync();
+            var exitCode = await command.Parse("[diagram] -x 123").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             exitCode.Should().Be(0);
         }
@@ -129,12 +109,9 @@ namespace System.CommandLine.Tests
                 new DiagramDirective()
             };
 
-            CommandLineConfiguration config = new(command)
-            {
-                Output = new StringWriter(),
-            };
+            var output = new StringWriter();
 
-            var exitCode = await command.Parse("[diagram] -x not-an-int", config).InvokeAsync();
+            var exitCode = await command.Parse("[diagram] -x not-an-int").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             exitCode.Should().Be(1);
         }
@@ -151,12 +128,10 @@ namespace System.CommandLine.Tests
                 }
             };
 
-            CommandLineConfiguration config = new(command)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            int exitCode = await config.InvokeAsync("[diagram] -x not-an-int");
+            int exitCode = await command.Parse("[diagram] -x not-an-int")
+                                        .InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             exitCode.Should().Be(42);
         }

@@ -1,11 +1,12 @@
 // Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using System.Collections.Generic;
 using System.CommandLine.Help;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
 using Xunit;
 using static System.Environment;
 
@@ -92,26 +93,22 @@ public partial class HelpBuilderTests
                                             ctx.Command.Equals(commandA) 
                                                 ? optionAFirstColumnText
                                                 : optionBFirstColumnText);
-            command.Options.Add(new HelpOption()
+            command.Options.Add(new HelpOption
             {
-                Action = new CustomHelpAction()
+                Action = new CustomHelpAction
                 {
                     Builder = helpBuilder
                 }
             });
 
-            var console = new StringWriter();
-            var config = new CommandLineConfiguration(command)
-            {
-                Output = console
-            };
-            command.Parse("root a -h", config).Invoke();
-            console.ToString().Should().Contain(optionAFirstColumnText);
+            var output = new StringWriter();
+          
+            command.Parse("root a -h").Invoke(new() { Output = output });
+            output.ToString().Should().Contain(optionAFirstColumnText);
 
-            console = new StringWriter();
-            config.Output = console;
-            command.Parse("root b -h", config).Invoke();
-            console.ToString().Should().Contain(optionBFirstColumnText);
+            output = new StringWriter();
+            command.Parse("root b -h").Invoke(new() { Output = output });
+            output.ToString().Should().Contain(optionBFirstColumnText);
         }
 
         [Fact]
@@ -146,17 +143,14 @@ public partial class HelpBuilderTests
                 }
             });
 
-            var config = new CommandLineConfiguration(command)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            config.Invoke("root a -h");
-            config.Output.ToString().Should().Contain($"option          {optionADescription}");
+            command.Parse("root a -h").Invoke(new(){Output=output});
+            output.ToString().Should().Contain($"option          {optionADescription}");
 
-            config.Output = new StringWriter();
-            config.Invoke("root b -h");
-            config.Output.ToString().Should().Contain($"option          {optionBDescription}");
+            output = new StringWriter();
+            command.Parse("root b -h").Invoke(new(){Output=output});
+            output.ToString().Should().Contain($"option          {optionBDescription}");
         }
 
         [Fact]
@@ -275,11 +269,9 @@ public partial class HelpBuilderTests
                 }
             });
 
-            CommandLineConfiguration config = new (command);
-            var console = new StringWriter();
-            config.Output = console;
-            command.Parse("test -h", config).Invoke();
-            console.ToString().Should().MatchRegex(expected);
+            var output = new StringWriter();
+            command.Parse("test -h").Invoke(new() { Output = output });
+            output.ToString().Should().MatchRegex(expected);
         }
 
         [Theory]
@@ -312,9 +304,6 @@ public partial class HelpBuilderTests
                                         secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetArgumentDescription(argument),
                                         defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
 
-
-            CommandLineConfiguration config = new (command);
-
             command.Options.Add(new HelpOption
             {
                 Action = new CustomHelpAction
@@ -323,9 +312,9 @@ public partial class HelpBuilderTests
                 }
             });
 
-            config.Output = new StringWriter();
-            command.Parse("test -h", config).Invoke();
-            config.Output.ToString().Should().MatchRegex(expected);
+            var output = new StringWriter();
+            command.Parse("test -h").Invoke(new() { Output = output });
+            output.ToString().Should().MatchRegex(expected);
         }
 
         [Fact]
@@ -351,17 +340,13 @@ public partial class HelpBuilderTests
                 }
             };
 
-            CommandLineConfiguration config = new(rootCommand)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
 
-            ParseResult parseResult = rootCommand.Parse("-h", config);
+            ParseResult parseResult = rootCommand.Parse("-h");
 
-            parseResult.Invoke();
+            parseResult.Invoke(new() { Output = output });
 
-            config.Output
-                  .ToString()
+            output.ToString()
                   .Should()
                   .ContainAll("The custom command description",
                               "The custom option description",
@@ -374,16 +359,16 @@ public partial class HelpBuilderTests
             CustomHelpAction helpAction = new();
             helpAction.Builder.CustomizeLayout(CustomLayout);
 
-            CommandLineConfiguration config = new(new Command("name") { new HelpOption() {  Action = helpAction} })
+            var command = new Command("name")
             {
-                Output = new StringWriter()
+                new HelpOption { Action = helpAction }
             };
 
-            ParseResult parseResult = config.Parse("-h");
+            var output = new StringWriter();
 
-            parseResult.Invoke();
+            command.Parse("-h").Invoke(new() { Output = output });
 
-            config.Output.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}");
+            output.ToString().Should().Be($"one{NewLine}{NewLine}two{NewLine}{NewLine}three{NewLine}{NewLine}");
 
             IEnumerable<Func<HelpContext, bool>> CustomLayout(HelpContext _)
             {
@@ -399,22 +384,18 @@ public partial class HelpBuilderTests
             CustomHelpAction helpAction = new();
             helpAction.Builder.CustomizeLayout(CustomLayout);
 
-            CommandLineConfiguration config = new(new Command("hello") { new HelpOption() { Action = helpAction } })
+            var command = new Command("hello")
             {
-                Output = new StringWriter(),
+                new HelpOption { Action = helpAction }
             };
 
             var defaultHelp = GetDefaultHelp(new Command("hello"));
 
-            ParseResult parseResult = config.Parse("-h");
+            var output = new StringWriter();
 
-            parseResult.Invoke();
+            command.Parse("-h").Invoke(new() { Output = output });
 
-            var output = config.Output.ToString();
-
-            var expected = $"first{NewLine}{NewLine}{defaultHelp}{NewLine}last{NewLine}{NewLine}";
-
-            output.Should().Be(expected);
+            output.ToString().Should().Be($"first{NewLine}{NewLine}{defaultHelp}{NewLine}last{NewLine}{NewLine}");
 
             IEnumerable<Func<HelpContext, bool>> CustomLayout(HelpContext _)
             {
@@ -446,7 +427,6 @@ public partial class HelpBuilderTests
                 Builder = helpBuilder
             };
 
-            var config = new CommandLineConfiguration(command);
             helpBuilder.CustomizeLayout(c =>
                                             c.Command == commandWithTypicalHelp
                                                 ? HelpBuilder.Default.GetLayout()
@@ -454,12 +434,10 @@ public partial class HelpBuilderTests
                                                     .Concat(HelpBuilder.Default.GetLayout()));
 
             var typicalOutput = new StringWriter();
-            config.Output = typicalOutput;
-            command.Parse("typical -h", config).Invoke();
+            command.Parse("typical -h").Invoke(new() { Output = typicalOutput });
 
             var customOutput = new StringWriter();
-            config.Output = customOutput;
-            command.Parse("custom -h", config).Invoke();
+            command.Parse("custom -h").Invoke(new() { Output = customOutput });
 
             typicalOutput.ToString().Should().Be(GetDefaultHelp(commandWithTypicalHelp, false));
             customOutput.ToString().Should().Be($"Custom layout!{NewLine}{NewLine}{GetDefaultHelp(commandWithCustomHelp, false)}");
@@ -484,15 +462,10 @@ public partial class HelpBuilderTests
                 }
             };
 
-            CommandLineConfiguration config = new(command)
-            {
-                Output = new StringWriter()
-            };
+            var output = new StringWriter();
+            command.Parse("test -h").Invoke(new() { Output = output });
 
-            config.Invoke("test -h");
-
-            string result = config.Output.ToString();
-            result.Should().Be(
+            output.ToString().Should().Be(
                 $"Description:{NewLine}{NewLine}" +
                 $"Usage:{NewLine}  test [options]{NewLine}{NewLine}" +
                 $"Options:{NewLine}" +
@@ -510,16 +483,16 @@ public partial class HelpBuilderTests
             helpAction.Builder = new HelpBuilder(10);
             helpAction.Builder.CustomizeLayout(CustomLayout);
 
-            CommandLineConfiguration config = new(new Command("name") { new HelpOption() { Action = helpAction } })
+            var command = new Command("name")
             {
-                Output = new StringWriter()
+                new HelpOption { Action = helpAction }
             };
 
-            ParseResult parseResult = config.Parse("-h");
+            var output = new StringWriter();
 
-            parseResult.Invoke();
+            command.Parse("-h").Invoke(new() { Output = output });
 
-            string result = config.Output.ToString();
+            string result = output.ToString();
             result.Should().Be($"  123  123{NewLine}  456  456{NewLine}  78   789{NewLine}       0{NewLine}{NewLine}");
 
             IEnumerable<Func<HelpContext, bool>> CustomLayout(HelpContext _)
@@ -544,12 +517,12 @@ public partial class HelpBuilderTests
                 command.Options.Add(defaultHelp);
             }
 
-            CommandLineConfiguration config = new(command)
+            InvocationConfiguration config = new()
             {
                 Output = new StringWriter()
             };
 
-            config.Invoke("-h");
+            command.Parse("-h").Invoke(config);
 
             var output = config.Output.ToString();
 

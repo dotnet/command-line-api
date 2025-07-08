@@ -21,7 +21,7 @@ namespace System.CommandLine.Help
         /// <inheritdoc />
         public override int Invoke(ParseResult parseResult)
         {
-            var output = parseResult.Configuration.Output;
+            var output = parseResult.InvocationConfiguration.Output;
 
             var helpContext = new HelpContext(Builder,
                                               parseResult.CommandResult.Command,
@@ -32,4 +32,4 @@ namespace System.CommandLine.Help
             return 0;
         }
     }
-}
+}                                                                                                                                                                                                         

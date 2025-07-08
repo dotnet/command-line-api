@@ -1,4 +1,7 @@
-﻿using System.CommandLine.Invocation;
+﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.CommandLine.Invocation;
 
 namespace System.CommandLine.Help
 {
@@ -21,7 +24,7 @@ namespace System.CommandLine.Help
         /// <inheritdoc />
         public override int Invoke(ParseResult parseResult)
         {
-            var output = parseResult.Configuration.Output;
+            var output = parseResult.InvocationConfiguration.Output;
 
             var helpContext = new HelpContext(Builder,
                                               parseResult.CommandResult.Command,

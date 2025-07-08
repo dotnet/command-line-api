@@ -18,7 +18,7 @@ public class TokenReplacementTests
 
         string receivedToken = null;
 
-        CommandLineConfiguration config = new (command)
+        ParserConfiguration config = new ()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -41,7 +41,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        CommandLineConfiguration config = new(command)
+        ParserConfiguration config = new()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -65,7 +65,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { option };
 
-        CommandLineConfiguration config = new(command)
+        ParserConfiguration config = new()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -89,7 +89,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { new Command("subcommand") { option } };
 
-        CommandLineConfiguration config = new(command)
+        ParserConfiguration config = new()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -113,7 +113,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        CommandLineConfiguration config = new(command)
+        ParserConfiguration config = new()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -135,7 +135,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        CommandLineConfiguration config = new(command)
+        ParserConfiguration config = new()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -159,7 +159,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        CommandLineConfiguration config = new(command)
+        ParserConfiguration config = new()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -183,7 +183,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        CommandLineConfiguration config = new(command)
+        ParserConfiguration config = new()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {
@@ -207,7 +207,7 @@ public class TokenReplacementTests
 
         var command = new RootCommand { argument };
 
-        CommandLineConfiguration config = new(command)
+        ParserConfiguration config = new()
         {
             ResponseFileTokenReplacer = (string tokenToReplace, out IReadOnlyList<string> tokens, out string message) =>
             {

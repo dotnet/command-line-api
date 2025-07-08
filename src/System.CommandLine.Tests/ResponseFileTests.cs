@@ -287,9 +287,8 @@ namespace System.CommandLine.Tests
                 optionOne,
                 optionTwo
             };
-            CommandLineConfiguration config = new (rootCommand);
 
-            var result = rootCommand.Parse($"@{responseFile}", config);
+            var result = rootCommand.Parse($"@{responseFile}");
 
             result.GetValue(optionOne).Should().Be("first value");
             result.GetValue(optionTwo).Should().Be(123);
@@ -302,7 +301,7 @@ namespace System.CommandLine.Tests
             {
                 new Argument<List<string>>("arg")
             };
-            CommandLineConfiguration configuration = new(command)
+            ParserConfiguration configuration = new()
             {
                 ResponseFileTokenReplacer = null
             };
