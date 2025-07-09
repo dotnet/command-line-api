@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Tests.Utility;

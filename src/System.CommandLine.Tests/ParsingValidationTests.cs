@@ -24,8 +24,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_accepts_only_specific_arguments_but_a_wrong_one_is_supplied_then_an_informative_error_is_returned()
         {
-            var option = new Option<string>("-x");
-            option.AcceptOnlyFromAmong("this", "that", "the-other-thing");
+            var option = new Option<string>("-x").AcceptOnlyFromAmong("this", "that", "the-other-thing");
 
             var result = new RootCommand { option }.Parse("-x none-of-those");
 
@@ -40,8 +39,7 @@ namespace System.CommandLine.Tests
         [Fact]
         public void When_an_option_has_en_error_then_the_error_has_a_reference_to_the_option()
         {
-            var option = new Option<string>("-x");
-            option.AcceptOnlyFromAmong("this", "that");
+            var option = new Option<string>("-x").AcceptOnlyFromAmong("this", "that");
 
             var result = new RootCommand { option }.Parse("-x something_else");
 
@@ -52,10 +50,9 @@ namespace System.CommandLine.Tests
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
-        public void When_FromAmong_is_used_then_the_OptionResult_ErrorMessage_is_set()
+        public void When_AcceptOnlyFromAmong_is_used_then_the_OptionResult_ErrorMessage_is_set()
         {
-            var option = new Option<string>("--opt");
-            option.AcceptOnlyFromAmong("a", "b");
+            var option = new Option<string>("--opt").AcceptOnlyFromAmong("a", "b");
             var command = new Command("test") { option };
 
             var parseResult = command.Parse("test --opt c");
@@ -74,10 +71,9 @@ namespace System.CommandLine.Tests
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1475
-        public void When_FromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
+        public void When_AcceptOnlyFromAmong_is_used_then_the_ArgumentResult_ErrorMessage_is_set()
         {
-            var argument = new Argument<string>("arg");
-            argument.AcceptOnlyFromAmong("a", "b");
+            var argument = new Argument<string>("arg").AcceptOnlyFromAmong("a", "b");
 
             var command = new Command("test") { argument };
 
@@ -96,12 +92,12 @@ namespace System.CommandLine.Tests
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1556
-        public void When_FromAmong_is_used_for_multiple_arguments_and_valid_input_is_provided_then_there_are_no_errors()
+        public void When_AcceptOnlyFromAmong_is_used_for_multiple_arguments_and_valid_input_is_provided_then_there_are_no_errors()
         {
             var command = new Command("set")
             {
-                CreateArgumentWithAcceptOnlyFromAmong(name: "key", "key1", "key2"),
-                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong("key1"),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1")
             };
 
             var result = command.Parse("set key1 value1");
@@ -110,12 +106,12 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_first_one_then_the_error_is_informative()
+        public void When_AcceptOnlyFromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_first_one_then_the_error_is_informative()
         {
             var command = new Command("set")
             {
-                CreateArgumentWithAcceptOnlyFromAmong(name : "key", "key1", "key2"),
-                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong(["key1", "key2"]),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1")
             };
 
             var result = command.Parse("set not-key1 value1");
@@ -126,11 +122,11 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be(LocalizationResources.UnrecognizedArgument("not-key1", new[] { "key1", "key2" }));
+                  .Be(LocalizationResources.UnrecognizedArgument("not-key1", ["key1", "key2"]));
         }
 
         [Fact]
-        public void When_FromAmong_is_used_multiple_times_only_the_most_recently_provided_values_are_taken_into_account()
+        public void When_AcceptOnlyFromAmong_is_used_multiple_times_only_the_most_recently_provided_values_are_taken_into_account()
         {
             Argument<string> argument = new("key");
             argument.AcceptOnlyFromAmong("key1");
@@ -158,12 +154,12 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
-        public void When_FromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_second_one_then_the_error_is_informative()
+        public void When_AcceptOnlyFromAmong_is_used_for_multiple_arguments_and_invalid_input_is_provided_for_the_second_one_then_the_error_is_informative()
         {
             var command = new Command("set")
             {
-                CreateArgumentWithAcceptOnlyFromAmong(name : "key", "key1", "key2"),
-                CreateArgumentWithAcceptOnlyFromAmong(name : "value", "value1", "value2")
+                new Argument<string>("key").AcceptOnlyFromAmong("key1"),
+                new Argument<string>("value").AcceptOnlyFromAmong("value1", "value2")
             };
 
             var result = command.Parse("set key1 not-value1");
@@ -174,14 +170,13 @@ namespace System.CommandLine.Tests
                   .Which
                   .Message
                   .Should()
-                  .Be(LocalizationResources.UnrecognizedArgument("not-value1", new[] { "value1", "value2" }));
+                  .Be(LocalizationResources.UnrecognizedArgument("not-value1", ["value1", "value2"]));
         }
 
         [Fact]
-        public void When_FromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_errors_mention_all_invalid_arguments()
+        public void When_AcceptOnlyFromAmong_is_used_and_multiple_invalid_inputs_are_provided_the_errors_mention_all_invalid_arguments()
         {
-            Option<string[]> option = new("--columns");
-            option.AcceptOnlyFromAmong("author", "language", "tags", "type");
+            var option = new Option<string[]> ("--columns").AcceptOnlyFromAmong("author", "language", "tags", "type");
             option.Arity = new ArgumentArity(1, 4);
             option.AllowMultipleArgumentsPerToken = true;
 
@@ -514,9 +509,9 @@ namespace System.CommandLine.Tests
 
             rootCommand.Options.Add(globalOption);
 
-            rootCommand.SetAction((ctx) => handlerWasCalled = true);
-            childCommand.SetAction((ctx) => handlerWasCalled = true);
-            grandchildCommand.SetAction((ctx) => handlerWasCalled = true);
+            rootCommand.SetAction(_ => handlerWasCalled = true);
+            childCommand.SetAction(_ => handlerWasCalled = true);
+            grandchildCommand.SetAction(_ => handlerWasCalled = true);
 
             var result = await rootCommand.Parse(commandLine).InvokeAsync();
 
@@ -1296,13 +1291,6 @@ namespace System.CommandLine.Tests
                        .Message
                        .Should()
                        .Be("Required argument missing for option: '-o'.");
-        }
-        
-        private Argument<string> CreateArgumentWithAcceptOnlyFromAmong(string name, params string[] values)
-        {
-            Argument<string> argument = new(name);
-            argument.AcceptOnlyFromAmong(values);
-            return argument;
         }
     }
 }
