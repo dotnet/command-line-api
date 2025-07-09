@@ -258,8 +258,8 @@ public partial class HelpBuilderTests
 
             var helpBuilder = new HelpBuilder(LargeMaxWidth);
             helpBuilder.CustomizeSymbol(option,
-                                        firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetOptionUsageLabel(option),
-                                        secondColumnText: ctx => conditionB ? "custom 2nd" : option.Description ?? string.Empty);
+                                        firstColumnText: _ => conditionA ? "custom 1st" : HelpBuilder.Default.GetOptionUsageLabel(option),
+                                        secondColumnText: _ => conditionB ? "custom 2nd" : option.Description ?? string.Empty);
 
             command.Options.Add(new HelpOption
             {
@@ -300,9 +300,9 @@ public partial class HelpBuilderTests
 
             var helpBuilder = new HelpBuilder(LargeMaxWidth);
             helpBuilder.CustomizeSymbol(argument,
-                                        firstColumnText: ctx => conditionA ? "custom 1st" : HelpBuilder.Default.GetArgumentUsageLabel(argument),
-                                        secondColumnText: ctx => conditionB ? "custom 2nd" : HelpBuilder.Default.GetArgumentDescription(argument),
-                                        defaultValue: ctx => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
+                                        firstColumnText: _ => conditionA ? "custom 1st" : HelpBuilder.Default.GetArgumentUsageLabel(argument),
+                                        secondColumnText: _ => conditionB ? "custom 2nd" : HelpBuilder.Default.GetArgumentDescription(argument),
+                                        defaultValue: _ => conditionC ? "custom def" : HelpBuilder.Default.GetArgumentDefaultValue(argument));
 
             command.Options.Add(new HelpOption
             {

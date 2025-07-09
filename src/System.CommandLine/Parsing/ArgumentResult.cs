@@ -29,6 +29,8 @@ namespace System.CommandLine.Parsing
 
         internal bool ArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
 
+        public bool Implicit { get; private set; }
+
         internal ArgumentConversionResult GetArgumentConversionResult() =>
             _conversionResult ??= ValidateAndConvert(useValidators: true);
 
@@ -155,8 +157,15 @@ namespace System.CommandLine.Parsing
             {
                 var defaultValue = Argument.GetDefaultValue(this);
 
+                Implicit = true;
+
                 // default value factory provided by the user might report an error, which sets _conversionResult
-                return _conversionResult ?? ArgumentConversionResult.Success(this, defaultValue);
+                if (_conversionResult is not null)
+                {
+                    return _conversionResult;
+                }
+
+                return ArgumentConversionResult.Success(this, defaultValue);
             }
 
             if (Argument.ConvertArguments is null)
