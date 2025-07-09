@@ -927,6 +927,48 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void When_an_argument_with_a_default_value_is_matched_then_the_option_result_is_implicit()
+        {
+            var argument = new Argument<string>("the-arg")
+            {
+                DefaultValueFactory = _ => "the-default"
+            };
+
+            var command = new Command("command")
+            {
+                argument
+            };
+
+            var result = command.Parse("command the-explicit-value");
+
+            result.GetResult(argument)
+                  .Implicit
+                  .Should()
+                  .BeFalse();
+        }
+
+        [Fact]
+        public void When_an_argument_with_a_default_value_is_not_matched_then_the_option_result_is_implicit()
+        {
+            var argument = new Argument<string>("the-arg")
+            {
+                DefaultValueFactory = _ => "the-default"
+            };
+
+            var command = new Command("command")
+            {
+                argument
+            };
+
+            var result = command.Parse("command");
+
+            result.GetResult(argument)
+                  .Implicit
+                  .Should()
+                  .BeTrue();
+        }
+
+        [Fact]
         public void Command_default_argument_value_does_not_override_parsed_value()
         {
             var argument = new Argument<DirectoryInfo>("the-arg")
