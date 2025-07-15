@@ -37,13 +37,28 @@ namespace System.CommandLine.Tests
         {
             var wasCalled = false;
             var rootCommand = new RootCommand();
-            rootCommand.SetAction((_) => wasCalled = true);
+            rootCommand.SetAction(_ => wasCalled = true);
 
             var output = new StringWriter();
 
             await rootCommand.Parse("--version").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
             wasCalled.Should().BeFalse();
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2628
+        public void When_the_version_option_is_specified_then_there_are_no_parse_errors_due_to_unspecified_subcommand()
+        {
+            Command subcommand = new("subcommand");
+            RootCommand root = new()
+            {
+                subcommand
+            };
+            subcommand.SetAction(_ => 0);
+
+            var parseResult = root.Parse("--version");
+
+            parseResult.Errors.Should().BeEmpty();
         }
 
         [Fact]
