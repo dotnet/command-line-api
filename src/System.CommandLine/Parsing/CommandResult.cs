@@ -43,17 +43,10 @@ namespace System.CommandLine.Parsing
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
             => argumentResult.Argument.HasDefaultValue && argumentResult.Tokens.Count == 0;
 
-        /// <param name="completeValidation">Only the inner most command goes through complete validation.</param>
-        internal void Validate(bool completeValidation)
+        internal void Validate(bool isInnermostCommand)
         {
-            if (completeValidation)
+            if (isInnermostCommand)
             {
-                if (Command.Action is null && Command.HasSubcommands)
-                {
-                    SymbolResultTree.InsertFirstError(
-                        new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));
-                }
-
                 if (Command.HasValidators)
                 {
                     int errorCountBefore = SymbolResultTree.ErrorCount;
@@ -71,12 +64,12 @@ namespace System.CommandLine.Parsing
 
             if (Command.HasOptions)
             {
-                ValidateOptionsAndAddDefaultResults(completeValidation);
+                ValidateOptionsAndAddDefaultResults(isInnermostCommand);
             }
 
             if (Command.HasArguments)
             {
-                ValidateArgumentsAndAddDefaultResults(completeValidation);
+                ValidateArgumentsAndAddDefaultResults(isInnermostCommand);
             }
         }
 

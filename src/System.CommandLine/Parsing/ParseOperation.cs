@@ -63,6 +63,7 @@ namespace System.CommandLine.Parsing
 
             ValidateAndAddDefaultResults();
 
+
             if (_isHelpRequested)
             {
                 _symbolResultTree.Errors?.Clear();
@@ -373,16 +374,23 @@ namespace System.CommandLine.Parsing
 
         private void ValidateAndAddDefaultResults()
         {
-            // Only the inner most command goes through complete validation,
+            // Only the innermost command goes through complete validation,
             // for other commands only a subset of options is checked.
-            _innermostCommandResult.Validate(completeValidation: true);
+            _innermostCommandResult.Validate(isInnermostCommand: true);
 
             CommandResult? currentResult = _innermostCommandResult.Parent as CommandResult;
             while (currentResult is not null)
             {
-                currentResult.Validate(completeValidation: false);
+                currentResult.Validate(isInnermostCommand: false);
 
                 currentResult = currentResult.Parent as CommandResult;
+            }
+
+            if (_primaryAction is null &&
+                _innermostCommandResult is { Command: { Action: null, HasSubcommands: true } })
+            {
+                _symbolResultTree.InsertFirstError(
+                    new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), _innermostCommandResult));
             }
         }
     }
