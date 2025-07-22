@@ -178,6 +178,7 @@ System.CommandLine.Completions
 System.CommandLine.Help
   public class HelpAction : System.CommandLine.Invocation.SynchronousCommandLineAction
     .ctor()
+    public System.Int32 MaxWidth { get; set; }
     public System.Int32 Invoke(System.CommandLine.ParseResult parseResult)
   public class HelpOption : System.CommandLine.Option
     .ctor()
