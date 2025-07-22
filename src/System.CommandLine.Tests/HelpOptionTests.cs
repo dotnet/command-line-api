@@ -230,6 +230,31 @@ public class HelpOptionTests
         output.ToString().Should().NotContain(RootDescription);
     }
 
+    [Fact]
+    public void The_users_can_set_max_width()
+    {
+        string firstPart = new('a', count: 50);
+        string secondPart = new('b', count: 50);
+        string description = firstPart + secondPart;
+
+        RootCommand rootCommand = new(description);
+        rootCommand.Options.Clear();
+        rootCommand.Options.Add(new HelpOption()
+        {
+            Action = new HelpAction()
+            {
+                MaxWidth = 2 /* each line starts with two spaces */ + description.Length / 2
+            }
+        });
+        StringWriter output = new ();
+
+        rootCommand.Parse("--help").Invoke(new() { Output = output });
+
+        output.ToString().Should().NotContain(description);
+        output.ToString().Should().Contain($"  {firstPart}{Environment.NewLine}");
+        output.ToString().Should().Contain($"  {secondPart}{Environment.NewLine}");
+    }
+
     private sealed class CustomizedHelpAction : SynchronousCommandLineAction
     {
         internal const string CustomUsageText = "This is custom command usage example.";
