@@ -2,6 +2,9 @@
   <!-- Repo Version Information -->
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>beta7</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>rc</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
+    <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
+    <DotNetFinalVersionKind></DotNetFinalVersionKind>
   </PropertyGroup>
 </Project>
