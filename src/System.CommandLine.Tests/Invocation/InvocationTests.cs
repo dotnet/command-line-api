@@ -161,6 +161,16 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
+        public async Task Anonymous_RootCommand_Task_int_returning_Action_can_set_custom_result_code_via_InvokeAsync()
+        {
+            var rootCommand = new RootCommand();
+
+            rootCommand.SetAction(_ => Task.FromResult(123));
+
+            (await rootCommand.Parse("").InvokeAsync()).Should().Be(123);
+        }
+
+        [Fact]
         public void Anonymous_RootCommand_int_returning_Action_can_set_custom_result_code_via_Invoke()
         {
             var rootCommand = new RootCommand();
