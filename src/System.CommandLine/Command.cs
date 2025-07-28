@@ -166,10 +166,33 @@ namespace System.CommandLine
                 throw new ArgumentNullException(nameof(action));
             }
 
-            Action = new AnonymousAsynchronousCommandLineAction(async (context, cancellationToken) =>
+            Action = new AnonymousAsynchronousCommandLineAction(async (context, _) =>
             {
                 await action(context);
                 return 0;
+            });
+        }
+
+        /// <summary>
+        /// Sets an asynchronous action to be run when the command is invoked.
+        /// </summary>
+        /// <remarks>
+        /// When possible, prefer using the <see cref="SetAction(Func{ParseResult, CancellationToken, Task{int}})"/> overload
+        /// and passing the <see cref="CancellationToken"/> parameter to the async method(s) called by the action.
+        /// </remarks>
+        // Hide from intellisense, it's public to avoid the compiler choosing a sync overload
+        // for an async action (and fire and forget issue described in https://github.com/dotnet/command-line-api/issues/2562).
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SetAction(Func<ParseResult, Task<int>> action)
+        {
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            Action = new AnonymousAsynchronousCommandLineAction(async (context, _) =>
+            {
+                return await action(context);
             });
         }
 
