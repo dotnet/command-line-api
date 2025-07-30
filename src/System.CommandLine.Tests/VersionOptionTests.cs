@@ -61,6 +61,24 @@ namespace System.CommandLine.Tests
             parseResult.Errors.Should().BeEmpty();
         }
 
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2591
+        public void When_the_version_option_is_specified_then_there_are_no_parse_errors_due_to_missing_required_option()
+        {
+            Option<int> option = new("-x")
+            {
+                Required = true
+            };
+            RootCommand root = new()
+            {
+                option
+            };
+            root.SetAction(_ => 0);
+
+            var parseResult = root.Parse("--version");
+
+            parseResult.Errors.Should().BeEmpty();
+        }
+
         [Fact]
         public async Task Version_option_appears_in_help()
         {
