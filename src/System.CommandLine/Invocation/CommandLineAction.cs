@@ -16,4 +16,6 @@ public abstract class CommandLineAction
     /// Indicates that the action terminates a command line invocation, and later actions are skipped.
     /// </summary>
     public bool Terminating { get; protected init; } = true;
+
+    internal virtual bool IgnoresParseErrors => false;
 }
