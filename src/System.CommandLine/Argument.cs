@@ -112,7 +112,11 @@ namespace System.CommandLine
         /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
         public object? GetDefaultValue()
         {
-            return GetDefaultValue(new ArgumentResult(this, null!, null));
+            var command = Parents.FlattenBreadthFirst(x => x.Parents)
+                                 .OfType<Command>()
+                                 .FirstOrDefault();
+
+            return GetDefaultValue(new ArgumentResult(this, new SymbolResultTree(command), null));
         }
 
         internal abstract object? GetDefaultValue(ArgumentResult argumentResult);
