@@ -1686,5 +1686,45 @@ namespace System.CommandLine.Tests
 
             result.GetValue(option).Should().BeEmpty();
         }
+        
+        [Fact]
+        public void Parsed_result_is_provided_should_be_true_for_provided_tokens()
+        {
+            const string optionName = "--test-option";
+
+            var option = new Option<string>(optionName);
+
+            var rootCommand = new RootCommand
+            {
+                option
+            };
+
+            var result = rootCommand.Parse([optionName, "test-value", optionName, "test-value-2"]);
+
+            var parseResult = result.GetResult(option);
+
+            parseResult.Should().NotBeNull();
+            parseResult!.IsProvided.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Parsed_result_is_provided_should_be_false_for_not_provided_tokens()
+        {
+            const string optionName = "--test-option";
+
+            var option = new Option<string>(optionName);
+
+            var rootCommand = new RootCommand
+            {
+                option
+            };
+
+            var result = rootCommand.Parse([optionName]);
+
+            var parseResult = result.GetResult(option);
+
+            parseResult.Should().NotBeNull();
+            parseResult!.IsProvided.Should().BeFalse();
+        }
     }
 }

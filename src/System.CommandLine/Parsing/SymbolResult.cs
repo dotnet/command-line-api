@@ -53,6 +53,8 @@ namespace System.CommandLine.Parsing
         /// The list of tokens associated with this symbol result during parsing.
         /// </summary>
         public IReadOnlyList<Token> Tokens => _tokens is not null ? _tokens : Array.Empty<Token>();
+        
+        public bool IsProvided => _tokens is not null && _tokens.Count > 0;
 
         internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
 
