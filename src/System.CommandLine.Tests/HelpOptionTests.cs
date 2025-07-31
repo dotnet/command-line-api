@@ -6,7 +6,6 @@ using System.CommandLine.Help;
 using System.CommandLine.Invocation;
 using System.CommandLine.Tests.Utility;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -273,13 +272,10 @@ public class HelpOptionTests
                 {
                     result.AddError("Oops!");
                     return null;
-                    
                 }
             }
         };
-        subcommand.SetAction(_ =>
-        {
-        });
+        subcommand.SetAction(_ => { });
         RootCommand rootCommand = new()
         {
             subcommand
