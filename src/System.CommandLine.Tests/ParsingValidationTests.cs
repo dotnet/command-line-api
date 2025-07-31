@@ -1269,7 +1269,7 @@ namespace System.CommandLine.Tests
         }
 
         [Fact] // https://github.com/dotnet/command-line-api/issues/1609
-        internal void When_there_is_an_arity_error_then_further_errors_are_not_reported()
+        public void When_there_is_an_arity_error_then_further_errors_are_not_reported()
         {
             var option = new Option<string>("-o");
             option.Validators.Add(result =>
