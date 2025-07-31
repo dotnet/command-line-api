@@ -15,7 +15,7 @@ namespace System.CommandLine.Parsing
 
         private protected SymbolResult(SymbolResultTree symbolResultTree, SymbolResult? parent)
         {
-            SymbolResultTree = symbolResultTree;
+            SymbolResultTree = symbolResultTree ?? throw new ArgumentNullException(nameof(symbolResultTree));
             Parent = parent;
         }
 
