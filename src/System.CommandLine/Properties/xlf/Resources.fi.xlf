@@ -19,12 +19,12 @@
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</source>
-        <target state="translated">Valinnan '{1}' argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{2}'.</target>
+        <target state="translated">Valitsimen '{1}' argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{2}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption_Completions">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
-        <target state="translated">Valinnan '{1}' argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{2}'. Tarkoititko jotakin seuraavista?{3}</target>
+        <target state="translated">Valitsimen '{1}' argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{2}'. Tarkoititko jotakin seuraavista?{3}</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
@@ -99,7 +99,7 @@
       </trans-unit>
       <trans-unit id="HelpOptionsTitle">
         <source>Options:</source>
-        <target state="translated">Valinnat:</target>
+        <target state="translated">Valitsimet:</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageAdditionalArguments">
@@ -114,7 +114,7 @@
       </trans-unit>
       <trans-unit id="HelpUsageOptions">
         <source>[options]</source>
-        <target state="translated">[valinnat]</target>
+        <target state="translated">[valitsimet]</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpUsageTitle">
@@ -134,12 +134,12 @@
       </trans-unit>
       <trans-unit id="OptionExpectsOneArgument">
         <source>Option '{0}' expects a single argument but {1} were provided.</source>
-        <target state="translated">Valinta '{0}' odottaa yhtä argumenttia, mutta {1} annettiin.</target>
+        <target state="translated">Valitsin '{0}' odottaa yhtä argumenttia, mutta {1} annettiin.</target>
         <note />
       </trans-unit>
       <trans-unit id="OptionRequiredArgumentMissing">
         <source>Required argument missing for option: '{0}'.</source>
-        <target state="translated">Pakollinen argumentti puuttuu valinnalta: '{0}'.</target>
+        <target state="translated">Pakollinen argumentti puuttuu valitsimelta: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="RequiredCommandWasNotProvided">
@@ -149,7 +149,7 @@
       </trans-unit>
       <trans-unit id="RequiredOptionWasNotProvided">
         <source>Option '{0}' is required.</source>
-        <target state="translated">Valinta '{0}' on pakollinen.</target>
+        <target state="translated">Valitsin '{0}' on pakollinen.</target>
         <note />
       </trans-unit>
       <trans-unit id="ResponseFileNotFound">
@@ -174,7 +174,7 @@
       </trans-unit>
       <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">
         <source>{0} option cannot be combined with other arguments.</source>
-        <target state="translated">{0} valintaa ei voi yhdistää muihin argumentteihin.</target>
+        <target state="translated">Valitsinta {0} ei voi yhdistää muihin argumentteihin.</target>
         <note />
       </trans-unit>
       <trans-unit id="VersionOptionDescription">
