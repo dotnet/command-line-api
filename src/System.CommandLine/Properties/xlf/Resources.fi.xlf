@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="fi" original="../Resources.resx">
+    <body>
+      <trans-unit id="ArgumentConversionCannotParse">
+        <source>Cannot parse argument '{0}' as expected type '{1}'.</source>
+        <target state="translated">Argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{1}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForCommand">
+        <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</source>
+        <target state="translated">Komennon '{1}' argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{2}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForCommand_Completions">
+        <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
+        <target state="translated">Komennon '{1}' argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{2}'. Tarkoititko jotakin seuraavista?{3}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForOption">
+        <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</source>
+        <target state="translated">Valitsimen '{1}' argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{2}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForOption_Completions">
+        <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
+        <target state="translated">Valitsimen '{1}' argumenttia '{0}' ei voi jäsentää odotetuksi tyypiksi '{2}'. Tarkoititko jotakin seuraavista?{3}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="CommandRequiredArgumentMissing">
+        <source>Required argument missing for command: '{0}'.</source>
+        <target state="translated">Pakollinen argumentti puuttuu komennolta: '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="DirectoryDoesNotExist">
+        <source>Directory does not exist: '{0}'.</source>
+        <target state="translated">Hakemistoa ei ole olemassa: '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ErrorReadingResponseFile">
+        <source>Error reading response file '{0}': {1}</source>
+        <target state="translated">Virhe lukiessa vastaustiedostoa '{0}': {1}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ExceptionHandlerHeader">
+        <source>Unhandled exception: </source>
+        <target state="translated">Käsittelemätön poikkeus: </target>
+        <note />
+      </trans-unit>
+      <trans-unit id="FileDoesNotExist">
+        <source>File does not exist: '{0}'.</source>
+        <target state="translated">Tiedostoa ei ole olemassa: '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="FileOrDirectoryDoesNotExist">
+        <source>File or directory does not exist: '{0}'.</source>
+        <target state="translated">Tiedostoa tai hakemistoa ei ole olemassa: '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpAdditionalArgumentsDescription">
+        <source>Arguments passed to the application that is being run.</source>
+        <target state="translated">Argumentit, jotka välitetään suoritettavalle sovellukselle.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpAdditionalArgumentsTitle">
+        <source>Additional Arguments:</source>
+        <target state="translated">Lisäargumentit:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpArgumentDefaultValueLabel">
+        <source>default</source>
+        <target state="translated">oletus</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpArgumentsTitle">
+        <source>Arguments:</source>
+        <target state="translated">Argumentit:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpCommandsTitle">
+        <source>Commands:</source>
+        <target state="translated">Komennot:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpDescriptionTitle">
+        <source>Description:</source>
+        <target state="translated">Kuvaus:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpOptionDescription">
+        <source>Show help and usage information</source>
+        <target state="translated">Näytä ohje- ja käyttötiedot</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpOptionsRequiredLabel">
+        <source>(REQUIRED)</source>
+        <target state="translated">(PAKOLLINEN)</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpOptionsTitle">
+        <source>Options:</source>
+        <target state="translated">Valitsimet:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageAdditionalArguments">
+        <source>[[--] &lt;additional arguments&gt;...]]</source>
+        <target state="translated">[[--] &lt;lisäargumentit&gt;...]]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageCommand">
+        <source>[command]</source>
+        <target state="translated">[komento]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageOptions">
+        <source>[options]</source>
+        <target state="translated">[valitsimet]</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="HelpUsageTitle">
+        <source>Usage:</source>
+        <target state="translated">Käyttö:</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="InvalidCharactersInFileName">
+        <source>Character not allowed in a file name: '{0}'.</source>
+        <target state="translated">Merkki ei ole sallittu tiedostonimessä: '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="InvalidCharactersInPath">
+        <source>Character not allowed in a path: '{0}'.</source>
+        <target state="translated">Merkki ei ole sallittu polussa: '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="OptionExpectsOneArgument">
+        <source>Option '{0}' expects a single argument but {1} were provided.</source>
+        <target state="translated">Valitsin '{0}' odottaa yhtä argumenttia, mutta {1} annettiin.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="OptionRequiredArgumentMissing">
+        <source>Required argument missing for option: '{0}'.</source>
+        <target state="translated">Pakollinen argumentti puuttuu valitsimelta: '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="RequiredCommandWasNotProvided">
+        <source>Required command was not provided.</source>
+        <target state="translated">Pakollista komentoa ei annettu.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="RequiredOptionWasNotProvided">
+        <source>Option '{0}' is required.</source>
+        <target state="translated">Valitsin '{0}' on pakollinen.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ResponseFileNotFound">
+        <source>Response file not found '{0}'.</source>
+        <target state="translated">Vastaustiedostoa ei löytynyt '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="SuggestionsTokenNotMatched">
+        <source>'{0}' was not matched. Did you mean one of the following?</source>
+        <target state="translated">'{0}' ei täsmännyt. Tarkoititko jotakin seuraavista?</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UnrecognizedArgument">
+        <source>Argument '{0}' not recognized. Must be one of:{1}</source>
+        <target state="translated">Argumenttia '{0}' ei tunnistettu. Sen täytyy olla jokin seuraavista:{1}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UnrecognizedCommandOrArgument">
+        <source>Unrecognized command or argument '{0}'.</source>
+        <target state="translated">Tunnistamaton komento tai argumentti '{0}'.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">
+        <source>{0} option cannot be combined with other arguments.</source>
+        <target state="translated">Valitsinta {0} ei voi yhdistää muihin argumentteihin.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="VersionOptionDescription">
+        <source>Show version information</source>
+        <target state="translated">Näytä versiotiedot</target>
+        <note />
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
