@@ -7,14 +7,14 @@ namespace System.CommandLine.Parsing
 {
     internal sealed class SymbolResultTree : Dictionary<Symbol, SymbolResult>
     {
-        private readonly Command _rootCommand;
+        private readonly Command? _rootCommand;
         internal List<ParseError>? Errors;
         internal List<Token>? UnmatchedTokens;
         private Dictionary<string, SymbolNode>? _symbolsByName;
 
         internal SymbolResultTree(
-            Command rootCommand, 
-            List<string>? tokenizeErrors)
+            Command? rootCommand = null, 
+            List<string>? tokenizeErrors = null)
         {
             _rootCommand = rootCommand;
 
@@ -78,13 +78,13 @@ namespace System.CommandLine.Parsing
 
         public SymbolResult? GetResult(string name)
         {
-            if (_symbolsByName is null)
+            if (_symbolsByName is null && _rootCommand is not null)
             {
                 _symbolsByName = new();  
                 PopulateSymbolsByName(_rootCommand);
             }
           
-            if (!_symbolsByName.TryGetValue(name, out SymbolNode? node))
+            if (!_symbolsByName!.TryGetValue(name, out SymbolNode? node))
             {
                 throw new ArgumentException($"No symbol result found with name \"{name}\".");
             }

@@ -255,6 +255,38 @@ public class HelpOptionTests
         output.ToString().Should().Contain($"  {secondPart}{Environment.NewLine}");
     }
 
+    [Fact] // https://github.com/dotnet/command-line-api/issues/2640
+    public void DefaultValueFactory_does_not_throw_when_help_is_invoked()
+    {
+        var invocationConfiguration = new InvocationConfiguration
+        {
+            Output = new StringWriter(),
+            Error = new StringWriter()
+        };
+
+        Command subcommand = new("do")
+        {
+            new Option<DirectoryInfo>("-x")
+            {
+                DefaultValueFactory = result =>
+                {
+                    result.AddError("Oops!");
+                    return null;
+                }
+            }
+        };
+        subcommand.SetAction(_ => { });
+        RootCommand rootCommand = new()
+        {
+            subcommand
+        };
+
+        rootCommand.Parse("do --help").Invoke(invocationConfiguration);
+
+        invocationConfiguration.Error.ToString().Should().Be("");
+    }
+
+
     private sealed class CustomizedHelpAction : SynchronousCommandLineAction
     {
         internal const string CustomUsageText = "This is custom command usage example.";
