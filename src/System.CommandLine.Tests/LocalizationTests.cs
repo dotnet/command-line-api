@@ -2,7 +2,7 @@
 using System.Linq;
 using Xunit;
 
-namespace System.CommandLine.ApiCompatibility.Tests
+namespace System.CommandLine.Tests
 {
     public class LocalizationTests
     {
