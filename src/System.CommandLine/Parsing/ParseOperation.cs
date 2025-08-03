@@ -374,7 +374,17 @@ namespace System.CommandLine.Parsing
                         new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), _innermostCommandResult));
                 }
 
-                if (_symbolResultTree.ErrorCount > 0)
+                if (_innermostCommandResult is { Command.Action.ClearsParseErrors: true } &&
+                    _symbolResultTree.Errors is not null)
+                {
+                    var errorsNotUnderInnermostCommand = _symbolResultTree
+                                                         .Errors
+                                                         .Where(e => e.SymbolResult != _innermostCommandResult)
+                                                         .ToList();
+
+                    _symbolResultTree.Errors = errorsNotUnderInnermostCommand;
+                }
+                else if (_symbolResultTree.ErrorCount > 0)
                 {
                     _primaryAction = new ParseErrorAction();
                 }
@@ -382,7 +392,7 @@ namespace System.CommandLine.Parsing
             else
             {
                 if (_symbolResultTree.ErrorCount > 0 &&
-                    _primaryAction.ClearsParseErrors && 
+                    _primaryAction.ClearsParseErrors &&
                     _symbolResultTree.Errors is not null)
                 {
                     foreach (var kvp in _symbolResultTree)
