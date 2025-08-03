@@ -68,7 +68,7 @@ namespace System.CommandLine
                 return 0;
             }
 
-            internal override bool IgnoresParseErrors => true;
+            public override bool ClearsParseErrors => true;
         }
     }
 }

@@ -17,5 +17,5 @@ public abstract class CommandLineAction
     /// </summary>
     public bool Terminating { get; protected init; } = true;
 
-    internal virtual bool IgnoresParseErrors => false;
+    public virtual bool ClearsParseErrors => false;
 }

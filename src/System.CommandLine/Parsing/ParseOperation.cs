@@ -382,7 +382,7 @@ namespace System.CommandLine.Parsing
             else
             {
                 if (_symbolResultTree.ErrorCount > 0 &&
-                    _primaryAction.IgnoresParseErrors && 
+                    _primaryAction.ClearsParseErrors && 
                     _symbolResultTree.Errors is not null)
                 {
                     foreach (var kvp in _symbolResultTree)
