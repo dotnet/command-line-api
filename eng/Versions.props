@@ -5,6 +5,7 @@
     <PreReleaseVersionLabel>rc</PreReleaseVersionLabel>
     <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
-    <DotNetFinalVersionKind></DotNetFinalVersionKind>
+    <DotNetFinalVersionKind>
+    </DotNetFinalVersionKind>
   </PropertyGroup>
 </Project>
