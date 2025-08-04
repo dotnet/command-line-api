@@ -148,4 +148,28 @@ public class ParseErrorReportingTests
 
         result.Errors.Should().NotBeEmpty();
     }
+
+    [Fact]
+    public void Pre_actions_cannot_clear_parse_errors()
+    {
+        var rootCommand = new RootCommand
+        {
+            Directives =
+            {
+                new Directive("pre")
+                {
+                    Action = new SynchronousTestAction(
+                        _ => { },
+                        false,
+                        true)
+                }
+            },
+        };
+
+        rootCommand.SetAction(_ => { });
+
+        var result = rootCommand.Parse("[pre] --not valid");
+
+        result.Errors.Should().NotBeEmpty();
+    }
 }
