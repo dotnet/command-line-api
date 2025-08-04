@@ -1,5 +1,5 @@
 <Project>
-  <Import Project="Version.Details.props" />
+  <Import Project="Version.Details.props" Condition="Exists('Version.Details.props')" />
 
   <!-- Repo Version Information -->
   <PropertyGroup>
