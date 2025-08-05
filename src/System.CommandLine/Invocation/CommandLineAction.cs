@@ -16,4 +16,10 @@ public abstract class CommandLineAction
     /// Indicates that the action terminates a command line invocation, and later actions are skipped.
     /// </summary>
     public bool Terminating { get; protected init; } = true;
+
+    /// <summary>
+    /// Indicates that the action clears any parse errors associated with symbols other than one that owns the <see cref="CommandLineAction"/>.
+    /// </summary>
+    /// <remarks>This property is ignored when <see cref="Terminating"/> is set to <see langword="false"/>.</remarks>
+    public virtual bool ClearsParseErrors => false;
 }

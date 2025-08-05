@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
-using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.Linq;
 
 namespace System.CommandLine.Parsing
 {
@@ -17,7 +17,6 @@ namespace System.CommandLine.Parsing
 
         private int _index;
         private CommandResult _innermostCommandResult;
-        private bool _isHelpRequested;
         private bool _isTerminatingDirectiveSpecified;
         private CommandLineAction? _primaryAction;
         private List<CommandLineAction>? _preActions;
@@ -63,21 +62,7 @@ namespace System.CommandLine.Parsing
 
             ValidateAndAddDefaultResults();
 
-
-            if (_isHelpRequested)
-            {
-                _symbolResultTree.Errors?.Clear();
-            }
-
-            if (_primaryAction is null)
-            {
-                if (_symbolResultTree.ErrorCount > 0)
-                {
-                    _primaryAction = new ParseErrorAction();
-                }
-            }
-
-            return new (
+            return new(
                 _configuration,
                 _rootCommandResult,
                 _innermostCommandResult,
@@ -197,11 +182,6 @@ namespace System.CommandLine.Parsing
                     // directives have a precedence over --help and --version
                     if (!_isTerminatingDirectiveSpecified)
                     {
-                        if (option is HelpOption)
-                        {
-                            _isHelpRequested = true;
-                        }
-
                         if (option.Action.Terminating)
                         {
                             _primaryAction = option.Action;
@@ -386,11 +366,74 @@ namespace System.CommandLine.Parsing
                 currentResult = currentResult.Parent as CommandResult;
             }
 
-            if (_primaryAction is null &&
-                _innermostCommandResult is { Command: { Action: null, HasSubcommands: true } })
+            if (_primaryAction is null)
             {
-                _symbolResultTree.InsertFirstError(
-                    new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), _innermostCommandResult));
+                if (_innermostCommandResult is { Command: { Action: null, HasSubcommands: true } })
+                {
+                    _symbolResultTree.InsertFirstError(
+                        new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), _innermostCommandResult));
+                }
+
+                if (_innermostCommandResult is { Command.Action.ClearsParseErrors: true } &&
+                    _symbolResultTree.Errors is not null)
+                {
+                    var errorsNotUnderInnermostCommand = _symbolResultTree
+                                                         .Errors
+                                                         .Where(e => e.SymbolResult != _innermostCommandResult)
+                                                         .ToList();
+
+                    _symbolResultTree.Errors = errorsNotUnderInnermostCommand;
+                }
+                else if (_symbolResultTree.ErrorCount > 0)
+                {
+                    _primaryAction = new ParseErrorAction();
+                }
+            }
+            else
+            {
+                if (_symbolResultTree.ErrorCount > 0 &&
+                    _primaryAction.ClearsParseErrors &&
+                    _symbolResultTree.Errors is not null)
+                {
+                    foreach (var kvp in _symbolResultTree)
+                    {
+                        var symbol = kvp.Key;
+                        if (symbol is Option { Action: { } optionAction } option)
+                        {
+                            if (_primaryAction == optionAction)
+                            {
+                                var errorsForPrimarySymbol = _symbolResultTree
+                                                             .Errors
+                                                             .Where(e => e.SymbolResult is OptionResult r && r.Option == option)
+                                                             .ToList();
+
+                                _symbolResultTree.Errors = errorsForPrimarySymbol;
+
+                                return;
+                            }
+                        }
+
+                        if (symbol is Command { Action: { } commandAction } command)
+                        {
+                            if (_primaryAction == commandAction)
+                            {
+                                var errorsForPrimarySymbol = _symbolResultTree
+                                                             .Errors
+                                                             .Where(e => e.SymbolResult is CommandResult r && r.Command == command)
+                                                             .ToList();
+
+                                _symbolResultTree.Errors = errorsForPrimarySymbol;
+
+                                return;
+                            }
+                        }
+                    }
+
+                    if (_symbolResultTree.ErrorCount > 0)
+                    {
+                        _symbolResultTree.Errors?.Clear();
+                    }
+                }
             }
         }
     }

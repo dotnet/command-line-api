@@ -65,5 +65,7 @@ namespace System.CommandLine.Help
 
             return 0;
         }
+
+        public override bool ClearsParseErrors => true;
     }
 }

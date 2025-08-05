@@ -39,4 +39,6 @@ internal sealed class CompletionAction : SynchronousCommandLineAction
 
         return 0;
     }
+
+    public override bool ClearsParseErrors => true;
 }

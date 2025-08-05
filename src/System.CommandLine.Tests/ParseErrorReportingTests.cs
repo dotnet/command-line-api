@@ -15,7 +15,7 @@ namespace System.CommandLine.Tests;
 public class ParseErrorReportingTests
 {
     [Fact] // https://github.com/dotnet/command-line-api/issues/817
-    public void Parse_error_reporting_reports_error_when_help_is_used_and_required_subcommand_is_missing()
+    public void Help_is_shown_when_required_subcommand_is_missing()
     {
         var root = new RootCommand
         {
@@ -111,5 +111,65 @@ public class ParseErrorReportingTests
         rootCommand.Parse("oops").Invoke(new() { Output = output } );
 
         output.ToString().Should().NotShowHelp();
+    }
+
+    [Fact]
+    public void Custom_action_can_ignore_parse_errors_on_child_commands()
+    {
+        Command subcommand = new Command("subcommand");
+        subcommand.Action = new SynchronousTestAction(
+            _ => { },
+            true,
+            true);
+        var rootCommand = new RootCommand
+        {
+            Subcommands = { subcommand }
+        };
+
+        var result = rootCommand.Parse("subcommand --nonexistent option and other things");
+
+        result.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Custom_action_cannot_ignore_parse_errors_on_parent_commands()
+    {
+        Command subcommand = new Command("subcommand");
+        subcommand.Action = new SynchronousTestAction(
+            _ => { },
+            true,
+            true);
+        var rootCommand = new RootCommand
+        {
+            Subcommands = { subcommand }
+        };
+
+        var result = rootCommand.Parse("--what nope subcommand");
+
+        result.Errors.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void Pre_actions_cannot_clear_parse_errors()
+    {
+        var rootCommand = new RootCommand
+        {
+            Directives =
+            {
+                new Directive("pre")
+                {
+                    Action = new SynchronousTestAction(
+                        _ => { },
+                        false,
+                        true)
+                }
+            },
+        };
+
+        rootCommand.SetAction(_ => { });
+
+        var result = rootCommand.Parse("[pre] --not valid");
+
+        result.Errors.Should().NotBeEmpty();
     }
 }

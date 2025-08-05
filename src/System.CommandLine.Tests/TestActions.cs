@@ -11,11 +11,17 @@ public class SynchronousTestAction : SynchronousCommandLineAction
 {
     private readonly Action<ParseResult> _invoke;
 
-    public SynchronousTestAction(Action<ParseResult> invoke, bool terminating = true)
+    public SynchronousTestAction(
+        Action<ParseResult> invoke,
+        bool terminating = true,
+        bool clearsParseErrors = false)
     {
+        ClearsParseErrors = clearsParseErrors;
         _invoke = invoke;
         Terminating = terminating;
     }
+
+    public override bool ClearsParseErrors { get; }
 
     public override int Invoke(ParseResult parseResult)
     {
@@ -28,11 +34,17 @@ public class AsynchronousTestAction : AsynchronousCommandLineAction
 {
     private readonly Action<ParseResult> _invoke;
 
-    public AsynchronousTestAction(Action<ParseResult> invoke, bool terminating = true)
+    public AsynchronousTestAction(
+        Action<ParseResult> invoke,
+        bool terminating = true,
+        bool clearsParseErrors = false)
     {
+        ClearsParseErrors = clearsParseErrors;
         _invoke = invoke;
         Terminating = terminating;
     }
+
+    public override bool ClearsParseErrors { get; }
 
     public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
     {
