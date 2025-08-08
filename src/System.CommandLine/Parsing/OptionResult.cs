@@ -64,6 +64,16 @@ namespace System.CommandLine.Parsing
         internal ArgumentConversionResult ArgumentConversionResult
             => _argumentConversionResult ??= GetResult(Option.Argument)!.GetArgumentConversionResult();
 
-        internal override bool UseDefaultValueFor(ArgumentResult argument) => Implicit;
+        internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
+        {
+            if (Implicit)
+            {
+                return true;
+            }
+
+            return Tokens.Count is 0 &&
+                   Option.Arity is { MinimumNumberOfValues: 0, MaximumNumberOfValues: > 0 } &&
+                   !argumentResult.Argument.IsBoolean();
+        }
     }
 }

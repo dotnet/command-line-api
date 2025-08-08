@@ -153,7 +153,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            if (Parent!.UseDefaultValueFor(this))
+            if (Argument.HasDefaultValue && Parent!.UseDefaultValueFor(this))
             {
                 var defaultValue = Argument.GetDefaultValue(this);
 
