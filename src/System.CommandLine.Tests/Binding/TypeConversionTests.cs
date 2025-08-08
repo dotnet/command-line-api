@@ -28,13 +28,30 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Option_argument_of_DirectoryInfo_can_be_bound_without_custom_conversion_logic()
+        {
+            var option = new Option<DirectoryInfo>("--dir");
+
+            var dir = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "temp"));
+
+            var result = new RootCommand { option }.Parse($"--dir {dir.FullName}");
+
+            result.GetValue(option)
+                  .FullName
+                  .Should()
+                  .Be(dir.FullName);
+        }
+
+        [Fact]
         public void Option_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
         {
             var option = new Option<FileInfo>("--file");
 
             var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
 
-            GetValue(option, $"--file {file.FullName}")
+            var result = new RootCommand { option }.Parse($"--file {file.FullName}");
+
+            result.GetValue(option)
                   .Name
                   .Should()
                   .Be("the-file.txt");
@@ -420,44 +437,6 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
-        public void A_default_value_with_a_custom_constructor_can_be_specified_for_an_option_argument()
-        {
-            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-            var option = new Option<DirectoryInfo>("-x") { DefaultValueFactory = (_) => directoryInfo };
-
-            var command = new Command("something")
-            {
-                option
-            };
-
-            var result = command.Parse("something");
-
-            result.GetValue(option).Should().Be(directoryInfo);
-        }
-
-        [Fact]
-        public void A_default_value_with_a_custom_constructor_can_be_specified_for_a_command_argument()
-        {
-            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-            var argument = new Argument<DirectoryInfo>("the-arg") { DefaultValueFactory = (_) => directoryInfo };
-
-            var command = new Command("something")
-            {
-                argument
-            };
-
-            var result = command.Parse("something");
-
-            result.Errors.Should().BeEmpty();
-
-            var value = result.GetValue(argument);
-
-            value.Should().Be(directoryInfo);
-        }
-
-        [Fact]
         public void Specifying_an_option_argument_overrides_the_default_value()
         {
             var option = new Option<int>("-x") { DefaultValueFactory = (_) => 123 };
@@ -473,7 +452,6 @@ namespace System.CommandLine.Tests.Binding
 
             value.Should().Be(456);
         }
-
 
         [Fact]
         public void Values_can_be_correctly_converted_to_DateTime_without_the_parser_specifying_a_custom_converter()
