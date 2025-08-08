@@ -286,5 +286,17 @@ internal static partial class ArgumentConverter
             value = default;
             return false;
         },
+
+        [typeof(Uri)] = (string input, out object? value) =>
+        {
+            if (Uri.TryCreate(input, UriKind.Absolute, out var uri))
+            {
+                value = uri;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
     };
 }
