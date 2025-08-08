@@ -266,15 +266,24 @@ namespace System.CommandLine.Tests.Invocation
         }
 
         [Fact]
-        public void When_multiple_options_with_actions_are_present_then_only_the_last_one_is_invoked()
+        public void When_multiple_options_with_terminating_actions_are_present_then_only_the_last_one_is_invoked()
         {
             bool optionAction1WasCalled = false;
             bool optionAction2WasCalled = false;
             bool optionAction3WasCalled = false;
 
-            SynchronousTestAction optionAction1 = new(_ => optionAction1WasCalled = true);
-            SynchronousTestAction optionAction2 = new(_ => optionAction2WasCalled = true);
-            SynchronousTestAction optionAction3 = new(_ => optionAction3WasCalled = true);
+            SynchronousTestAction optionAction1 = new(_ =>
+            {
+                optionAction1WasCalled = true;
+            }, terminating: true);
+            SynchronousTestAction optionAction2 = new(_ =>
+            {
+                optionAction2WasCalled = true;
+            }, terminating: true);
+            SynchronousTestAction optionAction3 = new(_ =>
+            {
+                optionAction3WasCalled = true;
+            }, terminating: true);
 
             Command command = new Command("cmd")
             {
@@ -283,7 +292,7 @@ namespace System.CommandLine.Tests.Invocation
                 new Option<bool>("--3") { Action = optionAction3 }
             };
 
-            ParseResult parseResult = command.Parse("cmd --1 true --3 false --2 true");
+            ParseResult parseResult = command.Parse("cmd --1 a --3 a --2 a");
 
             using var _ = new AssertionScope();
 
