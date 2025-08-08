@@ -215,15 +215,16 @@ internal partial class HelpBuilder
             {
                 List<TwoColumnHelpRow> optionRows = new();
                 bool addedHelpOption = false;
-                foreach (Option option in ctx.Command.Options)
+                foreach (Option option in ctx.Command.Options.OrderBy(o => o is HelpOption or VersionOption))
                 {
                     if (!option.Hidden)
                     {
-                        optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
                         if (option is HelpOption)
                         {
                             addedHelpOption = true;
                         }
+
+                        optionRows.Add(ctx.HelpBuilder.GetTwoColumnRow(option, ctx));
                     }
                 }
 
