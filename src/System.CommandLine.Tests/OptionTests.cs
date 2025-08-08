@@ -512,5 +512,24 @@ namespace System.CommandLine.Tests
 
             result.GetValue(option).Should().Be(3);
         }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2257
+        public void Default_value_is_used_when_option_with_ZeroOrOne_arity_is_parsed_without_an_argument()
+        {
+            var option = new Option<int>("-o")
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+                DefaultValueFactory = _ => 42
+            };
+
+            var rootCommand = new RootCommand
+            {
+                option
+            };
+
+            var parseResult = rootCommand.Parse("-o");
+
+            parseResult.GetValue(option).Should().Be(42);
+        }
     }
 }
