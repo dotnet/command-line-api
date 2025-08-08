@@ -51,7 +51,7 @@ namespace System.CommandLine
             }
             else
             {
-                Tokens = Array.Empty<Token>();
+                Tokens = [];
             }
 
             CommandLineText = commandLineText;

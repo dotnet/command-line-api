@@ -1154,7 +1154,7 @@ namespace System.CommandLine.Tests.Help
                 new Option<string>("--aaa", "-a")
                 {
                     Description = longOptionText,
-                    DefaultValueFactory = (_) => "the quick brown fox jumps over the lazy dog"
+                    DefaultValueFactory = _ => "the quick brown fox jumps over the lazy dog"
                 },
                 new Option<string>("-y") { Description = "Option with a short description" },
             };
@@ -1163,9 +1163,9 @@ namespace System.CommandLine.Tests.Help
             helpBuilder.Write(command, _console);
 
             var expected =
-                $"{_indentation}-a, --aaa{_columnPadding}The option whose description is long enough that it {NewLine}" +
-                $"{_indentation}         {_columnPadding}wraps to a new line [default: the quick brown fox jumps {NewLine}" +
-                $"{_indentation}         {_columnPadding}over the lazy dog]{NewLine}";
+                $"{_indentation}-a, --aaa <aaa>{_columnPadding}The option whose description is long enough that {NewLine}" +
+                $"{_indentation}               {_columnPadding}it wraps to a new line [default: the quick brown {NewLine}" +
+                $"{_indentation}               {_columnPadding}fox jumps over the lazy dog]{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -1313,6 +1313,22 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().Contain("-a, -z, --aaa, --zzz");
         }
 
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2128
+        public void Option_argument_name_uses_option_name_when_help_name_is_not_specified()
+        {
+            var command = new RootCommand
+            {
+                new Option<string>("--name", "-n")
+                {
+                    Description = "The description"
+                }
+            };
+
+            _helpBuilder.Write(command, _console);
+
+            _console.ToString().Should().Contain("-n, --name <name>  The description");
+        }
+
         [Fact]
         public void Help_describes_default_value_for_option_with_argument_having_default_value()
         {
@@ -1341,14 +1357,14 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option<List<int>>("--filter-size")
                 {
-                    DefaultValueFactory = (_) => new List<int> { 0, 2, 4 }
+                    DefaultValueFactory = _ => [0, 2, 4]
                 }
             };
 
             _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}--filter-size{_columnPadding}[default: 0|2|4]{NewLine}{NewLine}";
+                $"{_indentation}--filter-size <filter-size>{_columnPadding}[default: 0|2|4]{NewLine}{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -1360,14 +1376,14 @@ namespace System.CommandLine.Tests.Help
             {
                 new Option<string[]>("--prefixes")
                 {
-                    DefaultValueFactory = (_) => new[]{ "^(TODO|BUG)", "^HACK" }
+                    DefaultValueFactory = _ => new[]{ "^(TODO|BUG)", "^HACK" }
                 }
             };
 
             _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}--prefixes{_columnPadding}[default: ^(TODO|BUG)|^HACK]{NewLine}{NewLine}";
+                $"{_indentation}--prefixes <prefixes>{_columnPadding}[default: ^(TODO|BUG)|^HACK]{NewLine}{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }

@@ -265,33 +265,110 @@ namespace System.CommandLine.Tests.Invocation
             commandActionWasCalled.Should().BeTrue();
         }
 
-        [Fact]
-        public void When_multiple_options_with_actions_are_present_then_only_the_last_one_is_invoked()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task When_multiple_options_with_terminating_actions_are_present_then_only_the_last_one_is_invoked(bool invokeAsync)
         {
             bool optionAction1WasCalled = false;
             bool optionAction2WasCalled = false;
             bool optionAction3WasCalled = false;
 
-            SynchronousTestAction optionAction1 = new(_ => optionAction1WasCalled = true);
-            SynchronousTestAction optionAction2 = new(_ => optionAction2WasCalled = true);
-            SynchronousTestAction optionAction3 = new(_ => optionAction3WasCalled = true);
-
-            Command command = new Command("cmd")
+            SynchronousTestAction optionAction1 = new(_ =>
             {
-                new Option<bool>("--1") { Action = optionAction1 },
-                new Option<bool>("--2") { Action = optionAction2 },
-                new Option<bool>("--3") { Action = optionAction3 }
+                optionAction1WasCalled = true;
+            }, terminating: true);
+            SynchronousTestAction optionAction2 = new(_ =>
+            {
+                optionAction2WasCalled = true;
+            }, terminating: true);
+            SynchronousTestAction optionAction3 = new(_ =>
+            {
+                optionAction3WasCalled = true;
+            }, terminating: true);
+
+            var command = new RootCommand
+            {
+                Action = new AsynchronousTestAction(_ => {}),
+                Options =
+                {
+                    new Option<bool>("--1") { Action = optionAction1 },
+                    new Option<bool>("--2") { Action = optionAction2 },
+                    new Option<bool>("--3") { Action = optionAction3 },
+                }
             };
 
-            ParseResult parseResult = command.Parse("cmd --1 true --3 false --2 true");
+            ParseResult parseResult = command.Parse("--1 --3 --2");
 
             using var _ = new AssertionScope();
 
             parseResult.Action.Should().Be(optionAction2);
-            parseResult.Invoke().Should().Be(0);
+
+            if (invokeAsync)
+            {
+                (await parseResult.InvokeAsync()).Should().Be(0);
+            }
+            else
+            {
+                parseResult.Invoke().Should().Be(0);
+            }
+
             optionAction1WasCalled.Should().BeFalse();
             optionAction2WasCalled.Should().BeTrue();
             optionAction3WasCalled.Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task When_multiple_options_with_nonterminating_actions_are_present_then_all_are_invoked(bool invokeAsync)
+        {
+            bool optionAction1WasCalled = false;
+            bool optionAction2WasCalled = false;
+            bool optionAction3WasCalled = false;
+            bool commandActionWasCalled = false;
+
+            SynchronousTestAction optionAction1 = new(_ =>
+            {
+                optionAction1WasCalled = true;
+            }, terminating: false);
+            SynchronousTestAction optionAction2 = new(_ =>
+            {
+                optionAction2WasCalled = true;
+            }, terminating: false);
+            SynchronousTestAction optionAction3 = new(_ =>
+            {
+                optionAction3WasCalled = true;
+            }, terminating: false);
+
+            var command = new RootCommand
+            {
+                Action = new AsynchronousTestAction(_ => commandActionWasCalled = true),
+                Options =
+                {
+                    new Option<bool>("--1") { Action = optionAction1 },
+                    new Option<bool>("--2") { Action = optionAction2 },
+                    new Option<bool>("--3") { Action = optionAction3 },
+                }
+            };
+
+            ParseResult parseResult = command.Parse("--1 true --3 false --2 true");
+
+            using var _ = new AssertionScope();
+
+            if (invokeAsync)
+            {
+                (await parseResult.InvokeAsync()).Should().Be(0);
+            }
+            else
+            {
+                parseResult.Invoke().Should().Be(0);
+            }
+
+            optionAction1WasCalled.Should().BeTrue();
+            optionAction2WasCalled.Should().BeTrue();
+            optionAction3WasCalled.Should().BeTrue();
+            commandActionWasCalled.Should().BeTrue();
         }
 
         [Fact]
@@ -327,9 +404,12 @@ namespace System.CommandLine.Tests.Invocation
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task Nontermninating_option_actions_handle_exceptions_and_return_an_error_return_code(bool invokeAsync)
+        public async Task Nonterminating_option_actions_handle_exceptions_and_return_an_error_return_code(bool invokeAsync)
         {
-            var nonexclusiveAction = new SynchronousTestAction(_ => throw new Exception("oops!"), terminating: false);
+            var nonexclusiveAction = new SynchronousTestAction(_ =>
+            {
+                throw new Exception("oops!");
+            }, terminating: false);
 
             var command = new RootCommand
             {

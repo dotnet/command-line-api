@@ -45,7 +45,7 @@ public partial class HelpBuilderTests
             _helpBuilder.Write(command, _console);
             var expected =
                 $"Options:{NewLine}" +
-                $"{_indentation}--the-option{_columnPadding}[default: 42]{NewLine}{NewLine}";
+                $"{_indentation}--the-option <the-option>{_columnPadding}[default: 42]{NewLine}{NewLine}";
 
             _console.ToString().Should().Contain(expected);
         }
@@ -245,9 +245,9 @@ public partial class HelpBuilderTests
 
 
         [Theory]
-        [InlineData(false, false, "--option \\s*description")]
+        [InlineData(false, false, "--option <option>\\s*description")]
         [InlineData(true, false, "custom 1st\\s*description")]
-        [InlineData(false, true, "--option \\s*custom 2nd")]
+        [InlineData(false, true, "--option <option>\\s*custom 2nd")]
         [InlineData(true, true, "custom 1st\\s*custom 2nd")]
         public void Option_can_fallback_to_default_when_customizing(bool conditionA, bool conditionB, string expected)
         {
