@@ -124,6 +124,20 @@ namespace System.CommandLine.Tests.Binding
                 .BeEquivalentTo("file1.txt", "file2.txt");
         }
 
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2574
+        public void Option_argument_of_Uri_can_be_bound_without_custom_conversion_logic()
+        {
+            var option = new Option<Uri>("--file");
+
+            var uri = new Uri("https://example.com");
+
+            var result = new RootCommand { option }.Parse($"--file {uri}");
+
+            result.GetValue(option)
+                  .Should()
+                  .Be(uri);
+        }
+
         [Fact]
         public void Argument_defaults_arity_to_One_for_non_IEnumerable_types()
         {
