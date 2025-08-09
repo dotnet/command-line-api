@@ -15,14 +15,14 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_Options_Bare
     {
-        private IEnumerable<CliOption> _testSymbols;
+        private IEnumerable<Option> _testSymbols;
+        private Command _testCommand;
         private string _testSymbolsAsString;
-        private CliConfiguration _testConfiguration;
 
-        private IEnumerable<CliOption> GenerateTestOptions(int count, ArgumentArity arity)
+        private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
             => Enumerable.Range(0, count)
                          .Select(i =>
-                                     new CliOption<string>($"-option{i}")
+                                     new Option<string>($"-option{i}")
                                      {
                                          Arity = arity,
                                          Description = $"Description for -option {i} ...."
@@ -49,7 +49,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
         }
 
         [Benchmark]
-        public CliConfiguration ParserFromOptions_Ctor()
+        public Command ParserFromOptions_Ctor()
         {
             return _testSymbols.CreateConfiguration();
         }
@@ -58,11 +58,11 @@ namespace System.CommandLine.Benchmarks.CommandLine
         public void SetupParserFromOptions_Parse()
         {
             var testSymbolsArr = GenerateTestOptions(TestSymbolsCount, ArgumentArity.Zero).ToArray();
-            _testConfiguration = testSymbolsArr.CreateConfiguration();
+            _testCommand = testSymbolsArr.CreateConfiguration();
             _testSymbolsAsString = GenerateTestOptionsAsStringExpr(testSymbolsArr.Length);
         }
 
         [Benchmark]
-        public ParseResult ParserFromOptions_Parse() => _testConfiguration.Parse(_testSymbolsAsString);
+        public ParseResult ParserFromOptions_Parse() => _testCommand.Parse(_testSymbolsAsString);
     }
 }

@@ -10,9 +10,11 @@ using System.Linq;
 using System.Net;
 using FluentAssertions.Execution;
 using Xunit;
+using System.Reflection;
 
 namespace System.CommandLine.Tests.Binding
 {
+    // need to test these across all versions of Options and arguments
     public class TypeConversionTests
     {
         protected T GetValue<T>(Option<T> option, string commandLine)
@@ -40,6 +42,18 @@ namespace System.CommandLine.Tests.Binding
                   .Be("the-file.txt");
         }
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForFileInfo))]
+        public void Option_argument_of_FileInfo_can_be_bound_across_option_variants(string variant)
+        {
+            var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
+            var option = CreateOptionVariant<FileInfo>("--file", variant);
+            GetValue(option, $"--file {file.FullName}")
+                  .Name
+                  .Should()
+                  .Be("the-file.txt");
+        }
+
         [Fact]
         public void Command_argument_of_FileInfo_can_be_bound_without_custom_conversion_logic()
         {
@@ -57,6 +71,17 @@ namespace System.CommandLine.Tests.Binding
                   .Name
                   .Should()
                   .Be("the-file.txt");
+        }
+
+        [Theory]
+        [MemberData(nameof(ArgumentVariantLabelsForFileInfo))]
+        public void Command_argument_of_FileInfo_can_be_bound_across_argument_variants(string variant)
+        {
+            var file = new FileInfo(Path.Combine(new DirectoryInfo("temp").FullName, "the-file.txt"));
+            var argument = CreateArgumentVariant<FileInfo>("the-arg", variant);
+            var command = new Command("the-command") { argument };
+            var result = command.Parse($"{file.FullName}");
+            result.GetValue(argument).Name.Should().Be("the-file.txt");
         }
 
         [Fact]
@@ -115,6 +140,14 @@ namespace System.CommandLine.Tests.Binding
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
         }
 
+        [Theory]
+        [MemberData(nameof(ArgumentVariantLabelsForInt))]
+        public void Argument_defaults_arity_to_One_for_non_IEnumerable_types_across_variants(string variant)
+        {
+            var argument = CreateArgumentVariant<int>("arg", variant);
+            argument.Arity.Should().BeEquivalentTo(ArgumentArity.ExactlyOne);
+        }
+
         [Fact]
         public void Argument_defaults_arity_to_ExactlyOne_for_string()
         {
@@ -131,6 +164,15 @@ namespace System.CommandLine.Tests.Binding
                 new Argument<int?>("arg")
             };
 
+            command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
+        }
+
+        [Theory]
+        [MemberData(nameof(ArgumentVariantLabelsForNullableInt))]
+        public void Command_Argument_defaults_arity_to_ZeroOrOne_for_nullable_types_across_variants(string variant)
+        {
+            var argument = CreateArgumentVariant<int?>("arg", variant);
+            var command = new Command("the-command") { argument };
             command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
         }
 
@@ -204,7 +246,7 @@ namespace System.CommandLine.Tests.Binding
             rootCommand.Options.Add(option);
             var result = rootCommand.Parse("--test ouch");
 
-            result.Invoking(r =>  r.GetValue(option))
+            result.Invoking(r => r.GetValue(option))
                   .Should().NotThrow();
         }
 
@@ -485,6 +527,16 @@ namespace System.CommandLine.Tests.Binding
             GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
         }
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForDateTime))]
+        public void Values_can_be_correctly_converted_to_DateTime_across_option_variants(string variant)
+        {
+            var dateString = "2022-02-06T01:46:03.0000000-08:00";
+            var expected = DateTime.Parse(dateString);
+            var option = CreateOptionVariant<DateTime>("-x", variant);
+            GetValue(option, $"-x {dateString}").Should().Be(expected);
+        }
+
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_DateTime_without_the_parser_specifying_a_custom_converter()
@@ -494,6 +546,16 @@ namespace System.CommandLine.Tests.Binding
             var dateString = "2022-02-06T01:46:03.0000000-08:00";
 
             GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
+        }
+
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForNullableDateTime))]
+        public void Values_can_be_correctly_converted_to_nullable_DateTime_across_option_variants(string variant)
+        {
+            var dateString = "2022-02-06T01:46:03.0000000-08:00";
+            var expected = DateTime.Parse(dateString);
+            var option = CreateOptionVariant<DateTime?>("-x", variant);
+            GetValue(option, $"-x {dateString}").Should().Be(expected);
         }
 
         [Fact]
@@ -506,6 +568,16 @@ namespace System.CommandLine.Tests.Binding
             GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
         }
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForDateTimeOffset))]
+        public void Values_can_be_correctly_converted_to_DateTimeOffset_across_option_variants(string variant)
+        {
+            var dateString = "2022-02-06T09:52:54.5275055-08:00";
+            var expected = DateTime.Parse(dateString);
+            var option = CreateOptionVariant<DateTimeOffset>("-x", variant);
+            GetValue(option, $"-x {dateString}").Should().Be(expected);
+        }
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_DateTimeOffset_without_the_parser_specifying_a_custom_converter()
         {
@@ -516,29 +588,87 @@ namespace System.CommandLine.Tests.Binding
             GetValue(option, $"-x {dateString}").Should().Be(DateTime.Parse(dateString));
         }
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForNullableDateTimeOffset))]
+        public void Values_can_be_correctly_converted_to_nullable_DateTimeOffset_across_option_variants(string variant)
+        {
+            var dateString = "2022-02-06T09:52:54.5275055-08:00";
+            var expected = DateTime.Parse(dateString);
+            var option = CreateOptionVariant<DateTimeOffset?>("-x", variant);
+            GetValue(option, $"-x {dateString}").Should().Be(expected);
+        }
+
         [Fact]
         public void Values_can_be_correctly_converted_to_decimal_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<decimal>("-x"), "-x 123.456").Should().Be(123.456m);
+
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForDecimal))]
+        public void Values_can_be_correctly_converted_to_decimal_across_option_variants(string variant)
+        {
+            var option = CreateOptionVariant<decimal>("-x", variant);
+            GetValue(option, "-x 123.456").Should().Be(123.456m);
+        }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_decimal_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<decimal?>("-x"), "-x 123.456").Should().Be(123.456m);
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForNullableDecimal))]
+        public void Values_can_be_correctly_converted_to_nullable_decimal_across_option_variants(string variant)
+        {
+            var option = CreateOptionVariant<decimal?>("-x", variant);
+            GetValue(option, "-x 123.456").Should().Be(123.456m);
+        }
+
         [Fact]
         public void Values_can_be_correctly_converted_to_double_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<double>("-x"), "-x 123.456").Should().Be(123.456d);
+
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForDouble))]
+        public void Values_can_be_correctly_converted_to_double_across_option_variants(string variant)
+        {
+            var option = CreateOptionVariant<double>("-x", variant);
+            GetValue(option, "-x 123.456").Should().Be(123.456d);
+        }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_double_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<double?>("-x"), "-x 123.456").Should().Be(123.456d);
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForNullableDouble))]
+        public void Values_can_be_correctly_converted_to_nullable_double_across_option_variants(string variant)
+        {
+            var option = CreateOptionVariant<double?>("-x", variant);
+            GetValue(option, "-x 123.456").Should().Be(123.456d);
+        }
+
         [Fact]
         public void Values_can_be_correctly_converted_to_float_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<float>("-x"), "-x 123.456").Should().Be(123.456f);
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForFloat))]
+        public void Values_can_be_correctly_converted_to_float_across_option_variants(string variant)
+        {
+            var option = CreateOptionVariant<float>("-x", variant);
+            GetValue(option, "-x 123.456").Should().Be(123.456f);
+        }
+
         [Fact]
         public void Values_can_be_correctly_converted_to_nullable_float_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<float?>("-x"), "-x 123.456").Should().Be(123.456f);
+
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForNullableFloat))]
+        public void Values_can_be_correctly_converted_to_nullable_float_across_option_variants(string variant)
+        {
+            var option = CreateOptionVariant<float?>("-x", variant);
+            GetValue(option, "-x 123.456").Should().Be(123.456f);
+        }
 
         [Fact]
         public void Values_can_be_correctly_converted_to_Guid_without_the_parser_specifying_a_custom_converter()
@@ -546,6 +676,16 @@ namespace System.CommandLine.Tests.Binding
             const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
 
             GetValue(new Option<Guid>("-x"), $"-x {guidString}").Should().Be(Guid.Parse(guidString));
+        }
+
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForGuid))]
+        public void Values_can_be_correctly_converted_to_Guid_across_option_variants(string variant)
+        {
+            const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
+            var expected = Guid.Parse(guidString);
+            var option = CreateOptionVariant<Guid>("-x", variant);
+            GetValue(option, $"-x {guidString}").Should().Be(expected);
         }
 
         [Fact]
@@ -556,12 +696,32 @@ namespace System.CommandLine.Tests.Binding
             GetValue(new Option<Guid?>("-x"), $"-x {guidString}").Should().Be(Guid.Parse(guidString));
         }
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForNullableGuid))]
+        public void Values_can_be_correctly_converted_to_nullable_Guid_across_option_variants(string variant)
+        {
+            const string guidString = "75517282-018F-46BB-B15F-1D8DBFE23F6E";
+            var expected = Guid.Parse(guidString);
+            var option = CreateOptionVariant<Guid?>("-x", variant);
+            GetValue(option, $"-x {guidString}").Should().Be(expected);
+        }
+
         [Fact]
         public void Values_can_be_correctly_converted_to_TimeSpan_without_the_parser_specifying_a_custom_converter()
         {
             const string timeSpanString = "30";
 
             GetValue(new Option<TimeSpan>("-x"), $"-x {timeSpanString}").Should().Be(TimeSpan.Parse(timeSpanString));
+        }
+
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForTimeSpan))]
+        public void Values_can_be_correctly_converted_to_TimeSpan_across_option_variants(string variant)
+        {
+            const string timeSpanString = "30";
+            var expected = TimeSpan.Parse(timeSpanString);
+            var option = CreateOptionVariant<TimeSpan>("-x", variant);
+            GetValue(option, $"-x {timeSpanString}").Should().Be(expected);
         }
 
         [Fact]
@@ -572,10 +732,20 @@ namespace System.CommandLine.Tests.Binding
             GetValue(new Option<TimeSpan?>("-x"), $"-x {timeSpanString}").Should().Be(TimeSpan.Parse(timeSpanString));
         }
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForNullableTimeSpan))]
+        public void Values_can_be_correctly_converted_to_nullable_TimeSpan_across_option_variants(string variant)
+        {
+            const string timeSpanString = "30";
+            var expected = TimeSpan.Parse(timeSpanString);
+            var option = CreateOptionVariant<TimeSpan?>("-x", variant);
+            GetValue(option, $"-x {timeSpanString}").Should().Be(expected);
+        }
+
         [Fact]
         public void Values_can_be_correctly_converted_to_Uri_when_custom_parser_is_provided()
         {
-            Option<Uri> option = new ("-x")
+            Option<Uri> option = new("-x")
             {
                 CustomParser = (argumentResult) => Uri.TryCreate(argumentResult.Tokens.Last().Value, UriKind.RelativeOrAbsolute, out var uri) ? uri : null
             };
@@ -589,6 +759,16 @@ namespace System.CommandLine.Tests.Binding
             using var _ = new AssertionScope();
             GetValue(new Option<bool>("-x"), "-x false").Should().BeFalse();
             GetValue(new Option<bool>("-x"), "-x true").Should().BeTrue();
+        }
+
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForBool))]
+        public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_across_variants(string variant)
+        {
+            using var _ = new AssertionScope();
+            var option = CreateOptionVariant<bool>("-x", variant);
+            GetValue(option, "-x false").Should().BeFalse();
+            GetValue(option, "-x true").Should().BeTrue();
         }
 
         [Fact]
@@ -634,8 +814,8 @@ namespace System.CommandLine.Tests.Binding
         [Fact]
         public void Values_can_be_correctly_converted_to_ipaddress_when_custom_parser_is_provided()
         {
-            Option<IPAddress> option = new ("-us")
-            { 
+            Option<IPAddress> option = new("-us")
+            {
                 CustomParser = (argumentResult) => IPAddress.Parse(argumentResult.Tokens.Last().Value)
             };
 
@@ -736,7 +916,7 @@ namespace System.CommandLine.Tests.Binding
 
         [Fact]
         public void Values_can_be_correctly_converted_to_List_of_int_without_the_parser_specifying_a_custom_converter()
-            => GetValue(new Option<List<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] {1, 2, 3});
+            => GetValue(new Option<List<int>>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] { 1, 2, 3 });
 
         [Fact]
         public void Values_can_be_correctly_converted_to_IEnumerable_of_int_without_the_parser_specifying_a_custom_converter()
@@ -746,9 +926,132 @@ namespace System.CommandLine.Tests.Binding
         public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<DayOfWeek>("-x"), "-x Monday").Should().Be(DayOfWeek.Monday);
 
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForDayOfWeek))]
+        public void Enum_values_can_be_correctly_converted_based_on_enum_value_name_across_option_variants(string variant)
+        {
+            var option = CreateOptionVariant<DayOfWeek>("-x", variant);
+            GetValue(option, "-x Monday").Should().Be(DayOfWeek.Monday);
+        }
+
         [Fact]
         public void Nullable_enum_values_can_be_correctly_converted_based_on_enum_value_name_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<DayOfWeek?>("-x"), "-x Monday").Should().Be(DayOfWeek.Monday);
+
+        [Theory]
+        [MemberData(nameof(OptionVariantLabelsForNullableDayOfWeek))]
+        public void Nullable_enum_values_can_be_correctly_converted_based_on_enum_value_name_across_option_variants(string variant)
+        {
+            var option = CreateOptionVariant<DayOfWeek?>("-x", variant);
+            GetValue(option, "-x Monday").Should().Be(DayOfWeek.Monday);
+        }
+
+        // Helper factories + variant label providers
+        private static Option<T> CreateOptionVariant<T>(string name, string variant, params string[] aliases)
+        {
+            return variant switch
+            {
+                "Default" => new Option<T>(name, aliases),
+#if NET7_0_OR_GREATER
+                "SpanParsable" => CreateSpecializedOption<T>(name, aliases, "System.CommandLine.SpanParsableOption`1"),
+                "Parsable" => CreateSpecializedOption<T>(name, aliases, "System.CommandLine.ParsableOption`1"),
+#endif
+                _ => throw new ArgumentOutOfRangeException(nameof(variant), variant, null)
+            };
+        }
+
+        private static Argument<T> CreateArgumentVariant<T>(string name, string variant)
+        {
+            return variant switch
+            {
+                "Default" => new Argument<T>(name),
+#if NET7_0_OR_GREATER
+                "SpanParsable" => CreateSpecializedArgument<T>(name, "System.CommandLine.SpanParsableArgument`1"),
+                "Parsable" => CreateSpecializedArgument<T>(name, "System.CommandLine.ParsableArgument`1"),
+#endif
+                _ => throw new ArgumentOutOfRangeException(nameof(variant), variant, null)
+            };
+        }
+
+#if NET7_0_OR_GREATER
+        private static Option<T> CreateSpecializedOption<T>(string name, string[] aliases, string qname)
+        {
+            var type = typeof(Option<>).Assembly.GetType(qname)!;
+            var closed = type.MakeGenericType(typeof(T));
+            return (Option<T>)Activator.CreateInstance(closed, new object[] { name, aliases })!;
+        }
+
+        private static Argument<T> CreateSpecializedArgument<T>(string name, string qname)
+        {
+            var type = typeof(Argument<>).Assembly.GetType(qname)!;
+            var closed = type.MakeGenericType(typeof(T));
+            return (Argument<T>)Activator.CreateInstance(closed, new object[] { name })!;
+        }
+
+        private static IEnumerable<object[]> VariantLabelsFor<T>()
+        {
+            yield return new object[] { "Default" };
+            var t = typeof(T);
+            if (Implements(t, typeof(ISpanParsable<>))) yield return new object[] { "SpanParsable" };
+            if (Implements(t, typeof(IParsable<>))) yield return new object[] { "Parsable" };
+        }
+#endif
+
+        public static IEnumerable<object[]> OptionVariantLabelsForFileInfo() => OptionVariantLabelsFor<FileInfo>();
+        public static IEnumerable<object[]> OptionVariantLabelsForDateTime() => OptionVariantLabelsFor<DateTime>();
+        public static IEnumerable<object[]> OptionVariantLabelsForNullableDateTime() => OptionVariantLabelsFor<DateTime?>();
+        public static IEnumerable<object[]> OptionVariantLabelsForDateTimeOffset() => OptionVariantLabelsFor<DateTimeOffset>();
+        public static IEnumerable<object[]> OptionVariantLabelsForNullableDateTimeOffset() => OptionVariantLabelsFor<DateTimeOffset?>();
+        public static IEnumerable<object[]> OptionVariantLabelsForDecimal() => OptionVariantLabelsFor<decimal>();
+        public static IEnumerable<object[]> OptionVariantLabelsForNullableDecimal() => OptionVariantLabelsFor<decimal?>();
+        public static IEnumerable<object[]> OptionVariantLabelsForDouble() => OptionVariantLabelsFor<double>();
+        public static IEnumerable<object[]> OptionVariantLabelsForNullableDouble() => OptionVariantLabelsFor<double?>();
+        public static IEnumerable<object[]> OptionVariantLabelsForFloat() => OptionVariantLabelsFor<float>();
+        public static IEnumerable<object[]> OptionVariantLabelsForNullableFloat() => OptionVariantLabelsFor<float?>();
+        public static IEnumerable<object[]> OptionVariantLabelsForGuid() => OptionVariantLabelsFor<Guid>();
+        public static IEnumerable<object[]> OptionVariantLabelsForNullableGuid() => OptionVariantLabelsFor<Guid?>();
+        public static IEnumerable<object[]> OptionVariantLabelsForTimeSpan() => OptionVariantLabelsFor<TimeSpan>();
+        public static IEnumerable<object[]> OptionVariantLabelsForNullableTimeSpan() => OptionVariantLabelsFor<TimeSpan?>();
+        public static IEnumerable<object[]> OptionVariantLabelsForBool() => OptionVariantLabelsFor<bool>();
+        public static IEnumerable<object[]> OptionVariantLabelsForDayOfWeek() => OptionVariantLabelsFor<DayOfWeek>();
+        public static IEnumerable<object[]> OptionVariantLabelsForNullableDayOfWeek() => OptionVariantLabelsFor<DayOfWeek?>();
+
+        public static IEnumerable<object[]> ArgumentVariantLabelsForFileInfo() => ArgumentVariantLabelsFor<FileInfo>();
+        public static IEnumerable<object[]> ArgumentVariantLabelsForInt() => ArgumentVariantLabelsFor<int>();
+        public static IEnumerable<object[]> ArgumentVariantLabelsForNullableInt() => ArgumentVariantLabelsFor<int?>();
+
+        private static IEnumerable<object[]> OptionVariantLabelsFor<T>()
+        {
+#if NET7_0_OR_GREATER
+            foreach (var o in VariantLabelsFor<T>()) yield return o;
+#else
+            yield return new object[] { "Default" };
+#endif
+        }
+
+        private static IEnumerable<object[]> ArgumentVariantLabelsFor<T>()
+        {
+#if NET7_0_OR_GREATER
+            foreach (var o in VariantLabelsFor<T>()) yield return o;
+#else
+            yield return new object[] { "Default" };
+#endif
+        }
+
+#if NET7_0_OR_GREATER
+        private static bool Implements(Type t, Type openInterface)
+        {
+            if (!openInterface.IsInterface || !openInterface.IsGenericTypeDefinition) return false;
+            foreach (var i in t.GetInterfaces())
+            {
+                if (i.IsGenericType && i.GetGenericTypeDefinition() == openInterface && i.GenericTypeArguments[0] == t)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+#endif
 
         [Fact]
         public void Enum_values_that_cannot_be_parsed_result_in_an_informative_error()
@@ -800,7 +1103,7 @@ namespace System.CommandLine.Tests.Binding
         public void String_defaults_to_null_when_not_specified_only_for_not_required_arguments()
             => GetValue(
                 new Argument<string>("arg")
-                { 
+                {
                     Arity = ArgumentArity.ZeroOrMore
                 }, "").Should().BeNull();
 
@@ -829,5 +1132,40 @@ namespace System.CommandLine.Tests.Binding
 
         private void AssertParsedValueIsEmpty<T>(Argument<T> argument) where T : IEnumerable
             => GetValue(argument, "").Should().BeEquivalentTo(Enumerable.Empty<T>());
+
+#if NET7_0_OR_GREATER
+        [Fact]
+        public void Can_create_spanparseable_option_for_collection()
+        {
+            var o = new ParsableListOption<DateTime>("-x")
+            {
+                Arity = new ArgumentArity(1, 3)
+            };
+            GetValue(o, "-x 2020-01-01 -x 2020-01-02 -x 2020-01-03").Should().BeEquivalentTo(new[]
+            {
+                new DateTime(2020, 1, 1),
+                new DateTime(2020, 1, 2),
+                new DateTime(2020, 1, 3)
+            });
+        }
+#endif
+
+
+#if NET9_0_OR_GREATER
+        [Fact]
+        public void Can_create_spanparseable_option_for_collection()
+        {
+            var o = new SpanPar<DateTime>("-x")
+            {
+                Arity = new ArgumentArity(1, 3)
+            };
+            GetValue(o, "-x 2020-01-01 -x 2020-01-02 -x 2020-01-03").Should().BeEquivalentTo(new[]
+            {
+                new DateTime(2020, 1, 1),
+                new DateTime(2020, 1, 2),
+                new DateTime(2020, 1, 3)
+            });
+        }
+#endif
     }
 }

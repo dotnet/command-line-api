@@ -18,19 +18,15 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_ParseResult
     {
-        private readonly CliConfiguration _configuration;
+        private readonly Command _command;
         private readonly StringWriter _output;
 
         public Perf_Parser_ParseResult()
         {
             _output = new StringWriter();
-            var option = new CliOption<bool>("-opt");
+            var option = new Option<bool>("-opt");
 
-            _configuration = new CliConfiguration(new CliRootCommand { option })
-            {
-                Directives = { new DiagramDirective() },
-                Output = _output
-            };
+            _command = new RootCommand { option };
         }
 
         public IEnumerable<string> GenerateTestInputs() 
@@ -45,12 +41,12 @@ namespace System.CommandLine.Benchmarks.CommandLine
 
         public IEnumerable<object> GenerateTestParseResults()
             => GenerateTestInputs()
-               .Select(input => new BdnParam<ParseResult>(_configuration.Parse(input), input));
+               .Select(input => new BdnParam<ParseResult>(_command.Parse(input), input));
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestInputs))]
         public ParseResult ParseResult_Directives(string input)
-            => _configuration.Parse(input);
+            => _command.Parse(input);
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]
@@ -61,7 +57,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
             // clear the contents, so each benchmark has the same starting state
             stringBuilder.Clear();
 
-            ((SynchronousCliAction)parseResult.Value.Action)!.Invoke(parseResult.Value);
+            parseResult.Value.Invoke(new InvocationConfiguration
+            {
+                Output = _output,
+            });
 
             return stringBuilder.ToString();
         }
@@ -75,7 +74,10 @@ namespace System.CommandLine.Benchmarks.CommandLine
             // clear the contents, so each benchmark has the same starting state
             stringBuilder.Clear();
 
-            await ((AsynchronousCliAction)parseResult.Value.Action!).InvokeAsync(parseResult.Value);
+            await parseResult.Value.InvokeAsync(new InvocationConfiguration
+            {
+                Output = _output,
+            });
 
             return stringBuilder.ToString();
         }

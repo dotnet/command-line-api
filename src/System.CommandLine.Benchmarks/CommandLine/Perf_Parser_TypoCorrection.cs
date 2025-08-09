@@ -15,16 +15,13 @@ namespace System.CommandLine.Benchmarks.CommandLine
     [BenchmarkCategory(Categories.CommandLine)]
     public class Perf_Parser_TypoCorrection
     {
-        private readonly CliConfiguration _configuration;
+        private readonly Command _command;
 
         public Perf_Parser_TypoCorrection()
         {
-            var option = new CliOption<bool>("--0123456789");
+            var option = new Option<bool>("--0123456789");
 
-            _configuration = new CliConfiguration(new CliRootCommand { option })
-            {
-                Output = System.IO.TextWriter.Null
-            };
+            _command = new RootCommand { option };
         }
 
         public IEnumerable<BdnParam<ParseResult>> GenerateTestParseResults()
@@ -48,7 +45,7 @@ namespace System.CommandLine.Benchmarks.CommandLine
                     "--1023546798",
                     "--1032546798"
                 }
-                .Select(opt => new BdnParam<ParseResult>(_configuration.Parse(opt), opt));
+                .Select(opt => new BdnParam<ParseResult>(_command.Parse(opt), opt));
 
         [Benchmark]
         [ArgumentsSource(nameof(GenerateTestParseResults))]

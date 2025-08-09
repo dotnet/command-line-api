@@ -13,16 +13,16 @@ namespace System.CommandLine.Benchmarks.CommandLine
     /// Measures the performance of <see cref="CliParser"/> when parsing options with arguments.
     /// </summary>
     [BenchmarkCategory(Categories.CommandLine)]
-    public class Perf_Parser_Options_With_Arguments
+    public class Perf_Parser_Options_With_Parsed_Arguments
     {
         private string _testSymbolsAsString;
         private Command _command;
 
-        private IEnumerable<Option> GenerateTestOptions(int count, ArgumentArity arity)
+        private IEnumerable<Option> GenerateTestOptions(int count)
             => Enumerable.Range(0, count)
-                         .Select(i => new Option<string>($"-option{i}")
+                         .Select(i => new Option<DateOnly>($"-option{i}")
                              {
-                                 Arity = arity,
+                                 Arity = ArgumentArity.ExactlyOne,
                                  Description = $"Description for -option {i} ...."
                              }
                          );
@@ -31,31 +31,23 @@ namespace System.CommandLine.Benchmarks.CommandLine
         /// For optionsCount: 5, argumentsCount: 5 will return:
         /// -option0 arg0..arg4 -option1 arg0..arg4 ... -option4 arg0..arg4
         /// </remarks>
-        private string GenerateTestOptionsWithArgumentsAsStringExpr(int optionsCount, int argumentsCount)
+        private string GenerateTestOptionsWithArgumentsAsStringExpr(int optionsCount)
         {
-            var arguments = Enumerable
-                .Range(0, argumentsCount)
-                .Select(i => $"arg{i}")
-                .Aggregate("", (ac, next) => ac + " " + next);
-
             return Enumerable
                 .Range(0, optionsCount)
-                .Select(i => $"-option{i} {arguments} ")
+                .Select(i => $"-option{i} 2022/02/02 ")
                 .Aggregate("", (ac, next) => ac + " " + next);
         }
 
-        [Params(1, 5, 20)]
+        [Params(1, 5, 20, 50, 100)]
         public int TestOptionsCount;
-
-        [Params(1, 5, 20)]
-        public int TestArgumentsCount;
 
         [GlobalSetup(Target = nameof(ParserFromOptionsWithArguments_Parse))]
         public void SetupParserFromOptionsWithArguments_Parse()
         {
-            var testSymbolsArr = GenerateTestOptions(TestOptionsCount, ArgumentArity.OneOrMore).ToArray();
+            var testSymbolsArr = GenerateTestOptions(TestOptionsCount).ToArray();
             _command = testSymbolsArr.CreateConfiguration();
-            _testSymbolsAsString = GenerateTestOptionsWithArgumentsAsStringExpr(testSymbolsArr.Length, TestArgumentsCount);
+            _testSymbolsAsString = GenerateTestOptionsWithArgumentsAsStringExpr(testSymbolsArr.Length);
         }
 
         [Benchmark]
