@@ -104,6 +104,12 @@
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
     public static Option<System.IO.FileSystemInfo> AcceptExistingOnly(this Option<System.IO.FileSystemInfo> option)
     public static Option<T> AcceptExistingOnly<T>(this Option<T> option)
+  public class ParsableArgument<T> : Argument<T>
+    .ctor(System.String name)
+  public class ParsableListArgument<T> : Argument<List<T>>
+    .ctor(System.String name)
+  public class ParsableListOption<T> : Option<List<T>>
+    .ctor(System.String name, System.String[] aliases)
   public class ParsableOption<T> : Option<T>
     .ctor(System.String name, System.String[] aliases)
   public class ParserConfiguration
@@ -142,6 +148,8 @@
     .ctor(System.String description = )
     public System.Collections.Generic.IList<Directive> Directives { get; }
     public System.Void Add(Directive directive)
+  public class SpanParsableArgument<T> : Argument<T>
+    .ctor(System.String name)
   public class SpanParsableOption<T> : Option<T>
     .ctor(System.String name, System.String[] aliases)
   public abstract class Symbol

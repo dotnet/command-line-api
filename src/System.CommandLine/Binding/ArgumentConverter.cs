@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
-using System.Globalization;
 using static System.CommandLine.Binding.ArgumentConversionResult;
 
 namespace System.CommandLine.Binding
@@ -130,53 +129,19 @@ namespace System.CommandLine.Binding
         {
             if (argument.Arity is { MaximumNumberOfValues: 1, MinimumNumberOfValues: 1 })
             {
-                return (ArgumentResult result, out object? value) =>
+                if (argument.ValueType.TryGetNullableType(out var nullableType) &&
+                    StringConverters.TryGetValue(nullableType, out var convertNullable))
                 {
-                    var text = result.Tokens[result.Tokens.Count - 1].Value;
+                    return (ArgumentResult result, out object? value) => ConvertSingleString(result, convertNullable, out value);
+                }
 
-                    // Nullable underlying enum or converter
-                    if (argument.ValueType.TryGetNullableType(out var underlying))
-                    {
-                        if (underlying.IsEnum)
-                        {
-                            try
-                            {
-                                value = Enum.Parse(underlying, text, ignoreCase: true);
-                                return true;
-                            }
-                            catch (ArgumentException)
-                            {
-                            }
-                        }
+                if (StringConverters.TryGetValue(argument.ValueType, out var convert1))
+                {
+                    return (ArgumentResult result, out object? value) => ConvertSingleString(result, convert1, out value);
+                }
 
-                        if (StringConverters.TryGetValue(underlying, out var convU) && convU(text, out value))
-                        {
-                            return true;
-                        }
-                    }
-
-                    // Declared enum type
-                    if (argument.ValueType.IsEnum)
-                    {
-                        try
-                        {
-                            value = Enum.Parse(argument.ValueType, text, ignoreCase: true);
-                            return true;
-                        }
-                        catch (ArgumentException)
-                        {
-                        }
-                    }
-
-                    // Fallback converters
-                    if (StringConverters.TryGetValue(argument.ValueType, out var conv) && conv(text, out value))
-                    {
-                        return true;
-                    }
-
-                    value = null;
-                    return false;
-                };
+                static bool ConvertSingleString(ArgumentResult result, TryConvertString convert, out object? value) =>
+                    convert(result.Tokens[result.Tokens.Count - 1].Value, out value);
             }
 
             if (argument.ValueType.CanBeBoundFromScalarValue())
@@ -186,7 +151,6 @@ namespace System.CommandLine.Binding
 
             return default;
         }
-
 
         private static bool CanBeBoundFromScalarValue(this Type type)
         {

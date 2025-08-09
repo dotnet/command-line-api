@@ -44,10 +44,7 @@ namespace System.CommandLine
             }
             set => _defaultValueFactory = value;
         }
-        
-        public Func<ArgumentResult, T?>? SingleTokenParser { get; set; }
 
-        public Func<ArgumentResult, T?>? MultiTokenParser { get; set; }        
         /// <summary>
         /// A custom argument parser.
         /// </summary>

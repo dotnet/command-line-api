@@ -93,7 +93,7 @@ namespace System.CommandLine
                 {
                     value = null;
                     return false;
-                }                
+                }
             };
         }
     }
