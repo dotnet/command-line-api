@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
-using System.CommandLine.Binding;
 namespace System.CommandLine
 {
     /// <inheritdoc cref="Argument" />
@@ -79,15 +78,14 @@ namespace System.CommandLine
                         }
                     };
                 }
-                // When cleared, retain the default converter provided by the concrete subclass.
             }
         }
 
         /// <inheritdoc />
-    public override Type ValueType => typeof(T);
+        public override Type ValueType => typeof(T);
 
         /// <inheritdoc />
-    public override bool HasDefaultValue => DefaultValueFactory is not null;
+        public override bool HasDefaultValue => DefaultValueFactory is not null;
 
         internal override object? GetDefaultValue(ArgumentResult argumentResult)
         {
