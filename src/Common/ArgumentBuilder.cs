@@ -5,31 +5,38 @@ using System.Reflection;
 
 internal static class ArgumentBuilder
 {
+    private static readonly ConstructorInfo _ctor;
+
+    static ArgumentBuilder()
+    {
+        _ctor = typeof(Argument<string>).GetConstructor(new[] { typeof(string) });
+    }
+
+    public static Argument CreateArgument(Type valueType, string name = "value")
+    {
+        var argumentType = typeof(Argument<>).MakeGenericType(valueType);
+
+#if NET6_0_OR_GREATER
+        var ctor = (ConstructorInfo)argumentType.GetMemberWithSameMetadataDefinitionAs(_ctor);
+#else
+        var ctor = argumentType.GetConstructor(new[] { typeof(string) });
+#endif
+
+        return (Argument)ctor.Invoke(new object[] { name });
+    }
 
     internal static Argument CreateArgument(ParameterInfo argsParam)
     {
         if (!argsParam.HasDefaultValue)
         {
-            var genType = typeof(Argument<>).MakeGenericType(argsParam.ParameterType);
-            var ctor = genType.GetConstructor(new[] { typeof(string) });
-            return (Argument)ctor.Invoke(new object[] { argsParam.Name });
+            return CreateArgument(argsParam.ParameterType, argsParam.Name);
         }
 
         var argumentType = typeof(Bridge<>).MakeGenericType(argsParam.ParameterType);
-        var ctorWithDefault = argumentType.GetConstructor(new[] { typeof(string), argsParam.ParameterType });
-        return (Argument)ctorWithDefault.Invoke(new object[] { argsParam.Name, argsParam.DefaultValue });
-    }
 
-    internal static Argument<T> CreateArgument<T>()
-    {
-        return new Argument<T>(typeof(T).Name.ToLowerInvariant());
-    }
+        var ctor = argumentType.GetConstructor(new[] { typeof(string), argsParam.ParameterType });
 
-    internal static Argument CreateArgument(Type type)
-    {
-        var genType = typeof(Argument<>).MakeGenericType(type);
-        var ctor = genType.GetConstructor(new[] { typeof(string) });
-        return (Argument)ctor.Invoke(new object[] { type.Name.ToLowerInvariant() });
+        return (Argument)ctor.Invoke(new object[] { argsParam.Name, argsParam.DefaultValue });
     }
 
     private sealed class Bridge<T> : Argument<T>
