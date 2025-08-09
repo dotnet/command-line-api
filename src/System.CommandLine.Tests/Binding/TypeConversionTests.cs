@@ -584,6 +584,13 @@ namespace System.CommandLine.Tests.Binding
         }
 
         [Fact]
+        public void Values_can_be_correctly_converted_to_Uri_without_the_parser_specifying_a_custom_converter()
+        {
+            var option = new Option<Uri>("-u");
+            GetValue(option, "-u http://example.com").Should().BeEquivalentTo(new Uri("http://example.com"));
+        }
+
+        [Fact]
         public void Options_with_arguments_specified_can_be_correctly_converted_to_bool_without_the_parser_specifying_a_custom_converter()
         {
             using var _ = new AssertionScope();

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -27,19 +28,6 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-#if NET6_0_OR_GREATER
-        [typeof(DateOnly)] = (string input, out object? value) =>
-        {
-            if (DateOnly.TryParse(input, out var parsed))
-            {
-                value = parsed;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-#endif
 
         [typeof(DateTime)] = (string input, out object? value) =>
         {
@@ -195,19 +183,6 @@ internal static partial class ArgumentConverter
             return false;
         },
 
-#if NET6_0_OR_GREATER
-        [typeof(TimeOnly)] = (string input, out object? value) =>
-        {
-            if (TimeOnly.TryParse(input, out var parsed))
-            {
-                value = parsed;
-                return true;
-            }
-
-            value = default;
-            return false;
-        },
-#endif
 
         [typeof(uint)] = (string token, out object? value) =>
         {
@@ -280,6 +255,18 @@ internal static partial class ArgumentConverter
             if (TimeSpan.TryParse(input, out var timeSpan))
             {
                 value = timeSpan;
+                return true;
+            }
+
+            value = default;
+            return false;
+        },
+
+        [typeof(Uri)] = (string input, out object? value) =>
+        {
+            if (Uri.TryCreate(input, UriKind.RelativeOrAbsolute, out var uri))
+            {
+                value = uri;
                 return true;
             }
 
