@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
 using System.IO;
-using System.Reflection;
 
 namespace System.CommandLine
 {
@@ -19,10 +18,8 @@ namespace System.CommandLine
     /// </remarks>
     public class RootCommand : Command
     {
-        private static Assembly? _assembly;
         private static string? _executablePath;
         private static string? _executableName;
-        private static string? _executableVersion;
 
         /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
@@ -45,9 +42,6 @@ namespace System.CommandLine
         /// </summary>
         public void Add(Directive directive) => Directives.Add(directive);
 
-        internal static Assembly GetAssembly()
-            => _assembly ??= (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
-
         /// <summary>
         /// The name of the currently running executable.
         /// </summary>
@@ -58,23 +52,5 @@ namespace System.CommandLine
         /// The path to the currently running executable.
         /// </summary>
         public static string ExecutablePath => _executablePath ??= Environment.GetCommandLineArgs()[0];
-        
-        internal static string ExecutableVersion => _executableVersion ??= GetExecutableVersion();
-
-        private static string GetExecutableVersion()
-        {
-            var assembly = GetAssembly();
-
-            var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-
-            if (assemblyVersionAttribute is null)
-            {
-                return assembly.GetName().Version?.ToString() ?? "";
-            }
-            else
-            {
-                return assemblyVersionAttribute.InformationalVersion;
-            }
-        }
     }
 }
