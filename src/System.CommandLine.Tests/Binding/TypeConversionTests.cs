@@ -4,7 +4,6 @@
 using FluentAssertions;
 using System.Collections;
 using System.Collections.Generic;
-using System.CommandLine.Utility;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -134,14 +133,17 @@ namespace System.CommandLine.Tests.Binding
             command.Arguments.Single().Arity.Should().BeEquivalentTo(ArgumentArity.ZeroOrOne);
         }
 
-        [Theory]
-        [InlineData(typeof(int[]))]
-        [InlineData(typeof(IEnumerable<int>))]
-        [InlineData(typeof(List<int>))]
-        public void Argument_infers_arity_of_IEnumerable_types_as_OneOrMore(Type type)
+        public static IEnumerable<object[]> EnumerableTypes()
         {
-            var argument = ArgumentBuilder.CreateArgument(type);
+            yield return new object[] { new Argument<int[]>("array") };
+            yield return new object[] { new Argument<IEnumerable<int>>("enumerable") };
+            yield return new object[] { new Argument<List<int>>("list") };
+        }
 
+        [Theory]
+        [MemberData(nameof(EnumerableTypes))]
+        public void Argument_infers_arity_of_IEnumerable_types_as_OneOrMore(Argument argument)
+        {
             argument.Arity.Should().BeEquivalentTo(ArgumentArity.OneOrMore);
         }
 
@@ -693,34 +695,28 @@ namespace System.CommandLine.Tests.Binding
         public void Values_can_be_correctly_converted_to_array_of_int_without_the_parser_specifying_a_custom_converter()
             => GetValue(new Option<int[]>("-x"), "-x 1 -x 2 -x 3").Should().BeEquivalentTo(new[] { 1, 2, 3 });
 
-        [Theory]
-        [InlineData(0, 100_000, typeof(string[]))]
-        [InlineData(0, 3, typeof(string[]))]
-        [InlineData(0, 100_000, typeof(IEnumerable<string>))]
-        [InlineData(0, 3, typeof(IEnumerable<string>))]
-        [InlineData(0, 100_000, typeof(List<string>))]
-        [InlineData(0, 3, typeof(List<string>))]
-        [InlineData(0, 100_000, typeof(IList<string>))]
-        [InlineData(0, 3, typeof(IList<string>))]
-        [InlineData(0, 100_000, typeof(ICollection<string>))]
-        [InlineData(0, 3, typeof(ICollection<string>))]
+        public static IEnumerable<object[]> AritiesAndEnumerableTypes()
+        {
+            foreach (int minArity in new[] { 0, 1 })
+            {
+                foreach (int maxArity in new[] { 3, 100_000 })
+                {
+                    yield return new object[] { minArity, maxArity, new Option<string[]>("--items") };
+                    yield return new object[] { minArity, maxArity, new Option<IEnumerable<string>>("--items") };
+                    yield return new object[] { minArity, maxArity, new Option<List<string>>("--items") };
+                    yield return new object[] { minArity, maxArity, new Option<IList<string>>("--items") };
+                    yield return new object[] { minArity, maxArity, new Option<ICollection<string>>("--items") };
+                }
+            }
+        }
 
-        [InlineData(1, 100_000, typeof(string[]))]
-        [InlineData(1, 3, typeof(string[]))]
-        [InlineData(1, 100_000, typeof(IEnumerable<string>))]
-        [InlineData(1, 3, typeof(IEnumerable<string>))]
-        [InlineData(1, 100_000, typeof(List<string>))]
-        [InlineData(1, 3, typeof(List<string>))]
-        [InlineData(1, 100_000, typeof(IList<string>))]
-        [InlineData(1, 3, typeof(IList<string>))]
-        [InlineData(1, 100_000, typeof(ICollection<string>))]
-        [InlineData(1, 3, typeof(ICollection<string>))]
+        [Theory]
+        [MemberData(nameof(AritiesAndEnumerableTypes))]
         public void Max_arity_greater_than_1_converts_to_enumerable_types(
             int minArity,
             int maxArity,
-            Type argumentType)
+            Option option)
         {
-            var option = OptionBuilder.CreateOption("--items", valueType: argumentType);
             option.Arity = new ArgumentArity(minArity, maxArity);
 
             var command = new RootCommand
@@ -731,7 +727,7 @@ namespace System.CommandLine.Tests.Binding
             var result = command.Parse("--items one --items two --items three");
 
             result.Errors.Should().BeEmpty();
-            result.GetResult(option).GetValueOrDefault<object>().Should().BeAssignableTo(argumentType);
+            result.GetResult(option).GetValueOrDefault<object>().Should().BeAssignableTo(option.ValueType);
         }
 
         [Fact]
