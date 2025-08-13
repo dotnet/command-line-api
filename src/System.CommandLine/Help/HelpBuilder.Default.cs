@@ -98,7 +98,7 @@ internal partial class HelpBuilder
                 {
                     if (symbol is Option)
                     {
-                        return $"<{symbol.Name.Trim('-', '/')}>";
+                        return $"<{symbol.Name.TrimStart('-', '/')}>";
                     }
 
                     return null;
