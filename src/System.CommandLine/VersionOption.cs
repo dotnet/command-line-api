@@ -4,6 +4,7 @@
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Linq;
+using System.Reflection;
 
 namespace System.CommandLine
 {
@@ -64,11 +65,27 @@ namespace System.CommandLine
         {
             public override int Invoke(ParseResult parseResult)
             {
-                parseResult.InvocationConfiguration.Output.WriteLine(RootCommand.ExecutableVersion);
+                parseResult.InvocationConfiguration.Output.WriteLine(GetExecutableVersion());
                 return 0;
             }
 
             public override bool ClearsParseErrors => true;
+
+            private static string GetExecutableVersion()
+            {
+                var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+
+                var assemblyVersionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+
+                if (assemblyVersionAttribute is null)
+                {
+                    return assembly.GetName().Version?.ToString() ?? "";
+                }
+                else
+                {
+                    return assemblyVersionAttribute.InformationalVersion;
+                }
+            }
         }
     }
 }
