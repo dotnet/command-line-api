@@ -1,0 +1,7 @@
+<Project>
+  <ItemGroup>
+    <!-- Ensure that MacOS dotnet-suggest shims get signed properly -->
+    <FileSignInfo Include="dotnet-suggest" CertificateName="MacDeveloperHarden" ExecutableType="MachO" />
+  </ItemGroup>
+
+</Project>
