@@ -13,8 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Common\ArgumentBuilder.cs" Link="Utility\ArgumentBuilder.cs" />
-    <Compile Include="..\Common\OptionBuilder.cs" Link="Utility\OptionBuilder.cs" />
     <Compile Include="..\System.CommandLine.Suggest\DotnetMuxer.cs" Link="Utility\DotnetMuxer.cs" />
     <Compile Include="..\System.CommandLine\LocalizationResources.cs" Link="LocalizationResources.cs" />
     <Compile Include="..\System.CommandLine\Properties\Resources.Designer.cs" Link="Properties\Resources.Designer.cs" />

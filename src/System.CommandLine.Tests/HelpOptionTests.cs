@@ -319,7 +319,7 @@ public class HelpOptionTests
               .Should()
               .ContainInOrder([
                   "Options:",
-                  "-i              The option",
+                  "-i <i>          The option",
                   "-?, -h, --help  Show help and usage information",
                   "--version       Show version information",
                   "Commands:"
@@ -356,7 +356,7 @@ public class HelpOptionTests
               .Should()
               .ContainInOrder([
                   "Options:",
-                  "-i              The option",
+                  "-i <i>          The option",
                   "-?, -h, --help  Show help and usage information",
               ]);
     }
