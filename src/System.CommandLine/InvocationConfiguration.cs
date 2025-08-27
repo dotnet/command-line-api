@@ -18,7 +18,7 @@ public class InvocationConfiguration
     /// that can be passed to a <see cref="CommandLineAction"/> during invocation.
     /// If not provided, a default timeout of 2 seconds is enforced.
     /// </summary>
-    public TimeSpan? ProcessTerminationTimeout { get; set; }
+    public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2); 
 
     /// <summary>
     /// The standard output. Used by Help and other facilities that write non-error information.
