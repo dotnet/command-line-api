@@ -1,7 +1,8 @@
 <Project>
   <ItemGroup>
     <!-- Ensure that MacOS dotnet-suggest shims get signed properly -->
-    <FileSignInfo Include="dotnet-suggest" CertificateName="MacDeveloperHarden" ExecutableType="MachO" />
+    <!-- Avoid using this when not building from the VMR, since this is only supported in 10.0 arcade -->
+    <FileSignInfo Include="dotnet-suggest" CertificateName="MacDeveloperHarden" ExecutableType="MachO" Condition="'$(DotNetBuildFromVMR)' == 'true'" />
   </ItemGroup>
 
 </Project>
