@@ -1,0 +1,227 @@
+# System.CommandLine
+
+System.CommandLine provides robust support for command-line parsing, invocation, and shell completions in .NET applications. It supports both POSIX and Windows conventions, making it easy to build professional command-line interfaces.
+
+## Getting Started
+
+### Basic Command
+
+Here's a simple "Hello World" command-line application:
+
+```csharp
+using System.CommandLine;
+
+var rootCommand = new RootCommand("Sample command-line app");
+
+var nameOption = new Option<string>(
+    aliases: ["--name", "-n"],
+    description: "Your name");
+
+rootCommand.Options.Add(nameOption);
+
+rootCommand.SetAction(parseResult =>
+{
+    string name = parseResult.GetValueForOption(nameOption);
+    Console.WriteLine($"Hello, {name ?? "World"}!");
+});
+
+return await rootCommand.InvokeAsync(args);
+```
+
+### Commands with Arguments
+
+Arguments are values passed directly to commands without option names:
+
+```csharp
+var fileArgument = new Argument<FileInfo>(
+    name: "file",
+    description: "The file to process");
+
+var processCommand = new Command("process", "Process a file");
+processCommand.Arguments.Add(fileArgument);
+
+processCommand.SetAction(parseResult =>
+{
+    FileInfo file = parseResult.GetValueForArgument(fileArgument);
+    Console.WriteLine($"Processing {file.FullName}");
+});
+
+rootCommand.Subcommands.Add(processCommand);
+```
+
+### Options with Default Values
+
+Options can have default values and validation:
+
+```csharp
+var delayOption = new Option<int>(
+    aliases: ["--delay", "-d"],
+    getDefaultValue: () => 1000,
+    description: "Delay in milliseconds");
+
+delayOption.AddValidator(result =>
+{
+    if (result.GetValueOrDefault<int>() < 0)
+    {
+        result.ErrorMessage = "Delay must be non-negative";
+    }
+});
+
+rootCommand.Options.Add(delayOption);
+```
+
+### Subcommands
+
+Build complex CLI applications with nested commands:
+
+```csharp
+var rootCommand = new RootCommand("My application");
+
+var configCommand = new Command("config", "Configure the application");
+var configSetCommand = new Command("set", "Set a configuration value");
+var configGetCommand = new Command("get", "Get a configuration value");
+
+var keyOption = new Option<string>("--key", "Configuration key");
+var valueOption = new Option<string>("--value", "Configuration value");
+
+configSetCommand.Options.Add(keyOption);
+configSetCommand.Options.Add(valueOption);
+configGetCommand.Options.Add(keyOption);
+
+configCommand.Subcommands.Add(configSetCommand);
+configCommand.Subcommands.Add(configGetCommand);
+rootCommand.Subcommands.Add(configCommand);
+
+// Usage: myapp config set --key "apiUrl" --value "https://api.example.com"
+// Usage: myapp config get --key "apiUrl"
+```
+
+### Using Options in Command Handlers
+
+Access option values through the ParseResult:
+
+```csharp
+var connectionOption = new Option<string>("--connection", "Database connection string");
+var timeoutOption = new Option<int>("--timeout", getDefaultValue: () => 30);
+var verboseOption = new Option<bool>("--verbose");
+
+rootCommand.Options.Add(connectionOption);
+rootCommand.Options.Add(timeoutOption);
+rootCommand.Options.Add(verboseOption);
+
+rootCommand.SetAction(parseResult =>
+{
+    var connection = parseResult.GetValueForOption(connectionOption);
+    var timeout = parseResult.GetValueForOption(timeoutOption);
+    var verbose = parseResult.GetValueForOption(verboseOption);
+    
+    Console.WriteLine($"Connection: {connection}");
+    Console.WriteLine($"Timeout: {timeout}");
+    Console.WriteLine($"Verbose: {verbose}");
+});
+```
+
+### Shell Completions
+
+Enable tab completion for your CLI:
+
+```csharp
+// Completions are automatically available for all commands, options, and arguments
+var rootCommand = new RootCommand("My app with completions");
+
+var fileOption = new Option<FileInfo>("--file", "The file to process");
+fileOption.AddCompletions((ctx) =>
+{
+    // Custom completion logic
+    return new[] { "file1.txt", "file2.txt", "file3.txt" };
+});
+
+rootCommand.Options.Add(fileOption);
+
+// Users can generate completion scripts using dotnet-suggest:
+// dotnet tool install -g dotnet-suggest
+// dotnet suggest script bash > ~/.bashrc
+// dotnet suggest script powershell > $PROFILE
+```
+
+### Async Command Handlers
+
+Support for asynchronous operations:
+
+```csharp
+var urlOption = new Option<string>("--url", "The URL to fetch");
+rootCommand.Options.Add(urlOption);
+
+rootCommand.SetAction(async (parseResult, cancellationToken) =>
+{
+    var url = parseResult.GetValueForOption(urlOption);
+    if (url != null)
+    {
+        using var client = new HttpClient();
+        var response = await client.GetStringAsync(url, cancellationToken);
+        Console.WriteLine(response);
+    }
+});
+
+// Or return an exit code:
+rootCommand.SetAction(async (parseResult, cancellationToken) =>
+{
+    // Your async logic here
+    return await Task.FromResult(0); // Return exit code
+});
+```
+
+## Notable Changes Since v2.0.0-beta7
+
+### New Features
+- **Finnish Localization**: Added Finnish language translations for help text and error messages ([#2605](https://github.com/dotnet/command-line-api/pull/2605))
+- **Improved Help System**: Enhanced `HelpAction` to allow users to provide custom `MaxWidth` for help text formatting ([#2635](https://github.com/dotnet/command-line-api/pull/2635))
+- **Task<int> Support**: Added `SetAction` overload for `Task<int>` return types ([#2634](https://github.com/dotnet/command-line-api/issues/2634))
+- **Implicit Arguments**: Added `ArgumentResult.Implicit` property for better argument handling ([#2622](https://github.com/dotnet/command-line-api/issues/2622), [#2625](https://github.com/dotnet/command-line-api/pull/2625))
+- **Performance Improvements**: Reduced reflection usage throughout the library for better performance ([#2662](https://github.com/dotnet/command-line-api/pull/2662))
+
+### Bug Fixes
+- Fixed issue [#2128](https://github.com/dotnet/command-line-api/issues/2128): Resolved command parsing edge cases ([#2656](https://github.com/dotnet/command-line-api/pull/2656))
+- Fixed issue [#2257](https://github.com/dotnet/command-line-api/issues/2257): Corrected argument validation behavior
+- Fixed issue [#2589](https://github.com/dotnet/command-line-api/issues/2589): Improved error message clarity ([#2654](https://github.com/dotnet/command-line-api/pull/2654))
+- Fixed issue [#2591](https://github.com/dotnet/command-line-api/issues/2591): Resolved option parsing inconsistencies ([#2644](https://github.com/dotnet/command-line-api/pull/2644))
+- Fixed issue [#2622](https://github.com/dotnet/command-line-api/issues/2622): Enhanced implicit argument support ([#2625](https://github.com/dotnet/command-line-api/pull/2625))
+- Fixed issue [#2628](https://github.com/dotnet/command-line-api/issues/2628): Corrected help text formatting issues
+- Fixed issue [#2634](https://github.com/dotnet/command-line-api/issues/2634): Added missing Task<int> action support
+- Fixed issue [#2640](https://github.com/dotnet/command-line-api/issues/2640): Resolved completion suggestions for nested commands ([#2646](https://github.com/dotnet/command-line-api/pull/2646))
+
+### Breaking Changes
+- Default value handling for `ProcessTerminationTimeout` has been re-added ([#2672](https://github.com/dotnet/command-line-api/pull/2672))
+- Some internal APIs have been refactored to reduce reflection usage ([#2662](https://github.com/dotnet/command-line-api/pull/2662))
+
+### Other Improvements
+- Updated to .NET 10.0 RC1 compatibility
+- Enhanced parsing logic for better POSIX and Windows convention support
+- Improved memory usage and performance optimizations
+- Better handling of complex command hierarchies
+
+## Documentation
+
+For comprehensive documentation, tutorials, and API reference, visit:
+- **[Microsoft Learn Documentation](https://learn.microsoft.com/en-us/dotnet/standard/commandline/)** - Complete guides and API reference
+- **[GitHub Repository](https://github.com/dotnet/command-line-api)** - Source code, samples, and issues
+- **[Sample Applications](https://github.com/dotnet/command-line-api/tree/main/samples)** - Real-world examples
+
+## Framework Support
+
+- **.NET 8.0+** - Full feature support with trimming and AOT compilation
+- **.NET Standard 2.0** - Compatible with .NET Framework 4.6.1+, .NET Core 2.0+
+
+## License
+
+This package is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](https://github.com/dotnet/command-line-api/blob/main/CONTRIBUTING.md) for details.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/dotnet/command-line-api/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/dotnet/command-line-api/discussions)
+- **Chat**: [Gitter Community](https://gitter.im/dotnet/command-line-api)
