@@ -13,9 +13,10 @@ using System.CommandLine;
 
 var rootCommand = new RootCommand("Sample command-line app");
 
-var nameOption = new Option<string>(
-    aliases: ["--name", "-n"],
-    description: "Your name");
+var nameOption = new Option<string>("--name", "-n")
+{
+    Description = "Your name"
+};
 
 rootCommand.Options.Add(nameOption);
 
@@ -25,7 +26,7 @@ rootCommand.SetAction(parseResult =>
     Console.WriteLine($"Hello, {name ?? "World"}!");
 });
 
-return await rootCommand.InvokeAsync(args);
+return await rootCommand.Parse(args).InvokeAsync();
 ```
 
 ### Commands with Arguments
@@ -54,10 +55,11 @@ rootCommand.Subcommands.Add(processCommand);
 Options can have default values and validation:
 
 ```csharp
-var delayOption = new Option<int>(
-    aliases: ["--delay", "-d"],
-    getDefaultValue: () => 1000,
-    description: "Delay in milliseconds");
+var delayOption = new Option<int>("--delay", "-d")
+{
+    Description = "Delay in milliseconds",
+    DefaultValueFactory = _ => 1000
+};
 
 delayOption.AddValidator(result =>
 {
@@ -81,8 +83,14 @@ var configCommand = new Command("config", "Configure the application");
 var configSetCommand = new Command("set", "Set a configuration value");
 var configGetCommand = new Command("get", "Get a configuration value");
 
-var keyOption = new Option<string>("--key", "Configuration key");
-var valueOption = new Option<string>("--value", "Configuration value");
+var keyOption = new Option<string>("--key")
+{
+    Description = "Configuration key"
+};
+var valueOption = new Option<string>("--value")
+{
+    Description = "Configuration value"
+};
 
 configSetCommand.Options.Add(keyOption);
 configSetCommand.Options.Add(valueOption);
@@ -101,9 +109,19 @@ rootCommand.Subcommands.Add(configCommand);
 Access option values through the ParseResult:
 
 ```csharp
-var connectionOption = new Option<string>("--connection", "Database connection string");
-var timeoutOption = new Option<int>("--timeout", getDefaultValue: () => 30);
-var verboseOption = new Option<bool>("--verbose");
+var connectionOption = new Option<string>("--connection")
+{
+    Description = "Database connection string"
+};
+var timeoutOption = new Option<int>("--timeout")
+{
+    Description = "Timeout in seconds",
+    DefaultValueFactory = _ => 30
+};
+var verboseOption = new Option<bool>("--verbose")
+{
+    Description = "Enable verbose output"
+};
 
 rootCommand.Options.Add(connectionOption);
 rootCommand.Options.Add(timeoutOption);
@@ -129,19 +147,27 @@ Enable tab completion for your CLI:
 // Completions are automatically available for all commands, options, and arguments
 var rootCommand = new RootCommand("My app with completions");
 
-var fileOption = new Option<FileInfo>("--file", "The file to process");
-fileOption.AddCompletions((ctx) =>
+var fileOption = new Option<FileInfo>("--file")
 {
-    // Custom completion logic
+    Description = "The file to process"
+};
+
+// Add custom completions using CompletionSources
+fileOption.CompletionSources.Add(ctx =>
+{
+    // Custom completion logic - return completion suggestions
     return new[] { "file1.txt", "file2.txt", "file3.txt" };
 });
+
+// Or add simple string suggestions
+fileOption.CompletionSources.Add("option1", "option2", "option3");
 
 rootCommand.Options.Add(fileOption);
 
 // Users can generate completion scripts using dotnet-suggest:
 // dotnet tool install -g dotnet-suggest
 // dotnet suggest script bash > ~/.bashrc
-// dotnet suggest script powershell > $PROFILE
+// dotnet suggest script powershell >> $PROFILE
 ```
 
 ### Async Command Handlers
@@ -149,7 +175,10 @@ rootCommand.Options.Add(fileOption);
 Support for asynchronous operations:
 
 ```csharp
-var urlOption = new Option<string>("--url", "The URL to fetch");
+var urlOption = new Option<string>("--url")
+{
+    Description = "The URL to fetch"
+};
 rootCommand.Options.Add(urlOption);
 
 rootCommand.SetAction(async (parseResult, cancellationToken) =>
