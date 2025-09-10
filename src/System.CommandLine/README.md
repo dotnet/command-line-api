@@ -22,7 +22,7 @@ rootCommand.Options.Add(nameOption);
 
 rootCommand.SetAction(parseResult =>
 {
-    string name = parseResult.GetValueForOption(nameOption);
+    string name = parseResult.GetValue(nameOption);
     Console.WriteLine($"Hello, {name ?? "World"}!");
 });
 
@@ -34,18 +34,21 @@ return await rootCommand.Parse(args).InvokeAsync();
 Arguments are values passed directly to commands without option names:
 
 ```csharp
-var fileArgument = new Argument<FileInfo>(
-    name: "file",
-    description: "The file to process");
+var fileArgument = new Argument<FileInfo>("file")
+{
+    Description = "The file to process"
+};
 
 var processCommand = new Command("process", "Process a file");
 processCommand.Arguments.Add(fileArgument);
 
 processCommand.SetAction(parseResult =>
 {
-    FileInfo file = parseResult.GetValueForArgument(fileArgument);
+    FileInfo file = parseResult.GetValue(fileArgument);
     Console.WriteLine($"Processing {file.FullName}");
 });
+
+var rootCommand = new RootCommand();
 
 rootCommand.Subcommands.Add(processCommand);
 ```
@@ -55,17 +58,19 @@ rootCommand.Subcommands.Add(processCommand);
 Options can have default values and validation:
 
 ```csharp
+var rootCommand = new RootCommand();
+
 var delayOption = new Option<int>("--delay", "-d")
 {
     Description = "Delay in milliseconds",
     DefaultValueFactory = _ => 1000
 };
 
-delayOption.AddValidator(result =>
+delayOption.Validators.Add(result =>
 {
     if (result.GetValueOrDefault<int>() < 0)
     {
-        result.ErrorMessage = "Delay must be non-negative";
+        result.AddError("Delay must be non-negative");
     }
 });
 
@@ -129,9 +134,9 @@ rootCommand.Options.Add(verboseOption);
 
 rootCommand.SetAction(parseResult =>
 {
-    var connection = parseResult.GetValueForOption(connectionOption);
-    var timeout = parseResult.GetValueForOption(timeoutOption);
-    var verbose = parseResult.GetValueForOption(verboseOption);
+    var connection = parseResult.GetValue(connectionOption);
+    var timeout = parseResult.GetValue(timeoutOption);
+    var verbose = parseResult.GetValue(verboseOption);
     
     Console.WriteLine($"Connection: {connection}");
     Console.WriteLine($"Timeout: {timeout}");
@@ -154,21 +159,35 @@ var fileOption = new Option<FileInfo>("--file")
 
 // Add custom completions using CompletionSources
 fileOption.CompletionSources.Add(ctx =>
-{
-    // Custom completion logic - return completion suggestions
-    return new[] { "file1.txt", "file2.txt", "file3.txt" };
-});
+    // hard-coded list of files
+    ["file1.txt", "file2.txt", "file3.txt" ]
+);
 
 // Or add simple string suggestions
 fileOption.CompletionSources.Add("option1", "option2", "option3");
 
 rootCommand.Options.Add(fileOption);
-
-// Users can generate completion scripts using dotnet-suggest:
-// dotnet tool install -g dotnet-suggest
-// dotnet suggest script bash > ~/.bashrc
-// dotnet suggest script powershell >> $PROFILE
 ```
+
+Users can then easily trigger your completions using `dotnet-suggest`:
+
+```shell
+> dotnet tool install -g dotnet-suggest
+> dotnet suggest script bash > ~/.bashrc
+```
+
+```powershell
+> dotnet tool install -g dotnet-suggest
+> dotnet suggest script powershell >> $PROFILE
+```
+
+Once `dotnet-suggest` is installed, you can register your app with it for completions support:
+
+```shell
+> dotnet-suggest register --command-path /path/to/myapp
+```
+
+Alternatively, you can create your own commands for completion generation and instruct users on how to set them up.
 
 ### Async Command Handlers
 
@@ -183,7 +202,7 @@ rootCommand.Options.Add(urlOption);
 
 rootCommand.SetAction(async (parseResult, cancellationToken) =>
 {
-    var url = parseResult.GetValueForOption(urlOption);
+    var url = parseResult.GetValue(urlOption);
     if (url != null)
     {
         using var client = new HttpClient();
@@ -204,9 +223,9 @@ rootCommand.SetAction(async (parseResult, cancellationToken) =>
 
 ### New Features
 - **Finnish Localization**: Added Finnish language translations for help text and error messages ([#2605](https://github.com/dotnet/command-line-api/pull/2605))
-- **Improved Help System**: Enhanced `HelpAction` to allow users to provide custom `MaxWidth` for help text formatting ([#2635](https://github.com/dotnet/command-line-api/pull/2635))
-- **Task<int> Support**: Added `SetAction` overload for `Task<int>` return types ([#2634](https://github.com/dotnet/command-line-api/issues/2634))
-- **Implicit Arguments**: Added `ArgumentResult.Implicit` property for better argument handling ([#2622](https://github.com/dotnet/command-line-api/issues/2622), [#2625](https://github.com/dotnet/command-line-api/pull/2625))
+- **Improved Help System**: Enhanced `HelpAction` to allow users to provide custom `MaxWidth` for help text formatting ([#2635](https://github.com/dotnet/command-line-api/pull/2635)). Note that if you create custom Help or Version actions, you'll want to set `ClearsParseErrors` to `true` to ensure that invoking those features isn't treated like an error by the parser.
+- **`Task<int>` Support**: Added `SetAction` overload for `Task<int>` return types ([#2634](https://github.com/dotnet/command-line-api/issues/2634))
+- **Detect Implicit Arguments**: Added the `ArgumentResult.Implicit` property for better argument handling ([#2622](https://github.com/dotnet/command-line-api/issues/2622), [#2625](https://github.com/dotnet/command-line-api/pull/2625))
 - **Performance Improvements**: Reduced reflection usage throughout the library for better performance ([#2662](https://github.com/dotnet/command-line-api/pull/2662))
 
 ### Bug Fixes
@@ -225,7 +244,6 @@ rootCommand.SetAction(async (parseResult, cancellationToken) =>
 
 ### Other Improvements
 - Updated to .NET 10.0 RC1 compatibility
-- Enhanced parsing logic for better POSIX and Windows convention support
 - Improved memory usage and performance optimizations
 - Better handling of complex command hierarchies
 
