@@ -11,9 +11,9 @@ Here's a simple "Hello World" command-line application:
 ```csharp
 using System.CommandLine;
 
-var rootCommand = new RootCommand("Sample command-line app");
+RootCommand rootCommand = new("Sample command-line app");
 
-var nameOption = new Option<string>("--name", "-n")
+Option<string> nameOption = new("--name", "-n")
 {
     Description = "Your name"
 };
@@ -26,7 +26,7 @@ rootCommand.SetAction(parseResult =>
     Console.WriteLine($"Hello, {name ?? "World"}!");
 });
 
-return await rootCommand.Parse(args).InvokeAsync();
+return rootCommand.Parse(args).Invoke();
 ```
 
 ### Commands with Arguments
@@ -109,7 +109,7 @@ rootCommand.Subcommands.Add(configCommand);
 // Usage: myapp config get --key "apiUrl"
 ```
 
-### Using Options in Command Handlers
+### Using Options in Command Actions
 
 Access option values through the ParseResult:
 
