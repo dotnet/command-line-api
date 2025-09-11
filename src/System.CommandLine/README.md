@@ -29,6 +29,14 @@ rootCommand.SetAction(parseResult =>
 return rootCommand.Parse(args).Invoke();
 ```
 
+In this example, we create a `RootCommand`, add an option for the user's name, and define an action that prints a greeting. The `RootCommand` is a special kind of `Command` that comes with a few predefined behaviors:
+
+* It discovers its name automatically from the currently-running application
+* It automatically provides `--help` and `--version` options and default behaviors for them
+* It provides a default integration with `dotnet-suggest` for dynamic [shell completions](#shell-completions)
+
+You can always override or customize these behaviors as needed on a `RootCommand`, or create your own top-level `Command` instead.
+
 ### Commands with Arguments
 
 Arguments are values passed directly to commands without option names:
