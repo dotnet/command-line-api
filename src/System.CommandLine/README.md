@@ -259,7 +259,6 @@ rootCommand.SetAction(async (parseResult, cancellationToken) =>
 For comprehensive documentation, tutorials, and API reference, visit:
 - **[Microsoft Learn Documentation](https://learn.microsoft.com/en-us/dotnet/standard/commandline/)** - Complete guides and API reference
 - **[GitHub Repository](https://github.com/dotnet/command-line-api)** - Source code, samples, and issues
-- **[Sample Applications](https://github.com/dotnet/command-line-api/tree/main/samples)** - Real-world examples
 
 ## Framework Support
 
