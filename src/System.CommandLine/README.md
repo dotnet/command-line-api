@@ -278,4 +278,3 @@ We welcome contributions! Please see our [Contributing Guide](https://github.com
 
 - **Issues**: [GitHub Issues](https://github.com/dotnet/command-line-api/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/dotnet/command-line-api/discussions)
-- **Chat**: [Gitter Community](https://gitter.im/dotnet/command-line-api)
