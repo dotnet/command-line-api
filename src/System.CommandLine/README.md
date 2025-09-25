@@ -230,7 +230,6 @@ rootCommand.SetAction(async (parseResult, cancellationToken) =>
 ## Notable Changes Since v2.0.0-beta7
 
 ### New Features
-- **Finnish Localization**: Added Finnish language translations for help text and error messages ([#2605](https://github.com/dotnet/command-line-api/pull/2605))
 - **Improved Help System**: Enhanced `HelpAction` to allow users to provide custom `MaxWidth` for help text formatting ([#2635](https://github.com/dotnet/command-line-api/pull/2635)). Note that if you create custom Help or Version actions, you'll want to set `ClearsParseErrors` to `true` to ensure that invoking those features isn't treated like an error by the parser.
 - **`Task<int>` Support**: Added `SetAction` overload for `Task<int>` return types ([#2634](https://github.com/dotnet/command-line-api/issues/2634))
 - **Detect Implicit Arguments**: Added the `ArgumentResult.Implicit` property for better argument handling ([#2622](https://github.com/dotnet/command-line-api/issues/2622), [#2625](https://github.com/dotnet/command-line-api/pull/2625))
