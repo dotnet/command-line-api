@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
-  <Source Uri="https://github.com/dotnet/dotnet" Mapping="command-line-api" Sha="2dea164f01d307c409cfe0d0ee5cb8a0691e3c94" BarId="283828" />
+  <Source Uri="https://github.com/dotnet/dotnet" Mapping="command-line-api" Sha="537ecf871e65b50bbe5c8d70c284caa87b69b3cd" BarId="284571" />
   <ProductDependencies>
   </ProductDependencies>
   <ToolsetDependencies>
