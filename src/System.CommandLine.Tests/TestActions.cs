@@ -23,6 +23,8 @@ public class SynchronousTestAction : SynchronousCommandLineAction
 
     public override bool ClearsParseErrors { get; }
 
+    public override bool Terminating { get; }
+
     public override int Invoke(ParseResult parseResult)
     {
         _invoke(parseResult);
@@ -45,6 +47,8 @@ public class AsynchronousTestAction : AsynchronousCommandLineAction
     }
 
     public override bool ClearsParseErrors { get; }
+
+    public override bool Terminating { get; }
 
     public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
     {
