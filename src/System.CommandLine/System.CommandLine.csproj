@@ -7,6 +7,7 @@
     <Description>Support for parsing command lines, supporting both POSIX and Windows conventions and shell-agnostic command line completions.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DebugType Condition="'$(Configuration)' == 'Debug'">portable</DebugType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(NetMinimum)'">
@@ -17,6 +18,7 @@
    
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
+    <None Include="README.md" Pack="true" PackagePath="/README.md" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
