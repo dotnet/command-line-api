@@ -193,7 +193,6 @@ System.CommandLine.Invocation
   public abstract class CommandLineAction
     public System.Boolean ClearsParseErrors { get; }
     public System.Boolean Terminating { get; }
-    protected System.Void set_Terminating(System.Boolean value)
   public class ParseErrorAction : SynchronousCommandLineAction
     .ctor()
     public System.Boolean ShowHelp { get; set; }

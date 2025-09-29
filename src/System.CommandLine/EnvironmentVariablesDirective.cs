@@ -32,8 +32,9 @@ namespace System.CommandLine
             internal EnvironmentVariablesDirectiveAction(EnvironmentVariablesDirective directive)
             {
                 _directive = directive;
-                Terminating = false;
             }
+
+            public override bool Terminating => false;
 
             public override int Invoke(ParseResult parseResult)
             {
