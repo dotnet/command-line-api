@@ -46,7 +46,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Configures an option to accept only values corresponding to a existing files or directories.
+        /// Configures an option to accept only values corresponding to existing files or directories.
         /// </summary>
         /// <param name="option">The option to configure.</param>
         /// <returns>The option being extended.</returns>

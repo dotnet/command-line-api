@@ -45,8 +45,21 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// The name used in help output to describe the argument. 
+        /// Gets or sets the placeholder name shown in usage help for the argument's value.
+        /// The value will be wrapped in angle brackets (<c>&lt;</c> and <c>&gt;</c>).
         /// </summary>
+        /// <remarks>
+        /// If <c>null</c>, the <see cref="Symbol.Name"/> of the argument will be used.
+        /// </remarks>
+        /// <example>
+        /// An argument with <see cref="Symbol.Name"/> of <c>argument</c> and a
+        /// <see cref="HelpName"/> of <c>Value</c> will be shown in usage help as:
+        /// <c>&lt;Value&gt;</c>. If <see cref="HelpName"/> is not set,
+        /// help output will show: <c>&lt;argument&gt;</c>.
+        /// </example>
+        /// <value>
+        /// The name to show as the placeholder for the argument's value.
+        /// </value>
         public string? HelpName { get; set; }
 
         internal TryConvertArgument? ConvertArguments

@@ -23,10 +23,14 @@ namespace System.CommandLine.Completions
             WordToComplete = wordToComplete;
         }
 
+        /// <summary>
         /// The text of the word to be completed, if any.
+        /// </summary>
         public string WordToComplete { get; }
 
+        /// <summary>
         /// The parse result for which completions are being requested.
+        /// </summary>
         public ParseResult ParseResult { get; }
 
         /// <summary>
