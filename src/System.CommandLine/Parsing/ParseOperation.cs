@@ -333,13 +333,25 @@ namespace System.CommandLine.Parsing
         }
 
         private void AddPreAction(CommandLineAction action)
-        {
+        {   
             if (_preActions is null)
             {
                 _preActions = new();
             }
 
             _preActions.Add(action);
+        }
+
+        private void AddPreActionsForImplicitOptions()
+        {
+            foreach (var kvp in _symbolResultTree)
+            {
+                if (kvp is { Key: Option { Action: { Terminating: false } action }, Value: OptionResult { Implicit: true } } && 
+                    _primaryAction != action)
+                {
+                    AddPreAction(action);
+                }
+            }
         }
 
         private void AddCurrentTokenToUnmatched()
@@ -435,6 +447,9 @@ namespace System.CommandLine.Parsing
                     }
                 }
             }
+
+            // FIX: (ValidateAndAddDefaultResults)  AddPreActionsForImplicitOptions();
+
         }
     }
 }
