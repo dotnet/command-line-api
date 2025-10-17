@@ -3,7 +3,7 @@
 namespace System.CommandLine.Help
 {
     /// <summary>
-    /// Provides command line help.
+    /// Provides command-line help.
     /// </summary>
     public sealed class HelpAction : SynchronousCommandLineAction
     {
@@ -11,11 +11,11 @@ namespace System.CommandLine.Help
         private int _maxWidth = -1;
 
         /// <summary>
-        /// The maximum width in characters after which help output is wrapped.
+        /// Gets or sets the maximum width in characters after which help output is wrapped.
         /// </summary>
-        /// <remarks>It defaults to <see cref="Console.WindowWidth"/>.</remarks>
+        /// <value>The maximum width in characters after which help output is wrapped. The default is <see cref="Console.WindowWidth"/>.</value>
         public int MaxWidth
-        { 
+        {
             get
             {
                 if (_maxWidth < 0)
@@ -44,7 +44,7 @@ namespace System.CommandLine.Help
         }
 
         /// <summary>
-        /// Specifies an <see cref="Builder"/> to be used to format help output when help is requested.
+        /// Gets or sets the <see cref="Builder"/> to use to format help output.
         /// </summary>
         internal HelpBuilder Builder
         {

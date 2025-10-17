@@ -8,14 +8,16 @@ using System.CommandLine.Invocation;
 namespace System.CommandLine
 {
     /// <summary>
-    /// The purpose of directives is to provide cross-cutting functionality that can apply across command-line apps.
+    /// Provides cross-cutting functionality that can apply across command-line apps.
+    /// </summary>
+    /// <remarks>
     /// Because directives are syntactically distinct from the app's own syntax, they can provide functionality that applies across apps.
-    /// 
+    ///
     /// A directive must conform to the following syntax rules:
     /// * It's a token on the command line that comes after the app's name but before any subcommands or options.
     /// * It's enclosed in square brackets.
     /// * It doesn't contain spaces.
-    /// </summary>
+    /// </remarks>
     public class Directive : Symbol
     {
         /// <summary>

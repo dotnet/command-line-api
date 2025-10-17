@@ -10,7 +10,7 @@ using System.Linq;
 namespace System.CommandLine
 {
     /// <summary>
-    /// A symbol defining a value that can be passed on the command line to a <see cref="Command">command</see> or <see cref="Option">option</see>.
+    /// Represents a symbol that defines a value that can be passed on the command line to a <see cref="Command">command</see> or <see cref="Option">option</see>.
     /// </summary>
     public abstract class Argument : Symbol
     {
@@ -22,7 +22,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        /// <param name="name">The name of the argument. This can be used to look up the parsed value and is displayed in help</param>
+        /// <param name="name">The name of the argument. This value can be used to look up the parsed value and is displayed in help.</param>
         protected Argument(string name) : base(name, allowWhitespace: true)
         {
         }
@@ -48,8 +48,11 @@ namespace System.CommandLine
         /// Gets or sets the placeholder name shown in usage help for the argument's value.
         /// The value will be wrapped in angle brackets (<c>&lt;</c> and <c>&gt;</c>).
         /// </summary>
+        /// <value>
+        /// The name to show as the placeholder for the argument's value.
+        /// </value>
         /// <remarks>
-        /// If <c>null</c>, the <see cref="Symbol.Name"/> of the argument will be used.
+        /// If <c>null</c>, the <see cref="Symbol.Name"/> of the argument is used.
         /// </remarks>
         /// <example>
         /// An argument with <see cref="Symbol.Name"/> of <c>argument</c> and a
@@ -57,9 +60,6 @@ namespace System.CommandLine
         /// <c>&lt;Value&gt;</c>. If <see cref="HelpName"/> is not set,
         /// help output will show: <c>&lt;argument&gt;</c>.
         /// </example>
-        /// <value>
-        /// The name to show as the placeholder for the argument's value.
-        /// </value>
         public string? HelpName { get; set; }
 
         internal TryConvertArgument? ConvertArguments
@@ -107,12 +107,12 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Type" /> that the argument's parsed tokens will be converted to.
+        /// Gets the type that the argument's parsed tokens will be converted to.
         /// </summary>
         public abstract Type ValueType { get; }
 
         /// <summary>
-        /// Provides a list of argument validators. Validators can be used
+        /// Gets a list of argument validators. Validators can be used
         /// to provide custom errors based on user input.
         /// </summary>
         public List<Action<ArgumentResult>> Validators => _validators ??= new ();
@@ -122,7 +122,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the default value for the argument.
         /// </summary>
-        /// <returns>Returns the default value for the argument, if defined. Null otherwise.</returns>
+        /// <returns>The default value for the argument, if defined; otherwise, <see langword="null /">.</returns>
         public object? GetDefaultValue()
         {
             var command = Parents.FlattenBreadthFirst(x => x.Parents)
@@ -135,7 +135,7 @@ namespace System.CommandLine
         internal abstract object? GetDefaultValue(ArgumentResult argumentResult);
 
         /// <summary>
-        /// Specifies if a default value is defined for the argument.
+        /// Gets a value that indicates if a default value is defined for the argument.
         /// </summary>
         public abstract bool HasDefaultValue { get; }
 

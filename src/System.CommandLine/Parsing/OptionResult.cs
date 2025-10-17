@@ -7,7 +7,7 @@ using System.Linq;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing an <see cref="Option" />.
+    /// Represents a result produced when parsing an <see cref="Option" />.
     /// </summary>
     public sealed class OptionResult : SymbolResult
     {
@@ -25,24 +25,24 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
-        /// The option to which the result applies.
+        /// Gets the option to which the result applies.
         /// </summary>
         public Option Option { get; }
 
         /// <summary>
-        /// Indicates whether the result was created implicitly and not due to the option being specified on the command line.
+        /// Gets a value that indicates whether the result was created implicitly and not due to the option being specified on the command line.
         /// </summary>
         /// <remarks>Implicit results commonly result from options having a default value.</remarks>
         public bool Implicit => IdentifierToken is null || IdentifierToken.Implicit;
 
         /// <summary>
-        /// The token that was parsed to specify the option.
+        /// Gets the token that was parsed to specify the option.
         /// </summary>
         /// <remarks>An identifier token is a token that matches either the option's name or one of its aliases.</remarks>
         public Token? IdentifierToken { get; }
 
         /// <summary>
-        /// The number of occurrences of an identifier token matching the option.
+        /// Gets the number of occurrences of an identifier token matching the option.
         /// </summary>
         public int IdentifierTokenCount { get; internal set; }
 
