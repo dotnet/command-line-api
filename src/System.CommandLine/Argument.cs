@@ -22,7 +22,7 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        /// <param name="name">The name of the argument. This value can be used to look up the parsed value and is displayed in help.</param>
+        /// <param name="name">The name of the argument. This value can be used to look up the parsed value and is displayed in help if <see cref="HelpName" /> is null.</param>
         protected Argument(string name) : base(name, allowWhitespace: true)
         {
         }
@@ -122,7 +122,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets the default value for the argument.
         /// </summary>
-        /// <returns>The default value for the argument, if defined; otherwise, <see langword="null /">.</returns>
+        /// <returns>The default value for the argument, if defined; otherwise, <see langword="null" />.</returns>
         public object? GetDefaultValue()
         {
             var command = Parents.FlattenBreadthFirst(x => x.Parents)

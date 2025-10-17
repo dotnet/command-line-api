@@ -138,7 +138,7 @@ namespace System.CommandLine
         /// <param name="name">The name of the Symbol for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
         /// <exception cref="InvalidOperationException">Parsing resulted in one or more errors.</exception>
-        /// <exception cref="ArgumentException">No symbolw was defined for the given name for the parsed command.</exception>
+        /// <exception cref="ArgumentException">No symbol was defined for the given name for the parsed command.</exception>
         /// <exception cref="InvalidCastException">The parsed result cannot be cast to <typeparamref name="T"/>.</exception>
         public T? GetValue<T>(string name)
             => RootCommandResult.GetValue<T>(name);
@@ -162,13 +162,13 @@ namespace System.CommandLine
             => RootCommandResult.GetRequiredValue(option);
 
         /// <summary>
-        /// Gets the parsed or default value for the specified required symbol name, in the context of parsed command (not entire symbol tree).
+        /// Gets the parsed or default value for the specified required symbol name in the context of the parsed command (not entire symbol tree).
         /// </summary>
-        /// <param name="name">The name of the required Symbol for which to get a value.</param>
+        /// <param name="name">The name of the required symbol for which to get a value.</param>
         /// <returns>The parsed value or a configured default.</returns>
         /// <exception cref="InvalidOperationException">Parsing resulted in one or more errors, or the required symbol was not parsed or has no default value configured.</exception>
-        /// <exception cref="ArgumentException">No symbol was defined for given name for the parsed command.</exception>
-        /// <exception cref="InvalidCastException">The parsed result can't be cast to <typeparamref name="T"/>.</exception>
+        /// <exception cref="ArgumentException">No symbol was defined for the given name for the parsed command.</exception>
+        /// <exception cref="InvalidCastException">The parsed result cannot be cast to <typeparamref name="T"/>.</exception>
         public T GetRequiredValue<T>(string name)
             => RootCommandResult.GetRequiredValue<T>(name);
 

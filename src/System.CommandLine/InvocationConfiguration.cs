@@ -19,6 +19,9 @@ public class InvocationConfiguration
     /// that can be passed to a <see cref="CommandLineAction"/> during invocation.
     /// </summary>
     /// <value>The default is two seconds.</value>
+    /// <remarks>
+    /// If this property is set to <see langword="null" />, the termination request isn't handled by System.CommandLine. In that case, the process is terminated immediately unless some other part of the program adds a handler.
+    /// </remarks>
     public TimeSpan? ProcessTerminationTimeout { get; set; } = TimeSpan.FromSeconds(2);
 
     /// <summary>

@@ -16,7 +16,7 @@ namespace System.CommandLine
         private CommandLineAction? _action;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="T:System.CommandLine.VersionOption" />.
+        /// Initializes a new instance of <see cref="VersionOption" />.
         /// </summary>
         /// <remarks>
         /// When added to a <see cref="Command"/>, it enables the use of a <c>--version</c> option, which, when specified in command line input, short circuits normal command handling and instead writes out version information before exiting.
@@ -26,7 +26,7 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="T:System.CommandLine.VersionOption" />.
+        /// Initializes a new instance of <see cref="VersionOption" />.
         /// </summary>
         /// <remarks>
         /// When added to a <see cref="Command"/>, it enables the use of a provided option name and aliases, which, when specified in command line input, short circuits normal command handling and instead writes out version information before exiting.

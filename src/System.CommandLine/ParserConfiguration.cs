@@ -37,7 +37,7 @@ namespace System.CommandLine
         /// </summary>
         /// <value><see langword="null"/> to disable response files support. By default, the response file token replacer is enabled.</value>
         /// <remarks>
-        /// When enabled, any token prefixed with <code>@</code> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
+        /// When enabled, any token prefixed with <c>@</c> can be replaced with zero or more other tokens. This is mostly commonly used to expand tokens from response files and interpolate them into a command line prior to parsing.
         /// </remarks>
         public TryReplaceToken? ResponseFileTokenReplacer { get; set; } = StringExtensions.TryReadResponseFile;
     }

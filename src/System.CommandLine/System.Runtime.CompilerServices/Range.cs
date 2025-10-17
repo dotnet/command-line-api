@@ -10,7 +10,7 @@ namespace System
 {
     /// <summary>Represents a type that can be used to index a collection either from the beginning or the end.</summary>
     /// <remarks>
-    /// <see cref="T:System.Index" /> is used by the C# compiler to support the <c>>^</c> or ["index from end" operator](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/member-access-operators#index-from-end-operator-):
+    /// <see cref="Index" /> is used by the C# compiler to support the <c>>^</c> or ["index from end" operator](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/member-access-operators#index-from-end-operator-):
     /// <code language="csharp">
     /// int[] someArray = new int[5] { 1, 2, 3, 4, 5 };
     /// int lastElement = someArray[^1]; // lastElement = 5
@@ -20,11 +20,11 @@ namespace System
     {
         private readonly int _value;
 
-        /// <summary>Initializes a new <see cref="T:System.Index" /> with a specified index position and a value that indicates if the index is from the beginning or the end of a collection.</summary>
+        /// <summary>Initializes a new <see cref="Index" /> with a specified index position and a value that indicates if the index is from the beginning or the end of a collection.</summary>
         /// <param name="value">The index value. It has to be greater then or equal to zero.</param>
         /// <param name="fromEnd"><see langword = "true" /> to index from the end of the collection, or <see langword = "false" /> to index from the beginning of the collection.</param>
         /// <remarks>
-        /// If the <see cref="T:System.Index" /> is constructed from the end, an index value of 1 points to the last element, and an index value of 0 points beyond the last element.
+        /// If the <see cref="Index" /> is constructed from the end, an index value of 1 points to the last element, and an index value of 0 points beyond the last element.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Index(int value, bool fromEnd = false)
@@ -46,15 +46,15 @@ namespace System
             _value = value;
         }
 
-        /// <summary>Gets an <see cref="T:System.Index" /> that points to the first element of a collection.</summary>
+        /// <summary>Gets an <see cref="Index" /> that points to the first element of a collection.</summary>
         /// <value>An instance that points to the first element of a collection.</value>
         public static Index Start => new Index(0);
 
-        /// <summary>Gets an <see cref="T:System.Index" /> that points beyond the last element.</summary>
+        /// <summary>Gets an <see cref="Index" /> that points beyond the last element.</summary>
         /// <value>An index that points beyond the last element.</value>
         public static Index End => new Index(~0);
 
-        /// <summary>Creates an <see cref="T:System.Index" /> from the specified index at the start of a collection.</summary>
+        /// <summary>Creates an <see cref="Index" /> from the specified index at the start of a collection.</summary>
         /// <param name="value">The index position from the start of a collection.</param>
         /// <returns>The index value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -68,7 +68,7 @@ namespace System
             return new Index(value);
         }
 
-        /// <summary>Creates an <see cref="T:System.Index" /> from the end of a collection at a specified index position.</summary>
+        /// <summary>Creates an <see cref="Index" /> from the end of a collection at a specified index position.</summary>
         /// <param name="value">The index value from the end of a collection.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Index FromEnd(int value)
@@ -107,7 +107,7 @@ namespace System
         /// <returns>The offset.</returns>
         /// <remarks>
         /// For performance reasons, this method does not validate if <c>length</c> or the returned value are negative. It also doesn't validate if the returned value is greater than <c>length</c>.
-        /// Collections aren't expected to have a negative length/count. If this method's returned offset is negative and is then used to index a collection, the runtime will throw <see cref="T:System.ArgumentOutOfRangeException" />, which will have the same effect as validation.
+        /// Collections aren't expected to have a negative length/count. If this method's returned offset is negative and is then used to index a collection, the runtime will throw <see cref="ArgumentOutOfRangeException" />, which will have the same effect as validation.
         /// </remarks>
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetOffset(int length)
@@ -126,10 +126,10 @@ namespace System
 
         /// <summary>Indicates whether the current Index object is equal to a specified object.</summary>
         /// <param name="value">An object to compare with this instance.</param>
-        /// <returns><see langword="true" /> if <paramref name="value" /> is of type <see cref="T:System.Index" /> and is equal to the current instance; otherwise, <see langword="false" />.</returns>
+        /// <returns><see langword="true" /> if <paramref name="value" /> is of type <see cref="Index" /> and is equal to the current instance; otherwise, <see langword="false" />.</returns>
         public override bool Equals(object? value) => value is Index && _value == ((Index)value)._value;
 
-        /// <summary>Returns a value that indicates whether the current object is equal to another <see cref="T:System.Index" /> object.</summary>
+        /// <summary>Returns a value that indicates whether the current object is equal to another <see cref="Index" /> object.</summary>
         /// <param name="other">The object to compare with this instance.</param>
         /// <returns><see langword="true" /> if the current Index object is equal to <paramref name="other" />; otherwise, <see langword="false" />.</returns>
         public bool Equals(Index other) => _value == other._value;
@@ -138,13 +138,13 @@ namespace System
         /// <returns>The hash code.</returns>
         public override int GetHashCode() => _value;
 
-        /// <summary>Converts an integer number to an <see cref="T:System.Index" />.</summary>
+        /// <summary>Converts an integer number to an <see cref="Index" />.</summary>
         /// <param name="value">The integer to convert.</param>
         /// <returns>An index representing the integer.</returns>
         public static implicit operator Index(int value) => FromStart(value);
 
-        /// <summary>Returns the string representation of the current <see cref="T:System.Index" /> instance.</summary>
-        /// <returns>The string representation of the <see cref="T:System.Index" />.</returns>
+        /// <summary>Returns the string representation of the current <see cref="Index" /> instance.</summary>
+        /// <returns>The string representation of the <see cref="Index" />.</returns>
         public override string ToString()
         {
             if (IsFromEnd)
@@ -156,7 +156,7 @@ namespace System
 
     /// <summary>Represents a range that has start and end indexes.</summary>
     /// <remarks>
-    /// <see cref="T:System.Range" /> is used by the C# compiler to support the range syntax:
+    /// <see cref="Range" /> is used by the C# compiler to support the range syntax:
     /// <code language="csharp">
     /// int[] someArray = new int[5] { 1, 2, 3, 4, 5 };
     /// int[] subArray1 = someArray[0..2]; // { 1, 2 }
@@ -165,15 +165,15 @@ namespace System
     /// </remarks>
     internal readonly struct Range : IEquatable<Range>
     {
-        /// <summary>Gets the inclusive start index of the <see cref="T:System.Range" />.</summary>
+        /// <summary>Gets the inclusive start index of the <see cref="Range" />.</summary>
         /// <value>The inclusive start index of the range.</value>
         public Index Start { get; }
 
-        /// <summary>Gets an <see cref="T:System.Index" /> that represents the exclusive end index of the range.</summary>
+        /// <summary>Gets an <see cref="Index" /> that represents the exclusive end index of the range.</summary>
         /// <value>The end index of the range.</value>
         public Index End { get; }
 
-        /// <summary>Instantiates a new <see cref="T:System.Range" /> instance with the specified starting and ending indexes.</summary>
+        /// <summary>Instantiates a new <see cref="Range" /> instance with the specified starting and ending indexes.</summary>
         /// <param name="start">The inclusive start index of the range.</param>
         /// <param name="end">The exclusive end index of the range.</param>
         public Range(Index start, Index end)
@@ -183,15 +183,15 @@ namespace System
         }
 
         /// <summary>Returns a value that indicates whether the current instance is equal to a specified object.</summary>
-        /// <param name="value">An object to compare with this <see cref="T:System.Range" /> object.</param>
-        /// <returns><see langword="true" /> if <paramref name="value" /> is of type <see cref="T:System.Range" /> and is equal to the current instance; otherwise, <see langword="false" />.</returns>
+        /// <param name="value">An object to compare with this <see cref="Range" /> object.</param>
+        /// <returns><see langword="true" /> if <paramref name="value" /> is of type <see cref="Range" /> and is equal to the current instance; otherwise, <see langword="false" />.</returns>
         public override bool Equals(object? value) =>
             value is Range r &&
             r.Start.Equals(Start) &&
             r.End.Equals(End);
 
-        /// <summary>Returns a value that indicates whether the current instance is equal to another <see cref="T:System.Range" /> object.</summary>
-        /// <param name="other">A <see cref="T:System.Range" /> object to compare with this <see cref="T:System.Range" /> object.</param>
+        /// <summary>Returns a value that indicates whether the current instance is equal to another <see cref="Range" /> object.</summary>
+        /// <param name="other">A <see cref="Range" /> object to compare with this <see cref="Range" /> object.</param>
         /// <see langword="true" /> if the current instance is equal to <paramref name="other" />; otherwise, <see langword="false" />.
         public bool Equals(Range other) => other.Start.Equals(Start) && other.End.Equals(End);
 
@@ -202,24 +202,24 @@ namespace System
             return Start.GetHashCode() * 31 + End.GetHashCode();
         }
 
-        /// <summary>Returns the string representation of the current <see cref="T:System.Range" /> object.</summary>
+        /// <summary>Returns the string representation of the current <see cref="Range" /> object.</summary>
         /// <returns>The string representation of the range.</returns>
         public override string ToString()
         {
             return Start + ".." + End;
         }
 
-        /// <summary>Returns a new <see cref="T:System.Range" /> instance starting from a specified start index to the end of the collection.</summary>
+        /// <summary>Returns a new <see cref="Range" /> instance starting from a specified start index to the end of the collection.</summary>
         /// <param name="start">The position of the first element from which the Range will be created.</param>
         /// <returns>A range from <paramref name="start" /> to the end of the collection.</returns>
         public static Range StartAt(Index start) => new Range(start, Index.End);
 
-        /// <summary>Creates a <see cref="T:System.Range" /> object starting from the first element in the collection to a specified end index.</summary>
-        /// <param name="end">The position of the last element up to which the <see cref="T:System.Range" /> object will be created.</param>
+        /// <summary>Creates a <see cref="Range" /> object starting from the first element in the collection to a specified end index.</summary>
+        /// <param name="end">The position of the last element up to which the <see cref="Range" /> object will be created.</param>
         /// <returns>A range that starts from the first element to <paramref name="end" />.</returns>
         public static Range EndAt(Index end) => new Range(Index.Start, end);
 
-        /// <summary>Gets a <see cref="T:System.Range" /> object that starts from the first element to the end.</summary>
+        /// <summary>Gets a <see cref="Range" /> object that starts from the first element to the end.</summary>
         /// <value>A range from the start to the end.</value>
         public static Range All => new Range(Index.Start, Index.End);
 
@@ -227,7 +227,7 @@ namespace System
         /// <param name="length">A positive integer that represents the length of the collection that the range will be used with.</param>
         /// <returns>The start offset and length of the range.</returns>
         /// <remarks>
-        /// For performance reasons, this method doesn't validate <paramref name="length" /> to ensure that it is not negative. It does ensure that <paramref name="length" /> is within the current <see cref="T:System.Range" /> instance.
+        /// For performance reasons, this method doesn't validate <paramref name="length" /> to ensure that it is not negative. It does ensure that <paramref name="length" /> is within the current <see cref="Range" /> instance.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (int Offset, int Length) GetOffsetAndLength(int length)

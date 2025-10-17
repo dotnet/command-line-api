@@ -44,12 +44,12 @@ namespace System.CommandLine.Parsing
                 .GetValueOrDefault<T>();
 
         /// <summary>
-        /// Specifies the maximum number of tokens to consume for the argument. Remaining tokens are passed on and can be consumed by later arguments, or will otherwise be added to <see cref="ParseResult.UnmatchedTokens"/>
+        /// Specifies the maximum number of tokens to consume for the argument. Remaining tokens are passed on and can be consumed by later arguments, or will otherwise be added to <see cref="ParseResult.UnmatchedTokens"/>.
         /// </summary>
         /// <param name="numberOfTokens">The number of tokens to take. The rest are passed on.</param>
         /// <exception cref="ArgumentOutOfRangeException"><c>numberOfTokens - Value</c> must be at least 1.</exception>
         /// <exception cref="InvalidOperationException">This method is called more than once.</exception>
-        /// <exception cref="NotSupportedException">This method is called by Option-owned ArgumentResult.</exception>
+        /// <exception cref="NotSupportedException">This method is called by an Option-owned <see cref="ArgumentResult"/>.</exception>
         public void OnlyTake(int numberOfTokens)
         {
             if (numberOfTokens < 0)
