@@ -448,8 +448,7 @@ namespace System.CommandLine.Parsing
                 }
             }
 
-            // FIX: (ValidateAndAddDefaultResults)  AddPreActionsForImplicitOptions();
-
+            AddPreActionsForImplicitOptions();
         }
     }
 }
