@@ -64,7 +64,7 @@ namespace System.CommandLine
         internal bool HasArguments => _arguments?.Count > 0 ;
 
         /// <summary>
-        /// Gets all of the options for the command, including inherited options that have been applied to any of the command's ancestors.
+        /// Gets all of the options for the command.
         /// </summary>
         public IList<Option> Options => _options ??= new (this);
 
