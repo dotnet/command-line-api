@@ -67,8 +67,8 @@ namespace System.CommandLine
         /// Gets all of the options for the command.
         /// </summary>
         /// <remarks>
-        /// This collection doesn't include options on parent commands where <see langword="Option.Recursive" /> is <see langword="true" />. Those options are valid under the current command but don't appear in this collection.
-        /// <remarks>
+        /// This collection doesn't include options on parent commands where <see cref="Option.Recursive">Option.Recursive</see> is <see langword="true" />. Those options are valid under the current command but don't appear in this collection.
+        /// </remarks>
         public IList<Option> Options => _options ??= new (this);
 
         internal bool HasOptions => _options?.Count > 0;
