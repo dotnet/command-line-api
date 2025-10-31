@@ -15,17 +15,17 @@ namespace System.CommandLine
         /// <summary>
         /// Initializes a new instance of the Argument class.
         /// </summary>
-        /// <param name="name">The name of the argument. This can be used to look up the parsed value and is displayed in help</param>
+        /// <param name="name">The name of the argument. This name can be used to look up the parsed value and is displayed in help.</param>
         public Argument(string name) : base(name)
         {
         }
 
         /// <summary>
-        /// The delegate to invoke to create the default value.
+        /// Gets or sets the delegate to invoke to create the default value.
         /// </summary>
         /// <remarks>
-        /// It's invoked when there was no parse input provided for given Argument.
-        /// The same instance can be set as <see cref="CustomParser"/>, in such case
+        /// This delegate is invoked when there was no parse input provided for given Argument.
+        /// The same instance can be set as <see cref="CustomParser"/>. In that case,
         /// the delegate is also invoked when an input was provided.
         /// </remarks>
         public Func<ArgumentResult, T>? DefaultValueFactory
@@ -45,11 +45,11 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// A custom argument parser.
+        /// Gets or sets a custom argument parser.
         /// </summary>
         /// <remarks>
-        /// It's invoked when there was parse input provided for given Argument.
-        /// The same instance can be set as <see cref="DefaultValueFactory"/>, in such case
+        /// The custom parser is invoked when there was parse input provided for a given Argument.
+        /// The same instance can be set as <see cref="DefaultValueFactory"/>; in that case,
         /// the delegate is also invoked when no input was provided.
         /// </remarks>
         public Func<ArgumentResult, T?>? CustomParser
