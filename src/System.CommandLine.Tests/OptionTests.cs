@@ -531,5 +531,27 @@ namespace System.CommandLine.Tests
 
             parseResult.GetValue(option).Should().Be(42);
         }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2621
+        public void Option_with_default_value_has_Action_added_to_PreActions_when_not_specified_but_has_default()
+        {
+            var preactionWasInvoked = false;
+            var option = new Option<bool>("--quiet")
+            {
+                DefaultValueFactory = _ => true,
+                Action = new SynchronousTestAction(_ => preactionWasInvoked = true, terminating: false)
+            };
+
+            var rootCommand = new RootCommand
+            {
+                option
+            };
+            rootCommand.SetAction(_ => { });
+
+            var parseResult = rootCommand.Parse("");
+            parseResult.Invoke();
+
+            preactionWasInvoked.Should().BeTrue();
+        }
     }
 }
