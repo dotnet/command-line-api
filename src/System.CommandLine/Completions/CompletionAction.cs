@@ -22,7 +22,7 @@ internal sealed class CompletionAction : SynchronousCommandLineAction
         string? parsedValues = parseResult.GetResult(_directive)!.Values.SingleOrDefault();
         string? rawInput = parseResult.CommandLineText;
 
-        int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
+        int? position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length;
 
         var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
