@@ -26,7 +26,7 @@ internal sealed class CompletionAction : SynchronousCommandLineAction
 
         var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
 
-        var completionParseResult = parseResult.RootCommandResult.Command.Parse(commandLineToComplete, parseResult.Configuration);
+        var completionParseResult = parseResult.CommandResult.Command.Parse(commandLineToComplete, parseResult.Configuration);
 
         var completions = completionParseResult.GetCompletions(position);
 
