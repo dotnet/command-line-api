@@ -265,6 +265,13 @@ namespace System.CommandLine
 
             if (context.WordToComplete is { } textToMatch)
             {
+                // If the text to match is the command name, we should suggest all possible completions (subcommands, options, arguments).
+                var textToMatchIsCommandName = context.ParseResult.CommandResult.Command.Name.Equals(textToMatch, StringComparison.OrdinalIgnoreCase);
+                if (textToMatchIsCommandName)
+                {
+                    textToMatch = null;
+                }
+
                 if (HasSubcommands)
                 {
                     var commands = Subcommands;
@@ -291,7 +298,7 @@ namespace System.CommandLine
                         var argument = arguments[i];
                         foreach (var completion in argument.GetCompletions(context))
                         {
-                            if (completion.Label.ContainsCaseInsensitive(textToMatch))
+                            if (textToMatch is null || completion.Label.ContainsCaseInsensitive(textToMatch))
                             {
                                 completions.Add(completion);
                             }
@@ -335,7 +342,7 @@ namespace System.CommandLine
             {
                 if (!identifier.Hidden)
                 {
-                    if (identifier.Name.ContainsCaseInsensitive(textToMatch))
+                    if (textToMatch is null || identifier.Name.ContainsCaseInsensitive(textToMatch))
                     {
                         completions.Add(new CompletionItem(identifier.Name, CompletionItem.KindKeyword, detail: identifier.Description));
                     }
@@ -344,7 +351,7 @@ namespace System.CommandLine
                     {
                         foreach (string alias in aliases)
                         {
-                            if (alias.ContainsCaseInsensitive(textToMatch))
+                            if (textToMatch is null || alias.ContainsCaseInsensitive(textToMatch))
                             {
                                 completions.Add(new CompletionItem(alias, CompletionItem.KindKeyword, detail: identifier.Description));
                             }

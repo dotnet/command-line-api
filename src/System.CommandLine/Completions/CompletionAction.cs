@@ -24,7 +24,7 @@ internal sealed class CompletionAction : SynchronousCommandLineAction
 
         int position = !string.IsNullOrEmpty(parsedValues) ? int.Parse(parsedValues) : rawInput?.Length ?? 0;
 
-        var commandLineToComplete = parseResult.Tokens.LastOrDefault(t => t.Type != TokenType.Directive)?.Value ?? "";
+        var commandLineToComplete = parseResult.Tokens.Where(t => t.Type != TokenType.Directive).Select(t => t.Value).ToArray();
 
         var completionParseResult = parseResult.RootCommandResult.Command.Parse(commandLineToComplete, parseResult.Configuration);
 
