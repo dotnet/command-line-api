@@ -91,10 +91,13 @@ namespace System.CommandLine.Parsing
         public DirectiveResult? GetResult(Directive directive) => SymbolResultTree.GetResult(directive);
 
         /// <summary>
-        /// Finds a result for a symbol having the specified name anywhere in the parse tree.
+        /// Finds a result for a <see cref="Symbol" /> having the specified <paramref name="name" /> anywhere in the parse tree.
         /// </summary>
-        /// <param name="name">The name of the symbol for which to find a result.</param>
-        /// <returns>An argument result if the argument was matched by the parser or has a default value; otherwise, <c>null</c>.</returns>
+        /// <param name="name">The name of the <see cref="Symbol" /> for which to find a result.</param>
+        /// <returns>
+        /// A <see cref="SymbolResult" /> if the <see cref="Symbol" /> was matched by the parser or has a default value;
+        /// otherwise, <see langword="null" />.
+        /// </returns>
         public SymbolResult? GetResult(string name) => 
             SymbolResultTree.GetResult(name);
 
