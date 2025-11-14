@@ -57,12 +57,6 @@ stages:
             artifactName: artifacts
             artifactType: Container
             parallel: true
-        - task: PublishBuildArtifacts@1
-          displayName: Publish Artifact Symbols
-          condition: and(eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
-          inputs:
-            PathtoPublish: '$(Build.SourcesDirectory)\artifacts\SymStore\$(_BuildConfig)'
-            ArtifactName: 'NativeSymbols'
 
       - job: Ubuntu
         displayName: Ubuntu
