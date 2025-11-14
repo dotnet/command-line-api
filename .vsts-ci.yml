@@ -1,11 +1,3 @@
-variables:
-  - name: _TeamName
-    value: DotNetCore
-  - name: _DotNetArtifactsCategory
-    value: .NETCore
-  - name: Codeql.Enabled
-    value: true
-
 # CI and PR triggers
 trigger:
   batch: true
@@ -40,16 +32,12 @@ stages:
         pool:
           name: NetCore-Public
           demands: ImageOverride -equals windows.vs2022.amd64.open
-        variables:
-        - name: _OfficialBuildArgs
-          value: ''
         strategy:
           matrix:
             ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
               Debug:
                 _BuildConfig: Debug
                 _SignType: test
-                _BuildArgs:
 
             Release:
               _BuildConfig: Release
@@ -60,7 +48,6 @@ stages:
         - script: eng\common\cibuild.cmd
             -configuration $(_BuildConfig)
             -prepareMachine
-            $(_BuildArgs)
           displayName: Build and Publish
         - task: PublishBuildArtifacts@1
           displayName: Upload package artifacts
