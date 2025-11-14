@@ -17,8 +17,7 @@ trigger:
   branches:
     include:
     - main
-    - internal/release/*
-    - validation/*
+    - release/*
 
 pr:
   autoCancel: false
