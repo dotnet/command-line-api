@@ -1,17 +1,10 @@
-variables:
-  - name: _TeamName
-    value: DotNetCore
-  - name: _DotNetArtifactsCategory
-    value: .NETCore
-  - name: Codeql.Enabled
-    value: true
-
 # CI and PR triggers
 trigger:
   batch: true
   branches:
     include:
     - main
+    - release/*
 
 pr:
   autoCancel: false
@@ -39,16 +32,12 @@ stages:
         pool:
           name: NetCore-Public
           demands: ImageOverride -equals windows.vs2022.amd64.open
-        variables:
-        - name: _OfficialBuildArgs
-          value: ''
         strategy:
           matrix:
             ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
               Debug:
                 _BuildConfig: Debug
                 _SignType: test
-                _BuildArgs:
 
             Release:
               _BuildConfig: Release
@@ -59,7 +48,6 @@ stages:
         - script: eng\common\cibuild.cmd
             -configuration $(_BuildConfig)
             -prepareMachine
-            $(_BuildArgs)
           displayName: Build and Publish
         - task: PublishBuildArtifacts@1
           displayName: Upload package artifacts
@@ -93,12 +81,7 @@ stages:
         steps:
         - checkout: self
           clean: true
-        - bash: |
-            wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-            sudo apt-add-repository "deb https://apt.llvm.org/focal/ llvm-toolchain-focal-9 main"
-            sudo apt-get update
-        - bash: |
-            sudo apt-get install cmake clang-9 libicu66 uuid-dev libcurl4-openssl-dev zlib1g-dev libkrb5-dev
+        - bash: sudo apt-get install cmake clang-9 libicu66 uuid-dev libcurl4-openssl-dev zlib1g-dev libkrb5-dev
         - script: eng/common/cibuild.sh
             --configuration $(_BuildConfig)
             --prepareMachine
