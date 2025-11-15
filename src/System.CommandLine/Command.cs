@@ -18,9 +18,9 @@ namespace System.CommandLine
     /// Represents a specific action that the application performs.
     /// </summary>
     /// <remarks>
-    /// Use the Command object for actions that correspond to a specific string (the command name). See
-    /// <see cref="RootCommand"/> for simple applications that only have one action. For example, <c>dotnet run</c>
-    /// uses <c>run</c> as the command.
+    /// Use the Command object for actions that correspond to a specific string (the command name).
+    /// For simple applications that only have one action, see <see cref="RootCommand"/>.
+    /// For example, <c>dotnet run</c> uses <c>run</c> as the command.
     /// </remarks>
     public class Command : Symbol, IEnumerable
     {
@@ -57,28 +57,31 @@ namespace System.CommandLine
         }
 
         /// <summary>
-        /// Represents all of the arguments for the command.
+        /// Gets all of the arguments for the command.
         /// </summary>
         public IList<Argument> Arguments => _arguments ??= new(this);
 
         internal bool HasArguments => _arguments?.Count > 0 ;
 
         /// <summary>
-        /// Represents all of the options for the command, inherited options that have been applied to any of the command's ancestors.
+        /// Gets all of the options for the command.
         /// </summary>
+        /// <remarks>
+        /// This collection doesn't include options on parent commands where <see cref="Option.Recursive">Option.Recursive</see> is <see langword="true" />. Those options are valid under the current command but don't appear in this collection.
+        /// </remarks>
         public IList<Option> Options => _options ??= new (this);
 
         internal bool HasOptions => _options?.Count > 0;
 
         /// <summary>
-        /// Represents all of the subcommands for the command.
+        /// Gets all of the subcommands for the command.
         /// </summary>
         public IList<Command> Subcommands => _subcommands ??= new(this);
 
         internal bool HasSubcommands => _subcommands is not null && _subcommands.Count > 0;
 
         /// <summary>
-        /// Validators to the command. Validators can be used
+        /// Gets the validators to the command. Validators can be used
         /// to create custom validation logic.
         /// </summary>
         public List<Action<CommandResult>> Validators => _validators ??= new ();
@@ -215,9 +218,9 @@ namespace System.CommandLine
         /// </summary>
         /// <param name="argument">The option to add to the command.</param>
         public void Add(Argument argument) =>  Arguments.Add(argument);
-        
+
         /// <summary>
-        /// Adds a <see cref="Option"/> to the command.
+        /// Adds an <see cref="Option"/> to the command.
         /// </summary>
         /// <param name="option">The option to add to the command.</param>
         public void Add(Option option) =>  Options.Add(option);
@@ -226,17 +229,17 @@ namespace System.CommandLine
         /// Adds a <see cref="Command"/> to the command.
         /// </summary>
         /// <param name="command">The Command to add to the command.</param>
-        public void Add(Command command) =>  Subcommands.Add(command);
+        public void Add(Command command) => Subcommands.Add(command);
 
         /// <summary>
-        /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors. For example,
-        /// if set to <see langword="true"/> and an extra command or argument is provided, validation will fail.
+        /// Gets or sets a value that indicates whether unmatched tokens should be treated as errors.
         /// </summary>
+        /// <value><see langword="true"/> to fail validation when an extra command or argument is provided; otherwise, <see langword="false"/>.</value>
         public bool TreatUnmatchedTokensAsErrors { get; set; } = true;
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer 
+        [EditorBrowsable(EditorBrowsableState.Never)] // hide from intellisense, it's public for C# collection initializer
         IEnumerator IEnumerable.GetEnumerator() => Children.GetEnumerator();
 
         /// <summary>

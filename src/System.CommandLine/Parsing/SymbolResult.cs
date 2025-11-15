@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced during parsing for a specific symbol.
+    /// Represents a result produced during parsing for a specific symbol.
     /// </summary>
     public abstract class SymbolResult
     {
@@ -20,7 +20,7 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
-        /// The parse errors associated with this symbol result.
+        /// Gets the parse errors associated with this symbol result.
         /// </summary>
         public IEnumerable<ParseError> Errors
         {
@@ -45,21 +45,21 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
-        /// The parent symbol result in the parse tree.
+        /// Gets the parent symbol result in the parse tree.
         /// </summary>
         public SymbolResult? Parent { get; }
 
         /// <summary>
-        /// The list of tokens associated with this symbol result during parsing.
+        /// Gets the list of tokens associated with this symbol result during parsing.
         /// </summary>
         public IReadOnlyList<Token> Tokens => _tokens is not null ? _tokens : Array.Empty<Token>();
 
         internal void AddToken(Token token) => (_tokens ??= new()).Add(token);
 
         /// <summary>
-        /// Adds an error message for this symbol result to it's parse tree.
+        /// Adds an error message for this symbol result to its parse tree.
         /// </summary>
-        /// <remarks>Setting an error will cause the parser to indicate an error for the user and prevent invocation of the command line.</remarks>
+        /// <remarks>Setting an error causes the parser to indicate an error for the user and prevents invocation of the command line.</remarks>
         public virtual void AddError(string errorMessage) => SymbolResultTree.AddError(new ParseError(errorMessage, this));
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace System.CommandLine.Parsing
         /// Finds a result for the specific command anywhere in the parse tree, including parent and child symbol results.
         /// </summary>
         /// <param name="command">The command for which to find a result.</param>
-        /// <returns>An command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
+        /// <returns>A command result if the command was matched by the parser; otherwise, <c>null</c>.</returns>
         public CommandResult? GetResult(Command command) => SymbolResultTree.GetResult(command);
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace System.CommandLine.Parsing
         /// Finds a result for the specific directive anywhere in the parse tree.
         /// </summary>
         /// <param name="directive">The directive for which to find a result.</param>
-        /// <returns>A directive result if the directive was matched by the parser, <c>null</c> otherwise.</returns>
+        /// <returns>A directive result if the directive was matched by the parser; otherwise, <c>null</c>.</returns>
         public DirectiveResult? GetResult(Directive directive) => SymbolResultTree.GetResult(directive);
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace System.CommandLine.Parsing
         /// A <see cref="SymbolResult" /> if the <see cref="Symbol" /> was matched by the parser or has a default value;
         /// otherwise, <see langword="null" />.
         /// </returns>
-        public SymbolResult? GetResult(string name) => 
+        public SymbolResult? GetResult(string name) =>
             SymbolResultTree.GetResult(name);
 
         /// <inheritdoc cref="ParseResult.GetValue{T}(Argument{T})"/>

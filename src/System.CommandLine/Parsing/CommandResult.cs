@@ -7,7 +7,7 @@ using System.Linq;
 namespace System.CommandLine.Parsing
 {
     /// <summary>
-    /// A result produced when parsing a <see cref="Command" />.
+    /// Represents a result produced when parsing a <see cref="Command" />.
     /// </summary>
     public sealed class CommandResult : SymbolResult
     {
@@ -23,17 +23,17 @@ namespace System.CommandLine.Parsing
         }
 
         /// <summary>
-        /// The command to which the result applies.
+        /// Gets the command to which the result applies.
         /// </summary>
         public Command Command { get; }
 
         /// <summary>
-        /// The token that was parsed to specify the command.
+        /// Gets the token that was parsed to specify the command.
         /// </summary>
         public Token IdentifierToken { get; }
 
         /// <summary>
-        /// Child symbol results in the parse tree.
+        /// Gets the child symbol results in the parse tree.
         /// </summary>
         public IEnumerable<SymbolResult> Children => SymbolResultTree.GetChildren(this);
 
