@@ -109,7 +109,7 @@ namespace System
         /// For performance reasons, this method does not validate if <c>length</c> or the returned value are negative. It also doesn't validate if the returned value is greater than <c>length</c>.
         /// Collections aren't expected to have a negative length/count. If this method's returned offset is negative and is then used to index a collection, the runtime will throw <see cref="ArgumentOutOfRangeException" />, which will have the same effect as validation.
         /// </remarks>
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetOffset(int length)
         {
             var offset = _value;

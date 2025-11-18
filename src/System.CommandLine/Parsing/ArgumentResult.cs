@@ -49,7 +49,7 @@ namespace System.CommandLine.Parsing
         /// <param name="numberOfTokens">The number of tokens to take. The rest are passed on.</param>
         /// <exception cref="ArgumentOutOfRangeException"><c>numberOfTokens - Value</c> must be at least 1.</exception>
         /// <exception cref="InvalidOperationException">This method is called more than once.</exception>
-        /// <exception cref="NotSupportedException">This method is called by an Option-owned <see cref="ArgumentResult"/>.</exception>
+        /// <exception cref="NotSupportedException">An Option has a CustomParser delegate that receives an ArgumentResult as a parameter and calls the OnlyTake method of that ArgumentResult.</exception>
         public void OnlyTake(int numberOfTokens)
         {
             if (numberOfTokens < 0)
