@@ -9,22 +9,28 @@ using System.Reflection;
 namespace System.CommandLine
 {
     /// <summary>
-    /// A standard option that indicates that version information should be displayed for the app.
+    /// Represents a standard option that indicates that version information should be displayed for the app.
     /// </summary>
     public sealed class VersionOption : Option
     {
         private CommandLineAction? _action;
 
         /// <summary>
-        /// When added to a <see cref="Command"/>, it enables the use of a <c>--version</c> option, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// Initializes a new instance of <see cref="VersionOption" />.
         /// </summary>
+        /// <remarks>
+        /// When added to a <see cref="Command"/>, it enables the use of a <c>--version</c> option, which, when specified in command line input, short circuits normal command handling and instead writes out version information before exiting.
+        /// </remarks>
         public VersionOption() : this("--version")
         {
         }
 
         /// <summary>
-        /// When added to a <see cref="Command"/>, it enables the use of a provided option name and aliases, which when specified in command line input will short circuit normal command handling and instead write out version information before exiting.
+        /// Initializes a new instance of <see cref="VersionOption" />.
         /// </summary>
+        /// <remarks>
+        /// When added to a <see cref="Command"/>, it enables the use of a provided option name and aliases, which, when specified in command line input, short circuits normal command handling and instead writes out version information before exiting.
+        /// </remarks>
         public VersionOption(string name, params string[] aliases)
             : base(name, aliases)
         {
