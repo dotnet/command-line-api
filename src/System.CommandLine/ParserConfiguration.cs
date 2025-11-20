@@ -13,7 +13,7 @@ namespace System.CommandLine
         /// <summary>
         /// Gets or sets a value that indicates whether the parser recognizes and expands POSIX-style bundled options.
         /// </summary>
-        /// <param name="value"><see langword="true"/> to parse POSIX bundles; otherwise, <see langword="false"/>.</param>
+        /// <value><see langword="true"/> to parse POSIX bundles; otherwise, <see langword="false"/>.</value>
         /// <remarks>
         /// POSIX conventions recommend that single-character options be allowed to be specified together after a single <c>-</c> prefix. When <see cref="EnablePosixBundling"/> is set to <see langword="true"/>, the following command lines are equivalent:
         ///
