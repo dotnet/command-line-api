@@ -10,20 +10,20 @@ using System.Threading;
 namespace System.CommandLine.Invocation;
 
 /// <summary>
-/// Provides command line output with error details in the case of a parsing error.
+/// Provides command-line output with error details in the case of a parsing error.
 /// </summary>
 public sealed class ParseErrorAction : SynchronousCommandLineAction
 {
     /// <summary>
-    /// Indicates whether to show help along with error details when an error is found during parsing.
+    /// Gets or sets a value that indicates whether to show help along with error details when an error is found during parsing.
     /// </summary>
-    /// <remarks>When set to <see langword="true" />, indicates that help will be shown along with parse error details. When set to false, help will not be shown.</remarks>
+    /// <value><see langword="true" /> to show help along with parse error details. <see langword="false" /> to not show help.</value>
     public bool ShowHelp { get; set; } = true;
 
     /// <summary>
-    /// Indicates whether to show typo suggestions along with error details when an error is found during parsing.
+    /// Gets or sets a value that indicates whether to show typo suggestions along with error details when an error is found during parsing.
     /// </summary>
-    /// <remarks>When set to <see langword="true" />, indicates that suggestions will be shown along with parse error details. When set to false, suggestions will not be shown.</remarks>
+    /// <value><see langword="true" /> to show suggestions along with parse error details. <see langword="false" /> to now show suggestions.</value>
     public bool ShowTypoCorrections { get; set; } = true;
 
     /// <inheritdoc />
