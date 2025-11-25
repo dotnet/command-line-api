@@ -129,6 +129,10 @@ namespace System.CommandLine.Invocation
 
         private static int DefaultExceptionHandler(Exception exception, ParseResult parseResult)
         {
+            if (exception is AggregateException aggregateException && aggregateException.InnerExceptions.Count == 1)
+            {
+                exception = aggregateException.InnerExceptions[0];
+            }
             if (exception is not OperationCanceledException)
             {
                 ConsoleHelpers.ResetTerminalForegroundColor();
