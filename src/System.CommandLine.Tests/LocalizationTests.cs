@@ -7,10 +7,11 @@ namespace System.CommandLine.Tests
     public class LocalizationTests
     {
         private const string CommandName = "the-command";
+        private const string ArgumentName = "arg";
 
         [Theory]
-        [InlineData("es", $"Falta el argumento requerido para el comando: '{CommandName}'.")]
-        [InlineData("en-US", $"Required argument missing for command: '{CommandName}'.")]
+        [InlineData("es", $"Falta el argumento requerido '{ArgumentName}' para el comando: '{CommandName}'.")]
+        [InlineData("en-US", $"Required argument '{ArgumentName}' missing for command: '{CommandName}'.")]
         public void ErrorMessages_AreLocalized(string cultureName, string expectedMessage)
         {
             CultureInfo uiCultureBefore = CultureInfo.CurrentUICulture;

@@ -28,8 +28,8 @@
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
-        <source>Required argument missing for command: '{0}'.</source>
-        <target state="translated">必要な引数がコマンドにありません: '{0}'.</target>
+        <source>Required argument '{0}' missing for command: '{1}'.</source>
+        <target state="translated">必要な引数 '{0}' がコマンド '{1}' にありません。</target>
         <note />
       </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">
