@@ -1,12 +1,14 @@
 <Project>
-  <Import Project="Version.Details.props" Condition="Exists('Version.Details.props')" />
-  <!-- Repo Version Information -->
+
+<Import Project="Version.Details.props" />
+
+<!-- Repo Version Information -->
   <PropertyGroup>
-    <VersionPrefix>2.0.1</VersionPrefix>
+    <VersionPrefix>2.0.2</VersionPrefix>
     <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
     <PreReleaseVersionIteration></PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
-    <DotNetFinalVersionKind>
-    </DotNetFinalVersionKind>
+    <DotNetFinalVersionKind></DotNetFinalVersionKind>
   </PropertyGroup>
+
 </Project>
