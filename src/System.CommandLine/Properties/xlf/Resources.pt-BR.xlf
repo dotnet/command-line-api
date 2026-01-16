@@ -132,6 +132,11 @@
         <target state="translated">Caractere não permitido em um caminho: '{0}'.</target>
         <note />
       </trans-unit>
+      <trans-unit id="OptionArgumentsMaximumExceeded">
+        <source>Option '{0}' expects at most {1} arguments but {2} were provided.</source>
+        <target state="new">Option '{0}' expects at most {1} arguments but {2} were provided.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="OptionExpectsOneArgument">
         <source>Option '{0}' expects a single argument but {1} were provided.</source>
         <target state="new">Option '{0}' expects a single argument but {1} were provided.</target>
