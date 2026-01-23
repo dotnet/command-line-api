@@ -4,7 +4,7 @@
 
 <!-- Repo Version Information -->
   <PropertyGroup>
-    <VersionPrefix>2.0.3</VersionPrefix>
+    <VersionPrefix>2.0.4</VersionPrefix>
     <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
     <PreReleaseVersionIteration></PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
