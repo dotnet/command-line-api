@@ -10,7 +10,7 @@ namespace System
 {
     /// <summary>Represents a type that can be used to index a collection either from the beginning or the end.</summary>
     /// <remarks>
-    /// <see cref="Index" /> is used by the C# compiler to support the <c>>^</c> or ["index from end" operator](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/member-access-operators#index-from-end-operator-):
+    /// <see cref="Index" /> is used by the C# compiler to support the <c>^</c> or ["index from end" operator](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/member-access-operators#index-from-end-operator-):
     /// <code language="csharp">
     /// int[] someArray = new int[5] { 1, 2, 3, 4, 5 };
     /// int lastElement = someArray[^1]; // lastElement = 5
