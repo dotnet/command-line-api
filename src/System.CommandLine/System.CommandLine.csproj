@@ -15,6 +15,10 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <XlfLanguages>cs;de;es;fi;fr;he;it;ja;ko;pl;pt-BR;ru;tr;zh-Hans;zh-Hant</XlfLanguages>
+  </PropertyGroup>
    
   <ItemGroup>
     <Compile Include="..\System.Diagnostics.CodeAnalysis.cs" Link="System.Diagnostics.CodeAnalysis\System.Diagnostics.CodeAnalysis.cs" />
@@ -26,18 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx" GenerateSource="true">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <Folder Include="Resources\" />
   </ItemGroup>
 
 </Project>
