@@ -164,7 +164,7 @@
       </trans-unit>
       <trans-unit id="UnrecognizedArgument">
         <source>Argument '{0}' not recognized. Must be one of:{1}</source>
-        <target state="translated">Argument '{0}' not recognized. Must be one of: {1}</target>
+        <target state="translated">הארגומנט '{0}' לא זוהה. חייב להיות אחד מ: {1}</target>
         <note></note>
       </trans-unit>
       <trans-unit id="UnrecognizedCommandOrArgument">
