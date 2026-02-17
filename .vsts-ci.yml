@@ -68,7 +68,7 @@ stages:
         displayName: Ubuntu
         pool:
           name: NetCore-Svc-Public
-          demands: ImageOverride -equals 1es-ubuntu-2204
+          demands: ImageOverride -equals build.ubuntu.2204.amd64.open
         strategy:
           matrix:
             ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
