@@ -1351,6 +1351,27 @@ namespace System.CommandLine.Tests.Help
         }
 
         [Fact]
+        public void Help_describes_default_value_for_boolean_option_when_default_value_is_true()
+        {
+            var command = new Command("the-command", "command help")
+            {
+                new Option<bool>("--bool-default")
+                {
+                    Description = "Bool value with default",
+                    DefaultValueFactory = _ => true
+                }
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command, _console);
+
+            var help = _console.ToString();
+
+            help.Should().Contain("--bool-default").And.Contain("[default: true]");
+        }
+
+        [Fact]
         public void Option_arguments_with_default_values_that_are_enumerable_display_pipe_delimited_list()
         {
             var command = new Command("the-command", "command help")

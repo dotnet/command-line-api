@@ -475,10 +475,9 @@ namespace System.CommandLine.Help
                 }
 
                 var isSingleArgument = defaultArguments.Length == 1;
-                var argumentDefaultValues = string.Join(
-                    ", ",
-                    defaultArguments
-                        .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument, context)));
+                var argumentDefaultValues = string.Join(", ", defaultArguments
+                    .Select(argument => GetArgumentDefaultValue(symbol, argument, isSingleArgument, context))
+                    .Where(defaultValue => !string.IsNullOrEmpty(defaultValue)));
 
                 return string.IsNullOrEmpty(argumentDefaultValues)
                            ? ""
