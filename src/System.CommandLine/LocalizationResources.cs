@@ -50,12 +50,14 @@ namespace System.CommandLine
             GetResourceString(Properties.Resources.InvalidCharactersInFileName, invalidChar);
 
         /// <summary>
-        ///   Interpolates values into a localized string similar to Required argument missing for command: {0}.
+        ///   Interpolates values into a localized string similar to Required argument '{0}' missing for command: '{1}'.
         /// </summary>
         internal static string RequiredArgumentMissing(ArgumentResult argumentResult) =>
             argumentResult.Parent is CommandResult commandResult
-                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing, commandResult.IdentifierToken.Value)
-                : RequiredArgumentMissing((OptionResult)argumentResult.Parent!);
+                ? GetResourceString(Properties.Resources.CommandRequiredArgumentMissing,
+                    argumentResult.Argument.HelpName ?? argumentResult.Argument.Name,
+                    commandResult.IdentifierToken.Value)
+                : RequiredArgumentMissing((OptionResult) argumentResult.Parent!);
 
         /// <summary>
         ///   Interpolates values into a localized string similar to Required argument missing for option: {0}.
