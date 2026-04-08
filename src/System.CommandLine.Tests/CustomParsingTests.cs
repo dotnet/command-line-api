@@ -13,6 +13,8 @@ using Xunit;
 
 namespace System.CommandLine.Tests;
 
+#pragma warning disable CS0618 // Tests in this class intentionally exercise the obsolete legacy parsing API.
+
 public class CustomParsingTests
 {
     [Fact]
@@ -987,3 +989,5 @@ public class CustomParsingTests
         parseResult.GetValue<string>("--third").Should().Be("three");
     }
 }
+
+#pragma warning restore CS0618

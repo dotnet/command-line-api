@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.CommandLine.Binding;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 namespace System.CommandLine
@@ -20,6 +21,65 @@ namespace System.CommandLine
         {
         }
 
+        private static TryConvertArgument CreateConverter(Func<ArgumentResult, T?> valueFactory)
+        {
+            return (ArgumentResult argumentResult, out object? parsedValue) =>
+            {
+                int errorsBefore = argumentResult.SymbolResultTree.ErrorCount;
+                var result = valueFactory(argumentResult);
+
+                if (errorsBefore == argumentResult.SymbolResultTree.ErrorCount)
+                {
+                    parsedValue = result;
+                    return true;
+                }
+                else
+                {
+                    parsedValue = default(T)!;
+                    return false;
+                }
+            };
+        }
+
+        private void SetCustomParser(Func<ArgumentResult, T?>? value)
+        {
+            _customParser = value;
+            ConvertArguments = value is null ? null : CreateConverter(value);
+        }
+
+        /// <summary>
+        /// Sets a delegate that will be invoked to produce the argument's value.
+        /// </summary>
+        /// <param name="valueFactory">The delegate to invoke to produce the value.</param>
+        /// <param name="invocation">
+        /// Specifies when the delegate should be invoked. Use <see cref="ValueFactoryInvocation.Always"/>
+        /// to handle both explicit values and missing-value defaults with the same delegate.
+        /// </param>
+        public void SetValueFactory(
+            Func<ArgumentResult, T> valueFactory,
+            ValueFactoryInvocation invocation = ValueFactoryInvocation.WhenTokensMatched)
+        {
+            if (valueFactory is null)
+            {
+                throw new ArgumentNullException(nameof(valueFactory));
+            }
+
+            if (invocation == 0 ||
+                (invocation & ~ValueFactoryInvocation.Always) != 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(invocation));
+            }
+
+            _defaultValueFactory = (invocation & ValueFactoryInvocation.WhenTokensNotMatched) != 0
+                ? valueFactory
+                : null;
+
+            SetCustomParser(
+                (invocation & ValueFactoryInvocation.WhenTokensMatched) != 0
+                    ? result => valueFactory(result)
+                    : null);
+        }
+
         /// <summary>
         /// Gets or sets the delegate to invoke to create the default value.
         /// </summary>
@@ -28,17 +88,16 @@ namespace System.CommandLine
         /// The same instance can be set as <see cref="CustomParser"/>. In that case,
         /// the delegate is also invoked when an input was provided.
         /// </remarks>
+        [Obsolete($"Use SetValueFactory(..., {nameof(ValueFactoryInvocation)}.{nameof(ValueFactoryInvocation.WhenTokensNotMatched)}) instead.")]
         public Func<ArgumentResult, T>? DefaultValueFactory
         {
             get
             {
-                if (_defaultValueFactory is null)
+                if (_defaultValueFactory is null && this is Argument<bool>)
                 {
-                    if (this is Argument<bool> boolArgument)
-                    {
-                        boolArgument.DefaultValueFactory = _ => false;
-                    }
+                    _defaultValueFactory = _ => (T)(object)false;
                 }
+
                 return _defaultValueFactory;
             }
             set => _defaultValueFactory = value;
@@ -52,49 +111,32 @@ namespace System.CommandLine
         /// The same instance can be set as <see cref="DefaultValueFactory"/>; in that case,
         /// the delegate is also invoked when no input was provided.
         /// </remarks>
+        [Obsolete($"Use SetValueFactory(..., {nameof(ValueFactoryInvocation)}.{nameof(ValueFactoryInvocation.WhenTokensMatched)}) instead.")]
         public Func<ArgumentResult, T?>? CustomParser
         {
             get => _customParser;
-            set
-            {
-                _customParser = value;
-
-                if (value is not null)
-                {
-                    ConvertArguments = (ArgumentResult argumentResult, out object? parsedValue) =>
-                    {
-                        int errorsBefore = argumentResult.SymbolResultTree.ErrorCount;
-                        var result = value(argumentResult);
-
-                        if (errorsBefore == argumentResult.SymbolResultTree.ErrorCount)
-                        {
-                            parsedValue = result;
-                            return true;
-                        }
-                        else
-                        {
-                            parsedValue = default(T)!;
-                            return false;
-                        }
-                    };
-                }
-            }
+            set => SetCustomParser(value);
         }
 
         /// <inheritdoc />
         public override Type ValueType => typeof(T);
 
         /// <inheritdoc />
-        public override bool HasDefaultValue => DefaultValueFactory is not null;
+        public override bool HasDefaultValue => _defaultValueFactory is not null || this is Argument<bool>;
 
         internal override object? GetDefaultValue(ArgumentResult argumentResult)
         {
-            if (DefaultValueFactory is null)
+            if (_defaultValueFactory is null)
             {
+                if (this is Argument<bool>)
+                {
+                    return false;
+                }
+
                 throw new InvalidOperationException($"Argument \"{Name}\" does not have a default value");
             }
 
-            return DefaultValueFactory.Invoke(argumentResult);
+            return _defaultValueFactory.Invoke(argumentResult);
         }
 
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = "https://github.com/dotnet/command-line-api/issues/1638")]

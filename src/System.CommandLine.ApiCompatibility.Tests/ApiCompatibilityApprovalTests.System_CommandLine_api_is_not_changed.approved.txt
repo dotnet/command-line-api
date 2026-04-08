@@ -15,6 +15,7 @@
     public Func<System.CommandLine.Parsing.ArgumentResult,T> DefaultValueFactory { get; set; }
     public System.Boolean HasDefaultValue { get; }
     public System.Type ValueType { get; }
+    public System.Void SetValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> valueFactory, ValueFactoryInvocation invocation = WhenTokensMatched)
   public struct ArgumentArity : System.ValueType, System.IEquatable<ArgumentArity>
     public static ArgumentArity ExactlyOne { get; }
     public static ArgumentArity OneOrMore { get; }
@@ -101,6 +102,7 @@
     public Option<T> AcceptLegalFilePathsOnly()
     public Option<T> AcceptOnlyFromAmong(System.String[] values)
     public Option<T> AcceptOnlyFromAmong(System.StringComparer comparer, System.String[] values)
+    public System.Void SetValueFactory(Func<System.CommandLine.Parsing.ArgumentResult,T> valueFactory, ValueFactoryInvocation invocation = WhenTokensMatched)
   public static class OptionValidation
     public static Option<System.IO.FileInfo> AcceptExistingOnly(this Option<System.IO.FileInfo> option)
     public static Option<System.IO.DirectoryInfo> AcceptExistingOnly(this Option<System.IO.DirectoryInfo> option)
@@ -150,6 +152,10 @@
     public System.Collections.Generic.IEnumerable<Symbol> Parents { get; }
     public System.Collections.Generic.IEnumerable<System.CommandLine.Completions.CompletionItem> GetCompletions(System.CommandLine.Completions.CompletionContext context)
     public System.String ToString()
+  public enum ValueFactoryInvocation : System.Enum, System.IComparable, System.IConvertible, System.IFormattable, System.ISpanFormattable
+    WhenTokensMatched=1
+    WhenTokensNotMatched=2
+    Always=3
   public class VersionOption : Option
     .ctor()
     .ctor(System.String name, System.String[] aliases)

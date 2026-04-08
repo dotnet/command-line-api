@@ -28,7 +28,21 @@ namespace System.CommandLine
             _argument = argument;
         }
 
+        /// <summary>
+        /// Sets a delegate that will be invoked to produce the option's value.
+        /// </summary>
+        /// <param name="valueFactory">The delegate to invoke to produce the value.</param>
+        /// <param name="invocation">
+        /// Specifies when the delegate should be invoked. Use <see cref="ValueFactoryInvocation.Always"/>
+        /// to handle both explicit values and missing-value defaults with the same delegate.
+        /// </param>
+        public void SetValueFactory(
+            Func<ArgumentResult, T> valueFactory,
+            ValueFactoryInvocation invocation = ValueFactoryInvocation.WhenTokensMatched) =>
+            _argument.SetValueFactory(valueFactory, invocation);
+
         /// <inheritdoc cref="Argument{T}.DefaultValueFactory" />
+        [Obsolete($"Use SetValueFactory(..., {nameof(ValueFactoryInvocation)}.{nameof(ValueFactoryInvocation.WhenTokensNotMatched)}) instead.")]
         public Func<ArgumentResult, T>? DefaultValueFactory
         {
             get => _argument.DefaultValueFactory;
@@ -36,6 +50,7 @@ namespace System.CommandLine
         }
 
         /// <inheritdoc cref="Argument{T}.CustomParser" />
+        [Obsolete($"Use SetValueFactory(..., {nameof(ValueFactoryInvocation)}.{nameof(ValueFactoryInvocation.WhenTokensMatched)}) instead.")]
         public Func<ArgumentResult, T?>? CustomParser
         {
             get => _argument.CustomParser;
