@@ -12,6 +12,7 @@ namespace System.CommandLine.Parsing
     public sealed class ArgumentResult : SymbolResult
     {
         private ArgumentConversionResult? _conversionResult;
+        private bool _validatorsHaveBeenRun;
         private bool _onlyTakeHasBeenCalled;
 
         internal ArgumentResult(
@@ -31,8 +32,27 @@ namespace System.CommandLine.Parsing
 
         public bool Implicit { get; private set; }
 
-        internal ArgumentConversionResult GetArgumentConversionResult() =>
-            _conversionResult ??= ValidateAndConvert(useValidators: true);
+        internal ArgumentConversionResult GetArgumentConversionResult()
+        {
+            if (_conversionResult is not null)
+            {
+                if (!_validatorsHaveBeenRun && Argument.HasValidators)
+                {
+                    // GetValueOrDefault was called before GetArgumentConversionResult,
+                    // which cached a conversion result without running validators.
+                    // Run them now so that validators like AcceptExistingOnly() are not skipped.
+                    _validatorsHaveBeenRun = true;
+                    for (var i = 0; i < Argument.Validators.Count; i++)
+                    {
+                        Argument.Validators[i](this);
+                    }
+                }
+
+                return _conversionResult;
+            }
+
+            return _conversionResult = ValidateAndConvert(useValidators: true);
+        }
 
         /// <summary>
         /// Gets the parsed value or the default value for <see cref="Argument"/>.
@@ -141,6 +161,8 @@ namespace System.CommandLine.Parsing
             //        => GetValueOrDefault => ValidateAndConvert (again)
             if (useValidators && Argument.HasValidators)
             {
+                _validatorsHaveBeenRun = true;
+
                 for (var i = 0; i < Argument.Validators.Count; i++)
                 {
                     Argument.Validators[i](this);

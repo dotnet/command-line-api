@@ -130,7 +130,7 @@ namespace System.CommandLine.Parsing
             => GetResult(argument) switch
             {
                 ArgumentResult argumentResult => argumentResult.GetValueOrDefault<T>(),
-                null => throw new InvalidOperationException($"{argument.Name} is required but was not provided."),
+                null => Argument<T>.CreateDefaultValue() ?? throw new InvalidOperationException($"{argument.Name} is required but was not provided."),
             };
 
         /// <inheritdoc cref="ParseResult.GetRequiredValue{T}(Option{T})"/>

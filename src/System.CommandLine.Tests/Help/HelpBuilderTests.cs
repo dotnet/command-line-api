@@ -336,6 +336,61 @@ namespace System.CommandLine.Tests.Help
             help.Should().NotContain("hidden");
         }
 
+        [Fact]
+        public void Usage_section_uses_HelpName_when_set_on_root_command()
+        {
+            var rootCommand = new RootCommand
+            {
+                HelpName = "my-custom-tool"
+            };
+            rootCommand.Options.Add(new Option<string>("--opt") { Description = "an option" });
+
+            _helpBuilder.Write(rootCommand, _console);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}my-custom-tool [options]";
+
+            _console.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Usage_section_uses_HelpName_when_set_on_subcommand_parent()
+        {
+            var rootCommand = new RootCommand
+            {
+                HelpName = "my-custom-tool"
+            };
+            var subcommand = new Command("sub", "a subcommand");
+            subcommand.Options.Add(new Option<string>("--opt") { Description = "an option" });
+            rootCommand.Subcommands.Add(subcommand);
+
+            _helpBuilder.Write(subcommand, _console);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}my-custom-tool sub [options]";
+
+            _console.ToString().Should().Contain(expected);
+        }
+
+        [Fact]
+        public void Usage_section_uses_Name_when_HelpName_is_not_set()
+        {
+            var command = new Command("the-command", "command help");
+            command.Options.Add(new Option<string>("--opt") { Description = "an option" });
+            var rootCommand = new RootCommand();
+            rootCommand.Subcommands.Add(command);
+
+            _helpBuilder.Write(command, _console);
+
+            var expected =
+                $"Usage:{NewLine}" +
+                $"{_indentation}{_executableName} the-command [options]";
+
+            _console.ToString().Should().Contain(expected);
+        }
+
         #endregion Usage
 
         #region Arguments
@@ -1348,6 +1403,27 @@ namespace System.CommandLine.Tests.Help
             var help = _console.ToString();
 
             help.Should().Contain($"[default: the-arg-value]");
+        }
+
+        [Fact]
+        public void Help_describes_default_value_for_boolean_option_when_default_value_is_true()
+        {
+            var command = new Command("the-command", "command help")
+            {
+                new Option<bool>("--bool-default")
+                {
+                    Description = "Bool value with default",
+                    DefaultValueFactory = _ => true
+                }
+            };
+
+            HelpBuilder helpBuilder = GetHelpBuilder(SmallMaxWidth);
+
+            helpBuilder.Write(command, _console);
+
+            var help = _console.ToString();
+
+            help.Should().Contain("--bool-default").And.Contain("[default: true]");
         }
 
         [Fact]

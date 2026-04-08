@@ -2,8 +2,8 @@
   <Settings>
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
     <CustomBuildProperties>
-      <Value>TargetFrameworks = net8.0</Value>
-      <Value>TargetFramework = net8.0</Value>
+      <Value>TargetFrameworks = net10.0</Value>
+      <Value>TargetFramework = net10.0</Value>
     </CustomBuildProperties>
     <EnableRDI>False</EnableRDI>
     <RdiConfigured>True</RdiConfigured>

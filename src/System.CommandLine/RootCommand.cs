@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.CommandLine.Completions;
 using System.CommandLine.Help;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace System.CommandLine
 {
@@ -20,6 +22,10 @@ namespace System.CommandLine
     {
         private static string? _executablePath;
         private static string? _executableName;
+        private static string? _toolCommandName;
+        private static bool _toolCommandNameInitialized;
+        private string? _helpName;
+        private bool _helpNameSet;
 
         /// <param name="description">The description of the command, shown in help.</param>
         public RootCommand(string description = "") : base(ExecutableName, description)
@@ -30,6 +36,23 @@ namespace System.CommandLine
             {
                 new SuggestDirective()
             };
+        }
+
+        /// <summary>
+        /// Gets or sets the name used for the root command in help output.
+        /// </summary>
+        /// <remarks>
+        /// If not explicitly set, defaults to the <c>ToolCommandName</c> MSBuild property value
+        /// (when available via assembly metadata), or <c>null</c> to fall back to <see cref="Symbol.Name"/>.
+        /// </remarks>
+        public string? HelpName
+        {
+            get => _helpNameSet ? _helpName : ToolCommandName;
+            set
+            {
+                _helpName = value;
+                _helpNameSet = true;
+            }
         }
      
         /// <summary>
@@ -52,5 +75,21 @@ namespace System.CommandLine
         /// The path to the currently running executable.
         /// </summary>
         public static string ExecutablePath => _executablePath ??= Environment.GetCommandLineArgs()[0];
+
+        private static string? ToolCommandName
+        {
+            get
+            {
+                if (!_toolCommandNameInitialized)
+                {
+                    _toolCommandName = Assembly.GetEntryAssembly()?
+                        .GetCustomAttributes<AssemblyMetadataAttribute>()
+                        .FirstOrDefault(a => a.Key == "System.CommandLine.ToolCommandName")?.Value;
+                    _toolCommandNameInitialized = true;
+                }
+
+                return _toolCommandName;
+            }
+        }
     }
 }
