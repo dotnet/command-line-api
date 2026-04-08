@@ -11,8 +11,6 @@ namespace System.CommandLine.Parsing
     /// </summary>
     public sealed class OptionResult : SymbolResult
     {
-        private ArgumentConversionResult? _argumentConversionResult;
-
         internal OptionResult(
             Option option,
             SymbolResultTree symbolResultTree,
@@ -54,15 +52,13 @@ namespace System.CommandLine.Parsing
         /// </summary>
         /// <returns>The parsed value or the default value for <see cref="Option"/></returns>
         public T GetValueOrDefault<T>() =>
-            ArgumentConversionResult
-                .ConvertIfNeeded(typeof(T))
-                .GetValueOrDefault<T>();
+            GetResult(Option.Argument)!.GetValueOrDefault<T>();
 
         internal bool IsArgumentLimitReached
             => Option.Argument.Arity.MaximumNumberOfValues == (Implicit ? Tokens.Count - 1 : Tokens.Count);
 
         internal ArgumentConversionResult ArgumentConversionResult
-            => _argumentConversionResult ??= GetResult(Option.Argument)!.GetArgumentConversionResult();
+            => GetResult(Option.Argument)!.GetArgumentConversionResult();
 
         internal override bool UseDefaultValueFor(ArgumentResult argumentResult)
         {
