@@ -59,7 +59,7 @@
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsDescription">
         <source>Arguments passed to the application that is being run.</source>
-        <target state="translated">Аргументы, предаваемые в запущенное приложение.</target>
+        <target state="translated">Аргументы, переданные в запущенное приложение.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsTitle">
@@ -159,7 +159,7 @@
       </trans-unit>
       <trans-unit id="SuggestionsTokenNotMatched">
         <source>'{0}' was not matched. Did you mean one of the following?</source>
-        <target state="translated">Нет совпдаений для '{0}'. Вы имели ввиду одно из следующих?</target>
+        <target state="translated">Совпадений для '{0}' не найдено. Вы имели ввиду одно из следующих?</target>
         <note />
       </trans-unit>
       <trans-unit id="UnrecognizedArgument">
