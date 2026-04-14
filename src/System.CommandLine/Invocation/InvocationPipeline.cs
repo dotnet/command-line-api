@@ -10,65 +10,80 @@ namespace System.CommandLine.Invocation
     {
         internal static async Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken)
         {
-            if (parseResult.Action is null)
-            {
-                return ReturnCodeForMissingAction(parseResult);
-            }
-
             ProcessTerminationHandler? terminationHandler = null;
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             try
             {
+                int actionResult = 0;
+                int preActionResult = 0;
+
                 if (parseResult.PreActions is not null)
                 {
                     for (int i = 0; i < parseResult.PreActions.Count; i++)
                     {
                         var action = parseResult.PreActions[i];
+                        var result = 0;
 
                         switch (action)
                         {
                             case SynchronousCommandLineAction syncAction:
-                                syncAction.Invoke(parseResult);
+                                result = syncAction.Invoke(parseResult);
                                 break;
                             case AsynchronousCommandLineAction asyncAction:
-                                await asyncAction.InvokeAsync(parseResult, cts.Token);
+                                result = await asyncAction.InvokeAsync(parseResult, cts.Token);
                                 break;
+                           
+                        }
+
+                        if (result != 0)
+                        {
+                            preActionResult = result;
                         }
                     }
+                }
+
+                if (parseResult.Action is null)
+                {
+                    return preActionResult != 0 ? preActionResult : ReturnCodeForMissingAction(parseResult);
                 }
 
                 switch (parseResult.Action)
                 {
                     case SynchronousCommandLineAction syncAction:
-                        return syncAction.Invoke(parseResult);
+                        actionResult = syncAction.Invoke(parseResult);
+                        break;
 
                     case AsynchronousCommandLineAction asyncAction:
-                        var startedInvocation = asyncAction.InvokeAsync(parseResult, cts.Token);
-
                         var timeout = parseResult.InvocationConfiguration.ProcessTerminationTimeout;
 
                         if (timeout.HasValue)
                         {
-                            terminationHandler = new(cts, startedInvocation, timeout.Value);
+                            terminationHandler = new(cts, timeout.Value);
                         }
+
+                        var startedInvocation = asyncAction.InvokeAsync(parseResult, cts.Token);
 
                         if (terminationHandler is null)
                         {
-                            return await startedInvocation;
+                            actionResult = await startedInvocation;
                         }
                         else
                         {
+                            terminationHandler.StartedHandler = startedInvocation;
                             // Handlers may not implement cancellation.
                             // In such cases, when CancelOnProcessTermination is configured and user presses Ctrl+C,
                             // ProcessTerminationCompletionSource completes first, with the result equal to native exit code for given signal.
                             Task<int> firstCompletedTask = await Task.WhenAny(startedInvocation, terminationHandler.ProcessTerminationCompletionSource.Task);
-                            return await firstCompletedTask; // return the result or propagate the exception
+                            actionResult = await firstCompletedTask; // return the result or propagate the exception
                         }
+                        break;
 
                     default:
                         throw new ArgumentOutOfRangeException(nameof(parseResult.Action));
                 }
+
+                return preActionResult != 0 ? preActionResult : actionResult;
             }
             catch (Exception ex) when (parseResult.InvocationConfiguration.EnableDefaultExceptionHandler)
             {
@@ -82,48 +97,42 @@ namespace System.CommandLine.Invocation
 
         internal static int Invoke(ParseResult parseResult)
         {
-            switch (parseResult.Action)
+            try
             {
-                case null:
-                    return ReturnCodeForMissingAction(parseResult);
+                int preActionResult = 0;
 
-                case SynchronousCommandLineAction syncAction:
-                    try
+                if (parseResult.PreActions is not null)
+                {
+                    for (var i = 0; i < parseResult.PreActions.Count; i++)
                     {
-                        if (parseResult.PreActions is not null)
+                        if (parseResult.PreActions[i] is SynchronousCommandLineAction syncPreAction)
                         {
-#if DEBUG
-                            for (var i = 0; i < parseResult.PreActions.Count; i++)
+                            int result = syncPreAction.Invoke(parseResult);
+                            
+                            if (result != 0)
                             {
-                                var action = parseResult.PreActions[i];
-
-                                if (action is not SynchronousCommandLineAction)
-                                {
-                                    parseResult.InvocationConfiguration.EnableDefaultExceptionHandler = false;
-                                    throw new Exception(
-                                        $"This should not happen. An instance of {nameof(AsynchronousCommandLineAction)} ({action}) was called within {nameof(InvocationPipeline)}.{nameof(Invoke)}. This is supposed to be detected earlier resulting in a call to {nameof(InvocationPipeline)}{nameof(InvokeAsync)}");
-                                }
-                            }
-#endif
-
-                            for (var i = 0; i < parseResult.PreActions.Count; i++)
-                            {
-                                if (parseResult.PreActions[i] is SynchronousCommandLineAction syncPreAction)
-                                {
-                                    syncPreAction.Invoke(parseResult);
-                                }
+                                preActionResult = result;
                             }
                         }
-
-                        return syncAction.Invoke(parseResult);
                     }
-                    catch (Exception ex) when (parseResult.InvocationConfiguration.EnableDefaultExceptionHandler)
-                    {
-                        return DefaultExceptionHandler(ex, parseResult);
-                    }
+                }
 
-                default:
-                    throw new InvalidOperationException($"{nameof(AsynchronousCommandLineAction)} called within non-async invocation.");
+                switch (parseResult.Action)
+                {
+                    case null:
+                        return preActionResult != 0 ? preActionResult : ReturnCodeForMissingAction(parseResult);
+
+                    case SynchronousCommandLineAction syncAction:
+                        int actionResult = syncAction.Invoke(parseResult);
+                        return preActionResult != 0 ? preActionResult : actionResult;
+
+                    default:
+                        throw new InvalidOperationException($"{nameof(AsynchronousCommandLineAction)} called within non-async invocation.");
+                }
+            }
+            catch (Exception ex) when (parseResult.InvocationConfiguration.EnableDefaultExceptionHandler)
+            {
+                return DefaultExceptionHandler(ex, parseResult);
             }
         }
 

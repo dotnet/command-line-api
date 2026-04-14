@@ -436,6 +436,101 @@ namespace System.CommandLine.Tests.Invocation
             returnCode.Should().Be(1);
         }
         
+        [Theory] // https://github.com/dotnet/command-line-api/issues/2771
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Nonterminating_option_action_is_invoked_when_command_has_no_action(bool invokeAsync)
+        {
+            bool optionActionWasCalled = false;
+            SynchronousTestAction optionAction = new(_ => optionActionWasCalled = true, terminating: false);
+
+            Option<bool> option = new("--test")
+            {
+                Action = optionAction
+            };
+            RootCommand command = new()
+            {
+                option
+            };
+
+            ParseResult parseResult = command.Parse("--test");
+
+            if (invokeAsync)
+            {
+                await parseResult.InvokeAsync();
+            }
+            else
+            {
+                parseResult.Invoke();
+            }
+
+            optionActionWasCalled.Should().BeTrue();
+        }
+
+        [Theory] // https://github.com/dotnet/command-line-api/issues/2772
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Nonterminating_option_action_return_value_is_propagated(bool invokeAsync)
+        {
+            SynchronousTestAction optionAction = new(_ => { }, terminating: false, returnValue: 42);
+
+            Option<bool> option = new("--test")
+            {
+                Action = optionAction
+            };
+            RootCommand command = new()
+            {
+                option
+            };
+            command.SetAction(_ => { });
+
+            ParseResult parseResult = command.Parse("--test");
+
+            int result;
+            if (invokeAsync)
+            {
+                result = await parseResult.InvokeAsync();
+            }
+            else
+            {
+                result = parseResult.Invoke();
+            }
+
+            result.Should().Be(42);
+        }
+
+        [Theory] // https://github.com/dotnet/command-line-api/issues/2772
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task When_preaction_and_command_action_both_return_nonzero_then_preaction_value_wins(bool invokeAsync)
+        {
+            SynchronousTestAction optionAction = new(_ => { }, terminating: false, returnValue: 42);
+
+            Option<bool> option = new("--test")
+            {
+                Action = optionAction
+            };
+            RootCommand command = new()
+            {
+                option
+            };
+            command.SetAction(_ => 99);
+
+            ParseResult parseResult = command.Parse("--test");
+
+            int result;
+            if (invokeAsync)
+            {
+                result = await parseResult.InvokeAsync();
+            }
+            else
+            {
+                result = parseResult.Invoke();
+            }
+
+            result.Should().Be(42);
+        }
+
         [Fact]
         public async Task Command_InvokeAsync_with_cancelation_token_invokes_command_handler()
         {

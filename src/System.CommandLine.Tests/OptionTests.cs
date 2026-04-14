@@ -409,6 +409,34 @@ namespace System.CommandLine.Tests
         }
 
         [Fact]
+        public void AcceptOnlyFromAmong_with_comparer_is_case_insensitive()
+        {
+            Option<string> option = new("--name");
+            option.AcceptOnlyFromAmong(StringComparer.OrdinalIgnoreCase, "NAME1", "NAME2");
+
+            var result = new RootCommand { option }.Parse("--name name1");
+
+            using var _ = new AssertionScope();
+
+            result.Errors.Should().BeEmpty();
+            result.GetValue(option).Should().Be("name1");
+        }
+
+        [Fact]
+        public void AcceptOnlyFromAmong_with_comparer_rejects_invalid_values()
+        {
+            Option<string> option = new("--name");
+            option.AcceptOnlyFromAmong(StringComparer.OrdinalIgnoreCase, "NAME1", "NAME2");
+
+            var result = new RootCommand { option }.Parse("--name NAME3");
+
+            result.Errors
+                  .Select(e => e.Message)
+                  .Should()
+                  .BeEquivalentTo(new[] { $"Argument 'NAME3' not recognized. Must be one of:\n\t'NAME1'\n\t'NAME2'" });
+        }
+
+        [Fact]
         public void Option_result_provides_identifier_token_if_name_was_provided()
         {
             var option = new Option<int>("--name")
@@ -530,6 +558,28 @@ namespace System.CommandLine.Tests
             var parseResult = rootCommand.Parse("-o");
 
             parseResult.GetValue(option).Should().Be(42);
+        }
+
+        [Fact] // https://github.com/dotnet/command-line-api/issues/2621
+        public void Option_with_default_value_has_Action_added_to_PreActions_when_not_specified_but_has_default()
+        {
+            var preactionWasInvoked = false;
+            var option = new Option<bool>("--quiet")
+            {
+                DefaultValueFactory = _ => true,
+                Action = new SynchronousTestAction(_ => preactionWasInvoked = true, terminating: false)
+            };
+
+            var rootCommand = new RootCommand
+            {
+                option
+            };
+            rootCommand.SetAction(_ => { });
+
+            var parseResult = rootCommand.Parse("");
+            parseResult.Invoke();
+
+            preactionWasInvoked.Should().BeTrue();
         }
     }
 }

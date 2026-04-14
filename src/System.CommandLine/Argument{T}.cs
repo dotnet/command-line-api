@@ -78,6 +78,10 @@ namespace System.CommandLine
                         }
                     };
                 }
+                else
+                {
+                    ConvertArguments = null;
+                }
             }
         }
 

@@ -28,8 +28,8 @@
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
-        <source>Required argument missing for command: '{0}'.</source>
-        <target state="translated">Komut için gerekli bağımsız değişken eksik: '{0}'.</target>
+        <source>Required argument '{0}' missing for command: '{1}'.</source>
+        <target state="translated">Komut '{1}' için gerekli bağımsız değişken '{0}' eksik.</target>
         <note />
       </trans-unit>
       <trans-unit id="DirectoryDoesNotExist">
