@@ -94,7 +94,7 @@ public sealed class ParseErrorAction : SynchronousCommandLineAction
             var token = unmatchedTokens[i];
 
             bool first = true;
-            foreach (string suggestion in GetPossibleTokens(parseResult.CommandResult.Command, token))
+            foreach (string suggestion in GetPossibleTokens(parseResult.CommandResult, token))
             {
                 if (first)
                 {
@@ -111,16 +111,23 @@ public sealed class ParseErrorAction : SynchronousCommandLineAction
             parseResult.InvocationConfiguration.Output.WriteLine();
         }
 
-        static IEnumerable<string> GetPossibleTokens(Command targetSymbol, string token)
+        static IEnumerable<string> GetPossibleTokens(CommandResult commandResult, string token)
         {
-            if (targetSymbol is { HasOptions: false, HasSubcommands: false })
+            Command targetSymbol = commandResult.Command;
+
+            // Collect symbols from the current command's children (options + subcommands)
+            // plus Recursive options from every ancestor command.
+            IEnumerable<Symbol> candidates = targetSymbol.HasOptions || targetSymbol.HasSubcommands
+                ? targetSymbol.Children.Where(x => !x.Hidden && x is Option or Command)
+                : Enumerable.Empty<Symbol>();
+
+            for (var parent = commandResult.Parent as CommandResult; parent is not null; parent = parent.Parent as CommandResult)
             {
-                return Array.Empty<string>();
+                candidates = candidates.Concat(
+                    parent.Command.Options.Where(o => o.Recursive && !o.Hidden));
             }
 
-            IEnumerable<string> possibleMatches = targetSymbol
-                                                  .Children
-                                                  .Where(x => !x.Hidden && x is Option or Command)
+            IEnumerable<string> possibleMatches = candidates
                                                   .Select(symbol =>
                                                   {
                                                       AliasSet? aliasSet = symbol is Option option ? option._aliases : ((Command)symbol)._aliases;
@@ -233,3 +240,4 @@ public sealed class ParseErrorAction : SynchronousCommandLineAction
 
     private const int MaxLevenshteinDistance = 3;
 }
+

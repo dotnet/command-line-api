@@ -188,5 +188,106 @@ namespace System.CommandLine.Tests.Invocation
 
             output.ToString().Should().Contain($"'-all' was not matched. Did you mean one of the following?{NewLine}-call");
         }
+
+        [Fact]
+        public async Task Recursive_options_from_parent_command_are_suggested_for_subcommand_token()
+        {
+            var subcommand = new Command("sub");
+            var rootCommand = new RootCommand
+            {
+                subcommand,
+                new Option<string>("--verbose") { Recursive = true }
+            };
+
+            var output = new StringWriter();
+            var result = rootCommand.Parse("sub --verbos");
+
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().Contain($"'--verbos' was not matched. Did you mean one of the following?{NewLine}--verbose");
+        }
+
+        [Fact]
+        public async Task Non_recursive_options_from_parent_command_are_not_suggested_for_subcommand_token()
+        {
+            var subcommand = new Command("sub");
+            var rootCommand = new RootCommand
+            {
+                subcommand,
+                new Option<string>("--verbose") { Recursive = false }
+            };
+
+            var output = new StringWriter();
+            var result = rootCommand.Parse("sub --verbos");
+
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().NotContain("--verbose");
+        }
+
+        [Fact]
+        public async Task Hidden_recursive_options_from_parent_command_are_not_suggested_for_subcommand_token()
+        {
+            var subcommand = new Command("sub");
+            var rootCommand = new RootCommand
+            {
+                subcommand,
+                new Option<string>("--verbose") { Recursive = true, Hidden = true }
+            };
+
+            var output = new StringWriter();
+            var result = rootCommand.Parse("sub --verbos");
+
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().NotContain("--verbose");
+        }
+
+        [Fact]
+        public async Task Recursive_options_from_grandparent_command_are_suggested_for_deeply_nested_subcommand_token()
+        {
+            var grandchild = new Command("grandchild");
+            var child = new Command("child") { grandchild };
+            var rootCommand = new RootCommand
+            {
+                child,
+                new Option<string>("--output") { Recursive = true }
+            };
+
+            var output = new StringWriter();
+            var result = rootCommand.Parse("child grandchild --outpu");
+
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().Contain($"'--outpu' was not matched. Did you mean one of the following?{NewLine}--output");
+        }
+
+        [Fact]
+        public async Task Recursive_options_from_parent_and_own_options_are_both_suggested()
+        {
+            var subcommand = new Command("sub")
+            {
+                new Option<string>("--format")
+            };
+            var rootCommand = new RootCommand
+            {
+                subcommand,
+                new Option<string>("--verbose") { Recursive = true }
+            };
+
+            var output = new StringWriter();
+            // "forma" is close to "--format" but not close to "--verbose"
+            var result = rootCommand.Parse("sub forma");
+
+            if (result.Action is ParseErrorAction parseError)
+            {
+                parseError.ShowHelp = false;
+            }
+
+            await result.InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().Contain("--format");
+            output.ToString().Should().NotContain("--verbose");
+        }
     }
 }

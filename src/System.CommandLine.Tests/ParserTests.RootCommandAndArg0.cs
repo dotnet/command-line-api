@@ -101,6 +101,39 @@ public partial class ParserTests
             result3.RootCommandResult.Command.Should().BeSameAs(result1.RootCommandResult.Command);
         }
 
+        [Fact]
+        public void When_parsing_a_string_array_option_values_containing_command_name_after_slash_are_not_treated_as_root_command()
+        {
+            // Path.GetFileName("/p:Key=something/myapp") returns "myapp",
+            // which should not be matched as the root command name.
+            var option = new Option<string>("--property", "/p") { Arity = ArgumentArity.ExactlyOne };
+            var command = new Command("myapp");
+            command.Options.Add(option);
+
+            var result = command.Parse(Split("/p:Key=something/myapp"));
+
+            result.Errors.Should().BeEmpty();
+            result.GetResult(option).Should().NotBeNull();
+        }
+
+        [Theory]
+        [InlineData("/p:DockerImage=registry.example.com/project/dotnet")]
+        [InlineData("-p:DockerImage=registry.example.com/project/dotnet")]
+        [InlineData("--property:DockerImage=registry.example.com/project/dotnet")]
+        public void When_parsing_a_string_array_option_values_ending_with_slash_command_name_are_preserved(string arg)
+        {
+            // Regression test: Path.GetFileName extracts the last segment after '/',
+            // so option values like ".../dotnet" falsely matched a command named "dotnet".
+            var option = new Option<string>("--property", "/p", "-p") { Arity = ArgumentArity.ExactlyOne };
+            var command = new Command("dotnet");
+            command.Options.Add(option);
+
+            var result = command.Parse(Split(arg));
+
+            result.Errors.Should().BeEmpty();
+            result.GetResult(option).Should().NotBeNull();
+        }
+
         string[] Split(string value) => CommandLineParser.SplitCommandLine(value).ToArray();
     }
 }
