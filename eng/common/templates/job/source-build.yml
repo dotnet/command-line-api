@@ -49,18 +49,18 @@ jobs:
       # Main environments
       ${{ if and(eq(variables['System.TeamProject'], 'public'), ne(contains(coalesce(variables['System.PullRequest.TargetBranch'], variables['Build.SourceBranch'], 'refs/heads/main'), 'release'), true)) }}:
         name: NetCore-Public
-        demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
+        demands: ImageOverride -equals Build.Ubuntu.2204.Amd64.Open
       ${{ if and(eq(variables['System.TeamProject'], 'internal'), ne(contains(coalesce(variables['System.PullRequest.TargetBranch'], variables['Build.SourceBranch'], 'refs/heads/main'), 'release'), true)) }}:
         name: NetCore1ESPool-Internal
-        demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+        demands: ImageOverride -equals Build.Ubuntu.2204.Amd64
 
       # Servicing build environments
       ${{ if and(eq(variables['System.TeamProject'], 'public'), contains(coalesce(variables['System.PullRequest.TargetBranch'], variables['Build.SourceBranch'], 'refs/heads/main'), 'release')) }}:
         name: NetCore-Svc-Public
-        demands: ImageOverride -equals Build.Ubuntu.1804.Amd64.Open
+        demands: ImageOverride -equals Build.Ubuntu.2204.Amd64.Open
       ${{ if and(eq(variables['System.TeamProject'], 'internal'), contains(coalesce(variables['System.PullRequest.TargetBranch'], variables['Build.SourceBranch'], 'refs/heads/main'), 'release')) }}:
         name: NetCore1ESPool-Svc-Internal
-        demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+        demands: ImageOverride -equals Build.Ubuntu.2204.Amd64
 
   ${{ if ne(parameters.platform.pool, '') }}:
     pool: ${{ parameters.platform.pool }}

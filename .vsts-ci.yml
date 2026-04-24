@@ -118,10 +118,10 @@ stages:
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             name: NetCore-Svc-Public
-            demands: ImageOverride -equals 1es-ubuntu-2004-open
+            demands: ImageOverride -equals 1es-ubuntu-2204-open
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
             name: NetCore1ESPool-Svc-Internal
-            demands: ImageOverride -equals 1es-ubuntu-2004
+            demands: ImageOverride -equals 1es-ubuntu-2204
         strategy:
           matrix:
             ${{ if in(variables['Build.Reason'], 'PullRequest') }}:
