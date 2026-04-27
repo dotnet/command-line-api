@@ -118,7 +118,7 @@ extends:
             displayName: Ubuntu
             pool:
               name: NetCore1ESPool-Svc-Internal
-              demands: ImageOverride -equals 1es-ubuntu-2004
+              demands: ImageOverride -equals 1es-ubuntu-2204
               os: linux
             strategy:
               matrix:
