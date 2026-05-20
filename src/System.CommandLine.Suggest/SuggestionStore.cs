@@ -44,13 +44,13 @@ namespace System.CommandLine.Suggest
 
                     Task<string> readToEndTask = process.StandardOutput.ReadToEndAsync();
 
-                   if (readToEndTask.Wait(timeout))
+                   if (process.WaitForExit((int)timeout.TotalMilliseconds))
                     {
                         if(process.ExitCode == 0)
                         {
                             result = readToEndTask.Result;
                         }
-                        result = readToEndTask.Result;
+                        
                     }
                     else
                     {
