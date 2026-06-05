@@ -171,7 +171,7 @@ internal partial class HelpBuilder
         /// </summary>
         public static IEnumerable<Func<HelpContext, bool>> GetLayout()
         {
-            yield return SynopsisSection();
+            yield return CommandDescriptionSection();
             yield return CommandUsageSection();
             yield return CommandArgumentsSection();
             yield return OptionsSection();
@@ -180,9 +180,9 @@ internal partial class HelpBuilder
         }
 
         /// <summary>
-        /// Writes a help section describing a command's synopsis.
+        /// Writes the command description help section.
         /// </summary>
-        public static Func<HelpContext, bool> SynopsisSection() =>
+        public static Func<HelpContext, bool> CommandDescriptionSection() =>
             ctx =>
             {
                 if (string.IsNullOrWhiteSpace(ctx.Command.Description))

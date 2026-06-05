@@ -78,7 +78,7 @@ namespace System.CommandLine.Tests.Help
         [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
-        public void Synopsis_section_is_not_rendered_when_description_is_empty(string? description)
+        public void Command_description_section_is_not_rendered_when_description_is_empty(string? description)
         {
             var command = new RootCommand(description);
 
