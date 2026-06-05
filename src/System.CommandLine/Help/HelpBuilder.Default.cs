@@ -185,6 +185,11 @@ internal partial class HelpBuilder
         public static Func<HelpContext, bool> SynopsisSection() =>
             ctx =>
             {
+                if (string.IsNullOrWhiteSpace(ctx.Command.Description))
+                {
+                    return false;
+                }
+
                 ctx.HelpBuilder.WriteHeading(LocalizationResources.HelpDescriptionTitle(), ctx.Command.Description, ctx.Output);
                 return true;
             };

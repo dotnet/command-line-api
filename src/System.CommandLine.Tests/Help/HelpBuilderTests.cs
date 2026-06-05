@@ -74,6 +74,20 @@ namespace System.CommandLine.Tests.Help
             _console.ToString().Should().Contain(expected);
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public void Synopsis_section_is_not_rendered_when_description_is_empty(string? description)
+        {
+            var command = new RootCommand(description);
+
+            _helpBuilder.Write(command, _console);
+
+            _console.ToString().Should().NotContain("Description:");
+            _console.ToString().Should().Contain("Usage:");
+        }
+
         [Fact]
         public void Command_name_in_synopsis_can_be_specified()
         {
