@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Reflection;
 using FluentAssertions;
 using Xunit;
 
@@ -48,5 +50,22 @@ namespace System.CommandLine.Tests
 
             rootCommand.Name.Should().Be(RootCommand.ExecutableName);
         }
+
+        [Fact]
+        public void ExecutablePath_falls_back_to_empty_string_when_command_line_args_are_empty()
+        {
+            GetExecutablePath(Array.Empty<string>()).Should().Be("");
+        }
+
+        [Fact]
+        public void ExecutablePath_uses_first_command_line_arg()
+        {
+            GetExecutablePath(new[] { "my-tool", "--help" }).Should().Be("my-tool");
+        }
+
+        private static string GetExecutablePath(string[] commandLineArgs)
+            => (string)typeof(RootCommand)
+                .GetMethod("GetExecutablePath", BindingFlags.NonPublic | BindingFlags.Static)!
+                .Invoke(null, new object[] { commandLineArgs })!;
     }
 }
