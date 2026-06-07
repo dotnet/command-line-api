@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Binding;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace System.CommandLine.Parsing
@@ -27,8 +28,6 @@ namespace System.CommandLine.Parsing
         /// Gets the argument to which the result applies.
         /// </summary>
         public Argument Argument { get; }
-
-        internal bool ArgumentLimitReached => Argument.Arity.MaximumNumberOfValues == (_tokens?.Count ?? 0);
 
         public bool Implicit { get; private set; }
 
@@ -98,9 +97,10 @@ namespace System.CommandLine.Parsing
             var arguments = parent.Command.Arguments;
             int argumentIndex = arguments.IndexOf(Argument);
             int nextArgumentIndex = argumentIndex + 1;
-            int tokensToPass = _tokens.Count - numberOfTokens;
+            List<Token> tokensToPass = _tokens.GetRange(numberOfTokens, _tokens.Count - numberOfTokens);
+            _tokens.RemoveRange(numberOfTokens, tokensToPass.Count);
 
-            while (tokensToPass > 0 && nextArgumentIndex < arguments.Count)
+            while (tokensToPass.Count > 0 && nextArgumentIndex < arguments.Count)
             {
                 Argument nextArgument = parent.Command.Arguments[nextArgumentIndex];
                 ArgumentResult nextArgumentResult;
@@ -116,25 +116,28 @@ namespace System.CommandLine.Parsing
                     SymbolResultTree.Add(nextArgument, nextArgumentResult);
                 }
 
-                while (!nextArgumentResult.ArgumentLimitReached && tokensToPass > 0)
+                if (nextArgumentResult._tokens is not null)
                 {
-                    Token toPass = _tokens[numberOfTokens];
-                    _tokens.RemoveAt(numberOfTokens);
-                    nextArgumentResult.AddToken(toPass);
-                    --tokensToPass;
+                    tokensToPass.AddRange(nextArgumentResult._tokens);
                 }
 
+                int tokensToTake = Math.Min(nextArgument.Arity.MaximumNumberOfValues, tokensToPass.Count);
+
+                nextArgumentResult._tokens = tokensToTake > 0
+                    ? tokensToPass.GetRange(0, tokensToTake)
+                    : null;
+                nextArgumentResult._conversionResult = null;
+                nextArgumentResult._validatorsHaveBeenRun = false;
+
+                tokensToPass.RemoveRange(0, tokensToTake);
                 nextArgumentIndex++;
             }
 
             CommandResult rootCommand = parent;
             // When_tokens_are_passed_on_by_custom_parser_on_last_argument_then_they_become_unmatched_tokens
-            while (tokensToPass > 0)
+            for (var i = 0; i < tokensToPass.Count; i++)
             {
-                Token unmatched = _tokens[numberOfTokens];
-                _tokens.RemoveAt(numberOfTokens);
-                SymbolResultTree.AddUnmatchedToken(unmatched, parent, rootCommand);
-                --tokensToPass;
+                SymbolResultTree.AddUnmatchedToken(tokensToPass[i], parent, rootCommand);
             }
         }
 
