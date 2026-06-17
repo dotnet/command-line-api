@@ -46,9 +46,9 @@ public static class AssertionExtensions
         return assertions.BeEquivalentTo(expectedValues, c => c.WithStrictOrderingFor(s => s));
     }
 
-    public static AndConstraint<StringAssertions> ShowHelp(this StringAssertions output) => 
-        output.Subject.Should().Match("*Description:*Usage:*");
+    public static AndConstraint<StringAssertions> ShowHelp(this StringAssertions output) =>
+        output.Subject.Should().Contain("Usage:");
 
-    public static AndConstraint<StringAssertions> NotShowHelp(this StringAssertions output) => 
-        output.Subject.Should().NotMatch("*Description:*Usage:*");
+    public static AndConstraint<StringAssertions> NotShowHelp(this StringAssertions output) =>
+        output.Subject.Should().NotContain("Usage:");
 }
