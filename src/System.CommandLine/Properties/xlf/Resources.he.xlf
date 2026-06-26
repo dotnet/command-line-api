@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="he" original="../Resources.resx">
+    <body>
+      <trans-unit id="ArgumentConversionCannotParse">
+        <source>Cannot parse argument '{0}' as expected type '{1}'.</source>
+        <target state="new">לא ניתן לנתח את הארגומנט '{0}' כמצופה מסוג '{1}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForCommand">
+        <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</source>
+        <target state="new">לא ניתן לנתח את הארגומנט '{0}' עבור הפקודה '{1}' כמצופה מסוג '{2}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForCommand_Completions">
+        <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
+        <target state="new">לא ניתן לנתח את הארגומנט '{0}' עבור הפקודה '{1}' כמצופה מסוג '{2}'. האם התכוונת לאחת מהאפשרויות הבאות?{3}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForOption">
+        <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</source>
+        <target state="new">לא ניתן לנתח את הארגומנט '{0}' עבור האפשרות '{1}' כמצופה מסוג '{2}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ArgumentConversionCannotParseForOption_Completions">
+        <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
+        <target state="new">לא ניתן לנתח את הארגומנט '{0}' עבור האפשרות '{1}' כמצופה מסוג '{2}'. האם התכוונת לאחת מהאפשרויות הבאות?{3}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="CommandRequiredArgumentMissing">
+        <source>Required argument missing for command: '{0}'.</source>
+        <target state="translated">חסר ארגומנט נדרש עבור הפקודה: '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="DirectoryDoesNotExist">
+        <source>Directory does not exist: '{0}'.</source>
+        <target state="translated">התיקייה לא קיימת: '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ErrorReadingResponseFile">
+        <source>Error reading response file '{0}': {1}</source>
+        <target state="translated">שגיאה בקריאת קובץ התגובה '{0}': {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ExceptionHandlerHeader">
+        <source>Unhandled exception: </source>
+        <target state="new">חריג לא מטופל: </target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FileDoesNotExist">
+        <source>File does not exist: '{0}'.</source>
+        <target state="translated">הקובץ אינו קיים: '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="FileOrDirectoryDoesNotExist">
+        <source>File or directory does not exist: '{0}'.</source>
+        <target state="translated">קובץ או תיקייה אינם קיימים: '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpAdditionalArgumentsDescription">
+        <source>Arguments passed to the application that is being run.</source>
+        <target state="new">ארגומנטים שהועברו ליישום שפועל.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpAdditionalArgumentsTitle">
+        <source>Additional Arguments:</source>
+        <target state="translated">ארגומנטים נוספים:</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpArgumentDefaultValueLabel">
+        <source>default</source>
+        <target state="new">ברירת מחדל</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpArgumentsTitle">
+        <source>Arguments:</source>
+        <target state="translated">ארגומנטים:</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpCommandsTitle">
+        <source>Commands:</source>
+        <target state="translated">פקודות:</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpDescriptionTitle">
+        <source>Description:</source>
+        <target state="new">תיאור:</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpOptionDescription">
+        <source>Show help and usage information</source>
+        <target state="new">הצג עזרה ומידע שימוש</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpOptionsRequiredLabel">
+        <source>(REQUIRED)</source>
+        <target state="new">(נדרש)</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpUsageCommand">
+        <source>[command]</source>
+        <target state="new">[פקודה]</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpUsageOptions">
+        <source>[options]</source>
+        <target state="new">[אפשרויות]</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidCharactersInFileName">
+        <source>Character not allowed in a file name: '{0}'.</source>
+        <target state="new">תווים שאינם מותרים בשם קובץ: '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpOptionsTitle">
+        <source>Options:</source>
+        <target state="translated">אפשרויות:</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpUsageAdditionalArguments">
+        <source>[[--] &lt;additional arguments&gt;...]]</source>
+        <target state="new">[[--] &lt;ארגומנטים נוספים&gt;...]]</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="HelpUsageTitle">
+        <source>Usage:</source>
+        <target state="translated">שימוש:</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="InvalidCharactersInPath">
+        <source>Character not allowed in a path: '{0}'.</source>
+        <target state="translated">תווים שאינם מותרים בנתיב: '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="OptionExpectsOneArgument">
+        <source>Option '{0}' expects a single argument but {1} were provided.</source>
+        <target state="new">האפשרות '{0}' מצפה לארגומנט יחיד אך {1} סופקו.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="OptionRequiredArgumentMissing">
+        <source>Required argument missing for option: '{0}'.</source>
+        <target state="translated">חסר ארגומנט נדרש עבור האפשרות: '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RequiredCommandWasNotProvided">
+        <source>Required command was not provided.</source>
+        <target state="translated">הפקודה הנדרשת לא סופקה.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="RequiredOptionWasNotProvided">
+        <source>Option '{0}' is required.</source>
+        <target state="new">האפשרות '{0}' נדרשת.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="ResponseFileNotFound">
+        <source>Response file not found '{0}'.</source>
+        <target state="translated">קובץ התגובה לא נמצא '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="SuggestionsTokenNotMatched">
+        <source>'{0}' was not matched. Did you mean one of the following?</source>
+        <target state="new">לא נמצא התאמה בין '{0}'. האם התכוונת לאחת מהאפשרויות הבאות?</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnrecognizedArgument">
+        <source>Argument '{0}' not recognized. Must be one of:{1}</source>
+        <target state="translated">הארגומנט '{0}' לא זוהה. חייב להיות אחד מ: {1}</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="UnrecognizedCommandOrArgument">
+        <source>Unrecognized command or argument '{0}'.</source>
+        <target state="translated">פקודה או ארגומנט לא מזוהה '{0}'.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">
+        <source>{0} option cannot be combined with other arguments.</source>
+        <target state="new">לא ניתן לשלב את האפשרות {0} עם ארגומנטים אחרים.</target>
+        <note></note>
+      </trans-unit>
+      <trans-unit id="VersionOptionDescription">
+        <source>Show version information</source>
+        <target state="translated">הצג מידע על גרסה</target>
+        <note></note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
