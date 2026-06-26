@@ -295,6 +295,15 @@ namespace System.CommandLine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Option &apos;{0}&apos; expects at most {1} arguments but {2} were provided..
+        /// </summary>
+        internal static string OptionArgumentsMaximumExceeded {
+            get {
+                return ResourceManager.GetString("OptionArgumentsMaximumExceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Option &apos;{0}&apos; expects a single argument but {1} were provided..
         /// </summary>
         internal static string OptionExpectsOneArgument {
