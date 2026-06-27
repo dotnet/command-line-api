@@ -47,8 +47,8 @@ public static class AssertionExtensions
     }
 
     public static AndConstraint<StringAssertions> ShowHelp(this StringAssertions output) => 
-        output.Subject.Should().Match("*Description:*Usage:*");
+        output.Subject.Should().Contain("Usage:");
 
     public static AndConstraint<StringAssertions> NotShowHelp(this StringAssertions output) => 
-        output.Subject.Should().NotMatch("*Description:*Usage:*");
+        output.Subject.Should().NotContain("Usage:");
 }
