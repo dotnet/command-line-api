@@ -74,7 +74,10 @@ namespace System.CommandLine
         /// <summary>
         /// The path to the currently running executable.
         /// </summary>
-        public static string ExecutablePath => _executablePath ??= Environment.GetCommandLineArgs()[0];
+        public static string ExecutablePath => _executablePath ??= GetExecutablePath(Environment.GetCommandLineArgs());
+
+        private static string GetExecutablePath(IReadOnlyList<string> commandLineArgs)
+            => commandLineArgs.Count > 0 ? commandLineArgs[0] : string.Empty;
 
         private static string? ToolCommandName
         {
