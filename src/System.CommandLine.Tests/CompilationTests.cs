@@ -121,8 +121,11 @@ public class CompilationTests
 
     private static string NativeLibraryFileName(string assemblyName) =>
         OperatingSystem.IsWindows() ? $"{assemblyName}.dll"
-            : OperatingSystem.IsMacOS() ? $"{assemblyName}.dylib"
-            : $"{assemblyName}.so";
+            // NativeAOT applies the "lib" prefix to native library outputs on Unix by
+            // default starting with the .NET 11 SDK (see dotnet/docs#52324). This repo
+            // pins an 11.x SDK via global.json, so the prefix is always present.
+            : OperatingSystem.IsMacOS() ? $"lib{assemblyName}.dylib"
+            : $"lib{assemblyName}.so";
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate int GetExecutableNameDelegate(IntPtr buffer, int bufferLength);
