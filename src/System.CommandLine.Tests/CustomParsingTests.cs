@@ -780,6 +780,68 @@ public class CustomParsingTests
                                    options => options.WithStrictOrdering());
     }
 
+    [Fact] // https://github.com/dotnet/command-line-api/issues/2734
+    public void OnlyTake_preserves_token_order_when_multiple_arguments_pass_on_tokens()
+    {
+        static string[] TakeTwo(ArgumentResult result)
+        {
+            result.OnlyTake(2);
+
+            return result.Tokens.Select(t => t.Value).ToArray();
+        }
+
+        var argument1 = new Argument<string[]>("arg1")
+        {
+            Arity = new(1, 15),
+            CustomParser = TakeTwo
+        };
+        var argument2 = new Argument<string[]>("arg2")
+        {
+            Arity = new(1, 3),
+            CustomParser = TakeTwo
+        };
+        var argument3 = new Argument<string[]>("arg3")
+        {
+            Arity = new(1, 3),
+            CustomParser = TakeTwo
+        };
+        var argument4 = new Argument<string[]>("arg4")
+        {
+            Arity = new(1, 3),
+            CustomParser = TakeTwo
+        };
+        var argument5 = new Argument<string[]>("arg5")
+        {
+            Arity = new(1, 3),
+            CustomParser = TakeTwo
+        };
+        var argument6 = new Argument<string[]>("arg6")
+        {
+            Arity = new(1, 10)
+        };
+
+        var command = new RootCommand
+        {
+            argument1,
+            argument2,
+            argument3,
+            argument4,
+            argument5,
+            argument6
+        };
+
+        var parseResult = command.Parse(Enumerable.Range(1, 20).Select(i => i.ToString()).ToArray());
+
+        parseResult.GetRequiredValue(argument1).Should().BeEquivalentSequenceTo("1", "2");
+        parseResult.GetRequiredValue(argument2).Should().BeEquivalentSequenceTo("3", "4");
+        parseResult.GetRequiredValue(argument3).Should().BeEquivalentSequenceTo("5", "6");
+        parseResult.GetRequiredValue(argument4).Should().BeEquivalentSequenceTo("7", "8");
+        parseResult.GetRequiredValue(argument5).Should().BeEquivalentSequenceTo("9", "10");
+        parseResult.GetRequiredValue(argument6)
+                   .Should()
+                   .BeEquivalentSequenceTo("11", "12", "13", "14", "15", "16", "17", "18", "19", "20");
+    }
+
     [Fact]
     public void OnlyTake_throws_when_called_with_a_negative_value()
     {
