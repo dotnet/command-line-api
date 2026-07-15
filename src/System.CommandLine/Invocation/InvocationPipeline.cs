@@ -138,18 +138,15 @@ namespace System.CommandLine.Invocation
 
         private static int DefaultExceptionHandler(Exception exception, ParseResult parseResult)
         {
-            if (exception is not OperationCanceledException)
-            {
-                ConsoleHelpers.ResetTerminalForegroundColor();
-                ConsoleHelpers.SetTerminalForegroundRed();
+            ConsoleHelpers.ResetTerminalForegroundColor();
+            ConsoleHelpers.SetTerminalForegroundRed();
 
-                var error = parseResult.InvocationConfiguration.Error;
+            var error = parseResult.InvocationConfiguration.Error;
 
-                error.Write(LocalizationResources.ExceptionHandlerHeader());
-                error.WriteLine(exception.ToString());
+            error.Write(LocalizationResources.ExceptionHandlerHeader());
+            error.WriteLine(exception.ToString());
 
-                ConsoleHelpers.ResetTerminalForegroundColor();
-            }
+            ConsoleHelpers.ResetTerminalForegroundColor();
             return 1;
         }
 

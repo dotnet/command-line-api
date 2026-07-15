@@ -35,19 +35,23 @@ namespace System.CommandLine.Tests
             error.ToString().Should().Contain("System.Exception: oops!");
         }
 
-        [Fact]
-        public async Task When_thrown_exception_is_from_cancelation_no_output_is_generated()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task UseExceptionHandler_writes_cancellation_exception_details_to_standard_error(bool taskCanceled)
         {
             Command command = new("the-command");
-            command.SetAction((_, __) => throw new OperationCanceledException());
+            Exception exception = taskCanceled
+                                      ? new TaskCanceledException("task canceled")
+                                      : new OperationCanceledException("operation canceled");
+            command.SetAction((_, __) => throw exception);
 
-            var output = new StringWriter();
             var error = new StringWriter();
 
-            int resultCode = await command.Parse("the-command").InvokeAsync(new() { Output = output, Error = error }, CancellationToken.None);
+            int resultCode = await command.Parse("the-command").InvokeAsync(new() { Error = error }, CancellationToken.None);
 
-            output.ToString().Should().BeEmpty();
-            resultCode.Should().NotBe(0);
+            error.ToString().Should().Contain(exception.ToString());
+            resultCode.Should().Be(1);
         }
 
         [Theory]
