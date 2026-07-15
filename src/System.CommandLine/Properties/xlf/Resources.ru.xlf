@@ -4,27 +4,27 @@
     <body>
       <trans-unit id="ArgumentConversionCannotParse">
         <source>Cannot parse argument '{0}' as expected type '{1}'.</source>
-        <target state="translated">Невозможно разобрать аргумент '{0}', так как ожидался тип '{1}'.</target>
+        <target state="translated">Не удалось обработать аргумент '{0}' как ожидаемый тип '{1}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForCommand">
         <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'.</source>
-        <target state="translated">Невозможно разобрать аргумент '{0}' для команды '{1}', так как ожидался тип '{2}'.</target>
+        <target state="translated">Не удалось обработать аргумент '{0}' для команды '{1}' как ожидаемый тип '{2}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForCommand_Completions">
         <source>Cannot parse argument '{0}' for command '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
-        <target state="translated">Невозможно разобрать аргумент '{0}' для команды '{1}', так как ожидался тип '{2}'. Вы имели в виду один из следующих вариантов?{3}</target>
+        <target state="translated">Не удалось обработать аргумент '{0}' для команды '{1}' в ожидаемый тип '{2}'. Возможно, вы имели в виду?{3}</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'.</source>
-        <target state="translated">Невозможно разобрать аргумент '{0}' для параметра '{1}', так как ожидался тип '{2}'.</target>
+        <target state="translated">Не удалось обработать аргумент '{0}' для параметра '{1}' как ожидаемый тип '{2}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="ArgumentConversionCannotParseForOption_Completions">
         <source>Cannot parse argument '{0}' for option '{1}' as expected type '{2}'. Did you mean one of the following?{3}</source>
-        <target state="translated">Невозможно разобрать аргумент '{0}' для параметра '{1}', так как ожидался тип '{2}'. Вы имели в виду один из следующих вариантов?{3}</target>
+        <target state="translated">Не удалось обработать аргумент '{0}' для параметра '{1}' как ожидаемый тип '{2}'. Возможно, вы имели в виду?{3}</target>
         <note />
       </trans-unit>
       <trans-unit id="CommandRequiredArgumentMissing">
@@ -59,7 +59,7 @@
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsDescription">
         <source>Arguments passed to the application that is being run.</source>
-        <target state="translated">Аргументы, передаваемые запускаемому приложению.</target>
+        <target state="translated">Аргументы для запускаемого приложения.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpAdditionalArgumentsTitle">
@@ -89,7 +89,7 @@
       </trans-unit>
       <trans-unit id="HelpOptionDescription">
         <source>Show help and usage information</source>
-        <target state="translated">Показать справку и информацию об использовании</target>
+        <target state="translated">Показать справку и руководство по использованию</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionsRequiredLabel">
@@ -104,12 +104,12 @@
       </trans-unit>
       <trans-unit id="HelpUsageOptions">
         <source>[options]</source>
-        <target state="translated">[параметр]</target>
+        <target state="translated">[параметры]</target>
         <note />
       </trans-unit>
       <trans-unit id="InvalidCharactersInFileName">
         <source>Character not allowed in a file name: '{0}'.</source>
-        <target state="translated">Символ не допустим в имени файла: '{0}'.</target>
+        <target state="translated">Недопустимый символ в имени файла: '{0}'.</target>
         <note />
       </trans-unit>
       <trans-unit id="HelpOptionsTitle">
@@ -134,7 +134,7 @@
       </trans-unit>
       <trans-unit id="OptionExpectsOneArgument">
         <source>Option '{0}' expects a single argument but {1} were provided.</source>
-        <target state="translated">Опция '{0}' ожидает один аргумент, но было предоставлено {1} аргументов.</target>
+        <target state="translated">Параметр '{0}' ожидает один аргумент, но было передано {1} аргументов.</target>
         <note />
       </trans-unit>
       <trans-unit id="OptionRequiredArgumentMissing">
@@ -159,7 +159,7 @@
       </trans-unit>
       <trans-unit id="SuggestionsTokenNotMatched">
         <source>'{0}' was not matched. Did you mean one of the following?</source>
-        <target state="translated">'{0}' не совпало. Вы имели в виду один из следующих вариантов?</target>
+        <target state="translated">'{0}' не было найдено. Возможно, вы имели в виду?</target>
         <note />
       </trans-unit>
       <trans-unit id="UnrecognizedArgument">
@@ -174,7 +174,7 @@
       </trans-unit>
       <trans-unit id="VersionOptionCannotBeCombinedWithOtherArguments">
         <source>{0} option cannot be combined with other arguments.</source>
-        <target state="translated">{0} параметр нельязя комбинировать с другими аргументами.</target>
+        <target state="translated">Параметр {0} нельзя использовать с другими аргументами.</target>
         <note />
       </trans-unit>
       <trans-unit id="VersionOptionDescription">
