@@ -290,20 +290,18 @@ fi
             .Replace('\n', ' ')
             ?? "";
 
-    private static string SanitizeValue(string? s) =>
-        s?
-            .Replace("\\", "\\\\")
-            .Replace("\'", "'\\''")
-            .Replace("\"", "\\\"")
-            .Replace("[", "\\[")
-            .Replace("]", "\\]")
-            .Replace(":", "\\:")
-            .Replace("$", "\\$")
-            .Replace("`", "\\`")
-            .Replace("(", "\\(")
-            .Replace(")", "\\)")
-            .Replace(" ", "\\ ")
-        ?? "";
+    private static string SanitizeValue(string? s)
+    {
+        if (s is null)
+        {
+            return "";
+        }
+
+        // _arguments evaluates value expressions a second time. Quote the value for that
+        // evaluation, then escape those quotes for the outer single-quoted argument.
+        var quotedValue = $"'{s.Replace("'", "'\\''")}'";
+        return quotedValue.Replace("'", "'\\''");
+    }
 
     private static string[]? ZshValueExpression(Option option)
     {

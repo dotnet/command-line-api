@@ -15,8 +15,8 @@ _mycommand() {
 
     local context curcontext="$curcontext" state state_descr line
     _arguments "${_arguments_options[@]}" : \
-        '--option=[]: :((\$\(command\)\:"\$(command)" \$variable\:"\$variable" back\\slash\:"back\slash" insert\ '\''\ \"\ \$\ \`\ \\\:"documentation '\'' \" \$ \` \ second line" double\"quote\:"double\"quote" semi;pipe|amp&parens\(\)brackets\[\]colon\:glob*?\:"semi;pipe|amp&parens()brackets\[\]colon\:glob*?" single'\''quote\:"single'\''quote" value\ with\ spaces\:"value with spaces" \`command\`\:"\`command\`" ))' \
-        ':argument:((\$\(command\)\:"\$(command)" \$variable\:"\$variable" back\\slash\:"back\slash" insert\ '\''\ \"\ \$\ \`\ \\\:"documentation '\'' \" \$ \` \ second line" double\"quote\:"double\"quote" semi;pipe|amp&parens\(\)brackets\[\]colon\:glob*?\:"semi;pipe|amp&parens()brackets\[\]colon\:glob*?" single'\''quote\:"single'\''quote" value\ with\ spaces\:"value with spaces" \`command\`\:"\`command\`" ))' \
+        '--option=[]: :(('\''$(command)'\''\:"\$(command)" '\''$variable'\''\:"\$variable" '\''back\slash'\''\:"back\slash" '\''insert '\''\'\'''\'' " $ ` \'\''\:"documentation '\'' \" \$ \` \ second line" '\''double"quote'\''\:"double\"quote" '\''semi;pipe|amp&parens()brackets[]colon:glob*?'\''\:"semi;pipe|amp&parens()brackets\[\]colon\:glob*?" '\''single'\''\'\'''\''quote'\''\:"single'\''quote" '\''value with spaces'\''\:"value with spaces" '\''`command`'\''\:"\`command\`" ))' \
+        ':argument:(('\''$(command)'\''\:"\$(command)" '\''$variable'\''\:"\$variable" '\''back\slash'\''\:"back\slash" '\''insert '\''\'\'''\'' " $ ` \'\''\:"documentation '\'' \" \$ \` \ second line" '\''double"quote'\''\:"double\"quote" '\''semi;pipe|amp&parens()brackets[]colon:glob*?'\''\:"semi;pipe|amp&parens()brackets\[\]colon\:glob*?" '\''single'\''\'\'''\''quote'\''\:"single'\''quote" '\''value with spaces'\''\:"value with spaces" '\''`command`'\''\:"\`command\`" ))' \
         && ret=0
     local original_args="mycommand ${line[@]}" 
 }

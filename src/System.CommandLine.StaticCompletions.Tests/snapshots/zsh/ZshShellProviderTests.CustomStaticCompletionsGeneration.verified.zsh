@@ -15,8 +15,8 @@ _my-app() {
 
     local context curcontext="$curcontext" state state_descr line
     _arguments "${_arguments_options[@]}" : \
-        '--static=[]: :((1\:"1" 2\:"2" 3\:"3" ))' \
-        ':--dynamic:((4\:"4" 5\:"5" 6\:"6" ))' \
+        '--static=[]: :(('\''1'\''\:"1" '\''2'\''\:"2" '\''3'\''\:"3" ))' \
+        ':--dynamic:(('\''4'\''\:"4" '\''5'\''\:"5" '\''6'\''\:"6" ))' \
         && ret=0
     local original_args="my-app ${line[@]}" 
 }
