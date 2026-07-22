@@ -5,14 +5,14 @@ _mycommand() {
     prev="${COMP_WORDS[COMP_CWORD-1]}" 
     COMPREPLY=()
     
-    opts="--name" 
+    opts=''\''--name'\'''
     
     if [[ $COMP_CWORD == "1" ]]; then
-        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+        while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
         return
     fi
     
-    COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+    while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
 }
 
 

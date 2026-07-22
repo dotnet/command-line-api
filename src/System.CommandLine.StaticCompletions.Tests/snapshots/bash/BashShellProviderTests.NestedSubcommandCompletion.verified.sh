@@ -5,10 +5,10 @@ _mycommand() {
     prev="${COMP_WORDS[COMP_CWORD-1]}" 
     COMPREPLY=()
     
-    opts="subcommand" 
+    opts=''\''subcommand'\'''
     
     if [[ $COMP_CWORD == "1" ]]; then
-        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+        while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
         return
     fi
     
@@ -20,7 +20,7 @@ _mycommand() {
             
     esac
     
-    COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+    while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
 }
 
 _mycommand_subcommand() {
@@ -29,10 +29,10 @@ _mycommand_subcommand() {
     prev="${COMP_WORDS[COMP_CWORD-1]}" 
     COMPREPLY=()
     
-    opts="nested" 
+    opts=''\''nested'\'''
     
     if [[ $COMP_CWORD == "$1" ]]; then
-        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+        while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
         return
     fi
     
@@ -44,7 +44,7 @@ _mycommand_subcommand() {
             
     esac
     
-    COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+    while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
 }
 
 _mycommand_subcommand_nested() {
@@ -53,14 +53,14 @@ _mycommand_subcommand_nested() {
     prev="${COMP_WORDS[COMP_CWORD-1]}" 
     COMPREPLY=()
     
-    opts="" 
+    opts=''
     
     if [[ $COMP_CWORD == "$1" ]]; then
-        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+        while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
         return
     fi
     
-    COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+    while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
 }
 
 

@@ -42,10 +42,12 @@ public class BashShellProvider : IShellProvider
         // notably, do not generate completions for all option aliases - since a user is tab-completing we can use the longest forms
         var completionOptions = command.HierarchicalOptions().Where(o => !o.Hidden).Select(o => o.Name).ToArray();
         var completionSubcommands = visibleSubcommands.Select(x => x.Name).ToArray();
-        string[] completionWords = [.. completionSubcommands, .. completionOptions];
-
-        // for positional arguments this can be pretty dynamic
-        var positionalArgumentCompletions = PositionalArgumentTerms(command.Arguments.Where(a => !a.Hidden).ToArray());
+        var visibleArguments = command.Arguments.Where(a => !a.Hidden).ToArray();
+        var positionalArgumentCompletions = visibleArguments
+            .Where(a => !a.IsDynamic)
+            .SelectMany(a => a.GetCompletions(CompletionContext.Empty))
+            .Select(c => c.InsertText ?? c.Label);
+        string[] completionWords = [.. completionSubcommands, .. completionOptions, .. positionalArgumentCompletions];
 
         using var textWriter = new StringWriter { NewLine = "\n" };
         using var writer = new IndentedTextWriter(textWriter);
@@ -62,10 +64,10 @@ public class BashShellProvider : IShellProvider
         writer.WriteLine();
 
         // fill in a set of completions for all of the subcommands and flag options for the top-level command
-        writer.WriteLine($"""opts="{string.Join(' ', completionWords)}" """);
-        foreach (var positionalArgumentCompletion in positionalArgumentCompletions)
+        writer.WriteLine($"opts={GenerateStaticWordList(completionWords)}");
+        foreach (var _ in visibleArguments.Where(a => a.IsDynamic))
         {
-            writer.WriteLine($"""opts="$opts {positionalArgumentCompletion}" """);
+            writer.WriteLine($"""opts="$opts $({GenerateDynamicCall()})" """);
         }
         writer.WriteLine();
 
@@ -126,28 +128,6 @@ public class BashShellProvider : IShellProvider
         return textWriter.ToString() + string.Join('\n', visibleSubcommands.Select(c => GenerateCommandsCompletions(parentCommandNamesForSubcommands, c, isNestedCommand: true)));
     }
 
-    internal static string[] PositionalArgumentTerms(Argument[] arguments)
-    {
-        var completions = new List<string>();
-        foreach (var argument in arguments)
-        {
-            if (argument.IsDynamic)
-            {
-                // if the argument is a not-static-friendly argument, we need to call into the app for completions
-                completions.Add($"$({GenerateDynamicCall()})");
-                continue;
-            }
-            var argCompletions = argument.GetCompletions(CompletionContext.Empty).Select(c => c.Label).ToArray();
-            if (argCompletions.Length != 0)
-            {
-                // otherwise emit a direct list of choices
-                completions.Add($"""({string.Join(' ', argCompletions)})""");
-            }
-        }
-
-        return completions.ToArray();
-    }
-
     /// <summary>
     /// Generates the bash expression that invokes the application's <c>[suggest]</c> directive
     /// to resolve dynamic completions.
@@ -170,10 +150,23 @@ public class BashShellProvider : IShellProvider
     /// Think of this like a 'return' from a function.
     /// </summary>
     /// <param name="choicesInvocation">The expression used to generate the set of choices - will be passed to compgen with the -W flag, so should be either
-    /// * a concrete set of choices in a bash array already ($opts), or
-    /// * a subprocess that will return such an array. </param>
+    /// * a variable containing a shell-quoted word list ($opts), or
+    /// * a subprocess that will return such a word list. </param>
     /// <returns></returns>
-    internal static string GenerateChoicesPrompt(string choicesInvocation) => $$"""COMPREPLY=( $(compgen -W "{{choicesInvocation}}" -- "$cur") )""";
+    internal static string GenerateChoicesPrompt(string choicesInvocation) =>
+        GenerateChoicesPromptForArgument($"\"{choicesInvocation}\"");
+
+    private static string GenerateStaticChoicesPrompt(IEnumerable<string> choices) =>
+        GenerateChoicesPromptForArgument(GenerateStaticWordList(choices));
+
+    private static string GenerateChoicesPromptForArgument(string choicesArgument) =>
+        $$"""while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W {{choicesArgument}} -- "$cur")""";
+
+    private static string GenerateStaticWordList(IEnumerable<string> choices) =>
+        BashSingleQuote(string.Join(' ', choices.Select(BashSingleQuote)));
+
+    private static string BashSingleQuote(string value) =>
+        $"'{value.Replace("'", "'\\''")}'";
 
     /// <summary>
     /// Generates a concrete set of bash completion selection for a given option.
@@ -200,8 +193,10 @@ public class BashShellProvider : IShellProvider
         }
         else
         {
-            var completions = option.GetCompletions(CompletionContext.Empty).Select(c => c.Label);
-            if (completions.Count() == 0)
+            var completions = option.GetCompletions(CompletionContext.Empty)
+                .Select(c => c.InsertText ?? c.Label)
+                .ToArray();
+            if (completions.Length == 0)
             {
                 // if no static completions are available, then don't emit anything
                 return null;
@@ -209,7 +204,7 @@ public class BashShellProvider : IShellProvider
             else
             {
                 // otherwise emit a direct list of choices
-                completionCommand = GenerateChoicesPrompt($"{string.Join(' ', completions)}");
+                completionCommand = GenerateStaticChoicesPrompt(completions);
             }
         }
 
