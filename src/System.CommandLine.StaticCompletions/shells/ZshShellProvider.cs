@@ -279,6 +279,7 @@ fi
 
     private static string SanitizeHelp(string? s) =>
         s?
+            .Replace("\\", "\\\\")
             .Replace("\"", "\\\"")
             .Replace("\'", "'\\''")
             .Replace("[", "\\[")

@@ -5,6 +5,7 @@
 
 namespace System.CommandLine.StaticCompletions.Tests;
 
+using System.CommandLine.Completions;
 using System.CommandLine.Help;
 using System.CommandLine.StaticCompletions.Shells;
 
@@ -85,6 +86,19 @@ public class ZshShellProviderTests(ITestOutputHelper log)
             dynamicArg
         };
         await _provider.Verify(command, log);
+    }
+
+    [Fact]
+    public async Task CompletionDescriptionEndingInBackslash()
+    {
+        var argument = new Argument<string>("path");
+        argument.CompletionSources.Add(_ =>
+        [
+            new CompletionItem("windows-root", documentation: @"C:\"),
+            new CompletionItem("next-value", documentation: "Still a separate completion")
+        ]);
+
+        await _provider.Verify(new Command("my-app") { argument }, log);
     }
 
 }
