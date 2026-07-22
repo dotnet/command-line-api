@@ -67,21 +67,22 @@ Register-ArgumentCompleter -Native -CommandName '{{{binaryName}}}' -ScriptBlock 
 
     private static string CompletionResult(string name, string value, string type, string? helpText)
     {
-        if (helpText is null)
-        {
-            return $"[CompletionResult]::new('{value}', '{name}', [CompletionResultType]::{type}, \"{value}\")";
-        }
-        else
-        {
-            return $"[CompletionResult]::new('{value}', '{name}', [CompletionResultType]::{type}, \"{helpText}\")";
-        }
+        var tooltip = SanitizeHelpText(helpText ?? value);
+        return $"[CompletionResult]::new({PowerShellSingleQuote(value)}, {PowerShellSingleQuote(name)}, [CompletionResultType]::{type}, {PowerShellSingleQuote(tooltip)})";
     }
 
     private static string ParameterNameResult(string name, string value, string? helpText) => CompletionResult(name, value, "ParameterName", helpText);
 
     private static string ParameterValueResult(string name, string value, string? helpText) => CompletionResult(name, value, "ParameterValue", helpText);
 
-    private static string? SanitizeHelpDescription(Symbol s) => s.Description?.ReplaceLineEndings(" ").Replace("`", "``").Replace("'", "`'").Replace("\"", "`\"").Replace("$", "`$");
+    private static string? SanitizeHelpDescription(Symbol s) =>
+        s.Description is null ? null : SanitizeHelpText(s.Description);
+
+    private static string SanitizeHelpText(string value) =>
+        value.ReplaceLineEndings(" ");
+
+    private static string PowerShellSingleQuote(string value) =>
+        $"'{value.Replace("'", "''")}'";
 
     /// <summary>
     /// Generations completion-list items for the names of the given option. Typically used by commands/subcommands for static lookup lists.

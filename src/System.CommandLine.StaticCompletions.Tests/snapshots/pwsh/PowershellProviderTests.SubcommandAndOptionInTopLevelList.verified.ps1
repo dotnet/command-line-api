@@ -22,8 +22,8 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
     switch ($command) {
         'mycommand' {
             $staticCompletions = @(
-                [CompletionResult]::new('--name', '--name', [CompletionResultType]::ParameterName, "--name")
-                [CompletionResult]::new('subcommand', 'subcommand', [CompletionResultType]::ParameterValue, "subcommand")
+                [CompletionResult]::new('--name', '--name', [CompletionResultType]::ParameterName, '--name')
+                [CompletionResult]::new('subcommand', 'subcommand', [CompletionResultType]::ParameterValue, 'subcommand')
             )
             $completions += $staticCompletions
             break
