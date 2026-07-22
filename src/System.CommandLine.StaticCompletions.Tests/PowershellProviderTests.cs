@@ -51,4 +51,13 @@ public class PowershellProviderTests(ITestOutputHelper log)
         var dynamicArg = new Argument<string>("target") { IsDynamic = true };
         await provider.Verify(new("mycommand") { dynamicArg }, log);
     }
+
+    [Fact]
+    public void EscapesWordToCompleteBeforeWildcardMatching()
+    {
+        var script = provider.GenerateCompletions(new("mycommand"));
+
+        script.Should().Contain("$escapedWordToComplete = [WildcardPattern]::Escape($wordToComplete)");
+        script.Should().Contain("$_.CompletionText -like \"$escapedWordToComplete*\"");
+    }
 }

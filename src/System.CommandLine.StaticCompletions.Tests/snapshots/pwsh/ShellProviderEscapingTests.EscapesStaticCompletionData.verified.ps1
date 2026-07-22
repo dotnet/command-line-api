@@ -39,5 +39,6 @@ Register-ArgumentCompleter -Native -CommandName 'mycommand' -ScriptBlock {
             break
         }
     }
-    $completions | Where-Object -FilterScript { $_.CompletionText -like "$wordToComplete*" } | Sort-Object -Property ListItemText
+    $escapedWordToComplete = [WildcardPattern]::Escape($wordToComplete)
+    $completions | Where-Object -FilterScript { $_.CompletionText -like "$escapedWordToComplete*" } | Sort-Object -Property ListItemText
 }

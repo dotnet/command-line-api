@@ -57,7 +57,8 @@ Register-ArgumentCompleter -Native -CommandName '{{{binaryName}}}' -ScriptBlock 
 
         writer.Indent--;
         writer.WriteLine("}");
-        writer.WriteLine("$completions | Where-Object -FilterScript { $_.CompletionText -like \"$wordToComplete*\" } | Sort-Object -Property ListItemText");
+        writer.WriteLine("$escapedWordToComplete = [WildcardPattern]::Escape($wordToComplete)");
+        writer.WriteLine("$completions | Where-Object -FilterScript { $_.CompletionText -like \"$escapedWordToComplete*\" } | Sort-Object -Property ListItemText");
 
         writer.Indent--;
         writer.WriteLine("}");
