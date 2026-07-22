@@ -166,7 +166,7 @@ public class BashShellProvider : IShellProvider
         BashSingleQuote(string.Join(' ', choices.Select(BashSingleQuote)));
 
     private static string BashSingleQuote(string value) =>
-        $"'{value.Replace("'", "'\\''")}'";
+        $"'{value.NormalizeCompletionText().Replace("'", "'\\''")}'";
 
     /// <summary>
     /// Generates a concrete set of bash completion selection for a given option.

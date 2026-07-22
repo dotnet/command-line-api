@@ -300,7 +300,7 @@ fi
 
         // _arguments evaluates value expressions a second time. Quote the value for that
         // evaluation, then escape those quotes for the outer single-quoted argument.
-        var quotedValue = $"'{s.Replace("'", "'\\''")}'";
+        var quotedValue = $"'{s.NormalizeCompletionText().Replace("'", "'\\''")}'";
         return quotedValue.Replace("'", "'\\''");
     }
 

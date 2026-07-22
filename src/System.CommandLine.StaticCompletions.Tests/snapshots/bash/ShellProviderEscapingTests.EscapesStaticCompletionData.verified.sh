@@ -5,7 +5,7 @@ _mycommand() {
     prev="${COMP_WORDS[COMP_CWORD-1]}" 
     COMPREPLY=()
     
-    opts=''\''--option'\'' '\''$(command)'\'' '\''$variable'\'' '\''back\slash'\'' '\''insert '\''\'\'''\'' " $ ` \'\'' '\''double"quote'\'' '\''semi;pipe|amp&parens()brackets[]colon:glob*?'\'' '\''single'\''\'\'''\''quote'\'' '\''value with spaces'\'' '\''`command`'\'''
+    opts=''\''--option'\'' '\''$(command)'\'' '\''$variable'\'' '\''back\slash'\'' '\''insert '\''\'\'''\'' " $ ` \'\'' '\''double"quote'\'' '\''line break'\'' '\''semi;pipe|amp&parens()brackets[]colon:glob*?'\'' '\''single'\''\'\'''\''quote'\'' '\''tab value'\'' '\''value with spaces'\'' '\''`command`'\'''
     
     if [[ $COMP_CWORD == "1" ]]; then
         while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
@@ -14,7 +14,7 @@ _mycommand() {
     
     case $prev in
         --option)
-            while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W ''\''$(command)'\'' '\''$variable'\'' '\''back\slash'\'' '\''insert '\''\'\'''\'' " $ ` \'\'' '\''double"quote'\'' '\''semi;pipe|amp&parens()brackets[]colon:glob*?'\'' '\''single'\''\'\'''\''quote'\'' '\''value with spaces'\'' '\''`command`'\''' -- "$cur")
+            while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W ''\''$(command)'\'' '\''$variable'\'' '\''back\slash'\'' '\''insert '\''\'\'''\'' " $ ` \'\'' '\''double"quote'\'' '\''line break'\'' '\''semi;pipe|amp&parens()brackets[]colon:glob*?'\'' '\''single'\''\'\'''\''quote'\'' '\''tab value'\'' '\''value with spaces'\'' '\''`command`'\''' -- "$cur")
             return
         ;;
     esac

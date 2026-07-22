@@ -82,7 +82,7 @@ Register-ArgumentCompleter -Native -CommandName '{{{binaryName}}}' -ScriptBlock 
         value.ReplaceLineEndings(" ");
 
     private static string PowerShellSingleQuote(string value) =>
-        $"'{value.Replace("'", "''")}'";
+        $"'{value.NormalizeCompletionText().Replace("'", "''")}'";
 
     /// <summary>
     /// Generations completion-list items for the names of the given option. Typically used by commands/subcommands for static lookup lists.

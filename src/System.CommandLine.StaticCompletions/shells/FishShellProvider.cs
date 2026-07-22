@@ -374,6 +374,7 @@ public class FishShellProvider : IShellProvider
 
     private static void WriteCandidate(IndentedTextWriter writer, string label, string? description)
     {
+        label = label.NormalizeCompletionText();
         if (!string.IsNullOrEmpty(description))
             writer.WriteLine($"printf '%s\\t%s\\n' {FishEscape(label)} {FishEscape(SanitizeDescription(description))}");
         else

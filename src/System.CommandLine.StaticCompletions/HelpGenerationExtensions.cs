@@ -112,4 +112,7 @@ public static class HelpExtensions
     public static bool IsShortAlias(this string name) => name.Length == 2 && name[0] == '-' && char.IsAsciiLetter(name[1]);
 
     public static bool IsFlag(this Option option) => option.Arity.Equals(ArgumentArity.Zero);
+
+    internal static string NormalizeCompletionText(this string value) =>
+        value.Replace("\r\n", " ").Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
 }

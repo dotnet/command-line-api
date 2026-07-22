@@ -25,6 +25,8 @@ public class ShellProviderEscapingTests(ITestOutputHelper log)
             new("$(command)"),
             new("`command`"),
             new("semi;pipe|amp&parens()brackets[]colon:glob*?"),
+            new("line\r\nbreak"),
+            new("tab\tvalue"),
             new(
                 label: "display ' \" $ ` \\",
                 insertText: "insert ' \" $ ` \\",

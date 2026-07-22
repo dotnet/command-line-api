@@ -40,8 +40,10 @@ function _mycommand
                             printf '%s\n' 'back\\slash'
                             printf '%s\t%s\n' 'insert \' " $ ` \\' 'documentation \' " $ ` \\ second line'
                             printf '%s\n' 'double"quote'
+                            printf '%s\n' 'line break'
                             printf '%s\n' 'semi;pipe|amp&parens()brackets[]colon:glob*?'
                             printf '%s\n' 'single\'quote'
+                            printf '%s\n' 'tab value'
                             printf '%s\n' 'value with spaces'
                             printf '%s\n' '`command`'
                             return
@@ -58,8 +60,10 @@ function _mycommand
             printf '%s\n' 'back\\slash'
             printf '%s\t%s\n' 'insert \' " $ ` \\' 'documentation \' " $ ` \\ second line'
             printf '%s\n' 'double"quote'
+            printf '%s\n' 'line break'
             printf '%s\n' 'semi;pipe|amp&parens()brackets[]colon:glob*?'
             printf '%s\n' 'single\'quote'
+            printf '%s\n' 'tab value'
             printf '%s\n' 'value with spaces'
             printf '%s\n' '`command`'
     end
