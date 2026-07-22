@@ -294,6 +294,7 @@ fi
         s?
             .Replace("\\", "\\\\")
             .Replace("\'", "'\\''")
+            .Replace("\"", "\\\"")
             .Replace("[", "\\[")
             .Replace("]", "\\]")
             .Replace(":", "\\:")
