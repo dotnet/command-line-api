@@ -4,7 +4,6 @@
 using FluentAssertions;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -66,7 +65,7 @@ public class HelpOptionTests
 
         await command.Parse($"command {value}").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        output.ToString().Should().ShowHelp();
+        output.ToString().Should().Contain("--help");
     }
 
     [Fact]
@@ -79,7 +78,7 @@ public class HelpOptionTests
 
         await command.Parse("command -h").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        output.ToString().Should().NotShowHelp();
+        output.ToString().Should().BeNullOrWhiteSpace();
     }
 
     [Fact]
@@ -151,7 +150,7 @@ public class HelpOptionTests
 
         await command.Parse(helpAlias).InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        output.ToString().Should().ShowHelp();
+        output.ToString().Should().Contain(helpAlias);
     }
 
     [Theory]

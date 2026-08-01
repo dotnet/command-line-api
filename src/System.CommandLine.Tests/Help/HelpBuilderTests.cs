@@ -84,7 +84,9 @@ namespace System.CommandLine.Tests.Help
 
             _helpBuilder.Write(command, _console);
 
-            _console.ToString().Should().NotContain(LocalizationResources.HelpDescriptionTitle());
+            _console.ToString().Should()
+                .NotContain(LocalizationResources.HelpDescriptionTitle())
+                .And.Contain(LocalizationResources.HelpUsageTitle());
         }
 
         [Fact]

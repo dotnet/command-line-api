@@ -4,7 +4,6 @@
 using FluentAssertions;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
-using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +30,7 @@ public class ParseErrorReportingTests
         var result = parseResult.Invoke(new() { Output = output });
 
         result.Should().Be(1);
-        output.ToString().Should().ShowHelp();
+        output.ToString().Should().Contain("--help");
     }
 
     [Fact]
@@ -53,7 +52,7 @@ public class ParseErrorReportingTests
 
         result.Invoke(new() { Output = output });
 
-        output.ToString().Should().NotShowHelp();
+        output.ToString().Should().BeNullOrWhiteSpace();
     }
 
     [Theory] // https://github.com/dotnet/command-line-api/issues/2226
@@ -110,7 +109,7 @@ public class ParseErrorReportingTests
         
         rootCommand.Parse("oops").Invoke(new() { Output = output } );
 
-        output.ToString().Should().NotShowHelp();
+        output.ToString().Should().BeNullOrWhiteSpace();
     }
 
     [Fact]
