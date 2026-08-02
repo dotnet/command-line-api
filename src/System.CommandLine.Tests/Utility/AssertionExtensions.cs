@@ -6,6 +6,7 @@ using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Collections;
 using FluentAssertions.Execution;
+using FluentAssertions.Primitives;
 
 namespace System.CommandLine.Tests.Utility;
 
@@ -44,4 +45,10 @@ public static class AssertionExtensions
     {
         return assertions.BeEquivalentTo(expectedValues, c => c.WithStrictOrderingFor(s => s));
     }
+
+    public static AndConstraint<StringAssertions> ShowHelp(this StringAssertions output) =>
+        output.Subject.Should().Match("*Description:*Usage:*");
+
+    public static AndConstraint<StringAssertions> NotShowHelp(this StringAssertions output) =>
+        output.Subject.Should().NotMatch("*Description:*Usage:*");
 }

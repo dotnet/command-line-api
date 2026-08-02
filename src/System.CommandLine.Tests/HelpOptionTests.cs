@@ -4,6 +4,7 @@
 using FluentAssertions;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.Tests.Utility;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -56,7 +57,7 @@ public class HelpOptionTests
     [InlineData("/?")]
     public async Task Help_option_accepts_default_values(string value)
     {
-        var command = new Command("command")
+        var command = new Command("command", "command description")
         {
             new HelpOption()
         };
@@ -65,20 +66,20 @@ public class HelpOptionTests
 
         await command.Parse($"command {value}").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        output.ToString().Should().Contain("--help");
+        output.ToString().Should().ShowHelp();
     }
 
     [Fact]
     public async Task Help_option_does_not_display_when_option_defined_with_same_alias()
     {
-        var command = new Command("command");
+        var command = new Command("command", "command description");
         command.Options.Add(new Option<bool>("-h"));
         
         var output = new StringWriter();
 
         await command.Parse("command -h").InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        output.ToString().Should().BeNullOrWhiteSpace();
+        output.ToString().Should().NotShowHelp();
     }
 
     [Fact]
@@ -142,7 +143,7 @@ public class HelpOptionTests
     [InlineData("--confused")]
     public async Task HelpOption_with_custom_aliases_uses_aliases(string helpAlias)
     {
-        RootCommand command = new()
+        RootCommand command = new("root description")
         {
             new HelpOption("/lost", "--confused")
         };
@@ -150,7 +151,7 @@ public class HelpOptionTests
 
         await command.Parse(helpAlias).InvokeAsync(new() { Output = output }, CancellationToken.None);
 
-        output.ToString().Should().Contain(helpAlias);
+        output.ToString().Should().ShowHelp();
     }
 
     [Theory]
