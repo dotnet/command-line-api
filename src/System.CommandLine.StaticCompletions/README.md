@@ -76,6 +76,7 @@ This package is licensed under the [MIT License](https://opensource.org/licenses
 
 ## Documentation
 
+* **[Shell Completion Data Escaping](ShellEscapingDesign.md)** - Trust boundaries and shell-specific encoding requirements.
 * **[Microsoft Learn Documentation](https://learn.microsoft.com/dotnet/standard/commandline/)** - Guides and API reference for System.CommandLine.
 * **[GitHub Repository](https://github.com/dotnet/command-line-api)** - Source code, samples, and issues.
 
