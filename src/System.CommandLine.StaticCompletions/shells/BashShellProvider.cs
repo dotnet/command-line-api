@@ -43,6 +43,7 @@ public class BashShellProvider : IShellProvider
         var completionOptions = command.HierarchicalOptions().Where(o => !o.Hidden).Select(o => o.Name).ToArray();
         var completionSubcommands = visibleSubcommands.Select(x => x.Name).ToArray();
         var visibleArguments = command.Arguments.Where(a => !a.Hidden).ToArray();
+        var hasDynamicArguments = visibleArguments.Any(a => a.IsDynamic);
         var positionalArgumentCompletions = visibleArguments
             .Where(a => !a.IsDynamic)
             .SelectMany(a => a.GetCompletions(CompletionContext.Empty))
@@ -65,10 +66,6 @@ public class BashShellProvider : IShellProvider
 
         // fill in a set of completions for all of the subcommands and flag options for the top-level command
         writer.WriteLine($"opts={GenerateStaticWordList(completionWords)}");
-        foreach (var _ in visibleArguments.Where(a => a.IsDynamic))
-        {
-            writer.WriteLine($"""opts="$opts $({GenerateDynamicCall()})" """);
-        }
         writer.WriteLine();
 
         // emit a short-circuit for when the first argument index (COMP_CWORD) is 1 (the top-level command word)
@@ -76,6 +73,10 @@ public class BashShellProvider : IShellProvider
         writer.WriteLine($"""if [[ $COMP_CWORD == "{dollarOne}" ]]; then""");
         writer.Indent++;
         writer.WriteLine(GenerateChoicesPrompt("$opts"));
+        if (hasDynamicArguments)
+        {
+            writer.WriteLine(GenerateDynamicChoicesPrompt());
+        }
         writer.WriteLine("return");
         writer.Indent--;
         writer.WriteLine("fi");
@@ -118,6 +119,10 @@ public class BashShellProvider : IShellProvider
 
         // write the final trailer for the overall completion script
         writer.WriteLine(GenerateChoicesPrompt("$opts"));
+        if (hasDynamicArguments)
+        {
+            writer.WriteLine(GenerateDynamicChoicesPrompt());
+        }
         writer.Indent--;
         writer.WriteLine("}");
         writer.WriteLine();
@@ -133,7 +138,10 @@ public class BashShellProvider : IShellProvider
     /// to resolve dynamic completions.
     /// </summary>
     internal static string GenerateDynamicCall() =>
-        """${COMP_WORDS[0]} "[suggest:${COMP_POINT}]" "${COMP_LINE}" 2>/dev/null | tr '\n' ' '""";
+        """${COMP_WORDS[0]} "[suggest:${COMP_POINT}]" "${COMP_LINE}" 2>/dev/null""";
+
+    private static string GenerateDynamicChoicesPrompt() =>
+        """while IFS= read -r completion; do [[ $completion == "$cur"* ]] && COMPREPLY+=("$completion"); done < <(""" + GenerateDynamicCall() + ")";
 
     internal static string? GenerateOptionHandlers(Command command)
     {
@@ -184,7 +192,7 @@ public class BashShellProvider : IShellProvider
         if (option.IsDynamic)
         {
             // dynamic options require a call into the app for completions
-            completionCommand = GenerateChoicesPrompt($"({GenerateDynamicCall()})");
+            completionCommand = GenerateDynamicChoicesPrompt();
         }
         else if (option.Arity.MaximumNumberOfValues == 0)
         {

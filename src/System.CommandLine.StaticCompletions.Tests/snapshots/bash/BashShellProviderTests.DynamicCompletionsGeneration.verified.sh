@@ -6,21 +6,22 @@ _mycommand() {
     COMPREPLY=()
     
     opts=''\''--name'\'''
-    opts="$opts $(${COMP_WORDS[0]} "[suggest:${COMP_POINT}]" "${COMP_LINE}" 2>/dev/null | tr '\n' ' ')" 
     
     if [[ $COMP_CWORD == "1" ]]; then
         while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
+        while IFS= read -r completion; do [[ $completion == "$cur"* ]] && COMPREPLY+=("$completion"); done < <(${COMP_WORDS[0]} "[suggest:${COMP_POINT}]" "${COMP_LINE}" 2>/dev/null)
         return
     fi
     
     case $prev in
         --name)
-            while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "(${COMP_WORDS[0]} "[suggest:${COMP_POINT}]" "${COMP_LINE}" 2>/dev/null | tr '\n' ' ')" -- "$cur")
+            while IFS= read -r completion; do [[ $completion == "$cur"* ]] && COMPREPLY+=("$completion"); done < <(${COMP_WORDS[0]} "[suggest:${COMP_POINT}]" "${COMP_LINE}" 2>/dev/null)
             return
         ;;
     esac
     
     while IFS= read -r completion; do COMPREPLY+=("$completion"); done < <(compgen -W "$opts" -- "$cur")
+    while IFS= read -r completion; do [[ $completion == "$cur"* ]] && COMPREPLY+=("$completion"); done < <(${COMP_WORDS[0]} "[suggest:${COMP_POINT}]" "${COMP_LINE}" 2>/dev/null)
 }
 
 
