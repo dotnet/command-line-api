@@ -289,6 +289,8 @@ fi
             .Replace("`", "\\`")
             .Replace("\r\n", " ")
             .Replace('\n', ' ')
+            .Replace('\r', ' ')
+            .Replace('\t', ' ')
             ?? "";
 
     private static string SanitizeValue(string? s)

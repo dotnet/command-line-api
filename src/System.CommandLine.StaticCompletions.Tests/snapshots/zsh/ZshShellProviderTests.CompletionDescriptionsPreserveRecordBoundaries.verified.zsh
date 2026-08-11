@@ -15,7 +15,7 @@ _my-app() {
 
     local context curcontext="$curcontext" state state_descr line
     _arguments "${_arguments_options[@]}" : \
-        ':path:(('\''next-value'\''\:"Still a separate completion" '\''windows-root'\''\:"C\:\\" ))' \
+        ':path:(('\''adversarial-value'\''\:"CRLF LF CR TAB \"quoted\" '\''apostrophe'\'' trailing\\" '\''next-value'\''\:"Still a separate completion" ))' \
         && ret=0
     local original_args="my-app ${line[@]}" 
 }

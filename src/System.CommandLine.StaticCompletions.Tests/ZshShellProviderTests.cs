@@ -89,12 +89,14 @@ public class ZshShellProviderTests(ITestOutputHelper log)
     }
 
     [Fact]
-    public async Task CompletionDescriptionEndingInBackslash()
+    public async Task CompletionDescriptionsPreserveRecordBoundaries()
     {
         var argument = new Argument<string>("path");
         argument.CompletionSources.Add(_ =>
         [
-            new CompletionItem("windows-root", documentation: @"C:\"),
+            new CompletionItem(
+                "adversarial-value",
+                documentation: "CRLF\r\nLF\nCR\rTAB\t\"quoted\" 'apostrophe' trailing\\"),
             new CompletionItem("next-value", documentation: "Still a separate completion")
         ]);
 
