@@ -76,6 +76,26 @@ namespace System.CommandLine.Tests
                 .Be($"apple{NewLine}banana{NewLine}cherry{NewLine}");
         }
 
+        [Fact]
+        public async Task It_writes_normalized_insertion_text_as_one_record()
+        {
+            var option = new Option<string>("--value");
+            option.CompletionSources.Add(_ =>
+            [
+                new CompletionItem(
+                    label: "display text",
+                    insertText: "insert\r\ntext\twith\rseparators")
+            ]);
+            RootCommand rootCommand = new() { option };
+            var output = new StringWriter();
+
+            await rootCommand
+                .Parse("[suggest:8] \"--value\"")
+                .InvokeAsync(new() { Output = output }, CancellationToken.None);
+
+            output.ToString().Should().Be($"insert text with separators{NewLine}");
+        }
+
         [Theory]
         [InlineData("[suggest:4] \"eat\"", new[] { "--fruit", "--help", "--vegetable", "-?", "-h", "/?", "/h" })]
         [InlineData("[suggest:6] \"eat --\"", new[] { "--fruit", "--help", "--vegetable" })]

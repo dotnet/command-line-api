@@ -32,13 +32,16 @@ internal sealed class CompletionAction : SynchronousCommandLineAction
 
         var output = parseResult.InvocationConfiguration.Output;
 
-        output.WriteLine(
-            string.Join(
-                Environment.NewLine,
-                completions));
+        foreach (var completion in completions)
+        {
+            output.WriteLine(NormalizeCompletionText(completion.InsertText ?? completion.Label));
+        }
 
         return 0;
     }
+
+    private static string NormalizeCompletionText(string value) =>
+        value.Replace("\r\n", " ").Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
 
     public override bool ClearsParseErrors => true;
 }
