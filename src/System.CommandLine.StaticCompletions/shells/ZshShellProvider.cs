@@ -238,7 +238,7 @@ fi
         writer.WriteLine($"local result=$({binaryName} \"[{StateName}:${{#original_args}}]\" \"${{original_args}}\" 2>/dev/null)");
         writer.WriteLine("for line in ${(f)result}; do");
         writer.Indent++;
-        writer.WriteLine("completions+=(${(q)line})");
+        writer.WriteLine("""completions+=("$line")""");
         writer.Indent--;
         writer.WriteLine("done");
         writer.WriteLine("_describe 'completions' $completions && ret=0");

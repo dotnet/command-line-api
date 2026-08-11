@@ -23,7 +23,7 @@ _my-app() {
                 local completions=()
                 local result=$(my-app "[suggest:${#original_args}]" "${original_args}" 2>/dev/null)
                 for line in ${(f)result}; do
-                    completions+=(${(q)line})
+                    completions+=("$line")
                 done
                 _describe 'completions' $completions && ret=0
             ;;
