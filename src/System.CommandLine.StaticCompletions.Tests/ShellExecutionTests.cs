@@ -120,10 +120,14 @@ public class ShellExecutionTests
                 [Console]::Out.Write($match.CompletionText)
                 [Console]::Out.Write([char]0x1e)
             }
-            [System.Management.Automation.CommandCompletion]::CompleteInput(
+            $literalPrefixMatches = [System.Management.Automation.CommandCompletion]::CompleteInput(
                 'completion-test-command [',
                 {{cursorPosition + 1}},
-                $null) > $null
+                $null).CompletionMatches
+            if ($literalPrefixMatches.Count -ne 1 -or
+                $literalPrefixMatches[0].CompletionText -ne '[literal') {
+                throw 'PowerShell did not treat the completion prefix as literal text.'
+            }
             """;
 
         var result = await RunShell(
