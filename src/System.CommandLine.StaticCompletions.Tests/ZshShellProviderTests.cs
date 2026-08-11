@@ -103,4 +103,21 @@ public class ZshShellProviderTests(ITestOutputHelper log)
         await _provider.Verify(new Command("my-app") { argument }, log);
     }
 
+    [Fact]
+    public async Task SlashPrefixedOptionAliasesAreOmitted()
+    {
+        var command = new Command("my-app")
+        {
+            new Option<bool>("--verbose", "/v") { Arity = ArgumentArity.Zero },
+            new Option<bool>("/slash-only") { Arity = ArgumentArity.Zero }
+        };
+
+        var script = _provider.GenerateCompletions(command);
+
+        script.Should().Contain("'--verbose[]'");
+        script.Should().NotContain("/v");
+        script.Should().NotContain("/slash-only");
+        await _provider.Verify(command, log);
+    }
+
 }

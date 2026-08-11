@@ -82,11 +82,17 @@ fi
         var shouldWriteDynamicCompleter = false;
         foreach (var option in command.HierarchicalOptions())
         {
+            var optionNames = option.Names().Where(IsZshOptionName).ToArray();
+            if (optionNames.Length == 0)
+            {
+                continue;
+            }
+
             var multiplicity = option.Arity.MaximumNumberOfValues > 1 ? "*" : "";
             var helpText = SanitizeHelp(option.Description);
             if (option.IsFlag())
             {
-                foreach (var name in option.Names())
+                foreach (var name in optionNames)
                 {
                     writer.WriteLine($"'{multiplicity}{name}[{helpText}]' \\");
                 }
@@ -99,7 +105,7 @@ fi
                 }
                 var argumentName = option.HelpName ?? " ";
                 var argumentValues = ZshValueExpression(option);
-                foreach (var name in option.Names())
+                foreach (var name in optionNames)
                 {
                     writer.Write($"'{multiplicity}{name}=[{helpText}]:{argumentName}");
                     WriteValueExpression(writer, argumentValues);
@@ -276,6 +282,8 @@ fi
             GenerateSubcommandHandlers(pathToSubcommand, subcommand, writer);
         }
     }
+
+    private static bool IsZshOptionName(string name) => name.StartsWith("-", StringComparison.Ordinal);
 
     private static string SanitizeHelp(string? s) =>
         s?
