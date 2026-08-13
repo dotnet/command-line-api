@@ -11,7 +11,7 @@
     <!-- Roslyn dependencies -->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.0.1" />
     <!-- Runtime dependencies -->
-    <PackageVersion Include="Microsoft.Bcl.Memory" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Bcl.Memory" Version="9.0.18" />
     <!-- external dependencies -->
     <PackageVersion Include="ApprovalTests" Version="7.0.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
