@@ -57,7 +57,7 @@ public class HelpOptionTests
     [InlineData("/?")]
     public async Task Help_option_accepts_default_values(string value)
     {
-        var command = new Command("command")
+        var command = new Command("command", "command description")
         {
             new HelpOption()
         };
@@ -72,7 +72,7 @@ public class HelpOptionTests
     [Fact]
     public async Task Help_option_does_not_display_when_option_defined_with_same_alias()
     {
-        var command = new Command("command");
+        var command = new Command("command", "command description");
         command.Options.Add(new Option<bool>("-h"));
         
         var output = new StringWriter();
@@ -143,7 +143,7 @@ public class HelpOptionTests
     [InlineData("--confused")]
     public async Task HelpOption_with_custom_aliases_uses_aliases(string helpAlias)
     {
-        RootCommand command = new()
+        RootCommand command = new("root description")
         {
             new HelpOption("/lost", "--confused")
         };
