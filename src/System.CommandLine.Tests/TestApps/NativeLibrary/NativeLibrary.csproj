@@ -18,6 +18,8 @@
     <TrimmerSingleWarn>false</TrimmerSingleWarn>
     <ControlFlowGuard>Guard</ControlFlowGuard>
     <IsTestUtilityProject>true</IsTestUtilityProject>
+    <!-- This is the default in net11.0, remove this once NetMinimum is bumped -->
+    <_UseNativeLibPrefix Condition="'$(NetMinimum)' == 'net10.0'">true</_UseNativeLibPrefix>
   </PropertyGroup>
 
   <PropertyGroup>
