@@ -45,27 +45,58 @@ public class ShellExecutionTests
     }
 
     [Fact]
-    public async Task Zsh_preserves_dynamic_candidates_without_evaluation()
+    public async Task Zsh_arguments_preserves_dynamic_candidates_without_evaluation()
     {
-        if (OperatingSystem.IsWindows() || FindExecutable("zsh") is not string zsh)
+        if (OperatingSystem.IsWindows() ||
+            FindExecutable("zsh") is not string zsh ||
+            FindExecutable("expect") is not string expect)
         {
             return;
         }
 
         using var fixture = new CompletionExecutable();
-        var script = $$"""
-            result=$(completion-test-command)
-            completions=()
-            for line in ${(f)result}; do
-                completions+=("$line")
-            done
-            printf '%s\x1e' "${completions[@]}"
+        var command = new Command("completion-test-command")
+        {
+            new Argument<string>("dynamic") { IsDynamic = true }
+        };
+        var generatedScript = new ZshShellProvider().GenerateCompletions(command);
+        var generatedScriptPath = fixture.WriteFile("completion.zsh", generatedScript);
+        var capturedCompletionsPath = Path.Combine(fixture.DirectoryPath, "zsh-completions");
+        var script = $$$"""
+            set timeout 10
+            spawn -noecho {{{zsh}}} -f
+            expect "% "
+            send -- {PS1=$(printf '\035')}
+            send "\r"
+            expect "\035"
+            send -- {autoload -Uz compinit; compinit -D}
+            send "\r"
+            expect "\035"
+            send -- {source {{{generatedScriptPath}}}}
+            send "\r"
+            expect "\035"
+            send -- {_describe() { printf '%s\x1e' "${(@)argv[2,-1]}" > {{{capturedCompletionsPath}}}; }}
+            send "\r"
+            expect "\035"
+            send -- {completion-test-command }
+            send "\t"
+            for {set attempt 0} {$attempt < 100} {incr attempt} {
+                if {[file exists {{{capturedCompletionsPath}}}]} {
+                    break
+                }
+                after 10
+            }
+            send "\003"
+            send -- {exit}
+            send "\r"
+            expect eof
             """;
 
-        var result = await RunShell(zsh, ["-f", "-c", script], fixture.DirectoryPath);
+        var result = await RunShell(expect, ["-c", script], fixture.DirectoryPath);
 
         result.ExitCode.Should().Be(0, result.StandardError);
-        ParseRecords(result.StandardOutput).Should().BeEquivalentTo(
+        File.Exists(capturedCompletionsPath).Should().BeTrue(result.StandardOutput);
+        ParseRecords(File.ReadAllText(capturedCompletionsPath)).Should().BeEquivalentTo(
             ExpectedDynamicCandidates(fixture.SideEffectPath),
             options => options.WithStrictOrdering());
         File.Exists(fixture.SideEffectPath).Should().BeFalse();
@@ -268,6 +299,13 @@ public class ShellExecutionTests
         internal string DirectoryPath { get; }
 
         internal string SideEffectPath { get; }
+
+        internal string WriteFile(string fileName, string content)
+        {
+            var path = Path.Combine(DirectoryPath, fileName);
+            File.WriteAllText(path, content);
+            return path;
+        }
 
         public void Dispose() => Directory.Delete(DirectoryPath, recursive: true);
     }
